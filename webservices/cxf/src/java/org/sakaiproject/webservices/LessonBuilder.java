@@ -22,6 +22,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolSession;
+
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -82,6 +84,8 @@ public class LessonBuilder extends AbstractWebService {
                 return "Tool sakai.lessonbuildertool NOT found in site=" + context;
             }
             // Lets go down and hack our essence into the thread
+            ToolSession toolSession = session.getToolSession(tool.getId());
+            sessionManager.setCurrentToolSession(toolSession);
             threadLocalManager.set(CURRENT_PLACEMENT, tool);
             threadLocalManager.set(CURRENT_TOOL, tool.getTool());
             return lessonBuilderAccessAPI.deleteOrphanPages(site.getId());
