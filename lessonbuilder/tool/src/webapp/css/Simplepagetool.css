@@ -1343,7 +1343,7 @@ div[role="dialog"] {
   page-break-inside: avoid; /* Firefox */
   break-inside: avoid; /* standard, IE 10+ */
  }
-.textType .right-col {
+.textType .right-col, .commentsType .right-col {
   display: block;
   -webkit-column-break-inside: auto; /* Chrome, Safari, Opera */
   page-break-inside: auto; /* Firefox */
