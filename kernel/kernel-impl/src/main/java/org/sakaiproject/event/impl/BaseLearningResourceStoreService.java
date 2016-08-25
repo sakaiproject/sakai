@@ -299,6 +299,10 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      * @return a statement if one can be formed OR null if not
      */
     private LRS_Statement getEventStatement(Event event) {
+        //If the event already has the statement set, just use that
+        if (event.getLrsStatement() != null) {
+            return event.getLrsStatement();
+        }
         LRS_Statement statement;
         try {
             LRS_Verb verb = getEventVerb(event);

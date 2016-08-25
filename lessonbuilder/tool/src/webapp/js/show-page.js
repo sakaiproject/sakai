@@ -113,6 +113,29 @@ $(document).ready(function() {
                     $(this).height($(this).width() * 0.75);
             });
 
+        $("li.multimediaType img").each(function() {
+		var width = $(this).attr("width");
+		var height = $(this).attr("height");
+		// if just width specified, we're fine. it will scale. But if height is specified narrow windows
+		// will give us the wrong aspect ration
+                if (typeof height !== 'undefined' && height !== '') {
+		    if (typeof width !== 'undefined' && width !== '') {
+			// both specified. use specified aspect ratio
+			if ($(this).width() != width) {
+			    var aspect = height / width;
+			    $(this).height($(this).width() * aspect);
+			}
+		    } else {
+			var aspect = $(this)[0].naturalHeight / $(this)[0].naturalWidth;
+			// -1 to avoid triggering because of rounding
+			if ($(this).width() *  aspect < (height-1)) {
+			    // width has been reduced because of max-width 100%
+			    $(this).height($(this).width() * aspect);			    
+			}
+		    }
+                }
+            });
+
 	$("input[type=checkbox].checklist-checkbox").on("change", function(){
 
 		$(this).next("span").addClass("savingChecklistItem");

@@ -31,7 +31,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DbPropertiesDao {
 	private static Logger log = LoggerFactory.getLogger(DbPropertiesDao.class);
-	private SimpleJdbcTemplate simpleJdbcTemplate;
+	private JdbcTemplate jdbcTemplate;
 	private boolean autoDdl;
 	private Map<String, String> initialDbProperties;
 	
@@ -49,7 +49,7 @@ public class DbPropertiesDao {
 			boolean isTableCreated = false;
 			try {
 				// Check for table existence.
-				int count = simpleJdbcTemplate.queryForInt("select count(*) from TEST_DB_PROPERTIES_T");
+				int count = jdbcTemplate.queryForObject("select count(*) from TEST_DB_PROPERTIES_T", Integer.class);
 				isTableCreated = true;
 				if (log.isDebugEnabled()) log.debug("DB properties count=" + count);
 			} catch (BadSqlGrammarException e) {
@@ -61,11 +61,11 @@ public class DbPropertiesDao {
 	}
 	
 	private void createTable() {
-		simpleJdbcTemplate.getJdbcOperations().execute(
+		jdbcTemplate.execute(
 				"create table TEST_DB_PROPERTIES_T (ITEM_KEY varchar(255), ITEM_VALUE varchar(255), primary key (ITEM_KEY))"
 			);
 		for (String initialKey : initialDbProperties.keySet()) {
-			simpleJdbcTemplate.update(
+			jdbcTemplate.update(
 				"insert into TEST_DB_PROPERTIES_T (ITEM_KEY, ITEM_VALUE) values(?, ?)", 
 				initialKey, initialDbProperties.get(initialKey));
 		}
@@ -73,7 +73,7 @@ public class DbPropertiesDao {
 	
 	public Properties getProperties() {
 		Properties properties = new Properties();
-		List <Map<String, Object>> rows = simpleJdbcTemplate.queryForList(
+		List <Map<String, Object>> rows = jdbcTemplate.queryForList(
 			"select * from TEST_DB_PROPERTIES_T"
 		);
 		for (Map<String, Object> row : rows) {
@@ -83,7 +83,7 @@ public class DbPropertiesDao {
 	}
 
 	public void setDataSource(DataSource dataSource) {
-        this.simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
 	public void setAutoDdl(boolean autoDdl) {

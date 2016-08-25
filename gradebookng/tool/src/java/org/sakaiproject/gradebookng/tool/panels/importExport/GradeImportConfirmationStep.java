@@ -128,23 +128,25 @@ public class GradeImportConfirmationStep extends Panel {
 					itemsToSave.addAll(itemsToModify);
 
 					itemsToSave.forEach(processedGradeItem -> {
-						log.debug("Looping through items to save");
+						log.debug("Processing item: " + processedGradeItem);
 
 						final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
 
 						processedGradeItemDetails.forEach(processedGradeItemDetail -> {
-							log.debug("Looping through detail items to save");
+							log.debug("Processing detail: " + processedGradeItemDetail);
 
 							//get data
+							// if its an update/modify, this will get the id
 							Long assignmentId = processedGradeItem.getItemId();
 
 							//if assignment title was modified, we need to use that instead
 							final String assignmentTitle = StringUtils.trim((processedGradeItem.getAssignmentTitle() != null) ? processedGradeItem.getAssignmentTitle() : processedGradeItem.getItemTitle());
 
+							// a newly created assignment will have a null ID here and need a lookup from the map to get the ID
 							if (assignmentId == null) {
-								// Should be a newly created GB item
 								assignmentId = assignmentMap.get(assignmentTitle);
 							}
+							//TODO if assignmentId is still null, there will be a problem
 
 							final GradeSaveResponse saveResponse = GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
 									processedGradeItemDetail.getStudentUuid(),
@@ -222,6 +224,22 @@ public class GradeImportConfirmationStep extends Panel {
 		};
 		backButton.setDefaultFormProcessing(false);
 		form.add(backButton);
+
+		// cancel button
+		final Button cancelButton = new Button("cancelbutton") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+
+				setResponsePage(ImportExportPage.class);
+			}
+		};
+		cancelButton.setDefaultFormProcessing(false);
+		form.add(cancelButton);
 
 		// finish button
 		form.add(new Button("finishbutton"));

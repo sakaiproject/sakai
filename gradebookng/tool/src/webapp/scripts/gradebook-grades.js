@@ -1747,11 +1747,18 @@ GradebookEditableCell.prototype.setupInput = function() {
     if (self.$cell.data("originalValue") != self.$input.val()) {
       self.$cell.data("_pendingReplacement", true);
       self.$input.trigger("scorechange.sakai");
+    } else {
+      self.$input.val(unstrip(self.$input.val()));
     }
   }
-  
+
   function strip(value) {
-	  return value.replace('%','');
+    self.$input.data("unstrippedValue", value);
+    return value.replace('%','');
+  }
+
+  function unstrip(value) {
+    return self.$input.data("unstrippedValue") || value;
   }
 
   self.$input.off("focus", prepareForEdit).on("focus", prepareForEdit);
@@ -1809,6 +1816,9 @@ GradebookEditableCell.prototype.handleBeforeSave = function() {
 
 GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   this.handleWicketCellReplacement(cellId);
+  // ensure fixed headers are aligned correctly after save, as vertical scroll
+  // may change as messages are added/removed from above the grade table
+  $(document).trigger("scroll");
 };
 
 

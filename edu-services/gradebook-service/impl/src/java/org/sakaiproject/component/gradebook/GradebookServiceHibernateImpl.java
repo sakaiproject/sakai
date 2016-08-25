@@ -108,6 +108,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
         @SuppressWarnings("unchecked")
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -151,7 +152,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	        @SuppressWarnings({ "unchecked", "rawtypes"})
 			List<Assignment> internalAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
-	            public Object doInHibernate(Session session) throws HibernateException {
+	            @Override
+				public Object doInHibernate(Session session) throws HibernateException {
 	                return getAssignments(gradebookId, session);
 	            }
 	        });
@@ -178,6 +180,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 			}
@@ -203,6 +206,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -256,6 +260,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
@@ -668,7 +673,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		List<String> assignmentNames = (List<String>)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(final Session session) throws HibernateException {
+            @Override
+			public Object doInHibernate(final Session session) throws HibernateException {
             	return session.createQuery(
             		"select asn.name from Assignment as asn where asn.gradebook.id=? and asn.removed=false").
             		setLong(0, gradebook.getId().longValue()).
@@ -730,7 +736,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {
     	
 		HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
                 Assignment asn = (Assignment)session.load(Assignment.class, assignmentId);
                 Gradebook gradebook = asn.getGradebook();
                 asn.setRemoved(true);
@@ -783,10 +790,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
         }
         
-        // name cannot start with * or # as they are reserved for special columns in import/export
-        if(StringUtils.startsWithAny(validatedName, new String[]{"*", "#"})) {
+        // name cannot contain these chars as they are reserved for special columns in import/export
+        if(StringUtils.containsAny(validatedName, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
             // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot start with * or # as they are reserved");
+        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
         }
 
 		final Gradebook gradebook = this.getGradebook(gradebookUid);
@@ -803,8 +810,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// check if we need to scale the grades
 				// this will be if we have percentage grading and we change the points possible
 				boolean scaleGrades = false;
+				final Double originalPointsPossible = assignment.getPointsPossible();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE
-						&& assignment.getPointsPossible() != assignmentDefinition.getPoints()) {
+					&& !assignment.getPointsPossible().equals(assignmentDefinition.getPoints())) {
 					scaleGrades = true;
 				}
 
@@ -830,7 +838,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				updateAssignment(assignment, session);
 
 				if (scaleGrades) {
-					convertGradePointsForUpdatedTotalPoints(gradebook, assignment);
+					convertGradePointsForUpdatedTotalPoints(gradebook, assignment, originalPointsPossible);
 				}
 
 				return null;
@@ -945,6 +953,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) {
 		HibernateCallback hc = new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				if(studentUids == null || studentUids.size() == 0) {
 					if(log.isInfoEnabled()) log.info("Returning no grade records for an empty collection of student UIDs");
@@ -1274,6 +1283,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	private List getAssignmentsCounted(final Long gradebookId) throws HibernateException 
 	{
 		HibernateCallback hc = new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				List assignments = session.createQuery(
 						"from Assignment as asn where asn.gradebook.id=? and asn.removed=false and asn.notCounted=false").
@@ -1367,7 +1377,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
   	HibernateCallback hc = new HibernateCallback() {
-  		public Object doInHibernate(Session session) throws HibernateException {
+  		@Override
+		public Object doInHibernate(Session session) throws HibernateException {
   			if(studentUids.size() == 0) {
   				// If there are no enrollments, no need to execute the query.
   				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
@@ -1387,7 +1398,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   private List getAllAssignmentGradeRecordsForGbItem(final Long gradableObjectId, 
 		  final Collection studentUids) {
 	  	HibernateCallback hc = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException {
+	  		@Override
+			public Object doInHibernate(Session session) throws HibernateException {
 	  			if(studentUids.size() == 0) {
 	  				// If there are no enrollments, no need to execute the query.
 	  				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
@@ -1410,6 +1422,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	{
 		HibernateCallback hc = new HibernateCallback()
 		{
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException
 			{
 				List<AssignmentGradeRecord> gradeRecords = new ArrayList<AssignmentGradeRecord>();
@@ -1466,7 +1479,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getAssignments(final Long gradebookId, final SortType sortBy, final boolean ascending) {
   	return (List)getHibernateTemplate().execute(new HibernateCallback() {
-  		public Object doInHibernate(Session session) throws HibernateException {
+  		@Override
+		public Object doInHibernate(Session session) throws HibernateException {
   			List assignments = getAssignments(gradebookId, session);
 
   			sortAssignments(assignments, sortBy, ascending);
@@ -1640,7 +1654,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
       }
 
       Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException {
+          @Override
+		public Object doInHibernate(Session session) throws HibernateException {
               return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
           }
       });
@@ -1742,7 +1757,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  // first, we need to make sure the current user is authorized to view the
 		  // grades for all of the requested students
 		  Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
+			  @Override
+			public Object doInHibernate(Session session) throws HibernateException {
 				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
 			  }
 		  });
@@ -2059,7 +2075,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  }
 
 		  Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
+			  @Override
+			public Object doInHibernate(Session session) throws HibernateException {
 				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
 			  }
 		  });
@@ -2325,6 +2342,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Map getEnteredCourseGrade(final String gradebookUid)
 	{
 		HibernateCallback hc = new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				Gradebook thisGradebook = getGradebook(gradebookUid);
 
@@ -2381,7 +2399,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}	
 
 	  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException {
+	  		@Override
+			public Object doInHibernate(Session session) throws HibernateException {
 	  			Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 	  			if (assignment == null) {
 	  				throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
@@ -2431,6 +2450,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}	
 
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -2448,6 +2468,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	throws GradebookNotFoundException, AssessmentNotFoundException 
 	{
 		getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 				if (assignment == null) {
@@ -2498,6 +2519,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throws GradebookNotFoundException, AssessmentNotFoundException {
   		
   		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 			}
@@ -2529,7 +2551,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    }
 	    
 	    Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
                 return getAssignmentWithoutStats(gradebookUid, gradebookItemId, session);
             }
         });
@@ -2998,6 +3021,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//do the updates
 		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
 			getHibernateTemplate().execute(new HibernateCallback() {
+				@Override
 				public Object doInHibernate(Session session) throws HibernateException {
 					updateAssignment(assignmentToUpdate, session);
 					return null;
@@ -3039,7 +3063,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     }
 	
 	@Override
-	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
+	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> categoryAssignments, Map<Long,String> gradeMap) {
 		
 		Gradebook gb = (Gradebook) gradebook;
 		
@@ -3049,7 +3073,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//collect the data and turn it into a list of AssignmentGradeRecords
 		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
-		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
+		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: categoryAssignments) {
 			
 			Long assignmentId = assignment.getId();
 			
@@ -3114,9 +3138,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	/**
 	 * Does the heavy lifting for the category calculations.
 	 * Requires the List of AssignmentGradeRecord so that we can applyDropScores.
-	 * @param studentUuid
-	 * @param categoryId
-	 * @param gradeRecords
+	 * @param studentUuid the studnet uuid
+	 * @param categoryId the cateogry id we are interested in
+	 * @param gradeRecords all grade records for the student
 	 * @return
 	 */
 	private Double calculateCategoryScore(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
@@ -3138,36 +3162,58 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		BigDecimal totalEarned = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
 				
-		//apply any drop/keep settings for this category
+		// apply any drop/keep settings for this category
 		this.applyDropScores(gradeRecords);
-				
-		//iterate every grade record, check it's for the category we want, otherwise discard
+		
+		// Since all gradeRecords for the student are passed in, not just for this category,
+		// plus they may not meet the criteria for including in the calculation,
+		// this list is filtered down according to the following rules:
+		// Rule 1. remove gradeRecords that don't match the given category
+		// Rule 2. the assignment must have points to be assigned
+		// Rule 3. there is a non blank grade for the student
+		// Rule 4. the assignment is included in course grade calculations
+		// Rule 5. the assignment is  released to the student (safety check against condition 3)
+		// Rule 6. the grade is not dropped from the calc
+		log.debug("categoryId: " + categoryId);
+
+		gradeRecords.removeIf(gradeRecord -> {
+			Assignment assignment = gradeRecord.getAssignment();
+						
+			// remove if not for this category (rule 1)
+			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+				return true;
+			}
+			
+			//remove if the assignment/graderecord doesn't meet the criteria for the calculation (rule 2-6)
+			if(assignment.getPointsPossible() == null || gradeRecord.getPointsEarned() == null || !assignment.isCounted() || !assignment.isReleased() || gradeRecord.getDroppedFromGrade()) {
+				return true;
+			}
+
+			return false;
+		});
+		
+		log.debug("gradeRecords.size(): " + gradeRecords.size());
+		
+		// pre-calculation
+		// Rule 1. If category only has a single EC item, don't try to calculate category total.
+		if(gradeRecords.size() == 1 && gradeRecords.get(0).getAssignment().isExtraCredit()) {
+			return null;
+		}
+		
+		//iterate the filtered list and set the variables for the calculation
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
-						
-			//check category ids match, otherwise skip
-			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
-				continue;
-			}
-						
-			//only update the variables for the calculation if:
-			// 1. the assignment has points to be assigned
-			// 2. there is a grade for the student
-			// 3. the assignment is included in course grade calculations
-			// 4. the assignment is  released to the student (safety check against condition 3)
-			// 5. the grade is not dropped from the calc
-			if(assignment.getPointsPossible() != null && gradeRecord.getPointsEarned() != null && assignment.isCounted() && assignment.isReleased() && !gradeRecord.getDroppedFromGrade()) {
-				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
-				numOfAssignments++;
-				numScored++;
-				
-				//sanitise grade, null values to "0";
-				String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
-				
-				//update total points earned
-				totalEarned = totalEarned.add(new BigDecimal(grade));
-			}
+									
+			totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
+			numOfAssignments++;
+			numScored++;
+			
+			//sanitise grade, null values to "0";
+			String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
+			
+			//update total points earned
+			totalEarned = totalEarned.add(new BigDecimal(grade));
 			
 		}
 		
@@ -3370,7 +3416,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			this.removeCategory(cat.getKey());
 		}
 		
-		//no need to set assignments, gbInfo doesn't update them
+		//if weighted categories, all uncategorised assignments are to be removed from course grade calcs
+		if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+			excludeUncategorisedItemsFromCourseGradeCalculations(gradebook);
+		}
 
 		//persist
 		this.updateGradebook(gradebook);
@@ -3569,6 +3618,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//do the updates
 		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
 			getHibernateTemplate().execute(new HibernateCallback() {
+				@Override
 				public Object doInHibernate(Session session) throws HibernateException {
 					updateAssignment(assignmentToUpdate, session);
 					return null;
@@ -3615,7 +3665,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @param gradebook the gradebook
 	 * @param assignment assignment with original total point value
 	 */
-	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final Assignment assignment) {
+	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final Assignment assignment, final Double originalPointsPossible) {
 		if (gradebook == null || assignment == null || assignment.getPointsPossible() == null) {
 			throw new IllegalArgumentException("null values found in convertGradePointsForUpdatedTotalPoints.");
 		}
@@ -3629,8 +3679,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			// Calculate the new points value that we should be persisting based on the new total points
 			if (assignment.getPointsPossible() != null) {
-				gradeRecords.forEach(gr -> gr.setPointsEarned(
-						calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), gr.getPointsEarned())));
+				for (AssignmentGradeRecord gr : gradeRecords) {
+					if (gr.getPointsEarned() != null) {
+						final BigDecimal scoreAsPercentage = (new BigDecimal(gr.getPointsEarned())
+								.divide(new BigDecimal(originalPointsPossible)))
+								.multiply(new BigDecimal(100));
+
+						final Double scaledScore = calculateEquivalentPointValueForPercent(
+								assignment.getPointsPossible(),
+								Double.valueOf(scoreAsPercentage.doubleValue()));
+
+						gr.setPointsEarned(scaledScore);
+					}
+				}
 			}
 		}
 
@@ -3676,8 +3737,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		session.close();
 	}
 	
-	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId)
-	{
+	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId) {
 		boolean isFromGroup=false;
 		try {
 			Site s = siteService.getSite(gradebookUid);
@@ -3689,4 +3749,25 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		} 
 		return isFromGroup;
 	}
+	
+	/**
+	 * Updates all uncategorised items to exclude them from the course grade calcs
+	 * @param gradebook
+	 */
+	private void excludeUncategorisedItemsFromCourseGradeCalculations(final Gradebook gradebook) {
+		
+        @SuppressWarnings({ "unchecked", "rawtypes"})
+		List<Assignment> allAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
+                return getAssignments(gradebook.getId(), session);
+            }
+        });
+        
+        List<Assignment> assignments = allAssignments.stream().filter(a -> a.getCategory() == null).collect(Collectors.toList());
+        assignments.forEach(a -> a.setCounted(false));
+        batchPersistEntities(assignments);
+        
+	}
+	
 }

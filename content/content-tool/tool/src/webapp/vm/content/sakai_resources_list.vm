@@ -809,13 +809,35 @@
 			});
 		});
 
-		function openCopyrightWindow(theURL,winName,winSettings) {
-			jQuery.get(theURL, function(data){
-				jQuery('#dialog-copyright').html(data);
-				jQuery('#dialog-copyright').dialog('open');
-				}, "html");
-			return false;
-		}
+		function openCopyrightWindow(url,winName,winSettings) {
+			//Idea from http://stackoverflow.com/q/16086162/3708872
+			jQuery.ajax({
+				type: "GET",
+				url: url,
+				dataType: "html",
+				success: function(response, status, request) {
+					var disp = request.getResponseHeader('Content-Disposition');
+					//Might just want to do attachments, but for now put everything in a new window
+					if (disp) {
+						var form = jQuery('<form method="GET" action="' + url + '" target="_blank">');
+						jQuery('body').append(form);
+						form.submit();
+					} 
+					else {
+						jQuery.get(url, function(data, textStatus, jqXHR){
+							jQuery('#dialog-copyright').html(data);
+							jQuery('#dialog-copyright').dialog('open');
+						}, "html");
+					}
+
+					return false;
+				},
+			error: function (xhr, ajaxOptions, thrownError) {
+				window.console && console.log("Error from GET request"+thrownError);
+				
+			}
+			});
+		};
 
 		function toggleSelectAll(caller, elementName)
 		{

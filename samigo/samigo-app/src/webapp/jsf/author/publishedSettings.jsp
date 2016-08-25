@@ -199,7 +199,7 @@
             styleClass="form-control-label col-md-2"/>
         <div class=" col-md-10">
             <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
-                <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
+                <samigo:wysiwyg rows="100" columns="400" value="#{publishedSettings.description}" hasToggle="yes" mode="author" >
                     <f:validateLength maximum="60000"/>
                 </samigo:wysiwyg>
             </h:panelGrid>
@@ -269,7 +269,7 @@
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
         <h:selectOneMenu id="releaseTo" disabled="true" value="#{publishedSettings.firstTargetSelected}" >
-        <f:selectItems value="#{assessmentSettings.publishingTargets}" />
+        <f:selectItems value="#{publishedSettings.publishingTargets}" />
       </h:selectOneMenu>
       </div>
   </div>
@@ -420,7 +420,7 @@
         </div>
     </h:panelGroup>
     
-    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}">
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
         <div class="col-md-10">
             <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>

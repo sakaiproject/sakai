@@ -1,3 +1,0 @@
-
-            Place extension jars here.
-        

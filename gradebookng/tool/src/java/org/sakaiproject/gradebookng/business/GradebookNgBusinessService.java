@@ -610,6 +610,8 @@ public class GradebookNgBusinessService {
 	 * @param studentUuids student uuids
 	 * @param uiSettings the settings from the UI that wraps up preferences
 	 * @return
+	 *
+	 * TODO refactor this into a hierarchical method structure
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
@@ -814,13 +816,12 @@ public class GradebookNgBusinessService {
 					}
 
 					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook,
-							student.getId(), category, assignments, gradeMap);
+							student.getId(), category, category.getAssignmentList(), gradeMap);
 
 					// add to GbStudentGradeInfo
 					sg.addCategoryAverage(category.getId(), categoryScore);
 
-					// TODO the TA permission check could reuse this
-					// iteration... check performance.
+					// TODO the TA permission check could reuse this iteration... check performance.
 
 				}
 			}
@@ -1004,15 +1005,7 @@ public class GradebookNgBusinessService {
 
 		final List<GbGroup> rval = new ArrayList<>();
 
-		// get sections
-		// groups handles both
-		/*
-		 * try { Set<Section> sections = courseManagementService.getSections(siteId); for(Section section: sections){ rval.add(new
-		 * GbGroup(section.getEid(), section.getTitle(), GbGroup.Type.SECTION)); } } catch (IdNotFoundException e) { //not a course site or
-		 * no sections, ignore }
-		 */
-
-		// get groups
+		// get groups (handles both groups and sections)
 		try {
 			final Site site = this.siteService.getSite(siteId);
 			final Collection<Group> groups = site.getGroups();

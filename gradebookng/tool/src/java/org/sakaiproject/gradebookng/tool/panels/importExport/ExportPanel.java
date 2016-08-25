@@ -21,7 +21,6 @@ import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
@@ -183,10 +182,10 @@ public class ExportPanel extends Panel {
 			// Create csv header
 			final List<String> header = new ArrayList<String>();
 			if (!isCustomExport || this.includeStudentId) {
-				header.add(ImportGradesHelper.IMPORT_USER_ID);
+				header.add(getString("importExport.export.csv.headers.studentId"));
 			}
 			if (!isCustomExport || this.includeStudentName) {
-				header.add(ImportGradesHelper.IMPORT_USER_NAME);
+				header.add(getString("importExport.export.csv.headers.studentName"));
 			}
 
 			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map

@@ -116,7 +116,9 @@ class ConvertUserFavoriteSitesSakai11 {
 
                 migrateFavoriteSites(db);
             } finally  {
-                db.close();
+                if (db != null) {
+                    db.close();
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

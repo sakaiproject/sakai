@@ -4676,7 +4676,7 @@ public class SiteAction extends PagedResourceActionII {
 		// read the search form field into the state object
 		String search = StringUtils.trimToNull(data.getParameters().getString(
 				FORM_SEARCH));
-
+		resetPaging(state);
 		// set the flag to go to the prev page on the next list
 		if (search == null) {
 			state.removeAttribute(STATE_SEARCH);

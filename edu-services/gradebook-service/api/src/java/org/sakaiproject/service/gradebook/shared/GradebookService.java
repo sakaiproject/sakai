@@ -23,12 +23,11 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Set;
-
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -91,6 +90,11 @@ public interface GradebookService {
          */
         INVALID_DECIMAL
     }
+    
+    /**
+     * Array of chars that are not allowed in a gb item title
+     */
+    public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = {'*', '#', '[', ']'};
 	
     /**
      * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
@@ -785,18 +789,18 @@ public interface GradebookService {
 	Double calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
 	
 	/**
-     * Calculate the category score for the given gradebook, category, viewable assignment list and grade map.
+     * Calculate the category score for the given gradebook, category, assignments in the category and grade map.
      * This doesn't do any additional grade lookups.
      * Safe to call in context of a student.
      * 
      * @param gradebook the gradebook. As this method is called for every student at once, this is passed in to save additional lookups by id.
      * @param studentUuid uuid of the student
      * @param categoryId id of category
-     * @param assignments list of assignments the student can view
+     * @param categoryAssignments list of assignments the student can view, and are in the category
      * @param gradeMap map of assignmentId to grade, to use for the calculations
      * @return percentage or null if no calculations were made
      */
-	Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<Assignment> viewableAssignments, Map<Long,String> gradeMap);
+	Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<Assignment> categoryAssignments, Map<Long,String> gradeMap);
 
     /**
      * Get the course grade for a student

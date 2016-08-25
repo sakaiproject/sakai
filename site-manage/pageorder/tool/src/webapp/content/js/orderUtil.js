@@ -37,7 +37,7 @@ function doRemovePage(clickedLink) {
 		$("#call-results").load(theHref, function() {
 			var status = $(this).find("div#value").text();
 			if (status == "pass") {
-		    	var target = $(clickedLink).closest("sortable_item");
+				var target = $(clickedLink).closest(".sortable_item");
 				$(this).fadeIn('400');		
 				$(target).slideUp('fast', $(target).remove());
 			}
