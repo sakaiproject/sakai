@@ -285,7 +285,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 String origin = this.lrss.getEventOrigin(event);
                 // convert event into statement when possible
                 LRS_Statement statement = this.lrss.getEventStatement(event);
-                if (statement != null) {
+                if (statement != null && statement.isPopulated()) {
                     this.lrss.registerStatement(statement, origin);
                 }
             }
@@ -300,26 +300,43 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      */
     private LRS_Statement getEventStatement(Event event) {
         //If the event already has the statement set, just use that
+        LRS_Statement statement=null;
+        LRS_Verb verb=null;
+        LRS_Actor actor=null;
+        LRS_Context context=null;
+        LRS_Object object=null;
         if (event.getLrsStatement() != null) {
-            return event.getLrsStatement();
+            statement =  event.getLrsStatement();
+            //If the statement is fully populated nothing left to do
+            if (statement.isPopulated()) {
+                return statement;
+            }
+            verb=statement.getVerb();
+            actor=statement.getActor();
+            context=statement.getContext();
+            object=statement.getObject();
+
         }
-        LRS_Statement statement;
         try {
-            LRS_Verb verb = getEventVerb(event);
-            if (verb != null) {
-                LRS_Object object = getEventObject(event);
-                if (object != null) {
-                    LRS_Actor actor = getEventActor(event);
-                    statement = new LRS_Statement(actor, verb, object);
-                    LRS_Context c = getEventContext(event);
-                    if (c != null) {
-                        statement.setContext(c);
-                    }
-                } else {
-                    statement = null;
-                }
-            } else {
-                statement = null;
+            //If verb not set try to get it from the event
+            if (verb == null) {
+                verb = getEventVerb(event);
+            }
+            // If object not set try to get it from the event
+            if (object == null) {
+                object = getEventObject(event);
+            }
+            //If actor is not null try to get it from the event
+            if (actor == null) {
+                actor = getEventActor(event);
+            }
+            statement = new LRS_Statement(actor, verb, object);
+            //If context is not set get it from the event
+            if (context == null) {
+                context = getEventContext(event);
+            }
+            if (context != null) {
+                statement.setContext(context);
             }
         } catch (Exception e) {
             log.debug("LRS Unable to convert event ({}) into statement.", event, e);

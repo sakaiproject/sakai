@@ -162,19 +162,16 @@ public interface LearningResourceStoreService {
          */
         public LRS_Statement(LRS_Actor actor, LRS_Verb verb, LRS_Object object) {
             this();
-            if (actor == null) {
-                throw new IllegalArgumentException("LRS_Actor cannot be null");
+            //This isn't fully populated
+            if (actor == null || verb == null || object == null) {
+            	this.populated = false;
             }
-            if (verb == null) {
-                throw new IllegalArgumentException("LRS_Verb cannot be null");
-            }
-            if (object == null) {
-                throw new IllegalArgumentException("LRS_Object cannot be null");
+            else {
+            	this.populated = true;
             }
             this.actor = actor;
             this.verb = verb;
             this.object = object;
-            this.populated = true;
         }
         /**
          * FULL objects constructor
