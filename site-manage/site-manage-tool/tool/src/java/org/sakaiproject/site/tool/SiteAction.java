@@ -14564,10 +14564,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							Section s = cms.getSection(providerSectionId);
 							if (s != null)
 							{
-								String sDescription = StringUtils.trimToNull(s.getDescription());
-								if (sDescription != null && !siteInfo.description.contains(sDescription))
+								// only update the description if its not already present
+								if (!StringUtils.containsIgnoreCase(siteInfo.description,  s.getDescription()))
 								{
-									siteInfo.description = siteInfo.description.concat(sDescription);
+									siteInfo.description = StringUtils.defaultString(siteInfo.description) + StringUtils.defaultString(s.getDescription());
 								}
 							}
 						}
