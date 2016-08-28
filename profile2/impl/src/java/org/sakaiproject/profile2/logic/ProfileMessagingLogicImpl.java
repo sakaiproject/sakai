@@ -155,8 +155,11 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 				MessageParticipant participant = getDefaultMessageParticipantRecord(message.getId(), uuidTo);
 				if(StringUtils.equals(uuidFrom, uuidTo)) {
 					participant.setRead(true); //sender 
-				} 
-				
+				} else {
+					// Fire message sent events for each recipient
+					sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + uuidTo, true);
+				}
+
 				dao.saveNewMessageParticipant(participant);
 			}
 			
