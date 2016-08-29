@@ -21,20 +21,20 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
-import java.util.Date;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * User: louis
  * Date: Jun 12, 2006
  * Time: 3:10:12 PM
  */
+@Slf4j
 public class Spreadsheet  implements Serializable {
 
     protected Gradebook gradebook;
@@ -44,9 +44,6 @@ public class Spreadsheet  implements Serializable {
     protected String creator;
     protected String name;
     protected Date dateCreated;
-
-    protected static final Logger log = LoggerFactory.getLogger(Spreadsheet.class);
-
 
     public Spreadsheet(Gradebook gradebook, String content, String creator, String name, Date dateCreated) {
 
