@@ -22,6 +22,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
@@ -70,10 +71,11 @@ public class ImportGradesHelper {
 	 * @return
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportInvalidFileTypeException
+	 * @throws GbImportExportDuplicateColumnException
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
@@ -95,8 +97,9 @@ public class ImportGradesHelper {
 	 * @return
 	 * @throws IOException
 	 * @throws GbImportExportInvalidColumnException
+	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException {
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
 
 		// manually parse method so we can support arbitrary columns
 		final CSVReader reader = new CSVReader(new InputStreamReader(is));
@@ -145,8 +148,9 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 * @throws GbImportExportInvalidColumnException
+	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException {
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException, GbImportExportDuplicateColumnException {
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
@@ -466,8 +470,10 @@ public class ImportGradesHelper {
 	 *
 	 * @param line the already split line
 	 * @return LinkedHashMap to retain order
+	 * @throws GbImportExportInvalidColumnException if a column doesn't map to any known format
+	 * @throws GbImportExportDuplicateColumnException if there are duplicate column headers
 	 */
-	private static Map<Integer, ImportedColumn> mapHeaderRow(final String[] line) throws GbImportExportInvalidColumnException {
+	private static Map<Integer, ImportedColumn> mapHeaderRow(final String[] line) throws GbImportExportInvalidColumnException, GbImportExportDuplicateColumnException {
 
 		// retain order
 		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<Integer, ImportedColumn>();
@@ -484,7 +490,12 @@ public class ImportGradesHelper {
 			} else if(i == USER_NAME_POS) {
 				column.setType(ImportedColumn.Type.USER_NAME);
 			} else {
-				column = parseHeaderForImportColumn(trim(line[i]));
+				column = parseHeaderToColumn(trim(line[i]));
+			}
+
+			// check for duplicates
+			if(mapping.values().contains(column)) {
+				throw new GbImportExportDuplicateColumnException("Duplicate column header: " + column.getColumnTitle());
 			}
 
 			mapping.put(i, column);
@@ -499,7 +510,7 @@ public class ImportGradesHelper {
 	 * @return the mapped column or null if ignoring.
 	 * @throws GbImportExportInvalidColumnException if columns didn't match any known pattern
 	 */
-	private static ImportedColumn parseHeaderForImportColumn(final String headerValue) throws GbImportExportInvalidColumnException {
+	private static ImportedColumn parseHeaderToColumn(final String headerValue) throws GbImportExportInvalidColumnException {
 
 		if(StringUtils.isBlank(headerValue)) {
 			throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);

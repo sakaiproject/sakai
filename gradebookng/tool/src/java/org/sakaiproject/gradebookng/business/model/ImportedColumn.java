@@ -2,6 +2,8 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,6 +45,21 @@ public class ImportedColumn implements Serializable {
 	 */
 	public boolean isIgnorable() {
 		if(this.type == Type.USER_ID || this.type == Type.USER_NAME || this.type == Type.IGNORE) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Column titles are the only thing we care about for comparisons so that we can filter out duplicates.
+	 */
+	@Override
+	public boolean equals(final Object o) {
+		final ImportedColumn other = (ImportedColumn) o;
+		if(StringUtils.isBlank(this.columnTitle) || StringUtils.isBlank(other.columnTitle)){
+			return false;
+		}
+		if(StringUtils.equalsIgnoreCase(this.columnTitle, other.getColumnTitle())){
 			return true;
 		}
 		return false;
