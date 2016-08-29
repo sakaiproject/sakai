@@ -196,5 +196,10 @@ ALTER TABLE pasystem_popup_assign DROP COLUMN user_eid;
 ALTER TABLE pasystem_popup_dismissed DROP COLUMN user_eid;
 ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
 
+-- SAK-31276 remove unncecessary keys because there is a composite key that handles this
+DROP INDEX SST_PRESENCE_SITE_ID_IX ON SST_PRESENCES;
+DROP INDEX SST_EVENTS_USER_ID_IX ON SST_EVENTS;
+-- END SAK-31276
+
 -- #3258 Drop this unused column
 ALTER TABLE gb_grade_record_t DROP COLUMN user_entered_grade;

@@ -369,7 +369,6 @@ create table SST_RESOURCES (ID number(19,0) not null, USER_ID varchar2(99 char) 
 create table SST_SITEACTIVITY (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, ACTIVITY_DATE date not null, EVENT_ID varchar2(32 char) not null, ACTIVITY_COUNT number(19,0) not null, primary key (ID));
 create table SST_SITEVISITS (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, VISITS_DATE date not null, TOTAL_VISITS number(19,0) not null, TOTAL_UNIQUE number(19,0) not null, primary key (ID));
 create index SST_EVENTS_SITE_ID_IX on SST_EVENTS (SITE_ID);
-create index SST_EVENTS_USER_ID_IX on SST_EVENTS (USER_ID);
 create index SST_EVENTS_EVENT_ID_IX on SST_EVENTS (EVENT_ID);
 create index SST_EVENTS_DATE_IX on SST_EVENTS (EVENT_DATE);
 create index SST_PREFERENCES_SITE_ID_IX on SST_PREFERENCES (SITE_ID);
