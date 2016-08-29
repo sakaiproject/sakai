@@ -56,7 +56,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -103,6 +103,7 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.util.FormatException;
+import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -125,6 +126,8 @@ public class DeliveryActionListener
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
+  private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
+
 
   /**
    * ACTION.
@@ -290,8 +293,8 @@ public class DeliveryActionListener
               eventRef.append(delivery.getAssessmentId());
               eventRef.append(", submissionId=");
               eventRef.append(agData.getAssessmentGradingId());
-              event = EventTrackingService.newEvent("sam.assessment.review", eventRef.toString(), true);
-              EventTrackingService.post(event);
+              event = eventTrackingService.newEvent("sam.assessment.review", eventRef.toString(), true);
+              eventTrackingService.post(event);
               break;
  
       case 4: // Grade assessment
@@ -455,10 +458,10 @@ public class DeliveryActionListener
             			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
             			  eventRef.append(timeRemaining);
             		  }
-                      event = EventTrackingService.newEvent("sam.assessment.take",
-                              "siteId=" + site_id + ", " + eventRef.toString(), true);
-                      EventTrackingService.post(event);
-                      registerIrss(delivery, event, false);
+            		  
+                      event = eventTrackingService.newEvent("sam.assessment.take",
+                              "siteId=" + site_id + ", " + eventRef.toString(), "samigo",true,0,SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(),delivery.getPastDue(),false));
+                      eventTrackingService.post(event);
             	  }
             	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
             		  eventRef = new StringBuffer("publishedAssessmentId=");
@@ -472,10 +475,9 @@ public class DeliveryActionListener
             			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
             			  eventRef.append(timeRemaining);
             		  }
-                      event = EventTrackingService.newEvent("sam.assessment.take.via_url",
-                                "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED);
-                      EventTrackingService.post(event);
-                      registerIrss(delivery, event, true);
+                      event = eventTrackingService.newEvent("sam.assessment.take.via_url",
+                                "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(),delivery.getPastDue(),false));
+                      eventTrackingService.post(event);
             	  }
               }
               else {
@@ -500,9 +502,9 @@ public class DeliveryActionListener
             		  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
             		  eventRef.append(timeRemaining);
             	  }
-                  event = EventTrackingService.newEvent("sam.assessment.resume",
+                  event = eventTrackingService.newEvent("sam.assessment.resume",
                                 "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED);
-                  EventTrackingService.post(event);
+                  eventTrackingService.post(event);
               }
               
               // extend session time out
@@ -579,19 +581,6 @@ public class DeliveryActionListener
 
   }
   
-  protected void registerIrss(DeliveryBean delivery, Event event, boolean isViaURL) {
-	  LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-			  .get("org.sakaiproject.event.api.LearningResourceStoreService");
-	  if (null != lrss && lrss.getEventActor(event) != null) {
-		  StringBuffer lrssMetaInfo = new StringBuffer("Assesment: " + delivery.getAssessmentTitle());
-		  lrssMetaInfo.append(", Past Due?: " + delivery.getPastDue());
-		  if (isViaURL) {
-			  lrssMetaInfo.append(", Assesment taken via URL.");
-		  }
-		  lrss.registerStatement(getStatementForTakeAssessment(lrss.getEventActor(event), event, lrssMetaInfo.toString()), "samigo");
-	  }
-  }
-
   /**
    * Look up item grading data and set assesment grading data from it or,
    * if there is none set null if setNullOK.
@@ -3011,17 +3000,5 @@ public class DeliveryActionListener
 	  return gradingId;
   }
   
-    protected LRS_Statement getStatementForTakeAssessment(LRS_Actor actor, Event event, String assessmentName) {
-      String url = ServerConfigurationService.getPortalUrl();
-      LRS_Verb verb = new LRS_Verb(SAKAI_VERB.attempted);
-      LRS_Object lrsObject = new LRS_Object(url + "/assessment", "attempted-assessment");
-      HashMap<String, String> nameMap = new HashMap<String, String>();
-      nameMap.put("en-US", "User attempted assessment");
-      lrsObject.setActivityName(nameMap);
-      HashMap<String, String> descMap = new HashMap<String, String>();
-      descMap.put("en-US", "User attempted assessment: " + assessmentName);
-      lrsObject.setDescription(descMap);
-      return new LRS_Statement(actor, verb, lrsObject);
-  }
 }
 
