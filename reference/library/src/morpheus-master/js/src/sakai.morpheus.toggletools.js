@@ -45,19 +45,39 @@ $PBJQ(document).ready(function(){
 	initialOffset = $("#toolMenu").offset().top - $window.scrollTop();
 	$PBJQ(window).scroll(function(){
 		var follow = ($window.height()- padding) > $tools.height();
-		if($("#toolMenuWrap").css('position') !== 'fixed'
-			&& follow) {
+		var _top   = (-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) );
+		if($("#toolMenuWrap").css('position') !== 'fixed' && follow) {
 			if($window.scrollTop() > offset.top) {
 				$("#toolMenu").stop().animate({
-	                top: $window .scrollTop() - offset.top
+	                top: $window.scrollTop() - offset.top
 	            });
+				$("#subSites").css('top', ( $window.scrollTop() - offset.top + _top ) );
 			} else {
 				$("#toolMenu").stop().animate({
 					top: 0
 	            });
+	            $("#subSites").css('top', _top );
 			}
+		}else{
+	        $("#subSites").css('top', _top );
 		}
 	});
+
+	// Shows or hides the subsites in a popout div. This isn't used unless
+	// portal.showSubsitesAsFlyout is set to true in sakai.properties.
+	$PBJQ("#toggleSubsitesLink").click(function (e) {
+	  var subsitesLink = $PBJQ(this);
+	  if($PBJQ('#subSites').css('display') == 'block') {
+	    $PBJQ('#subSites').hide();
+	    $PBJQ('#subSites').removeClass('floating');
+	  } else {
+	    var position = subsitesLink.position();
+	    var _top = ( -1 * ( $PBJQ('#toolMenu').height() - position.top ) );
+	    $PBJQ('#subSites').css({'display': 'block','left': position.left + subsitesLink.width() + 6 + 'px','top': _top + 'px'});
+	    $PBJQ('#subSites').addClass('floating');
+	  }
+	});
+
 });
 
 function getCookieVal(cookieName) {
