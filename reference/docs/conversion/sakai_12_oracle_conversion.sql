@@ -208,3 +208,6 @@ ALTER TABLE pasystem_banner_dismissed add CONSTRAINT banner_dismissed_unique UNI
 ALTER TABLE pasystem_popup_assign DROP COLUMN user_eid;
 ALTER TABLE pasystem_popup_dismissed DROP COLUMN user_eid;
 ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
+
+-- #3258 Drop this unused column
+ALTER TABLE gb_grade_record_t DROP COLUMN user_entered_grade;
