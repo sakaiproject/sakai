@@ -27,16 +27,12 @@ import java.util.*;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * A GradeMapping provides a means to convert between an arbitrary set of grades
  * (letter grades, pass / not pass, 4,0 scale) and numeric percentages.
  *
  */
 public class GradeMapping implements Serializable, Comparable {
-	protected Logger log = LoggerFactory.getLogger(GradeMapping.class);
 	protected Long id;
 	protected int version;
 

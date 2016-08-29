@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
@@ -36,6 +37,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@Slf4j
 public class Assignment extends GradableObject {
 
 	/**
