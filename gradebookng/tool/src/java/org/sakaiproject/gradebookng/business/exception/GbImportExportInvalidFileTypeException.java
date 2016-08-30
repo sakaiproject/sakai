@@ -7,10 +7,6 @@ public class GbImportExportInvalidFileTypeException extends GbException {
 
 	private static final long serialVersionUID = 1L;
 
-	public GbImportExportInvalidFileTypeException(final String message, final Throwable cause) {
-		super(message, cause);
-	}
-
 	public GbImportExportInvalidFileTypeException(final String message) {
 		super(message);
 	}
