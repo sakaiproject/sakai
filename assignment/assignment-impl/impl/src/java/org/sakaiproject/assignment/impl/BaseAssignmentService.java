@@ -8795,6 +8795,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		boolean m_checkInstitution = true;
 		boolean m_excludeBibliographic = true;
 		boolean m_excludeQuoted = true;
+		boolean m_excludeSelfPlag = true;
+		boolean m_storeInstIndex = true;
 		int m_excludeType = 0;
 		int m_excludeValue = 1;
 		
@@ -8873,6 +8875,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_checkInstitution = getBool(el.getAttribute("checkInstitution"));
 			m_excludeBibliographic = getBool(el.getAttribute("excludeBibliographic"));
 			m_excludeQuoted = getBool(el.getAttribute("excludeQuoted"));
+			m_excludeSelfPlag = getBool(el.getAttribute("excludeSelfPlag"));
+			m_storeInstIndex = getBool(el.getAttribute("storeInstIndex"));
 			String excludeTypeStr = el.getAttribute("excludeType");
 			try{
 				m_excludeType = Integer.parseInt(excludeTypeStr);
@@ -9085,6 +9089,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_checkInstitution = getBool(attributes.getValue("checkInstitution"));
 							m_excludeBibliographic = getBool(attributes.getValue("excludeBibliographic"));
 							m_excludeQuoted = getBool(attributes.getValue("excludeQuoted"));
+							m_excludeSelfPlag = getBool(attributes.getValue("excludeSelfPlag"));
+							m_storeInstIndex = getBool(attributes.getValue("storeInstIndex"));
 							String excludeTypeStr = attributes.getValue("excludeType");
 							try{
 								m_excludeType = Integer.parseInt(excludeTypeStr);
@@ -9266,6 +9272,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			content.setAttribute("checkInstitution", getBoolString(m_checkInstitution));
 			content.setAttribute("excludeBibliographic", getBoolString(m_excludeBibliographic));
 			content.setAttribute("excludeQuoted", getBoolString(m_excludeQuoted));
+			content.setAttribute("excludeSelfPlag", getBoolString(m_excludeSelfPlag));
+			content.setAttribute("storeInstIndex", getBoolString(m_storeInstIndex));
 			content.setAttribute("excludeType", Integer.toString(m_excludeType));
 			content.setAttribute("excludeValue", Integer.toString(m_excludeValue));
 			
@@ -9347,6 +9355,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_checkInstitution = content.isCheckInstitution();
 				m_excludeBibliographic = content.isExcludeBibliographic();
 				m_excludeQuoted = content.isExcludeQuoted();
+				m_excludeSelfPlag = content.isExcludeSelfPlag();
+				m_storeInstIndex = content.isStoreInstIndex();
 				m_excludeType = content.getExcludeType();
 				m_excludeValue = content.getExcludeValue();
 				m_timeCreated = content.getTimeCreated();
@@ -9850,6 +9860,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		public void setExcludeQuoted(boolean m_excludeQuoted) {
 			this.m_excludeQuoted = m_excludeQuoted;
+		}
+		
+		public boolean isExcludeSelfPlag() {
+			return m_excludeSelfPlag;
+		}
+
+		public void setExcludeSelfPlag(boolean m_excludeSelfPlag) {
+			this.m_excludeSelfPlag = m_excludeSelfPlag;
+		}
+		
+		public boolean isStoreInstIndex() {
+			return m_storeInstIndex;
+		}
+
+		public void setStoreInstIndex(boolean m_storeInstIndex) {
+			this.m_storeInstIndex = m_storeInstIndex;
 		}
 		
 		public int getExcludeType(){
