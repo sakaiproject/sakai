@@ -30,7 +30,7 @@
                 #set ($escapedKey = $mapEntry.key.replaceAll(" ", "_"))
                     <li id="$escapedKey" class="">
                         <h4 class="$escapedKey specialLink">
-                            <a  #if ($groupCount ==1) class="open toggleNone"#else href="#" #end>
+                            <a  #if ($groupCount ==1) class="open toggleNone"#elseif ($!expandedGroups.contains($mapEntry.key)) class="open" #end href="#" #end>
                                 <span class="catTitle">$mapEntry.key</span>
                                 <span class="checkedCount"></span>
                                 #if ($groupCount == 1) 
@@ -41,7 +41,7 @@
                                 #end
                             </a>
                         </h4>
-                        <ul class="toolGroup">
+                        <ul class="toolGroup" #if ($!expandedGroups.contains($mapEntry.key)) style="display:block" #end>
                             ## list those extra tools (added outside Site Info tool with tool id not listed as the allowed tool for current site type) as hidded input
                             #foreach($tool in $!extraSelectedToolList)
                                 <input type="hidden" name="selectedTools" value="$tool" />
