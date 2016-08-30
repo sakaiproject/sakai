@@ -17,6 +17,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
@@ -98,6 +99,7 @@ public class GradeImportUploadStep extends Panel {
 				final Map<String, String> userMap = getUserMap();
 
 				// turn file into list
+				// TODO would be nice to capture the values from these exceptions
 				ImportedSpreadsheetWrapper spreadsheetWrapper = null;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
@@ -109,6 +111,9 @@ public class GradeImportUploadStep extends Panel {
 					return;
 				} catch (final GbImportExportUnknownStudentException e) {
 					error(getString("importExport.error.unknownstudent"));
+					return;
+				} catch (final GbImportExportDuplicateColumnException e) {
+					error(getString("importExport.error.duplicatecolumn"));
 					return;
 				} catch (final IOException e) {
 					error(getString("importExport.error.unknown"));
