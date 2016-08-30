@@ -1624,7 +1624,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected List<CourseGradeRecord> getCourseGradeOverrides(Gradebook gradebook, Session session) throws HibernateException {
         return session.createQuery(
         	"from CourseGradeRecord as cgr where cgr.gradableObject.gradebook=? and cgr.enteredGrade is not null")
-        	.setEntity(1, gradebook)
+        	.setEntity(0, gradebook)
         	.list();
     }
 }
