@@ -179,8 +179,6 @@
 				<input type="hidden" name="find_course"  value="x" id="find_course"/>
 				
 
-		
-		## SAK-29000
 		#if ($authorizationRequired)
 			#if ($termCourseList && $currentUserId != $userId)
 					<div class="shorttext required form-group row ">											
@@ -214,7 +212,7 @@
 		<input type="hidden" name="option" id="option" value="x" />
 		<input type="hidden" name="eventSubmit_doContinue_new_course" value="x" />
 			#if (!$site)
-				## Added by bjones86 - determine to skip manual course site create link in worksite setup
+				## determine to skip manual course site create link in worksite setup
 				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
 					<!-- Add Not Listed Courses -->
 					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
@@ -266,11 +264,8 @@
 				</p>
 			#else
 				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
-					## SAK-29000
-					#if( $authorizationRequired )
-						<!-- Add Not Listed Courses -->
-						<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
-					#end
+					<!-- Add Not Listed Courses -->
+					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				#end
 				<p class="act">
 				<input type="hidden" name="option" id="option" value="x" />
