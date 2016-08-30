@@ -52,6 +52,7 @@ public class ImportedColumn implements Serializable {
 
 	/**
 	 * Column titles are the only thing we care about for comparisons so that we can filter out duplicates.
+	 * Must also match type and exclude IGNORE
 	 */
 	@Override
 	public boolean equals(final Object o) {
@@ -59,7 +60,10 @@ public class ImportedColumn implements Serializable {
 		if(StringUtils.isBlank(this.columnTitle) || StringUtils.isBlank(other.columnTitle)){
 			return false;
 		}
-		if(StringUtils.equalsIgnoreCase(this.columnTitle, other.getColumnTitle())){
+		if(this.type == Type.IGNORE || other.type == Type.IGNORE){
+			return false;
+		}
+		if(StringUtils.equalsIgnoreCase(this.columnTitle, other.getColumnTitle()) && this.type == other.getType()){
 			return true;
 		}
 		return false;
