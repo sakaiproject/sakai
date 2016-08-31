@@ -1611,4 +1611,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			}
 		});
 	}
+	
+	 /**
+     * Get's all course grade overrides for a given gradebook
+     *
+     * @param gradebook The gradebook
+     * @param session The hibernate session
+     * @return A list of {@link CourseGradeRecord} that have overrides
+     *
+     * @throws HibernateException
+     */
+    protected List<CourseGradeRecord> getCourseGradeOverrides(Gradebook gradebook, Session session) throws HibernateException {
+        return session.createQuery(
+        	"from CourseGradeRecord as cgr where cgr.gradableObject.gradebook=? and cgr.enteredGrade is not null")
+        	.setEntity(0, gradebook)
+        	.list();
+    }
 }

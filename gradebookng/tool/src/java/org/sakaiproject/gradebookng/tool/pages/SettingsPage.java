@@ -22,6 +22,7 @@ import org.sakaiproject.gradebookng.tool.panels.SettingsGradingSchemaPanel;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.exception.UnmappableCourseGradeOverrideException;
 
 /**
  * Settings page
@@ -158,7 +159,11 @@ public class SettingsPage extends BasePage {
 				} catch (final ConflictingCategoryNameException e) {
 					getSession().error(getString("settingspage.update.failure.categorynameconflict"));
 					responsePage = getPage();
-				} catch (final IllegalArgumentException e) {
+				} catch (final UnmappableCourseGradeOverrideException e) {
+					getSession().error(getString("settingspage.update.failure.gradingschemamapping"));
+					responsePage = getPage();
+				} catch (final Exception e) {
+					//catch all to prevent stacktraces
 					getSession().error(e.getMessage());
 					responsePage = getPage();
 				}
