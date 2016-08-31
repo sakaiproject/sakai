@@ -287,7 +287,7 @@ nav#subSites{
 				li{
 					border-bottom: 1px solid $tool-sub-menu-border-color;
 					a{
-			  			padding: 0.6em 0 0.6em 2em;
+			  			padding: 0.6em 0 0.6em 0em;
 						background: $tool-sub-menu-background-color;
 						&:hover{
 							background: $tool-sub-menu-hover-background-color;
@@ -313,12 +313,7 @@ nav#subSites{
 				}
 			}
 			.#{$namespace}toolsNav__category {
-				background-color: darken( $text-color, 5% );
-				&::after{
-				   	content: url('images/arrow-down.png');
-					float: right;
-					margin-top : 2px;
-				}
+				background-color: darken( $tool-sub-menu-background-color, 5% );
 				@media #{$phone}{
 					display: none;
 				}
