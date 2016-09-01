@@ -46,6 +46,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.assessment.facade.*;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -194,6 +200,10 @@ public class PublishedAssessmentSettingsBean
   private boolean editPubAnonyGradingRestricted = false;
   private String releaseToGroupsAsString;
   private String blockDivs;
+
+  private boolean categoriesEnabled;
+  private List<SelectItem> categoriesSelectList;
+  private String categorySelected;
   
   private String bgColorSelect;
   private String bgImageSelect;
@@ -358,6 +368,10 @@ public class PublishedAssessmentSettingsBean
         
         String currentSiteId = AgentFacade.getCurrentSiteId();
         this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+
+        this.categoriesSelectList = populateCategoriesSelectList();
+        this.categorySelected = getCategoryForAssessmentName(assessment.getTitle());
+
       }
 
       //set IPAddresses
@@ -396,6 +410,71 @@ public class PublishedAssessmentSettingsBean
     catch (RuntimeException ex) {
       log.warn(ex.getMessage());
     }
+  }
+
+  private String getCategoryForAssessmentName(String assessmentName) {
+    List<Assignment> gbAssignments;
+    Long categoryId = null;
+
+    if (this.gradebookExists) {
+      GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+      org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
+      String gradebookUid = toolManager.getCurrentPlacement().getContext();
+      gbAssignments = g.getAssignments(gradebookUid);
+      for (Assignment assignment : gbAssignments) {
+        if (StringUtils.equals(assessmentName, assignment.getName())) {
+          categoryId = assignment.getCategoryId();
+        }
+      }
+    }
+    String catSelected = "-1";
+    if (categoryId != null) {
+      String catId;
+      for (SelectItem catIdAndName : categoriesSelectList) {
+        catId = catIdAndName.getValue().toString();
+        if (StringUtils.equals(catId, categoryId.toString())) {
+          catSelected = catId;
+        }
+      }
+    }
+    return catSelected;
+  }
+
+  /**
+   * Populate the categoriesSelectList property with a list of string names
+   * of the categories in the gradebook
+   */
+  private List<SelectItem> populateCategoriesSelectList() {
+    List<CategoryDefinition> categoryDefinitions;
+    List<SelectItem> selectList = new ArrayList<>();
+
+    if (this.gradebookExists) {
+      GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+      org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
+      String gradebookUid = toolManager.getCurrentPlacement().getContext();
+      categoryDefinitions = g.getCategoryDefinitions(gradebookUid);
+
+      selectList.add(new SelectItem("-1","Uncategorized")); // -1 for a cat id means unassigned
+      for (CategoryDefinition categoryDefinition: categoryDefinitions) {
+        selectList.add(new SelectItem(categoryDefinition.getId().toString(), categoryDefinition.getName()));
+      }
+      // Also set if categories are enabled based on category type
+      GradebookInformation gbInfo = g.getGradebookInformation(gradebookUid);
+      if (gbInfo != null) {
+        this.categoriesEnabled = gbInfo.getCategoryType() != GradebookService.CATEGORY_TYPE_NO_CATEGORY;
+      } else {
+        this.categoriesEnabled = false;
+      }
+    }
+    return selectList;
+  }
+
+  public void setCategoriesEnabled(boolean categoriesEnabled) {
+    this.categoriesEnabled = categoriesEnabled;
+  }
+
+  public boolean getCategoriesEnabled() {
+    return categoriesEnabled;
   }
 
   // properties from Assessment
@@ -1700,4 +1779,20 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
  	public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
  		this.displayScoreDuringAssessments = displayScoreDuringAssessments;
  	}
+
+  public List getCategoriesSelectList() {
+    return categoriesSelectList;
+  }
+
+  public void setCategoriesSelectList(List<SelectItem> categoriesSelectList) {
+    this.categoriesSelectList = categoriesSelectList;
+  }
+
+  public String getCategorySelected() {
+    return categorySelected;
+  }
+
+  public void setCategorySelected(String categorySelected) {
+    this.categorySelected = categorySelected;
+  }
 }
