@@ -2161,7 +2161,7 @@ public class SiteAction extends PagedResourceActionII {
 									"doMenu_edit_site_access"));
 							
 							// hide site duplicate and import
-							if (SiteService.allowAddSite(null) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", true))
+							if (SiteService.allowAddSite(null) && ServerConfigurationService.getBoolean("site.setup.allowDuplicateSite", false))
 							{
 								b.add(new MenuEntry(rb.getString("java.duplicate"),
 										"doMenu_siteInfo_duplicate"));
