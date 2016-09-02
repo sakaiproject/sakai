@@ -2648,6 +2648,10 @@ public class SimplePageBean {
 
 		return "success";
 	}
+	
+	public OrphanPageFinder getOrphanFinder(String siteId) {
+		return new OrphanPageFinder(siteId, simplePageToolDao, pagePickerProducer());
+	}
 
 	//This will be called from the UI
 	public String deleteOrphanPages() {
@@ -2655,53 +2659,15 @@ public class SimplePageBean {
 	    	return "permission-failed";
 	    if (!checkCsrf())
 	    	return "permission-failed";
-	    deleteOrphanPagesInternal();
-	    return deletePages();
+	    return deleteOrphanPagesInternal();
 	}
 
 	//This is an internal call that expects you will check permissions before calling it
 	//Public because it's accessed from entity producer
 	public String deleteOrphanPagesInternal() {
-	    // code is mostly from PagePickerProducer
-	    // list we're going to display
-	    List<PagePickerProducer.PageEntry> entries = new ArrayList<PagePickerProducer.PageEntry> ();
-	    // build map of all pages, so we can see if any are left over
-	    Map<Long,SimplePage> pageMap = new HashMap<Long,SimplePage>();
-	    Set<Long> sharedPages = new HashSet<Long>();
-
-	    // all pages
-	    List<SimplePage> pages = simplePageToolDao.getSitePages(getCurrentSiteId());
-	    if (pages==null) {
-	    	return "no-pages-in-site";
-	    }
-	    for (SimplePage p: pages)
-		pageMap.put(p.getPageId(), p);
-
-	    List<SimplePageItem> sitePages =  simplePageToolDao.findItemsInSite(getCurrentSiteId());
-	    Set<Long> topLevelPages = new HashSet<Long>();
-	    for (SimplePageItem i : sitePages)
-		topLevelPages.add(Long.valueOf(i.getSakaiId()));
-
-	    // this adds everything you can find from top level pages to entries
-	    for (SimplePageItem sitePageItem : sitePages) {
-		 log.debug("findallpages " + sitePageItem.getName() + " " + true);
-		pagePickerProducer().findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true, true);
-	    }
-		    
-	    // everything we didn't find should be deleted. It's items remaining in pagemap
-	    List<String> orphans = new ArrayList<String>();
-	    if (pageMap.size() > 0) {
-		for (SimplePage p: pageMap.values()) {
-		    // non-null owner are student pages
-		    if(p.getOwner() == null) {
-			orphans.add(Long.toString(p.getPageId()));
-		    }
-		}
-		// do the deletetion
-		// selectedEntities is the argument for deletePages
-		selectedEntities = orphans.toArray(selectedEntities);
-		deletePagesInternal();
-	    }	    
+	    OrphanPageFinder orphanFinder = getOrphanFinder(getCurrentSiteId());
+	    selectedEntities = orphanFinder.getOrphanStringsIds();
+	    deletePagesInternal();
 	    return "success";
 	}
 

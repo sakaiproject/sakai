@@ -93,6 +93,7 @@ import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -532,6 +533,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       //prepare the buffer for the results log
        StringBuilder results = new StringBuilder();
 
+      // Orphaned pages need not apply!
+       SimplePageBean simplePageBean = makeSimplePageBean(siteId);
+       OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+
       try 
       {
 	 Site site = siteService.getSite(siteId);
@@ -543,11 +548,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
          Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
+	 int orphansSkipped = 0;
+
 	 List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 	 if (sitePages != null && !sitePages.isEmpty()) {
-	     for (SimplePage page: sitePages)
+	     for (SimplePage page: sitePages) {
+	       if (!orphanFinder.isOrphan(page.getPageId())) {
 		 addPage(doc, lessonbuilder, page, site);
+	       } else {
+		 orphansSkipped++;
+	       }
+	     }
 	 }
+
+	 logger.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
 
          Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 	 int count = 0;
