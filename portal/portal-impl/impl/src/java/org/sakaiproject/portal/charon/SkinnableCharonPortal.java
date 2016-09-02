@@ -1881,7 +1881,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				// check for a logout text override
 				if (message == null)
 				{
-					message = StringUtils.defaultIfBlank(ServerConfigurationService.getString("logout.text"), rloader.getString("sit_log"));
+					message = ServerConfigurationService.getString("logout.text", rloader.getString("sit_log"));
 				}
 
 				// check for an image for the logout
@@ -2371,7 +2371,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			catch (UserNotDefinedException e)
 			{
-				return "";
+				M_log.debug("Unable to retrieve user for id: " + originalUserId);
 			}
 		}
 		
