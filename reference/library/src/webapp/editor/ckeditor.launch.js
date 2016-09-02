@@ -209,12 +209,16 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
              */
             //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
             //ckconfig.extraPlugins+="atd-ckeditor,";
-            //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
+            //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
             ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification";
 
             //SAK-29648
-            ckconfig.contentsCss = basePath+'/fontawesome/font-awesome/css/font-awesome.min.css';
+            ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
+            //If the siteskin is defined, add the print.css
+            if (sakai.editor.sitePrintSkin) {
+                ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
+            } 
             CKEDITOR.dtd.$removeEmpty.span = false;
             CKEDITOR.dtd.$removeEmpty['i'] = false;
         }
