@@ -302,7 +302,6 @@ create sequence SST_PRESENCE_ID;
 -- SAK-20076: missing Sitestats indexes
 create index SST_PRESENCE_DATE_IX on SST_PRESENCES (P_DATE);
 create index SST_PRESENCE_USER_ID_IX on SST_PRESENCES (USER_ID);
-create index SST_PRESENCE_SITE_ID_IX on SST_PRESENCES (SITE_ID);
 create index SST_PRESENCE_SUD_ID_IX on SST_PRESENCES (SITE_ID, USER_ID, P_DATE);
 
 -- KNL-563: dynamic bundling loading
