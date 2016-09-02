@@ -42,6 +42,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.portal.util.CSSUtils;
 
 public class EditorServlet extends HttpServlet
 {
@@ -119,6 +120,7 @@ public class EditorServlet extends HttpServlet
 			
 			String placementId = req.getParameter("placement");
 			ToolConfiguration tool = SiteService.findTool(placementId);
+			String skin = tool.getSkin();
 			
 			Editor editor = portalService.getActiveEditor(tool);
 
@@ -142,6 +144,9 @@ public class EditorServlet extends HttpServlet
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
 				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
 				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");
+				out.print("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
+				out.print("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
+
 				out.print(editor.getPreloadScript());
 			}
 			else {
