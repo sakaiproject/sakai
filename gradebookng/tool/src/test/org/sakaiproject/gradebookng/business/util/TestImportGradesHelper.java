@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.business.helpers;
+package org.sakaiproject.gradebookng.business.util;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -24,12 +24,9 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.user.api.User;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Tests for the ImportGradesHelper class.
  */
-@Slf4j
 public class TestImportGradesHelper {
 
 

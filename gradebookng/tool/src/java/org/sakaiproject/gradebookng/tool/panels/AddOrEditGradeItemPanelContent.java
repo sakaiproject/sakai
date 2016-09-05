@@ -21,10 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.convert.ConversionException;
-import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidationError;
-import org.apache.wicket.validation.IValidator;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -81,7 +78,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 
 			@Override
-			public void error(IValidationError error) {
+			public void error(final IValidationError error) {
 				// Use our fancy error message for all validation errors
 				error(getString("error.addgradeitem.title"));
 			}
@@ -111,7 +108,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 
 			@Override
-			public void error(IValidationError error) {
+			public void error(final IValidationError error) {
 				// Use our fancy error message for all validation errors
 				error(getString("error.addgradeitem.points"));
 			}
