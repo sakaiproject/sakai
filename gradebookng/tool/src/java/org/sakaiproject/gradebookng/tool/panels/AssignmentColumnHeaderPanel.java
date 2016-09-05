@@ -294,7 +294,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
-				final Long assignmentId = (Long)getModelObject();
+				final Long assignmentId = getModelObject();
 				target.appendJavaScript("sakai.gradebookng.spreadsheet.hideGradeItemAndSyncToolbar('" + assignmentId + "');");
 			}
 		});

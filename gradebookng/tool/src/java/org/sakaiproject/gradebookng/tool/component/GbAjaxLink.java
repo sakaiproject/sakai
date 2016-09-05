@@ -1,7 +1,6 @@
 package org.sakaiproject.gradebookng.tool.component;
 
 import org.apache.wicket.ajax.AjaxChannel;
-import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.model.IModel;
@@ -11,18 +10,20 @@ import org.apache.wicket.model.IModel;
  * disables the link on click to reduce the likelihood of
  * double-clicks resulting in double actions.
  */
-abstract public class GbAjaxLink<T> extends AjaxLink {
+abstract public class GbAjaxLink<T> extends AjaxLink<T> {
 
-	public GbAjaxLink(String id) {
-		this(id, (IModel)null);
+	private static final long serialVersionUID = 1L;
+
+	public GbAjaxLink(final String id) {
+		this(id, (IModel<T>)null);
 	}
 
-	public GbAjaxLink(String id, IModel<T> model) {
+	public GbAjaxLink(final String id, final IModel<T> model) {
 		super(id, model);
 	}
 
 	@Override
-	protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+	protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
 		super.updateAjaxAttributes(attributes);
 		attributes.setChannel(new AjaxChannel("blocking", AjaxChannel.Type.ACTIVE));
 	}

@@ -26,7 +26,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
@@ -1910,28 +1909,7 @@ public class GradebookNgBusinessService {
 		return false;
 	}
 
-	/**
-	 * Comparator class for sorting a list of AssignmentOrders
-	 */
-	class AssignmentOrderComparator implements Comparator<AssignmentOrder> {
-		@Override
-		public int compare(final AssignmentOrder ao1, final AssignmentOrder ao2) {
-			// Deal with uncategorized assignments (nulls!)
-			if (ao1.getCategory() == null && ao2.getCategory() == null) {
-				return ((Integer) ao1.getOrder()).compareTo(ao2.getOrder());
-			} else if (ao1.getCategory() == null) {
-				return 1;
-			} else if (ao2.getCategory() == null) {
-				return -1;
-			}
-			// Deal with friendly categorized assignments
-			if (ao1.getCategory().equals(ao2.getCategory())) {
-				return ((Integer) ao1.getOrder()).compareTo(ao2.getOrder());
-			} else {
-				return ao1.getCategory().compareTo(ao2.getCategory());
-			}
-		}
-	}
+
 
 	/**
 	 * Comparator class for sorting an assignment by the grades.
