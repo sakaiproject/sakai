@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.business.model;
 import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -67,6 +68,14 @@ public class ImportedColumn implements Serializable {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(this.columnTitle)
+				.append(this.type)
+				.toHashCode();
 	}
 
 }
