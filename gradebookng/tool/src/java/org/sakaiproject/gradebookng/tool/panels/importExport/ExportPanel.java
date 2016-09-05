@@ -31,7 +31,7 @@ public class ExportPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
+	private GradebookNgBusinessService businessService;
 
 	private static final String CUSTOM_EXPORT_COLUMN_PREFIX = "# ";
 	private static final String COLUMN_COLUMN_PREFIX = "* ";
