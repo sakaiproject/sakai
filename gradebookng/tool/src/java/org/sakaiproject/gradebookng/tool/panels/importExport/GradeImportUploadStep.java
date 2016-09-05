@@ -44,7 +44,7 @@ public class GradeImportUploadStep extends Panel {
 	private final String panelId;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
+	private GradebookNgBusinessService businessService;
 
 	public GradeImportUploadStep(final String id) {
 		super(id);
