@@ -21,25 +21,25 @@
 
 package org.sakaiproject.util;
 
-import java.io.File;
-import java.util.Iterator;
-import java.util.Set;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.ActiveToolManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
  * Webapp listener to detect webapp-housed tool registration.<br/>
  * SAK-8908:<br/>
  * Re-wrote the contextInitialized() method to add tool localization files to the
- * newly registered tool(s).  These files are required to be in the /tool/ directory
+ * newly registered tool(s).  These files are required to be in the tools directory
  * have have a name of the form [toolId][_][localCode].properties.  This format allows
  * tool litles (etc) to be localized even when multiple tool registrations are included.
  * </p>
@@ -49,6 +49,20 @@ import org.slf4j.LoggerFactory;
  * &lt;listener&gt;<br/>
  * &nbsp;&lt;listener-class&gt;org.sakaiproject.util.ToolListener&lt;/listener-class&gt;<br/>
  * &lt;/listener&gt;<br/>
+ * </code>
+ * </p>
+ * <p>
+ * By default the tools directories looked at in the webapp are /tools/ and /WEB-INF/tools/ . It is
+ * recommended that all tool registration files are put in /WEB-INF/tools/ as the files don't need to
+ * served up by the container, however /tools/ is supported for backwards compatibility. If you wish to
+ * use a custom location set an parameter on the tool listener:
+ * </p>
+ * <p>
+ * <code>
+ * &lt;context-param&gt;<br>
+ * &nbsp;&lt;param-name&gt;org.sakaiproject.util.ToolListener.PATH&lt;/param-name&gt;<br>
+ * &nbsp;&lt;param-value&gt;/mypath/&lt;/param-value&gt;<br>
+ * &lt;/context-param&gt;<br>
  * </code>
  * </p>
  */
@@ -61,42 +75,49 @@ public class ToolListener implements ServletContextListener
 	 * path to look in for the tool registration files.
 	 */
 	public final static String PATH = ToolListener.class.getName()+".PATH";
-	
+
+	private final ActiveToolManager activeToolManager;
+	private final ServerConfigurationService serverConfigurationService;
+
+	public ToolListener()
+	{
+		activeToolManager = ComponentManager.get(ActiveToolManager.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+	}
+
+	public ToolListener(ActiveToolManager activeToolManager, ServerConfigurationService serverConfigurationService)
+	{
+		this.activeToolManager = activeToolManager;
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
 	/**
 	 * Initialize.
 	 */
 	public void contextInitialized(ServletContextEvent event)
 	{
-		final String sakaiHomePath = ServerConfigurationService.getSakaiHomePath();
+		final String sakaiHomePath = serverConfigurationService.getSakaiHomePath();
 		// The the location of resource and registration files.
 		ServletContext context = event.getServletContext();
-		String toolFolder = getToolsFolder(context);
-		Set<String> paths = context.getResourcePaths(toolFolder);
-		if (paths == null)
-		{
-			// Warn if the listener is setup but no tools found.
-			M_log.warn("No tools folder found: "+ context.getRealPath(toolFolder));
-			return;
-		}
+		Set<String> paths = getToolsPaths(context);
+		if (paths == null) return;
 		int registered = 0;
 		// First Pass: Search for tool registration files
-		for(Iterator<String> i = paths.iterator(); i.hasNext();)
-		{
-			final String path = i.next();
-
+		for (final String path : paths) {
 			// skip directories
 			if (path.endsWith("/")) continue;
 
 			// If an XML file, use it as the tool registration file.
-			if (path.endsWith(".xml"))
-			{
-				final File f = new File(sakaiHomePath + path);
-				if(f.exists()) {
-					ActiveToolManager.register(f, event.getServletContext());
+			if (path.endsWith(".xml")) {
+				String file = path.substring(path.lastIndexOf("/") + 1);
+				// overrides are always in a folder called /tools/
+				final File f = new File(sakaiHomePath + "/tools/" + file);
+				if (f.exists()) {
+					activeToolManager.register(f, context);
 					M_log.info("overriding tools configuration: registering tools from resource: " + sakaiHomePath + path);
 				} else {
 					M_log.info("registering tools from resource: " + path);
-					ActiveToolManager.register(event.getServletContext().getResourceAsStream(path), event.getServletContext());
+					activeToolManager.register(context.getResourceAsStream(path), context);
 				}
 				registered++;
 			}
@@ -109,33 +130,45 @@ public class ToolListener implements ServletContextListener
 		}
 
 		//	Second pass, search for message bundles.  Two passes are necessary to make sure the tool is registered first.
-		for (Iterator j = paths.iterator(); j.hasNext();)
-		{
-			String path = (String) j.next();
-
+		for (String path : paths) {
 			// skip directories
 			if (path.endsWith("/")) continue;
 
 			//	Check for a message properties file.
-			if (path.endsWith(".properties"))
-			{
+			if (path.endsWith(".properties")) {
 				//	Extract the tool id from the resource file name.
-				File reg = new File (path);
+				File reg = new File(path);
 				String tn = reg.getName();
-				String tid = null;
+				String tid;
 				if (tn.indexOf('_') == -1)
-					tid = tn.substring (0, tn.lastIndexOf('.'));	//	Default file.
+					tid = tn.substring(0, tn.lastIndexOf('.'));    //	Default file.
 				else
-					tid = tn.substring (0, tn.indexOf('_'));		//	Locale-based file.
+					tid = tn.substring(0, tn.indexOf('_'));        //	Locale-based file.
 
-				String msg = event.getServletContext().getRealPath(path.substring (0, path.lastIndexOf('.'))+".properties");
-				if (tid != null)
-				{
-					ActiveToolManager.setResourceBundle (tid, msg);
-					M_log.info("Added localization resources for " + tid);
-				}
+				String msg = context.getRealPath(path.substring(0, path.lastIndexOf('.')) + ".properties");
+				activeToolManager.setResourceBundle(tid, msg);
+				M_log.info("Added localization " + tn + "resources for " + tid);
 			}
 		}
+	}
+
+	/**
+	 * This looks for the tools folders that shoudl be used.
+	 * @param context The ServletContext
+	 * @return A list of all possible tool registration files or <code>null</code> if the containing folders weren't found.
+	 */
+	private Set<String> getToolsPaths(ServletContext context) {
+		Collection<String> toolFolders = getToolsFolders(context);
+		Set<String> paths = new HashSet<>();
+		toolFolders.stream().map(context::getResourcePaths).filter(files -> files != null).forEach(paths::addAll);
+		if (paths.isEmpty())
+		{
+			// Warn if the listener is setup but no tools found.
+			M_log.warn("No tools folder found: "+
+				toolFolders.stream().map(context::getRealPath).collect(Collectors.joining(", ")));
+			return null;
+		}
+		return paths;
 	}
 
 	/**
@@ -150,12 +183,16 @@ public class ToolListener implements ServletContextListener
 	 * @param context The servlet context.
 	 * @return The standard tool registration folder location or the configured value.
 	 */
-	protected String getToolsFolder(ServletContext context)
+	protected Collection<String> getToolsFolders(ServletContext context)
 	{
 		String path = context.getInitParameter(PATH);
+		Collection<String> paths;
 		if (path == null)
 		{
-			path = "/tools/";
+			Collection<String> defaultPaths = new LinkedList<>();
+			defaultPaths.add("/WEB-INF/tools/");
+			defaultPaths.add("/tools/");
+			paths = defaultPaths;
 		}
 		else
 		{
@@ -167,7 +204,8 @@ public class ToolListener implements ServletContextListener
 			{
 				path = path+ "/";
 			}
+			paths = Collections.singleton(path);
 		}
-		return path;
+		return paths;
 	}
 }
