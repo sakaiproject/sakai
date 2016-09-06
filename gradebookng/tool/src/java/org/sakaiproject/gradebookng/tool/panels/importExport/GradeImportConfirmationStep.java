@@ -45,7 +45,7 @@ public class GradeImportConfirmationStep extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
+	private GradebookNgBusinessService businessService;
 
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
