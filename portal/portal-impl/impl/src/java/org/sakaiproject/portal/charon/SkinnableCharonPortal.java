@@ -1872,10 +1872,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				}
 				
 				// check if current user is being impersonated (by become user/sutool)
-				String impersonatorEid = getImpersonatorEid();
-				if (!impersonatorEid.isEmpty())
+				String impersonatorDisplayId = getImpersonatorDisplayId();
+				if (!impersonatorDisplayId.isEmpty())
 				{
-					message = rloader.getString("sit_return") + " " + impersonatorEid;
+					message = rloader.getString("sit_return") + " " + impersonatorDisplayId;
 				}
 
 				// check for a logout text override
@@ -2351,11 +2351,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 	
 	/**
-	 * Checks if current user is being impersonated (via become user/sutool) and returns userEId of
+	 * Checks if current user is being impersonated (via become user/sutool) and returns displayId of
 	 * the impersonator. Adapted from SkinnableLogin's isImpersonating()
-	 * @return userEid of impersonator, or empty string if not being impersonated
+	 * @return displayId of impersonator, or empty string if not being impersonated
 	 */
-	private String getImpersonatorEid()
+	private String getImpersonatorDisplayId()
 	{
 		Session currentSession = SessionManager.getCurrentSession();
 		String currentUserId = currentSession.getUserId();
@@ -2367,7 +2367,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			try
 			{
 				User originalUser = UserDirectoryService.getUser(originalUserId);
-				return originalUser.getEid();
+				return originalUser.getDisplayId();
 			}
 			catch (UserNotDefinedException e)
 			{
