@@ -143,7 +143,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// set AssessmentGrading in delivery
 			delivery.setAssessmentGrading(adata);
             if (adata.getForGrade()) {
-                Event event = eventTrackingService.newEvent("", adata.getPublishedAssessmentTitle(), null, true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForGradedAssessment(adata, publishedAssessment));
+                Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AUTO_GRADED, adata.getPublishedAssessmentTitle(), null, true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForGradedAssessment(adata, publishedAssessment));
                 eventTrackingService.post(event);
             }
 			// set url & confirmation after saving the record for grade

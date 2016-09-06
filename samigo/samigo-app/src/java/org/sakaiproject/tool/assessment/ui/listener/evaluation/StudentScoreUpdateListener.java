@@ -261,25 +261,25 @@ public class StudentScoreUpdateListener
     	  oldComments = "";
       }
 
+      StringBuffer logString = new StringBuffer();
+      logString.append("gradedBy=");
+      logString.append(AgentFacade.getAgentString());
+      logString.append(", assessmentGradingId=");
+      logString.append(adata.getAssessmentGradingId());
       if (!newComments.equals(oldComments)) {
     	  updateFlag = true;
     	  adata.setComments(newComments);
     	  adata.setGradedBy(AgentFacade.getAgentString());
     	  adata.setGradedDate(new Date());
-    	  StringBuffer logString = new StringBuffer();
-          logString.append("gradedBy=");
-          logString.append(AgentFacade.getAgentString());
-          logString.append(", assessmentGradingId=");
-          logString.append(adata.getAssessmentGradingId());
           logString.append(", newComments=");
           logString.append(newComments);
           logString.append(", oldComments=");
           logString.append(oldComments);
-          eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, logString.toString(), AgentFacade.getCurrentSiteId(), true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForStudentScoreUpdate(adata, tbean.getPublishedAssessment())));
       }
 
       if (updateFlag) {
     	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
+    	  eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, logString.toString(), AgentFacade.getCurrentSiteId(), true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForStudentScoreUpdate(adata, tbean.getPublishedAssessment())));
       }
       log.debug("Saved student scores.");
       
