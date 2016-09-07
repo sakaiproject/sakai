@@ -1154,7 +1154,7 @@ public class SimplePageBean {
 			} else {
 				rv = "cancel";
 			}
-			placement.save();
+			// placement.save();
 
 			String errString = error.toString();
 			if (errString != null && errString.length() > 0)
