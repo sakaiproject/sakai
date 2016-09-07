@@ -85,16 +85,20 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
-
-    	if (pubAssessmentCache.containsKey(id)) {
-    		if (log.isDebugEnabled()) {
-    			log.debug("returning assesment " + id + " from cache");
-    		}
-    		return (PublishedAssessmentIfc)pubAssessmentCache.get(id);
+        PublishedAssessmentIfc a = null;
+        if (pubAssessmentCache.containsKey(id)) {
+            a = (PublishedAssessmentIfc) pubAssessmentCache.get(id);
+            if(a != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("returning assesment " + id + " from cache");
+                }
+                return a;
+            }
+            /* Below we may fail to re-establish the value */
+            pubAssessmentCache.remove(id);
     	}
 
         PublishedAssessmentService pas = new PublishedAssessmentService();
-        PublishedAssessmentIfc a;
         try {
             a = pas.getPublishedAssessment(id);
             pubAssessmentCache.put(id, a);
@@ -104,7 +108,8 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
                 log.debug("Assessment lookup failed for ID: " + id + " -- " + e.getMessage());
             }
             a = null;
-            pubAssessmentCache.put(id, null);
+            /* TODO: Check this - I am taking it out because it will make the value look expired! */
+            /* pubAssessmentCache.put(id, null); */
         }
         return a;
     }
@@ -122,11 +127,15 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
             log.debug("Samigo provider isAssignmentGrouped: " + id);
         }
         
+        Boolean g = null;
         if (groupedCache.containsKey(id)) {
-        	if (log.isDebugEnabled()) {
-        		log.debug("returning grouped value from cache: " + id);
-        	}
-        	return (Boolean)groupedCache.get(id);
+            g = (Boolean)groupedCache.get(id);
+            if(g != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("returning grouped value from cache: " + id);
+                }
+                return (boolean) g;
+            }
         }
         
         PublishedAssessmentService pas = new PublishedAssessmentService();

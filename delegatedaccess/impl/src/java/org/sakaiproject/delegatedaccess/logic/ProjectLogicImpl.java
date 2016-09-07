@@ -621,6 +621,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 					siteResult.setRestrictedPublicTools(access.getDeniedPublicTools());
 					siteResult.setModified(access.getModified());
 					siteResult.setModifiedBy(access.getModifiedBy());
+					/* TODO: Check this use of cache.containsKey */
 					if(!userSortNameCache.containsKey(access.getModifiedBy())){
 						User user = sakaiProxy.getUser(access.getModifiedBy());
 						String sortName = "";
@@ -2795,13 +2796,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 		for(String k : orderedKeys){
 			key += k + ";" + (hierarchySearchMap.get(k) == null ? "" : hierarchySearchMap.get(k)) + ";";
 		}
+		Map<String, Set<String>> results = null;
 		if(hierarchySearchCache.containsKey(key)){
-			return (Map<String, Set<String>>) hierarchySearchCache.get(key); 
-		}else{
-			Map<String, Set<String>> results = dao.getHierarchySearchOptions(hierarchySearchMap);
-			hierarchySearchCache.put(key, results);
-			return results;
+			results = (Map<String, Set<String>>) hierarchySearchCache.get(key); 
+			if(results != null) {
+				return results;
+			}
 		}
+		results = dao.getHierarchySearchOptions(hierarchySearchMap);
+		hierarchySearchCache.put(key, results);
+		return results;
 	}
 
 	@Override

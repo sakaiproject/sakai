@@ -111,9 +111,12 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	/**
 	 * Test for a non expired entry in the cache.
 	 * 
+	 * 2016-09-07 - Mitch Golden - The key may in fact be expired!
+	 * Be careful if you use this method
+	 *
 	 * @param key
 	 *        The cache key.
-	 * @return true if the key maps to a non-expired cache entry, false if not.
+	 * @return true if the key maps to a cache entry, false if not.
 	 */
 	@Override
     public boolean containsKey(String key)

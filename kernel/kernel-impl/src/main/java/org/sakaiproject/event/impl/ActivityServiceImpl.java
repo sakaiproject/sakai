@@ -34,6 +34,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
  	 * {@inheritDoc}
  	 */
 	public boolean isUserActive(String userId) {
+		/* TODO: Check this use of cache.containsKey */
 		if(userActivityCache.containsKey(userId)){
 			return true;
 		}

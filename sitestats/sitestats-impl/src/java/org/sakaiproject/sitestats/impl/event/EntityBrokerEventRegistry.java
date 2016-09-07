@@ -110,30 +110,35 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	public String getEventName(String eventId) {
 		Locale currentUserLocale = getCurrentUserLocale();
 		EventLocaleKey key = new EventLocaleKey(eventId, currentUserLocale.toString());
-		if(eventNamesCache.containsKey(key.toString())) {
-			return (String) eventNamesCache.get(key.toString());
-		}else{
-			String eventName = null;
-			try{
-				String prefix = eventIdToEPPrefix.get(eventId);
-				Statisticable s = M_epm.getProviderByPrefixAndCapability(prefix, Statisticable.class);
-				Map<String, String> eventIdNamesMap = s.getEventNames(currentUserLocale);
-				if(eventIdNamesMap != null) {
-					for(String thisEventId : eventIdNamesMap.keySet()) {
-						EventLocaleKey thisCacheKey = new EventLocaleKey(thisEventId, currentUserLocale.toString());
-						String thisEventName = eventIdNamesMap.get(thisEventId);
-						eventNamesCache.put(thisCacheKey.toString(), thisEventName);
-						if(thisEventId.equals(eventId)) {
-							eventName = thisEventName;
-						}
-					}
-					LOG.debug("Cached event names for EB prefix '"+prefix+"', locale: "+currentUserLocale);
-				}
-			}catch(Exception e) {
-				eventName = null;
+		String keyString = key.toString();
+		String eventName = null;
+		if(eventNamesCache.containsKey(keyString)) {
+			eventName = (String) eventNamesCache.get(keyString);
+			if(eventName != null) {
+				return eventName;
 			}
-			return eventName;
+			/* If there's an exception we won't re-establish the cache entry below */
+			eventNamesCache.remove(keyString);
 		}
+		try{
+			String prefix = eventIdToEPPrefix.get(eventId);
+			Statisticable s = M_epm.getProviderByPrefixAndCapability(prefix, Statisticable.class);
+			Map<String, String> eventIdNamesMap = s.getEventNames(currentUserLocale);
+			if(eventIdNamesMap != null) {
+				for(String thisEventId : eventIdNamesMap.keySet()) {
+					EventLocaleKey thisCacheKey = new EventLocaleKey(thisEventId, currentUserLocale.toString());
+					String thisEventName = eventIdNamesMap.get(thisEventId);
+					eventNamesCache.put(thisCacheKey.toString(), thisEventName);
+					if(thisEventId.equals(eventId)) {
+						eventName = thisEventName;
+					}
+				}
+				LOG.debug("Cached event names for EB prefix '"+prefix+"', locale: "+currentUserLocale);
+			}
+		}catch(Exception e) {
+			eventName = null;
+		}
+		return eventName;
 	}
 	
 
