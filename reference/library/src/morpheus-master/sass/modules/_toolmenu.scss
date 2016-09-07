@@ -159,7 +159,11 @@ body.#{$namespace}toolMenu-collapsed{
 
 nav#subSites{
 	max-width: #{$tool-menu-width * 2 };
+	position: relative;
 	z-index: 9999;
+	@media #{$desktop}{
+		min-width: 15em;
+	}
 	&.floating{
 		margin: 0 0 0 7px;
 		&:after{
