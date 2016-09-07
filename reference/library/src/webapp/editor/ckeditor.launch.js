@@ -28,6 +28,7 @@ sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
 //get path of directory ckeditor 
 var basePath = "/library/editor/ckextraplugins/"; 
+var webJars = "/library/webjars/"
 
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
@@ -192,7 +193,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
             CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js');
             //Autosave has a dependency on notification
-            CKEDITOR.plugins.addExternal('autosave',basePath+'autosave/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
             CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js');
             /*
