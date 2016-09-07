@@ -51,7 +51,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
+			<groupId>org.sakaiproject.webjars</groupId>
 			<artifactId>ckeditor-autosave</artifactId>
 			<version>${ckeditor.autosave.version}</version>
 			<scope>runtime</scope>
