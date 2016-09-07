@@ -286,20 +286,6 @@ $PBJQ(document).ready(function(){
     closeText: '<img src="/library/image/silk/cross.png" alt="close">'
   });
 
-  // Shows or hides the subsites in a popout div. This isn't used unless
-  // portal.showSubsitesAsFlyout is set to true in sakai.properties.
-  $PBJQ("#toggleSubsitesLink").click(function (e) {
-    var subsitesLink = $PBJQ(this);
-    if($PBJQ('#subSites').css('display') == 'block') {
-      $PBJQ('#subSites').hide();
-      $PBJQ('#subSites').removeClass('floating');
-    } else {
-      var position = subsitesLink.position();
-      $PBJQ('#subSites').css({'position': 'absolute','display': 'block','left': position.left + subsitesLink.width() + 6 + 'px','top': position.top + 'px'});
-      $PBJQ('#subSites').addClass('floating');
-    }
-  });
-
 });
 
 
