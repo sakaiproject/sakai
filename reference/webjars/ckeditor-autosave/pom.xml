@@ -10,7 +10,7 @@
     </parent>
 
     <packaging>jar</packaging>
-    <groupId>org.webjars</groupId>
+    <groupId>org.sakaiproject.webjars</groupId>
     <artifactId>ckeditor-autosave</artifactId>
     <version>${ckeditor.autosave.version}</version>
     <name>CKEditor-autosave-webjar</name>
