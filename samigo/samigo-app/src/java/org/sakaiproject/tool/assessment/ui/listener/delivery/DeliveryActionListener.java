@@ -460,7 +460,7 @@ public class DeliveryActionListener
             		  }
             		  
                       event = eventTrackingService.newEvent("sam.assessment.take",
-                              "siteId=" + site_id + ", " + eventRef.toString(), "samigo",true,0,SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), false));
+                              "siteId=" + site_id + ", " + eventRef.toString(), "samigo",true,0,SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
                       eventTrackingService.post(event);
             	  }
             	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
@@ -476,7 +476,7 @@ public class DeliveryActionListener
             			  eventRef.append(timeRemaining);
             		  }
                       event = eventTrackingService.newEvent("sam.assessment.take.via_url",
-                                "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), true));
+                                "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), true));
                       eventTrackingService.post(event);
             	  }
               }
