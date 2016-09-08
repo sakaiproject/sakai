@@ -4659,6 +4659,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			newResource.setAvailability(deleResource.isHidden(), deleResource.getReleaseDate(),deleResource.getRetractDate());
 			newResource.setContent(m_storage.streamDeletedResourceBody(deleResource));
 			try {
+				// If you're storing the file in DB this breaks as it removes the restored file.
+				removeDeletedResource(deleResource);
+				// close the edit object
+				((BaseResourceEdit) deleResource).closeEdit();
+			} catch (PermissionException pe) {
+				M_log.error("restoreResource: access to resource not permitted" + id, pe);
+				try
+				{
+					removeResource(newResource.getId());
+				}
+				catch(Exception e1)
+				{
+					// ignore -- no need to remove the resource if it doesn't exist
+					M_log.debug("Unable to remove partially completed resource: " + deleResource.getId() + "\n" + e1);
+				}
+				throw pe;
+			}
+			try {
 				addProperties(newResource.getPropertiesEdit(), deleResource.getProperties());
 				commitResource(newResource, NotificationService.NOTI_NONE);
 
@@ -4686,24 +4704,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					M_log.debug("Unable to remove partially completed resource: " + newResource.getId() + "\n" + e1);
 				}
 				throw e;
-			}
-			try {
-				// If you're storing the file in DB this breaks as it removes the restored file.
-				removeDeletedResource(deleResource);
-				// close the edit object
-				((BaseResourceEdit) deleResource).closeEdit();
-			} catch (PermissionException pe) {
-				M_log.error("restoreResource: access to resource not permitted" + id, pe);
-				try
-				{
-					removeResource(newResource.getId());
-				}
-				catch(Exception e1)
-				{
-					// ignore -- no need to remove the resource if it doesn't exist
-					M_log.debug("Unable to remove partially completed resource: " + deleResource.getId() + "\n" + e1);
-				}
-				throw pe;
 			}
 		} catch (IdUnusedException iue) {
 			M_log.error("restoreResource: cannot locate deleted resource " + id, iue);
