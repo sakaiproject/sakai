@@ -1,10 +1,10 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm,v 1.3 2005/05/15 17:05:00 gsilver.umich.edu Exp $ -->
 ## Site list Sites list on worksite setup home page
 #if ($shoppingPeriodInstructorEditable || $viewDelegatedAccessUsers)
-	<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage-delegatedaccess.js"></script>
+	#javascript("/sakai-site-manage-tool/js/site-manage-delegatedaccess.js")
 	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
-	<script type="text/javascript" src="/sakai-site-manage-tool/js/jquery.asmselect.js"></script>
-	<link type="text/css" href="/sakai-site-manage-tool/css/jquery.asmselect.css" rel="stylesheet" media="screen" />
+	#javascript("/sakai-site-manage-tool/js/jquery.asmselect.js")
+	#css("/sakai-site-manage-tool/css/jquery.asmselect.css" 'media="screen"')
 #end
 <script type="text/javascript">
 <!-- hide from non-JS browsers
