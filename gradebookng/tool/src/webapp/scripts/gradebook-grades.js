@@ -1811,7 +1811,11 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   this.handleWicketCellReplacement(cellId);
   // ensure fixed headers are aligned correctly after save, as vertical scroll
   // may change as messages are added/removed from above the grade table
-  $(document).trigger("scroll");
+  setTimeout(function() {
+    // take this off the critical path as we don't want any errors on
+    // the document scroll to stop the spreadsheet working
+    $(document).trigger("scroll");
+  });
 };
 
 
