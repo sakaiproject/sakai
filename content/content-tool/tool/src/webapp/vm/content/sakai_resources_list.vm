@@ -13,7 +13,7 @@
   }
 </style>
 
-<script type="text/javascript" src="/sakai-content-tool/js/content.js">
+#javascript("/sakai-content-tool/js/content.js")
 <!-- // -->
 </script>
 
@@ -26,10 +26,9 @@
     }    
 </script>
 
-<script src="/sakai-content-tool/js/jstree/dist/jstree.min.js"></script>
-<link rel="stylesheet" href="/sakai-content-tool/js/jstree/dist/themes/default/style.min.css" />
+#javascript("/sakai-content-tool/js/jstree/dist/jstree.min.js")
+#css("/sakai-content-tool/js/jstree/dist/themes/default/style.min.css")
 <div id="dialog-copyright"></div>
-
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
