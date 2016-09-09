@@ -100,7 +100,7 @@
 	}
 	focus_path = [ '$fField' ];
 </script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <div class="portletBody container-fluid">
 	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "newAssignmentForm" "new" )
