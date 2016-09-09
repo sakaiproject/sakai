@@ -166,17 +166,17 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 					public String getIdValue(final Long object, final int index) {
 						return object.toString();
 					}
+				}) {
+			private static final long serialVersionUID = 1L;
 
-				});
+			@Override
+			protected String getNullValidDisplayValue() {
+				return getString("gradebookpage.uncategorised");
+			}
+		};
 
-		// if we don't have a category assigned we want the 'Choose One'
-		// message. setNullValid = false
-		// if we have a category we want to be able to clear it. setNullValid =
-		// true
-		categoryDropDown.setNullValid(false);
-		if (assignment.getCategoryId() != null) {
-			categoryDropDown.setNullValid(true);
-		}
+		// always allow an assignment to be set as uncategorized
+		categoryDropDown.setNullValid(true);
 		categoryDropDown.setVisible(!categories.isEmpty());
 		categoryWrap.add(categoryDropDown);
 
