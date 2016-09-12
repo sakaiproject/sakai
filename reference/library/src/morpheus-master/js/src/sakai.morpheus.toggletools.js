@@ -45,7 +45,7 @@ $PBJQ(document).ready(function(){
 	initialOffset = $("#toolMenu").offset().top - $window.scrollTop();
 	$PBJQ(window).scroll(function(){
 		var follow = ($window.height()- padding) > $tools.height();
-		var _top   = (-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) );
+		var _top   = ( $PBJQ("#toggleSubsitesLink").length > 0 )?(-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) ):0;
 		if($("#toolMenuWrap").css('position') !== 'fixed' && follow) {
 			if($window.scrollTop() > offset.top) {
 				$("#toolMenu").stop().animate({
