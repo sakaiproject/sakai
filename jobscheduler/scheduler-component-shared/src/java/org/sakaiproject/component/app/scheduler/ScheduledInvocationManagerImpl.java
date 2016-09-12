@@ -1,5 +1,6 @@
 package org.sakaiproject.component.app.scheduler;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -68,12 +69,16 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	public void destroy() {
 		LOG.info("destroy()");
 //		schedulerFactory.getGlobalTriggerListeners().remove(triggerListener);
-}
+	}
 
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.api.app.scheduler.ScheduledInvocationManager#createDelayedInvocation(org.sakaiproject.time.api.Time, java.lang.String, java.lang.String)
-	 */
-	public String createDelayedInvocation(Time time, String componentId, String opaqueContext) {
+	@Override
+	public String createDelayedInvocation(Time  time, String componentId, String opaqueContext) {
+		Instant instant = Instant.ofEpochMilli(time.getTime());
+		return createDelayedInvocation(instant, componentId, opaqueContext);
+	}
+
+	@Override
+	public String createDelayedInvocation(Instant instant, String componentId, String opaqueContext) {
 		try {
 			String uuid = m_idManager.createUuid();
 			Scheduler scheduler = schedulerFactory.getScheduler();
@@ -95,7 +100,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 			// Non-repeating trigger.
 			Trigger trigger = TriggerBuilder.newTrigger()
 					.withIdentity(uuid, GROUP_NAME)
-					.startAt(new Date(time.getTime()))
+					.startAt(Date.from(instant))
 					.forJob(key)
 					.usingJobData(CONTEXT_ID, opaqueContext)
 					.build();
