@@ -24,6 +24,7 @@ package org.sakaiproject.assignment.impl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -79,6 +80,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -184,6 +186,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setAuthzGroupService (AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
 	}
+	
+	private CandidateDetailProvider candidateDetailProvider;
+	public void setCandidateDetailProvider(CandidateDetailProvider candidateDetailProvider) {
+		this.candidateDetailProvider = candidateDetailProvider;
+	}
+
 
 	String newline = "<br />\n";
 	
@@ -2707,6 +2715,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			subject = rb.getString("noti.subject.content");
 		else if ("releasegrade".equals(submissionOrReleaseGrade))
 			subject = rb.getString("noti.releasegrade.subject.content");
+		else if("additionalnotes".equals(submissionOrReleaseGrade))
+			subject = rb.getString("assignment.additional.notes.export.title");
 		else
 			subject = rb.getString("noti.releaseresubmission.subject.content");
 		return "Subject: " + subject ;
@@ -5295,7 +5305,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					AssignmentContent content = a.getContent();
 					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(), 
-							new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
+							new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted, a.getContext());
 	
 					if (exceptionMessage.length() > 0)
 					{
@@ -5550,9 +5560,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	    }
 	}
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders,String gradeFileFormat, boolean includeNotSubmitted)
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders,String gradeFileFormat, boolean includeNotSubmitted, String siteId)
 	{
-	    ZipOutputStream out = null;
+		ZipOutputStream out = null;
+
+		boolean isAdditionalNotesEnabled = false;
+		Site st = null;
+		try{
+			st = SiteService.getSite(siteId);
+			isAdditionalNotesEnabled = candidateDetailProvider.isAdditionalNotesEnabled(st);
+		} catch(IdUnusedException e){
+			M_log.warn("zipSubmissions: Could not find site " + siteId + " - isAdditionalNotesEnabled set to false");
+		}
 
 		try {
 			out = new ZipOutputStream(outputStream);
@@ -5580,12 +5599,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String submittersName = "";
 			String caughtException = null;
 			String caughtStackTrace = null;
+			String submittersAdditionalNotesHtml = "";
+
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
 				boolean isAnon = assignmentUsesAnonymousGrading( s );
 				//SAK-29314 added a new value where it's by default submitted but is marked when the user submits
-				if ((s.getSubmitted() && s.isUserSubmission()) || includeNotSubmitted)
+				if ((s.getSubmitted() && s.isUserSubmission())|| includeNotSubmitted)
 				{
 					// get the submission user id and see if the user is still in site
 					String userId = s.getSubmitterId();
@@ -5769,7 +5790,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									out.closeEntry();
 								}
 							} // if
+
+							if(isAdditionalNotesEnabled){
+								List<String> notes = candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>());
+								if(!notes.isEmpty()){
+									String noteList = "<ul>";
+									for(String note : notes){
+										noteList += "<li>"+StringEscapeUtils.escapeHtml(note)+"</li>";
+									}
+									noteList += "</ul>";
+									submittersAdditionalNotesHtml += "<tr><td style='padding-right:10px;padding-left:10px'>" + submittersString +"</td><td style='padding-right:10px'>"+ noteList + "</td></tr>";
+								}
+							}
 						}
+
 					}
 					catch (Exception e)
 					{
@@ -5791,6 +5825,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades."+ sheet.getFileExtension());
 					out.putNextEntry(gradesCSVEntry);
 					sheet.write(out);
+					out.closeEntry();
+				}
+
+				if(isAdditionalNotesEnabled){
+					ZipEntry additionalEntry = new ZipEntry(root + rb.getString("assignment.additional.notes.file.title") + ".html");
+					out.putNextEntry(additionalEntry);
+
+					String htmlString = htmlPreamble("additionalnotes");
+					htmlString += "<h1>"+rb.getString("assignment.additional.notes.export.title")+"</h1>";
+					htmlString += "<div>"+rb.getString("assignment.additional.notes.export.header")+"</div><br/>";
+					htmlString += "<table border=\"1\"  style=\"border-collapse:collapse;\"><tr><th>"+rb.getString("gen.student")+"</th><th>"+rb.getString("gen.notes")+"</th>"+submittersAdditionalNotesHtml+"</table>";
+					htmlString += "<br/><div>"+rb.getString("assignment.additional.notes.export.footer")+"</div>";
+					htmlString += htmlEnd();
+					M_log.debug("Additional information html: " + htmlString);
+
+					byte[] wes = htmlString.getBytes();
+					out.write(wes);
+					additionalEntry.setSize(wes.length);
 					out.closeEntry();
 				}
 			}
@@ -11211,12 +11263,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 							m_submittedText = formattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
 							m_feedbackComment = formattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
-							m_feedbackText = formattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
-
-							// SAK-17606
-							m_anonymousSubmissionId = m_id.substring(27)+" (" + rb.getString("grading.anonymous.title")  + ")";
+							m_feedbackText = formattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");							
 
 							m_submitterId = attributes.getValue("submitterid");
+							
+							// SAK-17606
+							m_anonymousSubmissionId = getAnonymousSubmissionId();
 
 							m_submissionLog = new ArrayList();
 							m_grades = new ArrayList();
@@ -12312,9 +12364,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 * @return
 		 */
 		public String getAnonymousSubmissionId() {
-				String anonTitle = rb.getString("grading.anonymous.title") ;
-				return this.getId().substring(27) + " (" + anonTitle + ")";
-		}
+			String id = this.getId().substring(27);
+			try {
+				Site site = SiteService.getSite( this.getAssignment().getContext() );
+				if(candidateDetailProvider.useInstitutionalAnonymousId(site)) {
+					id = candidateDetailProvider.getCandidateID(UserDirectoryService.getUser(this.getSubmitterId()), site).orElse(this.getId().substring(27));
+				}
+			} catch(IdUnusedException e){
+				M_log.warn("Site not found " + this.getAssignment().getContext(), e);
+			} catch(UserNotDefinedException e){
+				M_log.warn("User not found " + this.getSubmitterId(), e);
+			}
+			return id + " (" + rb.getString("grading.anonymous.title") + ")";
+	}
 
 		/**
 		 * SAK-29314 - Determines whether this submission was submitted by a user or by the system

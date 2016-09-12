@@ -27,6 +27,7 @@
  		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
  		<property name="developerHelperService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="candidateDetailProvider"><ref bean="org.sakaiproject.user.api.CandidateDetailProvider"/></property>
  		
  		<!--use to allow group awareness option in assignments. 
  			By default this is true.-->
