@@ -308,19 +308,33 @@ simplePageBean.addForumSummary
 		<constructor-arg>
 			<map>
 				<entry key="application/msword" value="fa-file-word-o"/>
+				<entry key="application/vnd.ms-word" value="fa-file-word-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="fa-file-word-o"/>
+				<entry key="application/ms-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/mspowerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/x-mspowerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/msppt" value="fa-file-powerpoint-o"/>
 				<entry key="application/vnd.ms-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/x-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/powerpoint" value="fa-file-powerpoint-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="fa-file-powerpoint-o"/>
+				<entry key="application/application/vnd.openxmlformats-officedocument.presentationml.slideshow" value="fa-file-powerpoint-o"/>
+				<entry key="application/ms-excel" value="fa-file-excel-o"/>
+				<entry key="application/excel" value="fa-file-excel-o"/>
 				<entry key="application/vnd.ms-excel" value="fa-file-excel-o"/>
+				<entry key="application/x-msexcel" value="fa-file-excel-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="fa-file-excel-o"/>
 				<entry key="application/pdf" value="fa-file-pdf-o"/>
+				<entry key="application/x-pdf" value="fa-file-pdf-o"/>
 				<entry key="application/x-shockwave-flash" value="fa-video-o"/>
 				<entry key="video/x-flv" value="fa-video-o"/>
 				<entry key="video/mp4" value="fa-video-o"/>
+				<entry key="video/x-mp4" value="fa-video-o"/>
 				<entry key="text/plain" value="fa-file-text-o"/>
 				<entry key="text/rtf" value="fa-file-text-o"/>
 				<entry key="LBWEBSITE" value="fa-external-link"/>
 				<entry key="text/html" value="fa-external-link"/>
+				<entry key="application/xhtml+xml" value="fa-external-link"/>
     	</map>
     	</constructor-arg>
     	</bean>
