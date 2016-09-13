@@ -925,6 +925,34 @@
 							</label>
 						</div>
 						#end
+						
+						<!-- Exclude Self Plag -->
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG)
+						<div class="checkbox">
+							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG">
+								#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG.equals("true"))
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG" type="checkbox" value="true" checked="checked" />
+								#else
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG" type="checkbox" value="true" />
+								#end
+									$tlang.getString("review.exclude.self.plag")
+							</label>
+						</div>
+						#end
+						
+						<!-- Store Inst Index -->
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
+						<div class="checkbox">
+							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX">
+								#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX.equals("true"))
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX" type="checkbox" value="true" checked="checked" />
+								#else
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX" type="checkbox" value="true" />
+								#end
+									$tlang.getString("review.store.inst.index")
+							</label>
+						</div>
+						#end
 				<!-- End VeriCite custom options -->
 				#end
 			</div>

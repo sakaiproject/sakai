@@ -168,6 +168,12 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 						if(opts.containsKey("exclude_quoted")){
 							assignmentData.setAssignmentExcludeQuotes("1".equals(opts.get("exclude_quoted").toString()));
 						}
+						if(opts.containsKey("exclude_self_plag")){
+							assignmentData.setAssignmentExcludeSelfPlag("1".equals(opts.get("exclude_self_plag").toString()));
+						}
+						if(opts.containsKey("store_inst_index")){
+							assignmentData.setAssignmentStoreInIndex("1".equals(opts.get("store_inst_index").toString()));
+						}
 						if(opts.containsKey("dtdue")){
 							SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
 					        dform.applyPattern("yyyy-MM-dd HH:mm:ss");
