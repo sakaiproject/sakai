@@ -18,9 +18,9 @@ body.#{$namespace}toolMenu-collapsed{
 	}
 
 	#toolMenuWrap{
-		max-width: #{ $tool-menu-width / 2 };
-		min-width: #{ $tool-menu-width / 2 };
-		width: #{ $tool-menu-width / 2 };
+		max-width: #{ $tool-menu-width-collapsed };
+		min-width: #{ $tool-menu-width-collapsed };
+		width: #{ $tool-menu-width-collapsed };
 	}
 	#toolMenu, ul#subSites{
 		.img_site_toolmenu{
@@ -30,6 +30,7 @@ body.#{$namespace}toolMenu-collapsed{
 			li{
 				a{
 					min-height: 1.7em;
+					text-align: center;
 					&:hover{
 						.#{$namespace}toolsNav__menuitem--title{
 							position: absolute;
@@ -54,6 +55,11 @@ body.#{$namespace}toolMenu-collapsed{
 						white-space: pre;
 					}
 				}
+                .#{$namespace}toolsNav__menuitem--icon{
+                  @if $tool-menu-icon-on-left {
+                    margin: 0 0.5em 0 0;
+                  }
+                }
 				.#{$namespace}toolsNav__menuitem--title{
 					display: none;
 				}
@@ -225,7 +231,13 @@ nav#subSites{
 				width: calc( 25% - 1px );
 			}
 			.#{$namespace}toolsNav__menuitem--icon{
-				margin: 0 0.25em 0 0;
+				@if $tool-menu-icon-on-left {
+					display: inline-block;
+					width: 20%;
+                    height: 100%;
+				} @else {
+					margin: 0 0.25em 0 0;
+				}
 			}
 			a{
 				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
@@ -234,10 +246,15 @@ nav#subSites{
 				font-family: $header-font-family;
 				font-weight: 300;
 				font-size: 0.85em;
-			    line-height: 1.25;
 			    min-height: 3em;
-				padding: 0.5em 0.25em;
-				text-align: center;
+				@if $tool-menu-icon-on-left {
+					text-align: left;
+					padding: 0.5em 0.5em;
+				} @else {
+					text-align: center;
+					padding: 0.5em 0.25em;
+					line-height: 1.25;
+				}
 				text-decoration: none;
 				&:hover{
 					background: $tool-menu-hover-background-color;
@@ -249,8 +266,15 @@ nav#subSites{
 					padding: 0.85em 0.25em 0.1em;
 				}
 				.#{$namespace}toolsNav__menuitem--title{
-					display: block;
-					width: 100%;
+					@if $tool-menu-icon-on-left {
+                        display: inline-block;
+						width: 75%;
+                        vertical-align: middle;
+					} @else {
+						display: block;
+						max-width: 100%;
+						width: 100%;
+					}
 					text-overflow: ellipsis;
 					white-space: pre-wrap;
 					overflow: hidden;
