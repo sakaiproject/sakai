@@ -60,15 +60,18 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 
 	protected TriggerListener triggerListener;
 
-	public void init() {
+	public void init() throws SchedulerException {
 		LOG.info("init()");
 		triggerListener = new ContextTriggerListener("ContextTriggerListener");
-//		schedulerFactory.getGlobalTriggerListeners().add(triggerListener);
+		ListenerManager listenerManager = schedulerFactory.getScheduler().getListenerManager();
+        // Just filter on our group.
+		listenerManager.addTriggerListener(triggerListener, GroupMatcher.triggerGroupEquals(GROUP_NAME));
 	}
 
-	public void destroy() {
+	public void destroy() throws SchedulerException {
 		LOG.info("destroy()");
-//		schedulerFactory.getGlobalTriggerListeners().remove(triggerListener);
+		ListenerManager listenerManager = schedulerFactory.getScheduler().getListenerManager();
+		listenerManager.removeTriggerListener(triggerListener.getName());
 	}
 
 	@Override
