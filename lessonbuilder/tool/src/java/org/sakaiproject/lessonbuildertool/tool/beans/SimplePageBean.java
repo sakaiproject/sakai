@@ -5942,11 +5942,16 @@ public class SimplePageBean {
 					}
 					if (isCaption)
 					    res.setContentType("text/vtt");
-					else
+					// octet-stream is probably bogus. let content hosting try to guess
+					else if (!"application/octet-stream".equals(mimeType))
 					    res.setContentType(mimeType);
 					res.setContent(file.getInputStream());
 					try {
 						contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
+						// reset mime type. kernel may have improved it if it was null
+						String newMimeType = res.getContentType();
+						if (newMimeType != null && !newMimeType.equals(""))
+						    mimeType = newMimeType;
 						// 	there's a bug in the kernel that can cause
 						// 	a null pointer if it can't determine the encoding
 						// 	type. Since we want this code to work on old
