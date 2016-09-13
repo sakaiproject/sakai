@@ -3,11 +3,15 @@ package org.sakaiproject.component.app.scheduler.jobs;
 import org.quartz.*;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.component.app.scheduler.DelayedInvocationDAO;
+import org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl;
 import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +31,11 @@ public class SchedulerMigrationJob implements Job {
     @Inject
     private DelayedInvocationDAO invocationDAO;
 
+    @Inject
+    private ScheduledInvocationManagerImpl manager;
+
     @Override
+    @Transactional
     public void execute(JobExecutionContext context) throws JobExecutionException {
         // First need to stop the existing quartz job.
         try {
@@ -42,10 +50,11 @@ public class SchedulerMigrationJob implements Job {
         }
         List<DelayedInvocation> all = invocationDAO.all();
         for (DelayedInvocation invocation: all) {
-            
+            Instant instant = Instant.ofEpochMilli(invocation.getTime().getTime());
+            // This will create the job as well.
+            manager.createDelayedInvocation(instant, invocation.getComponent(), invocation.getContext(), invocation.getId());
+            invocationDAO.remove(invocation);
+            log.info("Migrated "+ invocation.getId()+ " of "+ invocation.getComponent() +" at "+ instant);
         }
-
-        // Then write out new quartz jobs and triggers.
-
     }
 }

@@ -79,8 +79,18 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 
 	@Override
 	public String createDelayedInvocation(Instant instant, String componentId, String opaqueContext) {
+		String uuid = m_idManager.createUuid();
+		createDelayedInvocation(instant, componentId, opaqueContext, uuid);
+		return uuid;
+	}
+
+	/**
+	 * Creates a new delated invocation. This exists so that the migration code can create a new delayed invocation
+	 * and specify the UUID that should be used.
+	 * @see org.sakaiproject.component.app.scheduler.jobs.SchedulerMigrationJob
+	 */
+	public void createDelayedInvocation(Instant instant, String componentId, String opaqueContext, String uuid) {
 		try {
-			String uuid = m_idManager.createUuid();
 			Scheduler scheduler = schedulerFactory.getScheduler();
 			JobKey key = new JobKey(componentId, GROUP_NAME);
 			JobDetail detail = scheduler.getJobDetail(key);
@@ -108,11 +118,9 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 			// This is so that we can do fast lookups.
 			dao.add(uuid, componentId, opaqueContext);
 			LOG.info("Created new Delayed Invocation: uuid=" + uuid);
-			return uuid;
 		} catch (SchedulerException se) {
 			LOG.error("Failed to create new Delayed Invocation: componentId=" + componentId +
 					", opaqueContext=" + opaqueContext, se);
-			return null;
 		}
 	}
 

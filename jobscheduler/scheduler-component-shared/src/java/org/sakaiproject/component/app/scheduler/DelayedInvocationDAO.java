@@ -23,4 +23,8 @@ public class DelayedInvocationDAO {
     public List<DelayedInvocation> all() {
         return sessionFactory.getCurrentSession().createCriteria(DelayedInvocation.class).list();
     }
+
+    public void remove(DelayedInvocation invocation) {
+        sessionFactory.getCurrentSession().delete(invocation);
+    }
 }
