@@ -2325,12 +2325,10 @@ public class DbContentService extends BaseContentService
         		// This is another case where the nested classes and fuzzy boundaries causes
         		// rather sloppy object orientation. A more complete treatment would reevaluate
         		// the interfaces, remove the Edits, and extract these classes and casts.
-        		ContentResource rawResource = (resource instanceof WrappedContentResource) ?
-        				((WrappedContentResource) resource).wrapped : resource;
-        		if (!(rawResource instanceof BaseResourceEdit)) {
+        		if (resource instanceof WrappedContentResource || !(resource instanceof BaseResourceEdit)) {
         			return null;
         		}
-        		return fileSystemHandler.getAssetDirectLink(((BaseResourceEdit) rawResource).m_id, m_bodyPath, ((BaseResourceEdit) rawResource).m_filePath);
+        		return fileSystemHandler.getAssetDirectLink(((BaseResourceEdit) resource).m_id, m_bodyPath, ((BaseResourceEdit) resource).m_filePath);
         	}
         	catch (IOException e) {
         		M_log.debug("No direct link available for resource: " + resource.getId());
