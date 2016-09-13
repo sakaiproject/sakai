@@ -5,7 +5,7 @@ import javax.persistence.*;
 /**
  * Just maps a context ID, component ID to a quartz trigger UUID.
  */
-@Entity
+@Entity(name = "context_mapping")
 @Table(uniqueConstraints={@UniqueConstraint(columnNames = {"componentId", "contextId"})})
 public class ContextMapping {
 

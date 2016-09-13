@@ -110,6 +110,10 @@
             </list>
         </property>
     </bean>
+
+
+    <bean id="org.sakaiproject.component.app.scheduler.ContextMappingDAO"
+          class="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
     
     <bean id="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"
         class="org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl"
@@ -119,6 +123,9 @@
         </property>
         <property name="schedulerFactory">
         	<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        </property>
+        <property name="dao">
+            <ref bean="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
         </property>
     </bean>   
     

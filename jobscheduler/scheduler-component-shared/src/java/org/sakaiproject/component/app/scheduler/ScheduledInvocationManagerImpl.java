@@ -136,6 +136,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 		try {
 			TriggerKey key = new TriggerKey(uuid, GROUP_NAME);
 			schedulerFactory.getScheduler().unscheduleJob(key);
+			dao.remove(uuid);
 		} catch (SchedulerException e) {
 			LOG.error("Failed to remove Delayed Invocation: uuid="+ uuid, e);
 		}

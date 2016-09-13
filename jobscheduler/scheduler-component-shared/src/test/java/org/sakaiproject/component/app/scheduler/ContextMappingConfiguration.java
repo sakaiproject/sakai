@@ -22,7 +22,7 @@ public class ContextMappingConfiguration {
 
     private SessionFactory sessionFactory;
 
-    @Bean
+    @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory() {
         if (sessionFactory == null) {
             String dialectClassName = HSQLDialect.class.getName();

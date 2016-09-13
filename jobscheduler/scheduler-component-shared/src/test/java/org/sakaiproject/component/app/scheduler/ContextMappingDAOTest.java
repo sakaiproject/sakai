@@ -44,7 +44,14 @@ public class ContextMappingDAOTest {
     }
 
     @Test
-    public void testRemoveNoteFound() {
+    public void testAddRemoveByUuid() {
+        dao.add("uuid", "componentId", "contextId");
+        dao.remove("uuid");
+    }
+
+
+    @Test
+    public void testRemoveNotFound() {
         dao.remove("componentId", "contextId");
     }
 

@@ -1,11 +1,13 @@
 package org.sakaiproject.component.app.scheduler;
 
-import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * This is used to allow faster lookups from a UUID to a context ID.
@@ -17,7 +19,8 @@ public class ContextMappingDAO {
 
     private SessionFactory sessionFactory;
 
-    @Autowired
+    @Inject
+    @Named("org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public void setSessionFactory(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
@@ -43,6 +46,14 @@ public class ContextMappingDAO {
         ContextMapping o = getContextMapping(componentId, contextId);
         if (o != null) {
             sessionFactory.getCurrentSession().delete(o);
+        }
+    }
+
+    public void remove(String uuid) {
+        Session session = sessionFactory.getCurrentSession();
+        ContextMapping o = (ContextMapping) session.get(ContextMapping.class, uuid);
+        if (o != null) {
+            session.delete(o);
         }
     }
 
