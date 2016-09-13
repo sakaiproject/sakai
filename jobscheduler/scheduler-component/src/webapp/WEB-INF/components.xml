@@ -117,7 +117,7 @@
         <property name="idManager">
         	<ref bean="org.sakaiproject.id.api.IdManager"/>
         </property>
-        <property name="schedulerManager">
+        <property name="schedulerFactory">
         	<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         </property>
     </bean>   
