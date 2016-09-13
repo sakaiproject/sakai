@@ -5411,7 +5411,7 @@ public class AssignmentAction extends PagedResourceActionII
 				String userId = u == null ? "" : u.getId();
 				addAlert(state, rb.getFormattedMessage("cannotfin_submission_1", new String[]{assignmentReference, userId}));
 			}
-			if (submission != null)
+			if (submission != null && a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				String submissionReference = submission.getReference();
 				prepareStudentViewGrade(state, submissionReference);
