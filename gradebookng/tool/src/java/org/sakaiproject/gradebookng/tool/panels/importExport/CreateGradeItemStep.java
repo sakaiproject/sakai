@@ -88,8 +88,8 @@ public class CreateGradeItemStep extends Panel {
 	                importWizardModel.getAssignmentsToCreate().add(newAssignment);
 
 	                // sync up the assignment data so we can present it for confirmation
-	                processedGradeItem.setAssignmentTitle(newAssignment.getName());
-	                processedGradeItem.setAssignmentPoints(newAssignment.getPoints());
+	                processedGradeItem.setItemTitle(newAssignment.getName());
+	                processedGradeItem.setItemPointValue(String.valueOf(newAssignment.getPoints()));
 
 	                //Figure out if there are more steps
 	                //If so, go to the next step (ie do it all over again)

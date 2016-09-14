@@ -8,7 +8,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.wicket.Component;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -24,7 +23,6 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
-import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -139,8 +137,7 @@ public class GradeImportConfirmationStep extends Panel {
 							// if its an update/modify, this will get the id
 							Long assignmentId = processedGradeItem.getItemId();
 
-							//if assignment title was modified, we need to use that instead
-							final String assignmentTitle = StringUtils.trim((processedGradeItem.getAssignmentTitle() != null) ? processedGradeItem.getAssignmentTitle() : processedGradeItem.getItemTitle());
+							final String assignmentTitle = StringUtils.trim(processedGradeItem.getItemTitle());
 
 							// a newly created assignment will have a null ID here and need a lookup from the map to get the ID
 							if (assignmentId == null) {
@@ -315,26 +312,23 @@ public class GradeImportConfirmationStep extends Panel {
 
 				final ProcessedGradeItem gradeItem = item.getModelObject();
 
-				// ensure we display the edited data if we have it (won't exist for an update)
-				final String assignmentTitle = gradeItem.getAssignmentTitle();
-				final Double assignmentPoints = gradeItem.getAssignmentPoints();
-
-				item.add(new Label("itemTitle", (assignmentTitle != null) ? assignmentTitle : gradeItem.getItemTitle()));
-				item.add(new Label("itemPointValue", (assignmentPoints != null) ? assignmentPoints : gradeItem.getItemPointValue()));
+				item.add(new Label("itemTitle", gradeItem.getItemTitle()));
+				item.add(new Label("itemPointValue", gradeItem.getItemPointValue()));
 
 				//if comment and it's being updated, add additional row
-				if (gradeItem.getType() == ProcessedGradeItem.Type.COMMENT && gradeItem.getCommentStatus().getStatusCode() != ProcessedGradeItemStatus.STATUS_NA) {
+				// TODO update this
+				//if (gradeItem.getType() == ProcessedGradeItem.Type.COMMENT && gradeItem.getCommentStatus() != Status.SKIP) {
 
-					item.add(new Behavior() {
-						private static final long serialVersionUID = 1L;
+				//	item.add(new Behavior() {
+				//		private static final long serialVersionUID = 1L;
 
-						@Override
-						public void afterRender(final Component component) {
-							super.afterRender(component);
-							component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\" colspan=\"2\"><span>" + getString("importExport.commentname") + "</span></td></tr>");
-						}
-					});
-				}
+				//		@Override
+				//		public void afterRender(final Component component) {
+				//			super.afterRender(component);
+				//			component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\" colspan=\"2\"><span>" + getString("importExport.commentname") + "</span></td></tr>");
+				//		}
+				//	});
+				//}
 			}
 		};
 
