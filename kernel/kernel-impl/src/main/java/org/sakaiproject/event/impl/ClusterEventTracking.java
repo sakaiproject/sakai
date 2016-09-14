@@ -239,26 +239,23 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                 // do the check for event oversizing and output log warning if needed - SAK-3793
     			long totalEventsCount = getEventsCount();
                 if (totalEventsCount > WARNING_SAFE_EVENTS_TABLE_SIZE) {
-                    M_log.info("The SAKAI_EVENT table size ({}) is approaching the point at which performance will" +
-							" begin to degrade ({}), we recommend you archive older events over to another table," +
-							" remove older rows, or truncate this table before it reaches a size of {}",
-							totalEventsCount, MAX_SAFE_EVENTS_TABLE_SIZE, MAX_SAFE_EVENTS_TABLE_SIZE);
+                    M_log.info("The SAKAI_EVENT table size ("+totalEventsCount+") is approaching the point at which " +
+                    		"performance will begin to degrade ("+MAX_SAFE_EVENTS_TABLE_SIZE+
+                    		"), we recommend you archive older events over to another table, " +
+                    		"remove older rows, or truncate this table before it reaches a size of "+MAX_SAFE_EVENTS_TABLE_SIZE);
                 } else if (totalEventsCount > MAX_SAFE_EVENTS_TABLE_SIZE) {
-                    M_log.warn("The SAKAI_EVENT table size ({}) has passed the point at which performance will begin" +
-							" to degrade ({}), we recommend you archive older events over to another table, remove" +
-							" older rows, or truncate this table to ensure that performance is not affected negatively",
-							totalEventsCount, MAX_SAFE_EVENTS_TABLE_SIZE);
+                    M_log.warn("The SAKAI_EVENT table size ("+totalEventsCount+") has passed the point at which " +
+                            "performance will begin to degrade ("+MAX_SAFE_EVENTS_TABLE_SIZE+
+                            "), we recommend you archive older events over to another table, " +
+                            "remove older rows, or truncate this table to ensure that performance is not affected negatively");
     			}
 			}
 
-			M_log.info("period: {}, batch: {}, checkDb: {}", m_period, m_batchWrite, m_checkDb);
+			M_log.info(this + ".init() - period: " + m_period / 1000 + " batch: " + m_batchWrite + " checkDb: " + m_checkDb);
 
             String sakaiVersion = serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown");
-            M_log.info("Server Start: serverId={}, serverInstance={}, serverIdInstance={}, version={}",
-					serverConfigurationService().getServerId(),
-					serverConfigurationService().getServerInstance(),
-					serverConfigurationService().getServerIdInstance(),
-					sakaiVersion);
+            M_log.info("Server Start: serverId="+serverConfigurationService().getServerId()+",serverInstance="+serverConfigurationService().getServerInstance()+",serverIdInstance="+serverConfigurationService().getServerIdInstance()+",version="+sakaiVersion);
+			//this.post(this.newEvent("server.start", sakaiVersion, false));
 
             // initialize the caching server, if enabled
             initCacheServer();
@@ -285,7 +282,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                     try {
                         m_totalEventsCount = result.getLong(1);
                     } catch (SQLException ignore) {
-                        M_log.info("Could not get count of events table using SQL ({})", eventCountStmt);
+                        M_log.info("Could not get count of events table using SQL (" + eventCountStmt + ")");
                     }
                     return Long.valueOf(m_totalEventsCount);
                 }
@@ -330,7 +327,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		}
 		catch (Exception t)
 		{
-			M_log.warn("postEvent, notifyObservers(), event: {}", event.toString(), t);
+			M_log.warn("postEvent, notifyObservers(), event: " + event.toString(), t);
 		}
 
 		// batch the event if we are batching
@@ -348,7 +345,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			writeEvent(event, null);
 		}
 
-		M_log.debug("{}{}", m_logId, event);
+		if (M_log.isDebugEnabled()) M_log.debug(m_logId + event);
 	}
 
 	/**
@@ -377,7 +374,8 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
         } else {
             boolean ok = sqlService().dbWrite(conn, statement, fields);
             if (!ok) {
-                M_log.warn("dbWrite failed: session: {} event: {}", fields[3], event.toString());
+                M_log.warn(this + ".writeEvent(): dbWrite failed: session: "
+                        + fields[3] + " event: " + event.toString());
             }
         }
     }
@@ -429,7 +427,9 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
                 } else {
                     boolean ok = sqlService().dbWrite(conn, statement, fields);
                     if (!ok) {
-                        M_log.warn("dbWrite failed: session: {} event: {}", fields[3], event.toString());
+                        M_log.warn(this
+                                + ".writeBatchEvents(): dbWrite failed: session: "
+                                + fields[3] + " event: " + event.toString());
                     }
                 }
             }
@@ -449,10 +449,10 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				}
 				catch (Exception ee)
 				{
-					M_log.warn("while rolling back: {}", ee.getMessage(), ee);
+					M_log.warn(this + ".writeBatchEvents, while rolling back: " + ee);
 				}
 			}
-			M_log.warn("{}", e.getMessage(), e);
+			M_log.warn(this + ".writeBatchEvents: " + e, e);
 		}
 		finally
 		{
@@ -467,7 +467,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				}
 				catch (Exception e)
 				{
-					M_log.warn("while setting auto commit: {}", e.getMessage(), e);
+					M_log.warn(this + ".writeBatchEvents, while setting auto commit: " + e, e);
 				}
 				sqlService().returnConnection(conn);
 			}
@@ -544,12 +544,12 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 				if (myEvents.size() > 0)
 				{
-					M_log.debug("writing {} batched events", myEvents.size());
+						if (M_log.isDebugEnabled()) M_log.debug("writing " + myEvents.size() + " batched events");
 					writeBatchEvents(myEvents);
 				}
 			}
 
-			M_log.debug("checking for events > {}", m_lastEventSeq);
+				if (M_log.isDebugEnabled()) M_log.debug("checking for events > " + m_lastEventSeq);
 			// check the db for new events
 			// We do a left join which gets us records from non-sessions also (SESSION_SERVER may be null when non-session events are returned)
 			String statement = clusterEventTrackingServiceSql.getEventSql();
@@ -659,7 +659,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		}
 		catch (Throwable t)
 		{
-			M_log.error("{}error during execution {}", m_logId, t.getMessage(), t);
+			M_log.error(m_logId + " error during execution " + t.getMessage(), t);
 		}
 	}
 
@@ -686,7 +686,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			}
 		});
 
-		M_log.debug("Starting (after) Event #: {}", m_lastEventSeq);
+		if (M_log.isDebugEnabled()) M_log.debug(this + " Starting (after) Event #: " + m_lastEventSeq);
 	}
 
     /**
