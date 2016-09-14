@@ -25,7 +25,6 @@ a{
 	}
 	&[href]{  // This means a[href]
 		color: $link-color;
-		background-color: $link-background-color;
 		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
 			outline-color: invert;
 		}
