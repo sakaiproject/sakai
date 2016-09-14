@@ -61,7 +61,7 @@ public class HtmlPageFilter implements ContentFilter {
 "    <title>{2}</title>\n" +
 "    <link href=\"{0}/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <link href=\"{0}/{1}/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
-"    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n" +
+"    <script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n" +
 "{3}"+
 "    <style>body '{ padding: 5px !important; }'</style>\n" +
 "  </head>\n" +
@@ -128,6 +128,7 @@ public class HtmlPageFilter implements ContentFilter {
 				)
 			));
 		}
+		additionalScripts.append(serverConfigurationService.getString("portal.include.extrahead", ""));
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, additionalScripts));
         
 		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
