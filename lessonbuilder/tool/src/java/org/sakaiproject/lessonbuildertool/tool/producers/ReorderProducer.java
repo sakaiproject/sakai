@@ -112,6 +112,9 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		if (simplePageBean.canEditPage()) {
 
 		    // make sure the order is right
+		    // go to the database for reads, to make sure we get most recent item data
+			simplePageToolDao.setRefreshMode();
+
 			simplePageBean.fixorder();
 
 			SimplePage page = simplePageBean.getCurrentPage();

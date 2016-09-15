@@ -81,6 +81,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.hibernate.HibernateException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
@@ -113,6 +115,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     public HibernateTemplate getDaoHibernateTemplate() {
 	return getHibernateTemplate();
     }
+
+    // make sure future reads come from the database. Currently used to minimize the possibiliy of race conditions
+    // involving old data, for the sequence number. I'm not currently clearing the session cache, because this 
+    // method is called before anyone has read any items, so there shouldn't be any old data there.
+	public void setRefreshMode() {
+	    final HibernateCallback hcb = new HibernateCallback(){
+		    public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			session.setCacheMode(org.hibernate.CacheMode.REFRESH);
+			return null;
+		    };
+		};
+            getHibernateTemplate().executeFind(hcb);
+	}
 
 	public boolean canEditPage() {
 		String ref = null;
@@ -648,6 +663,54 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    } else if (o instanceof SimplePage) {
 			SimplePage i = (SimplePage)o;
 			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/page/" + i.getPageId(), true));
+		    } 
+
+		    if(o instanceof SimplePageItem || o instanceof SimplePage) {
+		    	updateStudentPage(o);
+		    }
+		    
+		    return true;
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+		    getCause(e, elist);
+		    return false;
+		} catch (org.hibernate.exception.DataException e) {
+		    getCause(e, elist);
+		    return false;
+		} catch (DataAccessException e) {
+		    getCause(e, elist);
+		    return false;
+		}
+	}
+
+	public boolean saveOrUpdate(Object o, List<String>elist, String nowriteerr, boolean requiresEditPermission) {
+		
+		/*
+		 * 1) If o is SimplePageItem or SimplePage, it makes sure it gets the right page and checks the
+		 *    permissions on it.
+		 * 2) If it's a log entry or question response, it lets it go.
+		 * 3) If requiresEditPermission is set to false, it lets it go.
+		 * 
+		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
+		 */
+	    if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
+	    			&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
+				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
+				&& !(o instanceof SimplePageGroup)) {
+			elist.add(nowriteerr);
+			return false;
+		}
+
+		try {
+		    getHibernateTemplate().saveOrUpdate(o);
+		    
+		    if (o instanceof SimplePageItem) {
+			SimplePageItem i = (SimplePageItem)o;
+			String eventType = (i.getId() == 0 ? "lessonbuilder.create" : "lessonbuilder.update");
+			EventTrackingService.post(EventTrackingService.newEvent(eventType, "/lessonbuilder/item/" + i.getId(), true));
+		    } else if (o instanceof SimplePage) {
+			SimplePage i = (SimplePage)o;
+			String eventType = (i.getPageId() == 0 ? "lessonbuilder.create" : "lessonbuilder.update");
+			EventTrackingService.post(EventTrackingService.newEvent(eventType, "/lessonbuilder/page/" + i.getPageId(), true));
 		    } 
 
 		    if(o instanceof SimplePageItem || o instanceof SimplePage) {

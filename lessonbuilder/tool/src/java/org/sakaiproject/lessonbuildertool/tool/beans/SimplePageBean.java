@@ -969,6 +969,31 @@ public class SimplePageBean {
 		return saveItem(i, true);
 	}
 	
+	public boolean saveOrUpdate(Object i) {
+		String err = null;
+		List<String>elist = new ArrayList<String>();
+		
+		try {
+			simplePageToolDao.saveOrUpdate(i,  elist, messageLocator.getMessage("simplepage.nowrite"), true);
+		} catch (Throwable t) {	
+			// this is probably a bogus error, but find its root cause
+			while (t.getCause() != null) {
+				t = t.getCause();
+			}
+			err = t.toString();
+		}
+		
+		// if we got an error from saveItem use it instead
+		if (elist.size() > 0)
+			err = elist.get(0);
+		if (err != null) {
+			setErrMessage(messageLocator.getMessage("simplepage.savefailed") + err);
+			return false;
+		}
+		
+		return true;
+	}
+
 	public boolean update(Object i) {
 		return update(i, true);
 	}
@@ -1129,7 +1154,7 @@ public class SimplePageBean {
 				item.setHtml(html);
 				item.setPrerequisite(this.prerequisite);
 				setItemGroups(item, selectedGroups);
-				update(item);
+				saveItem(item);
 			} else {
 				rv = "cancel";
 			}
@@ -1220,7 +1245,7 @@ public class SimplePageBean {
 			}
 		}
 
-		update(item);
+		saveOrUpdate(item);
 
 		return "success";
 	}
@@ -1491,7 +1516,7 @@ public class SimplePageBean {
 		}
 		
 		i.setAttribute("addedby", getCurrentUserId());
-		update(i);
+		saveOrUpdate(i);
 
 		return "importing";
 	}
@@ -1543,6 +1568,9 @@ public class SimplePageBean {
     // main code for adding a new item to a page
 	private SimplePageItem appendItem(String id, String name, int type)   {
 	    // add at the end of the page
+	        // minimize race conditions for sequence numbers by making sure we fetch items
+	        // we're going to update directly from the database
+		simplePageToolDao.setRefreshMode();
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
 		long before = 0;
@@ -1601,7 +1629,6 @@ public class SimplePageBean {
 		// image, leave it blank, since browser will then use the native size
 		clearImageSize(i);
 
-		saveItem(i);
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		toolSession.setAttribute("lessonbuilder.newitem", ""+i.getId()); 
 
@@ -1824,6 +1851,8 @@ public class SimplePageBean {
 		b = simplePageToolDao.deleteItem(i);
 		
 		if (b) {
+			// minimize opening for race conditions on sequence number by forcing new fetches
+			simplePageToolDao.setRefreshMode();
 			List<SimplePageItem> list = getItemsOnPage(getCurrentPageId());
 			for (SimplePageItem item : list) {
 				if (item.getSequence() > seq) {
@@ -2608,7 +2637,7 @@ public class SimplePageBean {
 		    i.setName(subpage.getTitle());
 		}
 
-		update(i);
+		saveOrUpdate(i);
 
 		if (makeNewPage) {
 		    // if creating new entry, go to it
@@ -2832,8 +2861,6 @@ public class SimplePageBean {
 			    i.setHeight(height);
 			}
 
-			update(i);
-
 			if (i.getType() == SimplePageItem.PAGE) {
 				SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
 				if (page != null) {
@@ -2849,6 +2876,7 @@ public class SimplePageBean {
 			}
 
 			setItemGroups(i, selectedGroups);
+			update(i);
 
 			return "successEdit"; // Shouldn't reload page
 		}
@@ -3074,7 +3102,7 @@ public class SimplePageBean {
 				// no, add new item
 				i = appendItem(selectedEntity, selectedObject.getTitle(), SimplePageItem.FORUM);
 				i.setDescription("");
-				update(i);
+				saveItem(i);
 			    }
 			    return "success";
 			} catch (Exception ex) {
@@ -3151,7 +3179,7 @@ public class SimplePageBean {
 				//  i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
 				//else
 				i.setDescription(null);
-				update(i);
+				saveItem(i);
 			    }
 			    return "success";
 			} catch (Exception ex) {
@@ -3228,7 +3256,7 @@ public class SimplePageBean {
 				    else
 					i.setFormat(format);
 				}
-				update(i);
+				saveItem(i);
 			    }
 			    return "success";
 			} catch (Exception ex) {
@@ -3712,7 +3740,6 @@ public class SimplePageBean {
 	       }
 	   }
 	   i.setGroups(groupString);
-	   update(i);
 
 	   return ret; // old value
        }
@@ -3811,8 +3838,10 @@ public class SimplePageBean {
 
 				    update(i);
 				}
-			    } else  // no, add new item
-				appendItem(selectedQuiz, selectedObject.getTitle(), SimplePageItem.ASSESSMENT);
+			    } else { // no, add new item
+				i = appendItem(selectedQuiz, selectedObject.getTitle(), SimplePageItem.ASSESSMENT);
+				saveItem(i);
+			    }
 			    return "success";
 			} catch (Exception ex) {
 			    ex.printStackTrace();
@@ -3865,7 +3894,8 @@ public class SimplePageBean {
 		String url = linkUrl;
 		url = normUrl(url);
 
-		appendItem(url, url, SimplePageItem.URL);
+		SimplePageItem i = appendItem(url, url, SimplePageItem.URL);
+		saveItem(i);
 
 		return "success";
 	}
@@ -3926,8 +3956,8 @@ public class SimplePageBean {
 			i.setDescription(description);
 			i.setHtml(mimetype);
 			i.setPrerequisite(this.prerequisite);
-			update(i);
 			setItemGroups(i, selectedGroups);
+			update(i);
 			return "success";
 		} else {
 			log.warn("editMultimedia Could not find multimedia object: " + itemId);
@@ -4434,6 +4464,8 @@ public class SimplePageBean {
 			return "cancel";
 		}
 		
+		simplePageToolDao.setRefreshMode();
+
 		fixorder(); // order has to be contiguous or things will break
 
 		order = order.trim();
@@ -6085,7 +6117,7 @@ public class SimplePageBean {
 			    //		if (itemId == -1)
 			    //		saveItem(item);
 			    //		  else
-					update(item);
+					saveOrUpdate(item);
 			} catch (Exception e) {
 			    log.info("save error " + e);
 				// 	saveItem and update produce the errors
@@ -6330,9 +6362,8 @@ public class SimplePageBean {
 		item.setDescription(description);
 		item.setPrerequisite(this.prerequisite);
 
-		update(item);
-
 		setItemGroups(item, selectedGroups);
+		update(item);
 
 	}
 
@@ -6408,9 +6439,9 @@ public class SimplePageBean {
 		item.setDescription(description);
 		item.setPrerequisite(prerequisite);
 		item.setHtml(mimetype);
-		update(item);
 
 		setItemGroups(item, selectedGroups);
+		update(item);
 
 	}
 	
@@ -6419,7 +6450,7 @@ public class SimplePageBean {
 		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.comments-section"), SimplePageItem.COMMENTS);
 			item.setDescription(messageLocator.getMessage("simplepage.comments-section"));
-			update(item);
+			saveItem(item);
 			
 			// Must clear the cache so that the new item appears on the page
 			itemsCache.remove(getCurrentPage().getPageId());
@@ -6681,7 +6712,7 @@ public class SimplePageBean {
 		if(getCurrentPage().getOwner() == null && canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
-			update(item);
+			saveItem(item);
 			
 			// Must clear the cache so that the new item appears on the page
 			itemsCache.remove(getCurrentPage().getPageId());
@@ -7015,9 +7046,9 @@ public class SimplePageBean {
 		    item.setGradebookPoints(null);
 		item.setPrerequisite(prerequisite);
 		
-		update(item);
-		
 		setItemGroups(item, selectedGroups);
+
+		saveOrUpdate(item);
 
 		regradeAllQuestionResponses(item.getId());
 		
@@ -7756,7 +7787,7 @@ public class SimplePageBean {
 			String text = fields[1];
 			simplePageToolDao.addPeerEvalRow(item, rowId, text);
 		}
-		update(item);
+		saveOrUpdate(item);
 		return "success";
 	}
 

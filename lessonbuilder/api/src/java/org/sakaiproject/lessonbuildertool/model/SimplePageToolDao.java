@@ -61,6 +61,9 @@ public interface SimplePageToolDao {
 
     public HibernateTemplate getDaoHibernateTemplate();
 
+    // set refresh mode for the session, so all queries come from the database
+	public void setRefreshMode();
+
     // session flush
 	public void flush();
 
@@ -168,6 +171,9 @@ public interface SimplePageToolDao {
     //   the user doesn't have write permission. See saveitem in SimplePageBean for why we need
     //   to use this convoluted approach to getting back errors
 	public boolean saveItem(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
+
+    // like saveItem but uses saveOrUpdate
+	public boolean saveOrUpdate(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
 
     // just do the save, no permission checking and no logging
 	public boolean quickSaveItem(Object o);
