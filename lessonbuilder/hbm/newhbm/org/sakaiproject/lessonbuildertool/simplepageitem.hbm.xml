@@ -5,7 +5,9 @@
 
    <!-- put your value object in the class name, 
       the table name is optional but you should specify it to avoid collisions -->
-   <class name="org.sakaiproject.lessonbuildertool.SimplePageItemImpl" table="lesson_builder_items">
+   <!-- dynamic update so we don't resave a possibly out of date sequence number -->
+   <class name="org.sakaiproject.lessonbuildertool.SimplePageItemImpl" table="lesson_builder_items"
+	  dynamic-update="true">
 
        <cache usage="nonstrict-read-write" />
 
