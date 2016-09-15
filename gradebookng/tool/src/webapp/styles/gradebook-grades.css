@@ -695,13 +695,10 @@
 .gb-popover-notifications li:before {
   margin-right: 5px;
 }
-.gb-popover-notifications .gb-popover-notification-error:before {
-  font-family: "gradebook-icons";
-  content: "\f06a";
-}
+.gb-popover-notifications .gb-popover-notification-error:before,
 .gb-popover-notifications .gb-popover-notification-invalid:before {
   font-family: "gradebook-icons";
-  content: "\f071";
+  content: "\f06a";
 }
 .gb-popover-notifications .gb-popover-notification-overlimit:before {
   font-family: "gradebook-icons";
@@ -844,21 +841,15 @@ div.wicket-modal div.w_right > div {
   top: 50%;
   margin-top: -0.55em;
 }
-.grade-save-error {
+.grade-save-error,
+.grade-save-warning {
 	background-color: #ffbbbb !important;
 }
-.gb-cell-notification-error:before {
+.gb-cell-notification-error:before,
+.gb-cell-notification-warning:before {
   font-family: "gradebook-icons";
   content: "\f06a";
   color: rgb(204,0,0);
-}
-.grade-save-warning {
-  background-color: #fcf8e3 !important;
-}
-.gb-cell-notification-warning:before {
-  font-family: "gradebook-icons";
-  content: "\f071";
-  color: rgb(200,144,0);
 }
 .gb-readonly-item-cell .gb-cell-notification-warning,
 .gb-external-item-cell .gb-cell-notification-warning {
