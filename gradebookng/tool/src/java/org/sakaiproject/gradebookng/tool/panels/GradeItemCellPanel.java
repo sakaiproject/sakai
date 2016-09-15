@@ -63,6 +63,7 @@ public class GradeItemCellPanel extends Panel {
 	boolean gradeable;
 	boolean showMenu;
 
+	GradeCellStyle baseGradeStyle = GradeCellStyle.NORMAL;
 	GradeCellSaveStyle gradeSaveStyle;
 	
 	GbGradingType gradingType;
@@ -143,13 +144,11 @@ public class GradeItemCellPanel extends Panel {
 			this.showMenu = false;
 
 			if (isExternal) {
-				getParentCellFor(this).add(new AttributeModifier("class", "gb-external-item-cell"));
+				baseGradeStyle = GradeCellStyle.EXTERNAL;
 				this.notifications.add(GradeCellNotification.IS_EXTERNAL);
 			} else if (!this.gradeable) {
-				getParentCellFor(this).add(new AttributeModifier("class", "gb-readonly-item-cell"));
+				baseGradeStyle = GradeCellStyle.READONLY;
 				this.notifications.add(GradeCellNotification.READONLY);
-			} else {
-				getParentCellFor(this).add(new AttributeModifier("class", "gb-grade-item-cell"));
 			}
 
 		} else {
@@ -173,26 +172,8 @@ public class GradeItemCellPanel extends Panel {
 					final Component parentCell = getParentCellFor(this);
 					parentCell.add(new AttributeModifier("data-assignmentid", assignmentId));
 					parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
-					parentCell.add(new AttributeModifier("class", "gb-grade-item-cell"));
+					parentCell.add(new AttributeModifier("class", GradeCellStyle.NORMAL.getCss()));
 					parentCell.setOutputMarkupId(true);
-
-					// check if grade is over limit and mark the cell with the warning class
-					double pointsLimit = 0;
-					if (gradingType == GbGradingType.PERCENTAGE) {
-						pointsLimit = 100;
-					} else {
-						pointsLimit = assignmentPoints.doubleValue();
-					}
-
-					if (NumberUtils.toDouble(GradeItemCellPanel.this.formattedGrade) > pointsLimit) {
-						markOverLimit(this);
-						GradeItemCellPanel.this.notifications.add(GradeCellNotification.OVER_LIMIT);
-					}
-
-					// check if we have a comment and mark the cell with the comment icon
-					if (StringUtils.isNotBlank(GradeItemCellPanel.this.comment)) {
-						markHasComment(this);
-					}
 
 					GradeItemCellPanel.this.showMenu = true;
 				}
@@ -434,6 +415,25 @@ public class GradeItemCellPanel extends Panel {
 		getParent().add(new AttributeModifier("role", "gridcell"));
 		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal || !this.gradeable)));
 
+		// check if grade is over limit and mark the cell with the warning class
+		double pointsLimit = 0;
+		if (gradingType == GbGradingType.PERCENTAGE) {
+			pointsLimit = 100;
+		} else {
+			pointsLimit = assignmentPoints.doubleValue();
+		}
+		if (NumberUtils.toDouble(GradeItemCellPanel.this.formattedGrade) > pointsLimit) {
+			markOverLimit(this);
+			GradeItemCellPanel.this.notifications.add(GradeCellNotification.OVER_LIMIT);
+		}
+
+		// check if we have a comment and mark the cell with the comment icon
+		if (StringUtils.isNotBlank(GradeItemCellPanel.this.comment)) {
+			markHasComment(this);
+		}
+
+		styleGradeCell(this);
+
 		refreshNotifications();
 	}
 
@@ -490,7 +490,7 @@ public class GradeItemCellPanel extends Panel {
 	private void styleGradeCell(final Component gradeCell) {
 
 		final ArrayList<String> cssClasses = new ArrayList<>();
-		cssClasses.add("gb-grade-item-cell"); // always
+		cssClasses.add(baseGradeStyle.getCss()); // always
 		if (this.gradeSaveStyle != null) {
 			cssClasses.add(this.gradeSaveStyle.getCss()); // the particular style for this cell that has been computed previously
 		}
@@ -510,6 +510,27 @@ public class GradeItemCellPanel extends Panel {
 			return component;
 		} else {
 			return getParentCellFor(component.getParent());
+		}
+	}
+
+	/**
+	 * Enum for encapsulating the base grade cell CSS class
+	 *
+	 */
+	enum GradeCellStyle {
+
+		NORMAL("gb-grade-item-cell"),
+		READONLY("gb-readonly-item-cell"),
+		EXTERNAL("gb-external-item-cell");
+
+		private String css;
+
+		GradeCellStyle(final String css) {
+			this.css = css;
+		}
+
+		public String getCss() {
+			return this.css;
 		}
 	}
 

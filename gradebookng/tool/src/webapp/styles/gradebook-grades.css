@@ -715,6 +715,11 @@
   font-family: "gradebook-icons";
   content: '\f040';
 }
+.gb-popover-notification-is-external:before,
+.gb-popover-notification-is-readonly {
+  font-family: "gradebook-icons";
+  content: '\f023';
+}
 .gb-popover-notifications .gb-popover-link {
   float: right;
   font-size: 0.9em;
@@ -869,6 +874,16 @@ div.wicket-modal div.w_right > div {
 .gb-external-item-cell .gb-cell-notification-warning:before {
   color: #CCC;
   content: '\f023';
+}
+.gb-readonly-item-cell.grade-save-over-limit .gb-cell-notification-warning:after,
+.gb-external-item-cell.grade-save-over-limit .gb-cell-notification-warning:after {
+  font-family: "gradebook-icons";
+  content: '\f0fe';
+  color: rgb(200,144,0);
+  font-size: 10px;
+  left: 12px;
+  position: absolute;
+  top: 6px;
 }
 .gb-readonly-item-cell:focus .gb-cell-notification-warning,
 .gb-readonly-item-cell .gb-cell-notification-warning:focus,
