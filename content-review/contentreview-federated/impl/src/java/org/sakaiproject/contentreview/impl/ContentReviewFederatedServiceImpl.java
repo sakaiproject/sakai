@@ -7,8 +7,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.exception.QueueException;
@@ -25,7 +25,7 @@ import org.sakaiproject.tool.api.ToolManager;
  */
 public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 
-    private static Log log = LogFactory.getLog(ContentReviewFederatedServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(ContentReviewFederatedServiceImpl.class);
 
 	private ServerConfigurationService serverConfigurationService;
 	private List <ContentReviewService> providers;
