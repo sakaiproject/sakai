@@ -25,6 +25,7 @@
         <value>org/sakaiproject/tool/assessment/data/dao/grading/MediaData.hbm.xml</value>
         <value>org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
         <value>org/sakaiproject/tool/assessment/data/dao/assessment/FavoriteColChoices.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/ExtendedTime.hbm.xml</value>
       </list>
     </property>
   </bean>
@@ -54,6 +55,7 @@
      <property name="favoriteColChoicesFacadeQueries"><ref bean ="FavoriteColChoicesFacadeQueries"/></property>
      <property name="sectionAwareness" ><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
      <property name="eventLogFacadeQueries" ><ref bean="EventLogFacadeQueries"/></property>
+     <property name="extendedTimeFacade" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade" />
    </bean>
     
    <bean id="TypeFacadeQueries"
@@ -401,9 +403,30 @@
         <property name="expandByDefault"><value>true</value></property>
     </bean>
 
+    <bean id="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade"
+          class="org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade"
+        init-method="init">
+        <property name="extendedTimeQueries" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesAPI" />
+    </bean>
 
+    <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
+    <bean id="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesTarget"
+          class="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueries"
+          init-method="init">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </bean>
 
-
+    <!-- Extended Time Data Access Object -->
+    <bean id="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesAPI"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+        <property name="target" ref="org.sakaiproject.tool.assessment.facade.ExtendedTimeQueriesTarget" />
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
 
 </beans>
 

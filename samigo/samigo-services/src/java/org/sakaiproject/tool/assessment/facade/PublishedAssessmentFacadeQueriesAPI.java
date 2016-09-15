@@ -29,20 +29,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Collection;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -139,72 +126,11 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public ArrayList getAllTakeableAssessments(String orderBy, boolean ascending,
       Integer status);
 
-  /**
-   public ArrayList getAllPublishedAssessmentId() {
-
-   ArrayList list = getBasicInfoOfAllActivePublishedAssessments("title", true);
-   ArrayList publishedIds = new ArrayList();
-   for (int i = 0; i < list.size(); i++) {
-   PublishedAssessmentFacade f = (PublishedAssessmentFacade) list.get(i);
-   Long publishedId = f.getPublishedAssessmentId();
-   publishedIds.add(publishedId);
-   }
-   return publishedIds;
-
-   }
-   */
-
   public Integer getNumberOfSubmissions(String publishedAssessmentId,
       String agentId);
 
   public List getNumberOfSubmissionsOfAllAssessmentsByAgent(String agentId);
 
-  /**
-   public ArrayList getAllReviewableAssessments(String orderBy,
-   boolean ascending) {
-
-   ArrayList publishedIds = getAllPublishedAssessmentId();
-   ArrayList newlist = new ArrayList();
-   for (int i = 0; i < publishedIds.size(); i++) {
-   String publishedId = ( (Long) publishedIds.get(i)).toString();
-   String query = "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? order by agentId ASC," +
-   orderBy;
-   if (ascending) {
-   query += " asc,";
-   }
-   else {
-   query += " desc,";
-   }
-   query += "submittedDate DESC";
-   List list = getHibernateTemplate().find(query, new Long(publishedId),
-   Hibernate.LONG);
-   if (!list.isEmpty()) {
-   Iterator items = list.iterator();
-   String agentid = null;
-   AssessmentGradingData data = (AssessmentGradingData) items.next();
-   agentid = data.getAgentId();
-   newlist.add(data);
-   while (items.hasNext()) {
-   while (items.hasNext()) {
-   data = (AssessmentGradingData) items.next();
-   if (!data.getAgentId().equals(agentid)) {
-   agentid = data.getAgentId();
-   newlist.add(data);
-   break;
-   }
-   }
-   }
-   }
-   }
-   ArrayList assessmentList = new ArrayList();
-   for (int i = 0; i < newlist.size(); i++) {
-   AssessmentGradingData a = (AssessmentGradingData) newlist.get(i);
-   AssessmentGradingFacade f = new AssessmentGradingFacade(a);
-   assessmentList.add(f);
-   }
-   return assessmentList;
-   }
-   */
   public ArrayList getAllPublishedAssessments(String sortString);
 
   public ArrayList getAllPublishedAssessments(String sortString, Integer status);
