@@ -21,7 +21,7 @@
 
 package org.sakaiproject.portal.util;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -65,19 +65,16 @@ public class PortalUtils
 	 */
 	public static String getCDNQuery()
 	{
-		long expire = ServerConfigurationService.getInt("portal.cdn.expire",0);
-		String version = ServerConfigurationService.getString("portal.cdn.version");
-		if ( expire < 1 && version == null ) return "";
-		String retval = "?";
+		long expire = ServerConfigurationService.getInt("portal.cdn.expire", 0);
+		String version = ServerConfigurationService.getString("portal.cdn.version", ServerConfigurationService.getString("version.service", "0"));
+		StringBuilder cdnQuery = new StringBuilder();
+		cdnQuery.append("?version=").append(version);
 		if ( expire > 0 ) {
-			Date dt = new Date();
-			long timeVal = dt.getTime() / 1000; // Seconds...
-			expire = timeVal / expire;
-			retval = retval + "expire=" + expire;
-			if ( version != null ) retval = retval + "&";
+			Instant instant = Instant.now();
+			expire = instant.getEpochSecond() / expire;
+			cdnQuery.append("&expire=").append(expire);
 		}
-		if ( version != null ) retval = retval + "version=" + version;
-		return retval;
+		return cdnQuery.toString();
 	}
 
 	/**
