@@ -27,8 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 
@@ -37,7 +37,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
  */
 public class BasicHttpCommand implements HttpCommand
 {
-	private static Log log = LogFactory.getLog(BasicHttpCommand.class);
+	private static Logger log = LoggerFactory.getLogger(BasicHttpCommand.class);
 	
 	private String servletPath;
 

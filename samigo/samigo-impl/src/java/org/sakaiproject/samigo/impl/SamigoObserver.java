@@ -22,13 +22,14 @@ import java.util.Observer;
 
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
 public class SamigoObserver implements Observer {
-    private static final Logger log = Logger.getLogger(SamigoObserver.class);
+    private static final Logger log = LoggerFactory.getLogger(SamigoObserver.class);
 
     public void init() {
         log.info("init()");

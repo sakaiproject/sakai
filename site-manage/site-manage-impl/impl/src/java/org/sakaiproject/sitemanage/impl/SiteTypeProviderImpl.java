@@ -28,8 +28,8 @@ import java.util.Vector;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
@@ -44,7 +44,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SiteTypeProviderImpl implements org.sakaiproject.sitemanage.api.SiteTypeProvider {
 	
 
-	private static final Log log = LogFactory.getLog(SiteTypeProviderImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SiteTypeProviderImpl.class);
 	
 	private static ResourceLoader rb = new ResourceLoader("SiteTypeProvider");
 	

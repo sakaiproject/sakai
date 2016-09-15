@@ -43,8 +43,8 @@ import javax.faces.model.SelectItem;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
@@ -58,7 +58,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  */
 public abstract class EnrollmentTableBean
     extends GradebookDependentBean implements Paging, Serializable {
-	private static final Log log = LogFactory.getLog(EnrollmentTableBean.class);
+	private static final Logger log = LoggerFactory.getLogger(EnrollmentTableBean.class);
 
     /**
      * A comparator that sorts enrollments by student sortName

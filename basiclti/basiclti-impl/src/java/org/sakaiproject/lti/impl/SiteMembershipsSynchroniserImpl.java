@@ -38,12 +38,12 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroniser {
 
-	private static Log M_log = LogFactory.getLog(SiteMembershipsSynchroniserImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteMembershipsSynchroniserImpl.class);
 
     private UserFinderOrCreator userFinderOrCreator = null;
     public void setUserFinderOrCreator(UserFinderOrCreator userFinderOrCreator) {

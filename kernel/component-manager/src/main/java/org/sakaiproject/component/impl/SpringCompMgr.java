@@ -31,8 +31,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
@@ -54,7 +54,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 public class SpringCompMgr implements ComponentManager {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SpringCompMgr.class);
+	private static Logger M_log = LoggerFactory.getLogger(SpringCompMgr.class);
 
 	/**
 	 * System property to control if we close on jvm shutdown (if set) or on the
@@ -162,8 +162,8 @@ public class SpringCompMgr implements ComponentManager {
 				m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STARTED));
 			} catch (Exception e) {
 				if (Boolean.valueOf(System.getProperty(SHUTDOWN_ON_ERROR, "false"))) {
-					M_log.fatal(e.getMessage(), e);
-					M_log.fatal("Shutting down JVM");
+					M_log.error(e.getMessage(), e);
+					M_log.error("Shutting down JVM");
 					System.exit(1);
 				} else {
 					M_log.error(e.getMessage(), e);

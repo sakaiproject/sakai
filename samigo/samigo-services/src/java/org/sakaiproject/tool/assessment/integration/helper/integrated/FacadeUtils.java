@@ -26,15 +26,15 @@ import java.util.*;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator; 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 
 /**
  * borrowed gradebook's FacadeUtils class
  */
 public class FacadeUtils {
-	private static final Log log = LogFactory.getLog(FacadeUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(FacadeUtils.class);
 
 	// Enforce noninstantiability.
 	private FacadeUtils() {

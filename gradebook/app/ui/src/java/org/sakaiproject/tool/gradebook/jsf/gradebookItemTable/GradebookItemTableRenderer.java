@@ -14,8 +14,8 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.myfaces.shared_impl.renderkit.html.HTML;
 
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -26,7 +26,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 
 public class GradebookItemTableRenderer extends Renderer {
 
-	protected static final Log log = LogFactory.getLog(GradebookItemTableRenderer.class);
+	protected static final Logger log = LoggerFactory.getLogger(GradebookItemTableRenderer.class);
 
 	private static final String CURSOR = "cursor:pointer";
 	private static final String EXPANDED_IMG = "/images/expand.gif";

@@ -28,8 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -43,7 +43,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class OverviewBean extends FilteredSectionListingBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(OverviewBean.class);
+	private static final Logger log = LoggerFactory.getLogger(OverviewBean.class);
 
 	private String instructions;
 	private boolean externallyManaged;

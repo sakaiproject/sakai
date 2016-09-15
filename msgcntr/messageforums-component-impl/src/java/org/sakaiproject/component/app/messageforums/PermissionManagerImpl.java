@@ -22,8 +22,8 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -56,7 +56,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class PermissionManagerImpl extends HibernateDaoSupport implements PermissionManager {
 
-    private static final Log LOG = LogFactory.getLog(PermissionManagerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PermissionManagerImpl.class);
 
     private static final String QUERY_CP_BY_ROLE = "findAreaControlPermissionByRole";
     private static final String QUERY_CP_BY_FORUM = "findForumControlPermissionByRole";

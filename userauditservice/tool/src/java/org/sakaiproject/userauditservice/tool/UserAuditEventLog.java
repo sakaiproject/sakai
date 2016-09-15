@@ -39,8 +39,8 @@ import java.util.Map;
 
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jsf.util.LocaleUtil;
@@ -53,7 +53,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class UserAuditEventLog {
-	private static final Log log = LogFactory.getLog(UserAuditEventLog.class);
+	private static final Logger log = LoggerFactory.getLogger(UserAuditEventLog.class);
 	protected List<EventLog> eventLog = new ArrayList<EventLog>();
 	// Static comparators
 	public static final Comparator<EventLog> displayNameComparatorEL;
@@ -367,7 +367,7 @@ public class UserAuditEventLog {
 				}
 		 		catch (SQLException e)
 		 		{
-					log.warn("Error trying to close the result set in the Roster Event Log!", e);
+					log.warn("Error trying to close the result set in the Roster Event Logger!", e);
 		 		}
 				try
 				{
@@ -378,7 +378,7 @@ public class UserAuditEventLog {
 				}
 		 		catch (SQLException e)
 		 		{
-					log.warn("Error trying to close the statement in the Roster Event Log!", e);
+					log.warn("Error trying to close the statement in the Roster Event Logger!", e);
 		 		}
 				try
 				{
@@ -389,7 +389,7 @@ public class UserAuditEventLog {
 				}
 		 		catch (SQLException e)
 		 		{
-					log.warn("Error trying to close the database connection in the Roster Event Log!", e);
+					log.warn("Error trying to close the database connection in the Roster Event Logger!", e);
 		 		}
 			}
 		}

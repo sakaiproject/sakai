@@ -106,22 +106,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-betwixt</groupId>
@@ -129,7 +119,7 @@
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils-core</artifactId>
+            <artifactId>commons-beanutils</artifactId>
         </dependency>
 
         <!-- Apache others -->
@@ -230,27 +220,6 @@
             <artifactId>servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
     </dependencies>
     <build>
 

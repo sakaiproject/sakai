@@ -60,8 +60,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -191,7 +191,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 	
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(AssignmentAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(AssignmentAction.class);
 
 	private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
 	
@@ -3904,7 +3904,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch( NumberFormatException ex )
 		{
-			M_log.debug( ex );
+			M_log.debug(ex.getMessage());
 		}
 		
 		if( pageSize <= 1 )
@@ -7626,7 +7626,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 							}
 						} catch (IdUnusedException | PermissionException e) {
-							M_log.error(e);
+							M_log.error(e.getMessage());
 						}
 						
 						validPointGrade(state, gradePoints, scaleFactor);
@@ -9602,7 +9602,7 @@ public class AssignmentAction extends PagedResourceActionII
             contentReviewService.createAssignment(assign.getContext(), assignmentRef, opts);
 			return true;
         } catch (Exception e) {
-            M_log.error(e);
+            M_log.error(e.getMessage());
 			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 			String[] args = new String[]{contentReviewService.getServiceName(), uiService, e.toString()};
             state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
@@ -11085,7 +11085,7 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		String actualGradeSubmissionId = (String) params.getString("submissionId");
 
-		Log.debug("chef", "doAssignment_form(): actualGradeSubmissionId = " + actualGradeSubmissionId);
+	 	M_log.debug("actualGradeSubmissionId = {}", actualGradeSubmissionId);
 		
 		String option = (String) params.getString("option");
 		String fromView = (String) state.getAttribute(FROM_VIEW);
@@ -11312,10 +11312,10 @@ public class AssignmentAction extends PagedResourceActionII
 	// added by Branden Visser - Check that the state is consistent
 	boolean checkSubmissionStateConsistency(SessionState state, String actualGradeSubmissionId) {
 		String stateGradeSubmissionId = (String)state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
-		Log.debug("chef", "checkSubmissionStateConsistency(): stateGradeSubmissionId = " + stateGradeSubmissionId);
+	 	M_log.debug("stateGradeSubmissionId = {}", stateGradeSubmissionId);
 		boolean is_good = stateGradeSubmissionId.equals(actualGradeSubmissionId);
 		if (!is_good) {
-		    Log.warn("chef", "checkSubissionStateConsistency(): State is inconsistent! Aborting grade save.");
+		    M_log.warn("State is inconsistent! Aborting grade save.");
 		    addAlert(state, rb.getString("grading.alert.multiTab"));
 		}
 		return is_good;

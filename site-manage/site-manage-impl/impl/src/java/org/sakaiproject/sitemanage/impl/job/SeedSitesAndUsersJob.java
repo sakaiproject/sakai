@@ -11,8 +11,7 @@ import java.util.Random;
 import java.util.Set;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -61,7 +60,7 @@ import com.github.javafaker.Faker;
  * @author John Bush (jbush@anisakai.com)
  *
  */
-@CommonsLog
+@Slf4j
 public class SeedSitesAndUsersJob implements Job {
 	
 	@Setter

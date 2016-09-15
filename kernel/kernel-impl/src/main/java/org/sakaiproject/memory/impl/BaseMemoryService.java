@@ -23,8 +23,8 @@ package org.sakaiproject.memory.impl;
 
 import net.sf.ehcache.CacheManager;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -43,7 +43,7 @@ public class BaseMemoryService implements MemoryService {
     public static final String TYPE_EHCACHE = "ehcache";
     public static final String TYPE_HAZELCAST = "hazelcast";
 
-    final Log log = LogFactory.getLog(BaseMemoryService.class);
+    final Logger log = LoggerFactory.getLogger(BaseMemoryService.class);
 
     ServerConfigurationService serverConfigurationService;
     CacheManager cacheManager;

@@ -27,8 +27,8 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -69,7 +69,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
 
-   private static Log log = LogFactory.getLog(SessionEntityProvider.class);
+   private static Logger log = LoggerFactory.getLogger(SessionEntityProvider.class);
    protected static final String SU_WS_BECOME_USER = "su.ws.become";
 
    public SessionManager sessionManager;

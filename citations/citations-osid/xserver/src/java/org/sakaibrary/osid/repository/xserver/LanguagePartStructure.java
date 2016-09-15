@@ -21,13 +21,12 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LanguagePartStructure
 implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.LanguagePartStructure" );
-
     private org.osid.shared.Id LANGUAGE_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","language","Language");
     private String displayName = "Language";
@@ -46,7 +45,7 @@ implements org.osid.repository.PartStructure
         }
         catch (Throwable t)
         {
-        	LOG.warn( "LanguagePartStructure() failed to get partStructure id: "
+        	log.warn( "LanguagePartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
         }
     }

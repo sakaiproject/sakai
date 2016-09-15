@@ -18,7 +18,8 @@ package org.sakaiproject.profile2.tool.pages.panels;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -48,7 +49,7 @@ import twitter4j.auth.RequestToken;
 public class TwitterPrefsPane extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger log = Logger.getLogger(TwitterPrefsPane.class);
+	private static final Logger log = LoggerFactory.getLogger(TwitterPrefsPane.class);
 	private transient ExternalIntegrationInfo externalIntegrationInfo;
 	private transient RequestToken requestToken;
 	

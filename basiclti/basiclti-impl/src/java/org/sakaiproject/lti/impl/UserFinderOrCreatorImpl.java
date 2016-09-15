@@ -19,8 +19,8 @@ package org.sakaiproject.lti.impl;
 import java.util.Collection;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
@@ -37,7 +37,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
 
-	private static Log M_log = LogFactory.getLog(UserFinderOrCreatorImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(UserFinderOrCreatorImpl.class);
 
     private UserDirectoryService userDirectoryService = null;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {

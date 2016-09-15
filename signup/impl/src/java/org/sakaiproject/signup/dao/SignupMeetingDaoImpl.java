@@ -22,8 +22,8 @@ package org.sakaiproject.signup.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
@@ -47,7 +47,7 @@ import org.springframework.dao.DataAccessException;
 public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		SignupMeetingDao {
 
-	private static Log log = LogFactory.getLog(SignupMeetingDaoImpl.class);
+	private static Logger log = LoggerFactory.getLogger(SignupMeetingDaoImpl.class);
 
 	public void init() {
 		log.debug("init");

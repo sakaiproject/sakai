@@ -39,10 +39,6 @@
       <artifactId>sakai-citations-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
     </dependency>

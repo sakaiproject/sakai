@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.TriggerHandler;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.TriggerService;
@@ -38,7 +38,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Trigger;
  */
 public class TriggerServiceImpl implements TriggerService
 {
-	private static Log log = LogFactory.getLog(TriggerServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(TriggerServiceImpl.class);
 
 	private TriggerDao triggerDao;
 

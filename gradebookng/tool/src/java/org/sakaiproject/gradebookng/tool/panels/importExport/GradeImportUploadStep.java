@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -36,18 +35,18 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
 
 import au.com.bytecode.opencsv.CSVWriter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Upload/Download page
  */
+@Slf4j
 public class GradeImportUploadStep extends Panel {
-	private static final Logger log = Logger.getLogger(GradeImportUploadStep.class);
 	private static final long serialVersionUID = 1L;
-	
-	// list of mimetypes for each category. Must be compatible with the parser
-	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel",
-			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
-	private static final String[] CSV_MIME_TYPES = { "text/csv" };
+
+    //list of mimetypes for each category. Must be compatible with the parser
+    private static final String[] XLS_MIME_TYPES={"application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
+    private static final String[] CSV_MIME_TYPES={"text/csv"};
 
 	private final String panelId;
 
@@ -103,14 +102,14 @@ public class GradeImportUploadStep extends Panel {
 
 				try {
 					log.debug("file upload success");
-					
+
 					// get all users
 					final Map<String, String> userMap = getUserMap();
 
 					// turn file into list
 					final ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(),
 							upload.getContentType(), userMap);
-					
+
 					//get existing data
 					List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
 					List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
@@ -124,7 +123,7 @@ public class GradeImportUploadStep extends Panel {
 						error(getString("error.parse.upload"));
 					} else {
 						// GO TO NEXT PAGE
-						log.debug(processedGradeItems.size());
+                        log.debug(Integer.toString(processedGradeItems.size()));
 
 						// repaint panel
 						final ImportWizardModel importWizardModel = new ImportWizardModel();
@@ -154,10 +153,10 @@ public class GradeImportUploadStep extends Panel {
 	private Map<String, String> getUserMap() {
 
 		List<User> users = this.businessService.getUsers(this.businessService.getGradeableUsers());
-				
+
 		final Map<String, String> rval = users.stream().collect(
                 Collectors.toMap(User::getEid, User::getId));
-	
+
 		return rval;
 	}
 

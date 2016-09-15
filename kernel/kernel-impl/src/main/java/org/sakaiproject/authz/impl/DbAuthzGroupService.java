@@ -22,8 +22,8 @@
 package org.sakaiproject.authz.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -61,7 +61,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <1000 the items in each in(?, ?, ...) clause, connecting them with ORs. */
 	protected final static int MAX_IN_CLAUSE = 999;
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(DbAuthzGroupService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbAuthzGroupService.class);
 	/** All the event functions we know exist on the db. */
 	protected Collection m_functionCache = new HashSet();
 	/** All the event role names we know exist on the db. */
@@ -1029,7 +1029,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			UserAndGroups uag = (UserAndGroups) authzUserGroupIdsCache.get(userid);
 			if (uag != null) {
 				List<String> result = uag.getRealmQuery(new HashSet<String>(authzGroupIds));
-				if (M_log.isDebugEnabled()) M_log.debug(uag);
+				M_log.debug(uag.toString());
 				if (result != null) {
 					// hit
 					return result;

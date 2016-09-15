@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * on the shared Section Awareness API.
  */
 public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implements SectionAwareServiceHelper {
-    private static final Log log = LogFactory.getLog(SectionAwareServiceHelperImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(SectionAwareServiceHelperImpl.class);
 
 	public boolean isUserAbleToGrade(String siteid, String userUid) {
 		return (getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.INSTRUCTOR) || getSectionAwareness().isSiteMemberInRole(siteid, userUid, Role.TA));

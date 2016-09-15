@@ -39,8 +39,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
@@ -106,7 +106,7 @@ import org.apache.commons.lang.StringUtils;
 public class DeliveryBean
   implements Serializable
 {
-  private static final Log log = LogFactory.getLog(DeliveryBean.class);
+  private static final Logger log = LoggerFactory.getLogger(DeliveryBean.class);
 
   //SAM-2517
   private ServerConfigurationService serverConfigurationService;

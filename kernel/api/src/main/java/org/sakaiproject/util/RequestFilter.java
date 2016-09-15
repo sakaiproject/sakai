@@ -26,8 +26,8 @@ import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.cluster.api.ClusterService.Status;
@@ -184,7 +184,7 @@ public class RequestFilter implements Filter
 	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(RequestFilter.class);
+	private static Logger M_log = LoggerFactory.getLogger(RequestFilter.class);
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
 	protected boolean m_sakaiRemoteUser = true;
 
@@ -421,19 +421,7 @@ public class RequestFilter implements Filter
 			// filter the request
 			else
 			{
-				if (M_log.isDebugEnabled())
-				{
-					sb = new StringBuffer("http-request: ");
-					sb.append(req.getMethod());
-					sb.append(" ");
-					sb.append(req.getRequestURL());
-					if (req.getQueryString() != null)
-					{
-						sb.append("?");
-						sb.append(req.getQueryString());
-					}
-					M_log.debug(sb);
-				}
+				M_log.debug("http-request: {} {}?{}", req.getMethod(), req.getRequestURL(), req.getQueryString());
 
 				try
 				{
@@ -1191,7 +1179,7 @@ public class RequestFilter implements Filter
 				// check the server instance id
 				String serverInstanceId = serverConfigurationService.getServerIdInstance();
 				if ((serverInstanceId != null) && (!serverInstanceId.equals(us.getServer()))) {
-					// Log that the UsageSession server value is changing
+					// Logger that the UsageSession server value is changing
 					M_log.info("UsageSession: Server change detected: Old Server=" + us.getServer() +
 							"    New Server=" + serverInstanceId);
 					// set the new UsageSession server value

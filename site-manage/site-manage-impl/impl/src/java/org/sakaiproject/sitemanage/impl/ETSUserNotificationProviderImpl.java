@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Locale;
 
 import org.apache.commons.lang.LocaleUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -36,7 +36,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class ETSUserNotificationProviderImpl implements UserNotificationProvider {
 	
-	private static final Log M_log = LogFactory.getLog(ETSUserNotificationProviderImpl.class);
+	private static final Logger M_log = LoggerFactory.getLogger(ETSUserNotificationProviderImpl.class);
 	
 	private static final String NOTIFY_ADDED_PARTICIPANT ="sitemange.notifyAddedParticipant";
 
@@ -404,7 +404,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 				xmlToTemplate(xmlTemplate, templateRegistrationString);
 			}
 		} catch (IOException | JDOMException e) {
-			M_log.warn( e );
+			M_log.warn(e.getMessage());
 		} 
 		finally
 		{

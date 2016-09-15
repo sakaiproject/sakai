@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.poifs.eventfilesystem.POIFSReader;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
@@ -41,7 +41,7 @@ import org.sakaiproject.search.api.SearchUtils;
  */
 public class PPTContentDigester extends BaseContentDigester
 {
-	private static Log log = LogFactory.getLog(PPTContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(PPTContentDigester.class);
 
 	static
 	{
@@ -94,7 +94,7 @@ public class PPTContentDigester extends BaseContentDigester
 					}
 					catch (Exception e)
 					{
-						log.debug(e);
+						log.debug(e.getMessage());
 					}
 				}
 			};
@@ -122,7 +122,7 @@ public class PPTContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			}
 		}

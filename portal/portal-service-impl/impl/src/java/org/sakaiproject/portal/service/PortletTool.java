@@ -28,8 +28,8 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.descriptors.portlet.PortletInfoDD;
 import org.apache.pluto.internal.InternalPortletContext;
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.api.Tool;
 public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(PortletTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(PortletTool.class);
 
 	/** The access security. */
 	protected PortletTool.AccessSecurity m_accessSecurity = PortletTool.AccessSecurity.PORTAL;

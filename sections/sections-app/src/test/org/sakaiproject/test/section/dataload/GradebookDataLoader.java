@@ -24,8 +24,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -34,7 +34,7 @@ import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.test.section.SectionsTestBase;
 
 public class GradebookDataLoader extends SectionsTestBase {
-	private static Log log = LogFactory.getLog(GradebookDataLoader.class);
+	private static Logger log = LoggerFactory.getLogger(GradebookDataLoader.class);
 
     public static final String[] SITE_UIDS = {
 		"QA_1",

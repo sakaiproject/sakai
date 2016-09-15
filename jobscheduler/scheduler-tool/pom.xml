@@ -47,10 +47,6 @@
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
         </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
         <!--
             updated so that the jstl library is packed into the tool for
             now
@@ -76,12 +72,10 @@
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>

@@ -33,8 +33,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -58,7 +58,7 @@ import org.sakaiproject.util.FormattedText;
 public class SaveAssessmentSettingsListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(SaveAssessmentSettingsListener.class);
+  private static Logger log = LoggerFactory.getLogger(SaveAssessmentSettingsListener.class);
   //private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   //private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 

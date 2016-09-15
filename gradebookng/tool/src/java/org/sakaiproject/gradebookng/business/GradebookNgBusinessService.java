@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -68,7 +69,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Business service for GradebookNG
@@ -84,7 +84,7 @@ import lombok.extern.apachecommons.CommonsLog;
 // TODO some of these methods pass in empty lists and its confusing. If we
 // aren't doing paging, remove this.
 
-@CommonsLog
+@Slf4j
 public class GradebookNgBusinessService {
 
 	@Setter

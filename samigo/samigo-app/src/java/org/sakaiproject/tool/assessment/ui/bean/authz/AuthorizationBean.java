@@ -36,8 +36,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthorizationBean implements Serializable {
   /**
@@ -45,7 +45,7 @@ public class AuthorizationBean implements Serializable {
 	 */
 	private static final long serialVersionUID = -2782949557257727817L;
 
-private static Log log = LogFactory.getLog(AuthorizationBean.class);
+private static Logger log = LoggerFactory.getLogger(AuthorizationBean.class);
 
   private HashMap<String, Boolean> map = new HashMap<String, Boolean>();
   private boolean adminPrivilege = false;

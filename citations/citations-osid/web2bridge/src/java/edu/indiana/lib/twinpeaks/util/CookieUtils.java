@@ -17,13 +17,13 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
+@Slf4j
 public class CookieUtils {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(CookieUtils.class);
 
   private CookieUtils() {
   }

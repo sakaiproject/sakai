@@ -29,11 +29,6 @@
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
     </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
   <build>
     <resources />

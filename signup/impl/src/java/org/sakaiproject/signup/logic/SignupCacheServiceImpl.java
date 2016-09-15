@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -50,7 +50,7 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 
 	protected SignupMeetingDao signupMeetingDao;
 
-	private static Log M_log = LogFactory.getLog(SignupCacheServiceImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(SignupCacheServiceImpl.class);
 
 	private Cache m_signupSiteCache = null;
 

@@ -35,8 +35,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -74,7 +74,7 @@ import org.sakaiproject.util.FormattedText;
 public class SavePartListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(SavePartListener.class);
+  private static Logger log = LoggerFactory.getLogger(SavePartListener.class);
   private boolean isEditPendingAssessmentFlow;
 
   public SavePartListener()

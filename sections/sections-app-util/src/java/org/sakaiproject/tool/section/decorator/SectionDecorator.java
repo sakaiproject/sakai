@@ -35,8 +35,8 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
@@ -54,7 +54,7 @@ import org.sakaiproject.component.cover.ComponentManager;
  */
 public class SectionDecorator implements RowGroupable,Serializable, Comparable{
     private static final long serialVersionUID = 1L;
-    private static final Log log = LogFactory.getLog(SectionDecorator.class);
+    private static final Logger log = LoggerFactory.getLogger(SectionDecorator.class);
 
     public static final int NAME_TRUNCATION_LENGTH = 20;
     public static final int LOCATION_TRUNCATION_LENGTH = 15;

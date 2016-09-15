@@ -28,8 +28,8 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 public class DbPropertiesDao {
-	private static Log log = LogFactory.getLog(DbPropertiesDao.class);
+	private static Logger log = LoggerFactory.getLogger(DbPropertiesDao.class);
 	private SimpleJdbcTemplate simpleJdbcTemplate;
 	private boolean autoDdl;
 	private Map<String, String> initialDbProperties;

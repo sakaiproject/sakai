@@ -34,8 +34,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
@@ -109,7 +109,7 @@ public class BasicPodfeedService implements PodfeedService {
 	private final String PODFEED_MESSAGE_BUNDLE = "org.sakaiproject.api.podcasts.bundle.Messages";
 	private ResourceLoader resbud = new ResourceLoader(PODFEED_MESSAGE_BUNDLE);
 
-	private static final Log LOG = LogFactory.getLog(BasicPodfeedService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BasicPodfeedService.class);
 
 	private PodcastService podcastService;
 	private PodcastPermissionsService podcastPermissionsService;

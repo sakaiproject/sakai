@@ -21,8 +21,8 @@
 
 package org.sakaiproject.user.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -44,7 +44,7 @@ import java.util.Observer;
  */
 public class AuthnCacheWatcher implements Observer {
 
-	private static final Log log = LogFactory.getLog(AuthnCacheWatcher.class);
+	private static final Logger log = LoggerFactory.getLogger(AuthnCacheWatcher.class);
 	//Copied from DbUserService as they are private
 	private static final String EIDCACHE = "eid:";
 	private static final String IDCACHE = "id:";
@@ -125,7 +125,7 @@ public class AuthnCacheWatcher implements Observer {
 				userCache.remove(IDCACHE + refId);
 			} catch (UserNotDefinedException e) {
 				//not sure how we'd end up here
-				log.warn(e);
+				log.warn(e.getMessage(), e);
 			}
 			
 		} 

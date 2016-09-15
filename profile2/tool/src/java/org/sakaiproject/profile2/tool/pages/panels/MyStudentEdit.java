@@ -15,7 +15,8 @@
  */
 package org.sakaiproject.profile2.tool.pages.panels;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,7 +42,7 @@ public class MyStudentEdit extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Logger log = Logger.getLogger(MyStudentEdit.class);
+	private static final Logger log = LoggerFactory.getLogger(MyStudentEdit.class);
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	private SakaiProxy sakaiProxy;

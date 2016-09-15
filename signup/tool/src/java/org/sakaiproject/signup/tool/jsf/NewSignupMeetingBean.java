@@ -35,8 +35,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -222,7 +222,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private int maxAttendeesPerSlot;
 
-	private Log logger = LogFactory.getLog(getClass());
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	/* used for jsf parameter passing */
 	private final static String PARAM_NAME_FOR_ATTENDEE_USERID = "attendeeUserId";

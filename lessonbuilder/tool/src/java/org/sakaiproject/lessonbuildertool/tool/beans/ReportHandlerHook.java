@@ -16,8 +16,8 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.lessonbuildertool.ccexport.CCExport;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -34,7 +34,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
  */
 public class ReportHandlerHook {
 
-   private static Log log = LogFactory.getLog(ReportHandlerHook.class);
+   private static Logger log = LoggerFactory.getLogger(ReportHandlerHook.class);
 
    private ViewParameters viewparams;
    public void setViewparams(ViewParameters viewparams) {

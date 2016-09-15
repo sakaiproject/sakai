@@ -21,8 +21,8 @@
 
 package org.sakaiproject.archive.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ImportMetadata;
 
 /**
@@ -32,7 +32,7 @@ import org.sakaiproject.archive.api.ImportMetadata;
  */
 public class ImportMetadataImpl implements ImportMetadata
 {
-  private static final Log LOG = LogFactory.getLog(ImportMetadataImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ImportMetadataImpl.class);
 
   private String id;
   private String legacyTool;

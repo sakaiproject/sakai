@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
  */
 public class PersistenceService{
 
-	private Log log = LogFactory.getLog(PersistenceService.class);
+	private Logger log = LoggerFactory.getLogger(PersistenceService.class);
 	private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
 	private TypeFacadeQueriesAPI typeFacadeQueries;
 	private SectionFacadeQueriesAPI sectionFacadeQueries;

@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -75,7 +75,7 @@ import org.sakaiproject.util.FormattedText;
  */
 public class DropboxNotification extends EmailNotification 
 {
-	static final Log logger = LogFactory.getLog(DropboxNotification.class);
+	static final Logger logger = LoggerFactory.getLogger(DropboxNotification.class);
 	
 	/* property bundles */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.SiteemaconProperties";

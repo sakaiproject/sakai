@@ -30,8 +30,8 @@ import java.util.List;
 
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.After;
@@ -53,7 +53,7 @@ import org.subethamail.wiser.WiserMessage;
 
 public class EmailServiceTest
 {
-	private static Log log = LogFactory.getLog(EmailServiceTest.class);
+	private static Logger log = LoggerFactory.getLogger(EmailServiceTest.class);
 
 	private static final boolean ALLOW_TRANSPORT = false;
 	private static final boolean LOG_SENT_EMAIL = false;
@@ -134,7 +134,7 @@ public class EmailServiceTest
 		if (wiser != null && wiser.getServer().isRunning()) {
 			if (LOG_SENT_EMAIL) {
 				for (WiserMessage msg : wiser.getMessages()) {
-					log.info(msg);
+					log.info(msg.toString());
 				}
 			}
 			wiser.stop();

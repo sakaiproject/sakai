@@ -44,8 +44,8 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.TransformerHandler;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.xml.serializer.OutputPropertiesFactory;
 import org.apache.xml.serializer.Serializer;
 import org.apache.xml.serializer.SerializerFactory;
@@ -84,7 +84,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SimpleCoverage;
  */
 public class XSLTEntityHandler extends BaseEntityHandlerImpl
 {
-	private static Log log = LogFactory.getLog(XSLTEntityHandler.class);
+	private static Logger log = LoggerFactory.getLogger(XSLTEntityHandler.class);
 
 	private static ThreadLocal currentRequest = new ThreadLocal();
 

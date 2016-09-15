@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.models;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -28,7 +28,7 @@ import org.sakaiproject.sitestats.tool.facade.Locator;
 
 public class SiteModel extends LoadableDetachableModel {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(SiteModel.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(SiteModel.class);
 
 	private String					id;
 

@@ -33,8 +33,8 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
@@ -75,7 +75,7 @@ public class BaseDbFlatStorage
 	private static final String CACHE_NAME_PREFIX = "org.sakaiproject.db.BaseDbFlatStorage.";
 
    /** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseDbFlatStorage.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseDbFlatStorage.class);
 
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;

@@ -41,7 +41,8 @@ import java.util.Collection;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.dao.mapper.AvailabilityCheckMapper;
@@ -82,7 +83,7 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  */
 public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
-	private static final Logger log = Logger.getLogger(DashboardDaoImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(DashboardDaoImpl.class);
 
 	private static final int MAX_LENGTH_SUBTYPE_FIELD = 255;
 
@@ -163,7 +164,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(calendarItem.getEntityReference());
-			log.warn(buf);
+			log.warn(buf.toString());
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		try {
@@ -313,7 +314,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(newsItem.getEntityReference());
-			log.warn(buf);
+			log.warn(buf.toString());
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		
@@ -453,7 +454,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(repeatingCalendarItem.getEntityReference());
-			log.warn(buf);
+			log.warn(buf.toString());
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		Object[] params = new Object[]{
@@ -1809,7 +1810,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			buf.append(subtype);
 			buf.append(" for entity ");
 			buf.append(calendarItem.getEntityReference());
-			log.warn(buf);
+			log.warn(buf.toString());
 			subtype = subtype.substring(0, MAX_LENGTH_SUBTYPE_FIELD - 1);
 		}
 		

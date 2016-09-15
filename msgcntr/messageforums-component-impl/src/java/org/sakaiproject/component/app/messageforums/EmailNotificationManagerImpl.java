@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -49,8 +49,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 		EmailNotificationManager {
 
-	private static final Log LOG = LogFactory
-			.getLog(EmailNotificationManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationManagerImpl.class);
 
 	private static final String QUERY_BY_USER_ID = "findEmailNotificationByUserId";
 	private static final String QUERY_USERLIST_BY_NOTIFICATION_LEVEL = "findUserIdsByNotificationLevel";
@@ -80,9 +79,7 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 	}
 
 	public EmailNotification getEmailNotification(final String userId) {
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("getEmailNotification(userId: " + userId + ")");
-		}
+		LOG.debug("getEmailNotification(userId: {})", userId);
 
 		if (userId == null) {
 			throw new IllegalArgumentException("Null Argument");
@@ -107,13 +104,13 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 			try {
 				userDirectoryService.getUser(userId);
 			} catch (UserNotDefinedException e) {
-				e.printStackTrace();
+				LOG.error(e.getMessage());
 			}
 			String notificationDefault = ServerConfigurationService.getString("mc.notificationDefault", "1");
 			EmailNotification newEmailNotification = new EmailNotificationImpl();
 			newEmailNotification.setContextId(getContextId());
 			newEmailNotification.setUserId(userId);
-			LOG.debug("notificationDefault= "+notificationDefault);
+			LOG.debug("notificationDefault={}", notificationDefault);
 			if ("0".equals(notificationDefault)) {
 			    newEmailNotification
 					.setNotificationLevel(EmailNotification.EMAIL_NONE);
@@ -129,21 +126,13 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 			// yet
 			saveEmailNotification(newEmailNotification);
 
-			if (LOG.isDebugEnabled()) {
-				LOG
-						.debug(userId
-								+ "  didn't set watch options.  creating a new EmailNotification this user. his level : "
-								+ newEmailNotification.getNotificationLevel());
-			}
+			LOG.debug("{} didn't set watch options, creating EmailNotification with level: {}",
+					userId, newEmailNotification.getNotificationLevel());
 
 			return newEmailNotification;
 		} else {
-
-			if (LOG.isDebugEnabled()) {
-				LOG.debug(userId
-						+ "  already set watch options. his option is "
-						+ emailNotification.getNotificationLevel());
-			}
+			LOG.debug("{} already set watch options. his option is {}",
+					userId, emailNotification.getNotificationLevel());
 
 			return emailNotification;
 		}
@@ -168,9 +157,7 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 		int intlevel = Integer.parseInt(notificationlevel);
  		List<String> allusers = getSiteUsersByNotificationLevel(contextid, intlevel);
  		
- 		if (LOG.isDebugEnabled()){
-			LOG.debug("total count of users to be notified = " + allusers.size());
-		}
+		LOG.debug("total count of users to be notified = {}", allusers.size());
 		return allusers;
 	}
 
@@ -207,10 +194,10 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 		for (int i = 0; i < allusers.size(); i++) {
 			String userId = allusers.get(i);
 			if (readUsers.contains(userId)) {
-				LOG.debug("user " + userId + " has read in topic: " + topic.getId());
+				LOG.debug("user {} has read in topic: {}", userId, topic.getId());
 				ret.add(userId);
 			} else {
-				LOG.debug("Removing user: " + userId + "as they don't have read rights on topic: " + topic.getId());
+				LOG.debug("Removing user: {} as they don't have read rights on topic: {}", userId, topic.getId());
 			}
 		}
 		return ret;
@@ -219,11 +206,7 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 	private List<String> getSiteUsersByNotificationLevel(final String contextid,
 			final int notificationlevel) {
 
-		if (LOG.isDebugEnabled()) {
-			LOG
-					.debug("getEmailNotification(userid: " + notificationlevel
-							+ ")");
-		}
+			LOG.debug("getEmailNotification(userid: {})", notificationlevel);
 
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
@@ -258,10 +241,7 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 			// find emails for each user
 			String useremail = user.getEmail();
 			if (useremail != null && !"".equalsIgnoreCase(useremail)) {
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Username = " + user.getDisplayId()
-							+ " , useremail : " + useremail);
-				}
+				LOG.debug("Username = {}, email: {}", user.getDisplayId(), useremail);
 				emaillist.add(useremail);
 			}
 
@@ -275,9 +255,8 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 	public void saveEmailNotification(EmailNotification emailoption) {
 		getHibernateTemplate().saveOrUpdate(emailoption);
 		
-		LOG.debug("saveEmailNotification executed for contextid= "
-				+ emailoption.getContextId() + " userid= "
-				+ emailoption.getUserId());
+		LOG.debug("saveEmailNotification executed for contextid={} userid={}",
+				emailoption.getContextId(), emailoption.getUserId());
 
 	}
 

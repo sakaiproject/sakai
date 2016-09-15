@@ -25,8 +25,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.NumberConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -41,7 +41,7 @@ import org.sakaiproject.util.ResourceLoader;
  * values to Double values before passing them to the backing bean.
  */
 public class NontrailingDoubleConverter extends NumberConverter {
-	private static final Log log = LogFactory.getLog(NontrailingDoubleConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(NontrailingDoubleConverter.class);
 
 	public NontrailingDoubleConverter() {
 		setType("number");

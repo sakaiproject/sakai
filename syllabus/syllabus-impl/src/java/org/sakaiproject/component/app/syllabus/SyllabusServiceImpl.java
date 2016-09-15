@@ -33,9 +33,9 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
@@ -123,7 +123,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
   private EntityManager entityManager;
  
   /** Dependency: a logger component. */
-  private Log logger = LogFactory.getLog(SyllabusServiceImpl.class);
+  private Logger logger = LoggerFactory.getLogger(SyllabusServiceImpl.class);
    
   protected NotificationService notificationService = null;
   protected String m_relativeAccessPoint = null;
@@ -158,18 +158,6 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 	public void destroy()
 	{
 	}
-
-
-  /**
-   * Establish logger component dependency.
-   * 
-   * @param logger
-   *          the logger component.
-   */
-  public void setLogger(Log logger)
-  {
-    this.logger = logger;
-  }
 
   /** Dependency: a SyllabusManager component. */
   public void setSyllabusManager(SyllabusManager syllabusManager)

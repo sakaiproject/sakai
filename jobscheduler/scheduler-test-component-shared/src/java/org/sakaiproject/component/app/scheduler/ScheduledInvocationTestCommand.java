@@ -1,13 +1,13 @@
 package org.sakaiproject.component.app.scheduler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 
 public class ScheduledInvocationTestCommand implements
 		ScheduledInvocationCommand {
 
-	private static final Log LOG = LogFactory.getLog(ScheduledInvocationTestCommand.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ScheduledInvocationTestCommand.class);
 	
 	public void execute(String opaqueContext) {
 		

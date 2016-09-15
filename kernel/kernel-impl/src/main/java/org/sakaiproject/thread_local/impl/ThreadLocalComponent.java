@@ -24,8 +24,8 @@ package org.sakaiproject.thread_local.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 
@@ -40,7 +40,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 public class ThreadLocalComponent implements ThreadLocalManager
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ThreadLocalComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(ThreadLocalComponent.class);
 
 	/**
 	 * <p>

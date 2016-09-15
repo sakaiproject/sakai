@@ -44,8 +44,8 @@ import java.util.Map;
 import java.util.Iterator;
 import java.net.URLEncoder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -104,7 +104,7 @@ import org.sakaiproject.util.FormattedText;
 
 public class ForumsExport {
 
-    private static Log log = LogFactory.getLog(ForumsExport.class);
+    private static Logger log = LoggerFactory.getLogger(ForumsExport.class);
 
     private static SimplePageToolDao simplePageToolDao;
 

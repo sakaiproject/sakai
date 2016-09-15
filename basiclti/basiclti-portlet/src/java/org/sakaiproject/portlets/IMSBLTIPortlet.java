@@ -54,8 +54,8 @@ import javax.portlet.ReadOnlyException;
 import javax.servlet.ServletRequest;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.portlet.util.PortletHelper;
 
@@ -103,7 +103,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	private ArrayList<String> fieldList = new ArrayList<String>();
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(IMSBLTIPortlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(IMSBLTIPortlet.class);
 
 	public static final String EVENT_BASICLTI_CONFIG = "basiclti.config";
 

@@ -37,8 +37,8 @@ import java.util.TreeMap;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.samigo.util.SamigoConstants;
@@ -78,7 +78,7 @@ import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 public class SaveAssessmentSettings
 {
-  private static final Log LOG = LogFactory.getLog(SaveAssessmentSettings.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SaveAssessmentSettings.class);
   
   private static final String EXTENDED_TIME_KEY = "extendedTime";
 
@@ -201,7 +201,7 @@ public class SaveAssessmentSettings
         }
         catch( NumberFormatException ex )
         {
-            LOG.warn( ex );
+            LOG.warn(ex.getMessage());
             control.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
         }
     }
@@ -373,7 +373,7 @@ public class SaveAssessmentSettings
     }
     catch( NullPointerException | NumberFormatException ex )
     {
-        LOG.warn( ex );
+        LOG.warn(ex.getMessage(), ex);
         control.setInstructorNotification( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT );
     }
 

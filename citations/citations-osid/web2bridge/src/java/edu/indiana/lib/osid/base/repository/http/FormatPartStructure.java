@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class FormatPartStructure extends edu.indiana.lib.osid.base.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(FormatPartStructure.class);
-		
     private org.osid.shared.Id FORMAT_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","format");
     private String displayName = "Format";

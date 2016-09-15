@@ -23,8 +23,8 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -37,7 +37,7 @@ import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 
 
 public class ReportDefEntityProvider implements AutoRegisterEntityProvider, CoreEntityProvider, Resolvable /*, Importable, Exportable*/ {
-	private Log						LOG								= LogFactory.getLog(ReportDefEntityProvider.class);
+	private Logger						LOG								= LoggerFactory.getLogger(ReportDefEntityProvider.class);
 	public static final String		PREFIX							= "sitestats-report";
 	public static final String		LABEL							= "SiteStatsReport";
 	public static final String 		REFERENCE_ROOT 					= "/" + PREFIX;

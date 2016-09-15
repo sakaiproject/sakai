@@ -36,8 +36,8 @@ import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
@@ -92,7 +92,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	private static final String MOTD_CHANNEL_SUFFIX = "motd";
 	public static int DEFAULT_NUM_ANNOUNCEMENTS = 3;
 	public static int DEFAULT_DAYS_IN_PAST = 10;
-	private static final Log log = LogFactory.getLog(AnnouncementEntityProviderImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(AnnouncementEntityProviderImpl.class);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
     
 	/**

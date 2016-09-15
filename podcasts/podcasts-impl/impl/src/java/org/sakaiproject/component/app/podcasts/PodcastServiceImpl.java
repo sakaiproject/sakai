@@ -31,8 +31,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.exception.PodcastException;
@@ -102,7 +102,7 @@ public class PodcastServiceImpl implements PodcastService {
 	private static final int PUBLIC = 0;
 	private static final int SITE = 1;
 
-	private static Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
+	private static Logger LOG = LoggerFactory.getLogger(PodcastServiceImpl.class);
 	
 	private Reference siteRef;
 
@@ -1057,7 +1057,7 @@ public class PodcastServiceImpl implements PodcastService {
 							aResource = getAResource(id);
 						}
 						catch (Exception e) {
-							LOG.error(e);
+							LOG.error(e.getMessage());
 						}
 					}
 				}
@@ -1094,7 +1094,7 @@ public class PodcastServiceImpl implements PodcastService {
 				}
 				catch (Exception e1) {
 					// PermissionException, IdUnusedException from getAResource
-					LOG.error(e1);
+					LOG.error(e1.getMessage());
 				}
 			} 
 			catch (EntityPropertyTypeException e) {

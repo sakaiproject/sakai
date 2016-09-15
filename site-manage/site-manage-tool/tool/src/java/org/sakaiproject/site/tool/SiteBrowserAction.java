@@ -65,8 +65,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.velocity.tools.generic.SortTool;
 
 /**
@@ -83,7 +83,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 
 	private ContentHostingService contentHostingService;
 	
-	private static Log log = LogFactory.getLog(SiteBrowserAction.class); 
+	private static Logger log = LoggerFactory.getLogger(SiteBrowserAction.class); 
 
 	private static ResourceLoader rb = new ResourceLoader("sitebrowser");
 	
@@ -257,14 +257,14 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			}
 		else
 		{
-				Log.warn( "chef", "SiteBrowserAction: mode = " + mode + ", but site browser join is disabled globally" );
+			 	log.warn("SiteBrowserAction: mode = {}, but site browser join is disabled globally", mode);
 				template = buildListContext( state, context );
 			}
 		}
 		
 		else
 		{
-			Log.warn("chef", "SiteBrowserAction: mode: " + mode);
+		 	log.warn("SiteBrowserAction: mode: {}", mode);
 			template = buildListContext(state, context);
 		}
 
@@ -592,7 +592,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			}
 			catch (Exception reflectionEx)
 			{
-				Log.error("Reflection exceptions in SiteBrowserAction for getting public syllabus" + reflectionEx, "");
+			 	log.error("Reflection exceptions in SiteBrowserAction for getting public syllabus {}", reflectionEx);
 				reflectionEx.printStackTrace();
 			}
 
@@ -621,6 +621,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		}
 		catch (IdUnusedException err)
 		{
+			log.warn(err.getMessage());
 		}
 
 		return "_visit";
@@ -662,7 +663,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		}
 		catch (IdUnusedException e)
 		{
-			Log.warn("chef", "SiteBrowserAction.doEdit: site not found: " + id);
+		 	log.warn("SiteBrowserAction.doEdit: site not found: {}", id);
 
 			addAlert(state, rb.getFormattedMessage("notfound", new Object[]{id}));
 			state.removeAttribute(MODE);

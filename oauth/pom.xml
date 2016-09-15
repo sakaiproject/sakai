@@ -70,7 +70,6 @@
 
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
-        <commons-logging.version>1.1.1</commons-logging.version>
         <servlet-api.version>2.5</servlet-api.version>
         <wicket.version>1.4.23</wicket.version>
         <slf4j.version>1.7.5</slf4j.version>
@@ -133,27 +132,6 @@
                 <artifactId>oauth-provider</artifactId>
                 <version>${oauth.version}</version>
             </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons-logging.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
 
             <!-- Wicket -->
             <dependency>
@@ -171,8 +149,6 @@
 
     <build>
         <plugins>
-            
-            <!-- enforce Java 6 compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -185,30 +161,4 @@
             
         </plugins>
     </build>
-
-<!--
-    <repositories> 
-        <repository> 
-            <id>sonatype-nexus-snapshots</id> 
-            <name>Sonatype Nexus Snapshots</name> 
-            <url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-            <releases> 
-                <enabled>false</enabled> 
-            </releases> 
-            <snapshots> 
-                <enabled>true</enabled> 
-            </snapshots> 
-        </repository> 
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-    -->
 </project>

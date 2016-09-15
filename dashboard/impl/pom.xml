@@ -130,17 +130,9 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
@@ -155,14 +147,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>r09</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
         </dependency>
 
 		<!-- Non-Spring testing dependencies -->
@@ -212,6 +196,7 @@
 				<directory>${basedir}/src/test</directory>
 				<includes>
 					<include>test.xml</include>
+					<include>log4j.properties</include>
 					<!-- <include>hibernate.properties</include> -->
 				</includes>
 			</testResource>

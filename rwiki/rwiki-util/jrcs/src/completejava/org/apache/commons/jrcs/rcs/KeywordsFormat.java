@@ -147,7 +147,7 @@ final class KeywordsFormat
         data = substitute(data, AUTHOR_RE, Author_FORMAT.format(revisionInfo));
         data = substitute(data, STATE_RE, State_FORMAT.format(revisionInfo));
         data = substitute(data, LOCKER_RE, Locker_FORMAT.format(revisionInfo));
-        //@TODO: should do something about Name and Log
+        //@TODO: should do something about Name and Logger
         return data;
     }
 
@@ -170,7 +170,7 @@ final class KeywordsFormat
         data = substitute(data, AUTHOR_RE, '$' + "Author$");
         data = substitute(data, STATE_RE, '$' + "State$");
         data = substitute(data, LOCKER_RE, '$' + "Locker$");
-        //@TODO: should do something about Name and Log
+        //@TODO: should do something about Name and Logger
         return data;
     }
 

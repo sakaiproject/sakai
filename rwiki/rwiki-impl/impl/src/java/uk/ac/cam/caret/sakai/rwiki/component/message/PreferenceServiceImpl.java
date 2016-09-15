@@ -25,8 +25,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.PreferenceDao;
@@ -38,7 +38,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Preference;
 public class PreferenceServiceImpl implements PreferenceService
 {
 
-	private static Log log = LogFactory.getLog(MessageServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(MessageServiceImpl.class);
 
 	private PreferenceDao preferenceDao = null;
 

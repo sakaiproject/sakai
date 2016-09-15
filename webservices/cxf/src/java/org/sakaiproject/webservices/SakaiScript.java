@@ -42,8 +42,8 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.LocaleUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -96,7 +96,7 @@ import org.w3c.dom.Node;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiScript extends AbstractWebService {
 
-    private static final Log LOG = LogFactory.getLog(SakaiScript.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiScript.class);
 
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";

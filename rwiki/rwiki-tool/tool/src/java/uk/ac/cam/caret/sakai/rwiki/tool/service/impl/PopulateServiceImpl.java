@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.Site;
@@ -51,7 +51,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 public class PopulateServiceImpl implements PopulateService
 {
-	private static Log log = LogFactory.getLog(PopulateServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(PopulateServiceImpl.class);
 
 	private List seedPages;
 

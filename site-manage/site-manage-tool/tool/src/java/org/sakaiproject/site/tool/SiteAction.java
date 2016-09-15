@@ -61,8 +61,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
@@ -179,7 +179,7 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String TEMPLATE_USED = "template_used";
 	
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SiteAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteAction.class);
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
@@ -4472,14 +4472,14 @@ public class SiteAction extends PagedResourceActionII {
 				if (fileInput != null && importService.isValidArchive(fileInput)) {
 					ImportDataSource importDataSource = importService
 							.parseFromFile(fileInput);
-					Log.info("chef", "Getting import items from manifest.");
+				 	M_log.info("Getting import items from manifest.");
 					List lst = importDataSource.getItemCategories();
 					if (lst != null && lst.size() > 0) {
 						Iterator iter = lst.iterator();
 						while (iter.hasNext()) {
 							ImportMetadata importdata = (ImportMetadata) iter
 									.next();
-							// Log.info("chef","Preparing import
+							// Logger.info("chef","Preparing import
 							// item '" + importdata.getId() + "'");
 							if ((!importdata.isMandatory())
 									&& (importdata.getFileName()
@@ -4612,16 +4612,12 @@ public class SiteAction extends PagedResourceActionII {
 
 		// combine the selected import items with the mandatory import items
 		fnlList.addAll(directList);
-		Log.info("chef", "doSaveMtrlSite() about to import " + fnlList.size()
-				+ " top level items");
-		Log.info("chef", "doSaveMtrlSite() the importDataSource is "
-				+ importDataSource.getClass().getName());
+	 	M_log.info("about to import {} top level items", fnlList.size());
+	 	M_log.info("the importDataSource is {}", importDataSource.getClass().getName());
 		if (importDataSource instanceof SakaiArchive) {
-			Log.info("chef",
-					"doSaveMtrlSite() our data source is a Sakai format");
+		 	M_log.info("our data source is a Sakai format");
 			((SakaiArchive) importDataSource).buildSourceFolder(fnlList);
-			Log.info("chef", "doSaveMtrlSite() source folder is "
-					+ ((SakaiArchive) importDataSource).getSourceFolder());
+		 	M_log.info("source folder is {}", ((SakaiArchive) importDataSource).getSourceFolder());
 			ArchiveService.merge(((SakaiArchive) importDataSource)
 					.getSourceFolder(), siteId, null);
 		} else {
@@ -8509,7 +8505,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 										SecurityService.pushAdvisor(yesMan);
 										commitSite(currentSite);
 									}catch (Exception e) {
-										M_log.debug(e);
+										M_log.debug(e.getMessage());
 									}finally{
 										SecurityService.popAdvisor();
 									}
@@ -8567,19 +8563,19 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									SecurityService.pushAdvisor(yesMan);
 									commitSite(currentSite);
 								}catch (Exception e) {
-									M_log.debug(e);
+									M_log.debug(e.getMessage());
 								}finally{
 									SecurityService.popAdvisor();
 								}
 							}
 						}
 					}catch (Exception e) {
-						M_log.debug("Error removing user to group: " + groupRef + ", " + e.getMessage(), e);
+						M_log.debug("Error removing user to group: {}, {}", groupRef, e.getMessage(), e);
 					}
 				}
 			}
 		} catch (IdUnusedException e) {
-			M_log.debug("Error removing user to group: " + groupRef + ", " + e.getMessage(), e);
+			M_log.debug("Error removing user to group: {}, {}", groupRef, e.getMessage(), e);
 		}
 	}
 	
@@ -15486,7 +15482,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			} catch (PermissionException e)	{
 				// This could occur if the user's role is the maintain role for the site, and we don't let the user
 				// unjoin sites they are maintainers of
-				Log.warn("chef", this + ".doUnjoin(): " + e);
+			 	M_log.warn(e.getMessage());
 				//TODO can't access site so redirect to portal
 				
 			} catch (InUseException e) {

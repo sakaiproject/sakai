@@ -2,8 +2,8 @@ package org.sakaiproject.basiclti.impl;
 
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -19,7 +19,7 @@ public class BasicLTIArchiveBean {
         public final static String TOOL_TITLE = "toolTitle";
         public final static String SITE_TOOL_PROPERTIES = "siteToolProperties";
         
-        private Log logger = LogFactory.getLog(BasicLTISecurityServiceImpl.class);
+        private Logger logger = LoggerFactory.getLogger(BasicLTISecurityServiceImpl.class);
 
         public BasicLTIArchiveBean()
         {

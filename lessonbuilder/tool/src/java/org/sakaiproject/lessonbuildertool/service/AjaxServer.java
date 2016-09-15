@@ -49,8 +49,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -106,12 +106,12 @@ public class AjaxServer extends HttpServlet
    private static LessonsAccess lessonsAccess;
 
    public void setSimplePageToolDao(Object dao) {
-       System.out.println("setdao " + dao);
+       log.info("setdao " + dao);
        simplePageToolDao = (SimplePageToolDao) dao;
    }
 
    /** Our log (commons). */
-   private static Log log = LogFactory.getLog(AjaxServer.class);
+   private static Logger log = LoggerFactory.getLogger(AjaxServer.class);
    
    public static final String FILTERHTML = "lessonbuilder.filterhtml";
    private static String filterHtml = ServerConfigurationService.getString(FILTERHTML);
@@ -308,7 +308,7 @@ public class AjaxServer extends HttpServlet
 	// simplepagebean checks filterHtml property of tool. We can't really do that.
 
 	String filterSpec = filterHtml;
-	System.out.println("filterspec " + filterSpec);
+	log.info("filterspec " + filterSpec);
 	if (filterSpec == null) // should never be null. unspeciifed should give ""
 	    filter = FILTER_DEFAULT;
 	// old specifications

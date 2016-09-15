@@ -26,8 +26,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -40,8 +40,8 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 
 
 public class ConvOldPrefsJobImpl implements StatefulJob {
-	// Log
-	private Log							LOG							= LogFactory.getLog(ConvOldPrefsJobImpl.class);
+	// Logger
+	private Logger							LOG							= LoggerFactory.getLogger(ConvOldPrefsJobImpl.class);
 
 	// Sakai Services
 	private StatsManager				statsManager				= null;

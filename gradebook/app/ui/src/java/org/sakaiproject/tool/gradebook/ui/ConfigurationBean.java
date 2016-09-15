@@ -25,8 +25,8 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -40,7 +40,7 @@ import org.springframework.context.ApplicationContextAware;
  * there might be a more straightforward way to deliver this capability.)
  */
 public class ConfigurationBean implements ApplicationContextAware{
-	private static final Log log = LogFactory.getLog(ConfigurationBean.class);
+	private static final Logger log = LoggerFactory.getLogger(ConfigurationBean.class);
     
     private ApplicationContext applicationContext;
 	

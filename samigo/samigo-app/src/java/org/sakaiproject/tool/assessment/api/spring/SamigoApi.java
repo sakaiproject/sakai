@@ -34,8 +34,8 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -47,7 +47,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SamigoApi extends SamigoApiFactory
 {
-  private static Log log = LogFactory.getLog(SamigoApi.class);
+  private static Logger log = LoggerFactory.getLogger(SamigoApi.class);
 
   private AssessmentServiceAPI assessmentServiceAPI;
   private GradebookServiceAPI gradebookServiceAPI;

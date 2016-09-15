@@ -33,12 +33,6 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
-
-        <!-- third party dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
     </dependencies>
 
     <build/>

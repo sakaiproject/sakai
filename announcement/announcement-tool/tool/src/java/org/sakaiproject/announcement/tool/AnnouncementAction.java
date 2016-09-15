@@ -39,8 +39,8 @@ import java.text.ParseException;
 import java.text.RuleBasedCollator;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementChannelEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -126,7 +126,7 @@ import org.w3c.dom.Element;
 public class AnnouncementAction extends PagedResourceActionII
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(AnnouncementAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(AnnouncementAction.class);
 	
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("announcement");
@@ -1183,10 +1183,8 @@ public class AnnouncementAction extends PagedResourceActionII
 				menu_new = channel.allowAddMessage();
 				menu_delete = channel.allowRemoveMessage(message);
 				menu_revise = channel.allowEditMessage(message.getId());
-			} catch (IdUnusedException e) {
-				M_log.error(e);
-			} catch (PermissionException e) {
-				M_log.error(e);
+			} catch (IdUnusedException | PermissionException e) {
+				M_log.error(e.getMessage());
 			}
 
 		}
@@ -1941,7 +1939,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("annToGroups", allGroupString);
 			
 		} catch (IdUnusedException e1) {
-			M_log.error(e1);
+			M_log.error(e1.getMessage());
 		}
 		}
 		
@@ -4861,10 +4859,8 @@ public class AnnouncementAction extends PagedResourceActionII
 						messageOrder++;
 					}
 				}
-				} catch (PermissionException e1) {
-					M_log.error(e1);
-				} catch (IdUnusedException e1) {
-					M_log.error(e1);
+				} catch (PermissionException | IdUnusedException e1) {
+					M_log.error(e1.getMessage());
 				}
 			}
 		}

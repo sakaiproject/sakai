@@ -43,10 +43,6 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>samigo-qti</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-		</dependency>
         <dependency>
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>

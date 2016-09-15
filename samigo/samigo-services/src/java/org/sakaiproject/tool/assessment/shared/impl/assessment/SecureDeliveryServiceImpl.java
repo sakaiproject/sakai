@@ -11,8 +11,8 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
@@ -29,7 +29,7 @@ import org.springframework.core.io.Resource;
  */
 public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	
-	private Log log = LogFactory.getLog( SecureDeliveryServiceImpl.class );
+	private Logger log = LoggerFactory.getLogger( SecureDeliveryServiceImpl.class );
 	
 	/*
 	 * Implementation of the SecureDeliveryModuleIfc interface with name,id ordering, except for id=NONE_ID

@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -43,7 +43,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
 	
-	private static final Log LOG = LogFactory.getLog(SynopticMsgcntrManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrManagerImpl.class);
 	private static final String QUERY_WORKSPACE_SYNOPTIC_ITEMS = "findWorkspaceSynopticMsgcntrItems";
 	private static final String QUERY_SITE_SYNOPTIC_ITEMS = "findSiteSynopticMsgcntrItems";
 	private static final String QUERY_UPDATE_ALL_SITE_TITLES = "updateSiteTitles";
@@ -445,35 +445,35 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 			createOrUpdateSynopticToolInfo(users, siteId, site.getTitle(), unreadCounts);		
 		} catch (IdUnusedException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage());
 		} catch (SQLException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage(), e);
 		} finally{
 
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 
 			try {
 				if(newMessagesCountRS != null)
 					newMessagesCountRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			try {
 				if(newMessageCountForAllUsers != null)
 					newMessageCountForAllUsers.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			try {
 				if(returnAllForumsAndTopics != null)
 					returnAllForumsAndTopics.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			SqlService.returnConnection(clConnection);
 		}
@@ -544,21 +544,21 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			}
 						
 		} catch (IdUnusedException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage(), e);
 		} catch (SQLException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage(), e);
 		} finally{
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			try {
 				if(returnAllTopicsForForum != null)
 					returnAllTopicsForForum.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			
 			SqlService.returnConnection(clConnection);
@@ -821,21 +821,21 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		}catch(IdUnusedException e) {
 			LOG.error("IdUnusedException while trying to check if site has MF tool.");
 		} catch (SQLException e) {
-			LOG.error(e);
+			LOG.error(e.getMessage(), e);
 		} finally{
 			
 			try {
 				if(forumsAndTopicsRS != null)
 					forumsAndTopicsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 
 			try {
 				if(returnAllForumsAndTopics != null)
 					returnAllForumsAndTopics.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}	
 			
 			SqlService.returnConnection(clConnection);
@@ -881,8 +881,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				}												
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		}
 		
 		return returnHM;
@@ -902,7 +901,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				returnHM.put(userId, messageCount);		
 			}
 			}catch(Exception e){
-				LOG.error(e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		

@@ -29,8 +29,8 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -47,7 +47,7 @@ import org.sakaiproject.util.StringUtil;
 public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(KerberosUserDirectoryProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(KerberosUserDirectoryProvider.class);
 
 	// Should we attempt ticket verification?
 	private boolean m_verifyTicket;

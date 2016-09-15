@@ -47,7 +47,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 public class RemoveAssessmentListener implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(RemoveAssessmentListener.class);
+  //private static Logger log = LoggerFactory.getLogger(RemoveAssessmentListener.class);
 	
   public RemoveAssessmentListener()
   {

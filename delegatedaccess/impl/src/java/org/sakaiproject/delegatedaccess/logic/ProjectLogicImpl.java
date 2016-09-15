@@ -39,7 +39,8 @@ import javax.swing.tree.TreeModel;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
@@ -75,7 +76,7 @@ import org.sakaiproject.user.api.User;
  */
 public class ProjectLogicImpl implements ProjectLogic {
 
-	private static final Logger log = Logger.getLogger(ProjectLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProjectLogicImpl.class);
 	@Getter @Setter
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
@@ -2100,7 +2101,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				sakaiProxy.setSessionUserId(userId);
 				workspace = sakaiProxy.getSiteById("~" + userId);
 			}catch (Exception e) {
-				log.error(e);
+				log.error(e.getMessage(), e);
 			}finally{
 				sakaiProxy.setSessionUserId(currentUserId);
 			}

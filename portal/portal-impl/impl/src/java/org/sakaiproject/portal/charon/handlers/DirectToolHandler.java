@@ -26,8 +26,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -58,7 +58,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
  */
 public class DirectToolHandler extends BasePortalHandler
 {
-	private static Log M_log = LogFactory.getLog(DirectToolHandler.class);
+	private static Logger M_log = LoggerFactory.getLogger(DirectToolHandler.class);
 
 	private static ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class);
 

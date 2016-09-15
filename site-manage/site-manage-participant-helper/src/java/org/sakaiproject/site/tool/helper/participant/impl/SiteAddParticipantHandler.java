@@ -12,8 +12,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.commons.lang.StringUtils;
 
@@ -61,7 +61,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class SiteAddParticipantHandler {
 	
     /** Our log (commons). */
-    private static final Log M_log = LogFactory.getLog(SiteAddParticipantHandler.class);
+    private static final Logger M_log = LoggerFactory.getLogger(SiteAddParticipantHandler.class);
 
 	private static final String EMAIL_CHAR = "@";
     public SiteService siteService = null;
@@ -591,7 +591,7 @@ public class SiteAddParticipantHandler {
 								addedUserEIds.add(eId);
 								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false;siteId=" + site.getId());
 								
-								// Add the user to the list for the User Auditing Event Log
+								// Add the user to the list for the User Auditing Event Logger
 								String currentUserId = userDirectoryService.getUserEid(sessionManager.getCurrentSessionUserId());
 								String[] userAuditString = {site.getId(),eId,role,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 								userAuditList.add(userAuditString);

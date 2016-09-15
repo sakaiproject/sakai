@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -40,7 +40,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class SiteManageGroupHandler {
 	
     /** Our log (commons). */
-    private static final Log M_log = LogFactory.getLog(SiteManageGroupHandler.class);
+    private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupHandler.class);
    
     private Collection<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
@@ -187,7 +187,7 @@ public class SiteManageGroupHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn( e );
+                M_log.warn(e.getMessage());
             }
         }
         title = "";
@@ -282,7 +282,7 @@ public class SiteManageGroupHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn( e );
+            M_log.warn(e.getMessage());
         }
 
         return "";

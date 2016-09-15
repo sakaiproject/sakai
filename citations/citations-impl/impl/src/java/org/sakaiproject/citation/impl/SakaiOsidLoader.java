@@ -21,8 +21,8 @@
 
 package org.sakaiproject.citation.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * OsidLoader loads a specific implementation of an Open Service Interface
@@ -89,7 +89,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SakaiOsidLoader implements java.io.Serializable
 {
-	private static Log M_log = LogFactory.getLog(SakaiOsidLoader.class); 
+	private static Logger M_log = LoggerFactory.getLogger(SakaiOsidLoader.class); 
 	
 	/**
 	 * Get an InputStream for a particular file name - first check the sakai.home area and then 

@@ -51,8 +51,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -158,7 +158,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	private ToolManager toolManager;
 	private HibernateTransactionManager txManager;
 
-	private static final Log LOG = LogFactory.getLog(HelpManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(HelpManagerImpl.class);
 
 	/**
 	 * @see org.sakaiproject.api.app.help.HelpManager#getServerConfigurationService()
@@ -344,7 +344,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			}
 			catch (Exception e)
 			{
-				LOG.error(e);
+				LOG.error(e.getMessage());
 			}
 		}
 		return resourceMap;
@@ -434,7 +434,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 		catch (Exception e)
 		{
-			LOG.error(e);
+			LOG.error(e.getMessage());
 		}
 		finally 
 		{

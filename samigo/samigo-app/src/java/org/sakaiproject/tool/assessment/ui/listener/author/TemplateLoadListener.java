@@ -30,8 +30,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -56,7 +56,7 @@ public class TemplateLoadListener
     extends TemplateBaseListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(TemplateLoadListener.class);
+  private static Logger log = LoggerFactory.getLogger(TemplateLoadListener.class);
   static private ContextUtil cu;
   /**
    * Normal listener method.

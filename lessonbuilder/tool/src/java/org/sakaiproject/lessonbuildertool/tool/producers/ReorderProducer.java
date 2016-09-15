@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.util.FormattedText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -65,6 +67,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class ReorderProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(ReorderProducer.class);
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private ShowPageProducer showPageProducer;
@@ -85,7 +88,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			try {
 				simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
 			} catch (Exception e) {
-				System.out.println("Reorder permission exception " + e);
+				log.info("Reorder permission exception " + e);
 				return;
 			}
 		}

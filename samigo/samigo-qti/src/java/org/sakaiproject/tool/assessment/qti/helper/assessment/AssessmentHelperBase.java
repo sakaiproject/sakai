@@ -33,8 +33,8 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -59,7 +59,7 @@ import org.xml.sax.SAXException;
 public abstract class AssessmentHelperBase
   implements AssessmentHelperIfc
 {
-  private static Log log = LogFactory.getLog(AssessmentHelperBase.class);
+  private static Logger log = LoggerFactory.getLogger(AssessmentHelperBase.class);
 
   abstract protected int getQtiVersion();
 

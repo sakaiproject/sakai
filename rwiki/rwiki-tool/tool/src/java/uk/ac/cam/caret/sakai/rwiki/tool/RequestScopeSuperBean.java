@@ -24,8 +24,8 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -91,7 +91,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
  */
 public class RequestScopeSuperBean
 {
-	private static Log log = LogFactory.getLog(RequestScopeSuperBean.class);
+	private static Logger log = LoggerFactory.getLogger(RequestScopeSuperBean.class);
 
 	public static final String REQUEST_ATTRIBUTE = "rsacMap";
 

@@ -1,8 +1,8 @@
 package org.sakaiproject.messagebundle.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
@@ -24,7 +24,7 @@ import java.util.Map;
  * 
  */
 public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
-	private static Log LOG = LogFactory.getLog(CachingMessageBundleServiceImpl.class);
+	private static Logger LOG = LoggerFactory.getLogger(CachingMessageBundleServiceImpl.class);
 	private static String CACHE_NAME = "org.sakaiproject.messagebundle.cache.bundles"; 
 
 	private MemoryService memoryService;

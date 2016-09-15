@@ -40,8 +40,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -100,7 +100,7 @@ import org.sakaiproject.util.FormattedText;
 public class ItemAddListener
     implements ActionListener {
 
-  private static final Log log = LogFactory.getLog(ItemAddListener.class);
+  private static final Logger log = LoggerFactory.getLogger(ItemAddListener.class);
   //private static ContextUtil cu;
   //private String scalename; // used for multiple choice Survey
   private boolean error = false;

@@ -40,8 +40,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
@@ -73,7 +73,7 @@ public class LoginServlet
 	 * 
 	 */
 	private static final long serialVersionUID = -5495078878170443939L;
-	private static Log log = LogFactory.getLog(LoginServlet.class);
+	private static Logger log = LoggerFactory.getLogger(LoginServlet.class);
 
 	private SiteService siteService;
 

@@ -44,10 +44,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-podcasts-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
 <!--		Needed to construct the actual feed -->
     <dependency>
       <groupId>rome</groupId>

@@ -22,14 +22,13 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.io.Serializable;
-import java.util.Comparator;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import java.io.Serializable;
+import java.util.Comparator;
 
 /**
  * A GradableObject is a component of a Gradebook for which students can be
@@ -37,8 +36,8 @@ import org.apache.commons.logging.LogFactory;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+@Slf4j
 public abstract class GradableObject implements Serializable {
-    protected static final Log log = LogFactory.getLog(GradableObject.class);
 
     protected Long id;
     protected int version;

@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -34,7 +34,7 @@ public class JoinSiteDelegate
     private UserDirectoryService    userDirectoryService;
 
     // class members
-    private static Log          log                             = LogFactory.getLog(JoinSiteDelegate.class);
+    private static Logger          log                             = LoggerFactory.getLogger(JoinSiteDelegate.class);
     private static final String COMMA_DELIMITER					= ",";										// Comma delimiter (for csv parsing)
     private static final String JOINSITE_GROUP_NO_SELECTION		= "noSelection";							// The value of the joiner group site
 	private static final String SAK_PERM_SITE_UPD				= "site.upd";								// The name of the site update permission

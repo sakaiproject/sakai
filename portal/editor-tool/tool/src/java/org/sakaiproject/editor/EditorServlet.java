@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -55,7 +55,7 @@ public class EditorServlet extends HttpServlet
 	public static final EditorRegistry editorRegistry = (EditorRegistry) ComponentManager.get(EditorRegistry.class);
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(EditorServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(EditorServlet.class);
 
 	/**
 	 * Access the Servlet's information display.

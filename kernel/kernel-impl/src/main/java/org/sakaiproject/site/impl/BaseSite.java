@@ -34,8 +34,8 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -78,7 +78,7 @@ import org.w3c.dom.NodeList;
 public class BaseSite implements Site
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseSite.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseSite.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

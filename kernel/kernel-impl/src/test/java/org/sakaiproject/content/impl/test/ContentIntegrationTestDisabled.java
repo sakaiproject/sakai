@@ -2,8 +2,8 @@ package org.sakaiproject.content.impl.test;
 
 import java.nio.ByteBuffer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -15,7 +15,7 @@ import org.sakaiproject.test.SakaiKernelTestBase;
 
 public class ContentIntegrationTestDisabled extends SakaiKernelTestBase
 {
-	private static final Log log = LogFactory.getLog(ContentIntegrationTestDisabled.class);
+	private static final Logger log = LoggerFactory.getLogger(ContentIntegrationTestDisabled.class);
 	
 	private AuthzGroupService authzGroupService;
 	private SiteService siteService;
@@ -37,7 +37,7 @@ public class ContentIntegrationTestDisabled extends SakaiKernelTestBase
 			oneTimeSetup();
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

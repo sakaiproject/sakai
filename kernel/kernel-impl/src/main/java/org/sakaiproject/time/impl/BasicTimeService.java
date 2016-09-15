@@ -29,8 +29,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -51,7 +51,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class BasicTimeService implements TimeService
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(TimeService.class);
+	private static Logger M_log = LoggerFactory.getLogger(TimeService.class);
 
 	/** The time zone for our GMT times. */
 	protected TimeZone M_tz = null;

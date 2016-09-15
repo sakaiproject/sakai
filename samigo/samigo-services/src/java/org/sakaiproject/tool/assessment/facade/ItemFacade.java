@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.assessment.AssessmentException;
 import org.osid.assessment.Item;
 import org.osid.shared.Type;
@@ -56,7 +56,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * agreement.
  */
 public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDataIfc> {
-  private Log log = LogFactory.getLog(ItemFacade.class);
+  private Logger log = LoggerFactory.getLogger(ItemFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
   protected org.osid.assessment.Item item;

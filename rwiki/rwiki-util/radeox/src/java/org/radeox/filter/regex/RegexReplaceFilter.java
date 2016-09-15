@@ -23,8 +23,8 @@
 
 package org.radeox.filter.regex;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.regex.Matcher;
 import org.radeox.regex.Pattern;
@@ -40,7 +40,7 @@ import org.radeox.regex.Pattern;
 
 public class RegexReplaceFilter extends RegexFilter
 {
-	private static Log log = LogFactory.getLog(RegexReplaceFilter.class);
+	private static Logger log = LoggerFactory.getLogger(RegexReplaceFilter.class);
 
 	public RegexReplaceFilter()
 	{

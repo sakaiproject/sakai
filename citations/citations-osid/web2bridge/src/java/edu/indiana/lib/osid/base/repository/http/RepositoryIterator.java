@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class RepositoryIterator extends edu.indiana.lib.osid.base.repository.RepositoryIterator
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(RepositoryIterator.class);
-		
     private java.util.Vector vector = new java.util.Vector();
     private int i = 0;
 

@@ -38,8 +38,8 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -54,7 +54,7 @@ import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingExcepti
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 public class AssignmentBean extends GradebookDependentBean implements Serializable {
-	private static final Log logger = LogFactory.getLog(AssignmentBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssignmentBean.class);
 
 	private Long assignmentId;
     private Assignment assignment;
@@ -462,11 +462,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 
 		} catch (ConflictingAssignmentNameException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_name_conflict_failure"));
             return "failure";
 		} catch (StaleObjectModificationException e) {
-            logger.error(e);
+            logger.error(e.getMessage());
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_locking_failure"));
             return "failure";
 		}

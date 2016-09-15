@@ -65,10 +65,6 @@
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-api</artifactId>
     </dependency>

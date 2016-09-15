@@ -66,8 +66,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -165,7 +165,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @author Eric Jeney <jeney@rutgers.edu>
  */
 public class ShowPageProducer implements ViewComponentProducer, DefaultView, NavigationCaseReporter, ViewParamsReporter {
-	private static Log log = LogFactory.getLog(ShowPageProducer.class);
+	private static Logger log = LoggerFactory.getLogger(ShowPageProducer.class);
 
 	String reqStar = "<span class=\"reqStar\">*</span>";
 	
@@ -1372,7 +1372,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if (j >= 0)
 							s = s.substring(j+1);
 						    mimeType = ContentTypeImageService.getContentType(s);
-						    // System.out.println("type " + s + ">" + mimeType);
+						    // log.info("type " + s + ">" + mimeType);
 						}
 
 						String src = null;
@@ -2430,7 +2430,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								evalTargets.add(new Target(m.getUserId()));
 							    }
 							} catch (Exception e) {
-							    System.out.println("unable to get members of group " + group);
+							    log.info("unable to get members of group " + group);
 							}
 							// no need to sort for other alternative, when there's only one
 							Collections.sort(evalTargets, new Comparator<Target>() {
@@ -2763,7 +2763,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								
 								dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
-								//System.out.println("Setting date to " + dateStr + " and time to " + timeStr);
+								//log.info("Setting date to " + dateStr + " and time to " + timeStr);
 								
 								UIOutput.make(tableRow, "peer-eval-due-date", dateStr);
 								UIOutput.make(tableRow, "peer-eval-allow-self", i.getAttribute("rubricAllowSelfGrade"));
@@ -3213,7 +3213,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		sessionParam = DatatypeConverter.printHexBinary(sessionBytes);
 		return sessionParam;
 	    } catch (Exception e) {
-		System.out.println("unable to generate encrypted session id " + e);
+		log.info("unable to generate encrypted session id " + e);
 		return null;
 	    }
 	}
@@ -4283,7 +4283,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			try {
 			    releaseDateString = isoDateFormat.format(releaseDate);
 			} catch (Exception e) {
-			    System.out.println(e + "bad format releasedate " + releaseDate);
+			    log.info(e + "bad format releasedate " + releaseDate);
 			}
 			}
 			
@@ -4879,9 +4879,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	
 	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<Long,Integer> selectedCells, Map<Long, Map<Integer, Integer>> dataMap, boolean allowSubmit)
 	{
-		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
-		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
-		//System.out.println("makePeerRubric(): i.getJsonAttribute(\"rows\") " + i.getJsonAttribute("rows"));
+		//log.info("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
+		//log.info("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
+		//log.info("makePeerRubric(): i.getJsonAttribute(\"rows\") " + i.getJsonAttribute("rows"));
 		
 		if (peerReviewRsfIds[0] != null)
 		    UIOutput.make(parent, peerReviewRsfIds[0], String.valueOf(i.getAttribute("rubricTitle")));
@@ -4910,7 +4910,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				rows.add(new RubricRow(rowId, rowText));
 			}
 		}
-		//else{System.out.println("This rubric has no rows.");}
+		//else{log.info("This rubric has no rows.");}
 		
 		Collections.sort(rows);
 

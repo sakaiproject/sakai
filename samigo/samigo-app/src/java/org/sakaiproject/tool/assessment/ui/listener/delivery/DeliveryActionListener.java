@@ -44,8 +44,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -120,7 +120,7 @@ public class DeliveryActionListener
 {
 
   static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  private static Log log = LogFactory.getLog(DeliveryActionListener.class);
+  private static Logger log = LoggerFactory.getLogger(DeliveryActionListener.class);
   //private static ContextUtil cu;
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);

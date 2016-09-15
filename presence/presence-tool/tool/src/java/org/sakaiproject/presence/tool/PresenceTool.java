@@ -32,8 +32,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
@@ -60,7 +60,7 @@ public class PresenceTool extends HttpServlet
 	private static final long serialVersionUID = 1L;
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(PresenceTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(PresenceTool.class);
 
 	/** Request parameter to generate a fragment only. */
 	protected static final String OUTPUT_FRAGMENT = "output_fragment";

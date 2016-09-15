@@ -35,8 +35,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
@@ -61,8 +61,7 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
 
-	protected static final Log log = LogFactory
-			.getLog(SAXSerializableResourceAccess.class);
+	protected static final Logger log = LoggerFactory.getLogger(SAXSerializableResourceAccess.class);
 
 	private Type1BaseContentCollectionSerializer type1CollectionSerializer;
 

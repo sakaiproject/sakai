@@ -21,8 +21,8 @@
 
 package org.sakaiproject.tool.assessment.integration.context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.integration.context.spring.FactoryUtil;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
@@ -49,7 +49,7 @@ public abstract class IntegrationContextFactory
    */
   public static IntegrationContextFactory getInstance()
   {
-    Log log = LogFactory.getLog(IntegrationContextFactory.class);
+    Logger log = LoggerFactory.getLogger(IntegrationContextFactory.class);
     log.debug("IntegrationContextFactory.getInstance()");
     if (instance==null)
     {
@@ -69,7 +69,7 @@ public abstract class IntegrationContextFactory
   
   public static IntegrationContextFactory getTestInstance()
   {
-	    Log log = LogFactory.getLog(IntegrationContextFactory.class);
+	    Logger log = LoggerFactory.getLogger(IntegrationContextFactory.class);
 	    log.debug("IntegrationContextFactory.getTestInstance()");
 	    if (instance==null)
 	    {

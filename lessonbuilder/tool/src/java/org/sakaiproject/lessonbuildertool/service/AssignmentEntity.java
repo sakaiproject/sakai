@@ -36,8 +36,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -106,7 +106,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Log log = LogFactory.getLog(AssignmentEntity.class);
+	private static Logger log = LoggerFactory.getLogger(AssignmentEntity.class);
 
     private static Cache assignmentCache = null;
 
@@ -367,11 +367,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	} catch (IdUnusedException e) {
 	    log.warn("ID unused ", e);
 	    return false;
-	} catch (PermissionException e) {
-	    log.warn(e);
-	    return false;
-	} catch (InUseException e) {
-	    log.warn(e);
+	} catch (PermissionException | InUseException e) {
+	    log.warn(e.getMessage(), e);
 	    return false;
 	}
 
@@ -407,7 +404,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		try {
 		    edit.setGroupAccess(newGroups);
 		} catch (PermissionException e) {
-		    log.warn(e);
+		    log.warn(e.getMessage());
 		    return false;
 		}
 
@@ -431,7 +428,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    // this change mode to grouped
 		    edit.setGroupAccess(groups);
 		} catch (PermissionException e) {
-		    log.warn(e);
+		    log.warn(e.getMessage());
 		    return false;
 		}
 		
@@ -440,7 +437,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		return true;
 	    }
 	} catch (Exception e) {
-	    log.warn(e);
+	    log.warn(e.getMessage());
 	    return false;
 	} finally {
 	    if (doCancel) {
@@ -463,14 +460,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	
 	try {
 	    edit = AssignmentService.editAssignment(ref);
-	} catch (IdUnusedException e) {
-	    log.warn(e);
-	    return false;
-	} catch (PermissionException e) {
-	    log.warn(e);
-	    return false;
-	} catch (InUseException e) {
-	    log.warn(e);
+	} catch (IdUnusedException | PermissionException | InUseException e) {
+	    log.warn(e.getMessage());
 	    return false;
 	}
 	
@@ -504,7 +495,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    try {
 			edit.setGroupAccess(newGroups);
 		    } catch (PermissionException e) {
-			log.warn(e);
+			log.warn(e.getMessage());
 			return false;
 		    }
 		} else {
@@ -525,7 +516,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    }
 	    
 	} catch (Exception e) {
-	    log.warn(e);
+	    log.warn(e.getMessage());
 	    return false;
 	} finally {
 	    if (doCancel) {
@@ -555,6 +546,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    user = UserDirectoryService.getUser(userId);
 	    submission = AssignmentService.getSubmission(assignment.getReference(), user);
 	} catch (Exception e) {
+		log.warn(e.getMessage());
 	    return null;
 	}
 
@@ -688,11 +680,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	} catch (IdUnusedException e) {
 	    log.warn("ID unused ", e);
 	    return;
-	} catch (PermissionException e) {
-	    log.warn(e);
-	    return;
-	} catch (InUseException e) {
-	    log.warn(e);
+	} catch (PermissionException | InUseException e) {
+	    log.warn(e.getMessage());
 	    return;
 	}
 
@@ -721,7 +710,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return;
 
 	} catch (Exception e) {
-	    log.warn(e);
+	    log.warn(e.getMessage());
 	    return;
 	} finally {
 	    if (doCancel) {
@@ -813,7 +802,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    AssignmentService.commitEdit(a);
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    System.out.println("can't create assignment " + e);
+	    log.info("can't create assignment " + e);
 	};
 	return null;
     }
@@ -957,7 +946,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
-	    System.out.println("can't create assignment " + e);
+	    log.info("can't create assignment " + e);
 	};
 	return null;
     }

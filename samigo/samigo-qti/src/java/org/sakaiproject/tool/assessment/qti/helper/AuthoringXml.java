@@ -38,8 +38,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;
@@ -67,7 +67,7 @@ import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
 public class AuthoringXml
 {
-  private static Log log = LogFactory.getLog(AuthoringXml.class);
+  private static Logger log = LoggerFactory.getLogger(AuthoringXml.class);
 
   public static final String SETTINGS_FILE = "SAM.properties";
   // paths

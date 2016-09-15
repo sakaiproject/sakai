@@ -39,8 +39,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -86,7 +86,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class BeginDeliveryActionListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(BeginDeliveryActionListener.class);
+  private static Logger log = LoggerFactory.getLogger(BeginDeliveryActionListener.class);
 
   /**
    * ACTION.
@@ -519,7 +519,7 @@ public class BeginDeliveryActionListener implements ActionListener
     				thread.start();
     			} 
     			catch (Exception e) {
-    				log.error(e);
+    				log.error(e.getMessage(), e);
     			}
     		}else{
     			FacesContext context = FacesContext.getCurrentInstance();

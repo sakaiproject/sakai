@@ -32,8 +32,8 @@ import java.util.TimeZone;
 import javax.faces.convert.DateTimeConverter;
 import javax.print.attribute.standard.DateTimeAtCompleted;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.DateTimeZone;
@@ -74,7 +74,7 @@ public class EventSummary implements Serializable {
 	private boolean 	openDateError	= false;
 	
 	
-	private static Log	 LOG = LogFactory.getLog(EventSummary.class);
+	private static Logger	 LOG = LoggerFactory.getLogger(EventSummary.class);
 
 	public String getDisplayName() {
 		return displayName;

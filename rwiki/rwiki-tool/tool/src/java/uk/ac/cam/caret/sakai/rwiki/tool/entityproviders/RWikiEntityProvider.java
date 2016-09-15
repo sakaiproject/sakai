@@ -26,8 +26,8 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides the /direct/wiki REST endpoint.
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class RWikiEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, ActionsExecutable, Outputable,Describeable {
 	
-	private static Log log = LogFactory.getLog(RWikiEntityProvider.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiEntityProvider.class);
 	
 	public final static String ENTITY_PREFIX = "wiki";
 	

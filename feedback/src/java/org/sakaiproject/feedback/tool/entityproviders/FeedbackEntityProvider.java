@@ -25,7 +25,8 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.*;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.fileupload.FileItem;
 
 import org.sakaiproject.entitybroker.EntityView;
@@ -71,7 +72,7 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
     private final static String SUCCESS = "SUCCESS";
     // Error codes end
 
-	private final Logger logger = Logger.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private SakaiProxy sakaiProxy = null;
     public void setSakaiProxy(SakaiProxy sakaiProxy) {
