@@ -110,8 +110,20 @@
 				utils.resizeFrame();
 			}
 		});
+		//catch enter key press for search box
+		$('#$form_search').keyup(function(event){
+			if(event.keyCode === 13){
+				$("#searchUser").click();
+			}
+		});
 	  });
 	  
+	//method called to do search for the participant
+	function doSearch(url){
+		var searchText = $('#$form_search' ).val();
+		location = url + "&search=" + searchText;
+		return true;
+	}
 	
 </script>
 
@@ -555,6 +567,14 @@
 								#end 
 							#end 
 						</a>
+						<span class="site-searchbox">
+							<label for="$form_search" class="skip">$tlang.getString('list.search')</label>
+							<input size="10"  value="$validator.escapeHtml($!userSearch)" name="$form_search" id="$form_search" type="text" class="searchField"  />
+							<input type="button" id="searchUser" value="$tlang.getString('sitegen.siteinfolist.searchUser')" onclick="doSearch('#toolLink($action "doUser_search")');" />
+							#if (($!userSearch) && (!$userSearch.equals("")))
+								<input type="button" class="button" value="$tlang.getString("list.cls")" onclick="location = '#toolLink($action "doUser_search_clear")';return false;" />
+							#end
+						</span>
 					</th>
 					#if ($hasProviderSet)
 						<th id="coursename" scope="col">
