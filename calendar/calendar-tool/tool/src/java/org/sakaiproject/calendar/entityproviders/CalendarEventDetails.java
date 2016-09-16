@@ -16,6 +16,7 @@ public class CalendarEventDetails extends CalendarEventSummary {
 	private Time lastTime;
 	private String description;
 	private String descriptionFormatted;
+	private String eventReference;
 	protected List<AttachmentSummary> attachments;
 
 	public CalendarEventDetails(CalendarEvent event) {
@@ -25,10 +26,14 @@ public class CalendarEventDetails extends CalendarEventSummary {
 		lastTime = event.getRange().lastTime();
 		description = event.getDescription();
 		descriptionFormatted = event.getDescriptionFormatted();
+		eventReference = event.getReference();
 
 		attachments = new ArrayList<AttachmentSummary>();
-		for (Reference r : event.getAttachments()) {
-			attachments.add(new AttachmentSummary(r));
+		//for externally subscribed calendar events attachments can be null
+		if(event.getAttachments() != null){
+			for (Reference r : event.getAttachments()) {
+				attachments.add(new AttachmentSummary(r));
+			}
 		}
 	}
 

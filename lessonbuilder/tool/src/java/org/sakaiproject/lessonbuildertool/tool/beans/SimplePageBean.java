@@ -145,6 +145,7 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static final String CALENDAR_TOOL_ID = "sakai.schedule";
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String FORUMS_TOOL_ID = "sakai.forums";
 
@@ -8087,4 +8088,34 @@ public class SimplePageBean {
 		return status;
 	}
 
+	/**
+	 * Method to add calendar component in the Lessons Page
+	 * @return
+	 */
+	public String addCalendar(String ab){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		String result = "success";
+		if (canEditPage()) {
+			//set addBefore value which will be used by append item to place calendar item at correct place
+			addBefore = ab;
+			SimplePageItem item;
+			if (itemId != null && itemId != -1) {
+				//existing item, need to update
+				item = findItem(itemId);
+			}else{
+				//new item,add it
+				item = appendItem("", "", SimplePageItem.CALENDAR);
+			}
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+			// Must clear the cache so that the calendar appears on the page as soon as it's added
+			itemsCache.remove(getCurrentPage().getPageId());
+		}
+		else{
+			result = "cancel";
+		}
+		return result;
+	}
 }
