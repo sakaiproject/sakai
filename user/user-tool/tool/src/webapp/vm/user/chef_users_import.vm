@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_view.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+#javascript("/library/js/spinner.js")
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
