@@ -23,18 +23,18 @@ public class ContextMappingDAOTest {
     @Test
     public void testAddAndFind() {
         dao.add("uuid", "componentId", "contextId");
-        Assert.assertEquals("uuid", dao.find("componentId", "contextId"));
+        Assert.assertEquals("uuid", dao.get("componentId", "contextId"));
     }
 
     @Test(expected = NonUniqueObjectException.class)
-    public void testAddAddFind() {
+    public void testAddAdd() {
         dao.add("uuid", "componentId", "contextId1");
         dao.add("uuid", "componentId", "contextId2");
     }
 
     @Test
     public void testNotFound() {
-        Assert.assertNull(dao.find("componentId", "doesNotExist"));
+        Assert.assertNull(dao.get("componentId", "doesNotExist"));
     }
 
     @Test
@@ -49,10 +49,14 @@ public class ContextMappingDAOTest {
         dao.remove("uuid");
     }
 
-
     @Test
     public void testRemoveNotFound() {
         dao.remove("componentId", "contextId");
+    }
+
+    @Test
+    public void testFind() {
+
     }
 
 

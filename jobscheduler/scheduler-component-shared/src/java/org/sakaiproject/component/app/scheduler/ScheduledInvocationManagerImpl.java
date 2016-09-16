@@ -2,11 +2,11 @@ package org.sakaiproject.component.app.scheduler;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
-import org.hibernate.SessionFactory;
+import org.hibernate.NonUniqueObjectException;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.listeners.TriggerListenerSupport;
@@ -94,6 +94,13 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	 */
 	public void createDelayedInvocation(Instant instant, String componentId, String opaqueContext, String uuid) {
 		try {
+			dao.add(uuid, componentId, opaqueContext);
+		} catch (NonUniqueObjectException nuoe) {
+			// Delete the existing one.
+			deleteDelayedInvocation(componentId, opaqueContext);
+			dao.add(uuid, componentId, opaqueContext);
+		}
+		try {
 			Scheduler scheduler = schedulerFactory.getScheduler();
 			JobKey key = new JobKey(componentId, GROUP_NAME);
 			JobDetail detail = scheduler.getJobDetail(key);
@@ -119,9 +126,9 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 					.build();
 			scheduler.scheduleJob(trigger);
 			// This is so that we can do fast lookups.
-			dao.add(uuid, componentId, opaqueContext);
 			LOG.info("Created new Delayed Invocation: uuid=" + uuid);
 		} catch (SchedulerException se) {
+			dao.remove(uuid);
 			LOG.error("Failed to create new Delayed Invocation: componentId=" + componentId +
 					", opaqueContext=" + opaqueContext, se);
 		}
@@ -149,35 +156,35 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	public void deleteDelayedInvocation(String componentId, String opaqueContext) {
 		LOG.debug("componentId=" + componentId + ", opaqueContext=" + opaqueContext);
 
-		String uuid = dao.find(componentId, opaqueContext);
+		String uuid = dao.get(componentId, opaqueContext);
 		deleteDelayedInvocation(uuid);
         // Can return here
-		try {
-			Scheduler scheduler = schedulerFactory.getScheduler();
-			Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals(GROUP_NAME));
-			for (JobKey jobKey : jobKeys) {
-				if (componentId.length() > 0 && !(jobKey.getName().equals(componentId))) {
-					// If we're filtering by component Id and it doesn't match skip.
-					continue;
-				}
-				JobDetail detail = scheduler.getJobDetail(jobKey);
-				if (detail != null) {
-					List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
-					for (Trigger trigger: triggers) {
-						String contextId = trigger.getJobDataMap().getString(CONTEXT_ID);
-						if (opaqueContext.length() > 0 && !(opaqueContext.equals(contextId))) {
-							// If we're filtering by opaqueContent and it doesn't match skip.
-							continue;
-						}
-						// Unscehdule the trigger.
-						deleteDelayedInvocation(trigger.getKey().getName());
-					}
-				}
-			}
-		} catch (SchedulerException se) {
-			LOG.error("Failure while attempting to delete invocations matching: componentId={}, opaqueContext={}",
-					opaqueContext, componentId, se);
-		}
+//		try {
+//			Scheduler scheduler = schedulerFactory.getScheduler();
+//			Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals(GROUP_NAME));
+//			for (JobKey jobKey : jobKeys) {
+//				if (componentId.length() > 0 && !(jobKey.getName().equals(componentId))) {
+//					// If we're filtering by component Id and it doesn't match skip.
+//					continue;
+//				}
+//				JobDetail detail = scheduler.getJobDetail(jobKey);
+//				if (detail != null) {
+//					List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+//					for (Trigger trigger: triggers) {
+//						String contextId = trigger.getJobDataMap().getString(CONTEXT_ID);
+//						if (opaqueContext.length() > 0 && !(opaqueContext.equals(contextId))) {
+//							// If we're filtering by opaqueContent and it doesn't match skip.
+//							continue;
+//						}
+//						// Unscehdule the trigger.
+//						deleteDelayedInvocation(trigger.getKey().getName());
+//					}
+//				}
+//			}
+//		} catch (SchedulerException se) {
+//			LOG.error("Failure while attempting to delete invocations matching: componentId={}, opaqueContext={}",
+//					opaqueContext, componentId, se);
+//		}
 	}
 
 	/* (non-Javadoc)
@@ -185,36 +192,50 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	 */
 	public DelayedInvocation[] findDelayedInvocations(String componentId, String opaqueContext) {
 		LOG.debug("componentId=" + componentId + ", opaqueContext=" + opaqueContext);
-		String uuid = dao.find(componentId, opaqueContext);
-		//sche
+		Collection<String> uuids = dao.find(componentId, opaqueContext);
 		List<DelayedInvocation> invocations = new ArrayList<>();
-		try {
-			Scheduler scheduler = schedulerFactory.getScheduler();
-			Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals(GROUP_NAME));
-			for (JobKey jobKey : jobKeys) {
-				if (componentId.length() > 0 && !(jobKey.getName().equals(componentId))) {
-					// If we're filtering by component Id and it doesn't match skip.
-					continue;
-				}
-				JobDetail detail = scheduler.getJobDetail(jobKey);
-				if (detail != null) {
-					List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
-					for (Trigger trigger: triggers) {
-						String contextId = trigger.getJobDataMap().getString(CONTEXT_ID);
-						if (opaqueContext.length() > 0 && !(opaqueContext.equals(contextId))) {
-							// If we're filtering by opaqueContent and it doesn't match skip.
-							continue;
-						}
-						// Add this one to the list.
-						invocations.add(new DelayedInvocation(trigger.getKey().getName(), trigger.getNextFireTime(), jobKey.getName(), contextId));
-					}
-				}
+        for (String uuid: uuids) {
+			TriggerKey key = new TriggerKey(uuid, GROUP_NAME);
+			try {
+				Trigger trigger = schedulerFactory.getScheduler().getTrigger(key);
+				invocations.add(new DelayedInvocation(trigger.getKey().getName(), trigger.getNextFireTime(), key.getName(), opaqueContext));
+
+			} catch (SchedulerException e) {
+				e.printStackTrace();
+				return null;
 			}
-		} catch (SchedulerException se) {
-			LOG.error("Failure while attempting to find invocations matching: componentId={}, opaqueContext={}",
-					opaqueContext, componentId, se);
 		}
 		return invocations.toArray(new DelayedInvocation[]{});
+//
+//		//sche
+//		List<DelayedInvocation> invocations = new ArrayList<>();
+//		try {
+//			Scheduler scheduler = schedulerFactory.getScheduler();
+//			Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals(GROUP_NAME));
+//			for (JobKey jobKey : jobKeys) {
+//				if (componentId.length() > 0 && !(jobKey.getName().equals(componentId))) {
+//					// If we're filtering by component Id and it doesn't match skip.
+//					continue;
+//				}
+//				JobDetail detail = scheduler.getJobDetail(jobKey);
+//				if (detail != null) {
+//					List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+//					for (Trigger trigger: triggers) {
+//						String contextId = trigger.getJobDataMap().getString(CONTEXT_ID);
+//						if (opaqueContext.length() > 0 && !(opaqueContext.equals(contextId))) {
+//							// If we're filtering by opaqueContent and it doesn't match skip.
+//							continue;
+//						}
+//						// Add this one to the list.
+//						invocations.add(new DelayedInvocation(trigger.getKey().getName(), trigger.getNextFireTime(), jobKey.getName(), contextId));
+//					}
+//				}
+//			}
+//		} catch (SchedulerException se) {
+//			LOG.error("Failure while attempting to find invocations matching: componentId={}, opaqueContext={}",
+//					opaqueContext, componentId, se);
+//		}
+//		return invocations.toArray(new DelayedInvocation[]{});
 	}
 
 	/**

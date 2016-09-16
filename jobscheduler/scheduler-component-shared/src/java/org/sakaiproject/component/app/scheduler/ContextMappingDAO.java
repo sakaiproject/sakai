@@ -1,13 +1,16 @@
 package org.sakaiproject.component.app.scheduler;
 
+import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Collection;
 
 /**
  * This is used to allow faster lookups from a UUID to a context ID.
@@ -26,12 +29,26 @@ public class ContextMappingDAO {
     }
 
 
-    public String find(String componentId, String contextId) {
+    public String get(String componentId, String contextId) {
         ContextMapping o = getContextMapping(componentId, contextId);
         if (o != null) {
             return o.getUuid();
         }
         return null;
+    }
+
+    public Collection<String> find(String componentId, String contextId) {
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(ContextMapping.class);
+        if (contextId != null) {
+                criteria.add(Restrictions.eq("contextId", contextId));
+        }
+        if (componentId != null) {
+            criteria.add(Restrictions.eq("componentId", componentId));
+        }
+        // We only want the IDs
+        criteria.setProjection(Projections.property("id"));
+        return criteria.list();
+
     }
 
     public void add(String uuid, String componentId, String contextId) {

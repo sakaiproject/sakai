@@ -12,9 +12,9 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.DirectSchedulerFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.time.api.Time;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -59,16 +59,12 @@ public class ScheduledInvocationTest {
     }
 
     @Test
-    public void testCreateAndFind() {
+    public void testCreate() {
         Time time = Mockito.mock(Time.class);
-        Mockito.when(time.getTime()).thenReturn(0L);
+        Mockito.when(time.getTime()).thenReturn(Instant.now().plusSeconds(60).toEpochMilli());
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
-        // Check we can find it.
-        DelayedInvocation[] addedInvocations = manager.findDelayedInvocations(ALL, ALL);
-        Assert.assertNotNull(addedInvocations);
-        Assert.assertEquals(1, addedInvocations.length);
-        Assert.assertEquals(uuid, addedInvocations[0].uuid);
-        Assert.assertEquals(uuid, addedInvocations[0].uuid);
+        // Check we added it.
+        Mockito.verify(dao).add(uuid, COMPONENT_ID, CONTEXT);
     }
 
     @Test
@@ -76,16 +72,16 @@ public class ScheduledInvocationTest {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.getTime()).thenReturn(0L);
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
+        Mockito.when(dao.get(COMPONENT_ID, CONTEXT)).thenReturn(uuid);
         manager.deleteDelayedInvocation(uuid);
-        DelayedInvocation[] empty = manager.findDelayedInvocations(ALL, ALL);
-        Assert.assertArrayEquals(new DelayedInvocation[0], empty);
+        Mockito.verify(dao).remove(COMPONENT_ID, CONTEXT);
     }
 
     @Test
     public void testCreateAndDeleteBySearch() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.getTime()).thenReturn(0L);
-        Mockito.when(dao.find(COMPONENT_ID, CONTEXT)).thenReturn("uuid");
+        Mockito.when(dao.get(COMPONENT_ID, CONTEXT)).thenReturn("uuid");
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
         manager.deleteDelayedInvocation(COMPONENT_ID, CONTEXT);
         DelayedInvocation[] empty = manager.findDelayedInvocations(ALL, ALL);
