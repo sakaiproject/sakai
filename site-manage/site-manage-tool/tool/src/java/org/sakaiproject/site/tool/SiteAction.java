@@ -648,6 +648,11 @@ public class SiteAction extends PagedResourceActionII {
 
 	private static final String STATE_CM_AUTHORIZER_SECTIONS = "site_cm_authorizer_sections";
 
+	//list to store participants for a user search in site_info
+	private static final String STATE_SITE_PARTICIPANT_LIST = "site_participants";
+
+	//for user search in site_info page
+	private static final String SITE_USER_SEARCH = "search_user";
 	private String cmSubjectCategory;
 
 	private boolean warnedNoSubjectCategory = false;
@@ -1200,6 +1205,8 @@ public class SiteAction extends PagedResourceActionII {
 		// lti tools
 		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
+		state.removeAttribute(STATE_SITE_PARTICIPANT_LIST);
+		state.removeAttribute(SITE_USER_SEARCH);
 
 		// bjones86 - SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
@@ -1960,7 +1967,10 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			// put the link for downloading participant
 			putPrintParticipantLinkIntoContext(context, data, site);
-			
+			context.put("searchString", state.getAttribute(STATE_SEARCH));
+			//add user search string
+			context.put("userSearch", state.getAttribute(SITE_USER_SEARCH));
+			context.put("form_search", FORM_SEARCH);
 			context.put("userDirectoryService", UserDirectoryService
 					.getInstance());
 			try {
@@ -4714,6 +4724,19 @@ public class SiteAction extends PagedResourceActionII {
 	} // doSite_search_clear
 
 	/**
+	 * Handle a Search Clear request.
+	 */
+	public void doUser_search_clear(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// clear the search
+		state.removeAttribute(SITE_USER_SEARCH);
+		resetPaging(state);
+
+	} // doUser_search_clear
+
+	/**
 	 * 
 	 * @param state
 	 * @param context
@@ -4758,6 +4781,24 @@ public class SiteAction extends PagedResourceActionII {
 		
 		return (rv || rv2 || rv3);
 	}
+
+	public void doUser_search(RunData data, Context context) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the search form field into the state object
+		String search = StringUtils.trimToNull(Validator.escapeHtml(data.getParameters().getString(FORM_SEARCH)));
+
+		// set the flag to go to the prev page on the next list
+		if (StringUtils.isNotBlank(search)) {
+			state.removeAttribute(SITE_USER_SEARCH);
+		} else {
+			//search item is present, if the result was paged clear the top position from the state
+			resetPaging(state);
+			state.setAttribute(SITE_USER_SEARCH, search);
+		}
+
+	} // doUser_search
 
 	/**
 	 * 
@@ -8424,6 +8465,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	public void doNavigate_to_site(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		//remove search user attribute from the state
+		state.removeAttribute(SITE_USER_SEARCH);
 		String siteId = StringUtils.trimToNull(data.getParameters().getString(
 				"option"));
 		if (siteId != null) {
@@ -8689,7 +8732,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// init variables useful for actual edits and mainainersAfterProposedChanges check
 				AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 				String maintainRoleString = realmEdit.getMaintainRole();
-				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
+				List participants;
+				//Check for search term
+				String search = (String)state.getAttribute(SITE_USER_SEARCH);
+				if(StringUtils.isNotBlank(search)) {
+					//search is true, get the complete list of participants from the other attribute.
+					participants = collectionToList((Collection) state.getAttribute(STATE_SITE_PARTICIPANT_LIST));
+				} else {
+					participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
+				}
 
 				// SAK 23029 Test proposed removals/updates; reject all where activeMainainer count would = 0 if all proposed changes were made
 				List<Participant> maintainersAfterProposedChanges = testProposedUpdates(participants, params, maintainRoleString);
@@ -10820,6 +10871,21 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		Collection participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+		//check for search user attribute in the state
+		String search = (String)state.getAttribute(SITE_USER_SEARCH);
+		if(StringUtils.isNotBlank(search) && (participants.size() > 0)) {
+			for(Object object : participants){
+				Participant participant = (Participant)object;
+				//if search term is in the display name or in display Id, add into the list
+				if (StringUtils.containsIgnoreCase(participant.getDisplayName(), search) || StringUtils.containsIgnoreCase(participant.getDisplayId(),search)) {
+					members.add(participant);
+				}
+			}
+			state.setAttribute(STATE_PARTICIPANT_LIST, members);
+			//STATE_PARTICIPANT_LIST will contain members which satisfy search criteria therefore saving original participants list in new attribute
+			state.setAttribute(STATE_SITE_PARTICIPANT_LIST, participants);
+			return members;
+		}
 		state.setAttribute(STATE_PARTICIPANT_LIST, participants);
 
 		return participants;
