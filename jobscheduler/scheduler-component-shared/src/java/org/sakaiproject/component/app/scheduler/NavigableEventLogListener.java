@@ -124,8 +124,11 @@ public class NavigableEventLogListener implements TriggerListener, JobListener
 
                 if (exception != null)
                 {
-                    sb.append (", exception: ").append(exception.getMessage())
-                      .append(", exception cause: ").append(exception.getCause().getClass().getName());
+                    sb.append (", exception: ").append(exception.getMessage());
+                    if (exception.getCause() != null)
+                    {
+                      sb.append(", exception cause: ").append(exception.getCause().getClass().getName());
+                    }
                 }
                 sb.append("]");
 
