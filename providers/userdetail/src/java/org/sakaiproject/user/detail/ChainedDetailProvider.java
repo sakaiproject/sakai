@@ -1,4 +1,4 @@
-package org.sakaiproject.user.impl;
+package org.sakaiproject.user.detail;
 
 import java.util.ArrayList;
 import java.util.List;

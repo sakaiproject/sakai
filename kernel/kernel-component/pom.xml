@@ -28,11 +28,6 @@
       <artifactId>sakai-kernel-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-userdetail-provider</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <!-- antisamy XML deps - must include these jars at runtime for XML parsing libraries -->
     <dependency>
       <groupId>xerces</groupId>

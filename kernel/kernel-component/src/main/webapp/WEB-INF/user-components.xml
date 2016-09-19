@@ -116,22 +116,6 @@
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
 	</bean>
 
-	<bean id="org.sakaiproject.user.api.CandidateDetailProvider"
-		  class="org.sakaiproject.user.impl.ChainedDetailProvider">
-		<property name="providers">
-			<list>
-				<bean class="org.sakaiproject.user.detail.CandidateDetailProviderImpl" init-method="init">
-					<property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
-					<property name="siteService"> <ref bean="org.sakaiproject.site.api.SiteService"/> </property>
-					<property name="toolManager"> <ref bean="org.sakaiproject.tool.api.ToolManager"/> </property>
-				</bean>
 
-				<bean class="org.sakaiproject.user.detail.FallbackDetailProvider" init-method="init">
-					<property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
-					<property name="siteService"> <ref bean="org.sakaiproject.site.api.SiteService"/> </property>
-					<property name="toolManager"> <ref bean="org.sakaiproject.tool.api.ToolManager"/> </property>
-				</bean>
-			</list>
-		</property>
-	</bean>
+
 </beans>
