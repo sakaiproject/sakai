@@ -35,4 +35,4 @@ function toggleQuickLinksNav(event){
 }
 
 $PBJQ('#quickLinks-close').on('click', toggleQuickLinksNav);
-$PBJQ(".Mrphs-quickLinksNav__drop-btn").on("click", toggleQuickLinksNav);
+$PBJQ(".js-toggle-quick-links-nav").on("click", toggleQuickLinksNav);

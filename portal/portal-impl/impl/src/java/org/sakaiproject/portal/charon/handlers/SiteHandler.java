@@ -561,6 +561,14 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
 				+ URLUtils.getSafePathInfo(req));
 
+		//Find any related links ready for display in the top navigation bar,
+		//they can be set per site or for the whole portal.
+		if (userId != null) {
+			String relatedLinksTitle = portalService.getRelatedLinksTitle(siteId);
+			List<Map> relatedLinks = portalService.getRelatedLinks(siteId);
+			rcontext.put("relatedLinksInfo", relatedLinksTitle);
+			rcontext.put("relatedLinks", relatedLinks);
+		}
 		doSendResponse(rcontext, res, null);
 
 		StoredState ss = portalService.getStoredState();

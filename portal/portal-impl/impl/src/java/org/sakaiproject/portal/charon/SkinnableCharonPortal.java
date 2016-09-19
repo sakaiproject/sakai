@@ -242,7 +242,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private PageFilter pageFilter = new PageFilter() {
 
-		public List filter(List newPages, Site site)
+		public List filter(List newPages, Site site) 
 		{
 			return newPages;
 		}
@@ -586,7 +586,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		includeLogin(rcontext, req, session);
 		includeBottom(rcontext);
 
-		return rcontext;
+        return rcontext;
 	}
 
 	public boolean isPortletPlacement(Placement placement)
@@ -1106,7 +1106,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
-		
+
 		return rcontext;
 	}
 
@@ -1811,9 +1811,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String image2 = null;
 			String logoutWarningMessage = "";
 
-			// The related links
-			List relatedLinks = null;
-
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
 			String loginUserDispId = null;
@@ -1906,18 +1903,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				topLogin = false;
 
 				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
-				relatedLinks = this.relatedLinks;
 			}
 
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
 
-			// display portal links - SAK-22983
-			String portalLinks = portalService.getPortalLinks();
-			if (portalLinks != null) {
-				rcontext.put("portalLinks",portalLinks);
-			}						
 			if (!topLogin)
 			{
 
@@ -1971,7 +1962,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginUserId", loginUserId);
 			}
 			rcontext.put("displayUserloginInfo", displayUserloginInfo && loginUserDispId != null);
-			rcontext.put("relatedLinks", relatedLinks);
 		}
 	}
 

@@ -13,29 +13,34 @@
 
         #if ($relatedLinks)
             <ul id="quickLinks" class="Mrphs-quickLinksNav">
-                <li class="Mrphs-quickLinksNav__popup js-toggle-quicklinks-nav" aria-haspopup="true">
-                    <a href="javascript:void(0);" class="Mrphs-quickLinksNav__drop-btn" title="${rloader.sit_quick_links_title}" role="menuitem"  aria-haspopup="true">
+                <li class="Mrphs-quickLinksNav__popup" aria-haspopup="true">
+                    <a href="javascript:void(0);" class="js-toggle-quick-links-nav" title="${rloader.sit_quick_links_title}" role="menuitem"  aria-haspopup="true">
                         <i class="fa fa-th fa-external-link-square"></i><span class="quicklinks-label">${rloader.sit_quick_links}</span>
                     </a>
-
-                    <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
-                        <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
-                            <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times"></i></a>
-                        </li>
-                        #foreach($relatedLink in $relatedLinks)
-                            <li class="Mrphs-quickLinksNav__submenuitem">
-                                <a class="Mrphs-quickLinksNav__submenuitem" role="menuitem" href="${relatedLink.url}" title="$relatedLink.title" target="_blank">
-                                    #if(${relatedLink.iconType} == "image")
-                                        <span id="quicklink-icon" style="background-image:url(${relatedLink.imageURI})"></span>
-                                    #elseif (${relatedLink.iconType} == "icon")
-                                        <span id="quicklink-icon" class="${relatedLink.iconClass}"></span>
-                                    #end
-                                    <span class="Mrphs-quickLinks__submenuitem">$relatedLink.name</span>
-                                </a>
-                            </li>
-                        #end
-                    </ul>
                 </li>
+
+                <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
+                    <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
+                        <span class="Mrphs-quickLinks-header--info">${relatedLinksInfo}</span>
+                        <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times"></i></a>
+                    </li>
+                    <div id="selectQuickLink">
+                        <div class="tab-box">
+                            #foreach($relatedLink in $relatedLinks)
+                                <li class="Mrphs-quickLinksNav__submenuitem">
+                                    <a role="menuitem" href="${relatedLink.url}" title="$relatedLink.title" target="_blank">
+                                        #if(${relatedLink.iconType} == "image")
+                                            <span id="quicklink-icon" style="background-image:url(${relatedLink.imageURI})"></span>
+                                        #elseif (${relatedLink.iconType} == "icon")
+                                            <span id="quicklink-icon" class="${relatedLink.iconClass}"></span>
+                                        #end
+                                        <span class="Mrphs-quickLinks__submenuitem--title">${relatedLink.name}</span>
+                                    </a>
+                                </li>
+                            #end
+                        </div>
+                    </div>
+                </ul>
             </ul>
         #end
 
