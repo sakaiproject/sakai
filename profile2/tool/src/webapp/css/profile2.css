@@ -1379,7 +1379,3 @@ img.ui-datepicker-trigger {
 input[type="submit"].secondary {
     color: #555 !important
 }
-
-input[type="file"]{
-    color:transparent;
-}
