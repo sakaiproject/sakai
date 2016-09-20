@@ -2358,20 +2358,22 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private String getImpersonatorDisplayId()
 	{
 		Session currentSession = SessionManager.getCurrentSession();
-		String currentUserId = currentSession.getUserId();
 		UsageSession originalSession = (UsageSession) currentSession.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
-		String originalUserId = originalSession == null ? "" : originalSession.getUserId();
 		
-		if (originalSession != null && !originalUserId.equals(currentUserId))
+		if (originalSession != null)
 		{
-			try
+			String originalUserId = originalSession.getUserId();
+			if (!StringUtils.equals(currentSession.getUserId(), originalUserId))
 			{
-				User originalUser = UserDirectoryService.getUser(originalUserId);
-				return originalUser.getDisplayId();
-			}
-			catch (UserNotDefinedException e)
-			{
-				M_log.debug("Unable to retrieve user for id: " + originalUserId);
+				try
+				{
+					User originalUser = UserDirectoryService.getUser(originalUserId);
+					return originalUser.getDisplayId();
+				}
+				catch (UserNotDefinedException e)
+				{
+					M_log.debug("Unable to retrieve user for id: " + originalUserId);
+				}
 			}
 		}
 		
