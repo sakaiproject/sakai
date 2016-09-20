@@ -3007,6 +3007,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(queryType == Q_TYPE_LESSON && totalsBy.contains(T_PAGE_ACTION)) {
 				groupFields.add("s.pageAction");
 			}
+			if(queryType == Q_TYPE_LESSON) {
+				groupFields.add("s.pageId");
+			}
 			if(totalsBy.contains(T_DATE)) {
 				groupFields.add("s.date");
 			}
