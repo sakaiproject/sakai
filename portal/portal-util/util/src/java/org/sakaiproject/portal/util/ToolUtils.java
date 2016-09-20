@@ -179,10 +179,10 @@ public class ToolUtils
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, 
 		String portalPrefix, boolean reset, String effectiveSiteId, String pageAlias)
 	{
+		if ( page == null ) return "";
 		if ( req == null ) req = getRequestFromThreadLocal();
 		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
 		if ( pageAlias == null ) pageAlias = page.getId();
-
 		// The normal URL
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
 				+ Web.escapeUrl(effectiveSiteId) + "/page/");
