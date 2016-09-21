@@ -4399,7 +4399,7 @@ public class AssignmentAction extends PagedResourceActionII
 			Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
 			for (User u : submitters.keySet())
 			{
-				if(!candidateDetailProvider.getAdditionalNotes(u, sst).isPresent()){
+				if(candidateDetailProvider != null && !candidateDetailProvider.getAdditionalNotes(u, sst).isPresent()){
 					M_log.debug("Skipping user with no additional notes " + u.getEid());
 					continue;
 				}
@@ -17858,7 +17858,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private void addAdditionalNotesToContext(Context context, SessionState state){
 		try {
 			Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-			context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(st));
+			context.put("isAdditionalNotesEnabled", candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st));
 			context.put("candidateDetailProvider", candidateDetailProvider);
 			context.put("site", st);
 		} catch (IdUnusedException iue) {
