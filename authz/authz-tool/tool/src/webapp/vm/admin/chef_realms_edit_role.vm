@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_edit_role.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+#javascript("/library/js/spinner.js")
 <script type="text/javascript">
   focus_path = ["id"];
 </script>

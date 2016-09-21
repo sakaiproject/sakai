@@ -3,9 +3,9 @@
 ##   - did some work on producing valid ids for inputs that would be good to validate 
 <div class="portletBody">
 <script>includeLatestJQuery('chef_site-modifyENW.vm');</script>
-<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
-<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+#javascript("/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js")
+#css("/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css")
+#css("/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css")
 	<h3>
 		$tlang.getString("multipleTools.custom")
 	</h3>           

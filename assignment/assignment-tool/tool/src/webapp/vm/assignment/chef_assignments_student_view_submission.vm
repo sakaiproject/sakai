@@ -25,7 +25,7 @@ $(document).ready(function(){
 });
 </script>
 ## Include other javascript specific to this page
-<script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
+#javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
 <div class="portletBody">
 ## submission times
