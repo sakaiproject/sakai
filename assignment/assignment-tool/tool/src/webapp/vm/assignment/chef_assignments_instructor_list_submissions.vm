@@ -2,7 +2,7 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #set( $H = '-' )
 <script type="text/javascript">includeLatestJQuery('assignments');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <script type="text/javascript">
 	$(document).ready(function(){
