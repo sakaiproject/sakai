@@ -12373,7 +12373,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			} catch(IdUnusedException e){
 				M_log.warn("Site not found " + this.getAssignment().getContext(), e);
 			} catch(UserNotDefinedException e){
-				M_log.warn("User not found " + this.getSubmitterId(), e);
+				// This is expected as users may get deleted.
+				M_log.debug("User not found " + this.getSubmitterId(), e);
 			}
 			return id + " (" + rb.getString("grading.anonymous.title") + ")";
 	}
