@@ -106,6 +106,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_LTI2_TOOL_ID = "lti2:state_tool_id";
 
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
+	private static String ALLOW_MAINTAINER_ADD_TOOL_SITE = "lti:allow_maintainer_add_tool_site";
+
 	
 	//accepted parameters for page, sort and search actions
 	private static String PARAM_ID = "id";
@@ -370,6 +372,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		context.put("allowMaintainerAddToolSite", serverConfigurationService.getBoolean(ALLOW_MAINTAINER_ADD_TOOL_SITE, true));
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
