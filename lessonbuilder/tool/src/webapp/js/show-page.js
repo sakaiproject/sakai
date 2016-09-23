@@ -160,6 +160,7 @@ $(document).ready(function() {
 		if (section.hasClass("collapsible")) {
 			section.slideToggle();
 			setCollapsedStatus($(this), null); // toggle
+			doIndents();
 		}
 	});
 
@@ -193,6 +194,7 @@ $(document).ready(function() {
 		});
 		$("#expandAllSections").hide();
 		$("#collapseAllSections").show();
+		doIndents();
 	});
 
 	$("#collapseAllSections").on("click", function(){
@@ -3477,12 +3479,16 @@ function fixupHeights() {
 // maximum indent in the column.
 var indentSize = 20;
 var indentFraction = 4;
+// this is more complex than you'd think. in some cases a section starts invisible
+// in that case width is zero, and the calculation is meaningless
+// also, because it adds to the existing indent, we can't do it more than once per item
+// so check if it's visible and that a done attribute isn't set
 function doIndents() {
     $(".column").each(function(index) {
 	    var max = 0;
 	    var indents = $(this).find("[x-indent]");
 	    var width = $(this).width();
-	    if (indents.size() > 0) {
+	    if ($(this).is(':visible') && indents.size() > 0) {
 		indents.each(function(i) {
 		    var indent = $(this).attr('x-indent');
 		    if (indent > max)
@@ -3495,8 +3501,12 @@ function doIndents() {
 		// do the indents
 		indents.each(function(i) {
 		    var existing = parseInt($(this).css("padding-left"),10);
-		    $(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
-		    });
+		    // make sure we only do this once
+		    if (typeof $(this).attr('x-indent-done') === 'undefined') {
+			$(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
+			$(this).attr('x-indent-done','true');
+		    }
+		});
 	    }
 	});		
 
