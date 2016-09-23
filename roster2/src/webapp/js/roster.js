@@ -350,7 +350,7 @@
 
                     m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + encodeURIComponent(roster.siteId);
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
-                    if (options.forceOfficialPicture) {
+                    if (options.forceOfficialPicture || options.showOfficialPictures) {
                         m.profileImageUrl += "/official";
                     }
                     m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
