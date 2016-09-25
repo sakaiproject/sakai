@@ -4,12 +4,10 @@
 
 <wicket:panel>
 	<wicket:enclosure child="categoriesList">
-		<div wicket:id="toggleActions" class="col-md-12">
-			<div class="pull-right">
-				<a href="javascript:void(0);" class="button" id="toggleCategories" wicket:id="toggleCategoriesLink" aria-controls="gradeSummaryTable">Group By Category</a>
-				<a href="javascript:void(0);" class="gb-summary-expand-all" wicket:id="expandCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
-				<a href="javascript:void(0);" class="gb-summary-collapse-all" wicket:id="collapseCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
-			</div>
+		<div wicket:id="toggleActions" class="pull-right">
+			<a href="javascript:void(0);" class="button" id="toggleCategories" wicket:id="toggleCategoriesLink" aria-controls="gradeSummaryTable">Group By Category</a>
+			<a href="javascript:void(0);" class="gb-summary-expand-all" wicket:id="expandCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
+			<a href="javascript:void(0);" class="gb-summary-collapse-all" wicket:id="collapseCategoriesLink" aria-controls="gradeSummaryTable"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
 		</div>
 
 		<table id="gradeSummaryTable" class="table table-bordered table-striped table-hover table-condensed">

@@ -959,7 +959,17 @@ div.wicket-modal div.w_right > div {
   text-align: center;
 }
 .gb-summary-grade-panel .gb-summary-course-grade {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  width: 50%;
+}
+.gb-summary-grade-panel .gb-summary-course-grade .panel {
+  margin-bottom: 0;
+}
+.gb-summary-grade-panel .gb-summary-course-grade .panel-body {
+  padding: 8px 15px;
+}
+.gb-summary-grade-panel .gb-summary-course-grade-label {
+  padding-right: 10px;
 }
 .gb-summary-grade-panel .gb-summary-expand-all {
   padding-right: 8px;
