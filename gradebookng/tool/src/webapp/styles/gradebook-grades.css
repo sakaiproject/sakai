@@ -1008,16 +1008,20 @@ div.wicket-modal div.w_right > div {
   display: block;
   margin-top: 10px;
 }
-.gb-grade-summary-content .tab-content {
+.gb-summary-grade-panel {
   overflow: auto;
-  margin: 10px 0;
-  padding: 10px 0;
-  border-bottom: 1px solid #DDD;
   -webkit-overflow-scrolling: touch;
+  padding: 10px 0;
+  margin: 0 0 10px;
+  border-bottom: 1px solid #DDD;
 }
 .gb-summary-grade-panel .gb-summary-grade-flags {
   padding-left: 10px;
   float: right;
+}
+.gb-summary-not-released-flag,
+.gb-summary-not-released-message {
+  color: #888;
 }
 #studentGradeSummary {
   margin: 30px 0 0;

@@ -133,7 +133,7 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
 GradebookGradeSummary.prototype.setupFixedFooter = function() {
   // do this by setting the height of the tab content to leave room for the navigation
   if (this.$modal.height() > $(window).height()) {
-    var $tabPane = this.$content.find(".tab-content");
+    var $tabPane = this.$content.find(".gb-summary-grade-panel");
     var $contentPane =  this.$content.find(".gb-grade-summary-content");
 
     var paddingSize = 160; // modal padding and modal content padding/margins (yep... fudged)

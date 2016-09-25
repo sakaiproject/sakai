@@ -7,17 +7,22 @@
 			<div class="gb-summary-course-grade">
 				<div class="panel panel-default">
 					<div class="panel-body">
-						<div class="gb-summary-course-grade-label col-md-3"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
-						<div class="gb-summary-course-grade-value col-md-9"><span wicket:id="courseGrade">B+</span> <span wicket:id="courseGradeNotReleasedFlag">B+</span></div>
+						<div id="summaryCourseGradeLabel" class="gb-summary-course-grade-label col-md-3">
+							<strong><wicket:message key="label.studentsummary.coursegrade" /></strong>
+						</div>
+						<div class="gb-summary-course-grade-value col-md-9" aria-labelledby="summaryCourseGradeLabel">
+							<span wicket:id="courseGrade">B+</span>
+							<small wicket:id="courseGradeNotReleasedFlag" class="gb-summary-not-released-flag">*</small>
+						</div>
 					</div>
 				</div>
 			</div>
 
 			<div wicket:id="gradeSummaryTable"/>
+		</div>
 
-			<div class="col-md-12">
-				<p><small wicket:id="courseGradeNotReleasedMessage"></small></p>
-			</div>
+		<div class="col-md-12">
+			<p><small wicket:id="courseGradeNotReleasedMessage" class="gb-summary-not-released-message"></small></p>
 		</div>
 	</wicket:panel>
 </body>

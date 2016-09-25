@@ -7,16 +7,21 @@
 			<div class="gb-summary-course-grade">
 				<div class="panel panel-default">
 					<div class="panel-body">
-						<div id="summaryCourseGradeLabel" class="gb-summary-course-grade-label col-md-3"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
-						<div class="gb-summary-course-grade-value col-md-9" aria-labelledby="summaryCourseGradeLabel"><span wicket:id="courseGrade">B+</span></div>
+						<div id="summaryCourseGradeLabel" class="gb-summary-course-grade-label col-md-3">
+							<strong><wicket:message key="label.studentsummary.coursegrade" /></strong>
+						</div>
+						<div class="gb-summary-course-grade-value col-md-9" aria-labelledby="summaryCourseGradeLabel">
+							<span wicket:id="courseGrade">B+</span>
+						</div>
 					</div>
 				</div>
 			</div>
 
 			<div wicket:id="gradeSummaryTable"/>
 
-			<div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
-			
+			<div wicket:id="noAssignments" class="messageInformation">
+				<wicket:message key="no-assignments.label" />
+			</div>
 		</div>
 	</wicket:panel>
 </body>
