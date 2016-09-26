@@ -17,8 +17,7 @@
       <version name="lockId" />
               
       <property name="agentIdString">
-        <column name="AGENTID" unique-key="uniqueAuthz" length="99"
-                not-null="true" index="sam_authz_agentId_idx" />
+        <column name="AGENTID" unique-key="uniqueAuthz" length="99" not-null="true" />
       </property>
       <property name="functionId">
         <column name="FUNCTIONID" unique-key="uniqueAuthz" length="36"
