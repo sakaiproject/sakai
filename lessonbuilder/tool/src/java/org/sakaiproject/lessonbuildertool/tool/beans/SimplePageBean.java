@@ -167,6 +167,8 @@ public class SimplePageBean {
 	private Set<String> myGroups = null;
 
 	private String filterHtml = ServerConfigurationService.getString(FILTERHTML);
+	//Check in the property file if top prev and next buttons are suppressed
+	private boolean disableTopPrevNextLink = ServerConfigurationService.getBoolean("lessons.surpress.top.prevAndNextButtons", false);
 
 	public String selectedAssignment = null;
 	public String selectedBlti = null;
@@ -2060,7 +2062,10 @@ public class SimplePageBean {
 				view.setSendingPage(e.pageId);
 				view.setItemId(e.pageItemId);
 				view.setPath(Integer.toString(top));
-				UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+				//if top next button is suppressed, hide it
+				if(!disableTopPrevNextLink){
+					UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+				}
 				UIInternalLink.make(tofill, "next1", messageLocator.getMessage("simplepage.next"), view);
 			}
 	    } else  if (nextItem != null) {
@@ -2097,7 +2102,10 @@ public class SimplePageBean {
 	    	
 	    	view.setItemId(nextItem.getId());
 	    	view.setBackPath("push");
-	    	UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+	    	//if top next button is suppressed , hide it
+	    	if(!disableTopPrevNextLink){
+	    		UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+	    	}
 	    	UIInternalLink.make(tofill, "next1", messageLocator.getMessage("simplepage.next"), view);
 	    }
 	}
@@ -2159,7 +2167,10 @@ public class SimplePageBean {
 		}
 		view.setItemId(prevItem.getId());
 		view.setBackPath("pop");
-		UIInternalLink.make(tofill, "prev", messageLocator.getMessage("simplepage.back"), view);
+		//if top prev button is suppressed, hide it
+		if(!disableTopPrevNextLink){
+			UIInternalLink.make(tofill, "prev", messageLocator.getMessage("simplepage.back"), view);
+		}
 		UIInternalLink.make(tofill, "prev1", messageLocator.getMessage("simplepage.back"), view);
 	}
 
