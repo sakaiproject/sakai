@@ -285,7 +285,7 @@ public class LessonsAccess {
 
 	// if it's a student page, have to handle specially. Find item that has the student content section
 	// if usePrerequistes false, this can't happen, since no graded items will occur there
-	if (page.getOwner() != null) {
+	if (page.getOwner() != null && !page.getIsOwnedPage()) {
 	    SimpleStudentPage student = dao.findStudentPage(page.getTopParent());
 	    SimplePageItem item = dao.findItem(student.getItemId());
 	    items = new ArrayList<SimplePageItem>();

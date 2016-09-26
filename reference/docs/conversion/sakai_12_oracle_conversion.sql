@@ -214,3 +214,7 @@ DROP INDEX SST_PRESENCE_SITE_ID_IX ON SST_PRESENCES;
 DROP INDEX SST_EVENTS_USER_ID_IX ON SST_EVENTS;
 -- END SAK-31276
 
+--LSNBLDR-633 Restrict editing of Lessons pages and subpages to one or more people
+ALTER TABLE lesson_builder_pages ADD isOwnedPage bit;
+UPDATE lesson_builder_pages SET isOwnedPage=false WHERE owner IS NOT NULL;
+-- END LSNBLDR-633

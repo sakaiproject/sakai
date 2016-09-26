@@ -28,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.text.Format;
 import java.math.BigDecimal;
 import java.util.Locale;
+
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -296,6 +298,7 @@ public class SimplePageBean {
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
+	private String newOwner;
 	//variables used for announcements widget
 	private String announcementsHeight;
 	private String announcementsDropdown;
@@ -307,7 +310,15 @@ public class SimplePageBean {
 	public void setPeerEval(boolean peerEval) {
 		this.peerEval = peerEval;
 	}
-	
+
+	public String getNewOwner() {
+		return newOwner;
+	}
+
+	public void setNewOwner(String newOwner) {
+		this.newOwner = newOwner;
+	}
+
 	public void setRubricTitle(String rubricTitle) {
 		this.rubricTitle = rubricTitle;
 	}
@@ -1094,7 +1105,7 @@ public class SimplePageBean {
 
 			// figure out how to filter
 			Integer filter = FILTER_DEFAULT;
-			if (getCurrentPage().getOwner() != null) {
+			if (isStudentPage(getCurrentPage())) {
 			    filter = FILTER_DEFAULT; // always filter student content
 			} else {
 			    // this is instructor content.
@@ -1794,7 +1805,7 @@ public class SimplePageBean {
 		// them at the end in the first place.
 		if(items.size() > 0) {
 			SimplePage page = getPage(pageid);
-				if(page.getOwner() != null) {
+				if(isStudentPage(page)) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPage(page.getTopParent());
 				if(student != null && student.getCommentsSection() != null) {
 					SimplePageItem item = simplePageToolDao.findItem(student.getItemId());
@@ -2391,7 +2402,7 @@ public class SimplePageBean {
 		
 		SimplePageItem ret = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(getCurrentPageId()));
 		
-		if(ret == null && page.getOwner() != null) {
+		if(ret == null && isStudentPage(page)) {
 			ret = simplePageToolDao.findItemFromStudentPage(page.getPageId());
 		}
 		if (ret == null)
@@ -2792,7 +2803,7 @@ public class SimplePageBean {
 		if (page == null)
 		    return "no-such-page";
 
-		if(page.getOwner() == null) {
+		if(!isStudentPage(page)) {
 		    // this code should never be called
 		    return "failure";
 		}else {
@@ -3608,7 +3619,7 @@ public class SimplePageBean {
     // the group list, so you need to do i.setGroups().
        public List<String> setItemGroups (SimplePageItem i, String[] groups) {
 	   // can't allow groups on student pages
-	   if (getCurrentPage().getOwner() != null)
+	   if (isStudentPage(getCurrentPage()))
 	       return null;
 	   LessonEntity lessonEntity = null;
 	   switch (i.getType()) {
@@ -4005,7 +4016,7 @@ public class SimplePageBean {
 		Site site = getCurrentSite();
 		boolean needRecompute = false;
 		
-		if(page.getOwner() == null && getEditPrivs() == 0) {
+		if(!isStudentPage(page) && getEditPrivs() == 0) {
 			// update gradebook link if necessary
 			Double currentPoints = page.getGradebookPoints();
 			Double newPoints = null;
@@ -4054,6 +4065,11 @@ public class SimplePageBean {
 				log.error("editTitle unable to save site " + e);
 			    }
 
+			}
+			//if changeOwner is not null then set 'isOwnedPage' true
+			if(StringUtils.isNotBlank(newOwner)){
+				page.setOwner(newOwner);
+				page.setIsOwnedPage(true);
 			}
 		}
 
@@ -4781,7 +4797,7 @@ public class SimplePageBean {
 			return false;
 		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
 			return false;
-		} else if (page != null && page.getOwner() != null && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
+		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
 		    if (item.getType() == SimplePageItem.MULTIMEDIA) {
@@ -5811,7 +5827,7 @@ public class SimplePageBean {
 		    SimplePage p = simplePageToolDao.getPage(i.getPageId());
 		    if (p == null)
 			continue;
-		    if (p.getOwner() != null)  // probably can't happen
+		    if (isStudentPage(p))  // probably can't happen
 			continue;
 		    if (seen.contains(p.getPageId()))  // already seen this page, we're in a loop
 			continue;
@@ -5883,7 +5899,7 @@ public class SimplePageBean {
 
 		SecurityAdvisor advisor = null;
 		try {
-			if(getCurrentPage().getOwner() != null) {
+			if(isStudentPage(getCurrentPage())) {
 				advisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
 							return SecurityAdvice.ALLOWED;
@@ -6563,7 +6579,7 @@ public class SimplePageBean {
 		}
 
 		// student page
-		boolean isStudent = (currentPage.getOwner() != null);
+		boolean isStudent = (isStudentPage(currentPage));
 
 		// testing whether user can get to the page is complex.
 		// but you can't add a comment to a page you haven't seen,
@@ -6609,7 +6625,7 @@ public class SimplePageBean {
 			}
 		}
 		
-		if(getCurrentPage().getOwner() != null) {
+		if(isStudentPage(getCurrentPage())) {
 			SimpleStudentPage student = simplePageToolDao.findStudentPage(currentPage.getTopParent());
 			student.setLastCommentChange(new Date());
 			update(student, false);
@@ -6730,7 +6746,7 @@ public class SimplePageBean {
 	
 	public void addStudentContentSection(String ab) {
 		addBefore = ab; // used by appebdItem
-		if(getCurrentPage().getOwner() == null && canEditPage()) {
+		if(!isStudentPage(getCurrentPage()) && canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);
@@ -6834,6 +6850,8 @@ public class SimplePageBean {
 			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(), title, curr.getPageId(), null);
 			newPage.setOwner(user.getId());
 			newPage.setGroup(groupId);
+			//this is a student page so set 'isOwnedPage' as false
+			newPage.setIsOwnedPage(false);
 			saveItem(newPage, false);
 			
 			// Then attach the lesson_builder_student_pages item.
@@ -6901,7 +6919,7 @@ public class SimplePageBean {
 	}
 
 	private boolean pushAdvisor() {
-		if(getCurrentPage().getOwner() != null) {
+		if(isStudentPage(getCurrentPage())) {
 			securityService.pushAdvisor(new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
 					return SecurityAdvice.ALLOWED;
@@ -7848,7 +7866,7 @@ public class SimplePageBean {
 		
 		// can evaluate if this is a student page and we're in the site
 		// and the page has a rubric
-		if (getCurrentPage().getOwner() == null || !canReadPage()) {		    
+		if (!isStudentPage(getCurrentPage()) || !canReadPage()) {
 		    setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 		    return "permission-failed";
 		}
@@ -8044,7 +8062,7 @@ public class SimplePageBean {
 				}
 			}
 			
-			if(getCurrentPage().getOwner() != null) {
+			if(isStudentPage(getCurrentPage())) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPage(getCurrentPage().getTopParent());
 				student.setLastCommentChange(new Date());
 				update(student, false);
@@ -8114,6 +8132,15 @@ public class SimplePageBean {
 			saveOrUpdate(item);
 		} else {
 			status = "cancel";
+		}
+		return status;
+	}
+
+	//Check if page is a studentPage or a subpage added by student
+	public boolean isStudentPage(SimplePage page){
+		boolean status = false;
+		if(page != null && page.getOwner() != null && !page.getIsOwnedPage()){
+			status = true;
 		}
 		return status;
 	}

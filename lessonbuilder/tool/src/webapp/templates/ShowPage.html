@@ -1508,6 +1508,12 @@
 		    </p>
 		    <br />
                     </div>
+                    <div rsf:id="changeOwnerSection">
+                        <label for="changeOwnerDropdown" rsf:id="changeOwnerDropdownLabel"></label>
+                        <select rsf:id="changeOwnerDropdown" id="changeOwnerDropdown" name="changeOwnerDropdown">
+                            <option rsf:id="possOwner:"></option>
+                        </select>
+                    </div>
                     <p class="act">
                         <input class="bold" type="submit"  onclick="event.returnValue = checkEditTitleForm(); return checkEditTitleForm();" rsf:id="create-title" />
                         <input type="submit" rsf:id="cancel-title"  onclick="closeEditTitleDialog(); return false" />

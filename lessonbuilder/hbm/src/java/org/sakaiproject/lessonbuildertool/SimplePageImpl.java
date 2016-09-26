@@ -49,6 +49,8 @@ public class SimplePageImpl implements SimplePage {
 
 	private String folder = null; // ID of a resource
 
+	private boolean isOwnedPage = false;
+
 	public SimplePageImpl() {}
 
 	public SimplePageImpl(String toolId, String siteId, String title, Long parent, Long topParent) {
@@ -179,4 +181,14 @@ public class SimplePageImpl implements SimplePage {
 		this.folder = f;
 	}
 
+	public boolean getIsOwnedPage() {
+		return isOwnedPage;
+	}
+
+	public void setIsOwnedPage(Boolean isOwnedPage) {
+		if (isOwnedPage == null) {
+			isOwnedPage = false;
+		}
+		this.isOwnedPage = isOwnedPage;
+	}
 }

@@ -93,4 +93,8 @@ public interface SimplePage {
 
     public String getFolder();
 
+    public boolean getIsOwnedPage();
+
+    public  void setIsOwnedPage(Boolean isOwnedPage);
+
 }
