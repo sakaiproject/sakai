@@ -132,11 +132,15 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
 
 GradebookGradeSummary.prototype.setupFixedFooter = function() {
   // do this by setting the height of the tab content to leave room for the navigation
-  if (this.$modal.height() > $(window).height()) {
-    var $tabPane = this.$content.find(".gb-summary-grade-panel");
-    var $contentPane =  this.$content.find(".gb-grade-summary-content");
+  var $tabPane = this.$content.find(".gb-summary-grade-panel");
 
-    var paddingSize = 160; // modal padding and modal content padding/margins (yep... fudged)
+  // reset height
+  $tabPane.removeAttr("style");
+
+  if (this.$modal.height() > $(window).height()) {
+    var $contentPane =  this.$modal.find(".gb-grade-summary-content");
+
+    var paddingSize = 100; // modal padding and modal content padding/margins (yep... fudged)
 
     var height = $tabPane.height() - (this.$modal.height() - $(window).height()) - ($contentPane.height() - this.$modal.height()) - paddingSize;
 
@@ -270,15 +274,28 @@ GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $cont
 GradebookGradeSummary.prototype.setupTableSorting = function() {
   var $table = this.$content.find(".gb-summary-grade-panel table");
 
+  var stickyHeaderContainer = null;
+  if ($(".tab-pane.active .gb-summary-grade-panel").length == 1) {
+    stickyHeaderContainer = $(".tab-pane.active .gb-summary-grade-panel");
+  }
+
   $table.tablesorter({
     theme : "bootstrap",
     widthFixed: true,
     headerTemplate : '{content} {icon}',
-    widgets : [ "uitheme", "zebra" ],
+    widgets : [ "uitheme", "zebra", "stickyHeaders" ],
     widgetOptions : {
       zebra : ["even", "odd"],
-      filter_reset : ".reset",
-      filter_hideFilters : true
+      //filter_reset : ".reset",
+      filter_hideFilters : true,
+      stickyHeaders_offset : 0,
+      stickyHeaders_cloneId : '-sticky',
+      stickyHeaders_addResizeEvent : true,
+      stickyHeaders_zIndex : 2,
+      stickyHeaders_attachTo : stickyHeaderContainer,
+      stickyHeaders_xScroll : null,
+      stickyHeaders_yScroll : null,
+      stickyHeaders_filteredToTop: true
     },
     //sort by due date descending and secondarily by assignment title
     sortList: [[3, 0], [0, 0]],

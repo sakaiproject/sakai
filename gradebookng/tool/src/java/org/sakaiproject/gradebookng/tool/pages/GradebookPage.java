@@ -753,11 +753,11 @@ public class GradebookPage extends BasePage {
 
 		// tablesorted used by student grade summary
 		response.render(CssHeaderItem
-			.forUrl(String.format("/library/js/jquery/tablesorter/2.1.17/css/theme.bootstrap.css?version=%s", version)));
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/css/theme.bootstrap.min.css?version=%s", version)));
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.min.js?version=%s", version)));
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.min.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.widgets.min.js?version=%s", version)));
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.widgets.min.js?version=%s", version)));
 
 		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem

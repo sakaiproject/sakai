@@ -942,6 +942,9 @@ div.wicket-modal div.w_right > div {
 .gb-summary-grade-score-outof {
   color: #999;
 }
+.gb-summary-grade-panel {
+  position: relative;
+}
 .gb-summary-grade-panel .gb-summary-category-row td:first-child {
   font-weight: bold;
 }
