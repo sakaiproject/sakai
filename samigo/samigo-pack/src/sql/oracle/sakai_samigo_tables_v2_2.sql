@@ -115,7 +115,6 @@ create index SAM_PUBLISHEDASSESSMENT_I on SAM_ASSESSMENTGRADING_T (PUBLISHEDASSE
 alter table SAM_ASSESSMETADATA_T add constraint FK7E6F9A28694216CC foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T;
 create index sam_authz_functionId_idx on SAM_AUTHZDATA_T (FUNCTIONID);
 create index sam_authz_qualifierId_idx on SAM_AUTHZDATA_T (QUALIFIERID);
-create index sam_authz_agentId_idx on SAM_AUTHZDATA_T (AGENTID);
 alter table SAM_GRADINGSUMMARY_T add constraint FKBC88AA27D02EF633 foreign key (PUBLISHEDASSESSMENTID) references SAM_PUBLISHEDASSESSMENT_T;
 alter table SAM_ITEMFEEDBACK_T add constraint FK3254E9ED3288DBBD foreign key (ITEMID) references SAM_ITEM_T;
 create index SAM_ITEMGRADING_PUBANS_I on SAM_ITEMGRADING_T (PUBLISHEDANSWERID);

@@ -584,7 +584,6 @@ alter table SAM_PUBLISHEDEVALUATION_T add index FK94CB245FC07F835D (ASSESSMENTID
 alter table SAM_PUBLISHEDACCESSCONTROL_T add index FK2EDF39E0C07F835D (ASSESSMENTID), add constraint FK2EDF39E0C07F835D foreign key (ASSESSMENTID) references SAM_PUBLISHEDASSESSMENT_T (ID);
 create index sam_authz_functionId_idx on SAM_AUTHZDATA_T (FUNCTIONID);
 create index sam_authz_qualifierId_idx on SAM_AUTHZDATA_T (QUALIFIERID);
-create index sam_authz_agentId_idx on SAM_AUTHZDATA_T (AGENTID);
 alter table SAM_ASSESSEVALUATION_T add index FK6A6F29F5C07F835D (ASSESSMENTID), add constraint FK6A6F29F5C07F835D foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T (ID);
 alter table SAM_ANSWERFEEDBACK_T add index FK58CEF0D810DF4559 (ANSWERID), add constraint FK58CEF0D810DF4559 foreign key (ANSWERID) references SAM_ANSWER_T (ANSWERID);
 alter table SAM_PUBLISHEDANSWER_T add index FKB41EA361B9BF0B8E (itemId), add constraint FKB41EA361B9BF0B8E foreign key (itemId) references SAM_PUBLISHEDITEM_T (ITEMID);
