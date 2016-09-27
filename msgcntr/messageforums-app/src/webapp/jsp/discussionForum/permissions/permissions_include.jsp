@@ -6,13 +6,6 @@
     DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
     out.print(dft.generatePermissionScript());
 %>
-<%--
-       		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
-			<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
-<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
---%>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="#{ForumTool.collapsePermissionPanel}">
   <%--

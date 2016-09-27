@@ -1,6 +1,6 @@
 <!-- sakai_properties.vm -->
 <script type="text/javascript">includeLatestJQuery('sakai_properties');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
 #if($item && !$model)#set($model = $item)#end
 #if(!$item && $model)#set($item = $model)#end

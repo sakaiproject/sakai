@@ -1,20 +1,22 @@
 /* Global namespace */
 
-$namespace : "Mrphs-";
-$skin-name : "morpheus-default"; // This is used for bootstrap font behaviour.
+@import "customization"; //it is copied from the user supplied file by maven
 
-$break-small-end: 	800px;
-$break-medium-end: 	1030px;
+$namespace : "Mrphs-" !default;
+$skin-name : "morpheus-default" !default; // This is used for bootstrap font behaviour.
 
-$phone  :       "only screen and (max-width : #{ $break-small-end })";
-$tablet :       "only screen and (max-width : #{ $break-medium-end })";
-$desktop:       "only screen and (min-width : #{ $break-medium-end + 1 })";
-$nonPhone:      "only screen and (min-width : #{ $break-small-end + 1 })";
+$break-small-end: 	800px !default;
+$break-medium-end: 	1030px !default;
+
+$phone  :       "only screen and (max-width : #{$break-small-end})" !default;
+$tablet :       "only screen and (max-width : #{$break-medium-end})" !default;
+$desktop:       "only screen and (min-width : #{$break-medium-end + 1})" !default;
+$nonPhone:      "only screen and (min-width : #{$break-small-end + 1})" !default;
 
 // For the "More Sites" drawer, just use one column if there's not
 // enough room to show two side-by-side.
-$break-more-sites-single-column: 1200px;
-$more-sites-single-column: "only screen and (max-width : #{ $break-more-sites-single-column })";
+$break-more-sites-single-column: 1200px !default;
+$more-sites-single-column: "only screen and (max-width : #{$break-more-sites-single-column})" !default;
 
 /* Typography*/
 
@@ -144,7 +146,7 @@ $sites-nav-submenu-item-selected-border:    none !default;
 $tool-menu-width: 7.5em !default;
 
 /* Navigation Hierarchy */
-$hierarchy-size: 3.5em;
+$hierarchy-size: 3.5em !default;
 
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
@@ -161,7 +163,5 @@ $icon-size: 20px !default;
 /* Footer */
 $footer-background: transparent !default;
 $footer-color: $background-color-secondary !default;
-
-@import "customization"; //it is created on-the-fly by maven.
 
 @import url(#{$font-family-url});

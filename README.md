@@ -54,7 +54,7 @@ For testing out the latest builds go to the [nightly server page](http://nightly
 ## Get in touch
 If you have any questions, please join the Sakai developer mailing list: To subscribe send an email to sakai-dev+subscribe@apereo.org
 
-To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
+To see a full list of Sakai email lists and other communication channels, please check out this Sakai wiki page:
 https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
 
 If you want more immediate response during M-F typical business hours you could try our Slack channels.

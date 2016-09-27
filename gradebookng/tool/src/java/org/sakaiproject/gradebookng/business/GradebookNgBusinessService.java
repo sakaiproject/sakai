@@ -1999,8 +1999,8 @@ public class GradebookNgBusinessService {
 			final int gradeIndex1 = this.ascendingGrades.indexOf(letterGrade1);
 			final int gradeIndex2 = this.ascendingGrades.indexOf(letterGrade2);
 
-			final Double calculatedGrade1 = Double.valueOf(cg1.getCalculatedGrade());
-			final Double calculatedGrade2 = Double.valueOf(cg2.getCalculatedGrade());
+			final Double calculatedGrade1 = cg1.getCalculatedGrade() == null ? null : Double.valueOf(cg1.getCalculatedGrade());
+			final Double calculatedGrade2 = cg2.getCalculatedGrade() == null ? null : Double.valueOf(cg2.getCalculatedGrade());
 
 			return new CompareToBuilder()
 					.append(gradeIndex1, gradeIndex2)

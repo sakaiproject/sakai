@@ -479,6 +479,8 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
+	simplePageToolDao.setRefreshMode();
+
 	boolean below = false;
 	itemId = itemId.trim();
 	if (itemId.startsWith("-")) {
@@ -611,6 +613,8 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
+	simplePageToolDao.setRefreshMode();
+
 	itemId = itemId.trim();
 	// we don't actually use the integers. Just for syntax checking
 	int widthi = 0;
@@ -683,6 +687,8 @@ public class AjaxServer extends HttpServlet
 			log.error("Ajax setSectionCollapsible passed null argument");
 			return null;
 		}
+
+		simplePageToolDao.setRefreshMode();
 
 		itemId = itemId.trim();
 		// we don't actually use the integers. Just for syntax checking
@@ -771,6 +777,8 @@ public class AjaxServer extends HttpServlet
 	    log.error("Ajax deleteBreak passed null itemid");
 	    return null;
 	}
+
+	simplePageToolDao.setRefreshMode();
 
 	itemId = itemId.trim();
 

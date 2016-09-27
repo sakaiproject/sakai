@@ -316,6 +316,12 @@ implements ActionListener
 	    		error=true;
 	    	}
 	    }
+	    
+	    // if auto-submit and late-submissions are disabled Set retract date to null
+	    if ( !assessmentSettings.getAutoSubmit() && retractDate != null && 
+	        assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+	        assessmentSettings.setRetractDate(null);
+	    }
 	    	    
 		// if timed assessment, does it has value for time
 		Object time = assessmentSettings.getValueMap().get("hasTimeAssessment");

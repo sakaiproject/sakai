@@ -25,7 +25,6 @@ a{
 	}
 	&[href]{  // This means a[href]
 		color: $link-color;
-		background-color: $link-background-color;
 		&:focus, &::-moz-focus-inner{ // This would compile to -> a[href]:focus, a[href]::moz-focus-inner
 			outline-color: invert;
 		}
@@ -97,7 +96,12 @@ h4{
 }
 
 .skip{
-	display: none;
+	position: absolute !important;
+	height: 1px; width: 1px; 
+	overflow: hidden;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px);
 }
 
 input[type="submit"],input[type="button"]{

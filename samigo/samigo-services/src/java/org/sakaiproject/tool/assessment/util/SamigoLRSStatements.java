@@ -15,20 +15,27 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /* 
  * Class that holds custom code for generating LRS_Statements that contain special samigo Metadata
  */
 public class SamigoLRSStatements {
-    private static final ServerConfigurationService serverConfigurationService = ComponentManager.get( ServerConfigurationService.class );
+    private static final ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get( ServerConfigurationService.class );
+    private static final UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 
-    public static LRS_Statement getStatementForTakeAssessment(String assessmentTitle, boolean pastDue, boolean isViaURL) {
+    
+    public static LRS_Statement getStatementForTakeAssessment(String assessmentTitle, boolean pastDue, String releaseTo, boolean isViaURL) {
     	StringBuffer lrssMetaInfo = new StringBuffer("Assesment: " + assessmentTitle);
     	lrssMetaInfo.append(", Past Due?: " + pastDue);
     	if (isViaURL) {
     		lrssMetaInfo.append(", Assesment taken via URL.");
     	}
+    	
+    	lrssMetaInfo.append(", Release to:" + AgentFacade.getCurrentSiteId());
     	
         String url = serverConfigurationService.getPortalUrl();
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.attempted);
@@ -49,8 +56,19 @@ public class SamigoLRSStatements {
         nameMap.put("en-US", "User received a grade");
         lrsObject.setActivityName(nameMap);
         HashMap<String, String> descMap = new HashMap<>();
-        descMap.put("en-US", "User received a grade for their assessment: " + publishedAssessment.getTitle() + "; Submitted: "
-                + (gradingData.getIsLate() ? "late" : "on time"));
+        String userId = gradingData.getAgentId();
+        String userIdLabel = "User Id";
+        try {
+        	userId = userDirectoryService.getUserEid(gradingData.getAgentId());
+        	userIdLabel = "User Eid";
+        } catch (UserNotDefinedException e) {
+        	//This is fine as userId is set by default
+        }
+       
+        descMap.put("en-US", "User received a grade for their assessment: " + publishedAssessment.getTitle() +
+        		"; " + userIdLabel + ": " + userId + 
+        		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
+        		"; Submitted: " + (gradingData.getIsLate() ? "late" : "on time"));
         lrsObject.setDescription(descMap);
         LRS_Context context = new LRS_Context("other", "assessment");
         LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
@@ -64,8 +82,19 @@ public class SamigoLRSStatements {
         nameMap.put("en-US", "Total score updated");
         lrsObject.setActivityName(nameMap);
         HashMap<String, String> descMap = new HashMap<>();
-        descMap.put("en-US", "Total score updated for: " + publishedAssessment.getTitle() + "; Submitted: "
-                + (gradingData.getIsLate() ? "late" : "on time"));
+        String userId = gradingData.getAgentId();
+        String userIdLabel = "User Id";
+        try {
+        	userId = userDirectoryService.getUserEid(gradingData.getAgentId());
+        	userIdLabel = "User Eid";
+        } catch (UserNotDefinedException e) {
+        	//This is fine as userId is set by default
+        }
+
+        descMap.put("en-US", "Total score updated for Assessment Title: " + publishedAssessment.getTitle() + 
+        		"; " + userIdLabel + ": " + userId + 
+        		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
+        		"; Submitted: "+ (gradingData.getIsLate() ? "late" : "on time"));
         lrsObject.setDescription(descMap);
         LRS_Context context = new LRS_Context("other", "assessment");
         LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
@@ -79,8 +108,20 @@ public class SamigoLRSStatements {
         nameMap.put("en-US", "Student score updated");
         lrsObject.setActivityName(nameMap);
         HashMap<String, String> descMap = new HashMap<>();
-        descMap.put("en-US", "Student score updated for: " + publishedAssessment.getTitle() + "; Submitted: "
-                + (gradingData.getIsLate() ? "late" : "on time"));
+        String userId = gradingData.getAgentId();
+        String userIdLabel = "User Id";
+        try {
+        	userId = userDirectoryService.getUserEid(gradingData.getAgentId());
+        	userIdLabel = "User Eid";
+        	
+        } catch (UserNotDefinedException e) {
+        	//This is fine as userId is set by default
+        }
+
+        descMap.put("en-US", "Student score updated for: " + publishedAssessment.getTitle() + 
+        		"; " + userIdLabel + ": " + userId + 
+        		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
+        		"; Submitted: " + (gradingData.getIsLate() ? "late" : "on time"));
         lrsObject.setDescription(descMap);
         LRS_Context context = new LRS_Context("other", "assessment");
         LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);

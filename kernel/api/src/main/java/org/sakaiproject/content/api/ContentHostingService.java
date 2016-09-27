@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -2019,6 +2020,14 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public void removeDeletedResource(String resourceId) throws PermissionException, IdUnusedException, TypeException, InUseException; 
 
+	/**
+	 * Return a direct link to retrieve the asset instead of streaming the asset inside the JVM. See SAK-30325
+	 *
+	 * @param resourceId The file resource that may have a direct link available
+	 *
+	 * @return URI that will return the asset directly
+	 */
+	public URI getDirectLinkToAsset(ContentResource resource) throws Exception;
 
 	/**
 	 * Expand the supplied resource under its parent collection. See KNL-273

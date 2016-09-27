@@ -1,12 +1,12 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_create.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
 
-<link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
+#css("/sakai-user-tool/css/sakai-user-tool.css" 'media="screen"')
 
 ${includeLatestJQuery}
-<script type="text/javascript" src="/sakai-user-tool/js/userValidationCommon.js"></script>
+#javascript("/sakai-user-tool/js/userValidationCommon.js")
 <script type="text/javascript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
-<script type="text/javascript" src="/sakai-user-tool/js/userCreateValidation.js"></script>
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+#javascript("/sakai-user-tool/js/userCreateValidation.js")
+#javascript("/library/js/spinner.js")
 
 <div class="portletBody">
 #if($menu)

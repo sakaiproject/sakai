@@ -1,4 +1,4 @@
-<script type="text/javascript"  src="/sakai-assignment-tool/js/scoringAgent.js"></script>
+#javascript("/sakai-assignment-tool/js/scoringAgent.js")
 
 <span style="margin-left:10px;" id="scoringAgent-area">
     <a href="javascript:void(0)" id="scoringAgent-link" onclick="ASN_SCRAGNT.openScoringAgent('$scoreUrl'); ASN_SCRAGNT.displayRefreshReminder();">

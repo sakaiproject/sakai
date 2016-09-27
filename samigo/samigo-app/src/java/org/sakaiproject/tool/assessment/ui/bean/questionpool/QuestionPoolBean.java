@@ -23,14 +23,18 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.text.Collator;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,17 +47,31 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.struts.upload.FormFile;
 import org.osid.shared.SharedException;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -66,8 +84,11 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -149,6 +170,7 @@ public class QuestionPoolBean implements Serializable
   private ArrayList addedQuestions;
   
   private ItemFacade itemToPreview;
+  private List<ItemContentsBean> itemsBean;
 
   private static Logger log = LoggerFactory.getLogger(QuestionPoolBean.class);
 
@@ -1920,10 +1942,6 @@ String poolId = ContextUtil.lookupParam("qpid");
 	return "importQuestion";
   }
 
-  public String exportPool(){
-	return "exportPool";
-  }
-
   public String exportQuestion(){
 	return "exportQuestion";
   }
@@ -2308,6 +2326,38 @@ String poolId = ContextUtil.lookupParam("qpid");
 			this.subQpDataModel = subQpDataModel;
 		}
 	}
+	
+	public String startPreviewPool()
+	{
+		String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
+
+		// Get all data from the database
+		QuestionPoolService delegate = new QuestionPoolService();
+		ItemService itemservice = new ItemService();
+		
+		QuestionPoolFacade thepool = delegate.getPool(new Long(qpid), AgentFacade.getAgentString());
+		
+		ArrayList<ItemContentsBean> list = new ArrayList<>();
+		
+		int number=0;
+		for (QuestionPoolItemData item : (Set<QuestionPoolItemData>)thepool.getQuestionPoolItems()) {
+			ItemFacade itemfacade= itemservice.getItem(item.getItemId(), AgentFacade.getAgentString());
+			ItemContentsBean itemBean = new ItemContentsBean(itemfacade.getData());
+			itemBean.setNumber(++number);
+			list.add(itemBean);
+		}
+		setItemsBean(list);
+		  		
+		return "previewPool";
+		}
+  	
+  	public List<ItemContentsBean> getItemsBean() {
+  		return this.itemsBean;
+  	}
+  	
+  	public void setItemsBean(List<ItemContentsBean> itemsBean) {
+  		this.itemsBean = itemsBean;
+  	}
   	
   	public String getAgentId()
   	{
@@ -2319,14 +2369,578 @@ String poolId = ContextUtil.lookupParam("qpid");
   		return owner;
   	}
   	
-  	// **********************************************
-  	// ****************** SAM-2049 ******************
-  	// **********************************************
-  	
-  	public boolean getSortTransferPoolAscending() {
-  		return sortTransferPoolAscending;
-  	}
-  	
+	public String exportPool() {
+		String poolId= ContextUtil.lookupParam("poolId");
+		log.debug("exporting as Excel: poolid = {}", poolId);
+
+		QuestionPoolService delegate = new QuestionPoolService();
+		QuestionPoolFacade qPool =
+				delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+
+		// changed from above by gopalrc - Jan 2008
+		// to allow local customization of spreadsheet output
+		FacesContext faces = FacesContext.getCurrentInstance();
+		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+		response.reset();	// Eliminate the added-on stuff
+		response.setHeader("Pragma", "public");	// Override old-style cache control
+		response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
+		writeDataToResponse(getSpreadsheetData(poolId), getDownloadFileName(qPool.getDisplayName()), response);
+		faces.responseComplete();
+	
+		return "";
+	}
+	
+	private List<List<Object>> getSpreadsheetData(String poolId) {
+		List exportResponsesDataList = getExportResponsesData(poolId);
+		List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
+
+		// Now insert the header line
+		ArrayList<Object> headerList = new ArrayList<>();
+		headerList.add(ExportResponsesBean.HEADER_MARKER);
+		
+		headerList.addAll((ArrayList) exportResponsesDataList.get(1));
+		
+		list.add(0,headerList);
+		
+		// gopalrc - Jan 2008 - New Sheet Marker
+		ArrayList<Object> newSheetList = new ArrayList<>();
+		newSheetList.add(ExportResponsesBean.NEW_SHEET_MARKER);
+		newSheetList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","responses"));
+		list.add(0, newSheetList);
+		
+		return list;
+	}
+
+	/**
+	 * Generates a default filename (minus the extension) for a download from this Gradebook. 
+	 *
+	 * @param   prefix for filename
+	 * @return The appropriate filename for the export
+	 */
+	public String getDownloadFileName(String name) {
+		Date now = new Date();
+		String dateFormat = "yyyyMMddHHmmss";
+		DateFormat df = new SimpleDateFormat(dateFormat);
+		StringBuilder fileName = new StringBuilder();
+		if(StringUtils.isNotEmpty(name)) {
+			name = name.replaceAll("\\s", "_"); // replace whitespace with '_'
+			fileName.append(name);
+		}
+		fileName.append("-");
+		fileName.append(df.format(now));
+		return fileName.toString();
+	}
+    
+    
+	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
+		String mimetype = "application/vnd.ms-excel;charset=UTF-8";
+		String extension = ".xls";
+		int columns = findColumnSize(spreadsheetData);
+		if (columns >= 255) {
+			// allows for greater than 255 columns - SAK-16560
+			mimetype = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+			extension = ".xlsx";
+			log.info("Samigo export ("+columns+" columns): Using xlsx mimetype: " + mimetype);
+		}
+		response.setContentType(mimetype);
+		
+		String escapedFilename = org.sakaiproject.util.Validator.escapeUrl(fileName);
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		String userAgent = request.getHeader("User-Agent"); 
+		if (StringUtils.contains(userAgent, "MSIE")) { 
+			response.setHeader("Content-disposition", "attachment; filename=" + escapedFilename + extension);
+		}
+		else {
+			response.setHeader("Content-disposition", "attachment; filename*=utf-8''" + escapedFilename + extension);
+		}
+		
+		OutputStream out = null;
+		try {
+			out = response.getOutputStream();
+			getAsWorkbook(spreadsheetData).write(out);
+			out.flush();
+		} catch (IOException e) {
+			if (log.isErrorEnabled()) {
+				log.error(e.getMessage());
+			}
+		} finally {
+			try {
+				if (out != null) {
+					out.close();
+				}
+			} catch (IOException e) {
+				if (log.isErrorEnabled()) {
+					log.error(e.getMessage());
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param spreadsheetData
+	 * @return
+	 */
+	protected Workbook getAsWorkbookTest(List<List<Object>> spreadsheetData) {
+		Workbook wb = new HSSFWorkbook();
+		Sheet sheet = wb.createSheet();
+		
+		short rowPos = 0;
+		for( List<Object> rowData: spreadsheetData ) {
+			short cellPos = 0;
+			if (rowPos == 0) {
+				// By convention, the first list in the list contains column headers.
+				Row headerRow = sheet.createRow(rowPos++);
+				for( Object header: rowData ) {
+					createCell(headerRow, cellPos++, null).setCellValue(header.toString());
+				}
+			}
+			else {
+				Row row = sheet.createRow(rowPos++);
+				for ( Object data : rowData ) {
+					Cell cell = createCell(row, cellPos++, null);
+					if (data != null) {
+						if (data instanceof Double) {
+							cell.setCellValue(((Double)data).doubleValue());
+						} 
+						else {
+							cell.setCellValue(data.toString());
+						}
+					}
+				}
+			}
+		}
+
+		return wb;
+	}
+	
+	/**
+	 * 
+	 * @param spreadsheetData
+	 * @return
+	 */
+	public Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
+		// outer list is rows, inner list is columns (cells in the row)
+		int columns = findColumnSize(spreadsheetData);
+		Workbook wb = new HSSFWorkbook();
+		if (columns < 255) {
+			log.info("Samigo export ("+columns+" columns): Using xsl format");
+		} else {
+			// allows for greater than 255 columns - SAK-16560
+			log.info("Samigo export ("+columns+" columns): Using xslx format");
+		}
+
+		CellStyle boldStyle = wb.createCellStyle();
+		Font font = wb.createFont();
+		font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+		boldStyle.setFont(font);
+		CellStyle headerStyle = boldStyle;
+		
+		Sheet sheet = null;
+
+		short rowPos = 0;
+		for ( List<Object>rowData : spreadsheetData ) {
+			
+			if (ExportResponsesBean.NEW_SHEET_MARKER.equals(rowData.get(0).toString())) {
+				sheet = wb.createSheet(rowData.get(1).toString());
+				rowPos = 0;
+			}
+			// By convention, the first list in the list contains column headers.
+			// This should only happen once and usually only in a single-sheet workbook
+			else if (ExportResponsesBean.HEADER_MARKER.equals(rowData.get(0).toString())) {
+				if (sheet == null) {
+					sheet = wb.createSheet("responses"); // avoid NPE
+				}
+				Row headerRow = sheet.createRow(rowPos++);
+				short colPos = 0;
+				for (Object data : rowData) {
+					createCell(headerRow, colPos++, headerStyle).setCellValue(data.toString());
+				}
+			}
+			else {
+				if (sheet == null) {
+					sheet = wb.createSheet("responses"); // avoid NPE
+				}
+				Row row = sheet.createRow(rowPos++);
+				short colPos = 0;
+				for ( Object data : rowData ) {
+					Cell cell = null;
+					
+					if (data != null) {
+						if (StringUtils.startsWith(data.toString(), ExportResponsesBean.FORMAT)) {
+							if (ExportResponsesBean.FORMAT_BOLD.equals(data)) {
+								cell = createCell(row, colPos++, boldStyle);
+							}
+						}
+						else {
+							cell = createCell(row, colPos++, null);
+						}
+						if (data != null) {
+							if (data instanceof Double) {
+								cell.setCellValue(((Double)data).doubleValue());
+							} else {
+								// stripping html for export, SAK-17021
+								cell.setCellValue(data.toString());
+							}
+						}
+					}
+				}
+			}
+			
+		}
+		
+		return wb;
+	}
+
+	private int findColumnSize(List<List<Object>> spreadsheetData) {
+		int columns = 0; // the largest number of columns required for a row
+		for (List<Object> list : spreadsheetData) {
+			if (list != null && list.size() > columns) {
+				columns = list.size();
+			}
+		}
+		return columns;
+	}
+	
+	private Cell createCell(Row row, short column, CellStyle cellStyle) {
+		Cell cell = row.createCell(column);
+		if (cellStyle != null) {
+			cell.setCellStyle(cellStyle);
+		}
+		
+		return cell;
+	}
+	
+	public List<Object> getExportResponsesData(String poolId) {
+		List<List<Object>> dataList = new ArrayList<>();
+		List<Object> headerList = new ArrayList<>();
+		List<Object> finalList = new ArrayList<>(2);
+	
+		Float itemScore = null;
+		
+		String questionString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_question");
+		String responseString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_response");
+		String feedbackString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedback");
+
+		// Create Header List
+		headerList.add("");
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_text"));
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_type"));
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_points"));
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_discount"));
+		headerList.add(responseString.concat(" A"));
+		headerList.add(feedbackString.concat(" A"));
+		headerList.add(responseString.concat(" B"));
+		headerList.add(feedbackString.concat(" B"));
+		headerList.add(responseString.concat(" C"));
+		headerList.add(feedbackString.concat(" C"));
+		headerList.add(responseString.concat(" D"));
+		headerList.add(feedbackString.concat(" D"));
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_key"));	  
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedbackCorrect"));
+		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedbackIncorrect"));
+
+		// There are 4 answers by default in a multiple choice question 
+		final int DEFAULT_MAX_ANSWERS = 4;
+		int maxAnswers = DEFAULT_MAX_ANSWERS;
+		
+		// Get all data from the database
+		QuestionPoolService delegate = new QuestionPoolService();
+		ItemService itemservice = new ItemService();
+		
+		QuestionPoolFacade thepool = delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+		
+		int questionNumber = 1;
+		for ( QuestionPoolItemData qpitem : (Set<QuestionPoolItemData>)thepool.getQuestionPoolItems() ) {
+			ItemFacade item = itemservice.getItem(qpitem.getItemId(), AgentFacade.getAgentString());
+				
+			List<Object> row = new ArrayList<>();
+			List<String> answerList = new ArrayList<>();
+			List<String> feedbackList = new ArrayList<>();
+			List<String> feedbackAnswerList = new ArrayList<>();
+		
+			// Get the question string
+			row.add(questionString + " " + questionNumber++);
+			
+			// Get the question text
+			row.add(item.getData().getText());
+			
+			// Get the question type
+			row.add(getTypeQuestion(item.getData().getTypeId()));
+			
+			// Get the points
+			row.add(item.getData().getScore());
+		
+			// Get the discount
+			row.add(item.getData().getDiscount());
+
+			StringBuilder contentBuffer = new StringBuilder();
+			StringBuilder key = new StringBuilder();
+		
+			if (TypeIfc.AUDIO_RECORDING.equals(item.getData().getTypeId())) {
+				// Key
+				key.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","time_allowed_seconds"));
+				key.append(" " + item.getData().getDuration() + "\n");
+				key.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","number_of_tries"));
+				key.append(" " + item.getData().getTriesAllowed());
+				
+				// Feedback
+				if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+			}
+			else if (TypeIfc.FILE_UPLOAD.equals(item.getData().getTypeId())) {
+				// Answer
+				answerList.add("");
+				
+				// Feedback
+				if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+			}
+			else if (TypeIfc.MULTIPLE_CORRECT.equals(item.getData().getTypeId()) ||
+					TypeIfc.MULTIPLE_CHOICE.equals(item.getData().getTypeId()) ||
+					TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) ||
+					TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.equals(item.getData().getTypeId()) ||
+					TypeIfc.TRUE_FALSE.equals(item.getData().getTypeId())) {
+
+				// Answer
+				for ( ItemTextIfc itemtext : item.getData().getItemTextArraySorted() ) {
+					List<AnswerIfc> answers = itemtext.getAnswerArraySorted();
+
+					for ( AnswerIfc answer : answers ) {
+						if (answer.getText() == null) {
+							break;
+						}
+												
+						contentBuffer.setLength(0);
+						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getText()));
+						
+						answerList.add(contentBuffer.toString());
+						
+						contentBuffer.setLength(0);
+						if (StringUtils.isNotEmpty(answer.getGeneralAnswerFeedback())) {
+							contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getGeneralAnswerFeedback()));
+						}
+						feedbackAnswerList.add(contentBuffer.toString());	
+					}
+					
+					// If there are more columns than 4 we will need to add dynamically the others
+					if (answers.size() > DEFAULT_MAX_ANSWERS) {
+						for (int i=0; i<answers.size()-maxAnswers; i++) {
+							int index = headerList.lastIndexOf(feedbackString);
+							headerList.add(index+1, responseString.concat(" " + (char)('A' + maxAnswers + i)));
+							headerList.add(index+2, feedbackString);
+							for ( List<Object> row2 : dataList) {
+								row2.add(index+1, "");
+								row2.add(index+2, "");
+							}
+						}
+						maxAnswers = answers.size();
+					}
+				}
+				
+				// Key
+				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId())) {
+					key.append(item.getAnswerKey());
+				}
+				
+				// Feedback
+				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId())) {
+					if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
+						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+					}
+					feedbackList.add(contentBuffer.toString());
+					
+					contentBuffer.setLength(0);
+					if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
+						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+					}
+					feedbackList.add(contentBuffer.toString());
+				}
+				else {
+					if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
+						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+					}
+					feedbackList.add(contentBuffer.toString());
+				}
+			}
+			else if (TypeIfc.MATCHING.equals(item.getData().getTypeId())) {
+				
+				// Answer
+				for ( ItemTextIfc matching : item.getData().getItemTextArray() ) {
+					contentBuffer.setLength(0);
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(matching.getText()));
+					contentBuffer.append("--->");
+					
+					boolean first = true;
+					for ( AnswerIfc answer : matching.getAnswerArraySorted() ) {
+						if (answer.getText() == null) {
+							break;
+						}
+						
+						if (first) {
+							contentBuffer.append(" | ");
+							first = false;
+						}
+						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getText()));
+					}
+					
+					answerList.add(contentBuffer.toString());
+				}
+
+				// Key
+				key.append(item.getAnswerKey());
+				
+				// Feedback
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+				
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+			}
+			else if (TypeIfc.ESSAY_QUESTION.equals(item.getData().getTypeId())) {
+				
+				ItemTextIfc itemText = item.getData().getItemTextArray().get(0);
+				AnswerIfc answer = itemText.getAnswerArray().get(0);
+				
+				// Key
+				key.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","answer_model"));
+				key.append("\n");
+				key.append(answer.getText());
+				
+				// Feedback
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getGeneralItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getGeneralItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+			}
+			else if (TypeIfc.FILL_IN_BLANK.equals(item.getData().getTypeId()) ||
+					TypeIfc.FILL_IN_NUMERIC.equals(item.getData().getTypeId())) {
+				
+				// Key
+				ItemTextIfc itemText = item.getData().getItemTextArray().get(0);
+				boolean first = true;
+				for ( AnswerIfc answer : itemText.getAnswerArray() ) {
+					if (answer.getText() == null) {
+						break;
+					}
+					
+					if (first) {
+						contentBuffer.append(" | ");
+						first = false;
+					}
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getText()));
+				}
+				key.append(contentBuffer.toString());
+				
+				// Feedback
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+				
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+			}
+			
+			// Responses && Feedback
+			for (int i=0; i<maxAnswers; i++) {
+				if (answerList.size() > i) {
+					row.add(answerList.get(i));
+					if (feedbackAnswerList.size() > i) {
+						row.add(feedbackAnswerList.get(i));
+					}
+					else {
+						row.add("");
+					}
+				}
+				else {
+					row.add(""); // blank answer
+					row.add(""); // blank feedback answer
+				}
+			}
+			
+			// Key
+			row.add(key.toString());
+			
+			// Feedback correct & incorrect
+			for (int i=0; i<2; i++) {
+				if (feedbackList.size() > i) {
+					row.add(feedbackList.get(i));
+				}
+				else {
+					row.add("");
+				}
+			}
+		
+			dataList.add(row);
+		}
+			
+		finalList.add(dataList);
+		finalList.add(headerList);
+		return finalList;
+	}
+
+	private String getTypeQuestion(Long typeId) {
+		String type = "";
+		if (TypeIfc.AUDIO_RECORDING.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_aud");
+		}
+		else if (TypeIfc.FILE_UPLOAD.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_fu");
+		}
+		else if (TypeIfc.MULTIPLE_CORRECT.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_sing");
+		}
+		else if (TypeIfc.MULTIPLE_CHOICE.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_mult");
+		}
+		else if (TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_surv");
+		}
+		else if (TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_sing");
+		}
+		else if (TypeIfc.TRUE_FALSE.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_tf");
+		}
+		else if (TypeIfc.MATCHING.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_match");
+		}
+		else if (TypeIfc.ESSAY_QUESTION.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_short_ess");
+		}
+		else if (TypeIfc.FILL_IN_BLANK.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_fib");
+		}
+		else if (TypeIfc.FILL_IN_NUMERIC.equals(typeId)) {
+			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_fin");
+		}
+		return type;
+	}
+	
+	// **********************************************
+	// ****************** SAM-2049 ******************
+	// **********************************************
+	
+	public boolean getSortTransferPoolAscending() {
+		return sortTransferPoolAscending;
+	}
+	
 	public void setSortTransferPoolAscending(boolean sspa) {
 		sortTransferPoolAscending = sspa;
 	}

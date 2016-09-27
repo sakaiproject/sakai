@@ -1,8 +1,8 @@
 ## This is the fallback template which is used when there is a problem and a normal template
 ## isn't used.
 <div class="portletBody">
-<link href="/sakai-authz-tool/css/authz.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" src="/library/js/spinner.js"></script>
+#css("/sakai-authz-tool/css/authz.css" 'media="all"')
+#javascript("/library/js/spinner.js")
 #if($menu)
 	#toolbar($menu)
 #end

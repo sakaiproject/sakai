@@ -455,7 +455,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                             if (mailSupport != null) {
                                 errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                             }
-                            throw new RejectException(450, errMsg);
+                            throw new RejectException(550, errMsg);
                         }
                     }
                     return channel;
@@ -468,7 +468,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         if (mailSupport != null) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
-                        throw new RejectException(450, errMsg);
+                        throw new RejectException(550, errMsg);
                     }
                 } catch (PermissionException e) {
                     try {
@@ -484,7 +484,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         if (mailSupport != null) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
-                        throw new RejectException(450, errMsg);
+                        throw new RejectException(550, errMsg);
                     } catch (UserNotDefinedException unde) {
                         log.warn(String.format("no postmaster, incoming mail will not be processed until a " +
                                 "postmaster user (id=%s) exists in this Sakai instance", POSTMASTER));

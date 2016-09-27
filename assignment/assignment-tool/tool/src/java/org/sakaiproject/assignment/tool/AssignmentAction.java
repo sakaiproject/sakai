@@ -232,6 +232,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION = "institution_check";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC = "exclude_biblio";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED = "exclude_quoted";
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG = "exclude_self_plag";
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX = "store_inst_index";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES = "exclude_smallmatches";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE = "exclude_type";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
@@ -2499,6 +2501,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG);
+		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX", NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE);
 		context.put("name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE", NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE);
@@ -2647,6 +2651,20 @@ public class AssignmentAction extends PagedResourceActionII
 		//Rely on the deprecated "turnitin.option.exclude_quoted.default" setting if set, otherwise use "contentreview.option.exclude_quoted.default"
 		boolean defaultExcludeQuoted = ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted.default", ServerConfigurationService.getBoolean("contentreview.option.exclude_quoted.default", showExcludeQuoted));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED) == null) ? Boolean.toString(defaultExcludeQuoted) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED));
+		
+		//exclude self plag
+		boolean showExcludeSelfPlag = ServerConfigurationService.getBoolean("contentreview.option.exclude_self_plag", Boolean.TRUE);
+		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG", showExcludeSelfPlag);
+		//Rely on the deprecated "turnitin.option.exclude_self_plag.default" setting if set, otherwise use "contentreview.option.exclude_self_plag.default"
+		boolean defaultExcludeSelfPlag = ServerConfigurationService.getBoolean("contentreview.option.exclude_self_plag.default", showExcludeSelfPlag);
+		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG) == null) ? Boolean.toString(defaultExcludeSelfPlag) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG));
+		
+		//Store Inst Index
+		boolean showStoreInstIndex = ServerConfigurationService.getBoolean("contentreview.option.store_inst_index", Boolean.TRUE);
+		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX", showStoreInstIndex);
+		//Rely on the deprecated "turnitin.option.store_inst_index.default" setting if set, otherwise use "contentreview.option.store_inst_index.default"
+		boolean defaultStoreInstIndex = ServerConfigurationService.getBoolean("contentreview.option.store_inst_index.default", showStoreInstIndex);
+		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX) == null) ? Boolean.toString(defaultStoreInstIndex) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX));
 		
 		//exclude quoted materials
 		boolean displayExcludeType = ServerConfigurationService.getBoolean("turnitin.option.exclude_smallmatches", true);
@@ -5411,7 +5429,7 @@ public class AssignmentAction extends PagedResourceActionII
 				String userId = u == null ? "" : u.getId();
 				addAlert(state, rb.getFormattedMessage("cannotfin_submission_1", new String[]{assignmentReference, userId}));
 			}
-			if (submission != null)
+			if (submission != null && a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				String submissionReference = submission.getReference();
 				prepareStudentViewGrade(state, submissionReference);
@@ -7350,6 +7368,18 @@ public class AssignmentAction extends PagedResourceActionII
 		if (r == null) b = Boolean.FALSE.toString();
 		else b = Boolean.TRUE.toString();
 		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED, b);
+		
+		//exclude self plag
+		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG, b);
+		
+		//store inst index
+		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX, b);
 
 		//exclude small matches
 		r = params.getString(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES);
@@ -8303,6 +8333,10 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean excludeBibliographic = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC));
 			//exclude quoted materials
 			boolean excludeQuoted = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED));
+			//exclude self plag
+			boolean excludeSelfPlag = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG));
+			//store inst index
+			boolean storeInstIndex = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX));
 			//exclude small matches
 			boolean excludeSmallMatches = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES));
 			//exclude type 0=none, 1=words, 2=percentages
@@ -8382,7 +8416,7 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute("contentReviewSuccess", Boolean.TRUE);
 
 				// commit the changes to AssignmentContent object
-				commitAssignmentContentEdit(state, ac, a.getReference(), title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime, hideDueDate);
+				commitAssignmentContentEdit(state, ac, a.getReference(), title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, excludeType, excludeValue, openTime, dueTime, closeTime, hideDueDate);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
@@ -9490,7 +9524,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String assignmentRef, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime, boolean hideDueDate) 
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String assignmentRef, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, boolean excludeSelfPlag, boolean storeInstIndex, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime, boolean hideDueDate) 
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
@@ -9507,6 +9541,8 @@ public class AssignmentAction extends PagedResourceActionII
 		ac.setCheckTurnitin(checkTurnitin);
 		ac.setExcludeBibliographic(excludeBibliographic);
 		ac.setExcludeQuoted(excludeQuoted);
+		ac.setExcludeSelfPlag(excludeSelfPlag);
+		ac.setStoreInstIndex(storeInstIndex);
 		ac.setExcludeType(excludeType);
 		ac.setExcludeValue(excludeValue);
 		ac.setTypeOfGrade(gradeType);
@@ -9575,9 +9611,19 @@ public class AssignmentAction extends PagedResourceActionII
 			//we don't want to pass parameters if the user didn't get an option to set it
         	opts.put("exclude_biblio", assign.isExcludeBibliographic() ? "1" : "0");
 		}
-		if(ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted", true)){
+        //Rely on the deprecated "turnitin.option.exclude_quoted" setting if set, otherwise use "contentreview.option.exclude_quoted"
+        boolean showExcludeQuoted = ServerConfigurationService.getBoolean("turnitin.option.exclude_quoted", ServerConfigurationService.getBoolean("contentreview.option.exclude_quoted", Boolean.TRUE));
+		if(showExcludeQuoted){
 			//we don't want to pass parameters if the user didn't get an option to set it
 			opts.put("exclude_quoted", assign.isExcludeQuoted() ? "1" : "0");
+		}
+		if(ServerConfigurationService.getBoolean("contentreview.option.exclude_self_plag", true)){
+			//we don't want to pass parameters if the user didn't get an option to set it
+			opts.put("exclude_self_plag", assign.isExcludeSelfPlag() ? "1" : "0");
+		}
+		if(ServerConfigurationService.getBoolean("contentreview.option.store_inst_index", true)){
+			//we don't want to pass parameters if the user didn't get an option to set it
+			opts.put("store_inst_index", assign.isStoreInstIndex() ? "1" : "0");
 		}
         
         if((assign.getExcludeType() == 1 || assign.getExcludeType() == 2) 
@@ -10120,6 +10166,10 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC, Boolean.valueOf(a.getContent().isExcludeBibliographic()).toString());
 				//exclude quoted
 				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED, Boolean.valueOf(a.getContent().isExcludeQuoted()).toString());
+				//exclude self plag
+				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG, Boolean.valueOf(a.getContent().isExcludeSelfPlag()).toString());
+				//store inst index
+				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX, Boolean.valueOf(a.getContent().isStoreInstIndex()).toString());
 				//exclude type
 				state.setAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE, a.getContent().getExcludeType());
 				//exclude value

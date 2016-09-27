@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_revise.vm,v 1.5 2005/06/14 20:13:33 suiyy.umich.edu Exp $
 <script>includeLatestJQuery('chef_calendar_revise.vm');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 <script type="text/javascript">
 focus_path = [ "activitytitle" ];
 
@@ -323,25 +323,15 @@ $(function() {
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label for="activitytitle">$tlang.getString("new.title")</label>
+			#set($str = "")
 			#if("$!savedData.getTitle()" != "")
 				#set($str = $savedData.getTitle().trim())
-				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); 
-					#if ($timeFormat.contains("H"))
-						reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
-					#end
-				return false;" />
 			#elseif ($calEventFlag != "false")
 				#if ("$!event.getDisplayName()" != "")
 					#set($str = $event.getDisplayName().trim())
-					<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value="$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); 
-						#if ($timeFormat.contains("H"))
-							reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
-						#end
-					return false;" />
 				#end
-			#else
-				<input type="text" name="activitytitle" size="50" maxlength="150" value = "" />
 			#end
+			<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); #if ($timeFormat.contains("H")) reflectHourToHour24('endHour24', 'endHour', 'endAmpm'); #end return false;" />
 		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>	
