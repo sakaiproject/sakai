@@ -72,11 +72,6 @@ public class RosterTool extends HttpServlet {
 
 		String userId = sakaiProxy.getCurrentUserId();
 
-		if (null == userId) {
-			// We are not logged in
-			throw new ServletException("getCurrentUser returned null.");
-		}
-
         String siteLanguage = sakaiProxy.getCurrentSiteLocale();
 
         Locale locale = null;
