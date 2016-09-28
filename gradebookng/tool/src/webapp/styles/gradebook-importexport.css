@@ -43,20 +43,42 @@
   content: '\f046';
 }
 
+/* for paired zebra striping */
+#grade_import_selection tbody tr:nth-child(4n-1), #grade_import_selection tbody tr:nth-child(4n)  {
+  background-color: #F9F9F9;
+}
+
+#grade_import_selection tr.gb_item td {
+ border-bottom: 0;
+}
+
+#grade_import_selection tr.comment td {
+ border-top: 0;
+}
+/* end paired zebra striping */
+
+
 #grade_import_selection tr.comment td.item_title {
   font-style: italic;
   text-indent: 15px;
 }
 
-#grade_import_selection tr.no_changes,
-#grade_import_selection tr.external {
+#grade_import_selection tr.no_changes {
   color: grey;
 } 
 
 #grade_import_selection tr.external {
-  background-color: lightgray;
+  background-color: lightgray !important;
+  color: grey;
 }
 
 #grade_import_selection tr.external td.item_status {
   font-style: italic;
 }
+
+#grade_import_selection tr.selected {
+  background-color: #d9eef7 !important;
+}
+
+
+

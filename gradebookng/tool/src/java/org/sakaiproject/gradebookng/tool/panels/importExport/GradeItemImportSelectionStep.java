@@ -13,11 +13,9 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -29,6 +27,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
+import org.sakaiproject.gradebookng.tool.component.GbStyle;
+import org.sakaiproject.gradebookng.tool.component.GbStyleableWebMarkupContainer;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 
@@ -241,45 +241,78 @@ public class GradeItemImportSelectionStep extends Panel {
 				log.debug("grade item: " + gradeItem);
 				log.debug("matching comment: " + commentItem);
 
-				final WebMarkupContainer gbItemContainer = new WebMarkupContainer("gb_item");
-				final CheckBox gradeItemCheckbox = new CheckBox("checkbox", new PropertyModel<Boolean>(gradeItem, "selected"));
+				final GbStyleableWebMarkupContainer gbItemWrap = new GbStyleableWebMarkupContainer("gb_item");
+				gbItemWrap.addStyle(GbStyle.GB_ITEM);
+
+				final GbStyleableWebMarkupContainer commentWrap = new GbStyleableWebMarkupContainer("comments");
+				commentWrap.addStyle(GbStyle.COMMENT);
+
+				final AjaxCheckBox gradeItemCheckbox = new AjaxCheckBox("checkbox", new PropertyModel<Boolean>(gradeItem, "selected")) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+						if(gradeItem.isSelected()) {
+							commentItem.setSelected(true);
+							gbItemWrap.addStyle(GbStyle.SELECTED);
+							commentWrap.addStyle(GbStyle.SELECTED);
+						} else {
+							gbItemWrap.removeStyle(GbStyle.SELECTED);
+						}
+						gbItemWrap.style();
+						commentWrap.style();
+						target.add(commentWrap);
+						target.add(gbItemWrap);
+					}
+				};
 				final Label gradeItemTitle = new Label("title", gradeItem.getItemTitle() + gradeItem.getType().name());
 				final Label gradeItemPoints = new Label("points", gradeItem.getItemPointValue());
 				final Label gradeItemStatus = new Label("status", new ResourceModel("importExport.status." + gradeItem.getStatus().name()));
 
-				gbItemContainer.add(gradeItemCheckbox);
-				gbItemContainer.add(gradeItemTitle);
-				gbItemContainer.add(gradeItemPoints);
-				gbItemContainer.add(gradeItemStatus);
-				item.add(gbItemContainer);
+				gbItemWrap.add(gradeItemCheckbox);
+				gbItemWrap.add(gradeItemTitle);
+				gbItemWrap.add(gradeItemPoints);
+				gbItemWrap.add(gradeItemStatus);
+				item.add(gbItemWrap);
 
 				// render the comments row as well
-				final WebMarkupContainer commentContainer = new WebMarkupContainer("comments");
-				final CheckBox commentsCheckbox = new CheckBox("checkbox", new PropertyModel<Boolean>(commentItem, "selected"));
+				final AjaxCheckBox commentsCheckbox = new AjaxCheckBox("checkbox", new PropertyModel<Boolean>(commentItem, "selected")) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					protected void onUpdate(final AjaxRequestTarget target) {
+						if(commentItem.isSelected()) {
+							commentWrap.addStyle(GbStyle.SELECTED);
+						} else {
+							commentWrap.removeStyle(GbStyle.SELECTED);
+						}
+						commentWrap.style();
+						target.add(commentWrap);
+					}
+				};
 				final Label commentsStatus = new Label("status", new ResourceModel("importExport.status." + commentItem.getStatus().name()));
-				commentContainer.add(commentsCheckbox);
-				commentContainer.add(commentsStatus);
-				item.add(commentContainer);
+				commentWrap.add(commentsCheckbox);
+				commentWrap.add(commentsStatus);
+				item.add(commentWrap);
 
 				// special handling for external assignments
 				if (gradeItem.getStatus() == Status.EXTERNAL) {
 					gradeItemCheckbox.setVisible(false);
 					commentsCheckbox.setVisible(false);
-					gradeItemCheckbox.getParent().add(new AttributeAppender("class", " no_changes external"));
-					commentsCheckbox.getParent().add(new AttributeAppender("class", " no_changes external"));
+					gbItemWrap.addStyle(GbStyle.EXTERNAL);
+					commentWrap.addStyle(GbStyle.EXTERNAL);
 				}
 
 				// special handling for no changes
 				if (gradeItem.getStatus() == Status.SKIP) {
 					gradeItemCheckbox.setVisible(false);
-					gradeItemCheckbox.getParent().add(new AttributeAppender("class", " no_changes"));
+					gbItemWrap.addStyle(GbStyle.NO_CHANGES);
 				}
 				if (commentItem.getStatus() == Status.SKIP) {
 					commentsCheckbox.setVisible(false);
-					commentsCheckbox.getParent().add(new AttributeAppender("class", " no_changes"));
+					commentWrap.addStyle(GbStyle.NO_CHANGES);
 				}
 
-
+				gbItemWrap.style();
+				commentWrap.style();
 			}
 
 		};
@@ -347,3 +380,5 @@ public class GradeItemImportSelectionStep extends Panel {
 	}
 
 }
+
+
