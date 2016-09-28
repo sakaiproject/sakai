@@ -365,7 +365,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			marker.level = -1;
 			entries.add(marker);
 			for (SimplePage p: pageMap.values()) {
-				if(p.getOwner() == null) {
+				if(!simplePageBean.isStudentPage(p)) {
 					PageEntry entry = new PageEntry();
 					entry.pageId = p.getPageId();
 					entry.itemId = null;

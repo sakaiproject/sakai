@@ -219,7 +219,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 
 			// don't offer to add from other page if we already have second page items
 			// our bookkeeping can't keep track of more than one extra page
-			if(currentPage.getOwner() == null && secondPageId == null) {
+			if(!simplePageBean.isStudentPage(currentPage) && secondPageId == null) {
 			    GeneralViewParameters view = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 			    view.setReturnView("reorder"); // flag to pagepicker that it needs to come back
 			    UIOutput.make(tofill, "subpage-div");

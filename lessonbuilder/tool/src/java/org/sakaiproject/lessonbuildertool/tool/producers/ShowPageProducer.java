@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -66,6 +67,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -697,7 +700,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			// Titles are set oddly by Student Content Pages
 			SimplePage lastPageObj = simplePageToolDao.getPage(lastPage.pageId);
-			if(lastPageObj.getOwner() != null) {
+			if(simplePageBean.isStudentPage(lastPageObj)) {
 				name = lastPageObj.getTitle();
 			}
 			
@@ -802,7 +805,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    UIOutput.make(orphan, "delete-orphan-link").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.delete-orphan-pages-desc")));
 				}
 
-			} else if (simplePageBean.getEditPrivs() == 0 && currentPage.getOwner() != null) {
+			} else if (simplePageBean.getEditPrivs() == 0 && simplePageBean.isStudentPage(currentPage)) {
 			    // getEditPrivs < 2 if we want to let the student delete. Currently we don't. There can be comments
 			    // from other students and the page can be shared
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(currentPage.getTopParent());
@@ -966,7 +969,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		}
 
-		if(currentPage.getOwner() != null && simplePageBean.getEditPrivs() == 0) {
+		if(simplePageBean.isStudentPage(currentPage) && simplePageBean.getEditPrivs() == 0) {
 			SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(currentPage.getPageId());
 			
 			// Make sure this is a top level student page
@@ -3213,7 +3216,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// default placeholder
 				// we know the defaults exist because we include them, so
 				// we never need to consider default general
-				if (currentPage.getOwner() != null)
+				if (simplePageBean.isStudentPage(currentPage))
 				    helpUrl = getLocalizedURL("student.html", true);
 				else {
 				    helpUrl = getLocalizedURL("placeholder.html", false);
@@ -3741,7 +3744,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
-		boolean studentPage = currentPage.getOwner() != null;
+		boolean studentPage = simplePageBean.isStudentPage(currentPage);
 
 		// toolbar
 
@@ -3902,7 +3905,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		GeneralViewParameters view = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		view.setSendingPage(currentPage.getPageId());
 
-		if(currentPage.getOwner() == null) {
+		if(!simplePageBean.isStudentPage(currentPage)) {
 			UIInternalLink.make(form, "subpage-choose", messageLocator.getMessage("simplepage.choose_existing_page"), view);
 		}
 		
@@ -3931,7 +3934,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "description", "#{simplePageBean.description}");
 
 		UIOutput changeDiv = UIOutput.make(form, "changeDiv");
-		if(currentPage.getOwner() != null) changeDiv.decorate(new UIStyleDecorator("noDisplay"));
+		if(simplePageBean.isStudentPage(currentPage)) changeDiv.decorate(new UIStyleDecorator("noDisplay"));
 		
 		GeneralViewParameters params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
@@ -3991,7 +3994,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 
 		UIOutput permDiv = UIOutput.make(form, "permDiv");
-		if(currentPage.getOwner() != null) permDiv.decorate(new UIStyleDecorator("noDisplay"));
+		if(simplePageBean.isStudentPage(currentPage)) permDiv.decorate(new UIStyleDecorator("noDisplay"));
 		
 		UIBoundBoolean.make(form, "item-required2", "#{simplePageBean.subrequirement}", false);
 
@@ -4036,7 +4039,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content
-		if (currentPage.getOwner() == null)
+		if (!simplePageBean.isStudentPage(currentPage))
 		    createGroupList(form, null, "", "#{simplePageBean.selectedGroups}");
 
 		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
@@ -4130,7 +4133,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing_or"), fileparams);
 
-		if (currentPage.getOwner() == null) {
+		if (!simplePageBean.isStudentPage(currentPage)) {
 		    UIOutput.make(form, "mm-prerequisite-section");
 		    UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}", false);
 		}
@@ -4321,7 +4324,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "description2-label", messageLocator.getMessage("simplepage.description_label"));
 		UIInput.make(form, "description2", "#{simplePageBean.description}");
 
-		if (currentPage.getOwner() == null) {
+		if (!simplePageBean.isStudentPage(currentPage)) {
 		    UIOutput.make(form, "multi-prerequisite-section");
 		    UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
 		}
@@ -4361,7 +4364,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "cancel-youtube", messageLocator.getMessage("simplepage.cancel"), null);
 		UIBoundBoolean.make(form, "youtube-prerequisite", "#{simplePageBean.prerequisite}",false);
 		
-		if(currentPage.getOwner() == null) {
+		if(!simplePageBean.isStudentPage(currentPage)) {
 			UIOutput.make(form, "editgroups-youtube");
 		}
 	}
@@ -4407,7 +4410,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "pageTitleLabel", messageLocator.getMessage("simplepage.pageTitle_label"));
 		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}");
 
-		if (page.getOwner() == null) {
+		if (!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(tofill, "hideContainer");
 			UIBoundBoolean.make(form, "hide", "#{simplePageBean.hidePage}", (page.isHidden()));
 
@@ -4438,7 +4441,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookDiv");
-		if(page.getOwner() != null) gradeBook.decorate(new UIStyleDecorator("noDisplay"));
+		if(simplePageBean.isStudentPage(page)) gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		
 		UIOutput.make(form, "page-gradebook");
 		Double points = page.getGradebookPoints();
@@ -4447,7 +4450,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			pointString = points.toString();
 		}
 		
-		if(page.getOwner() == null) {
+		if(!simplePageBean.isStudentPage(page)) {
 			UIOutput.make(form, "csssection");
 			ArrayList<ContentResource> sheets = simplePageBean.getAvailableCss();
 			String[] options = new String[sheets.size()+2];
@@ -4480,6 +4483,43 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBoundBoolean.make(form, "nodownloads", 
 					    "#{simplePageBean.nodownloads}", 
 					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
+
+			//Set the changeOwner dropdown in the settings dialog
+			UIOutput.make(form, "changeOwnerSection");
+			List<String> roleOptions = new ArrayList<String>();
+			List<String> roleLabels = new ArrayList<String>();
+			String realmId = simplePageBean.getCurrentSite().getReference();
+			try {
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
+				Set<String> maintainRoleUsers = realm.getUsersHasRole(realm.getMaintainRole());
+				Set<String> contributeRoleUsers = realm.getUsersHasRole("contribute");
+				String currentUserId = simplePageBean.getCurrentUserId();
+				maintainRoleUsers.addAll(contributeRoleUsers);
+
+				roleOptions.add(null);
+
+				roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
+				for(Iterator<String> users = maintainRoleUsers.iterator(); users.hasNext();){
+					String userId = users.next();
+					if(!(currentUserId.equals(userId))){
+						roleOptions.add(userId);
+						User user = UserDirectoryService.getUser(userId);
+						String displayName = user.getDisplayName();
+						if(StringUtils.isBlank(displayName)){
+							displayName = user.getDisplayId();
+						}
+						roleLabels.add(displayName);
+
+					}
+				}
+			} catch (GroupNotDefinedException e) {
+				//TODO add logger warning
+			} catch (UserNotDefinedException e) {
+				//TODO add logger
+			}
+
+			UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
+			UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 		}
 		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
 
@@ -4511,7 +4551,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createRemovePageDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
 		UIOutput.make(tofill, "remove-page-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page")));
 		UIOutput.make(tofill, "remove-page-explanation", 
-			      (page.getOwner() == null ? messageLocator.getMessage("simplepage.remove-page-explanation") :
+			      (!simplePageBean.isStudentPage(page) ? messageLocator.getMessage("simplepage.remove-page-explanation") :
 			       messageLocator.getMessage("simplepage.remove-student-page-explanation")));
 
 		UIForm form = UIForm.make(tofill, "remove-page-form");
@@ -4529,7 +4569,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		
 		UIComponent button = UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
-		if (page.getOwner() == null) // not student page
+		if (!simplePageBean.isStudentPage(page)) // not student page
 		    button.decorate(new UIFreeAttributeDecorator("onclick",
 			         "window.location='/lessonbuilder-tool/removePage?site=" + simplePageBean.getCurrentSiteId() + 
 				 "&page=" + page.getPageId() + "';return false;"));

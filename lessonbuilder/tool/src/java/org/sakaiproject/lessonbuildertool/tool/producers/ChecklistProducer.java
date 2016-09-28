@@ -149,7 +149,7 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 	    UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}", customClass);
 	    UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
-            if (page.getOwner() == null)
+            if (!simplePageBean.isStudentPage(page))
                 showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
 
             UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addChecklist}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
