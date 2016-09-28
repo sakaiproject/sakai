@@ -120,9 +120,11 @@ body.is-logged-out{
 			display: block;
 			padding: 0.5em 0.65em;
 			text-decoration: none;
-			&:hover, &:active
+			color: $primary-color-highContrast;
+			&:focus, &:hover, &:active
 			{
 				text-decoration: underline;
+    			color: $primary-color-highContrast;
 			}
 			.toolMenuIcon{
 				@extend .fa-fw;
