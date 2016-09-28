@@ -25,13 +25,6 @@ public class ImportWizardModel implements Serializable {
 	private List<ProcessedGradeItem> processedGradeItems;
 
 	/**
-	 * List of items that have been selected to import
-	 */
-	@Getter
-	@Setter
-	private List<ProcessedGradeItem> selectedGradeItems;
-
-	/**
 	 * Which step is the new gb item creation currently on
 	 */
 	@Getter

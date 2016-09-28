@@ -48,6 +48,8 @@ public class GradeImportConfirmationStep extends Panel {
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
 
+	private boolean errors = false;
+
 	public GradeImportConfirmationStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
 		super(id);
 		this.panelId = id;
@@ -70,8 +72,6 @@ public class GradeImportConfirmationStep extends Panel {
 		final Form<?> form = new Form("form") {
 			private static final long serialVersionUID = 1L;
 
-			boolean errors = false;
-
 			@Override
 			protected void onSubmit() {
 
@@ -86,16 +86,16 @@ public class GradeImportConfirmationStep extends Panel {
                         assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
                     } catch (final AssignmentHasIllegalPointsException e) {
                     	getSession().error(new ResourceModel("error.addgradeitem.points").getObject());
-                        this.errors = true;
+                        GradeImportConfirmationStep.this.errors = true;
                     } catch (final ConflictingAssignmentNameException e) {
                     	getSession().error(new ResourceModel("error.addgradeitem.title").getObject());
-                        this.errors = true;
+                        GradeImportConfirmationStep.this.errors = true;
                     } catch (final ConflictingExternalIdException e) {
                     	getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
-                        this.errors = true;
+                        GradeImportConfirmationStep.this.errors = true;
                     } catch (final Exception e) {
                     	getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
-                        this.errors = true;
+                        GradeImportConfirmationStep.this.errors = true;
                     }
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignmentId);
@@ -111,14 +111,14 @@ public class GradeImportConfirmationStep extends Panel {
 					final boolean updated = GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
 					if(!updated) {
 						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
-                        this.errors = true;
+                        GradeImportConfirmationStep.this.errors = true;
 					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignment.getId());
 				});
 
 				// add/update the data
-				if (!this.errors) {
+				if (!GradeImportConfirmationStep.this.errors) {
 
 					final List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
 					itemsToSave.addAll(itemsToUpdate);
@@ -145,50 +145,47 @@ public class GradeImportConfirmationStep extends Panel {
 							}
 							//TODO if assignmentId is still null, there will be a problem
 
-							final GradeSaveResponse saveResponse = GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
-									processedGradeItemDetail.getStudentUuid(),
-									processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
-
-							// handle the response types
-							switch(saveResponse) {
-								case OK:
-									// sweet
-									break;
-								case OVER_LIMIT:
-									// no worries!
-									break;
-								case NO_CHANGE:
-									// Try to save just the comments
-									final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
-									final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
-
-									if (!StringUtils.equals(currentComment, newComment)) {
-										final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid(), newComment);
-										log.info("Saving comment: " + success + ", " + assignmentId + ", "+ processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getComment());
-										if (!success) {
-											getSession().error(new ResourceModel("importExport.error.comment").getObject());
-											this.errors = true;
-										}
-									}
-									break;
-								case CONCURRENT_EDIT:
-									// this will be handled eventually
-									break;
-								case ERROR:
-									// uh oh
-									getSession().error(new ResourceModel("importExport.error.grade").getObject());
-									this.errors = true;
-									break;
-								default:
-									break;
+							// just save comment
+							if(processedGradeItem.getType() == ProcessedGradeItem.Type.COMMENT) {
+								saveComment(assignmentId, processedGradeItemDetail);
 							}
 
-							log.info("Saving grade for assignment id: " +  assignmentId + ", student: " + processedGradeItemDetail.getStudentEid() + ", grade: " + processedGradeItemDetail.getGrade() + ", comment: " + processedGradeItemDetail.getComment() + ", status: " + saveResponse);
+							// save grade (including comments)
+							if(processedGradeItem.getType() == ProcessedGradeItem.Type.GB_ITEM) {
+
+								final GradeSaveResponse response = saveGrade(assignmentId, processedGradeItemDetail);
+
+								// handle the response types
+								switch(response) {
+									case OK:
+										// sweet
+										break;
+									case OVER_LIMIT:
+										// no worries!
+										break;
+									case NO_CHANGE:
+										// Try to save just the comments
+										saveComment(assignmentId, processedGradeItemDetail);
+										break;
+									case CONCURRENT_EDIT:
+										// this will be handled eventually
+										break;
+									case ERROR:
+										// uh oh
+										getSession().error(new ResourceModel("importExport.error.grade").getObject());
+										GradeImportConfirmationStep.this.errors = true;
+										break;
+									default:
+										break;
+								}
+								log.info("Saved grade for assignment id: " +  assignmentId + ", student: " + processedGradeItemDetail.getStudentEid() + ", grade: " + processedGradeItemDetail.getGrade() + ", comment: " + processedGradeItemDetail.getComment() + ", status: " + response);
+							}
+
 						});
 					});
 				}
 
-				if (!this.errors) {
+				if (!GradeImportConfirmationStep.this.errors) {
 					getSession().success(getString("importExport.confirmation.success"));
 					setResponsePage(GradebookPage.class);
 				}
@@ -333,6 +330,27 @@ public class GradeImportConfirmationStep extends Panel {
 		};
 
 		return rval;
+	}
+
+
+	private void saveComment(final Long assignmentId, final ProcessedGradeItemDetail processedGradeItemDetail) {
+		final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
+		final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
+
+		if (!StringUtils.equals(currentComment, newComment)) {
+			final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid(), newComment);
+			log.info("Saving comment: " + success + ", " + assignmentId + ", "+ processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getComment());
+			if (!success) {
+				getSession().error(new ResourceModel("importExport.error.comment").getObject());
+				this.errors = true;
+			}
+		}
+	}
+
+	private GradeSaveResponse saveGrade(final Long assignmentId, final ProcessedGradeItemDetail processedGradeItemDetail) {
+		return GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
+			processedGradeItemDetail.getStudentUuid(),
+			processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 	}
 
 }

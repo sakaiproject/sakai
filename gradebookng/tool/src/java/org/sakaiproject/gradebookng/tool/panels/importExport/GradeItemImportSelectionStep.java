@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,17 +14,17 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.Check;
-import org.apache.wicket.markup.html.form.CheckGroup;
-import org.apache.wicket.markup.html.form.CheckGroupSelector;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
@@ -110,7 +111,15 @@ public class GradeItemImportSelectionStep extends Panel {
 		};
 		add(hideNoChanges);
 
-		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<ProcessedGradeItem>("group", new ArrayList<ProcessedGradeItem>());
+
+		// get the list of items to display
+		// to retain order we use the grade items as the primary list
+		// and pick out the comment item from the mapping
+		// however we set the data into the allItems list as it includes the comment items
+		final List<ProcessedGradeItem> allItems = importWizardModel.getProcessedGradeItems();
+		final List<ProcessedGradeItem> gradeItems = filterListByType(allItems, Type.GB_ITEM);
+		final Map<String, ProcessedGradeItem> commentMap = createCommentMap(allItems);
+		final Map<String, ProcessedGradeItem> gradeItemMap = createGradeItemMap(allItems);
 
 		final Form<?> form = new Form("form") {
 			private static final long serialVersionUID = 1L;
@@ -119,11 +128,25 @@ public class GradeItemImportSelectionStep extends Panel {
 			protected void onSubmit() {
 				boolean validated = true;
 
-				final List<ProcessedGradeItem> selectedGradeItems = (List<ProcessedGradeItem>) group.getModelObject();
-				log.debug("Processed items: " + selectedGradeItems.size());
+				// get the items that were selected
+				final List<ProcessedGradeItem> selectedGradeItems = filterListByType(allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.GB_ITEM);
+				final List<ProcessedGradeItem> selectedCommentItems = filterListByType(allItems.stream().filter(item -> item.isSelected()).collect(Collectors.toList()), Type.COMMENT);
+
+				log.debug("Selected grade items: " + selectedGradeItems.size());
+				log.debug("Selected grade items: " + selectedGradeItems);
+
+				log.debug("Selected comment items: " + selectedCommentItems.size());
+				log.debug("Selected comment items: " + selectedCommentItems);
+
+				// combine the two lists. since comments can be toggled independently, the selectedGradeItems may not contain the item we need to update
+				// this is combined with a 'type' and 'selected' check when adding the data to the gradebook, in the next step
+				final List<ProcessedGradeItem> itemsToProcess = new ArrayList<>();
+				itemsToProcess.addAll(selectedGradeItems);
+				itemsToProcess.addAll(selectedCommentItems);
+
 
 				// this has an odd model so we need to have the validation in the onSubmit.
-				if (selectedGradeItems.size() == 0) {
+				if (itemsToProcess.size() == 0) {
 					validated = false;
 					error(getString("importExport.selection.noneselected"));
 				}
@@ -135,22 +158,17 @@ public class GradeItemImportSelectionStep extends Panel {
 					page.clearFeedback();
 
 					// Process the selected items into the create/update lists
-					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(selectedGradeItems, Status.UPDATE, Status.SKIP);
-					final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(selectedGradeItems, Status.NEW);
-					final List<ProcessedGradeItem> itemsToModify = filterListByStatus(selectedGradeItems, Status.MODIFIED);
+					// Note that the update list needs SKIP so we include comments
+					final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(itemsToProcess, Status.NEW);
+					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE, Status.SKIP);
+					final List<ProcessedGradeItem> itemsToModify = filterListByStatus(itemsToProcess, Status.MODIFIED);
 
-					log.debug("Filtered Update items: " + itemsToUpdate.size());
-					log.debug("Filtered Create items: " + itemsToCreate.size());
-					log.debug("Filtered Modify items: " + itemsToModify.size());
-
-					// Don't want comment items here
-					// TODO using N/A to indicate this is a comment column? How about an enum...
-					itemsToCreate.removeIf(i -> StringUtils.equals("N/A", i.getItemPointValue()));
-					log.debug("Actual items to create: " + itemsToCreate.size());
+					log.debug("Items to create: " + itemsToCreate.size());
+					log.debug("Items to update: " + itemsToUpdate.size());
+					log.debug("Items to modify: " + itemsToModify.size());
 
 					// repaint panel
 					Component newPanel = null;
-					importWizardModel.setSelectedGradeItems(selectedGradeItems);
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
 					importWizardModel.setItemsToModify(itemsToModify);
@@ -170,7 +188,6 @@ public class GradeItemImportSelectionStep extends Panel {
 			}
 		};
 		add(form);
-		form.add(group);
 
 		final Button backButton = new Button("backbutton") {
 			private static final long serialVersionUID = 1L;
@@ -188,7 +205,7 @@ public class GradeItemImportSelectionStep extends Panel {
 			}
 		};
 		backButton.setDefaultFormProcessing(false);
-		group.add(backButton);
+		form.add(backButton);
 
 		final Button cancelButton = new Button("cancelbutton") {
 			private static final long serialVersionUID = 1L;
@@ -203,54 +220,63 @@ public class GradeItemImportSelectionStep extends Panel {
 			}
 		};
 		cancelButton.setDefaultFormProcessing(false);
-		group.add(cancelButton);
+		form.add(cancelButton);
 
-		group.add(new Button("nextbutton"));
+		form.add(new Button("nextbutton"));
 
-		// render the list of items for the page
-		final List<ProcessedGradeItem> allItems = importWizardModel.getProcessedGradeItems();
-		final List<ProcessedGradeItem> gradeItems = filterListByType(allItems, Type.GB_ITEM);
-
-		final Map<String, ProcessedGradeItem> itemToCommentMap = mapItemToComment(allItems);
-
-		group.add(new CheckGroupSelector("groupselector"));
-		final ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades", gradeItems) {
+		// render the list - comments are nested
+		final ListView<ProcessedGradeItem> itemList = new ListView<ProcessedGradeItem>("items", gradeItems) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
 
-				final ProcessedGradeItem importedItem = item.getModelObject();
+				// get name of this item
+				// we DO NOT set the data into the item model since this only iterates the grade items
+				// instead we operate directly on the allItems list objects via the mapping
+				final String key = item.getModelObject().getItemTitle();
+				final ProcessedGradeItem gradeItem = gradeItemMap.get(key);
+				final ProcessedGradeItem commentItem = commentMap.get(key);
 
-				log.debug("importedItem: " + importedItem);
-				log.debug("matching comment: " + itemToCommentMap.get(importedItem.getItemTitle()));
+				log.debug("grade item: " + gradeItem);
+				log.debug("matching comment: " + commentItem);
 
+				final WebMarkupContainer gbItemContainer = new WebMarkupContainer("gb_item");
+				final CheckBox gradeItemCheckbox = new CheckBox("checkbox", new PropertyModel<Boolean>(gradeItem, "selected"));
+				final Label gradeItemTitle = new Label("title", gradeItem.getItemTitle() + gradeItem.getType().name());
+				final Label gradeItemPoints = new Label("points", gradeItem.getItemPointValue());
+				final Label gradeItemStatus = new Label("status", new ResourceModel("importExport.status." + gradeItem.getStatus().name()));
 
-				final Check<ProcessedGradeItem> checkbox = new Check<>("checkbox", item.getModel());
-				final Label itemTitle = new Label("itemTitle", importedItem.getItemTitle());
-				final Label itemPointValue = new Label("itemPointValue", importedItem.getItemPointValue());
-				final Label itemStatus = new Label("itemStatus", new ResourceModel("importExport.status." + importedItem.getStatus().name()));
+				gbItemContainer.add(gradeItemCheckbox);
+				gbItemContainer.add(gradeItemTitle);
+				gbItemContainer.add(gradeItemPoints);
+				gbItemContainer.add(gradeItemStatus);
+				item.add(gbItemContainer);
 
-				item.add(checkbox);
-				item.add(itemTitle);
-				item.add(itemPointValue);
-				item.add(itemStatus);
+				// render the comments row as well
+				final WebMarkupContainer commentContainer = new WebMarkupContainer("comments");
+				final CheckBox commentsCheckbox = new CheckBox("checkbox", new PropertyModel<Boolean>(commentItem, "selected"));
+				final Label commentsStatus = new Label("status", new ResourceModel("importExport.status." + commentItem.getStatus().name()));
+				commentContainer.add(commentsCheckbox);
+				commentContainer.add(commentsStatus);
+				item.add(commentContainer);
 
 				// special handling for external assignments
-				if (importedItem.getStatus() == Status.EXTERNAL) {
-					checkbox.setVisible(false);
-					item.add(new AttributeAppender("class", Model.of("no_changes external"), " "));
+				if (gradeItem.getStatus() == Status.EXTERNAL) {
+					gradeItemCheckbox.setVisible(false);
+					commentsCheckbox.setVisible(false);
+					gradeItemCheckbox.getParent().add(new AttributeAppender("class", " no_changes external"));
+					commentsCheckbox.getParent().add(new AttributeAppender("class", " no_changes external"));
 				}
 
 				// special handling for no changes
-				if (importedItem.getStatus() == Status.SKIP) {
-					checkbox.setVisible(false);
-					item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
+				if (gradeItem.getStatus() == Status.SKIP) {
+					gradeItemCheckbox.setVisible(false);
+					gradeItemCheckbox.getParent().add(new AttributeAppender("class", " no_changes"));
 				}
-
-				final String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
-				if (naString.equals(item.getModelObject().getItemPointValue())) {
-					item.add(new AttributeAppender("class", Model.of("comment"), " "));
+				if (commentItem.getStatus() == Status.SKIP) {
+					commentsCheckbox.setVisible(false);
+					commentsCheckbox.getParent().add(new AttributeAppender("class", " no_changes"));
 				}
 
 
@@ -258,8 +284,8 @@ public class GradeItemImportSelectionStep extends Panel {
 
 		};
 
-		gradeList.setReuseItems(true);
-		group.add(gradeList);
+		itemList.setReuseItems(true);
+		form.add(itemList);
 
 	}
 
@@ -286,13 +312,14 @@ public class GradeItemImportSelectionStep extends Panel {
 		return filteredList;
 	}
 
+
 	/**
 	 * Map a gradebook item to its comment column, if any. All gb items will have an entry, the value may be null if there are no comments.
 	 * Entries are keyed on the gradebook item title.
 	 * @param items
 	 * @return
 	 */
-	private Map<String, ProcessedGradeItem> mapItemToComment(final List<ProcessedGradeItem> items) {
+	private Map<String, ProcessedGradeItem> createCommentMap(final List<ProcessedGradeItem> items) {
 
 		final List<ProcessedGradeItem> gbItems = filterListByType(items, Type.GB_ITEM);
 		final List<ProcessedGradeItem> commentItems = filterListByType(items, Type.COMMENT);
@@ -306,7 +333,17 @@ public class GradeItemImportSelectionStep extends Panel {
 		});
 
 		return rval;
+	}
 
+	/**
+	 * Create a map of item title to item. Only gb items are in this map.
+	 * @param items
+	 * @return
+	 */
+	private Map<String, ProcessedGradeItem> createGradeItemMap(final List<ProcessedGradeItem> items) {
+		final List<ProcessedGradeItem> gbItems = filterListByType(items, Type.GB_ITEM);
+		final Map<String, ProcessedGradeItem> rval = gbItems.stream().collect(Collectors.toMap(ProcessedGradeItem::getItemTitle, Function.identity()));
+		return rval;
 	}
 
 }

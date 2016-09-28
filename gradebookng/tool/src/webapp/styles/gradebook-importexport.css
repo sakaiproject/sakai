@@ -25,34 +25,12 @@
   display: none;
 }
 
-#grade_import_selection tr.comment td.item_title {
-  font-style: italic;
-  text-indent: 15px;
-}
-
-#grade_import_selection tr.external {
-  background-color: lightgray;
-}
-
-#grade_import_selection tr.external td.item_status {
-  font-style: italic;
-}
-
-.grade_import_confirmation tr.comment td {
-  font-style: italic;
-  text-indent: 15px;
-}
-
 #gradebookImportExport .gb-import-export-section h2 {
   margin: 1.5em 0 0;
 }
 #gradebookImportExport .gb-import-export-section p,
 #gradebookImportExport .gb-import-export-section form {
   margin: 1em 0 0;
-}
-
-.no_changes {
-	color: grey;
 }
 
 #hideNoChanges:before {
@@ -63,4 +41,22 @@
 }
 #hideNoChanges.on:before {
   content: '\f046';
+}
+
+#grade_import_selection tr.comment td.item_title {
+  font-style: italic;
+  text-indent: 15px;
+}
+
+#grade_import_selection tr.no_changes,
+#grade_import_selection tr.external {
+  color: grey;
+} 
+
+#grade_import_selection tr.external {
+  background-color: lightgray;
+}
+
+#grade_import_selection tr.external td.item_status {
+  font-style: italic;
 }

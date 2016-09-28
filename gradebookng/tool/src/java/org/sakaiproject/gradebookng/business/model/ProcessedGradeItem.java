@@ -86,4 +86,11 @@ public class ProcessedGradeItem implements Serializable {
 	@Setter
 	private List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<ProcessedGradeItemDetail>();
 
+	/**
+	 * Flag set in the selection screen for whether or not this item is selected
+	 */
+	@Getter
+	@Setter
+	private boolean selected;
+
 }
