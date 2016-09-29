@@ -85,25 +85,13 @@ public class HideDivisionRenderer extends Renderer
 		Object tmpFoldStr = RendererUtil.getAttribute(context, component, "hideByDefault");
 		String key = (String)RendererUtil.getAttribute(context, component, "key");
 		
-		boolean foldDiv = tmpFoldStr != null && Boolean.TRUE.equals(tmpFoldStr);
-		String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
-
 		writer.write("<fieldset>");
-		writer.write("<legend style='" + CURSOR + "' onclick=\"javascript:showHideDivBlock('" + id +
-				"', '" +  RESOURCE_PATH + "', '" + key + "');\">");
-		writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
-				title + "\"");
-		writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" />");
+		writer.write("<legend>");
+		writer.write("<a role='button' data-toggle='collapse' aria-expanded='true' aria-target='" + id + "' href='#' data-target=\"[id='" + id + "']\">" + title + "</a>");
+		writer.write("</legend>");
 
-		writer.write( title + "</legend>");
-
-		if(foldDiv) {
-			writer.write("<div style=\"display:none\" " +
-					" id=\"" + id + "__hide_division_" + "\">");
-		} else {
-			writer.write("<div style=\"display:block\" " +
-					" id=\"" + id + "__hide_division_" + "\">");
-		}
+		writer.write("<div class='collapse in' " +
+			" id=\"" + id + "\">");
 	}
 
 
