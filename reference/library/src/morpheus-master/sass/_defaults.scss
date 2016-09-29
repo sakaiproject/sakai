@@ -35,6 +35,7 @@ $background-color: 			 #FFFFFF !default;
 $background-color-secondary: #444444 !default;
 
 $primary-color:    			 #247fa6 !default;
+$primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
 $primary-color-shadow:			 #2A87C0 !default;
 $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
