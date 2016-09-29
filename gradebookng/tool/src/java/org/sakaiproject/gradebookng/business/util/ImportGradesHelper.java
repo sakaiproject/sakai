@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -236,6 +237,7 @@ public class ImportGradesHelper {
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
+				cell.setScore(lineVal);
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
@@ -270,7 +272,7 @@ public class ImportGradesHelper {
 		final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
 
 		// Map assignment name to assignment
-		final Map<String, Assignment> assignmentNameMap = assignments.stream().collect(Collectors.toMap(Assignment::getName, a -> a));
+		final Map<String, Assignment> assignmentMap = assignments.stream().collect(Collectors.toMap(Assignment::getName, Function.identity()));
 
 		// maintain a list of comment columns so we can check they have a corresponding item
 		final List<String> commentColumns = new ArrayList<>();
@@ -278,7 +280,7 @@ public class ImportGradesHelper {
 		//for every column, setup the header and data
 		for (final ImportedColumn column : spreadsheetWrapper.getColumns()) {
 
-			// skip the ignorable columns
+			// skip the ignorable columns (ie username, id, any marked for ignore)
 			if(column.isIgnorable()) {
 				continue;
 			}
@@ -291,7 +293,7 @@ public class ImportGradesHelper {
 			processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
 
 			// assignment info (if available)
-			final Assignment assignment = assignmentNameMap.get(columnTitle);
+			final Assignment assignment = assignmentMap.get(columnTitle);
 			if (assignment != null) {
 				processedGradeItem.setItemId(assignment.getId());
 			}
@@ -301,16 +303,16 @@ public class ImportGradesHelper {
 			processedGradeItem.setStatus(status);
 			processedGradeItem.setItemTitle(columnTitle);
 
-			// process the header
+			log.debug("Column name: " + columnTitle + ", type: " + column.getType() + ", status: " + status);
+
+			// process the header as applicable
 			if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				log.debug("GB item with points: " + columnTitle + ", status: " + status);
 				processedGradeItem.setItemPointValue(column.getPoints());
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				log.debug("Comment column: " + columnTitle + ", status: " + status);
 				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
 				commentColumns.add(columnTitle);
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				log.debug("GB item without points: " + columnTitle + ", status: " + status);
+				// nothing todo except avoid the next block
 			} else {
 				// skip
 				//TODO could return this but as a skip status?
@@ -363,62 +365,99 @@ public class ImportGradesHelper {
 			final Map<Long, AssignmentStudentGradeInfo> transformedGradeMap) {
 
 		// default
-		Status rval = Status.SKIP;
+		Status status = null;
 
-		//TODO this isnt handling comment columns properly ie assignment will always be null for a comment column
+		log.debug("Determining status for column: " + column.getColumnTitle() + ", type: " + column.getType());
 
-		if (assignment == null) {
-			rval = Status.NEW;
-		} else if (assignment.getExternalId() != null) {
-			rval = Status.EXTERNAL;
-		} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS && assignment.getPoints().compareTo(NumberUtils.toDouble(column.getPoints())) != 0) {
-			rval = Status.MODIFIED;
-		} else {
+		if(column.isGradeItem()) {
+			if(assignment == null) {
+				status = Status.NEW;
+			} else if (assignment.getExternalId() != null) {
+				status = Status.EXTERNAL;
+			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS && assignment.getPoints().compareTo(NumberUtils.toDouble(column.getPoints())) != 0) {
+				status = Status.MODIFIED;
+			}
+		}
+
+		if(column.isComment()) {
+			if(assignment == null) {
+				status = Status.NEW;
+			} else if (assignment.getExternalId() != null) {
+				status = Status.EXTERNAL;
+			}
+		}
+
+		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
+		// for comments we always check unless external as we might have a NEW item but with no data which means SKIP
+		if((column.isGradeItem() && status == null) || (column.isComment() && status != Status.EXTERNAL)) {
 			for (final ImportedRow row : importedGradeWrapper.getRows()) {
-				final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
-				final ImportedCell importedGradeItem = row.getCellMap().get(column.getColumnTitle());
 
-				String actualScore = null;
-				String actualComment = null;
+				// imported data setup
+				final ImportedCell importedCell = row.getCellMap().get(column.getColumnTitle());
 
-				if (assignmentStudentGradeInfo != null) {
-					final GbGradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(row.getStudentEid());
+				log.debug("Checking cell data: " + importedCell);
 
-					if (actualGradeInfo != null) {
-						actualScore = actualGradeInfo.getGrade();
-						actualComment = actualGradeInfo.getGradeComment();
-					}
-				}
 				String importedScore = null;
 				String importedComment = null;
 
-				if (importedGradeItem != null) {
-					importedScore = importedGradeItem.getScore();
-					importedComment = importedGradeItem.getComment();
+				if (importedCell != null) {
+					importedScore = importedCell.getScore();
+					importedComment = importedCell.getComment();
 				}
 
-				if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-					final String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
-					final String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
-					if (trimmedImportedScore != null && !trimmedImportedScore.equals(trimmedActualScore)) {
-						rval = Status.UPDATE;
+				// handle grade items
+				// checks imported vs existing data
+				if(column.isGradeItem()) {
+
+					String existingScore = null;
+					if(assignment != null){
+						final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
+
+						if (assignmentStudentGradeInfo != null) {
+							final GbGradeInfo existingGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(row.getStudentEid());
+							if (existingGradeInfo != null) {
+								existingScore = existingGradeInfo.getGrade();
+							}
+						}
+					}
+
+					importedScore = StringUtils.removeEnd(importedScore, ".0");
+					existingScore = StringUtils.removeEnd(existingScore, ".0");
+
+					log.debug("Comparing data, importedScore: " + importedScore + ", existingScore: " + existingScore);
+
+					if(StringUtils.isNotBlank(importedScore) && !StringUtils.equals(importedScore, existingScore)){
+						status = Status.UPDATE;
 						break;
 					}
-				} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-					if (importedComment != null && !importedComment.equals(actualComment)) {
-						rval = Status.UPDATE;
-						break;
+				}
+
+				// handle comments
+				// note that we are unable to fetch the existing comments so we just check if new data exists and statuses
+				if (column.isComment()) {
+
+					log.debug("Comparing data, importedComment: " + importedComment);
+
+					if(StringUtils.isBlank(importedComment)) {
+						status = Status.SKIP;
+						continue; //keep checking
 					}
-				} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-					//must be NA if it isn't new
-					rval = Status.SKIP;
+					// has a value, could be NEW or an UPDATE. Preserve NEW if we already had it
+					if(status != Status.NEW) {
+						status = Status.UPDATE;
+					}
 					break;
 				}
-
 			}
-
 		}
-		return rval;
+
+		if(status == null) {
+			status = Status.SKIP;
+		}
+
+		log.debug("Status: " + status);
+
+		return status;
 	}
 
 	private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(final List<GbStudentGradeInfo> currentGrades) {

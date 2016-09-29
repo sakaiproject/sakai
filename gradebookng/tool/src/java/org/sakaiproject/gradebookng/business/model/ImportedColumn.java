@@ -63,6 +63,17 @@ public class ImportedColumn implements Serializable {
 	}
 
 	/**
+	 * Helper to determine if the type of column is a comment column - purely for convenience
+	 * @return
+	 */
+	public boolean isComment() {
+		if(this.type == Type.COMMENTS) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Column titles are the only thing we care about for comparisons so that we can filter out duplicates.
 	 * Must also match type and exclude IGNORE
 	 */

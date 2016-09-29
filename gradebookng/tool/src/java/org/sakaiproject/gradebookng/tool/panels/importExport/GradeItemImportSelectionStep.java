@@ -158,9 +158,8 @@ public class GradeItemImportSelectionStep extends Panel {
 					page.clearFeedback();
 
 					// Process the selected items into the create/update lists
-					// Note that the update list needs SKIP so we include comments
 					final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(itemsToProcess, Status.NEW);
-					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE, Status.SKIP);
+					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE);
 					final List<ProcessedGradeItem> itemsToModify = filterListByStatus(itemsToProcess, Status.MODIFIED);
 
 					log.debug("Items to create: " + itemsToCreate.size());
@@ -241,20 +240,26 @@ public class GradeItemImportSelectionStep extends Panel {
 				log.debug("grade item: " + gradeItem);
 				log.debug("matching comment: " + commentItem);
 
+				// setup our wrappers
 				final GbStyleableWebMarkupContainer gbItemWrap = new GbStyleableWebMarkupContainer("gb_item");
 				gbItemWrap.addStyle(GbStyle.GB_ITEM);
 
 				final GbStyleableWebMarkupContainer commentWrap = new GbStyleableWebMarkupContainer("comments");
 				commentWrap.addStyle(GbStyle.COMMENT);
 
+				// render the item row
 				final AjaxCheckBox gradeItemCheckbox = new AjaxCheckBox("checkbox", new PropertyModel<Boolean>(gradeItem, "selected")) {
 					private static final long serialVersionUID = 1L;
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						if(gradeItem.isSelected()) {
-							commentItem.setSelected(true);
 							gbItemWrap.addStyle(GbStyle.SELECTED);
-							commentWrap.addStyle(GbStyle.SELECTED);
+
+							if(commentItem.isSelectable()) {
+								commentItem.setSelected(true);
+								commentWrap.addStyle(GbStyle.SELECTED);
+							}
+
 						} else {
 							gbItemWrap.removeStyle(GbStyle.SELECTED);
 						}
@@ -264,7 +269,7 @@ public class GradeItemImportSelectionStep extends Panel {
 						target.add(gbItemWrap);
 					}
 				};
-				final Label gradeItemTitle = new Label("title", gradeItem.getItemTitle() + gradeItem.getType().name());
+				final Label gradeItemTitle = new Label("title", gradeItem.getItemTitle());
 				final Label gradeItemPoints = new Label("points", gradeItem.getItemPointValue());
 				final Label gradeItemStatus = new Label("status", new ResourceModel("importExport.status." + gradeItem.getStatus().name()));
 
@@ -274,7 +279,7 @@ public class GradeItemImportSelectionStep extends Panel {
 				gbItemWrap.add(gradeItemStatus);
 				item.add(gbItemWrap);
 
-				// render the comments row as well
+				// render the comments row
 				final AjaxCheckBox commentsCheckbox = new AjaxCheckBox("checkbox", new PropertyModel<Boolean>(commentItem, "selected")) {
 					private static final long serialVersionUID = 1L;
 					@Override
@@ -311,6 +316,7 @@ public class GradeItemImportSelectionStep extends Panel {
 					commentWrap.addStyle(GbStyle.NO_CHANGES);
 				}
 
+				// initialise the styling for each row
 				gbItemWrap.style();
 				commentWrap.style();
 			}
@@ -376,6 +382,7 @@ public class GradeItemImportSelectionStep extends Panel {
 	private Map<String, ProcessedGradeItem> createGradeItemMap(final List<ProcessedGradeItem> items) {
 		final List<ProcessedGradeItem> gbItems = filterListByType(items, Type.GB_ITEM);
 		final Map<String, ProcessedGradeItem> rval = gbItems.stream().collect(Collectors.toMap(ProcessedGradeItem::getItemTitle, Function.identity()));
+
 		return rval;
 	}
 

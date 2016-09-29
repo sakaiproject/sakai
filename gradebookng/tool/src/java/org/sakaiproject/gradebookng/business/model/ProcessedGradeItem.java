@@ -93,4 +93,15 @@ public class ProcessedGradeItem implements Serializable {
 	@Setter
 	private boolean selected;
 
+	/**
+	 * Helper to determine if an items is in a state that can be selected
+	 * @return
+	 */
+	public boolean isSelectable() {
+		if(this.status == Status.NEW || this.status == Status.UPDATE || this.status == Status.MODIFIED) {
+			return true;
+		}
+		return false;
+	}
+
 }

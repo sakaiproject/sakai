@@ -69,7 +69,7 @@ public class GradeImportConfirmationStep extends Panel {
 
 		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
-		final Form<?> form = new Form("form") {
+		final Form<Void> form = new Form<Void>("form") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
