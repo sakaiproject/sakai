@@ -155,8 +155,8 @@
     </id>
     <many-to-one name="assessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
       column="ASSESSMENTID" not-null="true" />
-    <property name="label" type="string" length="255" column="LABEL" not-null="true" />
-    <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
+    <property name="label" type="string" length="99" column="LABEL" not-null="true" index="SAM_PUBMETADATA_IDX" />
+    <property name="entry" type="string" length="255" column="ENTRY" not-null="false" index="SAM_PUBMETADATA_IDX" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData" table="SAM_PUBLISHEDSECTION_T">
