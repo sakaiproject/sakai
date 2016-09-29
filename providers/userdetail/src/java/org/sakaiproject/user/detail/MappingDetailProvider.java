@@ -48,3 +48,4 @@ public class MappingDetailProvider implements CandidateDetailProvider {
     }
 
 }
+

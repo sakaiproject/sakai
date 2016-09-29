@@ -138,11 +138,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
@@ -914,6 +910,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** Sakai.property for enable/disable anonymous grading */
 	private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
+
+	/** Site property for forcing anonymous grading in a site */
+	private static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
 
 	// SAK-29314
 	private boolean nextUngraded = false;
@@ -2457,6 +2456,14 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// Anon grading enabled/disabled
 		context.put( "enableAnonGrading", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_ANON_GRADING, false ) );
+		boolean forceAnonGrading = false;
+		try {
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			forceAnonGrading = site.getProperties().getBooleanProperty(SAK_PROP_FORCE_ANON_GRADING);
+		} catch (EntityPropertyTypeException | EntityPropertyNotDefinedException | SakaiException se) {
+			M_log.debug("Failed to find if anonymous grading is forced.");
+		}
+		context.put( "forceAnonGrading", forceAnonGrading);
 		
 		// is the assignment an new assignment
 		String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);

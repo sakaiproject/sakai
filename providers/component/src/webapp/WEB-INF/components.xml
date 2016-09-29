@@ -199,4 +199,15 @@
   	</bean>
  -->
 
+	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
+		class="org.sakaiproject.user.detail.ValueEncryptionUtilities" init-method="init">
+        <property name="key">
+			<bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+					   factory-method="getString">
+			<constructor-arg value="ValueEncryptionUtilities.key" />
+			<constructor-arg value="none" />
+		</bean>
+		</property>
+	</bean>
+
 </beans>

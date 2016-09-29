@@ -1143,13 +1143,14 @@
 
 		## SAK-17606 - Show the anonymous grading checkbox if enabled
 		#if( $enableAnonGrading || $value_CheckAnonymousGrading.equals("true") )
+			#set ($anonDisabled = !$enableAnonGrading || $forceAnonGrading)
 			<div class="checkbox">
-				<label for="$name_CheckAnonymousGrading" #if( !$enableAnonGrading ) class="disabled" #end>
+				<label for="$name_CheckAnonymousGrading" #if($anonDisabled) class="disabled" #end>
 					<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true"
-					#if ($value_CheckAnonymousGrading.equals("true"))
+					#if ($forceAnonGrading || $value_CheckAnonymousGrading.equals("true"))
 						checked="checked"
 					#end
-					#if( !$enableAnonGrading )
+					#if($anonDisabled)
 						disabled="disabled"
 					#end
 					/>
