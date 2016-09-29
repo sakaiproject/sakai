@@ -2769,12 +2769,8 @@ private   int   getNum(char letter,   String   a)
     	for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {      
     		MembershipItem membershipItem = (MembershipItem) i.next();                
 
-    		if (MembershipItem.TYPE_USER.equals(membershipItem.getType())) {
-    			if (membershipItem.getUser() != null) {
-    				if (membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
-    					selectedComposeToList.add(membershipItem.getId());
-    				}
-    			}
+    		if (membershipItem.getUser() != null && membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
+    			selectedComposeToList.add(membershipItem.getId());
     		}
     	}
 

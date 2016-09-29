@@ -131,7 +131,6 @@ alter table SAM_ATTACHMENT_T add index FK99FA8CB83288DBBD (ITEMID), add constrai
 alter table SAM_ATTACHMENT_T add index FK99FA8CB870CE2BD (SECTIONID), add constraint FK99FA8CB870CE2BD foreign key (SECTIONID) references SAM_SECTION_T (SECTIONID);
 create index sam_authz_functionId_idx on SAM_AUTHZDATA_T (FUNCTIONID);
 create index sam_authz_qualifierId_idx on SAM_AUTHZDATA_T (QUALIFIERID);
-create index sam_authz_agentId_idx on SAM_AUTHZDATA_T (AGENTID);
 alter table SAM_GRADINGSUMMARY_T add index FKBC88AA27D02EF633 (PUBLISHEDASSESSMENTID), add constraint FKBC88AA27D02EF633 foreign key (PUBLISHEDASSESSMENTID) references SAM_PUBLISHEDASSESSMENT_T (ID);
 alter table SAM_ITEMFEEDBACK_T add index FK3254E9ED3288DBBD (ITEMID), add constraint FK3254E9ED3288DBBD foreign key (ITEMID) references SAM_ITEM_T (ITEMID);
 create index SAM_ITEMGRADING_PUBANS_I on SAM_ITEMGRADING_T (PUBLISHEDANSWERID);

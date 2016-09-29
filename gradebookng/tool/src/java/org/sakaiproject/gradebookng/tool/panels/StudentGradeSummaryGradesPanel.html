@@ -4,19 +4,24 @@
 <body>
 	<wicket:panel>
 		<div class="gb-summary-grade-panel">
-			<div class="gb-summary-course-grade">
+			<div class="gb-summary-course-grade pull-left">
 				<div class="panel panel-default">
 					<div class="panel-body">
-						<div class="gb-summary-course-grade-label col-md-3"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
-						<div class="gb-summary-course-grade-value col-md-9"><span wicket:id="courseGrade">B+</span></div>
+						<span id="summaryCourseGradeLabel" class="gb-summary-course-grade-label">
+							<strong><wicket:message key="label.studentsummary.coursegrade" /></strong>
+						</span>
+						<span class="gb-summary-course-grade-value" aria-labelledby="summaryCourseGradeLabel">
+							<span wicket:id="courseGrade">B+</span>
+						</span>
 					</div>
 				</div>
 			</div>
 
 			<div wicket:id="gradeSummaryTable"/>
 
-			<div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
-			
+			<div wicket:id="noAssignments" class="messageInformation">
+				<wicket:message key="no-assignments.label" />
+			</div>
 		</div>
 	</wicket:panel>
 </body>

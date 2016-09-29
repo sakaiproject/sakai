@@ -23,7 +23,7 @@
 				border-top: 1px solid $tool-border-color;
 				border-left: 1px solid $tool-border-color;
 				border-right: 1px solid $tool-border-color;
-				color: #666;
+				color: $tool-nav-link-color;
 				display: block;
 				font-size: 0.8em;
 				margin: 2px 0.25em 0 0;
@@ -33,6 +33,12 @@
 				text-transform: uppercase;
 				@media #{$phone}{
 					@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
+				}
+				
+				&:hover
+				{
+					color: $swapped-view-text-color;
+					text-decoration: none;
 				}
 			}
 			&.current{
