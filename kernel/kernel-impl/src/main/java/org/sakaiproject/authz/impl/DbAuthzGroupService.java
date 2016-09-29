@@ -3059,7 +3059,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
             if (maintainRolesCache != null && maintainRolesCache.containsKey("maintainRoles")) {
                 maintainRoles = (Set<String>) maintainRolesCache.get("maintainRoles");
-            } else {
+            }
+            if(maintainRoles == null) {
                 String sql = dbAuthzGroupSql.getMaintainRolesSql();
                 maintainRoles = new HashSet<String>(m_sql.dbRead(sql));
                 maintainRolesCache.put("maintainRoles", maintainRoles);
