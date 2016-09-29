@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
@@ -56,6 +58,7 @@ public class GradeImportConfirmationStep extends Panel {
 		this.model = importWizardModel;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -66,6 +69,12 @@ public class GradeImportConfirmationStep extends Panel {
 		final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
 		final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
 		final List<ProcessedGradeItem> itemsToModify = importWizardModel.getItemsToModify();
+
+		// note these are sorted alphabetically for now.
+		// This may be changed to reflect the original order however any sorting needs to take into account that comments have the same title as the item
+		Collections.sort(itemsToCreate);
+		Collections.sort(itemsToUpdate);
+		Collections.sort(itemsToModify);
 
 		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
@@ -309,23 +318,14 @@ public class GradeImportConfirmationStep extends Panel {
 
 				final ProcessedGradeItem gradeItem = item.getModelObject();
 
-				item.add(new Label("itemTitle", gradeItem.getItemTitle()));
-				item.add(new Label("itemPointValue", gradeItem.getItemPointValue()));
+				String displayTitle = gradeItem.getItemTitle();
+				if(gradeItem.getType() == Type.COMMENT) {
+					displayTitle = MessageHelper.getString("importExport.confirmation.commentsdisplay", gradeItem.getItemTitle());
+				}
 
-				//if comment and it's being updated, add additional row
-				// TODO update this
-				//if (gradeItem.getType() == ProcessedGradeItem.Type.COMMENT && gradeItem.getCommentStatus() != Status.SKIP) {
+				item.add(new Label("title", displayTitle));
+				item.add(new Label("points", gradeItem.getItemPointValue()));
 
-				//	item.add(new Behavior() {
-				//		private static final long serialVersionUID = 1L;
-
-				//		@Override
-				//		public void afterRender(final Component component) {
-				//			super.afterRender(component);
-				//			component.getResponse().write("<tr class=\"comment\"><td class=\"item_title\" colspan=\"2\"><span>" + getString("importExport.commentname") + "</span></td></tr>");
-				//		}
-				//	});
-				//}
 			}
 		};
 
@@ -352,5 +352,6 @@ public class GradeImportConfirmationStep extends Panel {
 			processedGradeItemDetail.getStudentUuid(),
 			processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 	}
+
 
 }

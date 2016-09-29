@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,7 +16,7 @@ import lombok.ToString;
  * TODO rename to ProcessedColumn
  */
 @ToString
-public class ProcessedGradeItem implements Serializable {
+public class ProcessedGradeItem implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -26,6 +28,8 @@ public class ProcessedGradeItem implements Serializable {
 	private Type type;
 
 	public enum Type {
+
+		//order here is important and used for comparisons. gb items come before comments
 
 		/**
 		 * A gradebook item
@@ -103,5 +107,16 @@ public class ProcessedGradeItem implements Serializable {
 		}
 		return false;
 	}
+
+	@Override
+	public int compareTo(final Object o) {
+		//sort by title then type order as above
+		final ProcessedGradeItem other = (ProcessedGradeItem) o;
+		return new CompareToBuilder()
+	       .append(this.itemTitle, other.itemTitle)
+	       .append(this.type.ordinal(), other.type.ordinal())
+	       .toComparison();
+	}
+
 
 }
