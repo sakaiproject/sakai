@@ -9,6 +9,7 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.time.api.TimeService;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 public class ScheduledInvocationTestJob implements Job {
 
@@ -36,7 +37,7 @@ public class ScheduledInvocationTestJob implements Job {
 	
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
-		LOG.info("SimTester: Creating a delayed invocation");
+		LOG.info("Creating a delayed invocation");
 		String uuid = m_sim.createDelayedInvocation(Instant.now(), "scheduledInvocationTestCommand", "Hello World!");
 	
 		try {
@@ -50,6 +51,8 @@ public class ScheduledInvocationTestJob implements Job {
 		
 		LOG.info("SimTester: Creating another delayed invocation");
 		m_sim.createDelayedInvocation(Instant.now(), "scheduledInvocationTestCommand", "Hello World!");
+
+		m_sim.createDelayedInvocation(Instant.now().plus(1, ChronoUnit.MINUTES), "scheduledInvocationTestCommand", "Delayed");
 	
 	}
 

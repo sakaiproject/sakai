@@ -398,6 +398,18 @@
         <property name="userDirectoryService"      ><ref bean="org.sakaiproject.user.api.UserDirectoryService"              /></property>
     </bean>
 
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        </property>
+        <property name="jobBeans">
+            <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
+                <constructor-arg value="Scheduled Invocation Validation"/>
+            </bean>
+        </property>
+    </bean>
+
     <import resource="backfill-tool.xml"/>
     <import resource="cm-components.xml"/>
 </beans>

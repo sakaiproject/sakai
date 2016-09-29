@@ -15,6 +15,7 @@ import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.time.api.Time;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -72,9 +73,8 @@ public class ScheduledInvocationTest {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.getTime()).thenReturn(0L);
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
-        Mockito.when(dao.get(COMPONENT_ID, CONTEXT)).thenReturn(uuid);
         manager.deleteDelayedInvocation(uuid);
-        Mockito.verify(dao).remove(COMPONENT_ID, CONTEXT);
+        Mockito.verify(dao).remove(uuid);
     }
 
     @Test
