@@ -121,7 +121,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		// due date
 		// TODO date format needs to come from i18n
 		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"),
-				"MM/dd/yyyy") {
+				getString("format.date")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
