@@ -208,6 +208,7 @@ public class BasePage extends WebPage {
 		final WebMarkupContainer flagWithPopover = new WebMarkupContainer(componentId);
 
 		flagWithPopover.add(new AttributeModifier("title", message));
+		flagWithPopover.add(new AttributeModifier("aria-label", message));
 		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
 		flagWithPopover.add(new AttributeModifier("data-trigger", "manual"));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));

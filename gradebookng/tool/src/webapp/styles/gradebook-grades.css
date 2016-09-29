@@ -957,6 +957,9 @@ div.wicket-modal div.w_right > div {
 .gb-summary-grade-score-outof {
   color: #999;
 }
+.gb-summary-grade-panel {
+  position: relative;
+}
 .gb-summary-grade-panel .gb-summary-category-row td:first-child {
   font-weight: bold;
 }
@@ -974,7 +977,17 @@ div.wicket-modal div.w_right > div {
   text-align: center;
 }
 .gb-summary-grade-panel .gb-summary-course-grade {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  width: 50%;
+}
+.gb-summary-grade-panel .gb-summary-course-grade .panel {
+  margin-bottom: 0;
+}
+.gb-summary-grade-panel .gb-summary-course-grade .panel-body {
+  padding: 8px 15px;
+}
+.gb-summary-grade-panel .gb-summary-course-grade-label {
+  padding-right: 10px;
 }
 .gb-summary-grade-panel .gb-summary-expand-all {
   padding-right: 8px;
@@ -983,6 +996,10 @@ div.wicket-modal div.w_right > div {
 .gb-summary-grade-panel .gb-summary-category-toggle:hover,
 .gb-summary-grade-panel .gb-summary-category-toggle:active {
   text-decoration: none;
+  float: left;
+}
+.gb-summary-grade-title {
+  font-weight: normal;
 }
 .gb-summary-grade-panel .gb-summary-category-toggle:before {
   font-family: 'gradebook-icons';
@@ -1019,16 +1036,20 @@ div.wicket-modal div.w_right > div {
   display: block;
   margin-top: 10px;
 }
-.gb-grade-summary-content .tab-content {
+.gb-summary-grade-panel {
   overflow: auto;
-  margin: 10px 0;
-  padding: 10px 0;
-  border-bottom: 1px solid #DDD;
   -webkit-overflow-scrolling: touch;
+  padding: 10px 0;
+  margin: 0 0 10px;
+  border-bottom: 1px solid #DDD;
 }
 .gb-summary-grade-panel .gb-summary-grade-flags {
   padding-left: 10px;
   float: right;
+}
+.gb-summary-not-released-flag,
+.gb-summary-not-released-message {
+  color: #888;
 }
 #studentGradeSummary {
   margin: 30px 0 0;
@@ -1055,7 +1076,8 @@ div.wicket-modal div.w_right > div {
 #studentGradeSummary .table>tbody.gb-summary-assignments-tbody+tbody.gb-summary-category-tbody {
   border-width: 2px;
 }
-.gb-summary-category-row td {
+.gb-summary-category-row td,
+.gb-summary-category-row th {
   background-color: #F4F4F4;
 }
 /* Hidden column visual cue */
