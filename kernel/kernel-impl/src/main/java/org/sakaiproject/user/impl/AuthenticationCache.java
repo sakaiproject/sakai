@@ -122,7 +122,6 @@ public class AuthenticationCache {
 	
 	protected void putAuthenticationRecord(String authenticationId, String password,
 			Authentication authentication) {
-		/* TODO: Check this use of cache.containsKey */
 		if (authCache.containsKey(authenticationId)) {
 			// Don't indefinitely renew the cached record -- we want to force
 			// real authentication after the timeout.

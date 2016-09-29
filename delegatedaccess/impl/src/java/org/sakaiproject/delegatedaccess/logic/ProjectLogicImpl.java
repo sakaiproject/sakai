@@ -621,7 +621,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 					siteResult.setRestrictedPublicTools(access.getDeniedPublicTools());
 					siteResult.setModified(access.getModified());
 					siteResult.setModifiedBy(access.getModifiedBy());
-					/* TODO: Check this use of cache.containsKey */
 					if(!userSortNameCache.containsKey(access.getModifiedBy())){
 						User user = sakaiProxy.getUser(access.getModifiedBy());
 						String sortName = "";

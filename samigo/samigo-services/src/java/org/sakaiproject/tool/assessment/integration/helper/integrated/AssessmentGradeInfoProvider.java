@@ -108,8 +108,8 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
                 log.debug("Assessment lookup failed for ID: " + id + " -- " + e.getMessage());
             }
             a = null;
-            /* TODO: Check this - I am taking it out because it will make the value look expired! */
-            /* pubAssessmentCache.put(id, null); */
+            /* The present cache cannot cache nulls, so nothing to do here. */
+            /* If this ever changes, caching this reply might be a good idea */
         }
         return a;
     }
