@@ -817,25 +817,6 @@ div.wicket-modal div.w_caption {
 div.wicket-modal div.w_right > div {
   box-shadow: 0 0 5px 2px #444;
 }
-
-/* feedback styles for the grade saving state */
-.gb-score-dynamically-updated,
-.grade-save-success {
-  background-color: #dff0d8 !important;
-}
-.grade-save-success > div:before {
-  font-family: "gradebook-icons";
-  content: "\f05d";
-  color: green;
-  position: absolute;
-  left: 20px;
-  font-size: 1.4em;
-  height: 1.1em;
-  width: 1.1em;
-  line-height: 1.1em;
-  top: 50%;
-  margin-top: -0.55em;
-}
 .gb-cell-notification {
   position: absolute;
   left: 20px;
@@ -916,6 +897,27 @@ div.wicket-modal div.w_right > div {
 }
 .grade-save-error .gb-cell-notification.gb-cell-notification-out-of-date {
   display: none;
+}
+/* feedback styles for the grade saving state */
+.gb-score-dynamically-updated,
+.grade-save-success {
+  background-color: #dff0d8 !important;
+}
+.grade-save-success > div:before {
+  font-family: "gradebook-icons";
+  content: "\f05d" !important;
+  color: green !important;
+  position: absolute;
+  left: 20px;
+  font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
+  top: 50%;
+  margin-top: -0.55em;
+}
+.grade-save-success .gb-cell-notification {
+    display: none;
 }
 /** temporary override for page width **/
 .Mrphs-pageColumns--single {
