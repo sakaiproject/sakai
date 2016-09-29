@@ -217,20 +217,25 @@
 
 
   <!-- 2 TEXT -->
-	<div class="multiple_editor">
-		<a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
- 	  <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
-	</a>
-	</div>
-   <div class="longtext"><h:outputLabel value="#{authorMessages.q_text}" />
-</div>
-  <!-- WYSIWYG -->
-   
-  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
-     <f:validateLength minimum="1" maximum="60000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
+  
+   <div class="form-group row ">
+       <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
+       <div class="col-md-8 row">
+       <div class="col-md-12">
+            <a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
+                 <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
+            </a>
+       </div>
+       <div class="col-md-12">
+          <!-- WYSIWYG -->
+          <h:panelGrid>
+              <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
+                  <f:validateLength minimum="1" maximum="60000"/>
+              </samigo:wysiwyg>
+          </h:panelGrid>
+       </div>
+       </div>
+   </div>
 
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
@@ -387,7 +392,7 @@
 
     <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" value="#{authorMessages.correct_answer_opti}" />
-      <div class="col-md-10">
+      <div class="col-md-8">
         <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author">
           <f:validateLength maximum="60000"/>
         </samigo:wysiwyg>
@@ -395,7 +400,7 @@
     </div>
     <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" value="#{authorMessages.incorrect_answer_op}" />
-      <div class="col-md-10">
+      <div class="col-md-8">
      <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author">
        <f:validateLength maximum="60000"/>
      </samigo:wysiwyg>
