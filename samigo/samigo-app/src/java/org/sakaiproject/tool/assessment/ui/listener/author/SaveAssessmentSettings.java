@@ -136,7 +136,7 @@ public class SaveAssessmentSettings
                assessmentSettings.getLateHandling() != null && 
                AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
         control.setRetractDate(null);
-    }else {
+    } else {
         control.setRetractDate(assessmentSettings.getRetractDate());
     }
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
