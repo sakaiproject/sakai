@@ -92,7 +92,8 @@ public class FormatHelper {
 	 * @return
 	 */
 	private static String formatDate(final Date date) {
-		final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy"); // TODO needs to come from i18n
+		final String dateFormatString = MessageHelper.getString("format.date");
+		final SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
 		return df.format(date);
 	}
 
@@ -118,7 +119,8 @@ public class FormatHelper {
 	 * @return
 	 */
 	public static String formatDateTime(final Date date) {
-		final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm"); // TODO needs to come from i18n
+		final String dateTimeFormatString = MessageHelper.getString("format.datetime");
+		final SimpleDateFormat df = new SimpleDateFormat(dateTimeFormatString);
 		return df.format(date);
 	}
 
