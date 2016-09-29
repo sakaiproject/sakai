@@ -136,6 +136,16 @@
             <h:message for="answerptr" styleClass="validate"/>
         </div>
     </div>
+    
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-5 samigo-inline-radio">
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+            </h:selectOneRadio>
+        </div>
+    </div>    
 
     <!-- 2 TEXT -->
     <div class="form-group row">
