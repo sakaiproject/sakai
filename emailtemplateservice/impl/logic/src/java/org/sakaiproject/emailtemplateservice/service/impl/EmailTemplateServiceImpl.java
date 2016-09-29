@@ -674,7 +674,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 		}
 
 		// If the template does not already exist, or the new version is greater than the existing version, proceed...
-		if( !update || version > template.getVersion() )
+		if( !update || template.getVersion() == null || version > template.getVersion() )
 		{
 			// Dump the values from XML into the object
 			template.setSubject(subject);
