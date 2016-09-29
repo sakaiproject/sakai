@@ -69,7 +69,9 @@
 				</div>
 			#end
 		</div>
+		<!-- Disabled - See SAK-31520
 		<p><a href="#" onclick="addFileInput();return false">$tlang.getString("label.addurl")</a><br></p>
+		-->
 
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			#if($model.isDropbox())
