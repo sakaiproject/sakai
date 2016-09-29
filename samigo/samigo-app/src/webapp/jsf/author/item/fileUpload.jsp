@@ -81,6 +81,15 @@
             <h:message for="answerptr" styleClass="validate"/><br/>
        </div>
     </div>
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-5 samigo-inline-radio">
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+            </h:selectOneRadio>
+        </div>
+    </div>    
       
     <!-- 1.2 Min POINTS 
     Ths is commented out since it doesn't make sense to have a min value for a question that doesn't automatically calculate a score
