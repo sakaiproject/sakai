@@ -15,7 +15,6 @@
 
 <f:verbatim>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-    <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">//</script>
 	<script type="text/javascript">
 	<!--
 		function removeOverride(cur) {
