@@ -176,7 +176,7 @@ public class ComposeNewMessage extends Panel {
 				String threadId = ProfileUtils.generateUuid();
 				
 				//save it, it will be abstracted into its proper parts and email notifications sent
-				if(messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
+				if(newMessage.getTo()!=null && messagingLogic.sendNewMessage(newMessage.getTo(), newMessage.getFrom(), threadId, newMessage.getSubject(), newMessage.getMessage())) {
 					
 					//success
 					formFeedback.setDefaultModel(new ResourceModel("success.message.send.ok"));
