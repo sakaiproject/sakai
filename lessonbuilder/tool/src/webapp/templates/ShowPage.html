@@ -56,8 +56,11 @@
  <link rel="stylesheet" href="$context/js/jquery.oembed.css" type="text/css" />
  <script type="text/javascript" src="$context/js/jquery.cluetip.min.js"></script>
  <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
+ <link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css"/>
  <script type="text/javascript" src="$context/js/peer-eval.js"></script>
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
+ <script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
+ <script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/folder-listing.js"></script>
  <script type="text/javascript" src="$context/js/show-page.js"></script>
  <script type="text/javascript" src="$context/js/announcements.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
@@ -268,6 +271,9 @@
 		  <li>
 		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="subpage-dialog" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
 		  </li>
+		  <li>
+		    <a role="menuitem" href="#" rsf:id="add-folder" class="add-folder add-before-param"><span rsf:id="msg.simplepage.folder"></span></a>
+		  </li>
 		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
 		  <li rsf:id="add-break2" class="addbreak">
 		    <a role="menuitem button" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
@@ -442,6 +448,12 @@
                         <span rsf:id="item-path" class="item-path"></span>
                         <span rsf:id="subpagereleasedate" class="subpagereleasedate"></span>
                       </div>
+                    </div>
+                    <div rsf:id="resourceFolderGroup-td" class="group-col"><div><a href="#" class="usebutton" rsf:id="groupResourceFolder-link"><span rsf:id="groupResourceFolder-icon"></span></a></div></div>
+                    <div rsf:id="resourceFolderSpan" class="right-col">
+                        <div rsf:id="resourceFolder-td" class="edit-col"><div><a href="#" class="usebutton edit-resourceFolder" rsf:id="edit-resourceFolder"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                        <div rsf:id="resourceFolder-groups-titles" class="item-group-titles"></div>
+                        <div rsf:id="content" class="textbox"></div>
                     </div>
                     <div rsf:id="announcementsgroup-td" class="group-col"><div><a href="#" class="usebutton" rsf:id="groupannouncements-link"><span rsf:id="groupannouncements-icon"></span></a></div></div>
                     <div rsf:id="announcementsSpan" class="right-col">

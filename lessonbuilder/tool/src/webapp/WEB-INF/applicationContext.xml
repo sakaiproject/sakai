@@ -165,6 +165,8 @@ simplePageBean.peerEval,
 simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
 simplePageBean.peerEvalAllowSelfGrade,
+simplePageBean.folderPickerSubmit,
+simplePageBean.folderPath,
 simplePageBean.forumSummaryHeight,
 simplePageBean.forumSummaryDropDown,
 simplePageBean.addForumSummary
