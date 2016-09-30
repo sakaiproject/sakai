@@ -1079,11 +1079,17 @@ public class SiteAddParticipantHandler {
 									M_log.warn(this + ".checkAddParticipant: user" + userDirectoryService.getCurrentUser()!= null ? userDirectoryService.getCurrentUser().getEid():"" + " don't have permission to add " + userEid);
 								}
 							} else  {
-								M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
-								participant.name = u.getDisplayName();
-								participant.uniqname = u.getEid();
-								participant.active = true;
-								userEid = u.getEid();
+								if (site != null && site.getUserRole(u.getId()) != null) {
+									// user already exists in the site, cannot be added
+									// again
+									existingUsers.add(userEid);
+								} else {
+									M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
+									participant.name = u.getDisplayName();
+									participant.uniqname = u.getEid();
+									participant.active = true;
+									userEid = u.getEid();
+								}
 							}
 							pList.add(participant);
 						}
