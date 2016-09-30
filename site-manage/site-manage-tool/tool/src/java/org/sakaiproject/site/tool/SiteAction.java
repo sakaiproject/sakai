@@ -6579,19 +6579,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Set multipleToolIdSet = new HashSet();
 		HashMap multipleToolConfiguration = new HashMap<String, HashMap<String, String>>();
 		// get registered tools list
-		Set categories = new HashSet();
-		categories.add(type);
-		categories.add(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
-		Set toolRegistrations = ToolManager.findTools(categories, null);
-		if ((toolRegistrations == null || toolRegistrations.size() == 0)
-			&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
-		{
-			// use default site type and try getting tools again
-			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
-			categories.clear();
-			categories.add(SiteTypeUtil.getTargetSiteType(type)); //UMICH-1035
-			toolRegistrations = ToolManager.findTools(categories, null);
-		}
+		Set<Tool> toolRegistrations = getToolRegistrations(state, type);
 
 		List tools = new Vector();
 		SortedIterator i = new SortedIterator(toolRegistrations.iterator(),
@@ -11278,11 +11266,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		boolean inChosenList;
 		boolean inWSetupPageList;
 
-		Set categories = new HashSet();
-		// UMICH 1035
-		categories.add(siteType);
-		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
-		Set toolRegistrationSet = ToolManager.findTools(categories, null);
+		Set toolRegistrationSet = getToolRegistrations(state, siteType);
 
 		// first looking for any tool for removal
 		Vector removePageIds = new Vector();
@@ -11577,6 +11561,31 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		
 	} // saveFeatures
+
+	/**
+	 * Gets the tools that are allowed in this site, this looks at the tools available for the site type but if
+	 * there aren't any available then it will fallback to the tools available in the default site.
+	 * @param state The session state.
+	 * @param siteType The type of the site to get the list of tools for.
+	 * @return A Set of possible tools.
+	 */
+	private Set<Tool> getToolRegistrations(SessionState state, String siteType) {
+		Set categories = new HashSet();
+		// UMICH 1035
+		categories.add(siteType);
+		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
+		Set toolRegistrationSet = ToolManager.findTools(categories, null);
+		if ((toolRegistrationSet == null || toolRegistrationSet.size() == 0)
+				&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
+		{
+			// use default site type and try getting tools again
+			String type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
+			categories.clear();
+			categories.add(SiteTypeUtil.getTargetSiteType(type));
+			toolRegistrationSet = ToolManager.findTools(categories, null);
+		}
+		return toolRegistrationSet;
+	}
 
 	/**
 	 * refresh site object
