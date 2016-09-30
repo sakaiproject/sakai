@@ -158,9 +158,10 @@ public class GradeItemImportSelectionStep extends Panel {
 					page.clearFeedback();
 
 					// Process the selected items into the create/update lists
-					final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(itemsToProcess, Status.NEW);
+					// Note that create and modify can only be for gb items - even if comments are Status.NEW they are handled as part of the corresponding gb item data import
+					final List<ProcessedGradeItem> itemsToCreate = filterListByType(filterListByStatus(itemsToProcess, Status.NEW), Type.GB_ITEM);
 					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(itemsToProcess, Status.UPDATE);
-					final List<ProcessedGradeItem> itemsToModify = filterListByStatus(itemsToProcess, Status.MODIFIED);
+					final List<ProcessedGradeItem> itemsToModify = filterListByType(filterListByStatus(itemsToProcess, Status.MODIFIED), Type.GB_ITEM);
 
 					log.debug("Items to create: " + itemsToCreate.size());
 					log.debug("Items to update: " + itemsToUpdate.size());
@@ -233,9 +234,10 @@ public class GradeItemImportSelectionStep extends Panel {
 				// get name of this item
 				// we DO NOT set the data into the item model since this only iterates the grade items
 				// instead we operate directly on the allItems list objects via the mapping
+				// note that there might not be a comment item so we setup a blank one for the pruposes of rendering only
 				final String key = item.getModelObject().getItemTitle();
 				final ProcessedGradeItem gradeItem = gradeItemMap.get(key);
-				final ProcessedGradeItem commentItem = commentMap.get(key);
+				final ProcessedGradeItem commentItem = (commentMap.get(key) != null) ? commentMap.get(key) : setupBlankCommentItem();
 
 				log.debug("grade item: " + gradeItem);
 				log.debug("matching comment: " + commentItem);
@@ -293,6 +295,7 @@ public class GradeItemImportSelectionStep extends Panel {
 						target.add(commentWrap);
 					}
 				};
+
 				final Label commentsStatus = new Label("status", new ResourceModel("importExport.status." + commentItem.getStatus().name()));
 				commentWrap.add(commentsCheckbox);
 				commentWrap.add(commentsStatus);
@@ -383,6 +386,17 @@ public class GradeItemImportSelectionStep extends Panel {
 		final List<ProcessedGradeItem> gbItems = filterListByType(items, Type.GB_ITEM);
 		final Map<String, ProcessedGradeItem> rval = gbItems.stream().collect(Collectors.toMap(ProcessedGradeItem::getItemTitle, Function.identity()));
 
+		return rval;
+	}
+
+	/**
+	 * If there is no comment item imported we need a blank object so that the row renders correctly
+	 * @return
+	 */
+	private ProcessedGradeItem setupBlankCommentItem() {
+		final ProcessedGradeItem rval = new ProcessedGradeItem();
+		rval.setType(Type.COMMENT);
+		rval.setStatus(Status.SKIP);
 		return rval;
 	}
 
