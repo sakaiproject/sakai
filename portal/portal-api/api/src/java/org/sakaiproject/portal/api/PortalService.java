@@ -270,11 +270,7 @@ public interface PortalService
 	 * @return
 	 */
 	SiteNeighbourhoodService getSiteNeighbourhoodService();
-   
-	/* optional portal links for portal header (SAK-22912)
-	 */
-	String getPortalLinks();
-	
+
 	/**
 	 * Bean setter for Content Hosting dependency.
 	 * @param contentHostingService
