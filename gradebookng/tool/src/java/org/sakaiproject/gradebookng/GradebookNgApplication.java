@@ -28,7 +28,7 @@ public class GradebookNgApplication extends WebApplication {
 		super.init();
 
 		// page mounting for bookmarkable URLs
-		mountPage("/", GradebookPage.class);
+		mountPage("/grades", GradebookPage.class);
 		mountPage("/settings", SettingsPage.class);
 		mountPage("/importexport", ImportExportPage.class);
 		mountPage("/permissions", PermissionsPage.class);
