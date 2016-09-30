@@ -8,8 +8,10 @@
 			init-method="init"
 			destroy-method="destroy">
 		<property name="courseStudents"><value>500</value></property>
+		<property name="valueEncryptionUtilities" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
 	</bean>
 
+	<!-- Should switch this to the chained one -->
 	<bean id="org.sakaiproject.user.api.CandidateDetailProvider"
 			class="org.sakaiproject.provider.user.SampleCandidateDetailProvider"
 			init-method="init"
@@ -17,6 +19,7 @@
 		<property name="serverConfigurationService"> <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/> </property>
 		<property name="siteService"> <ref bean="org.sakaiproject.site.api.SiteService"/> </property>
 		<property name="toolManager"> <ref bean="org.sakaiproject.tool.api.ToolManager"/> </property>
+		<property name="valueEncryptionUtilities" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
 	</bean>
 	
 	<bean id="org.sakaiproject.authz.api.RoleProvider"

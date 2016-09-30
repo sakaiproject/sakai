@@ -37,7 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.user.api.CandidateDetailProvider;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
@@ -52,11 +52,28 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
-	
+	private static final String EMPTY = "";
+
 	/** Class-specific logger */
 	private static Log M_log = LogFactory.getLog(SimpleLdapCandidateAttributeMapper.class);
 
-	/** 
+	private ValueEncryptionUtilities encryption;
+	private int candidateIdLength;
+	private int additionalInfoLength;
+
+	public void setEncryption(ValueEncryptionUtilities encryption) {
+		this.encryption = encryption;
+	}
+
+	public void setCandidateIdLength(int candidateIdLength) {
+		this.candidateIdLength = candidateIdLength;
+	}
+
+	public void setAdditionalInfoLength(int additionalInfoLength) {
+		this.additionalInfoLength = additionalInfoLength;
+	}
+
+	/**
 	 * Completes configuration of this instance.
 	 * 
 	 * <p>Initializes internal mappings to a copy of 
@@ -76,7 +93,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("init()");
 		}
-		
+
 		if ( getAttributeMappings() == null || getAttributeMappings().isEmpty() ) {
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("init(): creating default attribute mappings");
@@ -126,19 +143,21 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 			super.setAttributeMappings(attributeMappings);
 		}
 	}
-    
-    /**
+
+	/**
 	 * Straightforward {@link LdapUserData} to 
 	 * {@link org.sakaiproject.user.api.UserEdit} field-to-field mapping, including
 	 * properties.
 	 */
 	public void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
-		if(userData.getProperties() != null) {
-			Object o_prop = userData.getProperties().get(AttributeMappingConstants.CANDIDATE_ID_ATTR_MAPPING_KEY);
+		Properties userDataProperties = userData.getProperties();
+		ResourceProperties userEditProperties = userEdit.getProperties();
+		if(userDataProperties != null) {
+			Object o_prop = userDataProperties.get(AttributeMappingConstants.CANDIDATE_ID_ATTR_MAPPING_KEY);
 			if(o_prop != null) {
 				if(o_prop instanceof String) {
-					userEdit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt((String)o_prop));
-				} else if(o_prop instanceof List) {					
+					userEditProperties.addProperty(USER_PROP_CANDIDATE_ID, encryption.encrypt((String)o_prop, candidateIdLength));
+				} else if(o_prop instanceof List) {
 					Set<String> propertySet = new HashSet<String>();
 					//remove duplicate values
 					for(String value : (List<String>)o_prop) {
@@ -147,17 +166,17 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 					//add candidate ID, if there is only one value
 					if(propertySet.size() == 1) {
 						for(String value : propertySet) {
-							userEdit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(value));
+							userEditProperties.addProperty(USER_PROP_CANDIDATE_ID, encryption.encrypt(value, candidateIdLength));
 						}
 					}
 				}
-				userData.getProperties().remove(AttributeMappingConstants.CANDIDATE_ID_ATTR_MAPPING_KEY);
+				userDataProperties.remove(AttributeMappingConstants.CANDIDATE_ID_ATTR_MAPPING_KEY);
 			}
 			
-			o_prop = userData.getProperties().get(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);
+			o_prop = userDataProperties.get(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);
 			if(o_prop != null) {
 				if(o_prop instanceof String) {
-					userEdit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt((String)o_prop));
+					userEditProperties.addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryption.encrypt((String)o_prop, additionalInfoLength));
 				} else if(o_prop instanceof List) {
 					List<String> propertyList = new ArrayList<String>();
 					//remove duplicate values (maintain order)
@@ -166,13 +185,23 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 							propertyList.add(value);
 					}
 					for(String value : propertyList) {
-						userEdit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(value));
+						userEditProperties.addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryption.encrypt(value, additionalInfoLength));
 					}
 				}
-				userData.getProperties().remove(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);
+				userDataProperties.remove(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);
 			}
-		}
-		
+			// Make sure we have a value for the encrypted properties.
+			if (StringUtils.isEmpty(userEditProperties.getProperty(USER_PROP_CANDIDATE_ID))) {
+				userEditProperties.addProperty(USER_PROP_CANDIDATE_ID, encryption.encrypt(EMPTY, candidateIdLength));
+			}
+			if (userEditProperties.getPropertyList(USER_PROP_ADDITIONAL_INFO)!= null &&
+					userEditProperties.getPropertyList(USER_PROP_ADDITIONAL_INFO).isEmpty()) {
+				userEditProperties.addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryption.encrypt(EMPTY, additionalInfoLength));
+			}
+
 		super.mapUserDataOntoUserEdit(userData, userEdit);
+
+		}
+
 	}
 }

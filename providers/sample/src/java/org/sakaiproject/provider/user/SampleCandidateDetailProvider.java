@@ -68,6 +68,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private ToolManager toolManager;
+	private ValueEncryptionUtilities encryptionUtilities;
 	 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
@@ -81,6 +82,9 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		this.toolManager = toolManager;
 	}
 
+	public void setValueEncryptionUtilities(ValueEncryptionUtilities encryptionUtilities) {
+		this.encryptionUtilities = encryptionUtilities;
+	}
 
 	/***************************************************************************
 	 * Init and Destroy
@@ -120,22 +124,18 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	}	
 	
 	public Optional<String> getCandidateID(User user, Site site){
-		//if no site specified, get current site
-		try {
-			if(site == null) {
-				site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-			}
-		}catch(Exception e) {
-			M_log.warn("Error getting current site. Maybe you are not in a site?");
+		if(site == null) {
+			M_log.error("getCandidateID: Null site.");
+			return Optional.empty();
 		}
 		try {
 			if(user != null) {
-				//check if anonymous id is enabled (system-wide or site-based)
-				if(useInstitutionalAnonymousId(site)) {
-					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
+				//check if additional notes is enabled (system-wide or site-based)
+				if(isAdditionalNotesEnabled(site)) {
+					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(encryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
 						M_log.debug("Using user candidateID property for user " + user.getId());
 						//this property is encrypted, so we need to decrypt it
-						return Optional.ofNullable(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
+						return Optional.ofNullable(encryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
 					} else {
 						int hashInt = user.getId().hashCode();
 						if(hashInt % 10 == 4){
@@ -155,13 +155,10 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	}
 	
 	public Optional<List<String>> getAdditionalNotes(User user, Site site){
-		try {
-			if(site == null) {
-				site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
-			}
-		}catch(Exception e) {
-			M_log.warn("Error getting current site. Maybe you are not in a site?");
-		}	
+		if(site == null) {
+			M_log.error("getAdditionalNotes: Null site.");
+			return Optional.empty();
+		}
 		
 		try {
 			if(user != null) {
@@ -172,8 +169,8 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 						List<String> ret = new ArrayList<String>();
 						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
 							//this property is encrypted, so we need to decrypt it
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(s))){
-								ret.add(ValueEncryptionUtilities.decrypt(s));
+							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(encryptionUtilities.decrypt(s))){
+								ret.add(encryptionUtilities.decrypt(s));
 							}
 						}
 						return Optional.ofNullable(ret);
