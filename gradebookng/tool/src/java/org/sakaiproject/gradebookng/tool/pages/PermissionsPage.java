@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -72,7 +73,7 @@ public class PermissionsPage extends BasePage {
 
 		// get the TA GbUser for selected (if provided)
 		if (!StringUtils.isBlank(taUuid)) {
-			for (GbUser gbUser : teachingAssistants) {
+			for (final GbUser gbUser : teachingAssistants) {
 				if (taUuid.equals(gbUser.getUserUuid())) {
 					this.taSelected = gbUser;
 					break;
@@ -156,7 +157,7 @@ public class PermissionsPage extends BasePage {
 				final GbUser selection = (GbUser) taChooser.getDefaultModelObject();
 
 				// refresh with the selected user
-				PageParameters pageParameters = new PageParameters();
+				final PageParameters pageParameters = new PageParameters();
 				pageParameters.add("selected", selection.getUserUuid());
 				setResponsePage(PermissionsPage.class, pageParameters);
 			}
@@ -250,11 +251,18 @@ public class PermissionsPage extends BasePage {
 					permissions.add(viewCourseGradePermission);
 				}
 
-				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(), permissions);
+				//remove any dupes - we also present a message if dupes were removed
+				final List<PermissionDefinition> distinctPermissions = permissions.stream().distinct().collect(Collectors.toList());
+
+				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(), distinctPermissions);
 
 				getSession().success(getString("permissionspage.update.success"));
 
-				PageParameters pageParameters = new PageParameters();
+				if(distinctPermissions.size() < permissions.size()) {
+					getSession().success(getString("permissionspage.update.dupes"));
+				}
+
+				final PageParameters pageParameters = new PageParameters();
 				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
 				setResponsePage(PermissionsPage.class, pageParameters);
 			}
@@ -272,7 +280,7 @@ public class PermissionsPage extends BasePage {
 
 			@Override
 			public void onSubmit() {
-				PageParameters pageParameters = new PageParameters();
+				final PageParameters pageParameters = new PageParameters();
 				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
 				setResponsePage(PermissionsPage.class, pageParameters);
 			}
@@ -466,4 +474,5 @@ public class PermissionsPage extends BasePage {
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-permissions.css?version=%s", version)));
 	}
+
 }
