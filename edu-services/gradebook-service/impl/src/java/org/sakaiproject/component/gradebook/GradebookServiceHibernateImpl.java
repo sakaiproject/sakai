@@ -3149,6 +3149,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// Rule 4. the assignment is included in course grade calculations
 		// Rule 5. the assignment is  released to the student (safety check against condition 3)
 		// Rule 6. the grade is not dropped from the calc
+		// Rule 7. extra credit items have their grade value counted only. Their total points possible does not apply to the calculations
 		log.debug("categoryId: " + categoryId);
 
 		gradeRecords.removeIf(gradeRecord -> {
@@ -3179,10 +3180,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
-									
-			totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
-			numOfAssignments++;
-			numScored++;
+			
+			// EC item, don't count points possible
+			if(!assignment.isExtraCredit()) {
+				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
+				numOfAssignments++;
+				numScored++;
+			}
 			
 			//sanitise grade, null values to "0";
 			String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";
