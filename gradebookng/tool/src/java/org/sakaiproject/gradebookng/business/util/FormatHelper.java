@@ -21,13 +21,43 @@ public class FormatHelper {
 	 * @return double to decimal places
 	 */
 	public static String formatDoubleToTwoDecimalPlaces(final Double score) {
+		return formatDoubleToNDecimalPlaces(score, 2);
+	}
+
+	/**
+	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with 'n' decimal places precision. And drop off any .0
+	 * if no decimal places.
+	 *
+	 * @param score as a double
+	 * @param n as an int
+	 * @return double to n decimal places
+	 */
+	private static String formatDoubleToNDecimalPlaces(final Double score, final int n) {
 		final NumberFormat df = NumberFormat.getInstance();
 		df.setMinimumFractionDigits(0);
-		df.setMaximumFractionDigits(2);
+		df.setMaximumFractionDigits(n);
 		df.setGroupingUsed(false);
 		df.setRoundingMode(RoundingMode.HALF_DOWN);
 
 		return formatGrade(df.format(score));
+	}
+
+	/**
+	 * Convert a double score to match the number of decimal places exhibited in the
+	 * toMatch string representation of a number
+	 *
+	 * @param score as a double
+	 * @param toMatch the number as a string
+	 * @return double to decimal places
+	 */
+	public static String formatDoubleToMatch(final Double score, final String toMatch) {
+		int numberOfDecimalPlaces = 0;
+
+		if (toMatch.indexOf(".") >= 0) {
+			numberOfDecimalPlaces = toMatch.split("\\.")[1].length();
+		}
+
+		return FormatHelper.formatDoubleToNDecimalPlaces(score, numberOfDecimalPlaces);
 	}
 
 	/**
