@@ -4,22 +4,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.basePath.substr(0, CKEDITOR.basePath.indexOf("ckeditor/"))+"../editor/ckextraplugins/" + 'templates/images/'), templates: [
     {
-        title:"Image and Title",
-        image:"template1.gif",
-        description:"One main image with a title and text that surround the image.",
-        html:'<h3><img src=" " alt="" style="margin-right: 10px" height="100" width="100" align="left" />Type the title here</h3><p>Type the text here</p>'
-    },
-    {
-        title:"Strange Template",
-        image:"template2.gif"
-        ,description:"A template that defines two colums, each one with a title, and some text.",
-        html:'<table cellspacing="0" cellpadding="0" style="width:100%" border="0"><thead><tr><th style="width:50%" scope="col"><h3>Title 1</h3></th><th></th><th style="width:50%" scope="col"><h3>Title 2</h3></th></tr></thead><tr><td>Text 1</td><td></td><td>Text 2</td></tr></table><p>More text goes here.</p>'    },
-    {
-        title:"Text and Table",
-        image:"template3.gif",
-        description:"A title with some text and a table.",
-        html:'<div style="width: 80%"><h3>Title goes here</h3><table style="width:150px;float: right" cellspacing="0" cellpadding="0" border="1"><caption style="border:solid 1px black"><strong>Table title</strong></caption><thead><tr><th scope="col">&nbsp;</th><th scope="col">&nbsp;</th><th>&nbsp;</th></tr></thead><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table><p>Type the text here</p></div>'    },
-    {
         title: 'Two-column',
         image: 'template4.gif',
         description: 'A two-column text layout.',
@@ -42,5 +26,23 @@ CKEDITOR.addTemplates('customtemplates', {imagesPath: CKEDITOR.getUrl(CKEDITOR.b
         image: 'mul-col.gif',
         description: '6 boxes with images and text.',
         html: '<div style="height: 15.0em; overflow: hidden; margin: 0.0px 10.0px 20.0px 0.0px; width: 20.0em; float: left; text-align: left;"><img style="width: 250.0px;height: 80.0px;" /><h2>Title 1</h2><p>Add description text here. We recommend using only 1 or 2 lines</p></div><div style="height: 15.0em; overflow: hidden; margin: 0.0px 10.0px 20.0px 0.0px; width: 20.0em; float: left; text-align: left;"><img style="width: 250.0px;height: 80.0px;" /><h2>Title 2</h2><p>Add description text here. We recommend using only 1 or 2 lines</p></div><div style="height: 15.0em; overflow: hidden; margin: 0.0px 10.0px 20.0px 0.0px; width: 20.0em; float: left; text-align: left;"><img style="width: 250.0px;height: 80.0px;" /><h2>Title 3</h2><p>Add description text here. We recommend using only 1 or 2 lines</p></div><div style="height: 15.0em; overflow: hidden; margin: 0.0px 10.0px 20.0px 0.0px; width: 20.0em; float: left; text-align: left;"><img style="width: 250.0px;height: 80.0px;" /><h2>Title 4</h2><p>Add description text here. We recommend using only 1 or 2 lines</p></div><div style="height: 15.0em; overflow: hidden; margin: 0.0px 10.0px 20.0px 0.0px; width: 20.0em; float: left; text-align: left;"><img style="width: 250.0px;height: 80.0px;" /><h2>Title 5</h2><p>Add description text here. We recommend using only 1 or 2 lines</p></div><div style="height: 15.0em; overflow: hidden; margin: 0.0px 10.0px 20.0px 0.0px; width: 20.0em; float: left; text-align: left;"><img style="width: 250.0px;height: 80.0px;" /><h2>Title 6</h2><p>Add description text here. We recommend using only 1 or 2 lines</p></div><div style="clear: both;">&nbsp;</div>'
+    },
+    {
+        title:"Image and Title",
+        image:"template1.gif",
+        description:"One main image with a title and text that surround the image.",
+        html:'<h3><img src=" " alt="" style="margin-right: 10px" height="100" width="100" align="left" />Type the title here</h3><p>Type the text here</p>'
+    },
+    {
+        title:"Text and Table",
+        image:"template3.gif",
+        description:"A title with some text and a table.",
+        html:'<div style="width: 80%"><h3>Title goes here</h3><table style="width:150px;float: right" cellspacing="0" cellpadding="0" border="1"><caption style="border:solid 1px black"><strong>Table title</strong></caption><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table><p>Type the text here</p></div>'
+    },
+    {
+        title:"Strange Template",
+        image:"template2.gif"
+        ,description:"A template that defines two colums, each one with a title, and some text.",
+        html:'<table cellspacing="0" cellpadding="0" style="width:100%" border="0"><tr><td style="width:50%"><h3>Title 1</h3></td><td></td><td style="width:50%"><h3>Title 2</h3></td></tr><tr><td>Text 1</td><td></td><td>Text 2</td></tr></table><p>More text goes here.</p>'
     }
 ]});
