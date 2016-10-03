@@ -491,7 +491,7 @@ public class GradebookNgBusinessService {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
 			final Double newGradePointsFromPercentage = (newGradePercentage / 100) * maxPoints;
-			newGradeAdjusted = FormatHelper.formatDoubleToTwoDecimalPlaces(newGradePointsFromPercentage);
+			newGradeAdjusted = FormatHelper.formatDoubleToDecimal(newGradePointsFromPercentage);
 
 			// only convert if we had a previous value otherwise it will be out of sync
 			if (StringUtils.isNotBlank(oldGradeAdjusted)) {

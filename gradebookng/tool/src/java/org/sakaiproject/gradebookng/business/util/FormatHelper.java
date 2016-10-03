@@ -20,8 +20,8 @@ public class FormatHelper {
 	 * @param score as a double
 	 * @return double to decimal places
 	 */
-	public static String formatDoubleToTwoDecimalPlaces(final Double score) {
-		return formatDoubleToNDecimalPlaces(score, 2);
+	public static String formatDoubleToDecimal(final Double score) {
+		return formatDoubleToDecimal(score, 2);
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class FormatHelper {
 	 * @param n as an int
 	 * @return double to n decimal places
 	 */
-	private static String formatDoubleToNDecimalPlaces(final Double score, final int n) {
+	private static String formatDoubleToDecimal(final Double score, final int n) {
 		final NumberFormat df = NumberFormat.getInstance();
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(n);
@@ -57,7 +57,7 @@ public class FormatHelper {
 			numberOfDecimalPlaces = toMatch.split("\\.")[1].length();
 		}
 
-		return FormatHelper.formatDoubleToNDecimalPlaces(score, numberOfDecimalPlaces);
+		return FormatHelper.formatDoubleToDecimal(score, numberOfDecimalPlaces);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class FormatHelper {
 	 */
 	public static String formatDoubleAsPercentage(final Double score) {
 		// TODO does the % need to be internationalised?
-		return formatDoubleToTwoDecimalPlaces(score) + "%";
+		return formatDoubleToDecimal(score) + "%";
 	}
 
 	/**
