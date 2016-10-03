@@ -120,7 +120,7 @@ public class EditorServlet extends HttpServlet
 			
 			String placementId = req.getParameter("placement");
 			ToolConfiguration tool = SiteService.findTool(placementId);
-			String skin = tool.getSkin();
+			String skin = (tool == null) ? null : tool.getSkin();
 			
 			Editor editor = portalService.getActiveEditor(tool);
 
