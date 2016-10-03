@@ -17,6 +17,7 @@ import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.time.api.Time;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * componentId -> job key (name)
@@ -75,12 +76,14 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	}
 
 	@Override
+	@Transactional
 	public String createDelayedInvocation(Time  time, String componentId, String opaqueContext) {
 		Instant instant = Instant.ofEpochMilli(time.getTime());
 		return createDelayedInvocation(instant, componentId, opaqueContext);
 	}
 
 	@Override
+	@Transactional
 	public String createDelayedInvocation(Instant instant, String componentId, String opaqueContext) {
 		String uuid = m_idManager.createUuid();
 		createDelayedInvocation(instant, componentId, opaqueContext, uuid);
@@ -92,6 +95,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	 * and specify the UUID that should be used.
 	 * @see org.sakaiproject.component.app.scheduler.jobs.SchedulerMigrationJob
 	 */
+	@Transactional
 	public void createDelayedInvocation(Instant instant, String componentId, String opaqueContext, String uuid) {
 		try {
 			dao.add(uuid, componentId, opaqueContext);
@@ -137,6 +141,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.api.app.scheduler.ScheduledInvocationManager#deleteDelayedInvocation(java.lang.String)
 	 */
+	@Transactional
 	public void deleteDelayedInvocation(String uuid) {
 
 		LOG.debug("Removing Delayed Invocation: " + uuid);
@@ -153,6 +158,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.api.app.scheduler.ScheduledInvocationManager#deleteDelayedInvocation(java.lang.String, java.lang.String)
 	 */
+	@Transactional
 	public void deleteDelayedInvocation(String componentId, String opaqueContext) {
 		LOG.debug("componentId=" + componentId + ", opaqueContext=" + opaqueContext);
 
@@ -167,6 +173,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.api.app.scheduler.ScheduledInvocationManager#findDelayedInvocations(java.lang.String, java.lang.String)
 	 */
+	@Transactional
 	public DelayedInvocation[] findDelayedInvocations(String componentId, String opaqueContext) {
 		LOG.debug("componentId=" + componentId + ", opaqueContext=" + opaqueContext);
 		Collection<String> uuids = dao.find(componentId, opaqueContext);
