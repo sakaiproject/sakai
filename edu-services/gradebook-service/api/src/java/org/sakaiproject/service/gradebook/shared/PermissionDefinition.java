@@ -2,6 +2,9 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 /**
  *  DTO for the {@link org.sakaiproject.gradebook.tool.Permission} to pass to external services. Not persisted.
  */
@@ -54,6 +57,33 @@ public class PermissionDefinition implements Serializable {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof PermissionDefinition)) {
+            return false;
+        }
+		
+		PermissionDefinition other  = (PermissionDefinition) o;
+		
+		return new EqualsBuilder()
+				// id purposely not included so that we dont get duplicate permissions
+				.append(userId, other.userId)
+				.append(function, other.function)
+				.append(categoryId, other.categoryId)
+				.append(groupReference, other.groupReference)
+				.isEquals();
+	}
+	
+	@Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+        		.append(userId)
+        		.append(function)
+        		.append(categoryId)
+        		.append(groupReference)
+        		.hashCode();
+    }
 
 	
 }
