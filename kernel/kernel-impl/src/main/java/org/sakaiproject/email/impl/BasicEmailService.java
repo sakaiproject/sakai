@@ -138,6 +138,7 @@ public class BasicEmailService implements EmailService
 	public static final String MAIL_SENDFROMSAKAI = "mail.sendfromsakai";
 	public static final String MAIL_SENDFROMSAKAI_EXCEPTIONS = "mail.sendfromsakai.exceptions";
 	public static final String MAIL_SENDFROMSAKAI_FROMTEXT = "mail.sendfromsakai.fromtext";
+	public static final String MAIL_SENDFROMSAKAI_MAXSIZE = "mail.sendfromsakai.maxsize";
 
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
@@ -1300,13 +1301,27 @@ public class BasicEmailService implements EmailService
 			String contentType, String charset, String multipartSubtype) throws MessagingException
 	{
 		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
+
 		if (attachments != null && attachments.size() > 0)
 		{
+			int maxAttachmentSize = serverConfigurationService.getInt(MAIL_SENDFROMSAKAI_MAXSIZE, 25000000);
+			int attachmentRunningTotal = 0;
+
 			// Add attachments to messages
 			for (Attachment attachment : attachments)
 			{
 				// attach the file to the message
-				embeddedAttachments.add(createAttachmentPart(attachment));
+				MimeBodyPart mbp = createAttachmentPart(attachment);
+				int mbpSize = mbp.getSize();
+				if ( (attachmentRunningTotal + mbpSize) < maxAttachmentSize )
+				{
+					embeddedAttachments.add(mbp);
+					attachmentRunningTotal = attachmentRunningTotal + mbpSize;
+				}
+				else
+				{
+					M_log.debug("Removed attachment from mail message because it was too large: " + mbpSize);
+				}
 			}
 		}
 
