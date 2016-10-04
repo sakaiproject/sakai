@@ -89,10 +89,12 @@
 		
 		<!-- ehcache, requires a slf4j impl-->
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-			<version>2.6.8</version>
-			<scope>compile</scope>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
 		</dependency>
 
 		<!--  external shared dependencies -->
