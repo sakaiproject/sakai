@@ -1301,7 +1301,6 @@ public class BasicEmailService implements EmailService
 			String contentType, String charset, String multipartSubtype) throws MessagingException
 	{
 		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
-
 		if (attachments != null && attachments.size() > 0)
 		{
 			int maxAttachmentSize = serverConfigurationService.getInt(MAIL_SENDFROMSAKAI_MAXSIZE, 25000000);
