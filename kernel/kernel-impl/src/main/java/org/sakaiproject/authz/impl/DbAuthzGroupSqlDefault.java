@@ -95,13 +95,15 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "select count(1) from SAKAI_REALM_ROLE where ROLE_NAME = ?";
 	}
 	
-	public String getCountRoleFunctionSql()
+	public String getCountRoleFunctionSql(String inClause)
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN MAINTABLE "
 				+ "		JOIN SAKAI_REALM_ROLE ROLE ON ROLE.ROLE_KEY = MAINTABLE.ROLE_KEY "
 				+ "		JOIN SAKAI_REALM_FUNCTION FUNCTIONS ON FUNCTIONS.FUNCTION_KEY = MAINTABLE.FUNCTION_KEY "
 				+ "		JOIN SAKAI_REALM REALM ON REALM.REALM_KEY = MAINTABLE.REALM_KEY "
-				+ "		where ROLE.ROLE_NAME = ? AND FUNCTIONS.FUNCTION_NAME = ? AND REALM.REALM_ID = ?";
+				+ "		where ROLE.ROLE_NAME = ? AND FUNCTIONS.FUNCTION_NAME = ?"
+				+ "		AND REALM.REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")"
+				+ "		AND MAINTABLE.REALM_KEY in (select REALM_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ?)";
 	}
 
 	public String getDeleteRealmProvider1Sql()
