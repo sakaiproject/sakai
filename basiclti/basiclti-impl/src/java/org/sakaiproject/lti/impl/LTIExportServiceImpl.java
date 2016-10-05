@@ -91,7 +91,7 @@ public class LTIExportServiceImpl implements LTIExportService {
 		if(exporter != null) {
 			DateFormat dateFormatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
 			
-			String attribution_name = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_NAME);
+			String attribution_name = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_NAME, LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_NAME_DEFAULT);
 			if(StringUtils.isNotEmpty(attribution_name)) {
 				//check if given property is a translation key
 				String aux = rb.getString(attribution_name);
