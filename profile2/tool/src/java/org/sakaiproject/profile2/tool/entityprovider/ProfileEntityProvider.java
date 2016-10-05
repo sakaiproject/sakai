@@ -274,9 +274,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	}
 	
 	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
-	public Object getFormattedProfile(EntityReference ref) {
+	public Object getFormattedProfile(EntityReference ref, EntityView view) {
 			
 		//this allows a normal full profile to be returned formatted in HTML
+		
+		final boolean wantsOfficial = StringUtils.equals("official", view.getPathSegment(3)) ? true : false;
 		
 		//get the full profile 
 		UserProfile userProfile = (UserProfile) getEntity(ref);
@@ -285,7 +287,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		String siteId = requestGetter.getRequest().getParameter("siteId");
 		
 		//convert UserProfile to HTML object
-		String formattedProfile = getUserProfileAsHTML(userProfile, siteId);
+		String formattedProfile = getUserProfileAsHTML(userProfile, siteId, wantsOfficial);
 		
 		//ActionReturn actionReturn = new ActionReturn("UTF-8", "text/html", entity);
 		ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, formattedProfile);
@@ -416,7 +418,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	/**
 	 * {@inheritDoc}
 	 */
-	private String getUserProfileAsHTML(UserProfile userProfile, String siteId) {
+	private String getUserProfileAsHTML(UserProfile userProfile, String siteId, boolean official) {
 		
 		//note there is no birthday in this field. we need a good way to get the birthday without the year. 
 		//maybe it needs to be stored in a separate field and treated differently. Or returned as a localised string.
@@ -429,7 +431,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 			sb.append("<div class=\"profile2-profile-image\">");
 			sb.append("<img src=\"");
-			sb.append(userProfile.getImageUrl());
+			if (official) {
+				sb.append(imageLogic.getOfficialProfileImage(userProfile.getUserUuid(), siteId).getUrl());
+			} else {
+				sb.append(userProfile.getImageUrl());
+			}
 			sb.append("\" />");
 			sb.append("</div>");
 		
