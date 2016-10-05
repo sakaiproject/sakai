@@ -1,13 +1,4 @@
-/*
- * Copyright (c) Orchestral Developments Ltd and the Orion Health group of companies (2001 - 2016).
- *
- * This document is copyright. Except for the purpose of fair reviewing, no part
- * of this publication may be reproduced or transmitted in any form or by any
- * means, electronic or mechanical, including photocopying, recording, or any
- * information storage and retrieval system, without permission in writing from
- * the publisher. Infringers of copyright render themselves liable for
- * prosecution.
- */
+
 package org.sakaiproject.gradebookng.business.util;
 
 import java.util.ArrayList;
@@ -157,10 +148,10 @@ public class CourseGradeFormatter {
 			// don't display points for weighted category type
 			final GbCategoryType categoryType = GbCategoryType.valueOf(this.gradebook.getCategory_type());
 			if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
-				
+
 				Double pointsEarned = courseGrade.getPointsEarned();
 				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
-				
+
 				// handle the special case in the gradebook service where totalPointsPossible = -1
 				if(totalPointsPossible != null && totalPointsPossible == -1) {
 					pointsEarned = null;
