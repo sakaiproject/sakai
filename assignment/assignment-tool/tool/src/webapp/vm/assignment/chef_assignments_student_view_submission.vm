@@ -483,7 +483,7 @@ $(document).ready(function(){
 		#end	
 
 		#set($notes = [])
-		#set($notes = $!candidateDetailProvider.getAdditionalNotes($submitter, $site).orElse([]))
+		#set($notes = $notesMap.get($submitter.id))
 		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $notes.size() > 0)
 			#set($notesstr = "")
 			#foreach($note in $!notes)

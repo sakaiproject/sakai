@@ -36,7 +36,7 @@
         ## SAK-17606
         #set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
         #set($notes = [])
-        #set($notes = $!candidateDetailProvider.getAdditionalNotes($siteUser, $site).orElse([]))
+        #set($notes = $notesMap.get($siteUser.id))
         #if($notes.size() > 0)
         <tr>        
           <td headers="studentname">

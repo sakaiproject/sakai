@@ -1584,6 +1584,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, s);
+			
+			addAdditionalNotesToContext(submitter, context, state);
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
@@ -1634,8 +1636,6 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("student",student);
 			}
 		}
-		
-		addAdditionalNotesToContext(context, state);
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
@@ -3375,6 +3375,27 @@ public class AssignmentAction extends PagedResourceActionII
 			// put the re-submission info into context
 			putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
 			assignment_resubmission_option_into_context(context, state);
+			
+			boolean isAdditionalNotesEnabled = false;
+			Site st = null;
+			try{
+				st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+				isAdditionalNotesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
+				
+				context.put("isAdditionalNotesEnabled", isAdditionalNotesEnabled);
+				
+				if(isAdditionalNotesEnabled && candidateDetailProvider != null && a != null && !a.isGroup()) {
+					User[] _users = s.getSubmitters();
+					if(_users != null && _users.length == 1) {
+						context.put("notes", candidateDetailProvider.getAdditionalNotes(_users[0], st).orElse(new ArrayList<String>()));
+					} else {
+						M_log.warn(this + ":build_instructor_grade_submission_context: Incorrect number of submitters detected");
+					}
+				}
+			} catch(IdUnusedException e){
+				M_log.warn(this + ":build_instructor_grade_submission_context: Site not found!", e);
+				context.put("isAdditionalNotesEnabled", false);
+			}
 		}
 
 		context.put("user", state.getAttribute(STATE_USER));
@@ -4155,8 +4176,6 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sort_submitReview", SORTED_GRADE_SUBMISSION_CONTENTREVIEW);
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
 
-		addAdditionalNotesToContext(context, state);
-
 		String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		Assignment assignment = getAssignment(assignmentRef, "build_instructor_grade_assignment_context", state);
 		
@@ -4238,6 +4257,8 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
+			
+			addAdditionalNotesToContext(userSubmissions, context, state);
 
 			//find peer assessment grades if exist
 			if(assignment.getAllowPeerAssessment()){
@@ -4393,8 +4414,6 @@ public class AssignmentAction extends PagedResourceActionII
 		Site sst = null;
 		try {
 			sst = SiteService.getSite(contextString);
-			
-			addAdditionalNotesToContext(context, state);
 		
 			Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
 			for (User u : submitters.keySet())
@@ -4429,6 +4448,8 @@ public class AssignmentAction extends PagedResourceActionII
 	
 			state.setAttribute(USER_NOTES, returnResources);
 			context.put("userNotes", state.getAttribute(USER_NOTES));
+			
+			addAdditionalNotesToContext(returnResources, context, state);
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":build_show_students_additional_information_context: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);
@@ -5078,6 +5099,8 @@ public class AssignmentAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 
 		context.put("assignmentService", AssignmentService.getInstance());
+		
+		addAdditionalNotesToContext(submissions, context, state);
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_REPORT_SUBMISSIONS;
@@ -17855,12 +17878,30 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 	
-	private void addAdditionalNotesToContext(Context context, SessionState state){
+	private void addAdditionalNotesToContext(Object o, Context context, SessionState state){
+
 		try {
 			Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			Map<String, List<String>> notesMap = new HashMap<String, List<String>>();
+			if(o instanceof List) {
+				List l = (List)o;
+				for(Object obj : l){
+					User u = null;
+					if(obj instanceof SubmitterSubmission) {
+						u = ((SubmitterSubmission)obj).getUser();
+					}
+					if(u != null) {
+						if(notesMap.get(u.getId()) == null) {
+							notesMap.put(u.getId(), candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>()));
+						}
+					}
+				}
+			} else if(o instanceof User) {
+				User u = (User)o;
+				notesMap.put(u.getId(), candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>()));
+			}
 			context.put("isAdditionalNotesEnabled", candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st));
-			context.put("candidateDetailProvider", candidateDetailProvider);
-			context.put("site", st);
+			context.put("notesMap", notesMap);
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":addAdditionalNotesToContext: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);

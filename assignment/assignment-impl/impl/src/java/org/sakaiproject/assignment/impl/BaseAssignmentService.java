@@ -4693,6 +4693,48 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				
 			}
 			
+			boolean isAdditionalNotesEnabled = false;
+			Site st = null;
+			try{
+				st = SiteService.getSite(idSite);
+				isAdditionalNotesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
+			} catch(IdUnusedException e){
+				M_log.warn("getGradesSpreadsheet: Could not find site " + idSite + " - isAdditionalNotesEnabled set to false");
+			}
+			if(isAdditionalNotesEnabled && candidateDetailProvider != null) {
+				// set notes header
+				cellNum = (index + 2);
+				rowNum = headerRowNumber;
+				row = sheet.getRow(rowNum++);
+				cell = row.createCell(cellNum);
+				cell.setCellType(1);
+				cell.setCellValue(rb.getString("gen.notes"));
+				
+				for(Object u_obj : members)
+				{
+					User u = (User)u_obj;
+					try
+					{
+						List<String> notes = candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>());
+						if(!notes.isEmpty()){
+							row = sheet.getRow(rowNum);
+							int i = 0;
+							for(String note : notes){
+								cell = row.createCell(cellNum + i);
+								cell.setCellType(1);
+								cell.setCellValue(StringEscapeUtils.escapeHtml(note));
+								i++;
+							}
+						}
+					}
+					catch (Exception e)
+					{
+						M_log.warn(" getGradesSpreadSheet " + e.getMessage() + " user = " + u);
+					}
+					rowNum++;
+				}
+			}
+			
 			// output
 			try
 			{
@@ -5588,9 +5630,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				exceptionMessage.append("There is no submission yet. ");
 			}
 			
-			sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
-					rb.getString("grades.firstname"),rb.getString("grades.grade"),
-					rb.getString("grades.submissionTime"),rb.getString("grades.late"));
+			if(isAdditionalNotesEnabled) {
+				sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
+						rb.getString("grades.firstname"),rb.getString("grades.grade"),
+						rb.getString("grades.submissionTime"),rb.getString("grades.late"),rb.getString("gen.notes"));
+			} else {
+				sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
+						rb.getString("grades.firstname"),rb.getString("grades.grade"),
+						rb.getString("grades.submissionTime"),rb.getString("grades.late"));
+			}
 
 			// allow add assignment members
 			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -5647,19 +5695,39 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 								String fullAnonId = s.getAnonymousSubmissionId();
 								String anonTitle = rb.getString("grading.anonymous.title");
+								
+								String[] params = new String[7];
+								if(isAdditionalNotesEnabled  && candidateDetailProvider != null) {
+									List<String> notes = candidateDetailProvider.getAdditionalNotes(submitters[i], st).orElse(new ArrayList<String>());
+									
+									if(!notes.isEmpty()){
+										params = new String[notes.size() + 7];
+										System.arraycopy(notes.toArray(new String[notes.size()]), 0, params, 7, notes.size());
+									}
+								}
 
 								// SAK-17606
 								if (!isAnon)
 								{
-									sheet.addRow(submitters[i].getDisplayId(), submitters[i].getEid(),
-											submitters[i].getLastName(), submitters[i].getFirstName(),
-											s.getGradeDisplay(), s.getTimeSubmittedString(), latenessStatus);
+									params[0] = submitters[i].getDisplayId();
+									params[1] = submitters[i].getEid();
+									params[2] = submitters[i].getLastName();
+									params[3] = submitters[i].getFirstName();
+									params[4] = s.getGradeDisplay();
+									params[5] = s.getTimeSubmittedString();
+									params[6] = latenessStatus;
 								}
 								else
 								{
-									sheet.addRow(fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay(),
-											s.getTimeSubmittedString(), latenessStatus);
+									params[0] = fullAnonId;
+									params[1] = fullAnonId;
+									params[2] = anonTitle;
+									params[3] = anonTitle;
+									params[4] = s.getGradeDisplay();
+									params[5] = s.getTimeSubmittedString();
+									params[6] = latenessStatus;
 								}
+								sheet.addRow(params);
 							}
 							
 							if (StringUtils.trimToNull(submittersString) != null)
