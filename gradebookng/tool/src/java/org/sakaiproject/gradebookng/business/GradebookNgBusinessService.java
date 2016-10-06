@@ -1,5 +1,8 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.math.RoundingMode;
+import java.text.Format;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -489,13 +492,20 @@ public class GradebookNgBusinessService {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
 			final Double newGradePointsFromPercentage = (newGradePercentage / 100) * maxPoints;
-			newGradeAdjusted = FormatHelper.formatDoubleToTwoDecimalPlaces(newGradePointsFromPercentage);
+			newGradeAdjusted = FormatHelper.formatDoubleToDecimal(newGradePointsFromPercentage);
 
 			// only convert if we had a previous value otherwise it will be out of sync
 			if (StringUtils.isNotBlank(oldGradeAdjusted)) {
+				// To check if our data is out of date, we first compare what we think
+				// is the latest saved score against score stored in the database. As the score
+				// is stored as points, we must convert this to a percentage. To be sure we're
+				// comparing apples with apples, we first determine the number of decimal places
+				// on the score, so the converted points-as-percentage is in the expected format.
+
 				final Double oldGradePercentage = NumberUtils.toDouble(oldGrade);
 				final Double oldGradePointsFromPercentage = (oldGradePercentage / 100) * maxPoints;
-				oldGradeAdjusted = FormatHelper.formatDoubleToTwoDecimalPlaces(oldGradePointsFromPercentage);
+
+				oldGradeAdjusted = FormatHelper.formatDoubleToMatch(oldGradePointsFromPercentage, storedGradeAdjusted);
 			}
 
 			// we dont need processing of the stored grade as the service does that when persisting.
