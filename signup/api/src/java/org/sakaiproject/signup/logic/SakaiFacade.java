@@ -475,4 +475,13 @@ public interface SakaiFacade {
 	
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException;
+
+	/**
+	 * Get a user by displayId. Only use this if you are certain that there is only one user that matches,
+	 * as it will only return the first user if there are multiples.
+	 *
+	 * @param displayId  string display id (e.g. Oxford username)
+	 * @return           a User or <code>null</code> if no match
+	 */
+	public User getUserByDisplayId(String displayId);
 }

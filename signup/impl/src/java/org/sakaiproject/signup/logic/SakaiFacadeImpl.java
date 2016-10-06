@@ -1464,4 +1464,17 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		securityService.popAdvisor(securityAdvisor);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public User getUserByDisplayId(String displayId) {
+		User user = null;
+		try {
+			user = userDirectoryService.getUserByAid(displayId);
+		} catch (UserNotDefinedException e) {
+			// that's fine just return null
+		}
+		return user;
+	}
+
 }
