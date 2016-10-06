@@ -4080,7 +4080,15 @@ public class SimplePageBean {
 				}
 				
 				sitePage.setTitle(pageTitle);
-				siteService.save(site);
+				try {
+				    siteService.save(site);
+				} catch (Exception e) {
+				    // there's no actual error for title too long. I end up with a generic
+				    // Runtimeexception. For that reason we can only guess that this it the cause. I don't want to
+				    // check for 99 characters, because the kernel could change.
+				    setErrMessage(messageLocator.getMessage("simplepage.title_too_long"));
+				    return("failed");
+				}
 				page.setTitle(pageTitle);
 				page.setHidden(hidePage);
 				if (hasReleaseDate)
