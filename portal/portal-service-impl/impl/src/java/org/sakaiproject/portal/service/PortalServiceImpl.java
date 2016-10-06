@@ -530,11 +530,11 @@ public class PortalServiceImpl implements PortalService
 
 	/**
 	 * @param portalLinks the portal icons to set
-	 * @superseded by relatedLinks functionality also in this class.
+	 * @superseded by quickLinks functionality also in this class.
 	 * @setter left as portalLinks is in the component.xml file.
 	 */
 	public void setPortalLinks(String portalLinks) {
-		log.warn("Attempted to call PortalServiceImpl.setPortalLinks, method superseded by relatedLinks functionality.");
+		log.warn("Attempted to call PortalServiceImpl.setPortalLinks, method superseded by quickLinks functionality.");
 	}
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
@@ -608,34 +608,34 @@ public class PortalServiceImpl implements PortalService
 		return "";
 	}
 
-	public String getRelatedLinksTitle(String siteId) {
-		// Find the related links title if it is in the properties file.
-		return serverConfigurationService.getString("related.link.info", "");
+	public String getQuickLinksTitle(String siteId) {
+		// Find the quick links title if it is in the properties file.
+		return serverConfigurationService.getString("portal.quicklink.info", "");
 	}
 
-	public List<Map> getRelatedLinks(String siteSkin){
-		/* Find the related links (if they are in the properties file) ready for display in the top navigation bar.
-		 * First try with the skin name as there may be different related links per site, then try with no skin. */
+	public List<Map> getQuickLinks(String siteSkin){
+		/* Find the quick links (if they are in the properties file) ready for display in the top navigation bar.
+		 * First try with the skin name as there may be different quick links per site, then try with no skin. */
 		List<String> linkUrls = null;
 		List<String> linkTitles = null;
 		List<String>linkNames = null;
 		List<String> linkIcons = null;
 
 		if (siteSkin != null) {
-			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link." + siteSkin + "url")));
-			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link." + siteSkin + "title")));
-			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link." + siteSkin + "name")));
-			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link." + siteSkin + "icon")));
+			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "url")));
+			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "title")));
+			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "name")));
+			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "icon")));
 		}
 
 		if (siteSkin == null || (siteSkin != null && linkUrls.isEmpty())) {
-			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link.url")));
-			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link.title")));
-			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link.name")));
-			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("related.link.icon")));
+			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.url")));
+			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.title")));
+			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.name")));
+			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.icon")));
 		}
 
-		List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
+		List<Map> quickLinks = new ArrayList<Map>(linkUrls.size());
 		if (!linkUrls.isEmpty()) {
 
 			for (int i = 0; i < linkUrls.size(); i++) {
@@ -664,7 +664,7 @@ public class PortalServiceImpl implements PortalService
 						}
 					}
 					if (icon != null) {
-						// if the 'related.link.icon' value has a type and at least one character for the icon name then try to parse it.
+						// if the 'portal.quicklink.icon' value has a type and at least one character for the icon name then try to parse it.
 						if (icon.length()>3){
 							String iconType = icon.substring(0,2);
 
@@ -679,11 +679,11 @@ public class PortalServiceImpl implements PortalService
 						}
 					}
 
-					relatedLinks.add(Collections.unmodifiableMap(linkDetails));
+					quickLinks.add(Collections.unmodifiableMap(linkDetails));
 				}
 			}
 		}
-		return Collections.unmodifiableList(relatedLinks);
+		return Collections.unmodifiableList(quickLinks);
 
 	}
 }

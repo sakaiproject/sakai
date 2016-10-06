@@ -3,15 +3,8 @@
 <nav id="mastLogin" class="Mrphs-loginNav">
 
     #if (!${loginTopLogin})
-        <div id="relatedLinks">
-            <ul>
-                #foreach($relatedLink in $relatedLinks)
-                    <li><a href="$relatedLink.url" title="$relatedLink.title" target="_new">$relatedLink.name</a></li>
-                #end
-            </ul>
-        </div>
 
-        #if ($relatedLinks)
+        #if ($quickLinks)
             <ul id="quickLinks" class="Mrphs-quickLinksNav">
                 <li class="Mrphs-quickLinksNav__popup" aria-haspopup="true">
                     <a href="javascript:void(0);" class="js-toggle-quick-links-nav" title="${rloader.sit_quick_links_title}" role="menuitem"  aria-haspopup="true">
@@ -21,20 +14,20 @@
 
                 <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
                     <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
-                        <span class="Mrphs-quickLinks-header--info">${relatedLinksInfo}</span>
+                        <span class="Mrphs-quickLinks-header--info">${quickLinksInfo}</span>
                         <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times"></i></a>
                     </li>
                     <div id="selectQuickLink">
                         <div class="tab-box">
-                            #foreach($relatedLink in $relatedLinks)
+                            #foreach($quickLink in $quickLinks)
                                 <li class="Mrphs-quickLinksNav__submenuitem">
-                                    <a role="menuitem" href="${relatedLink.url}" title="$relatedLink.title" target="_blank">
-                                        #if(${relatedLink.iconType} == "image")
-                                            <span id="quicklink-icon" style="background-image:url(${relatedLink.imageURI})"></span>
-                                        #elseif (${relatedLink.iconType} == "icon")
-                                            <span id="quicklink-icon" class="${relatedLink.iconClass}"></span>
+                                    <a role="menuitem" href="${quickLink.url}" title="$quickLink.title" target="_blank">
+                                        #if(${quickLink.iconType} == "image")
+                                            <span id="quicklink-icon" style="background-image:url(${quickLink.imageURI})"></span>
+                                        #elseif (${quickLink.iconType} == "icon")
+                                            <span id="quicklink-icon" class="${quickLink.iconClass}"></span>
                                         #end
-                                        <span class="Mrphs-quickLinks__submenuitem--title">${relatedLink.name}</span>
+                                        <span class="Mrphs-quickLinks__submenuitem--title">${quickLink.name}</span>
                                     </a>
                                 </li>
                             #end

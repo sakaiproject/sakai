@@ -20,19 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.portal.charon;
 
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -238,11 +231,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	private String handlerPrefix;
 
-	private List<Map>relatedLinks;
-
 	private PageFilter pageFilter = new PageFilter() {
 
-		public List filter(List newPages, Site site) 
+		public List filter(List newPages, Site site)
 		{
 			return newPages;
 		}
@@ -586,7 +577,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		includeLogin(rcontext, req, session);
 		includeBottom(rcontext);
 
-        return rcontext;
+		return rcontext;
 	}
 
 	public boolean isPortletPlacement(Placement placement)
@@ -1106,7 +1097,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
-
+		
 		return rcontext;
 	}
 
@@ -1901,10 +1892,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
-
+				
 				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
 			}
-
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
@@ -2019,61 +2009,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
-
-		// Load the related links if they are in the properties file.
-		List<String> linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings("related.link.url")));
-		List<String> linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings("related.link.title")));
-		List<String> linkNames = Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings("related.link.name")));
-		List<String> linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings("related.link.icon")));
-
-		if (!linkUrls.isEmpty()) {
-			List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
-			for (int i = 0; i < linkUrls.size(); i++) {
-				String url = linkUrls.get(i);
-				String title = linkTitles.get(i);
-				String name = linkNames.get(i);
-				String icon = linkIcons.get(i);
-
-				if (url != null) {
-					Map<String, String> linkDetails = new HashMap<String, String>();
-					linkDetails.put("url", url);
-					if (name != null) {
-						linkDetails.put("name", name);
-						if (title != null) {
-							linkDetails.put("title", title);
-						} else {
-							linkDetails.put("title", name);
-						}
-					} else {
-						if (title != null) {
-							linkDetails.put("name", title);
-							linkDetails.put("title", title);
-						} else {
-							linkDetails.put("name", url);
-							linkDetails.put("title", url);
-						}
-					}
-					if (icon != null) {
-						// if the 'related.link.icon' value has a type and at least one character for the icon name then try to parse it.
-						if (icon.length()>3){
-							String iconType = icon.substring(0,2);
-
-							if (iconType.equalsIgnoreCase("im")) {
-								linkDetails.put("iconType", "image");
-								linkDetails.put("imageURI", icon.substring(3));
-							}
-							else if (iconType.equalsIgnoreCase("cl")){
-								linkDetails.put("iconType", "icon");
-								linkDetails.put("iconClass", icon.substring(3));
-							}
-						}
-					}
-
-					relatedLinks.add(Collections.unmodifiableMap(linkDetails));
-				}
-			}
-			this.relatedLinks = Collections.unmodifiableList(relatedLinks);
-		}
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
@@ -2242,7 +2177,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
 				+ se.getLineNumber());
 	}
-	
+
 	/**
 	 * Check for any just expired sessions and redirect
 	 * 

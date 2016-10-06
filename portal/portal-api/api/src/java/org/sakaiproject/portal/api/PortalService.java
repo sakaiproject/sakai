@@ -323,13 +323,13 @@ public interface PortalService
 	public String getSkinPrefix();
 
 	/**
-	 * @return the related links title for display in the top navigation bar. Will return empty string if no title is set.
+	 * @return the quick links title for display in the top navigation bar. Will return empty string if no title is set.
 	 */
-	public String getRelatedLinksTitle(String siteId);
+	public String getQuickLinksTitle(String siteId);
 
 	/**
-	 * @return the related links for display in the top navigation bar. Will return and empty List if no related links are set.
+	 * @return the quick links for display in the top navigation bar. Will return and empty List if no quick links are set.
 	 */
-	public List<Map> getRelatedLinks(String siteSkin);
+	public List<Map> getQuickLinks(String siteSkin);
 
 }
