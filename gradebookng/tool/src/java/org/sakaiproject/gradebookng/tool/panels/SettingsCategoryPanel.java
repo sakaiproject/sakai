@@ -672,7 +672,7 @@ public class SettingsCategoryPanel extends Panel {
 			// convert to percentage representation
 			final Double percentage = value * 100;
 
-			return FormatHelper.formatDoubleToTwoDecimalPlaces(percentage);
+			return FormatHelper.formatDoubleToDecimal(percentage);
 		}
 
 	}

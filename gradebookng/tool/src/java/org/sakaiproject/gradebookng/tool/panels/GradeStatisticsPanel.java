@@ -208,7 +208,7 @@ public class GradeStatisticsPanel extends Panel {
 
 	private String constructAverageLabel(final List<Double> allGrades, final Assignment assignment) {
 		final double average = calculateAverage(allGrades);
-		final String averageFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(average));
+		final String averageFormatted = FormatHelper.formatDoubleToDecimal(Double.valueOf(average));
 
 		if (GbGradingType.PERCENTAGE.equals(gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
@@ -226,7 +226,7 @@ public class GradeStatisticsPanel extends Panel {
 
 	private String constructMedianLabel(final List<Double> allGrades, final Assignment assignment) {
 		final double median = calculateMedian(allGrades);
-		final String medianFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(median));
+		final String medianFormatted = FormatHelper.formatDoubleToDecimal(Double.valueOf(median));
 
 		if (GbGradingType.PERCENTAGE.equals(gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
@@ -244,7 +244,7 @@ public class GradeStatisticsPanel extends Panel {
 
 	private String constructLowestLabel(final List<Double> allGrades, final Assignment assignment) {
 		final double lowest = Collections.min(allGrades);
-		final String lowestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(lowest));
+		final String lowestFormatted = FormatHelper.formatDoubleToDecimal(Double.valueOf(lowest));
 
 		if (GbGradingType.PERCENTAGE.equals(gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
@@ -262,7 +262,7 @@ public class GradeStatisticsPanel extends Panel {
 
 	private String constructHighestLabel(final List<Double> allGrades, final Assignment assignment) {
 		final double highest = Collections.max(allGrades);
-		final String highestFormatted = FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(highest));
+		final String highestFormatted = FormatHelper.formatDoubleToDecimal(Double.valueOf(highest));
 
 		if (GbGradingType.PERCENTAGE.equals(gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
@@ -281,7 +281,7 @@ public class GradeStatisticsPanel extends Panel {
 	private String constructStandardDeviationLabel(final List<Double> allGrades) {
 		final double deviation = calculateStandardDeviation(allGrades);
 
-		return FormatHelper.formatDoubleToTwoDecimalPlaces(Double.valueOf(deviation));
+		return FormatHelper.formatDoubleToDecimal(Double.valueOf(deviation));
 	}
 
 	private double calculateAverage(final List<Double> allGrades) {
