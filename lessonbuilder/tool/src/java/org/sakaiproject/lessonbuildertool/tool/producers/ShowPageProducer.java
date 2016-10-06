@@ -3351,15 +3351,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 				}
 				else {
-				    if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
+				    long itemToTrack = 0L;
+				    if (i.getAttribute("multimediaUrl") != null) { // resource where we've stored the URL ourselves
 					URL = i.getAttribute("multimediaUrl");
-				    else
+					itemToTrack = i.getId();
+				    } else {
 					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+				    }
 				    UILink link = UILink.make(container, ID, URL);
 				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
 				    if (notDone)
 					link.decorate(new UIFreeAttributeDecorator("onclick", 
-										   "setTimeout(function(){window.location.reload(true)},3000); return true"));
+										   "afterLink($(this)," + itemToTrack + ") ; return true"));
 				}
 			}
 
