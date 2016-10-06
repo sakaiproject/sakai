@@ -77,6 +77,7 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 
 /**
  * <p>
@@ -104,6 +105,7 @@ public class AjaxServer extends HttpServlet
    private static AuthzGroupService authzGroupService;
    private static SimplePageToolDao simplePageToolDao;
    private static LessonsAccess lessonsAccess;
+   private static LessonBuilderAccessService lessonBuilderAccessService;
 
    public void setSimplePageToolDao(Object dao) {
        log.info("setdao " + dao);
@@ -827,6 +829,48 @@ public class AjaxServer extends HttpServlet
 
     }
 
+    public static String track(String itemId, String csrfToken) {
+	if (itemId == null) {
+	    log.error("Ajax track passed null itemid");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+
+	// maybe this isn't needed. Just trying to verify that user
+	// is actually in the site
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax track passed invalid data " + e);
+	    return null;
+	}
+	// user can pass any item id they want. It doesnt' make sense to protect against this, since doing that is
+	// more work than just looking at the link. But only allow it for actual links.
+	if (siteId == null || item.getType() != SimplePageItem.RESOURCE || item.getAttribute("multimediaUrl") == null) {
+	    log.error("Ajax track passed bad item " + itemId);
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref) || !checkCsrf(csrfToken)) {
+	    // user doesn't have permission in site
+	    // not worth testing whether they have access to the page
+	    return null;
+	}
+
+	lessonBuilderAccessService.track(item.getId(), SessionManager.getCurrentSessionUserId());
+
+	return "ok";
+
+    }
+
     public static boolean checkCsrf(String csrfToken) {
 	Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 	if (sessionToken != null && sessionToken.toString().equals(csrfToken)) {
@@ -899,6 +943,10 @@ public class AjaxServer extends HttpServlet
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");
 	  out.println(deleteItem(itemId, csrfToken));
+      } else if (op.equals("track")) {
+	  String itemId = req.getParameter("itemid");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(track(itemId, csrfToken));
       }
 
    }
@@ -917,6 +965,10 @@ public class AjaxServer extends HttpServlet
 
     public void setLessonsAccess(LessonsAccess s) {
         lessonsAccess = s;
+    }
+
+    public void setLessonBuilderAccessService(LessonBuilderAccessService s) {
+        lessonBuilderAccessService = s;
     }
 
 }
