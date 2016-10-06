@@ -40,7 +40,7 @@
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
                 <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">
-                    <i class="fa fa-th all-sites-icon"></i><span class="all-sites-label">${rloader.sit_worksites}</span>
+                    <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
         #end
