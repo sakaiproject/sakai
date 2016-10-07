@@ -82,12 +82,6 @@ public interface QuestionPoolServiceAPI
   public boolean hasSubPools(Long poolId);
 
   /**
-   * Get all items sorted by orderby
-   */
-    public List getAllItemsSorted(Long poolId, String orderBy, String ascending);
-
-
-  /**
    * Get all scores for a published assessment from the back end.
    */
   public List getAllItems(Long poolId);
