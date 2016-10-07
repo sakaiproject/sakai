@@ -76,6 +76,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 
@@ -829,9 +830,9 @@ public class AjaxServer extends HttpServlet
 
     }
 
-    public static String track(String itemId, String csrfToken) {
+    public static String isLogged(String itemId) {
 	if (itemId == null) {
-	    log.error("Ajax track passed null itemid");
+	    log.error("Ajax isLogged passed null itemid");
 	    return null;
 	}
 
@@ -853,21 +854,24 @@ public class AjaxServer extends HttpServlet
 	}
 	// user can pass any item id they want. It doesnt' make sense to protect against this, since doing that is
 	// more work than just looking at the link. But only allow it for actual links.
-	if (siteId == null || item.getType() != SimplePageItem.RESOURCE || item.getAttribute("multimediaUrl") == null) {
-	    log.error("Ajax track passed bad item " + itemId);
+	if (siteId == null || item.getType() != SimplePageItem.RESOURCE) {
+	    log.error("Ajax isLogged passed bad item " + itemId);
 	    return null;
 	}
 
 	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref) || !checkCsrf(csrfToken)) {
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref)) {
 	    // user doesn't have permission in site
 	    // not worth testing whether they have access to the page
 	    return null;
 	}
 
-	lessonBuilderAccessService.track(item.getId(), SessionManager.getCurrentSessionUserId());
-
-	return "ok";
+	// there should be no required items on student pages, so we just pass -1
+	SimplePageLogEntry entry = simplePageToolDao.getLogEntry(SessionManager.getCurrentSessionUserId(), item.getId(), -1L);
+	if (entry != null)
+	    return "ok";
+	else
+	    return "fail";
 
     }
 
@@ -943,10 +947,9 @@ public class AjaxServer extends HttpServlet
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");
 	  out.println(deleteItem(itemId, csrfToken));
-      } else if (op.equals("track")) {
+      } else if (op.equals("islogged")) {
 	  String itemId = req.getParameter("itemid");
-	  String csrfToken = req.getParameter("csrf");
-	  out.println(track(itemId, csrfToken));
+	  out.println(isLogged(itemId));
       }
 
    }

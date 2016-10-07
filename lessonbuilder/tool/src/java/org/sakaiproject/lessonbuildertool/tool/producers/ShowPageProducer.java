@@ -3351,10 +3351,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 				}
 				else {
-				    long itemToTrack = 0L;
+				    // run this through /access/lessonbuilder so we can track it even if the user uses the context menu
+				    // We could do this only for the notDone case, but I think it could cause trouble for power users
+				    // if the url isn't always consistent.
 				    if (i.getAttribute("multimediaUrl") != null) { // resource where we've stored the URL ourselves
-					URL = i.getAttribute("multimediaUrl");
-					itemToTrack = i.getId();
+					URL = "/access/lessonbuilder/item/" + i.getId() + "/";
 				    } else {
 					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
 				    }
@@ -3362,7 +3363,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
 				    if (notDone)
 					link.decorate(new UIFreeAttributeDecorator("onclick", 
-										   "afterLink($(this)," + itemToTrack + ") ; return true"));
+										   "afterLink($(this)," + i.getId() + ") ; return true"));
 				}
 			}
 
