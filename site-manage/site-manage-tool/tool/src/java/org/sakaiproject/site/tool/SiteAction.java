@@ -169,6 +169,7 @@ import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.util.*;
 // for basiclti integration
+import org.sakaiproject.util.api.LinkMigrationHelper;
 
 
 /**
@@ -185,6 +186,7 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private LTIService m_ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	private ContentHostingService m_contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+	private LinkMigrationHelper m_linkMigrationHelper = (LinkMigrationHelper) ComponentManager.get("org.sakaiproject.util.api.LinkMigrationHelper");
 
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService
 			.getInstance();
@@ -12004,7 +12006,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			editToSite.setDescription(fromSite.getDescription());
 			editToSite.setInfoUrl(fromSite.getInfoUrl());
 			commitSite(editToSite);
-			toSite = editToSite;
+			//Update the site that's passed in
+			toSite.setDescription(fromSite.getDescription());
+			toSite.setInfoUrl(fromSite.getInfoUrl());
 		} catch (IdUnusedException e) {
 
 		}
@@ -13761,17 +13765,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 			String msgBody = newSite.getDescription();
 			if(msgBody != null && !"".equals(msgBody)){
-				boolean updated = false;
-				Iterator<Entry<String, String>> entryItr = entrySet.iterator();
-				while(entryItr.hasNext()) {
-					Entry<String, String> entry = (Entry<String, String>) entryItr.next();
-					String fromContextRef = entry.getKey();
-					if(msgBody.contains(fromContextRef)){									
-						msgBody = msgBody.replace(fromContextRef, entry.getValue());
-						updated = true;
-					}								
-				}	
-				if(updated){
+				String msgBodyPreMigrate = msgBody;
+				msgBody = m_linkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+				
+				if(!msgBody.equals(msgBodyPreMigrate)){
 					//update the site b/c some tools (Lessonbuilder) updates the site structure (add/remove pages) and we don't want to
 					//over write this
 					try {
