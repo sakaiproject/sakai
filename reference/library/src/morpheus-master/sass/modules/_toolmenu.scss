@@ -234,7 +234,7 @@ nav#subSites{
 				@if $tool-menu-icon-on-left {
 					display: inline-block;
 					width: 20%;
-                    height: 100%;
+					height: 100%;
 				} @else {
 					margin: 0 0.25em 0 0;
 				}
@@ -267,9 +267,9 @@ nav#subSites{
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					@if $tool-menu-icon-on-left {
-                        display: inline-block;
+						display: inline-block;
 						width: 75%;
-                        vertical-align: middle;
+						vertical-align: middle;
 					} @else {
 						display: block;
 						max-width: 100%;
