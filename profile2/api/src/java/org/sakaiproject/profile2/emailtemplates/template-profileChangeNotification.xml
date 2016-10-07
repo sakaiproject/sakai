@@ -12,11 +12,11 @@ This automatic notification message was sent by ${localSakaiName} (${localSakaiU
 	<htmlMessage>${userDisplayName} changed their profile on ${localSakaiName}
 &lt;p&gt;
 To view ${userDisplayName}&apos;s profile, follow the url below:
-&lt;br /&gt;${profileLink}
+&lt;br /&gt;&lt;a href="${profileLink}"&gt;${profileLink}&lt;/a&gt;
 &lt;/p&gt;
 &lt;p&gt;
 ---
-&lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;This automatic notification message was sent by &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
 &lt;/p&gt;
 	</htmlMessage>
 	<version>1</version>

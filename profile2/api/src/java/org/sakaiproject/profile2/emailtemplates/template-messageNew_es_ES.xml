@@ -26,12 +26,12 @@ Si desea modificar las opciones de notificación, acceda a Mi Sitio > ${toolName
 &lt;/p&gt;
 
 &lt;p&gt;Para acceder al mensaje completo, puede hacer clic en el siguiente enlace:
-&lt;br /&gt;${messageLink}
+&lt;br /&gt;&lt;a href="${messageLink}"&gt;${messageLink}&lt;/a&gt;
 &lt;/p&gt;
 
 &lt;p&gt;
 ---
-&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
 &lt;br /&gt;Si desea modificar las opciones de notificación, acceda a Mi Sitio &gt; ${toolName} &gt; Preferencias
 &lt;/p&gt;
 	</htmlMessage>
