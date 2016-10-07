@@ -55,11 +55,11 @@ body.#{$namespace}toolMenu-collapsed{
 						white-space: pre;
 					}
 				}
-                .#{$namespace}toolsNav__menuitem--icon{
-                  @if $tool-menu-icon-on-left {
-                    margin: 0 0.5em 0 0;
-                  }
-                }
+				.#{$namespace}toolsNav__menuitem--icon{
+					@if $tool-menu-icon-on-left {
+						margin: 0 0.5em 0 0;
+					}
+				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: none;
 				}
