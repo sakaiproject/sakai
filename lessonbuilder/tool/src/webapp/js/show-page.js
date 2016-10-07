@@ -3529,18 +3529,21 @@ function doIndents() {
 	});
 };
 
+function afterLink(here,itemId) {
+    setTimeout(function(){fixStatus(here,itemId)},3000);
+}
+
 // if direct url we need to track it and change status to checkmark
 // if not backend does it, and we need to redisplay the page to show the status changed
-function afterLink(here,itemId) {
+function fixStatus(here,itemId) {
     if (itemId !== 0) {
 	var errors = '';
 	var url = location.protocol + '//' + location.host + 
 	    '/lessonbuilder-tool/ajax';
-	var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
-	$.ajax({type: "POST",
+	$.ajax({type: "GET",
 	    async: false,
 	    url: url,
-	    data: {op: 'track', itemid: itemId, csrf: csrf},
+	    data: {op: 'islogged', itemid: itemId},
    	    success: function(data, status, hdr) { 
 		 // track worked, update image to checkmark and offscreen label to completed
 		 errors = data.trim();
@@ -3553,6 +3556,4 @@ function afterLink(here,itemId) {
 	    });
 	return;
     };
-    // old style. tracked in back end, so we have to redisplay
-    setTimeout(function(){window.location.reload(true)},3000);
 }
