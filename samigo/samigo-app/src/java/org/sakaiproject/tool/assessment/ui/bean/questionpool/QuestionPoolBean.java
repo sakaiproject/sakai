@@ -1006,16 +1006,6 @@ public class QuestionPoolBean implements Serializable
   {
     sortSubPoolAscending = pstr;
   }
-
-  public boolean getSortQuestionAscending()
-  {
-    return sortQuestionAscending;
-  }
-
-  public void setSortQuestionAscending(boolean pstr)
-  {
-    sortQuestionAscending = pstr;
-  }
   
   public String getActionType()
   {
@@ -1065,16 +1055,6 @@ public class QuestionPoolBean implements Serializable
   public void setSortSubPoolProperty(String newProperty)
   {
     sortSubPoolProperty= newProperty;
-  }
-
-  public String getSortQuestionProperty()
-  {
-    return sortQuestionProperty;
-  }
-
-  public void setSortQuestionProperty(String newProperty)
-  {
-    sortQuestionProperty= newProperty;
   }
   
 public String getAddOrEdit()
@@ -1985,10 +1965,8 @@ String poolId = ContextUtil.lookupParam("qpid");
 
           // Get all data from the database
           QuestionPoolService delegate = new QuestionPoolService();
-          QuestionPoolFacade thepool =
-            delegate.getPool(
-              new Long(qpid),
-              AgentFacade.getAgentString());
+          // The call to getPool will retrieve all questions/answers/metadata/etc via Hibernate
+          QuestionPoolFacade thepool = delegate.getPool(new Long(qpid), AgentFacade.getAgentString());
           tree.setCurrentId(thepool.getQuestionPoolId());
 
           Long ppoolid = thepool.getParentPoolId();
@@ -2027,10 +2005,6 @@ String poolId = ContextUtil.lookupParam("qpid");
           pool.setObjectives(thepool.getObjectives());
           pool.setOrganizationName(thepool.getOrganizationName());
           pool.setKeywords(thepool.getKeywords());
-
-      //    pool.setProperties((QuestionPoolData) thepool.getData());
-//          pool.setNumberOfSubpools(
-//            new Integer(tree.getChildList(thepool.getQuestionPoolId()).size()).toString());
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
           pool.setDateCreated(thepool.getDateCreated());
@@ -2042,13 +2016,12 @@ String poolId = ContextUtil.lookupParam("qpid");
       this.setCurrentPool(pool);
       this.setHtmlIdLevel(htmlIdLevel);
 
-      ArrayList list = delegate.getAllItemsSorted(this.getCurrentPool().getId(), this.getSortQuestionProperty(), String.valueOf(this.getSortQuestionAscending()));
-      this.setAllItems(list);
-
+      // SAM-3024 the former call to delegate.getAllItems retrieved all questions/answers/etc again
+      this.setAllItems(new ArrayList(thepool.getQuestions()));
     }
     catch(Exception e)
     {
-      e.printStackTrace();
+      log.error("Error in startEditPoolAgain", e);
       throw new RuntimeException(e);
     }
   }
