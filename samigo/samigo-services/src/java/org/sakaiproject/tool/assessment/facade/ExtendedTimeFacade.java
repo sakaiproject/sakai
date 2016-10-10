@@ -36,6 +36,11 @@ public class ExtendedTimeFacade {
     }
 
     public  List<ExtendedTime>  getEntriesForAss                (AssessmentBaseIfc ass) {
+        // is this the best way to ensure separation between published and unpublished?
+        if(ass instanceof PublishedAssessmentIfc){
+            throw new IllegalArgumentException("getEntriesForAss accepts only unpublished assessments.");
+        }
+
         return getEntriesForX(ass, null);
     }
 
