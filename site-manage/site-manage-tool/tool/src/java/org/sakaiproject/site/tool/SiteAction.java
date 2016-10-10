@@ -3058,15 +3058,10 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("importSupportedTools", allImportableToolIdsInOriginalSites);
 			context.put("hideImportedContent", ServerConfigurationService.getBoolean("content.import.hidden", false));
 			
-			if(ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
-				try{
-					String siteInfoToolTitle = ToolManager.getTool(SITE_INFO_TOOL_ID).getTitle();
-					context.put("siteInfoToolTitle", siteInfoToolTitle);
-				}catch(Exception e){
-					
-				}
+			Tool siteInfoTool = ToolManager.getTool(SITE_INFO_TOOL_ID);
+			if (siteInfoTool != null) {
+				context.put("siteInfoToolTitle", siteInfoTool.getTitle());
 			}
-			
 			
 			return (String) getContext(data).get("template") + TEMPLATE[27];
 		}
@@ -3199,8 +3194,10 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
 			context.put("importSupportedTools", allImportableToolIdsInOriginalSites);
 
-			
-			
+			Tool siteInfoTool = ToolManager.getTool(SITE_INFO_TOOL_ID);
+			if (siteInfoTool != null) {
+				context.put("siteInfoToolTitle", siteInfoTool.getTitle());
+			}
 			
 			return (String) getContext(data).get("template") + TEMPLATE[60];
 		}
