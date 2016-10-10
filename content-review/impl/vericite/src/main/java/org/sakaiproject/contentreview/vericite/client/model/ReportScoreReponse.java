@@ -34,7 +34,7 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * ReportScoreReponse
  */
-@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2016-08-30T12:19:34.237Z")
+@javax.annotation.Generated(value = "class io.swagger.codegen.languages.JavaClientCodegen", date = "2016-09-15T19:34:25.447Z")
 public class ReportScoreReponse   {
   @SerializedName("user")
   private String user = null;
@@ -47,6 +47,9 @@ public class ReportScoreReponse   {
 
   @SerializedName("score")
   private Integer score = null;
+
+  @SerializedName("preliminary")
+  private Boolean preliminary = null;
 
   public ReportScoreReponse user(String user) {
     this.user = user;
@@ -120,6 +123,24 @@ public class ReportScoreReponse   {
     this.score = score;
   }
 
+  public ReportScoreReponse preliminary(Boolean preliminary) {
+    this.preliminary = preliminary;
+    return this;
+  }
+
+   /**
+   * Get preliminary
+   * @return preliminary
+  **/
+  @ApiModelProperty(example = "null", value = "")
+  public Boolean getPreliminary() {
+    return preliminary;
+  }
+
+  public void setPreliminary(Boolean preliminary) {
+    this.preliminary = preliminary;
+  }
+
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -133,12 +154,13 @@ public class ReportScoreReponse   {
     return Objects.equals(this.user, reportScoreReponse.user) &&
         Objects.equals(this.assignment, reportScoreReponse.assignment) &&
         Objects.equals(this.externalContentId, reportScoreReponse.externalContentId) &&
-        Objects.equals(this.score, reportScoreReponse.score);
+        Objects.equals(this.score, reportScoreReponse.score) &&
+        Objects.equals(this.preliminary, reportScoreReponse.preliminary);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(user, assignment, externalContentId, score);
+    return Objects.hash(user, assignment, externalContentId, score, preliminary);
   }
 
   @Override
@@ -150,6 +172,7 @@ public class ReportScoreReponse   {
     sb.append("    assignment: ").append(toIndentedString(assignment)).append("\n");
     sb.append("    externalContentId: ").append(toIndentedString(externalContentId)).append("\n");
     sb.append("    score: ").append(toIndentedString(score)).append("\n");
+    sb.append("    preliminary: ").append(toIndentedString(preliminary)).append("\n");
     sb.append("}");
     return sb.toString();
   }
