@@ -37,7 +37,7 @@ public class ImageMapQuestionBean {
 	private String text;
 	private String feedback;
 	private AnswerIfc answer;
-	private boolean isCorrect;
+	private Boolean isCorrect;
 
 	public String serialize() {
 		StringBuffer ret = new StringBuffer();
@@ -128,11 +128,11 @@ public class ImageMapQuestionBean {
 		return answer;
 	}
 
-	public void setIsCorrect(boolean isCorrect) {
+	public void setIsCorrect(Boolean isCorrect) {
 		this.isCorrect = isCorrect;
 	}
 
-	public boolean getIsCorrect() {
+	public Boolean getIsCorrect() {
 		return isCorrect;
 	}
 }

@@ -383,7 +383,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							if (finBean.getItemGradingData() != null) {
 								Long itemGradingId = finBean.getItemGradingData().getItemGradingId();
 								if (list.contains(itemGradingId)) {
-									finBean.setIsCorrect(false);
+									finBean.setIsCorrect(Boolean.FALSE);
 								}
 							}
 						}
