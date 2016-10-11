@@ -2457,7 +2457,16 @@ public class DeliveryActionListener
         if (data.getPublishedItemTextId().equals(text.getId()))
         {
           mbean.setItemGradingData(data);
-		  mbean.setIsCorrect(data.getIsCorrect());
+		  if (data.getIsCorrect() != null &&
+				  data.getIsCorrect().booleanValue())
+		  {
+			  mbean.setIsCorrect(true);
+		  }
+		  else
+		  {
+			  mbean.setIsCorrect(false);
+		  }
+ 
           if (data.getAnswerText() != null)
           {
             mbean.setResponse(data.getAnswerText());
