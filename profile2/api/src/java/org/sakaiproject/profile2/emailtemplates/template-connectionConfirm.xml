@@ -13,11 +13,11 @@ Control what email notifications you receive from connections at Home > ${toolNa
 	<htmlMessage>${senderDisplayName} confirmed your connection request on ${localSakaiName}
 &lt;p&gt;
 To view ${senderDisplayName}&apos;s profile, follow the url below:
-&lt;br /&gt;${connectionLink}
+&lt;br /&gt;&lt;a href="${connectionLink}"&gt;${connectionLink}&lt;/a&gt;
 &lt;/p&gt;
 &lt;p&gt;
 ---
-&lt;br /&gt;This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;This automatic notification message was sent by &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
 &lt;br /&gt;Control what email notifications you receive from connections at Home &gt; ${toolName} &gt; Preferences
 &lt;/p&gt;
 	</htmlMessage>
