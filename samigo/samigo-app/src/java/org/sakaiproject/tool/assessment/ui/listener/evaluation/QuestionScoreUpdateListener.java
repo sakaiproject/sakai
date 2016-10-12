@@ -47,7 +47,9 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -58,6 +60,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
@@ -221,8 +224,12 @@ public class QuestionScoreUpdateListener
             data.setGradedDate(new Date());
             String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();
             String safeString = targetString.length() > 255 ? targetString.substring(0, 255) : targetString;
-            eventTrackingService.post(eventTrackingService.newEvent("sam.question.score.update", safeString, true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
+            //Need this again for the total score, it might be better if updateItemScore returned this object
+            AssessmentGradingData adata = delegate.load(data.getAssessmentGradingId().toString(),false);
+            eventTrackingService.post(eventTrackingService.newEvent(
+            		SamigoConstants.EVENT_ASSESSMENT_QUESTION_SCORE_UPDATE,safeString, AgentFacade.getCurrentSiteId(), 
+            		true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForQuestionScoreUpdate(adata, tbean.getPublishedAssessment(), newAutoScore, oldAutoScore)));
           }
           
           if (!hasUpdateAttachment) {
