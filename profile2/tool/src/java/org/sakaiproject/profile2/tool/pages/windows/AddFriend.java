@@ -130,10 +130,6 @@ public class AddFriend extends Panel {
 				//if ok, request friend
 				if(connectionsLogic.requestFriend(userX, userY)) {
 					friendActionModel.setRequested(true);
-					
-					//post event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REQUEST, "/profile/"+userY, true);
-					
 					window.close(target);
 				} else {
 					text.setDefaultModel(new StringResourceModel("error.friend.add.failed", null, new Object[]{ friendName } ));
