@@ -1479,10 +1479,17 @@ public class SimplePageBean {
 		String[] split = id.split("/");
 
 		if("application/zip".equals(mimeType) && isWebSite) {
+		    if (split[split.length-1].lastIndexOf(".") < 1) {
+			// no extension. kernel code will fail
+			setErrMessage(messageLocator.getMessage("simplepage.website.noextension"));
+			// the problem with failing is that they won't see the error message. So return OK.
+			return "importing";
+		    }
+
 		    // We need to set the sakaiId to the resource id of the index file
 		    id = expandZippedResource(id);
 		    if (id == null)
-			return "failed";
+			return "importing"; // nothing left to do
 		    
 		    // We set this special type for the html field in the db. This allows us to
 		    // map an icon onto website links in applicationContext.xml
@@ -6010,6 +6017,14 @@ public class SimplePageBean {
 					    res = contentHostingService.editResource(resId);
 					} else {
 					    // otherwise create a new file
+					    if (isWebsite) {
+						// the code below tests whether it's actually a zip file. But we can't be sure it is until after
+						// the file is saved, since the kernel does the test. Thus about all we can do is check isWebsite.
+						// that indicates that the user intended it to be a zip file.
+						// in order to expand it, the kernel needs an extension
+						if (fname.lastIndexOf(".") < 1)
+						    fname = fname + ".zip";
+					    }
 					    String[] names = fixFileName(collectionId, fname);
 					    res = contentHostingService.addResource(collectionId, names[0], names[1], MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 					}
