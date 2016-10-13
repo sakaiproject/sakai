@@ -428,7 +428,6 @@ public class LessonBuilderAccessService {
 					    group = "/site/" + currentPage.getSiteId() + "/group/" + group;
 					String currentSiteId = currentPage.getSiteId();
 					
-
 					// first let's make sure the user is allowed to access
 					// the containing page
 
@@ -455,9 +454,9 @@ public class LessonBuilderAccessService {
 					// legitimately have seen.
 
 					if (simplePageToolDao.isPageVisited(item.getPageId(), sessionManager.getCurrentSessionUserId(), owner)) {
-					    if (id.equals(itemResource))
+					    if (id.equals(itemResource) || item.getAttribute("multimediaUrl") != null) {
 						useLb = true;
-					    else {
+					    } else {
 						// not exact, but see if it's in the containing folder
 						int endFolder = itemResource.lastIndexOf("/");
 						if (endFolder > 0) {
@@ -508,7 +507,10 @@ public class LessonBuilderAccessService {
 						// OK
 					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 						// OK
+					    } else if (item.getAttribute("multimediaUrl") != null) {
+						// OK
 					    } else {
+
 						// do normal checking for other content
 						if (pushedAdvisor) {
 						    securityService.popAdvisor();
@@ -566,7 +568,6 @@ public class LessonBuilderAccessService {
 						
 					    }
 					} else {
-
 					    // normal security. no reason to use advisor
 					    if(pushedAdvisor) securityService.popAdvisor();
 					    pushedAdvisor = false;
@@ -587,6 +588,12 @@ public class LessonBuilderAccessService {
 					// probably resources access control won't apply to it
 					String url = contentHostingService.getUrl(id);					
 					// https://heidelberg.rutgers.edu/access/citation/content/group/24da8519-08c2-4c8c-baeb-8abdfd6c69d7/New%20Citation%20List
+
+					if (item.getAttribute("multimediaUrl") != null) {
+					    eventTrackingService.post(eventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), false));
+					    res.sendRedirect(item.getAttribute("multimediaUrl"));
+					    return;
+					}
 
 					int n = url.indexOf("//");
 					if (n > 0) {

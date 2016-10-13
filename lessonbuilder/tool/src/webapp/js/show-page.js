@@ -3174,7 +3174,7 @@ function getGroupErrors(groups) {
      $.ajax({type: "GET",
 	     async: false,
 	      url: url,
-   	  success: function(data, status, hdr) { 
+	      success: function(data, status, hdr) { 
 		 errors = data.trim();
 	    }});
      return errors;
@@ -3420,3 +3420,32 @@ function doIndents() {
 		});
 	});
 };
+
+function afterLink(here,itemId) {
+    setTimeout(function(){fixStatus(here,itemId)},3000);
+}
+
+// if direct url we need to track it and change status to checkmark
+// if not backend does it, and we need to redisplay the page to show the status changed
+function fixStatus(here,itemId) {
+    if (itemId !== 0) {
+	var errors = '';
+	var url = location.protocol + '//' + location.host + 
+	    '/lessonbuilder-tool/ajax';
+	$.ajax({type: "GET",
+	    async: false,
+	    url: url,
+	    data: {op: 'islogged', itemid: itemId},
+   	    success: function(data, status, hdr) { 
+		 // track worked, update image to checkmark and offscreen label to completed
+		 errors = data.trim();
+		 if (errors === 'ok') {
+		     var img = here.closest('.right-col').find('.statusCol img');
+		     img.attr('src', '/lessonbuilder-tool/images/checkmark.png');
+		     here.closest('.right-col').find('.link-div .offscreen').text(msg('simplepage.status.completed') + ' ');
+		 }
+		}
+	    });
+	return;
+    };
+}
