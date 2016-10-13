@@ -1329,6 +1329,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
     	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
 
+    	// Avoid dividing by zero
+    	if (pointsEarned.compareTo(BigDecimal.ZERO) == 0 || pointsPossible.compareTo(BigDecimal.ZERO) == 0) {
+    		return new Double(0);
+    	}
+
     	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
     	return Double.valueOf(equivPercent.doubleValue());
     	
