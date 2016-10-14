@@ -38,6 +38,16 @@ This 5 minute video may explain more: http://screencast.com/t/ctJKW7iFI
 The feedback tool sends an email containing all known relevant info automatically included
 (eg, site URL, username, browser and version, plugins installed) see: http://blogs.it.ox.ac.uk/adamweblearn/2016/04/the-contact-us-tool/
 
+###Icons
+
+The Feedback tool's icons are all Font Awesome icons and are controlled by the following bundles:
+* content_icon_no_translate
+* ask_icon_no_translate
+* technical_icon_no_translate
+* suggest_icon_no_translate
+* supplemental_a_icon_no_translate
+* supplemental_b_icon_no_translate
+
 Deployment
 ----------------
 
