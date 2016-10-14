@@ -21,6 +21,8 @@ package org.sakaiproject.sitestats.impl;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import org.sakaiproject.sitestats.api.LessonBuilderStat;
 
 import lombok.Getter;
@@ -50,32 +52,32 @@ public class LessonBuilderStatImpl implements LessonBuilderStat, Serializable {
         if(!(o instanceof LessonBuilderStatImpl)) return false;
         LessonBuilderStatImpl other = (LessonBuilderStatImpl) o;
         return id == other.getId()
-                && siteId.equals(other.getSiteId())
-                && userId.equals(other.getUserId())
-                && pageRef.equals(other.getPageRef())
-                && pageAction.equals(other.getPageAction())
-                && pageTitle.equals(other.getPageTitle())
+                && ObjectUtils.equals(siteId, other.getSiteId())
+                && ObjectUtils.equals(userId, other.getUserId())
+                && ObjectUtils.equals(pageRef, other.getPageRef())
+                && ObjectUtils.equals(pageAction, other.getPageAction())
+                && ObjectUtils.equals(pageTitle, other.getPageTitle())
                 && pageId == other.getPageId()
                 && count == other.getCount()
-                && date.equals(other.getDate());
+                && ObjectUtils.equals(date, other.getDate());
     }
 
     @Override
     public int compareTo(LessonBuilderStat other) {
 
-        int val = siteId.compareTo(other.getSiteId());
+        int val = ObjectUtils.compare(siteId, other.getSiteId());
         if (val != 0) return val;
-        val = userId.compareTo(other.getUserId());
+        val = ObjectUtils.compare(userId, other.getUserId());
         if (val != 0) return val;
-        val = pageRef.compareTo(other.getPageRef());
+        val = ObjectUtils.compare(pageRef, other.getPageRef());
         if (val != 0) return val;
-        val = pageAction.compareTo(other.getPageAction());
+        val = ObjectUtils.compare(pageAction, other.getPageAction());
         if (val != 0) return val;
-        val = pageTitle.compareTo(other.getPageTitle());
+        val = ObjectUtils.compare(pageTitle, other.getPageTitle());
         if (val != 0) return val;
         val = Long.signum(pageId - other.getPageId());
         if (val != 0) return val;
-        val = date.compareTo(other.getDate());
+        val = ObjectUtils.compare(date, other.getDate());
         if (val != 0) return val;
         val = Long.signum(count - other.getCount());
         if (val != 0) return val;
@@ -88,14 +90,14 @@ public class LessonBuilderStatImpl implements LessonBuilderStat, Serializable {
         if (siteId == null) return Integer.MIN_VALUE;
         String hashStr = this.getClass().getName() + ":"
                 + id
-                + userId.hashCode()
-                + siteId.hashCode()
-                + pageRef.hashCode()
-                + pageAction.hashCode()
-                + pageTitle.hashCode()
+                + ObjectUtils.hashCode(userId)
+                + ObjectUtils.hashCode(siteId)
+                + ObjectUtils.hashCode(pageRef)
+                + ObjectUtils.hashCode(pageAction)
+                + ObjectUtils.hashCode(pageTitle)
                 + pageId
                 + count
-                + date.hashCode();
+                + ObjectUtils.hashCode(date);
         return hashStr.hashCode();
     }
 

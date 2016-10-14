@@ -30,6 +30,10 @@
       <groupId>org.sakaiproject.sitestats</groupId>
       <artifactId>sitestats-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
   </dependencies>
   
   <!-- Build -->
