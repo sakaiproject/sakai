@@ -95,12 +95,24 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 	}
 
-	private void setFavoriteSiteIds(String userId, String[] siteIds) throws PermissionException, InUseException, IdUnusedException {
+	private static PreferencesEdit getOrCreatePreferences(String userId) throws PermissionException, PortalHandlerException, InUseException {
+		try {
+			return PreferencesService.edit(userId);
+		} catch (IdUnusedException e) {
+			try {
+				return PreferencesService.add(userId);
+			} catch (Exception e2) {
+				throw new PortalHandlerException("Unable to get preferences for user: " + userId);
+			}
+		}
+	}
+
+	private void setFavoriteSiteIds(String userId, String[] siteIds) throws PermissionException, InUseException, IdUnusedException, PortalHandlerException {
 		if (userId == null) {
 			return;
 		}
 
-		PreferencesEdit edit = PreferencesService.edit(userId);
+		PreferencesEdit edit = getOrCreatePreferences(userId);
 		ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_PROPERTY);
 
 		// Replace all existing values
