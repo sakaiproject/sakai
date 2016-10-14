@@ -44,6 +44,8 @@
 @import "base/rtl";
 
 @import "modules/access/base";
+@import "modules/quicklinks/_quicklinks_variables.scss";
+@import "modules/quicklinks/_base";
 @import "modules/more-sites/base";
 @import "modules/timeout-alert/base";
 @import "modules/swapped-view/base";
