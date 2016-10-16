@@ -94,7 +94,6 @@
 					
 
 	            <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
-					<f:validateLength maximum="65000"/>
 				</sakai:inputRichText>
 <%--********************* Attachment *********************--%>	
 	      <h4>

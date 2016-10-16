@@ -381,8 +381,8 @@ document.links[newindex].onclick();
          </h:panelGroup>
          <h:panelGroup styleClass="col-md-6 pull-right" layout="block">
           <h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-          <h:outputText value="#{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
-          <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} " rendered="#{question.itemData.discount!='0.0'}" />
+          <h:outputText value="#{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag && delivery.actionString!='reviewAssessment'}"  />
+          <h:outputText value="#{deliveryMessages.discount} #{question.itemData.discount} "  rendered="#{question.itemData.discount!='0.0' && delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag}"  />
          </h:panelGroup>
        </h:panelGroup>
 

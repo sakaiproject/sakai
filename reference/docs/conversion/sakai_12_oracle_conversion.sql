@@ -209,8 +209,8 @@ ALTER TABLE pasystem_popup_assign DROP COLUMN user_eid;
 ALTER TABLE pasystem_popup_dismissed DROP COLUMN user_eid;
 ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
 
--- SAK-31276 remove unncecessary keys because there is a composite key that handles this
-DROP INDEX SST_PRESENCE_SITE_ID_IX ON SST_PRESENCES;
-DROP INDEX SST_EVENTS_USER_ID_IX ON SST_EVENTS;
--- END SAK-31276
-
+--
+-- SAK-31840 drop defaults as its now managed in the POJO
+--
+ALTER TABLE GB_GRADABLE_OBJECT_T MODIFY IS_EXTRA_CREDIT DEFAULT NULL;
+ALTER TABLE GB_GRADABLE_OBJECT_T MODIFY HIDE_IN_ALL_GRADES_TABLE DEFAULT NULL;

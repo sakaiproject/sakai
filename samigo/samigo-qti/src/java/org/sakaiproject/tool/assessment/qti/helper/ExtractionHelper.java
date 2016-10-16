@@ -3113,7 +3113,7 @@ public class ExtractionHelper
 			option = option.trim();
 			String text = option.substring(3).trim();
 			Answer a = new Answer(itemText, text, seq++, option.substring(1, 2));
-			a.setIsCorrect(false);
+			a.setIsCorrect(Boolean.FALSE);
 			answerSet.add(a);
 			optionMap.put(option.substring(1, 2), text);
 		}

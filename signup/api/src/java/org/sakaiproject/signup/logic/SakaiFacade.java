@@ -37,6 +37,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <P>
@@ -475,4 +476,9 @@ public interface SakaiFacade {
 	
 	// Returns Google calendar if the calendar has been created in Google
 	public Calendar getAdditionalCalendar(String siteId) throws PermissionException;
+
+	/**
+	 * @return Returns the FormattedText service for use in cleaning up HTML.
+	 */
+	public FormattedText getFormattedText();
 }

@@ -76,7 +76,6 @@
 			<f:verbatim></h4></f:verbatim>	
 			<h:message for="df_compose_body" styleClass="messageAlert" id="bodyErrorMessages" />
             <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
-				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 			<%-- pre-morpheus would need this: script type="text/javascript">
 				CKEDITOR.on('instanceReady', function() {resizeFrame('grow')});

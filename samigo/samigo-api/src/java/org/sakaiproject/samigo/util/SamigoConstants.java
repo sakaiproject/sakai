@@ -46,6 +46,7 @@ public class SamigoConstants {
     public static final     String      EVENT_ASSESSMENT_TOTAL_SCORE_UPDATE                 = "sam.total.score.update";
     public static final     String      EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE               = "sam.student.score.update";
     public static final     String      EVENT_ASSESSMENT_AUTO_GRADED                        = "sam.assessmentAutoGraded";
+    public static final     String      EVENT_ASSESSMENT_QUESTION_SCORE_UPDATE              = "sam.question.score.update";
 
 
     /*

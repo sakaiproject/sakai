@@ -25,26 +25,24 @@
 
 		<property name="categorizedSortOrder" column="CATEGORIZED_SORT_ORDER" type="java.lang.Integer" />
 
+		<!-- In a table per class hierarchy a subclass cannot have NOT NULL constraints
+		     see https://docs.jboss.org/hibernate/orm/3.6/reference/en-US/html/inheritance.html#inheritance-tableperclass -->
 		<subclass name="org.sakaiproject.tool.gradebook.Assignment" extends="org.sakaiproject.tool.gradebook.GradableObject"  discriminator-value="1">
-			<property name="pointsPossible" column="POINTS_POSSIBLE" type="double" />
+			<property name="pointsPossible" column="POINTS_POSSIBLE" type="java.lang.Double" />
 			<property name="dueDate" column="DUE_DATE" type="timestamp" />
-			<property name="notCounted" column="NOT_COUNTED" type="boolean" />
-			<property name="externallyMaintained" column="EXTERNALLY_MAINTAINED" type="boolean" />
-			<property name="externalStudentLink" column="EXTERNAL_STUDENT_LINK" type="string" />
-			<property name="externalInstructorLink" column="EXTERNAL_INSTRUCTOR_LINK" type="string" />
-			<property name="externalId" column="EXTERNAL_ID" type="string" />
-			<property name="externalAppName" column="EXTERNAL_APP_NAME" type="string" />
-			<property name="extraCredit" type="java.lang.Boolean">
-				<column name="IS_EXTRA_CREDIT" default="0"/>
-			</property>
-			<property name="assignmentWeighting" column="ASSIGNMENT_WEIGHTING" type="double" not-null="false" />
-      <property name="released" column="RELEASED" type="boolean"/>
-      <many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category" not-null="false"/>
-      <property name="ungraded" column="UNGRADED" type="boolean"/>
-      <property name="countNullsAsZeros" column="IS_NULL_ZERO" type="boolean" not-null="false"/>
-      <property name="hideInAllGradesTable" type="boolean">
-      		<column name="HIDE_IN_ALL_GRADES_TABLE" default="0"/>
-	  </property>
+			<property name="notCounted" column="NOT_COUNTED" type="java.lang.Boolean" />
+			<property name="externallyMaintained" column="EXTERNALLY_MAINTAINED" type="java.lang.Boolean" />
+			<property name="externalStudentLink" column="EXTERNAL_STUDENT_LINK" type="java.lang.String" />
+			<property name="externalInstructorLink" column="EXTERNAL_INSTRUCTOR_LINK" type="java.lang.String" />
+			<property name="externalId" column="EXTERNAL_ID" type="java.lang.String" />
+			<property name="externalAppName" column="EXTERNAL_APP_NAME" type="java.lang.String" />
+			<property name="extraCredit" column="IS_EXTRA_CREDIT" type="java.lang.Boolean"/>
+			<property name="assignmentWeighting" column="ASSIGNMENT_WEIGHTING" type="java.lang.Double"/>
+			<property name="released" column="RELEASED" type="java.lang.Boolean"/>
+			<many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category"/>
+			<property name="ungraded" column="UNGRADED" type="java.lang.Boolean"/>
+			<property name="countNullsAsZeros" column="IS_NULL_ZERO" type="java.lang.Boolean"/>
+			<property name="hideInAllGradesTable" column="HIDE_IN_ALL_GRADES_TABLE" type="java.lang.Boolean"/>
     </subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGrade" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="2">

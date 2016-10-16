@@ -221,7 +221,6 @@
 	        <sakai:panel_edit>
 	          <sakai:doc_section>
 			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 
-				  <f:validateLength maximum="65000"/>
 			  </sakai:inputRichText>
 	         </sakai:doc_section>    
 	        </sakai:panel_edit>
@@ -240,7 +239,7 @@
 								</h:column>
 							</h:dataTable>  
 					--%>	
-	        	<p class="instruction"><h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/></p>	        
+	        	<h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/>
 	          <sakai:button_bar>
 	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" accesskey="a" />
 	          </sakai:button_bar>
