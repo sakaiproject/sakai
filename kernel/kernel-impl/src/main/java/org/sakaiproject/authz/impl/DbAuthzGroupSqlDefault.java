@@ -441,22 +441,15 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return sqlBuf.toString();
 	}
 	
-	public String getSelectRealmRoleGroupUserIdSql(String inClause1, String inClause2)
+	public String getSelectRealmRoleUserIdSql(String inClause)
 	{
 		StringBuilder sqlBuf = new StringBuilder();
 
-		sqlBuf.append("select SRRG.USER_ID ");
-		sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");
-		sqlBuf.append("inner join SAKAI_REALM SR ON SRRG.REALM_KEY = SR.REALM_KEY ");
-		sqlBuf.append("where " + inClause1 + " ");
-		sqlBuf.append("and SRRG.ACTIVE = '1' ");
-		sqlBuf.append("and SRRG.ROLE_KEY in ");
-		sqlBuf.append("(select SRRF.ROLE_KEY ");
-		sqlBuf.append("from SAKAI_REALM_RL_FN SRRF ");
-		sqlBuf.append("inner join SAKAI_REALM_FUNCTION SRF ON SRRF.FUNCTION_KEY = SRF.FUNCTION_KEY ");
-		sqlBuf.append("inner join SAKAI_REALM SR1 ON SRRF.REALM_KEY = SR1.REALM_KEY ");
-		sqlBuf.append("where SRF.FUNCTION_NAME = ? ");
-		sqlBuf.append("and " + inClause2 + ")");
+		sqlBuf.append("SELECT USER_ID ");
+		sqlBuf.append("FROM SAKAI_REALM SR INNER JOIN SAKAI_REALM_RL_GR SRRG ON SR.REALM_KEY = SRRG.REALM_KEY ");
+		sqlBuf.append("INNER JOIN SAKAI_REALM_RL_FN SRRF ON SRRF.ROLE_KEY = SRRG.ROLE_KEY AND SRRF.REALM_KEY = SR.REALM_KEY ");
+		sqlBuf.append("INNER JOIN SAKAI_REALM_FUNCTION SRF ON SRRF.FUNCTION_KEY = SRF.FUNCTION_KEY ");
+		sqlBuf.append("WHERE FUNCTION_NAME = ? and SRRG.ACTIVE = '1' and " + inClause + " ");
 
 		return sqlBuf.toString();
 	}

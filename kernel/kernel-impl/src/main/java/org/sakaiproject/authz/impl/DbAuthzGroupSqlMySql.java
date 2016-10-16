@@ -102,26 +102,6 @@ public class DbAuthzGroupSqlMySql extends DbAuthzGroupSqlDefault
 				+ "(AK_SAKAI_REALM_ID) where SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY " + "and " + inClause
 				+ getCountRealmRoleFunctionEndSql(roleIds, inClause);
 	}
-
-	@Override
-	public String getSelectRealmRoleGroupUserIdSql(String inClause1, String inClause2)
-	{
-		StringBuilder sqlBuf = new StringBuilder();
-
-		sqlBuf.append("select SRRG.USER_ID ");
-		sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");
-		sqlBuf.append("inner join SAKAI_REALM SR force index (AK_SAKAI_REALM_ID) ON SRRG.REALM_KEY = SR.REALM_KEY ");
-		sqlBuf.append("where " + inClause1 + " ");
-		sqlBuf.append("and SRRG.ACTIVE = '1' ");
-		sqlBuf.append("and SRRG.ROLE_KEY in ");
-		sqlBuf.append("(select SRRF.ROLE_KEY ");
-		sqlBuf.append("from SAKAI_REALM_RL_FN SRRF ");
-		sqlBuf.append("inner join SAKAI_REALM_FUNCTION SRF ON SRRF.FUNCTION_KEY = SRF.FUNCTION_KEY ");
-		sqlBuf.append("inner join SAKAI_REALM SR1 force index (AK_SAKAI_REALM_ID) ON SRRF.REALM_KEY = SR1.REALM_KEY ");
-		sqlBuf.append("where SRF.FUNCTION_NAME = ? ");
-		sqlBuf.append("and " + inClause2 + ")");
-		return sqlBuf.toString();
-	}
 	
 	@Override
 	public String getDeleteRealmRoleGroup4Sql()
