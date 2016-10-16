@@ -400,6 +400,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
+		
+		rval.setFinalGradeMode(gradebook.getFinalGradeMode());
 				
 		return rval;
 	}
@@ -3359,6 +3361,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebook.setCourseLetterGradeDisplayed(gbInfo.isCourseLetterGradeDisplayed());
 		gradebook.setCoursePointsDisplayed(gbInfo.isCoursePointsDisplayed());
 		gradebook.setCourseAverageDisplayed(gbInfo.isCourseAverageDisplayed());
+		
+		gradebook.setFinalGradeMode(gbInfo.isFinalGradeMode());
 		
 		List<CategoryDefinition> newCategoryDefinitions = gbInfo.getCategories();
 		

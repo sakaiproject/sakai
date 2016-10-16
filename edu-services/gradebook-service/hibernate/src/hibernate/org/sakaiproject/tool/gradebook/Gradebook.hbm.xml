@@ -57,6 +57,8 @@
 		<property name="showStatisticsChart" column="DO_SHOW_STATISTICS_CHART" type="boolean" not-null="false"/>
 		
 		<property name="courseLetterGradeDisplayed" column="COURSE_LETTER_GRADE_DISPLAYED" type="boolean" not-null="true"/>
+		
+		<property name="finalGradeMode" column="FINAL_GRADE_MODE" type="boolean" not-null="true"/>
 
 	</class>
 </hibernate-mapping>

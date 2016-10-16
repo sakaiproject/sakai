@@ -208,3 +208,6 @@ ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
 --
 alter table GB_GRADABLE_OBJECT_T alter column IS_EXTRA_CREDIT drop default;
 alter table GB_GRADABLE_OBJECT_T alter column HIDE_IN_ALL_GRADES_TABLE drop default;
+
+-- #3431 Add final grade mode setting
+ALTER TABLE GB_GRADEBOOK_T ADD COLUMN FINAL_GRADE_MODE bit(1) NOT NULL DEFAULT b'0';

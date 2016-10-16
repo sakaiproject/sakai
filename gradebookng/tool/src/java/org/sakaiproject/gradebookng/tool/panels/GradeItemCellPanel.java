@@ -26,7 +26,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -35,6 +34,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 
 /**
  * The panel for the cell of a grade item
@@ -54,19 +54,19 @@ public class GradeItemCellPanel extends Panel {
 
 	TextField<String> gradeCell;
 	private String originalGrade;
-	
+
 	String rawGrade;
 	String formattedGrade;
 	String displayGrade;
-	
+
 	String comment;
 	boolean gradeable;
 	boolean showMenu;
 
 	GradeCellStyle baseGradeStyle = GradeCellStyle.NORMAL;
 	GradeCellSaveStyle gradeSaveStyle;
-	
-	GbGradingType gradingType;
+
+	GradingType gradingType;
 
 	double pointsLimit = 0;
 
@@ -113,9 +113,9 @@ public class GradeItemCellPanel extends Panel {
 		final boolean isExternal = (boolean) this.modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) this.modelData.get("gradeInfo");
 		final GbRole role = (GbRole) this.modelData.get("role");
-		this.gradingType = (GbGradingType) this.modelData.get("gradingType");
+		this.gradingType = (GradingType) this.modelData.get("gradingType");
 
-		if (this.gradingType == GbGradingType.PERCENTAGE) {
+		if (this.gradingType == GradingType.PERCENTAGE) {
 			this.pointsLimit = 100;
 		} else {
 			this.pointsLimit = assignmentPoints.doubleValue();
@@ -132,7 +132,7 @@ public class GradeItemCellPanel extends Panel {
 
 		// get grade
 		this.formattedGrade = FormatHelper.formatGrade(this.rawGrade);
-		
+
 		//TODO move this to the format helper?
 		this.displayGrade = formatDisplayGrade(this.formattedGrade);
 
@@ -152,10 +152,10 @@ public class GradeItemCellPanel extends Panel {
 			this.showMenu = false;
 
 			if (isExternal) {
-				baseGradeStyle = GradeCellStyle.EXTERNAL;
+				this.baseGradeStyle = GradeCellStyle.EXTERNAL;
 				this.notifications.add(GradeCellNotification.IS_EXTERNAL);
 			} else if (!this.gradeable) {
-				baseGradeStyle = GradeCellStyle.READONLY;
+				this.baseGradeStyle = GradeCellStyle.READONLY;
 				this.notifications.add(GradeCellNotification.READONLY);
 			}
 
@@ -200,7 +200,7 @@ public class GradeItemCellPanel extends Panel {
 				@Override
 				protected void onUpdate(final AjaxRequestTarget target) {
 					final String rawGrade = GradeItemCellPanel.this.gradeCell.getValue();
-					
+
 					final GradebookPage page = (GradebookPage) getPage();
 
 					clearNotifications();
@@ -214,15 +214,15 @@ public class GradeItemCellPanel extends Panel {
 						target.add(page.updateLiveGradingMessage(getString("feedback.error")));
 					} else {
 						final String newGrade = FormatHelper.formatGrade(rawGrade);
-						
+
 						// for concurrency, get the original grade we have in the UI and pass it into the service as a check
 						final GradeSaveResponse result = GradeItemCellPanel.this.businessService.saveGrade(assignmentId, studentUuid,
 								GradeItemCellPanel.this.originalGrade, newGrade, GradeItemCellPanel.this.comment);
 
 						// reformat to display version
-						displayGrade = formatDisplayGrade(newGrade);
-						gradeCell.setDefaultModel(Model.of(displayGrade));
-						
+						GradeItemCellPanel.this.displayGrade = formatDisplayGrade(newGrade);
+						GradeItemCellPanel.this.gradeCell.setDefaultModel(Model.of(GradeItemCellPanel.this.displayGrade));
+
 						// handle the result
 						switch (result) {
 							case OK:
@@ -262,7 +262,7 @@ public class GradeItemCellPanel extends Panel {
 					// refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(getComponent()));
-					target.add(gradeCell);
+					target.add(GradeItemCellPanel.this.gradeCell);
 				}
 
 				// TODO can this be moved out of this block?
@@ -334,14 +334,14 @@ public class GradeItemCellPanel extends Panel {
 
 				@Override
 				protected void onEvent(final AjaxRequestTarget target) {
-					GradebookPage page = (GradebookPage)getPage();
+					final GradebookPage page = (GradebookPage)getPage();
 
 					// reset the cell's score
 					getComponent().setDefaultModelObject(formatDisplayGrade(GradeItemCellPanel.this.originalGrade));
 
-					// reset the cell's style and flags 
-					baseGradeStyle = GradeCellStyle.NORMAL;
-					gradeSaveStyle = null;
+					// reset the cell's style and flags
+					GradeItemCellPanel.this.baseGradeStyle = GradeCellStyle.NORMAL;
+					GradeItemCellPanel.this.gradeSaveStyle = null;
 					styleGradeCell(GradeItemCellPanel.this);
 					clearNotifications();
 
@@ -496,7 +496,7 @@ public class GradeItemCellPanel extends Panel {
 	private void styleGradeCell(final Component gradeCell) {
 
 		final ArrayList<String> cssClasses = new ArrayList<>();
-		cssClasses.add(baseGradeStyle.getCss()); // always
+		cssClasses.add(this.baseGradeStyle.getCss()); // always
 		if (this.gradeSaveStyle != null) {
 			cssClasses.add(this.gradeSaveStyle.getCss()); // the particular style for this cell that has been computed previously
 		}
@@ -631,31 +631,31 @@ public class GradeItemCellPanel extends Panel {
 		component.add(new AttributeModifier("data-content", popoverString));
 		component.add(new AttributeModifier("tabindex", "0"));
 	}
-	
+
 	/**
 	 * Get a display version of a grade
-	 * 
+	 *
 	 * @param grade the actual grade
 	 * @return
 	 */
-	private String formatDisplayGrade(String grade) {
-	
+	private String formatDisplayGrade(final String grade) {
+
 		String rval = grade;
-		
-		if (this.gradingType == GbGradingType.PERCENTAGE && StringUtils.isNotBlank(grade)) {
+
+		if (this.gradingType == GradingType.PERCENTAGE && StringUtils.isNotBlank(grade)) {
 			rval += "%";
 		}
 		return rval;
 	}
-	
+
 	/**
 	 * Remove the formatting from a display grade
-	 * 
+	 *
 	 * @param displayGrade the display version
 	 * @return
 	 */
-	private String unformatDisplayGrade(String displayGrade) {
+	private String unformatDisplayGrade(final String displayGrade) {
 		return StringUtils.remove(displayGrade, '%');
 	}
-	
+
 }

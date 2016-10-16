@@ -16,7 +16,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -24,6 +23,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class GradeSummaryTablePanel extends Panel {
 
@@ -54,7 +54,7 @@ public class GradeSummaryTablePanel extends Panel {
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
 		//final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
-		final GbGradingType gradingType = (GbGradingType) data.get("gradingType");
+		final GradingType gradingType = (GradingType) data.get("gradingType");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 
 		if (getPage() instanceof GradebookPage) {
@@ -197,7 +197,7 @@ public class GradeSummaryTablePanel extends Panel {
 							assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);
 
-						if (GbGradingType.PERCENTAGE.equals(gradingType)) {
+						if (GradingType.PERCENTAGE.equals(gradingType)) {
 							assignmentItem.add(new Label("grade",
 								new StringResourceModel("label.percentage.valued", null,
 									new Object[]{FormatHelper.formatGrade(rawGrade)})) {

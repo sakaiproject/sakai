@@ -23,12 +23,12 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.IValidationError;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -53,7 +53,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
+		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
 		final Assignment assignment = assignmentModel.getObject();
 
@@ -87,7 +87,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 		// points
 		final Label pointsLabel = new Label("pointsLabel");
-		if (gradingType == GbGradingType.PERCENTAGE) {
+		if (gradingType == GradingType.PERCENTAGE) {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
 		} else {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
