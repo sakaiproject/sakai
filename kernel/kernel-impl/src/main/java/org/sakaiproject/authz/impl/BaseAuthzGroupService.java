@@ -949,7 +949,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set getUsersIsAllowed(String function, Collection azGroups)
+	public Set<String> getUsersIsAllowed(String function, Collection<String> azGroups)
 	{
 		return m_storage.getUsersIsAllowed(function, azGroups);
 	}
@@ -1463,7 +1463,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 *        A collection of the ids of AuthzGroups to consult.
 		 * @return the Set (String) of user ids of users who are allowed to perform the function in the named AuthzGroups.
 		 */
-		Set getUsersIsAllowed(String function, Collection azGroups);
+		Set<String> getUsersIsAllowed(String function, Collection<String> azGroups);
 
 		/**
 		 * Get the set of user ids per group of users who are allowed to perform the function in the named AuthzGroups.
