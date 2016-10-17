@@ -2170,9 +2170,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			Object[] fields = new Object[1 + realms.size()];
 			int pos = 0;
 			fields[pos++] = lock;
-			for (Iterator<String> i = realms.iterator(); i.hasNext();)
+			for (String roleRealm : realms)
 			{
-				String roleRealm = i.next();
 				fields[pos++] = roleRealm;
 			}
 
