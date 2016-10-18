@@ -105,7 +105,7 @@ public class FinBean
     text = newtext;
   }
 
-  public boolean getIsCorrect()
+  public Boolean getIsCorrect()
   {
     return isCorrect;
   }

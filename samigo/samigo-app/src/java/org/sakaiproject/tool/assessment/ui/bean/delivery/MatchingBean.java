@@ -75,7 +75,7 @@ public class AnswerLabelWithCorrectStatus {
 		  isCorrect = correct;
 		  answerLabel = label;
 	  }
-	  public boolean getIsCorrect() {
+	  public Boolean getIsCorrect() {
 		  return isCorrect;
 	  }
 	  public String getAnswerLabel() {
