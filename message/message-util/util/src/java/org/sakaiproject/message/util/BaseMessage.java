@@ -2703,16 +2703,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// if this message had a future invocation before, delete it because
 				// this modification changed the date of release so either it will notify it now
 				// or set a new future notification
-				ScheduledInvocationManager scheduledInvocationManager = (ScheduledInvocationManager) 
-						ComponentManager.get(org.sakaiproject.api.app.scheduler.ScheduledInvocationManager.class);
+				ScheduledInvocationManager scheduledInvocationManager = ComponentManager.get(ScheduledInvocationManager.class);
 
 				if (edit.getProperties().getProperty(SCHED_INV_UUID) != null)
 				{
 					scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty(SCHED_INV_UUID));
 					edit.getPropertiesEdit().removeProperty(SCHED_INV_UUID);
-
-					//				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
-					//				m_eventTrackingService.post(event);				
 				}
 
 				// For Scheduled Notification, compare header date with now to deterine

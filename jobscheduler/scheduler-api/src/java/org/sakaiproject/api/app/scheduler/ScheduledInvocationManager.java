@@ -2,7 +2,14 @@ package org.sakaiproject.api.app.scheduler;
 
 import org.sakaiproject.time.api.Time;
 
+import java.time.Instant;
 
+
+/**
+ * Although not specified in the original API a recent restriction imposed is that you can't have
+ * multiple delayed invocations of the same component and opaqueContext.
+ * The original limitation on componentId and opaqueContext is 2000 characters.
+ */
 public interface ScheduledInvocationManager {
 
 	/**
@@ -12,10 +19,24 @@ public interface ScheduledInvocationManager {
 	 * @param componentId the unique name of a bean in the bean factory which implements 
 	 * command pattern DelayedInvocationCommand
 	 * @param opaqueContext the key which the tool can use to uniquely identify some 
-	 * entity when invoked; i.e. the context
+	 * entity when invoked; i.e. the context. This currently accepts empty string which is shouldn't as it can't be explicitly removed.
 	 * @return unique id of a delayed invocation
+	 * @deprecated The Time class shouldn't be used any more {@link #createDelayedInvocation(Instant, String, String)}
 	 */
 	public String createDelayedInvocation(Time time, String componentId, String opaqueContext);
+
+
+	/**
+	 * Creates a new delayed invocation and returns the unique id of the created invocation
+	 *
+	 * @param instant the date and time the method will be invoked.
+	 * @param componentId the unique name of a bean in the bean factory which implements
+	 * command pattern DelayedInvocationCommand
+	 * @param opaqueContext the key which the tool can use to uniquely identify some
+	 * entity when invoked; i.e. the context. This currently accepts empty string which is shouldn't as it can't be explicitly removed.
+	 * @return unique id of a delayed invocation
+	 */
+	public String createDelayedInvocation(Instant instant, String componentId, String opaqueContext);
 
 	/**
 	 * Remove a future scheduled invocation by its unique id
