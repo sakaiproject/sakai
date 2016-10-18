@@ -1291,13 +1291,17 @@ public class AssessmentService {
 					log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
 				}
 			}
-  				
-			for (ItemDataIfc item : items) 
-			{
-				// only exports these questions types
-				if (isQuestionTypeExportable2MarkupText(item.getTypeId())) {
-					exportToMarkupText = true;
-					break;
+			if (items == null) {
+				log.info("Items for assessment {} section {} is null in isExportable", assessment.getAssessmentId(), section.getSectionId());
+			}
+			else {
+				for (ItemDataIfc item : items) 
+				{
+					// only exports these questions types
+					if (isQuestionTypeExportable2MarkupText(item.getTypeId())) {
+						exportToMarkupText = true;
+						break;
+					}
 				}
 			}
 			if (exportToMarkupText) {
