@@ -4081,35 +4081,37 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (o1ModDate != null && o2ModDate != null) 
 				{
 					// sorted by the discussion message date
-					if (o1ModDate.before(o2ModDate))
-					{
-						result = -1;
-					}
-					else
-					{
-						result = 1;
-					}
+					result = o1ModDate.compareTo(o2ModDate);
 				}
 				else if (o1ModDate == null)
 				{
 					return 1;
 				}
-				else
+				else if (o2ModDate == null)
 				{
 					return -1;
+				}
+				else
+				{
+					return 0;
 				}
 			}
 			else if (m_criteria.equals(SORT_MESSAGE_ORDER))
 			{
+				int order1 = ((AnnouncementMessage) o1).getAnnouncementHeader().getMessage_order();
+				int order2 = ((AnnouncementMessage) o2).getAnnouncementHeader().getMessage_order();
 				// sorted by the message order
-				if ((((AnnouncementMessage) o1).getAnnouncementHeader().getMessage_order()) <
-						(((AnnouncementMessage) o2).getAnnouncementHeader().getMessage_order()))
+				if (order1 < order2)
 				{
 					result = -1;
 				}
-				else
+				else if (order1 > order2)
 				{
 					result = 1;
+				}
+				else
+				{
+					return 0;
 				}
 			}
 			else if (m_criteria.equals(SORT_RELEASEDATE))
@@ -4137,23 +4139,19 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				if (o1releaseDate != null && o2releaseDate != null) 
 				{
-					// sorted by the discussion message date
-					if (o1releaseDate.before(o2releaseDate))
-					{
-						result = -1;
-					}
-					else
-					{
-						result = 1;
-					}
+					result = o1releaseDate.compareTo(o2releaseDate);
 				}
 				else if (o1releaseDate == null)
 				{
 					return 1;
 				}
-				else
+				else if (o2releaseDate == null)
 				{
 					return -1;
+				}
+				else
+				{
+					return 0;
 				}
 			}
 			else if (m_criteria.equals(SORT_RETRACTDATE))
@@ -4181,23 +4179,19 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				if (o1retractDate != null && o2retractDate != null) 
 				{
-					// sorted by the discussion message date
-					if (o1retractDate.before(o2retractDate))
-					{
-						result = -1;
-					}
-					else
-					{
-						result = 1;
-					}
+					result = o1retractDate.compareTo(o2retractDate);
 				}
 				else if (o1retractDate == null)
 				{
 					return 1;
 				}
-				else
+				else if (o2retractDate == null)
 				{
 					return -1;
+				}
+				else 
+				{
+					return 0;
 				}
 			}
 			else if (m_criteria.equals(SORT_FROM))
