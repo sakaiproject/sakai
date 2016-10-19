@@ -33,33 +33,33 @@ var collapsed = false;
 
 var initialOffset;
 var $window = $PBJQ(window),
-	offset 	= $("#toolMenu").offset(),
-	$tools	= $("#toolMenu"),
-	padding	= $(".Mrphs-siteHierarchy").height() + $(".Mrphs-topHeader").height();
+	offset 	= $PBJQ("#toolMenu").offset(),
+	$tools	= $PBJQ("#toolMenu"),
+	padding	= $PBJQ(".Mrphs-siteHierarchy").height() + $PBJQ(".Mrphs-topHeader").height();
 
 $PBJQ(document).ready(function(){
 	if(getCookieVal('sakai_nav_minimized') === 'true') {
 		$PBJQ(".js-toggle-nav").click();
 		collapsed = true;
 	}
-	initialOffset = $("#toolMenu").offset().top - $window.scrollTop();
+	initialOffset = $PBJQ("#toolMenu").offset().top - $window.scrollTop();
 	$PBJQ(window).scroll(function(){
 		var follow = ($window.height()- padding) > $tools.height();
 		var _top   = ( $PBJQ("#toggleSubsitesLink").length > 0 )?(-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) ):0;
-		if($("#toolMenuWrap").css('position') !== 'fixed' && follow) {
+		if($PBJQ("#toolMenuWrap").css('position') !== 'fixed' && follow) {
 			if($window.scrollTop() > offset.top) {
-				$("#toolMenu").stop().animate({
+				$PBJQ("#toolMenu").stop().animate({
 	                top: $window.scrollTop() - offset.top
 	            });
-				$("#subSites").css('top', ( $window.scrollTop() - offset.top + _top ) );
+				$PBJQ("#subSites").css('top', ( $window.scrollTop() - offset.top + _top ) );
 			} else {
-				$("#toolMenu").stop().animate({
+				$PBJQ("#toolMenu").stop().animate({
 					top: 0
 	            });
-	            $("#subSites").css('top', _top );
+	            $PBJQ("#subSites").css('top', _top );
 			}
 		}else{
-	        $("#subSites").css('top', _top );
+	        $PBJQ("#subSites").css('top', _top );
 		}
 	});
 
