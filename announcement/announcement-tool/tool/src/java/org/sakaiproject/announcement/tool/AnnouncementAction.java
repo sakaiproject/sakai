@@ -341,18 +341,18 @@ public class AnnouncementAction extends PagedResourceActionII
 	class EntryProvider extends MergedListEntryProviderBase
 	{
 		/** announcement channels from hidden sites */
-		private final List excludedSites = new ArrayList();
+		private final List<String> hiddenSites = new ArrayList<String>();
 
 		public EntryProvider() {
 			this(false);
 		}
 
-		public EntryProvider(boolean excludeHiddenSites) {
-			if (excludeHiddenSites) {
+		public EntryProvider(boolean includeHiddenSites) {
+			if (includeHiddenSites) {
 				List<String> excludedSiteIds = getExcludedSitesFromTabs();
 				if (excludedSiteIds != null) {
 					for (String siteId : excludedSiteIds) {
-						excludedSites.add(AnnouncementService.channelReference(siteId, SiteService.MAIN_CONTAINER));
+						hiddenSites.add(AnnouncementService.channelReference(siteId, SiteService.MAIN_CONTAINER));
 					}
 				}
 			}
@@ -397,7 +397,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = getChannelAdvisor(ref);
 			try {
 				m_securityService.pushAdvisor(advisor);
-				return (!excludedSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
+				return (!hiddenSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
 			} finally {
 				m_securityService.popAdvisor(advisor);
 			}
@@ -1531,7 +1531,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						}
 					}
 					mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
-							new EntryProvider(true), state.getChannelId(), channelArrayFromConfigParameterValue,
+							new EntryProvider(false), state.getChannelId(), channelArrayFromConfigParameterValue,
 							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
 							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
 							ToolManager.getCurrentPlacement().getContext());
@@ -4175,7 +4175,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 
 			mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
-					new EntryProvider(true), annState.getChannelId(), channelArrayFromConfigParameterValue,
+					new EntryProvider(false), annState.getChannelId(), channelArrayFromConfigParameterValue,
 					new AnnouncementReferenceToChannelConverter()),
 					StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()), channelArrayFromConfigParameterValue,
 					m_securityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
