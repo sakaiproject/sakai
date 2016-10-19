@@ -2637,7 +2637,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("site_aliases", state.getAttribute(FORM_SITEINFO_ALIASES));
 			context.put("site_url_base", state.getAttribute(FORM_SITEINFO_URL_BASE));
-			context.put("site_aliases_editable", aliasesEditable(state, site == null ? null:site.getReference()));
+			context.put("site_aliases_editable", aliasesEditable(state, site == null ? null : site.getId()));
 			context.put("site_alias_assignable", aliasAssignmentForNewSitesEnabled(state));
 
 			// available languages in sakai.properties
