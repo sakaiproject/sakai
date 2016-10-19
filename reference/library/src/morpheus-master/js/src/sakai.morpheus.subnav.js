@@ -67,7 +67,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
 
       navsubmenu += "</ul>"
 
-      navsubmenu = $(navsubmenu);
+      navsubmenu = $PBJQ(navsubmenu);
 
       container.append(navsubmenu);
 
@@ -152,13 +152,13 @@ var setupSiteNav = function(){
       }
 
       // Add an invisible overlay to allow clicks to close the dropdown
-      var overlay = $('<div class="sitenav-dropdown-overlay" />');
+      var overlay = $PBJQ('<div class="sitenav-dropdown-overlay" />');
 
       overlay.on('click', function (e) {
         closeAllDropdownMenus();
       });
 
-      $('body').prepend(overlay);
+      $PBJQ('body').prepend(overlay);
 
       dropdownArrow.removeData('clicked');
     };
