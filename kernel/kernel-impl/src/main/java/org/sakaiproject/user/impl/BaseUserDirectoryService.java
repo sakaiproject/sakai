@@ -1375,9 +1375,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 * @inheritDoc
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection findUsersByEmail(String email)
+	public Collection<User> findUsersByEmail(String email)
 	{
-		Set<BaseUserEdit> users = new HashSet<BaseUserEdit>();
+		Set<User> users = new HashSet<User>();
 
 		// check internal users
 		users.addAll(m_storage.findUsersByEmail(email));
