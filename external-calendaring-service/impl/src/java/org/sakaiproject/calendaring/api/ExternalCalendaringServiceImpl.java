@@ -267,7 +267,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		try {
 			calendar.validate(true);
 		} catch (ValidationException e) {
-			e.printStackTrace();
+			log.error("createCalendar failed validation", e);
 			return null;
 		}
 		
