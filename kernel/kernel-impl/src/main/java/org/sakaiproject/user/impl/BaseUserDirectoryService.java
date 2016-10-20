@@ -1378,7 +1378,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	public Collection<User> findUsersByEmail(String email)
 	{
 		Set<User> users = new HashSet<User>();
-		Set<BaseUserEdit> users = new HashSet<BaseUserEdit>();
 
 		// check internal users
 		users.addAll(m_storage.findUsersByEmail(email));
