@@ -381,7 +381,7 @@ public interface SakaiFacade {
 	 * @param email
 	 * @return	a list of user objects or an empty list if none.
 	 */
-	public List<User> getUsersByEmail(String email);
+	public Collection<User> getUsersByEmail(String email);
 	
 	/**
 	 * Get a user by email address. Only use this if you are certain that there is only one user that matches,
