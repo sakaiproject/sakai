@@ -94,7 +94,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" index="SAM_PUBITEMFB_ITEM_I" />
+      column="ITEMID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="true" />
     <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>
