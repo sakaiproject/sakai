@@ -149,18 +149,18 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             replacementValues.put("confirmationNumber"  , notificationValues.get("confirmationNumber").toString());
 
             notifyStudent(user, priStr, assessmentSubmittedType, replacementValues);
-            notifyInstructor(siteID, pubAssFac.getInstructorNotification(), priStr, assessmentSubmittedType, user, replacementValues);
+            notifyInstructor(siteID, pubAssFac.getInstructorNotification(), assessmentSubmittedType, user, replacementValues);
         } catch(UserNotDefinedException e){
             LOG.warn("UserNotDefined: " + notificationValues.get("userID").toString() + " in sending samigo notification.");
         }
     }
 
-    private     void                notifyInstructor                (String siteID, Integer instructNoti, String priStr, int assessmentSubmittedType, 
+    private     void                notifyInstructor                (String siteID, Integer instructNoti, int assessmentSubmittedType, 
                                                                         User submittingUser, Map<String, String> replacementValues){
         LOG.debug("notifyInstructor");
         replacementValues.put("changeSettingInstructions" , CHANGE_SETTINGS_HOW_TO_INSTRUCTOR);
 
-        Map<User, Integer>  validUsers              = new HashMap<>();
+        List<User>  validUsers              		= new ArrayList<>();
         RenderedTemplate    rt                      = getRenderedTemplateBySubmissionType(assessmentSubmittedType, submittingUser, replacementValues);
         String              message                 = getBody(rt);
 
@@ -173,9 +173,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
                 try{
                     if(!userString.equals(ADMIN)) {
                         User user = userDirectoryService.getUser(userString);
-
-                        Integer uPref = getUserPreferences(user, priStr);
-                        validUsers.put(user, uPref);
+                        validUsers.add(user);
                     }
                 } catch(UserNotDefinedException e){
                     LOG.warn("Instructor '" + userString +"' not found in samigo notification.");
@@ -191,17 +189,13 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             LOG.debug(e.getMessage(), e);
         }
 
-        List<User>          users                   = new ArrayList<>();
         List<User>          immediateUsers          = new ArrayList<>();
 
         if(validUsers.size() > 0){
-            users.addAll(validUsers.keySet());
-
-            List<String>        headers         = getHeaders(rt, users, constantValues.get("localSakaiName"), fromAddress);
+            List<String>        headers         = getHeaders(rt, validUsers, constantValues.get("localSakaiName"), fromAddress);
 
 
-            for(Map.Entry<User, Integer> entry : validUsers.entrySet()){
-                User user = entry.getKey();
+            for(User user : validUsers){
                 if(instructNoti == NotificationService.PREF_IMMEDIATE){
                     immediateUsers.add(user);
                 } else if(instructNoti == NotificationService.PREF_DIGEST){
