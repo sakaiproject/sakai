@@ -246,7 +246,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 
 	private String startJob() throws SQLException {
 		List<Event> eventsQueue = new ArrayList<Event>();
-		long counter = 0;
+		long processedCounter = 0;
 		long offset = 0;
 		long lastProcessedEventId = 0;
 		long lastProcessedEventIdWithSuccess = 0;
@@ -254,7 +254,6 @@ public class StatsAggregateJobImpl implements StatefulJob {
 		long firstEventIdProcessedInBlock = -1;
 		Date lastEventDate = null;
 		Date lastEventDateWithSuccess = null;
-		boolean abortIteration = false;
 		long start = System.currentTimeMillis();
 		boolean sqlError = false;
 		String returnMessage = null;
@@ -267,10 +266,12 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			st = connection.prepareStatement(sqlGetEvent);
 			rs = null;
 			
-			while(!abortIteration) {
+			// Let's make sure we don't end up in a never-ending loop
+			for (int loops = 0; loops < 100; loops++) {
+				long counter = 0;
+
 				// SAK-28967
-				if( offset == 0 )
-				{
+				if( offset == 0 ) {
 					offset = eventIdLowerLimit;
 				}
 				st.setLong( 1, offset );
@@ -296,48 +297,52 @@ public class StatsAggregateJobImpl implements StatefulJob {
 							context = rs.getString("CONTEXT");
 						eventsQueue.add( statsUpdateManager.buildEvent(date, event, ref, context, sessionUser, sessionId) );
 						
-						counter++;					
 						lastProcessedEventId = rs.getInt("EVENT_ID");
 						lastEventDate = date;
 						if(firstEventIdProcessed == -1)
 							firstEventIdProcessed = jobRun.getStartEventId(); //was: lastProcessedEventId;
 						if(firstEventIdProcessedInBlock == -1)
 							firstEventIdProcessedInBlock = lastProcessedEventId;
+						processedCounter++;
 					}catch(Exception e){
 						if(LOG.isDebugEnabled())
 							LOG.debug("Ignoring "+event+", "+ref+", "+date+", "+sessionUser+", "+sessionId+" due to: "+e.toString());
 					}
+					counter++;
 				}
 				rs.close();
 				
-				if(!abortIteration){
-					if (firstEventIdProcessedInBlock > 0) {
-						// process events
-						boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
-						eventsQueue.clear();
-						if(processedOk){
-							lastProcessedEventIdWithSuccess = lastProcessedEventId;
-							lastEventDateWithSuccess = lastEventDate;
-							jobRun.setStartEventId(firstEventIdProcessed);
-							jobRun.setEndEventId(lastProcessedEventIdWithSuccess);
-							jobRun.setLastEventDate(lastEventDateWithSuccess);
-							jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
-							saveJobRun(jobRun);
-						}else{
-							returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
-							LOG.error(returnMessage);
-							throw new Exception(returnMessage);
-						}
-					}
+				// If we didn't see a single event, time to break out and wrap up this job
+				if (counter < 1) {
+					break;
+				}
 
-					firstEventIdProcessedInBlock = -1;
-					if(counter >= getMaxEventsPerRun()){
-						abortIteration = true;
-					}else if(counter + sqlBlockSize < getMaxEventsPerRun()){
-						offset += sqlBlockSize;
+				if (firstEventIdProcessedInBlock > 0) {
+					// process events
+					boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
+					eventsQueue.clear();
+					if(processedOk){
+						lastProcessedEventIdWithSuccess = lastProcessedEventId;
+						lastEventDateWithSuccess = lastEventDate;
+						jobRun.setStartEventId(firstEventIdProcessed);
+						jobRun.setEndEventId(lastProcessedEventIdWithSuccess);
+						jobRun.setLastEventDate(lastEventDateWithSuccess);
+						jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
+						saveJobRun(jobRun);
 					}else{
-						offset += getMaxEventsPerRun() - counter;
+						returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
+						LOG.error(returnMessage);
+						throw new Exception(returnMessage);
 					}
+				}
+
+				firstEventIdProcessedInBlock = -1;
+				if(processedCounter >= getMaxEventsPerRun()) {
+					break;
+				} else if(processedCounter + sqlBlockSize < getMaxEventsPerRun()) {
+					offset += sqlBlockSize;
+				} else {
+					offset += getMaxEventsPerRun() - processedCounter;
 				}
 			}
 
@@ -387,7 +392,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			saveJobRun(jobRun);
 		}
 		
-		return counter + " events processed (ids: "+firstEventIdProcessed+" - "+lastProcessedEventIdWithSuccess+") in "+processingTime+"s (only events associated with a session are processed)";
+		return processedCounter + " events processed (ids: "+firstEventIdProcessed+" - "+lastProcessedEventIdWithSuccess+") in "+processingTime+"s (only events associated with a session are processed)";
 	}
 
 	private long getEventIdLowerLimit() {
