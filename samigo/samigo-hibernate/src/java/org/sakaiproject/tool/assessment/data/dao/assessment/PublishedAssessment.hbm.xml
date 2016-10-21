@@ -167,7 +167,7 @@
     </id>
     <many-to-one name="assessment"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-      column="ASSESSMENTID" index="SAM_PUBSECTION_ASSESSMENT_I" not-null="true" />
+      column="ASSESSMENTID" not-null="true" />
     <property name="duration" type="integer" column="DURATION" not-null="false" />
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
