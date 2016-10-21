@@ -92,7 +92,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
-      column="ITEMID" not-null="true" index="SAM_ITEMMETADATA_ITEMID_I" />
+      column="ITEMID" not-null="true" />
     <property name="label" type="string" length="255" column="LABEL" not-null="true" />
     <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
   </class>
