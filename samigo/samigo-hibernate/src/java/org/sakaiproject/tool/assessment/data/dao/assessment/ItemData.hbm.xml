@@ -71,7 +71,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
-      column="ITEMID" not-null="true" index="SAM_ITEMTEXT_ITEMID_I" />
+      column="ITEMID" not-null="true" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="text" type="text" column="TEXT" not-null="false" />
 	<property name="requiredOptionsCount" type="integer" column="REQUIRED_OPTIONS_COUNT" not-null="false" />
