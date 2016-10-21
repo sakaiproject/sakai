@@ -268,10 +268,8 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			rs = null;
 			
 			while(!abortIteration) {
-				abortIteration = true;
-				
 				// SAK-28967
-				if( firstEventIdProcessed == -1 )
+				if( offset == 0 )
 				{
 					offset = eventIdLowerLimit;
 				}
@@ -281,7 +279,6 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				rs = st.executeQuery();
 				
 				while(rs.next()){
-					abortIteration = false;
 					Date date = null;
 					String event = null;
 					String ref = null;
@@ -314,29 +311,32 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				rs.close();
 				
 				if(!abortIteration){
-					// process events
-					boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
-					eventsQueue.clear();
-					if(processedOk){
-						lastProcessedEventIdWithSuccess = lastProcessedEventId;
-						lastEventDateWithSuccess = lastEventDate;
-						jobRun.setStartEventId(firstEventIdProcessed);
-						jobRun.setEndEventId(lastProcessedEventIdWithSuccess);
-						jobRun.setLastEventDate(lastEventDateWithSuccess);
-						jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
-						saveJobRun(jobRun);
-						firstEventIdProcessedInBlock = -1;
-						if(counter >= getMaxEventsPerRun()){
-							abortIteration = true;
-						}else if(counter + sqlBlockSize < getMaxEventsPerRun()){
-							offset += sqlBlockSize;	
+					if (firstEventIdProcessedInBlock > 0) {
+						// process events
+						boolean processedOk = statsUpdateManager.collectEvents(eventsQueue);
+						eventsQueue.clear();
+						if(processedOk){
+							lastProcessedEventIdWithSuccess = lastProcessedEventId;
+							lastEventDateWithSuccess = lastEventDate;
+							jobRun.setStartEventId(firstEventIdProcessed);
+							jobRun.setEndEventId(lastProcessedEventIdWithSuccess);
+							jobRun.setLastEventDate(lastEventDateWithSuccess);
+							jobRun.setJobEndDate(new Date(System.currentTimeMillis()));
+							saveJobRun(jobRun);
 						}else{
-							offset += getMaxEventsPerRun() - counter;
+							returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
+							LOG.error(returnMessage);
+							throw new Exception(returnMessage);
 						}
+					}
+
+					firstEventIdProcessedInBlock = -1;
+					if(counter >= getMaxEventsPerRun()){
+						abortIteration = true;
+					}else if(counter + sqlBlockSize < getMaxEventsPerRun()){
+						offset += sqlBlockSize;
 					}else{
-						returnMessage = "An error occurred while processing/persisting events to db. Please check your logs, fix possible problems and re-run this job (will start after last successful processed event).";
-						LOG.error(returnMessage);
-						throw new Exception(returnMessage);
+						offset += getMaxEventsPerRun() - counter;
 					}
 				}
 			}
