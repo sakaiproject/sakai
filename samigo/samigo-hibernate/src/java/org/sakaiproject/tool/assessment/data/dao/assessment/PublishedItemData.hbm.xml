@@ -12,7 +12,7 @@
     </id>
     <many-to-one name="section"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"
-      column="SECTIONID" not-null="true" index="SAM_PUBITEM_SECTION_I" />
+      column="SECTIONID" not-null="true" />
     <property name="itemIdString" type="string" length="255" column="ITEMIDSTRING" not-null="false"/>
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="duration" type="integer" column="DURATION" not-null="false"/>
