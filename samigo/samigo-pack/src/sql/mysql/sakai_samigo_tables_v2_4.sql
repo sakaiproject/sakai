@@ -122,7 +122,6 @@ create table SAM_STUDENTGRADINGSUMMARY_T (STUDENTGRADINGSUMMARYID bigint not nul
 create table SAM_TYPE_T (TYPEID bigint not null auto_increment, AUTHORITY varchar(255), DOMAIN varchar(255), KEYWORD varchar(255), DESCRIPTION text, STATUS integer not null, CREATEDBY varchar(255) not null, CREATEDDATE datetime not null, LASTMODIFIEDBY varchar(255) not null, LASTMODIFIEDDATE datetime not null, primary key (TYPEID));
 create index SAM_ANSWERFEED_ANSWERID_I on SAM_ANSWERFEEDBACK_T (ANSWERID);
 alter table SAM_ANSWERFEEDBACK_T add index FK58CEF0D8DEC85889 (ANSWERID), add constraint FK58CEF0D8DEC85889 foreign key (ANSWERID) references SAM_ANSWER_T (ANSWERID);
-create index SAM_ANSWER_ITEMTEXTID_I on SAM_ANSWER_T (ITEMTEXTID);
 alter table SAM_ANSWER_T add index FKDD0580933288DBBD (ITEMID), add constraint FKDD0580933288DBBD foreign key (ITEMID) references SAM_ITEM_T (ITEMID);
 alter table SAM_ANSWER_T add index FKDD058093278A7DAD (ITEMTEXTID), add constraint FKDD058093278A7DAD foreign key (ITEMTEXTID) references SAM_ITEMTEXT_T (ITEMTEXTID);
 alter table SAM_ASSESSACCESSCONTROL_T add index FKC945448A694216CC (ASSESSMENTID), add constraint FKC945448A694216CC foreign key (ASSESSMENTID) references SAM_ASSESSMENTBASE_T (ID);

@@ -116,7 +116,7 @@
       </generator>
     </id>
     <many-to-one name="itemText" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemText"
-      column="ITEMTEXTID" not-null="true" index="SAM_ANSWER_ITEMTEXTID_I" />
+      column="ITEMTEXTID" not-null="true" />
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
       column="ITEMID" not-null="true" />
     <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
