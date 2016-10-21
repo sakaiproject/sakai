@@ -12,7 +12,7 @@
     </id>
     <many-to-one name="section"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.SectionData"
-      column="SECTIONID" index="SAM_ITEM_SECTIONID_I"/>
+      column="SECTIONID" />
     <property name="itemIdString" type="string" length="255" column="ITEMIDSTRING" not-null="false" />
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="duration" type="integer" column="DURATION" not-null="false" />
@@ -104,7 +104,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
-      column="ITEMID" not-null="true" index="SAM_ITEMFEED_ITEMID_I" />
+      column="ITEMID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="true" />
     <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>
