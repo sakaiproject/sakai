@@ -125,7 +125,6 @@ alter table SAM_ITEMGRADING_T add constraint FKB68E675667B430D5 foreign key (ASS
 alter table SAM_ITEMMETADATA_T add constraint FK5B4737173288DBBD foreign key (ITEMID) references SAM_ITEM_T;
 alter table SAM_ITEMTEXT_T add constraint FK271D63153288DBBD foreign key (ITEMID) references SAM_ITEM_T;
 alter table SAM_ITEM_T add constraint FK3AAC5EA870CE2BD foreign key (SECTIONID) references SAM_SECTION_T;
-create index SAM_MEDIA_ITEMGRADING_I on SAM_MEDIA_T (ITEMGRADINGID);
 alter table SAM_MEDIA_T add constraint FKD4CF5A194D7EA7B3 foreign key (ITEMGRADINGID) references SAM_ITEMGRADING_T;
 alter table SAM_PUBLISHEDACCESSCONTROL_T add constraint FK2EDF39E09482C945 foreign key (ASSESSMENTID) references SAM_PUBLISHEDASSESSMENT_T;
 alter table SAM_PUBLISHEDANSWERFEEDBACK_T add constraint FK6CB765A624D77573 foreign key (ANSWERID) references SAM_PUBLISHEDANSWER_T;
