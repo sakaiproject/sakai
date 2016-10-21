@@ -140,7 +140,7 @@
       </generator>
     </id>
     <many-to-one name="answer" class="org.sakaiproject.tool.assessment.data.dao.assessment.Answer"
-       column="ANSWERID" not-null="true" index="SAM_ANSWERFEED_ANSWERID_I" />
+       column="ANSWERID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="false" />
     <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>

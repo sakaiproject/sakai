@@ -114,7 +114,6 @@ create table SAM_SECTION_T (SECTIONID number(19,0) not null, ASSESSMENTID number
 create table SAM_SECUREDIP_T (IPADDRESSID number(19,0) not null, ASSESSMENTID number(19,0) not null, HOSTNAME varchar2(255 char), IPADDRESS varchar2(255 char), primary key (IPADDRESSID));
 create table SAM_STUDENTGRADINGSUMMARY_T (STUDENTGRADINGSUMMARYID number(19,0) not null, PUBLISHEDASSESSMENTID number(19,0) not null, AGENTID varchar2(255 char) not null, NUMBERRETAKE number(10,0), CREATEDBY varchar2(255 char) not null, CREATEDDATE timestamp not null, LASTMODIFIEDBY varchar2(255 char) not null, LASTMODIFIEDDATE timestamp not null, primary key (STUDENTGRADINGSUMMARYID));
 create table SAM_TYPE_T (TYPEID number(19,0) not null, AUTHORITY varchar2(255 char), DOMAIN varchar2(255 char), KEYWORD varchar2(255 char), DESCRIPTION varchar2(4000 char), STATUS number(10,0) not null, CREATEDBY varchar2(255 char) not null, CREATEDDATE timestamp not null, LASTMODIFIEDBY varchar2(255 char) not null, LASTMODIFIEDDATE timestamp not null, primary key (TYPEID));
-create index SAM_ANSWERFEED_ANSWERID_I on SAM_ANSWERFEEDBACK_T (ANSWERID);
 alter table SAM_ANSWERFEEDBACK_T add constraint FK58CEF0D8DEC85889 foreign key (ANSWERID) references SAM_ANSWER_T;
 alter table SAM_ANSWER_T add constraint FKDD0580933288DBBD foreign key (ITEMID) references SAM_ITEM_T;
 alter table SAM_ANSWER_T add constraint FKDD058093278A7DAD foreign key (ITEMTEXTID) references SAM_ITEMTEXT_T;
