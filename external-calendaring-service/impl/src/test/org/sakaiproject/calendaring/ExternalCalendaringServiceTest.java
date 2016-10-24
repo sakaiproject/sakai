@@ -22,7 +22,9 @@ package org.sakaiproject.calendaring;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -80,7 +82,7 @@ public class ExternalCalendaringServiceTest {
 	private ApplicationContext applicationContext;
 
 	
-	private List<User> users;
+	private Set<User> users;
 	
 	
 	@Before
@@ -502,8 +504,8 @@ public class ExternalCalendaringServiceTest {
 	 * @throws UserAlreadyDefinedException 
 	 * @throws UserIdInvalidException 
 	 */
-	private List<User> generateUsers(){
-		List<User> users = new ArrayList<User>();
+	private Set<User> generateUsers(){
+		Set<User> users = new HashSet<User>();
 		
 		for(int i=0;i<5;i++) {
 			User u = mock(User.class);

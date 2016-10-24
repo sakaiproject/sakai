@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.Setter;
@@ -73,7 +74,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	/**
 	 * {@inheritDoc}
 	 */
-	public VEvent createEvent(CalendarEvent event, List<User> attendees) {
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees) {
 		
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -158,7 +159,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	/**
 	 * {@inheritDoc}
 	 */
-	public VEvent addAttendeesToEvent(VEvent vevent, List<User> attendees) {
+	public VEvent addAttendeesToEvent(VEvent vevent, Set<User> attendees) {
 		return addAttendeesToEventWithRole(vevent, attendees, Role.REQ_PARTICIPANT);
 	}
 
@@ -166,7 +167,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * {@inheritDoc}
 	 */
 	@Override
-	public VEvent addChairAttendeesToEvent(VEvent vevent, List<User> attendees) {
+	public VEvent addChairAttendeesToEvent(VEvent vevent, Set<User> attendees) {
 		return addAttendeesToEventWithRole(vevent, attendees, Role.CHAIR);
 	}
 
@@ -179,7 +180,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * @param role      the role with which to add each user
 	 * @return          the VEvent for the given event or null if there was an error
 	 */
-	protected VEvent addAttendeesToEventWithRole(VEvent vevent, List<User> attendees, Role role) {
+	protected VEvent addAttendeesToEventWithRole(VEvent vevent, Set<User> attendees, Role role) {
 
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -266,7 +267,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		try {
 			calendar.validate(true);
 		} catch (ValidationException e) {
-			e.printStackTrace();
+			log.error("createCalendar failed validation", e);
 			return null;
 		}
 		
