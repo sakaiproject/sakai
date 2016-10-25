@@ -310,7 +310,7 @@
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
                <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500"/>
+  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
                </syllabus:syllabus_if>
                 <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
                     <h:outputText escape="false" value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>" />
