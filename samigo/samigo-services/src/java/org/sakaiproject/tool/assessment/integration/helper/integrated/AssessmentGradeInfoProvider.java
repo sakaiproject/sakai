@@ -94,7 +94,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
         PublishedAssessmentIfc a = (PublishedAssessmentIfc) pubAssessmentCache.get(id);
         if (a != null) {
-            log.debug("returning assesment {} from cache", id);
+            log.debug("Returning assessment {} from cache", id);
             return a;
         }
 
