@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -185,10 +186,10 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public PublishedAssessmentFacade getPublishedAssessment(String assessmentId) {
-	//SAM-1995 if an empty or null id is passed throw and exception
-	if (assessmentId == null || "".equals(assessmentId)) {
-		throw new IllegalArgumentException("AssesmentId must be specified");
-	}
+    //SAM-1995 if an empty or null id is passed throw and exception
+    if (StringUtils.isBlank(assessmentId)) {
+      throw new IllegalArgumentException("AssesmentId must be specified");
+    }
     try {
       return PersistenceService.getInstance().
           getPublishedAssessmentFacadeQueries().
