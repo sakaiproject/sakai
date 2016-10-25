@@ -2514,9 +2514,25 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		public void refreshAuthzGroup(BaseAuthzGroup azGroup) {
 			if (azGroup == null) return;
 
-			// Add the AuthzGroup to the queue, keyed on id to eliminate duplicate refreshes
-			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroup() queue add " + azGroup.getId());
-			refreshQueue.put(azGroup.getId(), azGroup);
+			if (azGroup.m_isNew) {
+				// refresh new authz groups immediately
+				M_log.debug("Refresh new authz group: {}", azGroup.getId());
+				refreshAuthzGroupInternal(azGroup);
+
+				// refresh parent
+				Reference reference = entityManager.newReference(azGroup.getId());
+				if (SiteService.APPLICATION_ID.equals(reference.getType()) && SiteService.GROUP_SUBTYPE.equals(reference.getSubType())) {
+					try {
+						refreshAuthzGroupInternal((BaseAuthzGroup) getAuthzGroup(siteService.siteReference(reference.getContainer())));
+					} catch (Exception e) {
+						M_log.warn("Cannot refresh parent authz group for authz group: {}", azGroup.getId(), e);
+					}
+				}
+			} else {
+				// Add the AuthzGroup to the queue, keyed on id to eliminate duplicate refreshes
+				M_log.debug("Queue authz group for refresh " + azGroup.getId());
+				refreshQueue.put(azGroup.getId(), azGroup);
+			}
 		}
 
 		/**
@@ -2527,7 +2543,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
 			if ((realm == null) || (m_provider == null)) return;
-			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroupInternal() refreshing " + realm.getId());
+			M_log.debug("Refreshing authz group: {}", realm);
 
 			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
 
