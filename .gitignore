@@ -14,7 +14,4 @@ sakai-demo.zip
 .metadata
 .DS_Store
 *nb-configuration.xml
-<<<<<<< HEAD
-=======
 velocity.log
->>>>>>> f62f37e... SAK-31805 Remove velocity.log (#3446)
