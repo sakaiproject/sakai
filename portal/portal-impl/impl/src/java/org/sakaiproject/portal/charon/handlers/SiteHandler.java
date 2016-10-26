@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
@@ -566,8 +568,10 @@ public class SiteHandler extends WorksiteHandler
 		if (userId != null) {
 			String quickLinksTitle = portalService.getQuickLinksTitle(siteId);
 			List<Map> quickLinks = portalService.getQuickLinks(siteId);
-			rcontext.put("quickLinksInfo", quickLinksTitle);
-			rcontext.put("quickLinks", quickLinks);
+			if (CollectionUtils.isNotEmpty(quickLinks)) {
+				rcontext.put("quickLinksInfo", quickLinksTitle);
+				rcontext.put("quickLinks", quickLinks);
+			}
 		}
 		doSendResponse(rcontext, res, null);
 
