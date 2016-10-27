@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import java.util.HashMap;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
@@ -107,4 +108,57 @@ public class RoleSwapMembershipTest extends SakaiKernelTestBase {
 		
 		
 	}
+
+	
+	@Test
+	public void testDelegatedAccess() throws Exception {
+		
+		// Get the Services
+		SiteService siteService = getService(SiteService.class);
+		
+		BaseAuthzGroupService authzGroupService = (BaseAuthzGroupService) getService(AuthzGroupService.class);
+
+		SecurityService securityService = (SecurityService) getService(SecurityService.class);
+
+		SessionManager sessionManager = getService(SessionManager.class);
+		Session session = sessionManager.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+		
+		// Create another user.
+		UserDirectoryService userService = (UserDirectoryService) getService(UserDirectoryService.class);
+		UserEdit daUser = userService.addUser("da", "da");
+		userService.commitEdit(daUser);
+		UserEdit otherUser = userService.addUser("other", "other");
+		userService.commitEdit(otherUser);
+		
+		// Create a site
+		Site  site = siteService.addSite("delegatedAccessSiteVisit", "testda");
+		site.addMember("access", "access", true, false);
+		site.addMember("maintain", "maintain", true, false);
+		//site.setPublished(false); // This is the default, but we this is what we are wanting to test.
+		Role maintain = site.getRole("maintain");
+		maintain.allowFunction(SiteService.SITE_ROLE_SWAP);
+		siteService.save(site);
+		
+		// Log as da
+		session.setUserEid("da");
+		session.setUserId("da");
+		
+		// Add delegated access for user da as maintain in this site
+		HashMap daMap = new HashMap<String,String[]>();
+		daMap.put("/site/delegatedAccessSiteVisit",new String[]{"/site/delegatedAccessSiteVisit","maintain"});
+		
+		session.setAttribute("delegatedaccess.accessmapflag",true);
+		session.setAttribute("delegatedaccess.accessmap",daMap);
+		
+		// DA user has maintain role
+		Assert.assertTrue(authzGroupService.isAllowed("da", SiteService.SITE_ROLE_SWAP, site.getReference()));
+		
+		// DA user can View the Site but Other can't
+		Assert.assertTrue(authzGroupService.isAllowed("da", SiteService.SITE_VISIT, site.getReference()));
+		Assert.assertFalse(authzGroupService.isAllowed("other", SiteService.SITE_VISIT, site.getReference()));
+		
+	}
+	
 }

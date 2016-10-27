@@ -2013,7 +2013,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				if (M_log.isDebugEnabled()) M_log.debug("userId="+userId+", siteRef="+siteRef+", roleswap="+roleswap+", delegatedAccess="+delegatedAccess);
 				// In roleswap check all realms, not for delegated access
 				int fieldCount = 3 + (roleswap!=null?realms.size():1); 
-				Object[] fields2 = new Object[fieldCount];
+				Object[] fields2 = new Object[fieldCount-(delegatedAccess?1:0)];
 				if (roleswap != null) {
 				    fields2[0] = roleswap;
 				} else if (delegatedAccess
@@ -2036,13 +2036,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 						fields2[pos++] = realmId;
 					}
 				}
-				fields2[pos] = userId;
+				if (!delegatedAccess) fields2[pos] = userId;
 				if (M_log.isDebugEnabled()) M_log.debug("roleswap/dac fields: "+Arrays.toString(fields2));
 				// In delegated access use a single in clause
 				if (roleswap==null) {
 					inClause = orInClause(1, "SAKAI_REALM.REALM_ID");
 				}
-				statement = dbAuthzGroupSql.getCountRoleFunctionSql(inClause);
+				statement = dbAuthzGroupSql.getCountRoleFunctionSql(inClause,delegatedAccess);
 
 				results = m_sql.dbRead(statement, fields2, new SqlReader()
 				{
