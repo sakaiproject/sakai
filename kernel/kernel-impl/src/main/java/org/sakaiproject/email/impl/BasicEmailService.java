@@ -51,6 +51,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -458,7 +460,7 @@ public class BasicEmailService implements EmailService
 		// if in test mode, use the test method
 		if (m_testMode)
 		{
-			testSendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders);
+			testSendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders, attachments);
 			return;
 		}
 
@@ -1389,11 +1391,28 @@ public class BasicEmailService implements EmailService
 	 * test version of sendMail
 	 */
 	protected void testSendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
-			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo, List<String> additionalHeaders)
+			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo, List<String> additionalHeaders, List<Attachment> attachments)
 	{
-		M_log.info("sendMail: from: " + from + " to: " + arrayToStr(to) + " subject: " + subject + " headerTo: "
-				+ mapToStr(headerTo) + " replyTo: " + arrayToStr(replyTo) + " content: " + content + " additionalHeaders: "
-				+ listToStr(additionalHeaders));
+		M_log.info("sendMail: from: {} to: {} subject: {} headerTo: {} replyTo: {} content: {} additionalHeaders: {}",
+				   from, arrayToStr(to), subject, mapToStr(headerTo), arrayToStr(replyTo), content, listToStr(additionalHeaders));
+		//If the attachments isn't empty do something with them
+		if (CollectionUtils.isNotEmpty(attachments)){
+			for (Attachment attachment:attachments) {
+				//If it's text, we'll dump out the file contents, otherwise just the name
+				String attachmentContent = "BINARY";
+				if (attachment.getContentTypeHeader() != null && attachment.getContentTypeHeader().startsWith("text/")) {
+					try {
+						attachmentContent = IOUtils.toString(attachment.getDataSource().getInputStream(), "UTF-8"); 
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						M_log.debug("sendMail: error accessing attachment content",e);
+					}
+				}
+
+				M_log.info("sendMail: attachment name: {} type header: {} body:{}{}",
+							attachment.getFilename(),attachment.getContentTypeHeader(),  System.lineSeparator(), attachmentContent);
+			}
+		}
 	}
 
 	/**
