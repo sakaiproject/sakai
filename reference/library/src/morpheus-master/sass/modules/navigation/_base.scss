@@ -596,13 +596,10 @@ body.is-logged-out{
 		li.#{$namespace}sitesNav__menuitem{
 			margin: 0 0.5em 0.5em 0;
 			padding: 0;
+			position: relative;
 			
-			> a{
-				@include display-flex(flex);
-				@include align-items(center);
-				@include justify-content( space-between );
-				padding: 0.5em;
-				position: relative;
+			> .link-container{
+				padding: 0.5em 36px 0.5em 0.5em;
 				border-top: $sites-nav-menu-item-border-top; /* to balance bottom border for vertical centering */
 				border-right: $sites-nav-menu-item-border-right;
 				border-bottom: $sites-nav-menu-item-border-bottom; /* to pre-allocate space for dropdown top border needed for illusion */
@@ -623,9 +620,13 @@ body.is-logged-out{
 				line-height: 1;
 			}
 			.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
-				outline: 0;
 				text-align: right;
 				margin-left: 0.2em;
+				position: absolute;
+				right: 8px;
+				top: 50%;
+				transform: translate(0%,-50%);
+				text-decoration: none;
 				
 				@extend .fa-angle-down;
 				@extend .fa;
@@ -633,8 +634,8 @@ body.is-logged-out{
 				@extend .sitesNav__drop;
 				
 				&.is-clicked{
-					@include transform( scaleY(-1) );
-					position: relative;
+					@include transform( rotate(180deg) );
+					top: 40%;
 				}
 			}
 			ul{
