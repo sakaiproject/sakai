@@ -240,6 +240,13 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
+		$('#add-twitter-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
 		$('#add-announcements-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -247,7 +254,15 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
-
+		//Only number allowed for twitter height
+		$("#widget-height").keypress(function (e) {
+			 //if the letter is not digit then display error
+			 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+				//display error message
+				$("#heightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+				return false;
+			}
+		});
 		$('#edit-item-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -1469,7 +1484,31 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			return false;
 		});
-		
+		//when edit twitter link is clicked twitterDialog is opened
+		$(".edit-twitter").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).parent().parent().parent();
+			var itemId = row.find(".twitter-id").text();
+			$("#twitterEditId").val(itemId);
+			var username = row.find(".username").text().replace(/'/g,"");
+			$("#twitter-username").val(username);
+			//remove single quotes from the string
+			var height = row.find(".twitterHeight").text().replace(/'/g,"");
+			$("#widget-height").val(height);
+			var tweetLimit = row.find(".tweetLimit").text().replace(/'/g,"");
+			$("#numberDropdown-selection").val(tweetLimit);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#twitter-error-container').hide();
+			//Change the text for the button to 'Update Item'
+			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
+			//make delete twitter link visible
+			$("#twitter-delete-span").show();
+			$('#add-twitter-dialog').dialog('open');
+			setupdialog($("#add-twitter-dialog"));
+			return false;
+		});
 		$("#question-editgroups").click(function(){
 			$("#question-editgroups").hide();
 			$("#grouplist").show();
@@ -1828,6 +1867,20 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			return false;
 		});
+		$('.twitter-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			$('#twitter-error-container').hide();
+			$("#twitter-addBefore").val(addAboveItem);
+			$("#twitterEditId").val("-1");
+			$("#twitter-username").val("");
+			$("#widget-height").val("");
+			$('#numberDropdown-selection').val("5");
+			$('#add-twitter-dialog').dialog('open');
+			setupdialog($('#add-twitter-dialog'));
+			return false;
+		});
 
 		$("#editgroups").click(function(){
 			$("#editgroups").hide();
@@ -2172,6 +2225,7 @@ $(document).ready(function() {
 				$('#export-cc-dialog').dialog('isOpen') ||
 				$('#add-forum-summary-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
+				$('#add-twitter-dialog').dialog('isOpen')||
 				$('#column-dialog').dialog('isOpen') ||
 			        $('#student-dialog').dialog('isOpen') ||
 			        $('#question-dialog').dialog('isOpen'))) {
@@ -2629,6 +2683,11 @@ function setCollapsedStatus(header, collapse) {
     }
 }
 
+function closeTwitterDialog(){
+	$('#add-twitter-dialog').dialog('close');
+	$('#twitter-error-container').hide();
+	oldloc.focus();
+}
 function closeSubpageDialog() {
 	$("#subpage-dialog").dialog("close");
 	$('#subpage-error-container').hide();
@@ -2778,6 +2837,16 @@ function checkYoutubeForm(w, h) {
 	}
 }
 
+//function called when adding twitter feed
+function confirmAddTwitterTimeline(){
+	//Check if username is empty or not?
+	if( $('#twitter-username').val().trim() == ""){
+		$('#twitter-error').text(msg("simplepage.twitter-name-notblank"));
+		$('#twitter-error-container').show();
+		return false;
+	}
+	return true;
+}
 //this checks the width and height fields in the Edit dialog to validate the input
 function checkMovieForm(w, h, y) {
 		var wmatch = checkPercent(w); 	// use a regex to check if the input is of the form ###%
