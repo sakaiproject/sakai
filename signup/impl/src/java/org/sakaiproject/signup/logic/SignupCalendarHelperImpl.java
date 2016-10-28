@@ -116,7 +116,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				tsEvent.getProperties().addProperty(ResourceProperties.PROP_CREATOR, meeting.getCreatorUserId());
 
 				//generate VEvent for timeslot
-				v = externalCalendaringService.createEvent(tsEvent);
+				v = externalCalendaringService.createEvent(tsEvent, null, true);
 				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
 				
 			} finally {
@@ -151,7 +151,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				mEvent.getProperties().addProperty(ResourceProperties.PROP_CREATOR, meeting.getCreatorUserId());
 
 				//generate VEvent for timeslot
-				v = externalCalendaringService.createEvent(mEvent);
+				v = externalCalendaringService.createEvent(mEvent, null, true);
 				externalCalendaringService.addChairAttendeesToEvent(v, getCoordinators(meeting));
 				
 			} finally {
