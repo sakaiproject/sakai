@@ -37,6 +37,7 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -1041,7 +1042,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			{
 				String userId = SiteService.getSiteUserId(site.getId());
 				String eid = UserDirectoryService.getUserEid(userId);
-				return SiteService.getUserSiteId(eid);
+				// SAK-31889: if your EID has special chars, much easier to just use your uid
+				if (StringUtils.isAlphanumeric(eid)) {
+					return SiteService.getUserSiteId(eid);
+				}
 			}
 			catch (UserNotDefinedException e)
 			{
