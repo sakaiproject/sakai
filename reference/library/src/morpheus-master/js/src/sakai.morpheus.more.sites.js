@@ -20,11 +20,6 @@ var dhtml_view_sites = function(){
 
       $PBJQ('body').toggleClass('active-more-sites');
 
-      // In mobile mode, hide the tools nav prior to showing sites
-      if ($PBJQ('body').hasClass('toolsNav--displayed')) {
-        toggleToolsNav();
-      }
-
       // Align with the bottom of the main header in desktop mode
       var allSitesButton = $PBJQ('.view-all-sites-btn:visible');
 
