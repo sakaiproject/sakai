@@ -1,6 +1,6 @@
-<script type="text/javascript" src="http://localhost/profile2-tool/javascript/profile2-eb.js"></script>
+<script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
 <div class="profile-popup">
-    <div class="profile-popup-display-name">${displayName}</div>
+    <div class="profile-popup-display-name"><a href="${profileUrl}">${displayName}</a></div>
     <div class="profile-popup-email"><a href="mailto:${email}">${email}</a></div>
 
     <div id="profile-popup-connected-block-${connectionUserId}" #if (!${connected})style="display: none;"#end>
