@@ -10417,207 +10417,170 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	//DMERINO - EMPIEZO LO DEL ZIPDOWNLOAD
 	//MIRAR SAK-23304
-	
+
 	/**
-     * set the state name to be "zipDownloadfinish" if any item has been selected for zip downloading
-     * @param data
-     */
-    public void doZipDownloadconfirm(RunData data)
-    {
-    	System.out.println("ESTOY EN - doZipDownloadconfirm");
-        SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
- 
-        // cancel copy if there is one in progress
-        if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-        {
-            initCopyContext(state);
-        }
- 
-        // cancel move if there is one in progress
-        if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-        {
-            initMoveContext(state);
-        }
- 
-        Set zipDownloadIdSet  = new TreeSet();
-        String[] zipDownloadIds = data.getParameters ().getStrings ("selectedMembers");
-        if (zipDownloadIds == null)
-        {
-            addAlert(state, rb.getString("choosefile3"));
-        }
-        else
-        {
-        	zipDownloadIdSet.addAll(Arrays.asList(zipDownloadIds));
-            ZipDownloadItems(state, zipDownloadIdSet); 
-        }
- 
-        if (state.getAttribute(STATE_MESSAGE) == null)
-        {
-            state.setAttribute (STATE_MODE, MODE_ZIPDOWNLOAD_FINISH);
-            state.setAttribute(STATE_LIST_SELECTIONS, zipDownloadIdSet);
-        }
-    }       // doZipDownloadconfirm
-    
-    /**
-     * @param state
-     * @param showIdSet
-     */
-    protected void ZipDownloadItems(SessionState state, Set zipDownloadIdSet)
-    {
-        List zipDownloadItems = new Vector();
-        
-        String zipMaxIndividualFileSizeString = ServerConfigurationService.getString("directZipDownload.maxIndividualFileSize","0"); //50MB=52428800
-        String zipMaxTotalSizeString = ServerConfigurationService.getString("directZipDownload.maxTotalSize","0"); //100MB=104857600
-        long zipMaxIndividualFileSize=Long.parseLong(zipMaxIndividualFileSizeString);
-        long zipMaxTotalSize=Long.parseLong(zipMaxTotalSizeString);
-        long accumulatedSize=0;
-        long currentEntitySize=0;
- 
-        org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
- 
-        for(String showId : (Set<String>) zipDownloadIdSet)
-        {
-        	//ContentEntity puede ser ContentCollection o ContentResource.
-        	//Aqui esta toda la informacion, los ListItem no son mas que envoltorios vacios para mostrarlos en la pagina.
-        	//Hay un metodo de ContentCollection que devuelve el tamaño total, pero no funciona.
-            ContentEntity entity = null;
-            try
-            {
-                if(contentService.isCollection(showId))
-                {
-                	System.out.println("Elemento "+showId+" es una collection.");
-                    entity = contentService.getCollection(showId);
-                    currentEntitySize = getCollectionRecursiveSize((ContentCollection)entity);
-                }
-                else if(contentService.allowUpdateResource(showId))
-                {
-                	System.out.println("Elemento "+showId+" es un fichero.");
-                    entity = contentService.getResource(showId);
-                    currentEntitySize = ((ContentResource)entity).getContentLength();
-                }
-                
-                accumulatedSize = accumulatedSize + currentEntitySize;
-                if (currentEntitySize > zipMaxIndividualFileSize)
-                {
-                	System.out.println("TAMAÑO MAXIMO INDIVIDUAL SUPERADO!");
-                	//MIRAR ESTO.
-                	//addAlert con el state se queda donde esta y sin el state pasa al siguiente lugar (???).
-                	addAlert(state, "INDIVIDUAL SUPERADO");
-                	//context.put("zipDownloadIndividualFileSizeExceeded","true");
-                	state.setAttribute(STATE_MODE, MODE_LIST);
-                	//addAlert("INDIVIDUAL SUPERADO");
-                	//return;
-                }
-                else if (accumulatedSize > zipMaxTotalSize)
-                {
-                	System.out.println("TAMAÑO MAXIMO TOTAL SUPERADO!");
-                	addAlert("TOTAL SUPERADO");
-                	//context.put("zipDownloadTotalFileSizeExceeded","true");
-                	state.setAttribute(STATE_MODE, MODE_LIST);
-                	//return;
-                }
-                else
-                {
-                	//context.put("zipDownloadIndividualFileSizeExceeded","false");
-                	//context.put("zipDownloadTotalFileSizeExceeded","false");
-	                
-	                ListItem item = new ListItem(entity);
-	                if(item.isCollection() && contentService.allowUpdateCollection(showId))
-	                {
-	                	
-	                	item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
-	                	zipDownloadItems.add(item);
-	                }
-	                else if(!item.isCollection() && contentService.allowUpdateResource(showId))
-	                {
-	                	zipDownloadItems.add(item);
-	                }
-	                
-	                state.setAttribute (STATE_ZIPDOWNLOAD_SET, zipDownloadItems);
-                }
-            }
-            catch(PermissionException e)
-            {
-                logger.warn("PermissionException: "+e,e);
-                System.out.println("PERMISSION EXCEPTION. "+e);
-            }
-            catch (IdUnusedException e)
-            {
-                logger.warn("IdUnusedException: "+e,e);
-                System.out.println("IDUNUSEDEXCEPTION. "+e);
-            }
-            catch (TypeException e)
-            {
-                logger.warn("TypeException: "+e,e);
-                System.out.println("TYPEEXCEPTION. "+e);
-            }
-            catch (Exception e)
-            {
-            	System.out.println("Exception: "+e);
-            }
-        }
- 
-        //state.setAttribute (STATE_ZIPDOWNLOAD_SET, zipDownloadItems);
-    }
-    
-    private long getCollectionRecursiveSize(ContentCollection currentCollection)
-    {
-    	long total=0;
-    	List items = currentCollection.getMemberResources();
-    	Iterator it = items.iterator();
-        while(it.hasNext())
-        {
-        	ContentEntity myElement = (ContentEntity) it.next();
-        	if (myElement.isResource()) total=total+((ContentResource)myElement).getContentLength();
-        	else if (myElement.isCollection()) total=total+getCollectionRecursiveSize((ContentCollection)myElement);
-        }
-        return total;
-    }
-    
-    /**
-     * @param portlet
-     * @param context
-     * @param data
-     * @param state
-     * @return
-     */
-    public String buildZipDownloadFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
-    {
-    	System.out.println("ESTOY EN - buildZipDownloadFinishContext");
-        context.put("tlang",trb);
-        context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
- 
-        //DMERINO - Hay que hacer algunas cosas aqui.
-        //1-Recorrer los elementos de STATE_ZIPDOWNLOAD_SET y guardar su tamaño en alguna variable.
-        //2-Recorrer hacia abajo las collections y si se puede en vez del numero de elementos, poner su tamaño total. O guardarlo en el total anterior.
-        //3-Pasar la lista de elementos si superan las variables globales que limitan los tamaños (total y parcial) o un mensaje de error que imposibilite la descarga.
-        
-        List zipDownloadItems = (List) state.getAttribute(STATE_ZIPDOWNLOAD_SET);
-        context.put ("zipDownloadItems", zipDownloadItems);
- 
-        return TEMPLATE_ZIPDOWNLOAD_FINISH;
-    }
-    
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException
+	 * set the state name to be "zipDownloadfinish" if any item has been selected for zip downloading
+	 * @param data
+	 */
+	public void doZipDownloadconfirm(RunData data)
 	{
-    	System.out.println("DOPOST");
-    	String action = request.getParameter("eventSubmit_doFinalizeZipDownload");
-    	System.out.println("ACTION: "+action);
-    	
-    	if ((action==null)||(action.isEmpty()))
-    	{
-    		super.doPost(request,response);
-    		return;
-    	}
-    	
-    	checkRunData(request);
-    	JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
-    	SessionState state = rundata.getPortletSessionState (rundata.getJs_peid ());
-    	List<ListItem> zipDownloadItems = (List<ListItem>) state.getAttribute(STATE_ZIPDOWNLOAD_SET);
-    	
-    	System.out.println("ACTION: "+zipDownloadItems);
-    	
-    	String collectionId = (String) request.getParameter("collectionId");
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		Set zipDownloadIdSet  = new TreeSet();
+		String[] zipDownloadIds = data.getParameters ().getStrings ("selectedMembers");
+		if (zipDownloadIds == null)
+		{
+			addAlert(state, rb.getString("choosefile3"));
+		}
+		else
+		{
+			zipDownloadIdSet.addAll(Arrays.asList(zipDownloadIds));
+			ZipDownloadItems(state, zipDownloadIdSet); 
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_ZIPDOWNLOAD_FINISH);
+			state.setAttribute(STATE_LIST_SELECTIONS, zipDownloadIdSet);
+		}
+	}       // doZipDownloadconfirm
+
+	/**
+	 * @param state
+	 * @param showIdSet
+	 */
+	protected void ZipDownloadItems(SessionState state, Set zipDownloadIdSet)
+	{
+		List zipDownloadItems = new Vector();
+
+		String zipMaxIndividualFileSizeString = ServerConfigurationService.getString("directZipDownload.maxIndividualFileSize","0");
+		String zipMaxTotalSizeString = ServerConfigurationService.getString("directZipDownload.maxTotalSize","0");
+		long zipMaxIndividualFileSize=Long.parseLong(zipMaxIndividualFileSizeString);
+		long zipMaxTotalSize=Long.parseLong(zipMaxTotalSizeString);
+		long accumulatedSize=0;
+		long currentEntitySize=0;
+
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+
+		for(String showId : (Set<String>) zipDownloadIdSet)
+		{
+			ContentEntity entity = null;
+			try
+			{
+				if(contentService.isCollection(showId))
+				{
+					entity = contentService.getCollection(showId);
+					currentEntitySize = getCollectionRecursiveSize((ContentCollection)entity,zipMaxIndividualFileSize);
+
+					if (currentEntitySize == -1)
+					{
+						addAlert(state, trb.getFormattedMessage("zipdownload.maxIndividualSizeInFolder",removeRootCollectionId(showId),zipMaxIndividualFileSize/1024/1024));
+						state.setAttribute(STATE_MODE, MODE_LIST);
+						break;
+					}
+				}
+				else if(contentService.allowUpdateResource(showId))
+				{
+					entity = contentService.getResource(showId);
+					currentEntitySize = ((ContentResource)entity).getContentLength();
+					if (currentEntitySize > zipMaxIndividualFileSize)
+					{
+						addAlert(state, trb.getFormattedMessage("zipdownload.maxIndividualSize",removeRootCollectionId(showId),zipMaxIndividualFileSize/1024/1024));
+						state.setAttribute(STATE_MODE, MODE_LIST);
+						break;
+					}
+				}
+
+				accumulatedSize = accumulatedSize + currentEntitySize;
+
+				if (accumulatedSize > zipMaxTotalSize)
+				{
+					addAlert(state, trb.getFormattedMessage("zipdownload.maxTotalSize",zipMaxTotalSize/1024/1024));
+					state.setAttribute(STATE_MODE, MODE_LIST);
+					break;
+				}
+
+				ListItem item = new ListItem(entity);
+				if(item.isCollection() && contentService.allowUpdateCollection(showId))
+				{
+					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
+					zipDownloadItems.add(item);
+				}
+				else if(!item.isCollection() && contentService.allowUpdateResource(showId))
+				{
+					zipDownloadItems.add(item);
+				}
+			}
+			catch(PermissionException e)
+			{
+				logger.warn("PermissionException: "+e,e);
+				System.out.println("PERMISSION EXCEPTION. "+e);
+			}
+			catch (IdUnusedException e)
+			{
+				logger.warn("IdUnusedException: "+e,e);
+				System.out.println("IDUNUSEDEXCEPTION. "+e);
+			}
+			catch (TypeException e)
+			{
+				logger.warn("TypeException: "+e,e);
+				System.out.println("TYPEEXCEPTION. "+e);
+			}
+			catch (Exception e)
+			{
+				System.out.println("Exception: "+e);
+			}
+		}
+
+		state.setAttribute (STATE_ZIPDOWNLOAD_SET, zipDownloadItems);
+	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	public String buildZipDownloadFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("tlang",trb);
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+		List zipDownloadItems = (List) state.getAttribute(STATE_ZIPDOWNLOAD_SET);
+		context.put ("zipDownloadItems", zipDownloadItems);
+
+		return TEMPLATE_ZIPDOWNLOAD_FINISH;
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException
+	{
+		String action = request.getParameter("eventSubmit_doFinalizeZipDownload");
+
+		if ((action==null)||(action.isEmpty()))
+		{
+			super.doPost(request,response);
+			return;
+		}
+
+		checkRunData(request);
+		JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+		SessionState state = rundata.getPortletSessionState (rundata.getJs_peid ());
+		List<ListItem> zipDownloadItems = (List<ListItem>) state.getAttribute(STATE_ZIPDOWNLOAD_SET);
+
+		String collectionId = (String) request.getParameter("collectionId");
 		ZipOutputStream zipOut = null;
 		try
 		{
@@ -10628,17 +10591,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			response.setContentType("application/zip;charset=UTF-8");
 			response.setHeader("Content-Disposition", "attachment; filename = site_download.zip");
 			zipOut = new ZipOutputStream(response.getOutputStream());
-			
+
 			Iterator it = zipDownloadItems.iterator();
-	        while(it.hasNext())
-	        {
-	        	ListItem myElement = (ListItem) it.next();
-	        	String resourceId = myElement.getId();
-	        	boolean get = ContentHostingService.allowGetResource(resourceId);
+			while(it.hasNext())
+			{
+				ListItem myElement = (ListItem) it.next();
+				String resourceId = myElement.getId();
+				boolean get = ContentHostingService.allowGetResource(resourceId);
 				if (get) compressResource(zipOut, collectionId, rootFolderName, resourceId);
-	        }
-			
-			
+			}
 		}
 		catch (PermissionException pe)
 		{
@@ -10677,9 +10638,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 		}
-    	
 	}
-    
+
 	protected void compressResource(ZipOutputStream zipOut, String collectionId, String rootFolderName, String resourceId) throws Exception
 	{
 		if (ContentHostingService.isCollection(resourceId))
@@ -10709,49 +10669,50 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ContentResource resource = ContentHostingService.getResource(resourceId);
 				ResourceProperties props = resource.getProperties();
 				String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
-				System.out.println("DISPLAYNAME: "+displayName);
 				displayName = escapeInvalidCharsEntry(displayName);
-				
-				// buffered stream input
+
 				InputStream content = resource.streamContent();
 				byte data[] = new byte[1024 * 10];
 				BufferedInputStream bContent = null;
-				
+
 				try
 				{
 					bContent = new BufferedInputStream(content, data.length);
-					System.out.println("CollectionID: "+collectionId);
-					//String entryName = (resource.getContainingCollection().getId() + displayName).substring(7);
+					
 					String entryName = (resource.getContainingCollection().getId() + displayName);
-					System.out.println("entryname: "+entryName);
 					entryName=entryName.replace(collectionId,rootFolderName+"/");
-					//String entryName = rootFolderName+"/"+displayName;
-					System.out.println("entryname 2: "+entryName);
 					entryName = escapeInvalidCharsEntry(entryName);
-					System.out.println("entryname 3: "+entryName);
-	
+
 					ZipEntry resourceEntry = new ZipEntry(entryName);
-					zipOut.putNextEntry(resourceEntry); //Duplicate entries throw ZipException here.
+					zipOut.putNextEntry(resourceEntry); //A duplicate entry throw ZipException here.
 					int bCount = -1;
-					while ((bCount = bContent.read(data, 0, data.length)) != -1) {
+					while ((bCount = bContent.read(data, 0, data.length)) != -1)
+					{
 						zipOut.write(data, 0, bCount);
 					}
-	
-					try {
-						zipOut.closeEntry(); // The zip entry need to be closed
-					} catch (IOException ioException) {
+
+					try
+					{
+						zipOut.closeEntry();
+					}
+					catch (IOException ioException)
+					{
 						ioException.printStackTrace();
 					}
 				}
-				catch (IllegalArgumentException iException) {
+				catch (IllegalArgumentException iException)
+				{
 					iException.printStackTrace();
 				}
 				catch (java.util.zip.ZipException e)
 				{
 					//Duplicate entry: ignore and continue.
-					try {
+					try
+					{
 						zipOut.closeEntry();
-					} catch (IOException ioException) {
+					}
+					catch (IOException ioException)
+					{
 						ioException.printStackTrace();
 					}
 				}
@@ -10761,7 +10722,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						try
 						{
-							bContent.close(); // The BufferedInputStream needs to be closed
+							bContent.close();
 						}
 						catch (IOException ioException)
 						{
@@ -10776,7 +10737,38 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 	}
-	
+
+	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize)
+	{
+		//-1 if any file exceeds the individual max size
+		long total=0;
+		List items = currentCollection.getMemberResources();
+		Iterator it = items.iterator();
+		while(it.hasNext())
+		{
+			ContentEntity myElement = (ContentEntity) it.next();
+			if (myElement.isResource()) 
+			{
+				long tempSize = ((ContentResource)myElement).getContentLength();
+				if (tempSize > maxIndividualFileSize) return -1;
+				else total=total+tempSize;
+			}
+			else if (myElement.isCollection())
+			{
+				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement,maxIndividualFileSize);
+				if (tempSize == -1) return -1;
+				else total=total+tempSize;
+			}
+		}
+		return total;
+	}
+
+	private String removeRootCollectionId(String resource)
+	{
+		for (int i=0;i<3;i++) resource=resource.substring(resource.indexOf("/")+1,resource.length());
+		return resource;
+	}
+
 	private String escapeInvalidCharsEntry(String accentedString)
 	{
 		String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);

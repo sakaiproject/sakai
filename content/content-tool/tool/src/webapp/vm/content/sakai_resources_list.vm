@@ -379,6 +379,7 @@
 									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this);adjustCount(this,'zipdownload');"
  									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
+							$counter.increment("zipdownload") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("zipdownloadselected")#end
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
@@ -799,8 +800,10 @@
 				document.getElementById("${key}-button").disabled = false;
 				document.getElementById("show-button").disabled = false;
 				document.getElementById("hide-button").disabled = false;
-				document.getElementById("zipdownload-button").disabled = false;
 			#end
+		#end
+		#if($counter.getValue("$zipdownloadselected") > 0) 
+			document.getElementById("zipdownload-button").disabled = false;
 		#end
 		#if($counter.getValue("selectall") > 0)
 			document.getElementById("selectall").disabled = false;
