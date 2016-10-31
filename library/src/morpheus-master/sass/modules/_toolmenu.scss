@@ -209,6 +209,7 @@ body.is-logged-out{
 	}
 	@media #{$phone}{
 		background: $tool-menu-background-color;
+		padding-top: 4px;
 	}
 }
 
@@ -291,8 +292,16 @@ nav#subSites{
 					display: inline-block;
 					width: 20%;
 					height: 100%;
+					padding: 0 0.5em 0 0.2em;
+					@media #{$phone}{
+						width: initial;
+						padding: 0 0.5em;
+					}
 				} @else {
 					margin: 0 0.25em 0 0;
+					@media #{$phone}{
+						margin: 0.5em 0;
+					}
 				}
 			}
 			a{
@@ -302,13 +311,13 @@ nav#subSites{
 				font-family: $header-font-family;
 				font-weight: 300;
 				font-size: 0.85em;
-			    min-height: 3em;
 				@if $tool-menu-icon-on-left {
 					text-align: left;
 					padding: 0.5em 0.5em;
 				} @else {
 					text-align: center;
 					padding: 0.5em 0.25em;
+					min-height: 3em;
 					line-height: 1.25;
 				}
 				text-decoration: none;
@@ -317,18 +326,28 @@ nav#subSites{
 					color: $tool-menu-hover-color;
 				}
 				@media #{$phone}{
-					border-width: 1px;
-					border-style: solid;
-					border-color: darken( $tool-menu-background-color, 10% );
-					height:  5.5em;
+					@if $tool-menu-icon-on-left {
+						border: none;
+						font-size: 0.9em;
+						font-weight: 700;
+						padding: 3px 0;
+					}
+					@else {
+						border-width: 1px;
+						border-style: solid;
+						border-color: darken( $tool-menu-background-color, 10% );
+						height:  5.5em;
+					}
 					overflow: hidden;
-					padding: 0.85em 0.25em 0.1em;
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					@if $tool-menu-icon-on-left {
 						display: inline-block;
 						width: 75%;
 						vertical-align: middle;
+						@media #{$phone}{
+							width: 90%;
+						}
 					} @else {
 						display: block;
 						width: 100%;
@@ -368,8 +387,13 @@ nav#subSites{
 						color: $tool-menu-hover-color;
 					}
 					@media #{$phone}{
-						border: 1px solid $tool-menu-current-border-color;
-						border-left: 1px solid $tool-menu-current-border-color;
+						@if $tool-menu-icon-on-left {
+							border: none;
+						}
+						@else {
+							border: 1px solid $tool-menu-current-border-color;
+							border-left: 1px solid $tool-menu-current-border-color;
+						}
 					}
 				}
 			}
