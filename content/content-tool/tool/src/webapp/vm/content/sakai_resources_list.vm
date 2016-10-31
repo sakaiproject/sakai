@@ -210,6 +210,12 @@
                                     #end
                                  #end
                                  ####### end SAK-23304, add Show and Hide
+                                 #if ($canZipDownload)
+                                     <button  style="margin:0" class="btn btn-default" id="zipdownload-button" type="button"
+                                         onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='zipDownload';document.getElementById('showForm').submit();"
+                                         disabled="disabled">$tlang.getString('avail.zipdownload')
+                                    </button>
+                                 #end
 
     					#end
     				</div>
@@ -370,9 +376,10 @@
 						#if($item.depth > 0 && $item.hasMultipleItemActions())
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains($item.id))checked="checked"#end
-									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this)"
+									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this);adjustCount(this,'zipdownload');"
  									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
+							$counter.increment("zipdownload") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("zipdownloadselected")#end
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
@@ -783,6 +790,7 @@
 		<input type="hidden" id="hide-count" value="$counter.getValue("hideselected")" /> 
 		## copy for other sites
 		<input type="hidden" id="copy-count-other" value="0" />
+		<input type="hidden" id="zipdownload-count" value="$counter.getValue("zipdownloadselected")" />
 	</form>						
 </div>
 <script type="text/JavaScript">
@@ -793,6 +801,9 @@
 				document.getElementById("show-button").disabled = false;
 				document.getElementById("hide-button").disabled = false;
 			#end
+		#end
+		#if($counter.getValue("$zipdownloadselected") > 0)
+			document.getElementById("zipdownload-button").disabled = false;
 		#end
 		#if($counter.getValue("selectall") > 0)
 			document.getElementById("selectall").disabled = false;
@@ -877,6 +888,12 @@
                 }
                 document.getElementById("hide-count").value = "$counter.getValue("hide")";
 #### end SAK-23304
+				var zipdownload_button = document.getElementById("zipdownload-button");
+				if(zipdownload_button)
+				{
+					zipdownload_button.disabled = false;
+				}
+				document.getElementById("zipdownload-count").value = "$counter.getValue("zipdownload")";
 			}
 			else
 			{
@@ -906,6 +923,12 @@
                 }
                 document.getElementById("hide-count").value = "0";
 #### end SAK-23304
+				var zipdownload_button = document.getElementById("zipdownload-button");
+				if(zipdownload_button)
+				{
+					zipdownload_button.disabled = true;
+				}
+				document.getElementById("zipdownload-count").value = "0";
 			}
 		}
 		
