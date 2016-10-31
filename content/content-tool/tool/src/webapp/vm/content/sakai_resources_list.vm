@@ -948,7 +948,6 @@
                 var trlist = caller.parentNode.parentNode.parentNode.childNodes;
                 var enableshow=  false ;
                 var enablehide=  false ;
-                //var enablezipdownload=  false ;
 
                 for (var i=0; i<trlist.length; i++){
                         var thisTR = trlist[i];
@@ -1050,19 +1049,6 @@
                                 //let bd take care of this: hidebutton.className='disabled';
                         }
                 }
-                
-                /*var zipdownloadbutton = document.getElementById("zipdownload-button");
-                if(zipdownloadbutton)
-                {
-                        if (enablezipdownload)
-                        {
-                                zipdownloadbutton.disabled = false;
-                        }
-                        else
-                        {
-                                zipdownloadbutton.disabled = true;
-                        }
-                }*/
         }
 
 		function disableLinks()

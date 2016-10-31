@@ -4903,7 +4903,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    // build the context for the basic step of delete confirm page
 		    template = buildHideFinishContext (portlet, context, data, state);
 		}
-		//DMERINO - AQUI ANIADIMOS LA TEMPLATE PARA EL ZIPDOWNLOAD
 		else if (mode.equals (MODE_ZIPDOWNLOAD_FINISH))
 		{
 			template = buildZipDownloadFinishContext ( portlet, context, data, state);
@@ -7314,7 +7313,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_ITEMS_TO_BE_COPIED, selectedSet);
 			state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
 		}
-		//DMERINO - AQUI ANIADIMOS LA LLAMADA AL ZIPDOWNLOAD CON MULTIPLES RECURSOS.
 		else if(ResourceToolAction.ZIPDOWNLOAD.equals(actionId))
 		{
 			doZipDownloadconfirm(data);
@@ -10414,9 +10412,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_MODE, MODE_RESTORE);
 	}
-	
-	//DMERINO - EMPIEZO LO DEL ZIPDOWNLOAD
-	//MIRAR SAK-23304
 
 	/**
 	 * set the state name to be "zipDownloadfinish" if any item has been selected for zip downloading
