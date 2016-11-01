@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class SiteGroupHelper {
 
 	// The separator when packing ids into a string.
-	static final char SEPARATOR = ',';
+	static final char SEPARATOR = '+';
 	// The character we use to escape strings.
 	static final char ESCAPE = '\\';
 
