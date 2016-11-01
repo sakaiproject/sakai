@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
@@ -224,10 +223,10 @@ public class RoleGroupEventWatcher implements Observer
 						// whether saving site is needed because some groups need updates
 						boolean needSave = false;
 						
-						for (Object g : site.getGroups())
+						for (Group g : site.getGroups())
 						{
-							ResourceProperties properties = ((Group) g).getProperties();
-							if (properties.getProperty(((Group) g).GROUP_PROP_WSETUP_CREATED) != null && properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID) != null)
+							ResourceProperties properties = g.getProperties();
+							if (properties.getProperty(Group.GROUP_PROP_WSETUP_CREATED) != null && properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID) != null)
 							{
 								needSave = true;
 								
@@ -236,7 +235,7 @@ public class RoleGroupEventWatcher implements Observer
 								
 								if (roleString != null && roleString.length() > 0)
 								{
-									Set<Member> members = ((Group) g).getMembers();
+									Set<Member> members = g.getMembers();
 									
 									Collection<String> roles = SiteGroupHelper.unpack(roleString);
 									for (String role : roles)
@@ -246,17 +245,17 @@ public class RoleGroupEventWatcher implements Observer
 										{
 											if (m.getRole().getId().equals(role))
 											{
-												((Group) g).removeMember(m.getUserId());
+												g.removeMember(m.getUserId());
 											}
 										}
 										
 										// update the group member with current realm users
-										Set roleUserSet = r.getUsersHasRole(role.trim());
+										Set<String> roleUserSet = r.getUsersHasRole(role.trim());
 										if (roleUserSet != null && !roleUserSet.isEmpty())
 										{
-											for(Object userId:roleUserSet)
+											for(String userId:roleUserSet)
 											{
-												((Group) g).addMember((String) userId, role.trim(), true, false);
+												g.addMember(userId, role.trim(), true, false);
 											}
 										}
 									}
