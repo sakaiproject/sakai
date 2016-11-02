@@ -387,7 +387,7 @@ drop index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T;
 -- END SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 
 -- LSNBLDR-646
-drop index if exists lesson_builder_qr_questionId on lesson_builder_q_responses;
+drop index lesson_builder_qr_questionId on lesson_builder_q_responses;
 -- END LSNBLDR-646
 
 -- SAK-29546 Add site visit totals per user
