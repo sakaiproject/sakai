@@ -2,6 +2,7 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
@@ -97,7 +99,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	// group provider id
     	String groupProviderId = null;
     	// list of group role provider ids
-    	List<String> groupRoleProviderRoles = null;
+    	Collection<String> groupRoleProviderRoles = null;
     	
     	UIForm groupForm = UIForm.make(arg0, "groups-form");
 
@@ -267,7 +269,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 
 	     /********************** for the group members list **************************/
 	     List<String> groupRosters = handler.getGroupRosters(g);
-	     List<String> groupProviderRoles = handler.getGroupProviderRoles(g);
+	     Collection<String> groupProviderRoles = handler.getGroupProviderRoles(g);
 	     List<Member> groupMembersCopy = new ArrayList<>();
 	     groupMembersCopy.addAll(groupMembers);
 	     for( Member p : groupMembersCopy )

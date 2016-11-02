@@ -18,3 +18,13 @@ DROP INDEX SST_PRESENCE_SITE_ID_IX ON SST_PRESENCES;
 DROP INDEX SST_EVENTS_USER_ID_IX ON SST_EVENTS;
 -- END SAK-31276
 
+-- SAK-31905
+-- Uncomment this if you're using a standard Sakai GroupProvider/CourseManagement
+-- If you're using a custom implementation you need to check what separator is used between provider IDs and if you
+-- are using anything other than "," this uncomment this and update to use your separator
+-- UPDATE SAKAI_REALM SET PROVIDER_ID = REPLACE(PROVIDER_ID, ',', '+') where PROVIDER_ID like '%,%';
+
+-- You do want to run this part of it which fixes any older role IDs to use the correct separator.
+UPDATE SAKAI_SITE_GROUP_PROPERTY SET value = REPLACE(value, '+', ',')
+  WHERE name = 'group_prop_role_providerid' AND value LIKE '%+%';
+-- END SAK-31905
