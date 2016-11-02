@@ -24,6 +24,7 @@ package org.sakaiproject.email.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -832,6 +833,25 @@ public class BasicEmailService implements EmailService
 		// if we have none
 		if (addresses.isEmpty()) return;
 
+		// get separate sets
+		List<Address[]> messageSets = getMessageSets(addresses);
+		
+		// get a session for our smtp setup, include host, port, reverse-path, and set partial delivery
+		Properties props = createMailSessionProperties();
+
+		Session session = Session.getInstance(props);
+
+		// form our Message
+		MimeMessage msg = new MyMessage(session, headers, message);
+
+		// fix From and ReplyTo if necessary
+		checkFrom(msg);
+
+		// transport the message
+		transportMessage(session, messageSets, headers, msg);
+	}
+
+	private List<Address[]> getMessageSets(List<InternetAddress> addresses) {
 		// how many separate messages do we need to send to keep each one at or under m_maxRecipients?
 		int numMessageSets = ((addresses.size() - 1) / m_maxRecipients) + 1;
 
@@ -860,18 +880,10 @@ public class BasicEmailService implements EmailService
 				posInAddresses++;
 			}
 		}
-
-		// get a session for our smtp setup, include host, port, reverse-path, and set partial delivery
-		Properties props = createMailSessionProperties();
-
-		Session session = Session.getInstance(props);
-
-		// form our Message
-		MimeMessage msg = new MyMessage(session, headers, message);
-
-		// fix From and ReplyTo if necessary
-		checkFrom(msg);
-
+		return messageSets;
+	}
+	
+	private void transportMessage(Session session, List<Address[]> messageSets, Collection<String> headers, MimeMessage msg) {
 		// transport the message
 		long time1 = 0;
 		long time2 = 0;
@@ -926,11 +938,11 @@ public class BasicEmailService implements EmailService
 				}
 				catch (SendFailedException e)
 				{
-					if (M_log.isDebugEnabled()) M_log.debug("sendToUsers: " + e);
+					if (M_log.isDebugEnabled()) M_log.debug("transportMessage: " + e);
 				}
 				catch (MessagingException e)
 				{
-					M_log.warn("sendToUsers: " + e);
+					M_log.warn("transportMessage: " + e);
 				}
 			}
 
@@ -941,14 +953,14 @@ public class BasicEmailService implements EmailService
 		}
 		catch (MessagingException e)
 		{
-			M_log.warn("sendToUsers:" + e);
+			M_log.warn("transportMessage:" + e);
 		}
 
 		// log
 		if (M_log.isInfoEnabled())
 		{
 			StringBuilder buf = new StringBuilder();
-			buf.append("sendToUsers: headers[");
+			buf.append("transportMessage: headers[");
 			for (String header : headers)
 			{
 				buf.append(" ");
@@ -1435,16 +1447,7 @@ public class BasicEmailService implements EmailService
 		{
 			msg.saveChanges();
 
-			Transport transport = session.getTransport(protocol);
-
-			if(m_smtpUser != null && m_smtpPassword != null)
-				transport.connect(m_smtp,m_smtpUser,m_smtpPassword);
-			else
-				transport.connect();
-
-			transport.sendMessage(msg, to);
-
-			transport.close();
+			transportMessage(session, getMessageSets(new ArrayList<InternetAddress>(Arrays.asList(to))), new ArrayList<String>(), msg);
 		}
 
 		long end = 0;
