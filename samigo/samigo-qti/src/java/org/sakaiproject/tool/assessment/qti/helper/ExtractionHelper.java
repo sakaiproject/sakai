@@ -2837,7 +2837,7 @@ public class ExtractionHelper
           if (instruction != null && instruction.length() > 0) {
               instruction = XmlUtil.processFormattedText(log, (String) instructions.get(0));
               instruction = instruction.replaceAll("\\?\\?"," ");//SAK-2298
-              item.setInstruction(instruction);
+              item.setInstruction(makeFCKAttachment(instruction));
           }
       }
       
