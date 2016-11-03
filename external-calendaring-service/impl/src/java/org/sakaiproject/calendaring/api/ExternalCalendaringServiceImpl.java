@@ -53,6 +53,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendaring.logic.SakaiProxy;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -63,6 +64,9 @@ import org.sakaiproject.user.api.User;
  */
 @Slf4j
 public class ExternalCalendaringServiceImpl implements ExternalCalendaringService {
+	
+	@Setter
+	private TimeService timeService;
 
 	/**
 	 * {@inheritDoc}
@@ -70,11 +74,20 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	public VEvent createEvent(CalendarEvent event) {
 		return createEvent(event, null);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public VEvent createEvent(CalendarEvent event, Set<User> attendees) {
+		//Default to time in GMT
+		return createEvent(event, null, false);
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees, boolean timeIsLocal) {
 		
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -83,7 +96,16 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		
 		//timezone. All dates are in GMT so we need to explicitly set that
 		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-		TimeZone timezone = registry.getTimeZone("GMT");
+		
+		//To prevent NPE on timezone
+		TimeZone timezone = null;
+		if (timeIsLocal == true) {
+			timezone = registry.getTimeZone(timeService.getLocalTimeZone().getID());
+		}
+		if (timezone == null) {
+			//This is guaranteed to return timezone if timeIsLocal == false or it fails and returns null
+			timezone = registry.getTimeZone("GMT");
+		}
 		VTimeZone tz = timezone.getVTimeZone();
 
 		//start and end date

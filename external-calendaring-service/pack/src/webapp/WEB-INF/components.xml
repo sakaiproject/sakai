@@ -9,6 +9,7 @@
     	init-method="init">
     	
     	<property name="sakaiProxy" ref="org.sakaiproject.calendaring.logic.SakaiProxy" />
+    	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
     	
     </bean>
 
