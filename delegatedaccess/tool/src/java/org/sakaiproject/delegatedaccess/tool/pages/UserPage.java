@@ -385,8 +385,6 @@ public class UserPage  extends BaseTreePage{
 		form.add(hierarchyDiv);
 		
 		
-		form.add(new WebMarkupContainer("searchHeader"));
-		form.add(new Button("submitButton"));
 
 		add(form);
 
