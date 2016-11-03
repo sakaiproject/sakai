@@ -137,13 +137,13 @@ public class IcalendarReader extends Reader
 					durationformat = durationhours+":"+durationformat;
                                     }
                                     String description = "";
-                                    if ( component.getProperty("DESCRIPTION") != null )
+                                    if ( component.getProperty("DESCRIPTION") != null ) {
                                             description = component.getProperty("DESCRIPTION").getValue();
-
+                                    }
                                     String location = "";
-                                    if (component.getProperty("LOCATION") != null)
-                                    location = component.getProperty("LOCATION").getValue();
-
+                                    if (component.getProperty("LOCATION") != null) {
+                                        location = component.getProperty("LOCATION").getValue();
+                                    }
                                     String columns[]	= 
                                                     {component.getProperty("SUMMARY").getValue(),
                                                      description,
@@ -247,9 +247,9 @@ public class IcalendarReader extends Reader
 			// if the source time zone were known, this would be
 			// a good place to set it: startCal.setTimeZone()
 			GregorianCalendar startCal = new GregorianCalendar();
-			if ( startDate != null )
-				startCal.setTimeInMillis( startDate.getTime() );
-				
+			if ( startDate != null ) {
+                            startCal.setTimeInMillis( startDate.getTime() );
+                        }
 			startTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
 			startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
 			startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
