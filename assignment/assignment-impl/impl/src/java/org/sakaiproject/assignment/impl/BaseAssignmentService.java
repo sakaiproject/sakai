@@ -28,6 +28,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.sakaiproject.assignment.impl.sort.AssignmentComparator;
+import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
+import org.sakaiproject.assignment.impl.sort.UserComparator;
+import org.sakaiproject.assignment.impl.sort.UserIdComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -97,9 +101,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.*;
@@ -3407,7 +3408,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * @inheritDoc
 	 */
-	public List getListAssignmentsForContext(String context)
+	public List<Assignment> getListAssignmentsForContext(String context)
 	{
 		M_log.debug(this + " getListAssignmetsForContext : CONTEXT : " + context);
 		Assignment tempAssignment = null;
@@ -4467,15 +4468,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
 			
 			// starting from this row, going to input user data
-			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator("duedate", "true"));
-	
+			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator());
+
 			// site members excluding those who can add assignments
 			List members = new ArrayList();
 			// hashmap which stores the Excel row number for particular user
 			HashMap user_row = new HashMap();
 			
-			List allowAddAnySubmissionUsers = allowAddAnySubmissionUsers(context);
-			for (Iterator iUserIds = new SortedIterator(allowAddAnySubmissionUsers.iterator(), new AssignmentComparator("sortname", "true")); iUserIds.hasNext();)
+			List<String> allowAddAnySubmissionUsers = allowAddAnySubmissionUsers(context);
+			for (Iterator iUserIds = new SortedIterator(allowAddAnySubmissionUsers.iterator(), new UserIdComparator()); iUserIds.hasNext();)
 			{
 				String userId = (String) iUserIds.next();
 				try
@@ -5270,7 +5271,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					if (allowGradeSubmission(aRef))
 					{
 					    zipGroupSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(), a.getContent().getTypeOfSubmission(),
-					            new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment,gradeFileFormat,includeNotSubmitted);
+					            new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator()), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment,gradeFileFormat,includeNotSubmitted);
 
 					    if (exceptionMessage.length() > 0)
 					    {
@@ -5297,7 +5298,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					AssignmentContent content = a.getContent();
 					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(), 
-							new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
+							new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator()), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
 	
 					if (exceptionMessage.length() > 0)
 					{
@@ -13849,205 +13850,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}// SubmissionStorageUser
 
 
-	private class UserComparator implements Comparator
-        {
-            public UserComparator() {}
-            
-            public int compare(Object o1, Object o2) {
-                User _u1 = (User)o1;
-                User _u2 = (User)o2;
-                return _u1.compareTo(_u2);
-            }
-        }
-
-	/**
-	 * the AssignmentComparator clas
-	 */
-	static class AssignmentComparator implements Comparator
-	{	
-		Collator collator = null;
-		
-		/**
-		 * the criteria
-		 */
-		String m_criteria = null;
-
-		/**
-		 * the criteria
-		 */
-		String m_asc = null;
-
-		/**
-		 * is group submission
-		 */
-		boolean m_group_submission = false;
-
-		/**
-		 * constructor
-		 * @param criteria
-		 *        The sort criteria string
-		 * @param asc
-		 *        The sort order string. TRUE_STRING if ascending; "false" otherwise.
-		 */
-		public AssignmentComparator(String criteria, String asc)
-		{
-			this(criteria, asc, false);
-		} // constructor
-		public AssignmentComparator(String criteria, String asc, boolean group)
-		{
-			m_criteria = criteria;
-			m_asc = asc;
-			m_group_submission = group;
-			try
-			{
-				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			}
-			catch (ParseException e)
-			{
-				// error with init RuleBasedCollator with rules
-				// use the default Collator
-				collator = Collator.getInstance();
-				M_log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
-			}
-		}
-
-		/**
-		 * implementing the compare function
-		 * 
-		 * @param o1
-		 *        The first object
-		 * @param o2
-		 *        The second object
-		 * @return The compare result. 1 is o1 < o2; -1 otherwise
-		 */
-		public int compare(Object o1, Object o2)
-		{
-			int result = -1;
-
-			/************** for sorting submissions ********************/
-			if ("submitterName".equals(m_criteria))
-			{
-				String name1 = getSubmitterSortname(o1);
-				String name2 = getSubmitterSortname(o2);
-				result = compareString(name1,name2);
-			}
-			/** *********** for sorting assignments ****************** */
-			else if ("duedate".equals(m_criteria))
-			{
-				// sorted by the assignment due date
-				Time t1 = ((Assignment) o1).getDueTime();
-				Time t2 = ((Assignment) o2).getDueTime();
-
-				if (t1 == null)
-				{
-					result = -1;
-				}
-				else if (t2 == null)
-				{
-					result = 1;
-				}
-				else if (t1.before(t2))
-				{
-					result = -1;
-				}
-				else
-				{
-					result = 1;
-				}
-			}
-			else if ("sortname".equals(m_criteria))
-			{
-				// sorted by the user's display name
-				String s1 = null;
-				String userId1 = (String) o1;
-				if (userId1 != null)
-				{
-					try
-					{
-						User u1 = UserDirectoryService.getUser(userId1);
-						s1 = u1!=null?u1.getSortName():null;
-					}
-					catch (Exception e)
-					{
-						M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + userId1);
-					}
-				}
-					
-				String s2 = null;
-				String userId2 = (String) o2;
-				if (userId2 != null)
-				{
-					try
-					{
-						User u2 = UserDirectoryService.getUser(userId2);
-						s2 = u2!=null?u2.getSortName():null;
-					}
-					catch (Exception e)
-					{
-						M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + userId2);
-					}
-				}
-
-				result = compareString(s1,s2);
-			}
-			
-			// sort ascending or descending
-			if (m_asc.equals(Boolean.FALSE.toString()))
-			{
-				result = -result;
-			}
-			return result;
-		}
-
-		/**
-		 * get the submitter sortname String for the AssignmentSubmission object
-		 * @param o2
-		 * @return
-		 */
-		private String getSubmitterSortname(Object o2) {
-			String rv = "";
-			if (o2 instanceof AssignmentSubmission)
-			{
-				// get Assignment
-				AssignmentSubmission _submission =(AssignmentSubmission) o2;
-				if (_submission.getAssignment().isGroup()) {
-					// get the Group
-					try {
-						Site _site = SiteService.getSite( _submission.getAssignment().getContext() );
-						rv = _site.getGroup(_submission.getSubmitterId()).getTitle();
-					} catch (Throwable _dfd) { }			
-				} else {	
-				User[] users2 = ((AssignmentSubmission) o2).getSubmitters();
-				if (users2 != null)
-				{
-					StringBuffer users2Buffer = new StringBuffer();
-					for (int i = 0; i < users2.length; i++)
-					{
-						users2Buffer.append(users2[i].getSortName() + " ");
-					}
-					rv = users2Buffer.toString();
-				}
-			}
-			}
-			return rv;
-		}
-		
-		private int compareString(String s1, String s2) 
-		{
-			int result;
-			if (s1 == null && s2 == null) {
-				result = 0;
-			} else if (s2 == null) {
-				result = 1;
-			} else if (s1 == null) {
-				result = -1;
-			} else {
-				result = collator.compare(s1.toLowerCase(), s2.toLowerCase());
-			}
-			return result;
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
