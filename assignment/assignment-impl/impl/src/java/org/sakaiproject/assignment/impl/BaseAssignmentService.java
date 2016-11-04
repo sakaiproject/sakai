@@ -27,6 +27,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -4392,8 +4393,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String sheetName = "";
 		try
 		{
-			siteTitle = (parts.length>1)?SiteService.getSite(idSite).getTitle()+" - "+SiteService.getSite(idSite).getGroup((String)parts[3]).getTitle():SiteService.getSite(idSite).getTitle();
-			sheetName = (parts.length>1)?SiteService.getSite(idSite).getGroup((String)parts[3]).getTitle():SiteService.getSite(idSite).getTitle();
+			Site site = SiteService.getSite(idSite);
+			siteTitle = (parts.length>1)? site.getTitle()+" - "+ site.getGroup(parts[3]).getTitle(): site.getTitle();
+			sheetName = (parts.length>1)? site.getGroup(parts[3]).getTitle(): site.getTitle();
 		}
 		catch (Exception e)
 		{
@@ -4521,7 +4523,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						// prepopulate the column with the "no submission" string
 						row = sheet.getRow(rowNum++);
 						cell = row.createCell(cellNum);
-						cell.setCellType(1);
+						cell.setCellType(Cell.CELL_TYPE_STRING);
 						cell.setCellValue(rb.getString("listsub.nosub"));
 					}
 
@@ -4571,7 +4573,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										row.removeCell(cell);
 										// add number based cell
 										cell=row.createCell(cellNum);
-										cell.setCellType(0);
+										cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 										cell.setCellValue(f);
 			
 										style = wb.createCellStyle();
@@ -4587,7 +4589,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										// if the grade is not numeric, let's make it as String type
 										// No need to remove the cell and create a new one, as the existing one is String type.
 										cell = row.getCell(cellNum);
-										cell.setCellType(1);
+										cell.setCellType(Cell.CELL_TYPE_STRING);
 										cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
                                                                                     submission.getGradeForUser(userId));
 									}
@@ -4639,7 +4641,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										row.removeCell(cell);
 										// add number based cell
 										cell=row.createCell(cellNum);
-										cell.setCellType(0);
+										cell.setCellType(Cell.CELL_TYPE_NUMERIC);
 										cell.setCellValue(f);
 			
 										style = wb.createCellStyle();
@@ -4655,7 +4657,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										// if the grade is not numeric, let's make it as String type
 										// No need to remove the cell and create a new one, as the existing one is String type. 
 										cell = row.getCell(cellNum);
-										cell.setCellType(1);
+										cell.setCellType(Cell.CELL_TYPE_STRING);
 										// Setting grade display instead grade.
 										cell.setCellValue(submission.getGradeDisplay());
 									}
