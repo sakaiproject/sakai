@@ -6,11 +6,6 @@
     <description>Sakai Podcasts Tool</description>
 
     <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>client</param-value>
-    </context-param>
- 
-    <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>/WEB-INF/local.xml</param-value>
     </context-param>
