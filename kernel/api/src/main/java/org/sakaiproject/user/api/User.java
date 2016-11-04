@@ -84,7 +84,7 @@ public interface User extends Entity, Comparable
 	/**
 	 * Access the user's name for sorting purposes.
 	 * 
-	 * @return The user's name for sorting purposes.
+	 * @return The user's name for sorting purposes, never <code>null</code>
 	 */
 	String getSortName();
 
