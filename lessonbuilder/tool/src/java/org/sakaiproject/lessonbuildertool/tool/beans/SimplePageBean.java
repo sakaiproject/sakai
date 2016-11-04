@@ -4668,9 +4668,9 @@ public class SimplePageBean {
 				entry.setComplete(complete);
 				entry.setPath(path);
 				entry.setToolId(toolId);
-				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + i.getSakaiId(), complete));
-				trackComplete(i, complete);
+				SimplePageItem item = findItem(itemId);
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), complete));
+				trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
 				entry.setPath(path);
@@ -4690,10 +4690,10 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setToolId(toolId);
 				entry.setDummy(false);
-				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + i.getSakaiId(), complete));
+				SimplePageItem item = findItem(itemId);
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), complete));
 				if (complete != wasComplete)
-				    trackComplete(i, complete);
+				    trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
 				entry.setComplete(true);
