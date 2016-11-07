@@ -14426,7 +14426,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			if ( assignment != null && assignment.isGroup()) {
-
+				allOrOneGroup =  MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode)?"all":allOrOneGroup;
 				Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
 
 				// construct the group-submission list
