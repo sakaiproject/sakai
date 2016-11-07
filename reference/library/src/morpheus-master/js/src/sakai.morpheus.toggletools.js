@@ -45,21 +45,22 @@ $PBJQ(document).ready(function(){
 	initialOffset = $PBJQ("#toolMenu").offset().top - $window.scrollTop();
 	$PBJQ(window).scroll(function(){
 		var follow = ($window.height()- padding) > $tools.height();
-		var _top   = ( $PBJQ("#toggleSubsitesLink").length > 0 )?(-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) ):0;
-		if($PBJQ("#toolMenuWrap").css('position') !== 'fixed' && follow) {
-			if($window.scrollTop() > offset.top) {
+		var _subHeight = (-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) );
+		var _top   = ( $PBJQ("#toggleSubsitesLink").length > 0 )?_subHeight:0;
+		if( $PBJQ("#toolMenuWrap").css('position') !== 'fixed' && follow ) {
+			if($window.scrollTop() > offset.top ) {
 				$PBJQ("#toolMenu").stop().animate({
 	                top: $window.scrollTop() - offset.top
 	            });
-				$PBJQ("#subSites").css('top', ( $window.scrollTop() - offset.top + _top ) );
+				$PBJQ("#subSites.floating").css('top', ( $window.scrollTop() - offset.top + _top ) );
 			} else {
 				$PBJQ("#toolMenu").stop().animate({
 					top: 0
 	            });
-	            $PBJQ("#subSites").css('top', _top );
+	            $PBJQ("#subSites.floating").css('top', _top );
 			}
 		}else{
-	        $PBJQ("#subSites").css('top', _top );
+	        $PBJQ("#subSites.floating").css('top', _top );
 		}
 	});
 
@@ -75,6 +76,9 @@ $PBJQ(document).ready(function(){
 	    var _top = ( -1 * ( $PBJQ('#toolMenu').height() - position.top ) );
 	    $PBJQ('#subSites').css({'display': 'block','left': position.left + subsitesLink.width() + 6 + 'px','top': _top + 'px'});
 	    $PBJQ('#subSites').addClass('floating');
+	  	if( $PBJQ("#toggleSubsitesLink").position().top < 240 ){
+	  		$PBJQ("#subSites.floating").addClass('ontop');
+	  	}
 	  }
 	});
 

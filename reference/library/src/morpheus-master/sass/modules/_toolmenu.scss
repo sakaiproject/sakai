@@ -158,17 +158,26 @@ body.#{$namespace}toolMenu-collapsed{
 }
 
 nav#subSites{
-	max-width: #{$tool-menu-width * 2 };
+	width: #{$tool-menu-width };
 	position: relative;
 	z-index: 9999;
 	@media #{$desktop}{
-		min-width: 15em;
+		min-width: 7em;
 	}
 	&.floating{
-		margin: 0 0 0 7px;
+		min-width: #{$tool-menu-width * 2 };
+		max-width: #{$tool-menu-width * 2 };
+		margin: 3.4em 0 0 7px;
+		transform: translateY(-100%);
+		&.ontop{
+			ul{
+				max-height: 240px;
+				overflow: auto;
+			}
+		}
 		&:after{
 			right: 100%;
-			top: 25%;
+			top: calc(100% - 25px);
 			border: solid transparent;
 			content: " ";
 			height: 0;
