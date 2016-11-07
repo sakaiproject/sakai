@@ -1334,6 +1334,11 @@ public class AssessmentService {
 
 	public static String copyStringAttachment(String stringWithAttachment) {
 		AssessmentService assessmentService = new AssessmentService();
-		return assessmentService.copyContentHostingAttachments(stringWithAttachment, AgentFacade.getCurrentSiteId());
+		
+		if(AgentFacade.getCurrentSiteId()!=null){
+			return assessmentService.copyContentHostingAttachments(stringWithAttachment, AgentFacade.getCurrentSiteId());
+		}
+		
+		return stringWithAttachment;
 	}
 }
