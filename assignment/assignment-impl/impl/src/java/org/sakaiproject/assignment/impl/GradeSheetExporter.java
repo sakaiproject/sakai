@@ -425,7 +425,13 @@ public class GradeSheetExporter {
         public int compareTo(Submitter o) {
             int value = Boolean.compare(this.anonymous, o.anonymous);
             if (value == 0) {
-               value = this.id.compareTo(o.id);
+                if (anonymous) {
+                    // Sort by ID for anonymous ones
+                    value = this.id.compareTo(o.id);
+                } else {
+                    // Sort by sortName for normal ones.
+                    value = this.sortName.compareTo(o.sortName);
+                }
             }
             return value;
         }
