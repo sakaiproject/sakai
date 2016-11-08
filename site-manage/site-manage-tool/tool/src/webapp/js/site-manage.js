@@ -651,14 +651,14 @@ var setupCategTools = function(){
         var mylist = $('#toolSelectionList ul');
         var listitems = mylist.children('li').get();
         listitems.sort(function(a, b){
-            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
+            return $(a).text().trim().toUpperCase().localeCompare($(b).text().trim().toUpperCase());
         });
         $.each(listitems, function(idx, itm){
             mylist.append(itm);
         });
         if ($('#toolSelectionList ul li').length > 1) {
-            if ($('#toolSelectionList ul').find('li#selected_sakai_home').length) {
-             $('#toolSelectionList ul').find('li#selected_sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
+            if ($('#toolSelectionList ul').find('li#sakai_home').length) {
+             $('#toolSelectionList ul').find('li#sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
             }
             // SAK-22384
             var listHeader = document.getElementById("#toolSelectionListHeader");
