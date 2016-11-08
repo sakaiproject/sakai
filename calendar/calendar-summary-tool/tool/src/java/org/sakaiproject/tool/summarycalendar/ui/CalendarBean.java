@@ -862,22 +862,26 @@ public class CalendarBean {
 	public synchronized Map<String, String> getEventIconMap() {
 		if(eventIconMap == null || eventIconMap.size() == 0){
 			eventIconMap = new HashMap<String, String>();
-			eventIconMap.put("Academic Calendar", "<span class=\"icon icon-calendar-academic-calendar\"></span>");
-			eventIconMap.put("Activity", "<span class=\"icon icon-calendar-activity\"></span>");
-			eventIconMap.put("Cancellation", "<span class=\"icon icon-calendar-cancellation\"></span>");
-			eventIconMap.put("Class section - Discussion", "<span class=\"icon icon-calendar-class-section-discussion\"></span>");
-			eventIconMap.put("Class section - Lab", "<span class=\"icon icon-calendar-class-section-lab\"></span>");
-			eventIconMap.put("Class section - Lecture", "<span class=\"icon icon-calendar-class-section-lecture\"></span>");
-			eventIconMap.put("Class section - Small Group", "<span class=\"icon icon-calendar-class-section-small-group\"></span>");
-			eventIconMap.put("Class session", "<span class=\"icon icon-calendar-class-session\"></span>");
-			eventIconMap.put("Computer Session", "<span class=\"icon icon-calendar-computer-session\"></span>");
-			eventIconMap.put("Deadline", "<span class=\"icon icon-calendar-deadline\"></span>");
-			eventIconMap.put("Exam", "<span class=\"icon icon-calendar-exam\"></span>");
-			eventIconMap.put("Meeting", "<span class=\"icon icon-calendar-meeting\"></span>");
-			eventIconMap.put("Multidisciplinary Conference", "<span class=\"icon icon-calendar-multidisciplinary-conference\"></span>");
-			eventIconMap.put("Quiz", "<span class=\"icon icon-calendar-quiz\"></span>");
-			eventIconMap.put("Special event", "<span class=\"icon icon-calendar-special-event\"></span>");
-			eventIconMap.put("Web Assignment", "<span class=\"icon icon-calendar-web-assignment\"></span>");
+			eventIconMap.put("Academic Calendar", "<i class=\"icon icon-calendar-academic-calendar\"></i>");
+			eventIconMap.put("Activity", "<i class=\"icon icon-calendar-activity\"></i>");
+			eventIconMap.put("Cancellation", "<i class=\"icon icon-calendar-cancellation\"></i>");
+			eventIconMap.put("Class section - Discussion", "<i class=\"icon icon-calendar-class-section-discussion\"></i>");
+			eventIconMap.put("Class section - Lab", "<i class=\"icon icon-calendar-class-section-lab\"></i>");
+			eventIconMap.put("Class section - Lecture", "<i class=\"icon icon-calendar-class-section-lecture\"></i>");
+			eventIconMap.put("Class section - Small Group", "<i class=\"icon icon-calendar-class-section-small-group\"></i>");
+			eventIconMap.put("Class session", "<i class=\"icon icon-calendar-class-session\"></i>");
+			eventIconMap.put("Computer Session", "<i class=\"icon icon-calendar-computer-session\"></i>");
+			eventIconMap.put("Deadline", "<i class=\"icon icon-calendar-deadline\"></i>");
+			eventIconMap.put("Exam", "<i class=\"icon icon-calendar-exam\"></i>");
+			eventIconMap.put("Formative Assessment", "<i class=\"icon icon-calendar-formative-assessment\"></i>");
+			eventIconMap.put("Meeting", "<i class=\"icon icon-calendar-meeting\"></i>");
+			eventIconMap.put("Multidisciplinary Conference", "<i class=\"icon icon-calendar-multidisciplinary-conference\"></i>");
+			eventIconMap.put("Quiz", "<i class=\"icon icon-calendar-quiz\"></i>");
+			eventIconMap.put("Special event", "<i class=\"icon icon-calendar-special-event\"></i>");
+			eventIconMap.put("Submission Date", "<i class=\"icon icon-calendar-submission-date\"></i>");
+			eventIconMap.put("Tutorial", "<i class=\"icon icon-calendar-tutorial\"></i>");
+			eventIconMap.put("Web Assignment", "<i class=\"icon icon-calendar-web-assignment\"></i>");
+			eventIconMap.put("Workshop", "<i class=\"icon icon-calendar-workshop\"></i>");
 		}
 		return eventIconMap;
 	}

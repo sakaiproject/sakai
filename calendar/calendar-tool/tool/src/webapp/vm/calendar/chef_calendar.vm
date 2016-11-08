@@ -22,11 +22,15 @@ calendar Portlet
 		<li><i class="icon icon-calendar-computer-session"></i> $tlang.getString('legend.key9')</li>
 		<li><i class="icon icon-calendar-deadline"></i> $tlang.getString('legend.key10')</li>
 		<li><i class="icon icon-calendar-exam"></i> $tlang.getString('legend.key11')</li>
+		<li><i class="icon icon-calendar-formative-assessment"></i> $tlang.getString('legend.key17')</li>
 		<li><i class="icon icon-calendar-meeting"></i> $tlang.getString('legend.key12')</li>
 		<li><i class="icon icon-calendar-multidisciplinary-conference"></i> $tlang.getString('legend.key13')</li>
 		<li><i class="icon icon-calendar-quiz"></i> $tlang.getString('legend.key14')</li>
 		<li><i class="icon icon-calendar-special-event"></i> $tlang.getString('legend.key15')</li>
+		<li><i class="icon icon-calendar-submission-date"></i> $tlang.getString('legend.key18')</li>
+		<li><i class="icon icon-calendar-tutorial"></i> $tlang.getString('legend.key19')</li>
 		<li><i class="icon icon-calendar-web-assignment"></i> $tlang.getString('legend.key16')</li>
+		<li><i class="icon icon-calendar-workshop"></i> $tlang.getString('legend.key20')</li>
 	</ul>
 	<div class="clear"></div>
 #end
@@ -57,6 +61,8 @@ calendar Portlet
 <i class="icon icon-calendar-deadline" title="$tlang.getString('legend.key10')" ></i>
 #elseif ($eventType =="Exam")
 <i class="icon icon-calendar-exam" title="$tlang.getString('legend.key11')" ></i>
+#elseif ($eventType =="Formative Assessment")
+<i class="icon icon-calendar-formative-assessment" title="$tlang.getString('legend.key17')" ></i>
 #elseif ($eventType =="Meeting")
 <i class="icon icon-calendar-meeting" title="$tlang.getString('legend.key12')" ></i>
 #elseif ($eventType =="Multidisciplinary Conference")
@@ -65,8 +71,14 @@ calendar Portlet
 <i class="icon icon-calendar-quiz" title="$tlang.getString('legend.key14')" ></i>
 #elseif ($eventType =="Special event")
 <i class="icon icon-calendar-special-event" title="$tlang.getString('legend.key15')" ></i>
+#elseif ($eventType =="Submission Date")
+<i class="icon icon-calendar-submission-date" title="$tlang.getString('legend.key18')" ></i>
+#elseif ($eventType =="Tutorial")
+<i class="icon icon-calendar-tutorial" title="$tlang.getString('legend.key19')" ></i>
 #elseif ($eventType =="Web Assignment")
 <i class="icon icon-calendar-web-assignment" title="$tlang.getString('legend.key16')" ></i>
+#elseif ($eventType =="Workshop")
+<i class="icon icon-calendar-workshop" title="$tlang.getString('legend.key20')" ></i>
 #end
 #end
 

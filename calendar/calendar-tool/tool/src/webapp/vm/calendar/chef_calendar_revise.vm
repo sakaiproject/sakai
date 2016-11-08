@@ -808,6 +808,12 @@ $(function() {
 				<option value="Exam">$tlang.getString("legend.key11")</option> 
 				#end
 				
+				#if ($type =="Formative Assessment")
+				<option selected="selected" value="Formative Assessment">$tlang.getString("legend.key17")</option>
+				#else
+				<option value="Formative Assessment">$tlang.getString("legend.key17")</option>
+				#end
+				
 				#if ($type=="Meeting") 
 				<option selected="selected" value="Meeting">$tlang.getString("legend.key12")</option> 
 				#else 
@@ -825,17 +831,35 @@ $(function() {
 				#else 
 				<option value="Quiz">$tlang.getString("legend.key14")</option> 
 				#end
+
+				#if ($type =="Special event")
+				<option selected="selected" value="Special event">$tlang.getString("legend.key15")</option>
+				#else
+				<option value="Special event">$tlang.getString("legend.key15")</option>
+				#end
 				
-				#if ($type =="Special event") 
-				<option selected="selected" value="Special event">$tlang.getString("legend.key15")</option> 
+				#if ($type =="Submission Date") 
+				<option selected="selected" value="Submission Date">$tlang.getString("legend.key18")</option> 
 				#else 
-				<option value="Special event">$tlang.getString("legend.key15")</option> 
+				<option value="Submission Date">$tlang.getString("legend.key18")</option> 
+				#end
+				
+				#if ($type =="Tutorial")
+				<option selected="selected" value="Tutorial">$tlang.getString("legend.key19")</option>
+				#else
+				<option value="Tutorial">$tlang.getString("legend.key19")</option>
 				#end
 				
 				#if ($type =="Web Assignment") 
 				<option selected="selected" value="Web Assignment">$tlang.getString("legend.key16")</option> 
 				#else 
 				<option value="Web Assignment">$tlang.getString("legend.key16")</option> 
+				#end
+				
+				#if ($type =="Workshop")
+				<option selected="selected" value="Workshop">$tlang.getString("legend.key20")</option>
+				#else
+				<option value="Workshop">$tlang.getString("legend.key20")</option>
 				#end
 			</select>
 		</p>

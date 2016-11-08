@@ -6525,15 +6525,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				return rl.getString("legend.key15");
 			else if (type.equals("Web Assignment"))
 				return rl.getString("legend.key16");
-			else if (type.equals("Teletutoria"))
+			else if (type.equals("Formative Assessment"))
 				return rl.getString("legend.key17");
+			else if (type.equals("Submission Date"))
+				return rl.getString("legend.key18");
+			else if (type.equals("Tutorial"))
+				return rl.getString("legend.key19");
+			else if (type.equals("Workshop"))
+				return rl.getString("legend.key20");
 			else
 				return rl.getString("legend.key2");				
 		}else{
 			return rl.getString("legend.key2");
 		}
 	}
-	
 	/*
 	 * Gets the daily start time parameter from a Properties object filled from URL parameters.
 	 */
