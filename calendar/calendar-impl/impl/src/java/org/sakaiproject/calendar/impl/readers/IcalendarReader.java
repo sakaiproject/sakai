@@ -105,64 +105,64 @@ public class IcalendarReader extends Reader
 				Component component = (Component) i.next();
 
 	
-                                if ( component.getProperty("SUMMARY") == null )
-                                {
-                                    M_log.warn("IcalendarReader: SUMMARY is required; event not imported");
-                                    continue;
-                                }
-                                DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
-                                DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
-                                Period range = new Period(from, to);
-                                
+				if ( component.getProperty("SUMMARY") == null )
+				{
+					M_log.warn("IcalendarReader: SUMMARY is required; event not imported");
+					continue;
+				}
+				DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
+				DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
+				Period range = new Period(from, to);
+
 				PeriodList list = component.calculateRecurrenceSet(range);
 				for (Iterator j = list.iterator(); j.hasNext();) 
-                                {
-                                    Period period = (Period) j.next();
-                                    Dur duration = period.getDuration();
-                                    int durationminutes = duration.getMinutes();
-                                    int durationhours = duration.getHours();
-                                    //todo investiage ical4j's handling of 'days'
-                                    
-                                    if (durationminutes < 10)
-                                    {
+				{
+					Period period = (Period) j.next();
+					Dur duration = period.getDuration();
+					int durationminutes = duration.getMinutes();
+					int durationhours = duration.getHours();
+					//todo investiage ical4j's handling of 'days'
+
+					if (durationminutes < 10)
+					{
 					durationformat = "0"+durationminutes;
-                                    }
-                                    else
-                                    {
+					}
+					else
+					{
 					durationformat = ""+durationminutes;
-                                    }
+					}
 
-                                    if (durationhours != 0)
-                                    {
-					durationformat = durationhours+":"+durationformat;
-                                    }
-                                    String description = "";
-                                    if ( component.getProperty("DESCRIPTION") != null ) {
-                                            description = component.getProperty("DESCRIPTION").getValue();
-                                    }
-                                    String location = "";
-                                    if (component.getProperty("LOCATION") != null) {
-                                        location = component.getProperty("LOCATION").getValue();
-                                    }
-                                    String columns[]	= 
-                                                    {component.getProperty("SUMMARY").getValue(),
-                                                     description,
-                                                     DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
-                                                     DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
-                                                     durationformat,
-                                                     location};
+					if (durationhours != 0)
+					{
+						durationformat = durationhours+":"+durationformat;
+					}
+					String description = "";
+					if ( component.getProperty("DESCRIPTION") != null) {
+						description = component.getProperty("DESCRIPTION").getValue();
+					}
+					String location = "";
+					if (component.getProperty("LOCATION") != null) {
+						location = component.getProperty("LOCATION").getValue();
+					}
+					String columns[]	= 
+							{component.getProperty("SUMMARY").getValue(),
+							 description,
+							 DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
+							 DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
+							 durationformat,
+							 location};
 
-                                    // Remove trailing/leading quotes from all columns.
-                                    //trimLeadingTrailingQuotes(columns);
+					// Remove trailing/leading quotes from all columns.
+					//trimLeadingTrailingQuotes(columns);
 
-                                    handler.handleRow(
-                                            processLine(
-                                                    columnDescriptionArray,
-                                                    lineNumber,
-                                                    columns));
+					handler.handleRow(
+						processLine(
+							columnDescriptionArray,
+							lineNumber,
+							columns));
 
-                                    lineNumber++;
-                                }
+					lineNumber++;
+				}
 			} // end for
 		
 		}
@@ -248,8 +248,8 @@ public class IcalendarReader extends Reader
 			// a good place to set it: startCal.setTimeZone()
 			GregorianCalendar startCal = new GregorianCalendar();
 			if ( startDate != null ) {
-                            startCal.setTimeInMillis( startDate.getTime() );
-                        }
+				startCal.setTimeInMillis( startDate.getTime() );
+			}
 			startTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
 			startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
 			startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
