@@ -226,3 +226,10 @@ DROP INDEX SAM_PUBIP_ASSESSMENT_I;
 DROP INDEX SAM_PUBSECTIONMETA_SECTION_I;
 DROP INDEX SAM_ANSWER_ITEMTEXTID_I;
 -- END SAM-3066
+
+-- BEGIN SAK-31819 Remove the old ScheduledInvocationManager job as it's not present in Sakai 12.
+DELETE FROM QRTZ_SIMPLE_TRIGGERS WHERE TRIGGER_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
+DELETE FROM QRTZ_TRIGGERS WHERE TRIGGER_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
+-- This one is the actual job that the triggers were trying to run
+DELETE FROM QRTZ_JOB_DETAILS WHERE JOB_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
+-- END SAK-31819
