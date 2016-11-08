@@ -13,7 +13,7 @@ import java.text.RuleBasedCollator;
 import java.util.Comparator;
 
 /**
- * Created by buckett on 04/11/2016.
+ * Sorts assignment submissions by the submitter's sort name.
  */
 public class AssignmentSubmissionComparator implements Comparator<AssignmentSubmission> {
 
@@ -57,9 +57,6 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
 
     /**
      * get the submitter sortname String for the AssignmentSubmission object
-     *
-     * @param o2
-     * @return
      */
     private String getSubmitterSortname(Object o2) {
         String rv = "";
