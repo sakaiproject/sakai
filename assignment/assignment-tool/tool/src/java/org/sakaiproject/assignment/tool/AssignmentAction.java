@@ -16041,7 +16041,9 @@ public class AssignmentAction extends PagedResourceActionII
 						zipHasGradeFile = true;
 						
 							// read grades.cvs from zip
-							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)));
+						
+							String csvSep = assignmentService.getCsvSeparator();
+							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)), csvSep.charAt(0));
 
 							List <String[]> lines = reader.readAll();
 

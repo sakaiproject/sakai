@@ -1,6 +1,7 @@
 package org.sakaiproject.assignment.impl;
 
 import au.com.bytecode.opencsv.CSVWriter;
+
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -25,9 +26,9 @@ public abstract class SpreadsheetExporter {
      * @param gradeType The grade type being exported.
      * @return A new SpreadsheetExporter that can be used.
      */
-    public static SpreadsheetExporter getInstance(Type type, String title, String gradeType) {
+    public static SpreadsheetExporter getInstance(Type type, String title, String gradeType, String csvSep) {
         if (Type.CSV.equals(type)) {
-            return new CsvExporter(title, gradeType);
+            return new CsvExporter(title, gradeType, csvSep);
         } else if (Type.EXCEL.equals(type)) {
             return new ExcelExporter(title, gradeType);
         } else {
@@ -69,9 +70,9 @@ class CsvExporter extends SpreadsheetExporter {
     private final ByteArrayOutputStream gradesBAOS;
     private final CSVWriter gradesBuffer;
 
-    CsvExporter(String title, String gradeType) {
+    CsvExporter(String title, String gradeType, String csvSep) {
         gradesBAOS = new ByteArrayOutputStream();
-        gradesBuffer = new CSVWriter(new OutputStreamWriter(gradesBAOS));
+        gradesBuffer = new CSVWriter(new OutputStreamWriter(gradesBAOS), csvSep.charAt(0));
         addRow(title, gradeType);
         addRow("");
     }
