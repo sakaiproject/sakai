@@ -83,6 +83,7 @@ public class GradeSheetExporter {
         for (Assignment assignment : assignmentsList) {
             if (assignmentService.allowGradeSubmission(assignment.getReference())) {
                 allowGradeAny = true;
+                break;
             }
         }
 
@@ -137,19 +138,8 @@ public class GradeSheetExporter {
             cell.setCellStyle(style);
             cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
 
-            // This holds the position of the assignment in the output.
-            List<String> assignmentPosition = new ArrayList<>();
-            // starting from this row, going to input user data
-            for (Iterator<Assignment> assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator()); assignments.hasNext(); ) {
-                Assignment assignment = assignments.next();
-                assignmentPosition.add(assignment.getId());
-
-
-            }
-
             // site members excluding those who can add assignments
             // hashmap which stores the Excel row number for particular user
-            HashMap<String, Integer> user_row = new HashMap<>();
 
             List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(context);
             List<User> members = UserDirectoryService.getUsers(allowAddAnySubmissionUsers);
@@ -158,12 +148,6 @@ public class GradeSheetExporter {
             Map<String, Submitter> submitterMap = new HashMap<>();
             members.sort(new UserComparator());
             for (User user : members) {
-                // create the column for user first
-                row = sheet.createRow(rowNum);
-                // update user_row Hashtable
-                user_row.put(user.getId(), rowNum);
-                rowNum++;
-                // increase row
                 // put user displayid and sortname in the first two cells
                 row.createCell(0).setCellValue(user.getSortName());
                 row.createCell(1).setCellValue(user.getDisplayId());
@@ -195,14 +179,6 @@ public class GradeSheetExporter {
                         cell.setCellStyle(style);
                         cell.setCellValue(a.getTitle());
 
-                        for (int loopNum = 0; loopNum < members.size(); loopNum++) {
-                            // prepopulate the column with the "no submission" string
-                            row = sheet.getRow(rowNum++);
-                            cell = row.createCell(cellColumnNum);
-                            cell.setCellType(Cell.CELL_TYPE_STRING);
-                            cell.setCellValue(rb.getString("listsub.nosub"));
-                        }
-
                         // begin to populate the column for this assignment, iterating through student list
                         for (Iterator sIterator = assignmentService.getSubmissions(a).iterator(); sIterator.hasNext(); ) {
                             AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
@@ -219,8 +195,6 @@ public class GradeSheetExporter {
 
                                     if (submitter != null) {
                                         // find right row
-                                        row = sheet.getRow(user_row.get(userId));
-
                                         // Get the user ID for this result
                                         if (assignmentService.assignmentUsesAnonymousGrading(a)) {
                                             submitter = new Submitter(userId);
@@ -251,31 +225,13 @@ public class GradeSheetExporter {
                                                     NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
                                                     float f = nbFormat.parse(grade).floatValue();
 
-                                                    // remove the String-based cell first
-                                                    cell = row.getCell(cellColumnNum);
-                                                    row.removeCell(cell);
-                                                    // add number based cell
-                                                    cell = row.createCell(cellColumnNum);
-                                                    cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-                                                    cell.setCellValue(f);
-
                                                     style = wb.createCellStyle();
                                                     String format = "#,##0.";
                                                     for (int j = 0; j < dec; j++) {
                                                         format = format.concat("0");
                                                     }
-
-                                                    style.setDataFormat(wb.createDataFormat().getFormat(format));
-                                                    cell.setCellStyle(style);
                                                     objects.set(index, new FloatCell(format, f));
                                                 } catch (Exception e) {
-                                                    // if the grade is not numeric, let's make it as String type
-                                                    // No need to remove the cell and create a new one, as the existing one is String type.
-                                                    cell = row.getCell(cellColumnNum);
-                                                    cell.setCellType(Cell.CELL_TYPE_STRING);
-                                                    cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() :
-                                                            submission.getGradeForUser(userId));
-
                                                     objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() :
                                                             submission.getGradeForUser(userId));
 
@@ -283,16 +239,11 @@ public class GradeSheetExporter {
                                                 }
                                             } else {
                                                 // String cell type
-                                                cell = row.getCell(cellColumnNum);
-                                                cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() :
-                                                        submission.getGradeForUser(userId));
                                                 objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() :
                                                         submission.getGradeForUser(userId));
                                             }
                                         } else if (submission.getSubmitted() && submission.getTimeSubmitted() != null) {
                                             // submitted, but no grade available yet
-                                            cell = row.getCell(cellColumnNum);
-                                            cell.setCellValue(rb.getString("gen.nograd"));
                                             objects.set(index, rb.getString("gen.nograd"));
                                         }
                                     } // if
@@ -316,9 +267,8 @@ public class GradeSheetExporter {
                                     results.put(submitter, objects);
                                 }
 
-                                if (user_row.containsKey(submission.getSubmitterId())) {
+                                if (submitter != null) {
                                     // find right row
-                                    row = sheet.getRow(user_row.get(submission.getSubmitterId()));
 
                                     if (submission.getGraded() && submission.getGrade() != null) {
                                         // graded and released
@@ -333,15 +283,6 @@ public class GradeSheetExporter {
                                                 NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, null);
                                                 float f = nbFormat.parse(grade).floatValue();
 
-                                                // remove the String-based cell first
-                                                cell = row.getCell(cellColumnNum);
-                                                row.removeCell(cell);
-                                                // add number based cell
-                                                cell = row.createCell(cellColumnNum);
-                                                cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-                                                cell.setCellValue(f);
-
-                                                style = wb.createCellStyle();
                                                 String format = "#,##0.";
                                                 for (int j = 0; j < dec; j++) {
                                                     format = format.concat("0");
@@ -350,24 +291,12 @@ public class GradeSheetExporter {
                                                 cell.setCellStyle(style);
                                                 objects.set(index, new FloatCell(format, f));
                                             } catch (Exception e) {
-                                                // if the grade is not numeric, let's make it as String type
-                                                // No need to remove the cell and create a new one, as the existing one is String type.
-                                                cell = row.getCell(cellColumnNum);
-                                                cell.setCellType(Cell.CELL_TYPE_STRING);
-                                                // Setting grade display instead grade.
-                                                cell.setCellValue(submission.getGradeDisplay());
                                                 objects.set(index, submission.getGradeDisplay());
                                             }
                                         } else {
-                                            // String cell type
-                                            cell = row.getCell(cellColumnNum);
-                                            cell.setCellValue(submission.getGradeDisplay());
                                             objects.set(index, submission.getGradeDisplay());
                                         }
                                     } else if (submission.getSubmitted() && submission.getTimeSubmitted() != null) {
-                                        // submitted, but no grade available yet
-                                        cell = row.getCell(cellColumnNum);
-                                        cell.setCellValue(rb.getString("gen.nograd"));
                                         objects.set(index, rb.getString("gen.nograd"));
                                     }
                                 } // if
@@ -381,6 +310,7 @@ public class GradeSheetExporter {
                 }
 
 
+                rowNum++;
                 // The map is already sorted and so we just iterate over it and output rows.
                 for (Iterator<Map.Entry<Submitter, List<Object>>> resultsIt = results.entrySet().iterator(); resultsIt.hasNext();) {
                     Map.Entry<Submitter, List<Object>> entry = resultsIt.next();
