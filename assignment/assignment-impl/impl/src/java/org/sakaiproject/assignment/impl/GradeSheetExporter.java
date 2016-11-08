@@ -13,10 +13,10 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
@@ -39,9 +39,24 @@ public class GradeSheetExporter {
     private ResourceLoader rb = new ResourceLoader("assignment");
 
     private AssignmentService assignmentService;
+    private SiteService siteService;
+    private TimeService timeService;
+    private UserDirectoryService userDirectoryService;
 
     public void setAssignmentService(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
     }
 
     /**
@@ -63,13 +78,13 @@ public class GradeSheetExporter {
         String typeGradesString = AssignmentService.REF_TYPE_GRADES + Entity.SEPARATOR;
         String[] parts = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length()).split(Entity.SEPARATOR);
         String idSite = (parts.length > 1) ? parts[1] : parts[0];
-        String context = (parts.length > 1) ? SiteService.siteGroupReference(idSite, parts[3]) : SiteService.siteReference(idSite);
+        String context = (parts.length > 1) ? siteService.siteGroupReference(idSite, parts[3]) : siteService.siteReference(idSite);
 
         // get site title for display purpose
         String siteTitle = "";
         String sheetName = "";
         try {
-            Site site = SiteService.getSite(idSite);
+            Site site = siteService.getSite(idSite);
             siteTitle = (parts.length > 1) ? site.getTitle() + " - " + site.getGroup(parts[3]).getTitle() : site.getTitle();
             sheetName = (parts.length > 1) ? site.getGroup(parts[3]).getTitle() : site.getTitle();
         } catch (Exception e) {
@@ -113,7 +128,7 @@ public class GradeSheetExporter {
             // download time
             row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(
-                    rb.getString("download.spreadsheet.date") + TimeService.newTime().toStringLocalFull());
+                    rb.getString("download.spreadsheet.date") + timeService.newTime().toStringLocalFull());
 
             // empty line
             row = sheet.createRow(rowNum++);
@@ -142,15 +157,12 @@ public class GradeSheetExporter {
             // hashmap which stores the Excel row number for particular user
 
             List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(context);
-            List<User> members = UserDirectoryService.getUsers(allowAddAnySubmissionUsers);
-            Map<String, String> userDisplayId  = new HashMap<>();
+            List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
             members.sort(new UserComparator());
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
-                row.createCell(0).setCellValue(user.getSortName());
-                row.createCell(1).setCellValue(user.getDisplayId());
                 submitterMap.put(user.getId(), new Submitter(user.getDisplayId(), user.getSortName()));
 
             }
@@ -309,8 +321,6 @@ public class GradeSheetExporter {
 
                 }
 
-
-                rowNum++;
                 // The map is already sorted and so we just iterate over it and output rows.
                 for (Iterator<Map.Entry<Submitter, List<Object>>> resultsIt = results.entrySet().iterator(); resultsIt.hasNext();) {
                     Map.Entry<Submitter, List<Object>> entry = resultsIt.next();

@@ -40,6 +40,9 @@
 
 	<bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
