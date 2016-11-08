@@ -401,7 +401,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
 		
-		rval.setFinalGradeMode(gradebook.getFinalGradeMode());
+		rval.setFinalGradeMode(gradebook.isFinalGradeMode());
 				
 		return rval;
 	}

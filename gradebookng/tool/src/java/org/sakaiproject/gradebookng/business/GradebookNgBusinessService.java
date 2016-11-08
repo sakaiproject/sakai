@@ -1,8 +1,5 @@
 package org.sakaiproject.gradebookng.business;
 
-import java.math.RoundingMode;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1925,8 +1922,10 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Is final grade mode enabled in settings? To control this set:
+	 * Is final grade mode enabled in sakai.properties? To control this set:
 	 * <code>gradebook.enable.finalgrade=true<code> in sakai.properties.
+	 *
+	 * Note that this does not check the actual setting for <em>this</em> gradebook.
 	 *
 	 * @return true or false if enabled or not
 	 */
