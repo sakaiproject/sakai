@@ -209,15 +209,27 @@ ALTER TABLE pasystem_popup_assign DROP COLUMN user_eid;
 ALTER TABLE pasystem_popup_dismissed DROP COLUMN user_eid;
 ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
 
--- SAK-31276 remove unncecessary keys because there is a composite key that handles this
-DROP INDEX SST_PRESENCE_SITE_ID_IX ON SST_PRESENCES;
-DROP INDEX SST_EVENTS_USER_ID_IX ON SST_EVENTS;
--- END SAK-31276
+--
+-- SAK-31840 drop defaults as its now managed in the POJO
+--
+ALTER TABLE GB_GRADABLE_OBJECT_T MODIFY IS_EXTRA_CREDIT DEFAULT NULL;
+ALTER TABLE GB_GRADABLE_OBJECT_T MODIFY HIDE_IN_ALL_GRADES_TABLE DEFAULT NULL;
 
--- SAM-3040 slow query observed
-ALTER TABLE SAM_ASSESSMETADATA_T MODIFY ( "LABEL" VARCHAR2(99 CHAR) ) ;
-CREATE INDEX SAM_METADATA_IDX ON SAM_ASSESSMETADATA_T (LABEL, ENTRY);
+-- BEGIN SAM-3066 remove unecessary indexes because Hibernate always create an index on an FK
+DROP INDEX SAM_PUBITEM_SECTION_I;
+DROP INDEX SAM_PUBITEMFB_ITEM_I;
+DROP INDEX SAM_PUBITEMMETA_ITEM_I;
+DROP INDEX SAM_PUBITEMTEXT_ITEM_I;
+DROP INDEX SAM_PUBSECTION_ASSESSMENT_I;
+DROP INDEX SAM_PUBITEM_SECTION_I;
+DROP INDEX SAM_PUBIP_ASSESSMENT_I;
+DROP INDEX SAM_PUBSECTIONMETA_SECTION_I;
+DROP INDEX SAM_ANSWER_ITEMTEXTID_I;
+-- END SAM-3066
 
-ALTER TABLE SAM_PUBLISHEDMETADATA_T MODIFY ( "LABEL" VARCHAR2(99 CHAR) ) ;
-CREATE INDEX SAM_PUBMETADATA_IDX ON SAM_PUBLISHEDMETADATA_T (LABEL, ENTRY);
--- END SAM-3040
+-- BEGIN SAK-31819 Remove the old ScheduledInvocationManager job as it's not present in Sakai 12.
+DELETE FROM QRTZ_SIMPLE_TRIGGERS WHERE TRIGGER_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
+DELETE FROM QRTZ_TRIGGERS WHERE TRIGGER_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
+-- This one is the actual job that the triggers were trying to run
+DELETE FROM QRTZ_JOB_DETAILS WHERE JOB_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
+-- END SAK-31819

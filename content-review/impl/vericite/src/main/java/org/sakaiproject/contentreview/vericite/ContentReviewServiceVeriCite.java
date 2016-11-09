@@ -886,6 +886,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		}
 		apiUrl += VERICITE_API_VERSION;
 		apiClient.setBasePath(apiUrl);
+		apiClient.setConnectTimeout(30000); //30 sec timeout
 		return new DefaultApi(apiClient);
 	}
 	

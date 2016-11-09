@@ -4711,7 +4711,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        if (a != null)
 	        {
 	        	Site st = SiteService.getSite(contextString);
-	        	if (allOrOneGroup.equals(AssignmentConstants.ALL))
+	        	if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup))
 	        	{
 		            if (a.getAccess().equals(Assignment.AssignmentAccess.SITE))
 		            {

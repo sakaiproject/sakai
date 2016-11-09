@@ -24,6 +24,7 @@ package org.sakaiproject.email.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -51,6 +52,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,6 +141,7 @@ public class BasicEmailService implements EmailService
 	public static final String MAIL_SENDFROMSAKAI = "mail.sendfromsakai";
 	public static final String MAIL_SENDFROMSAKAI_EXCEPTIONS = "mail.sendfromsakai.exceptions";
 	public static final String MAIL_SENDFROMSAKAI_FROMTEXT = "mail.sendfromsakai.fromtext";
+	public static final String MAIL_SENDFROMSAKAI_MAXSIZE = "mail.sendfromsakai.maxsize";
 
 	protected static final String CONTENT_TYPE = ContentType.TEXT_PLAIN;
 
@@ -457,7 +461,7 @@ public class BasicEmailService implements EmailService
 		// if in test mode, use the test method
 		if (m_testMode)
 		{
-			testSendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders);
+			testSendMail(from, to, subject, content, headerTo, replyTo, additionalHeaders, attachments);
 			return;
 		}
 
@@ -830,6 +834,25 @@ public class BasicEmailService implements EmailService
 		// if we have none
 		if (addresses.isEmpty()) return;
 
+		// get separate sets
+		List<Address[]> messageSets = getMessageSets(addresses);
+		
+		// get a session for our smtp setup, include host, port, reverse-path, and set partial delivery
+		Properties props = createMailSessionProperties();
+
+		Session session = Session.getInstance(props);
+
+		// form our Message
+		MimeMessage msg = new MyMessage(session, headers, message);
+
+		// fix From and ReplyTo if necessary
+		checkFrom(msg);
+
+		// transport the message
+		transportMessage(session, messageSets, headers, msg);
+	}
+
+	private List<Address[]> getMessageSets(List<InternetAddress> addresses) {
 		// how many separate messages do we need to send to keep each one at or under m_maxRecipients?
 		int numMessageSets = ((addresses.size() - 1) / m_maxRecipients) + 1;
 
@@ -858,18 +881,10 @@ public class BasicEmailService implements EmailService
 				posInAddresses++;
 			}
 		}
-
-		// get a session for our smtp setup, include host, port, reverse-path, and set partial delivery
-		Properties props = createMailSessionProperties();
-
-		Session session = Session.getInstance(props);
-
-		// form our Message
-		MimeMessage msg = new MyMessage(session, headers, message);
-
-		// fix From and ReplyTo if necessary
-		checkFrom(msg);
-
+		return messageSets;
+	}
+	
+	private void transportMessage(Session session, List<Address[]> messageSets, Collection<String> headers, MimeMessage msg) {
 		// transport the message
 		long time1 = 0;
 		long time2 = 0;
@@ -924,11 +939,11 @@ public class BasicEmailService implements EmailService
 				}
 				catch (SendFailedException e)
 				{
-					if (M_log.isDebugEnabled()) M_log.debug("sendToUsers: " + e);
+					if (M_log.isDebugEnabled()) M_log.debug("transportMessage: " + e);
 				}
 				catch (MessagingException e)
 				{
-					M_log.warn("sendToUsers: " + e);
+					M_log.warn("transportMessage: " + e);
 				}
 			}
 
@@ -939,14 +954,14 @@ public class BasicEmailService implements EmailService
 		}
 		catch (MessagingException e)
 		{
-			M_log.warn("sendToUsers:" + e);
+			M_log.warn("transportMessage:" + e);
 		}
 
 		// log
 		if (M_log.isInfoEnabled())
 		{
 			StringBuilder buf = new StringBuilder();
-			buf.append("sendToUsers: headers[");
+			buf.append("transportMessage: headers[");
 			for (String header : headers)
 			{
 				buf.append(" ");
@@ -1302,11 +1317,24 @@ public class BasicEmailService implements EmailService
 		ArrayList<MimeBodyPart> embeddedAttachments = new ArrayList<MimeBodyPart>();
 		if (attachments != null && attachments.size() > 0)
 		{
+			int maxAttachmentSize = serverConfigurationService.getInt(MAIL_SENDFROMSAKAI_MAXSIZE, 25000000);
+			int attachmentRunningTotal = 0;
+
 			// Add attachments to messages
 			for (Attachment attachment : attachments)
 			{
 				// attach the file to the message
-				embeddedAttachments.add(createAttachmentPart(attachment));
+				MimeBodyPart mbp = createAttachmentPart(attachment);
+				int mbpSize = mbp.getSize();
+				if ( (attachmentRunningTotal + mbpSize) < maxAttachmentSize )
+				{
+					embeddedAttachments.add(mbp);
+					attachmentRunningTotal = attachmentRunningTotal + mbpSize;
+				}
+				else
+				{
+					M_log.debug("Removed attachment from mail message because it was too large: " + mbpSize);
+				}
 			}
 		}
 
@@ -1375,11 +1403,28 @@ public class BasicEmailService implements EmailService
 	 * test version of sendMail
 	 */
 	protected void testSendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
-			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo, List<String> additionalHeaders)
+			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo, List<String> additionalHeaders, List<Attachment> attachments)
 	{
-		M_log.info("sendMail: from: " + from + " to: " + arrayToStr(to) + " subject: " + subject + " headerTo: "
-				+ mapToStr(headerTo) + " replyTo: " + arrayToStr(replyTo) + " content: " + content + " additionalHeaders: "
-				+ listToStr(additionalHeaders));
+		M_log.info("sendMail: from: {} to: {} subject: {} headerTo: {} replyTo: {} content: {} additionalHeaders: {}",
+				   from, arrayToStr(to), subject, mapToStr(headerTo), arrayToStr(replyTo), content, listToStr(additionalHeaders));
+		//If the attachments isn't empty do something with them
+		if (CollectionUtils.isNotEmpty(attachments)){
+			for (Attachment attachment:attachments) {
+				//If it's text, we'll dump out the file contents, otherwise just the name
+				String attachmentContent = "BINARY";
+				if (attachment.getContentTypeHeader() != null && attachment.getContentTypeHeader().startsWith("text/")) {
+					try {
+						attachmentContent = IOUtils.toString(attachment.getDataSource().getInputStream(), "UTF-8"); 
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						M_log.debug("sendMail: error accessing attachment content",e);
+					}
+				}
+
+				M_log.info("sendMail: attachment name: {} type header: {} body:{}{}",
+							attachment.getFilename(),attachment.getContentTypeHeader(),  System.lineSeparator(), attachmentContent);
+			}
+		}
 	}
 
 	/**
@@ -1416,16 +1461,7 @@ public class BasicEmailService implements EmailService
 		{
 			msg.saveChanges();
 
-			Transport transport = session.getTransport(protocol);
-
-			if(m_smtpUser != null && m_smtpPassword != null)
-				transport.connect(m_smtp,m_smtpUser,m_smtpPassword);
-			else
-				transport.connect();
-
-			transport.sendMessage(msg, to);
-
-			transport.close();
+			transportMessage(session, getMessageSets(new ArrayList<InternetAddress>(Arrays.asList(to))), new ArrayList<String>(), msg);
 		}
 
 		long end = 0;

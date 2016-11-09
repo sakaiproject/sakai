@@ -360,8 +360,7 @@
             <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
 
             <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"
-                                          height="500"/>
+                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
             </syllabus:syllabus_if>
             <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
                 <h:outputText escape="false"

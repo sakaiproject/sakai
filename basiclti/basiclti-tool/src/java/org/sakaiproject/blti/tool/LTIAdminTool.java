@@ -480,7 +480,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("export_url_excel", ltiService.getExportUrl(toolManager.getCurrentPlacement().getContext(), filterId, LTIExportService.ExportType.EXCEL));
 
 		//attribution column (just header name)
-		String attribution_name = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_NAME);
+		String attribution_name = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_NAME, LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_NAME_DEFAULT);
 		if (StringUtils.isNotEmpty(attribution_name)) {
 			//check if property is a translation key
 			String aux = rb.getString(attribution_name);
@@ -498,7 +498,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				
 				//if we are not in !admin site, we don't want to look for other sites
 				if(ltiService.isAdmin()) {
-					String attribution_key = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY);
+					String attribution_key = serverConfigurationService.getString(LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTIService.LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
 					Map propertyCriteria = new HashMap();			
 					propertyCriteria.put(attribution_key, "");
 					
@@ -1964,8 +1964,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( url != null ) reqProps.setProperty("launch", url);
 		if ( title == null ) title = text;
 		if ( text == null ) text = title;
+		if ( title != null ) reqProps.setProperty(LTIService.LTI_TITLE, title);
 		if ( title != null ) reqProps.setProperty(LTIService.LTI_PAGETITLE, title);
-		if ( text != null ) reqProps.setProperty(LTIService.LTI_TITLE, text);
+		if ( text != null ) reqProps.setProperty(LTIService.LTI_DESCRIPTION, text);
 		if ( icon != null ) reqProps.setProperty(LTIService.LTI_FA_ICON, icon);
 		if ( custom_str.length() > 0 ) reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 

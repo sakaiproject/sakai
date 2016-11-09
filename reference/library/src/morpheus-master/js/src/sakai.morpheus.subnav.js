@@ -67,7 +67,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
 
       navsubmenu += "</ul>"
 
-      navsubmenu = $(navsubmenu);
+      navsubmenu = $PBJQ(navsubmenu);
 
       container.append(navsubmenu);
 
@@ -121,11 +121,11 @@ var setupSiteNav = function(){
 
   // focusFirstLink is only ever passed from the keydown handler. We
   // don't want to focus on click; it looks odd.
-  $PBJQ("ul.Mrphs-sitesNav__menu li span.Mrphs-sitesNav__dropdown").click(function(e, focusFirstLink) {
+  $PBJQ("ul.Mrphs-sitesNav__menu li .Mrphs-sitesNav__dropdown").click(function(e, focusFirstLink) {
     e.preventDefault()
 
     var jqObjDrop = $PBJQ(e.target);
-    var container = jqObjDrop.closest('.Mrphs-sitesNav__menuitem');
+    var container = jqObjDrop.parent('.Mrphs-sitesNav__menuitem');
 
     var dropdownWasShown = container.hasClass('dropdown-is-visible');
 
@@ -152,13 +152,13 @@ var setupSiteNav = function(){
       }
 
       // Add an invisible overlay to allow clicks to close the dropdown
-      var overlay = $('<div class="sitenav-dropdown-overlay" />');
+      var overlay = $PBJQ('<div class="sitenav-dropdown-overlay" />');
 
       overlay.on('click', function (e) {
         closeAllDropdownMenus();
       });
 
-      $('body').prepend(overlay);
+      $PBJQ('body').prepend(overlay);
 
       dropdownArrow.removeData('clicked');
     };

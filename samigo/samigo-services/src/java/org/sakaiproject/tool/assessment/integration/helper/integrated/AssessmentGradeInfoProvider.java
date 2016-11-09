@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,18 +87,19 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
-        PublishedAssessmentIfc a = null;
-        if (pubAssessmentCache.containsKey(id)) {
-            a = (PublishedAssessmentIfc) pubAssessmentCache.get(id);
-            if(a != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("returning assesment " + id + " from cache");
-                }
-                return a;
-            }
-            /* Below we may fail to re-establish the value */
-            pubAssessmentCache.remove(id);
-    	}
+        // SAM-3068 avoid looking up another tool's id
+        if (!StringUtils.isNumeric(id)) {
+            return null;
+        }
+
+        PublishedAssessmentIfc a = (PublishedAssessmentIfc) pubAssessmentCache.get(id);
+        if (a != null) {
+            log.debug("Returning assessment {} from cache", id);
+            return a;
+        }
+
+        /* Below we may fail to re-establish the value */
+        pubAssessmentCache.remove(id);
 
         PublishedAssessmentService pas = new PublishedAssessmentService();
         try {
@@ -104,9 +107,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
             pubAssessmentCache.put(id, a);
         } catch (Exception e) {
             // NumberFormatException is thrown on non-numeric IDs
-            if (log.isDebugEnabled()) {
-                log.debug("Assessment lookup failed for ID: " + id + " -- " + e.getMessage());
-            }
+            log.debug("Assessment lookup failed for ID: {} -- {}", id, e.getMessage());
             a = null;
             /* The present cache cannot cache nulls, so nothing to do here. */
             /* If this ever changes, caching this reply might be a good idea */

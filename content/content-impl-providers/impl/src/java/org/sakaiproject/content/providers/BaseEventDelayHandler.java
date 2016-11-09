@@ -232,16 +232,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	public boolean deleteDelayById(String delayId)
 	{
 		// Remove any existing notifications for this notification
-		DelayedInvocation[] prevInvocs = schedInvocMgr.findDelayedInvocations(
-				BaseEventDelayHandler.class.getName(), delayId);
-		if (prevInvocs != null && prevInvocs.length > 0)
-		{
-			for (DelayedInvocation invoc : prevInvocs)
-			{
-				LOG.debug("Deleting delayed event [" + invoc.contextId + "]");
-				schedInvocMgr.deleteDelayedInvocation(invoc.uuid);
-			}
-		}
+		schedInvocMgr.deleteDelayedInvocation(BaseEventDelayHandler.class.getName(), delayId);
 		boolean ret = sqlService
 				.dbWrite(baseEventDelayHandlerSql.getDelayDeleteSql(), new Object[] { Long.parseLong(delayId) });
 		return ret;

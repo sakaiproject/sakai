@@ -26,6 +26,7 @@
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
 	</bean>
 
 	<!-- create a logic bean, give it the dao from above -->

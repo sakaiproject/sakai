@@ -1915,12 +1915,12 @@ public class DeliveryActionListener
                 pubAnswer.getIsCorrect().booleanValue())
             {
               mbean.setFeedback(pubAnswer.getCorrectAnswerFeedback());
-              mbean.setIsCorrect(true);
+              mbean.setIsCorrect(Boolean.TRUE);
             }
             else
             {
               mbean.setFeedback(pubAnswer.getInCorrectAnswerFeedback());
-              mbean.setIsCorrect(false);
+              mbean.setIsCorrect(Boolean.FALSE);
             }
           } else if (NONE_OF_THE_ABOVE.equals(data.getPublishedAnswerId())) {
         	  mbean.setResponse(data.getPublishedAnswerId().toString());
@@ -1959,7 +1959,7 @@ public class DeliveryActionListener
       List<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
       {
-        fbean.setIsCorrect(false);
+        fbean.setIsCorrect(Boolean.FALSE);
       }
       else
       {
@@ -1983,10 +1983,10 @@ public class DeliveryActionListener
             }
             else {
             	if (data.getIsCorrect().booleanValue()) {
-            		fbean.setIsCorrect(true);
+            		fbean.setIsCorrect(Boolean.TRUE);
             	}
             	else {
-            		fbean.setIsCorrect(false);
+            		fbean.setIsCorrect(Boolean.FALSE);
             	}
             }
           }
@@ -2109,7 +2109,7 @@ public class DeliveryActionListener
       List<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
       {
-        fbean.setIsCorrect(false);
+        fbean.setIsCorrect(Boolean.FALSE);
       }
       else
       {
@@ -2138,10 +2138,10 @@ public class DeliveryActionListener
             }
             else {
             	if (data.getIsCorrect().booleanValue()) {
-            		fbean.setIsCorrect(true);
+            		fbean.setIsCorrect(Boolean.TRUE);
             	}
             	else {
-            		fbean.setIsCorrect(false);
+            		fbean.setIsCorrect(Boolean.FALSE);
             	}
             }
           }
@@ -2386,7 +2386,7 @@ public class DeliveryActionListener
           List<ItemGradingData> datas = bean.getItemGradingDataArray();
           if (datas == null || datas.isEmpty())
           {
-              fbean.setIsCorrect(false);
+              fbean.setIsCorrect(Boolean.FALSE);
           } else {
               for (ItemGradingData data : datas) {
 
@@ -2457,7 +2457,16 @@ public class DeliveryActionListener
         if (data.getPublishedItemTextId().equals(text.getId()))
         {
           mbean.setItemGradingData(data);
-		  mbean.setIsCorrect(data.getIsCorrect());
+		  if (data.getIsCorrect() != null &&
+				  data.getIsCorrect().booleanValue())
+		  {
+			  mbean.setIsCorrect(true);
+		  }
+		  else
+		  {
+			  mbean.setIsCorrect(false);
+		  }
+ 
           if (data.getAnswerText() != null)
           {
             mbean.setResponse(data.getAnswerText());

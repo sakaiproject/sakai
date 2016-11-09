@@ -230,7 +230,6 @@
 			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
 
 			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="pvt_forward_body" value="#{PrivateMessagesTool.forwardBody}">
-				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 
             <%--********************* Attachment *********************--%>

@@ -219,7 +219,7 @@ public class ToolUtils
 		boolean trinity = ServerConfigurationService.getBoolean(PORTAL_INLINE_EXPERIMENTAL, PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 		if (!trinity) return pageUrl;
 
-		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + effectiveSiteId);
+		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(effectiveSiteId));
 		if (reset || resetSiteProperty) {
 			pageUrl = pageUrl + "/tool-reset/";
 		} else {

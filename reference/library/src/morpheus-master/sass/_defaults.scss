@@ -36,7 +36,7 @@ $background-color-secondary: #444444 !default;
 
 $primary-color:    			 #247fa6 !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
-$primary-color-shadow:			 #2A87C0 !default;
+$primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
 $secondary-color:  			 #F00 !default;
 $alt-colour: 				 #d36f00 !default;
 
@@ -147,6 +147,7 @@ $sites-nav-submenu-item-selected-border:    none !default;
 
 /* Tool Menu */
 $tool-menu-width: 7.5em !default;
+$tool-menu-width-collapsed: $tool-menu-width / 2 !default;
 
 /* Navigation Hierarchy */
 $hierarchy-size: 3.5em !default;
@@ -162,6 +163,7 @@ $logo-width: 50px !default;
 /* Tool icons */
 $skin-with-icons: true !default;
 $icon-size: 20px !default;
+$tool-menu-icon-on-left: false !default;
 
 /* Footer */
 $footer-background: transparent !default;

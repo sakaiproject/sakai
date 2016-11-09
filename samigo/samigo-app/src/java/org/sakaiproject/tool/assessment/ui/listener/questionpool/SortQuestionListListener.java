@@ -54,21 +54,7 @@ public class SortQuestionListListener
     // get service and managed bean
     QuestionPoolBean questionpoolbean = (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
     
-    String orderBy = ContextUtil.lookupParam("orderBy");
-    String ascending =ContextUtil.lookupParam("ascending");
     String getItems =ContextUtil.lookupParam("getItems");
-    if (StringUtils.isNotBlank(orderBy)) {
-    	questionpoolbean.setSortQuestionProperty(orderBy);
-    	log.debug("orderBy = " + ContextUtil.lookupParam("orderBy"));
-    }
-    
-    if (StringUtils.isNotBlank(ascending)) {
-    	questionpoolbean.setSortAscending(Boolean.valueOf(ascending).booleanValue());
-    	log.debug("ascending = " + ascending);
-    }
-    
-    questionpoolbean.setSortQuestionAscending(Boolean.valueOf(ContextUtil.lookupParam("ascending")).booleanValue());
-    
     String qpid=ContextUtil.lookupParam("qpid");
 
     QuestionPoolService delegate = new QuestionPoolService();
@@ -87,13 +73,8 @@ public class SortQuestionListListener
         log.debug("Do not getItems: getItems = " + getItems);
     }
     else {
-        if (StringUtils.isBlank(qpid)) {
-            list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
-        }
-        else {
-    		list = delegate.getAllItemsSorted(Long.valueOf(qpid),orderBy, ascending);
-    	}
-    	log.debug("AFTER CALLING DELEGATE");
+        list = delegate.getAllItems(StringUtils.isBlank(qpid) ? questionpoolbean.getCurrentPool().getId() : Long.valueOf(qpid));
+        log.debug("AFTER CALLING DELEGATE");
         questionpoolbean.setAllItems(list);
     }
   }

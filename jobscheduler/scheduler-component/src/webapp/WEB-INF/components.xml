@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <tx:annotation-driven transaction-manager="txManager"/>
 
     <bean id="org.sakaiproject.jobscheduler.hibernate.AdditionalHibernateMappings"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="mappingResources">
             <list>
                 <value>org/sakaiproject/scheduler/events/hibernate/TriggerEventHibernateImpl.hbm.xml</value>
+            </list>
+        </property>
+        <property name="additionalClasses">
+            <list>
+                <value>org.sakaiproject.scheduler.events.hibernate.ContextMapping</value>
             </list>
         </property>
     </bean>
@@ -98,24 +110,22 @@
             </list>
         </property>
     </bean>
+
+
+    <bean id="org.sakaiproject.component.app.scheduler.ContextMappingDAO"
+          class="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
     
     <bean id="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"
         class="org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl"
-        init-method="init" destroy-method="destroy"> 
-        <property name="sqlService">
-        	<ref bean="org.sakaiproject.db.api.SqlService"/>
-        </property> 
+        init-method="init" destroy-method="destroy">
         <property name="idManager">
         	<ref bean="org.sakaiproject.id.api.IdManager"/>
         </property>
-        <property name="schedulerManager">
+        <property name="schedulerFactory">
         	<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         </property>
-        <property name="serverConfigurationService">
-        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
-        </property>
-        <property name="autoDdl">
-            <value>${auto.ddl}</value>
+        <property name="dao">
+            <ref bean="org.sakaiproject.component.app.scheduler.ContextMappingDAO"/>
         </property>
     </bean>   
     
@@ -407,6 +417,18 @@
         </property>
         <property name="schedulerManager">
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        </property>
+        <property name="jobBeans">
+            <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
+                <constructor-arg value="Scheduled Invocation Validation"/>
+            </bean>
         </property>
     </bean>
 

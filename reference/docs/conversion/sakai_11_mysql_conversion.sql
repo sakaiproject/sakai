@@ -765,7 +765,7 @@ ALTER TABLE lti_content MODIFY title VARCHAR(1024);
 ALTER TABLE lti_content MODIFY pagetitle VARCHAR(1024);
 ALTER TABLE lti_content MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_content MODIFY secret VARCHAR(1024);
-alter table lti_content modify custom varchar(65536);
+ALTER TABLE lti_content MODIFY custom MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY xmlimport MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY settings MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY settings_ext MEDIUMTEXT;
@@ -774,7 +774,7 @@ ALTER TABLE lti_tools MODIFY title VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY pagetitle VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY secret VARCHAR(1024);
-alter table lti_tools modify custom varchar(65536);
+ALTER TABLE lti_tools MODIFY custom MEDIUMTEXT;
 
 ALTER TABLE lti_deploy MODIFY reg_profile MEDIUMTEXT;
 ALTER TABLE lti_deploy MODIFY settings MEDIUMTEXT;

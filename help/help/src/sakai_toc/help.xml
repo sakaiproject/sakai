@@ -1518,6 +1518,7 @@
         <ref bean="howdoIdefinethedefaultsetoftoolsaddedtositeonsitecreation"/>
         <ref bean="howaresitesdeleted"/>
         <ref bean="howdoISoftDeleteasitefromWorksiteSetup"/>
+        <ref bean="howdoIrestoreasoftlydeletedsite"/>
         <ref bean="howdoIHardDeleteasite"/>
       </list>
     </property>
@@ -1580,6 +1581,17 @@
       <value>/sakai_screensteps_worksiteSetupAdministratorGuide/How-do-I-Soft-Delete-a-site-from-Worksite-Setup-.html</value>
     </property>
   </bean>
+  <bean id="howdoIrestoreasoftlydeletedsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIrestoreasoftlydeletedsite</value>
+    </property>
+    <property name="name">
+      <value>How do I restore a softly deleted site?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_worksiteSetupAdministratorGuide/How-do-I-restore-a-softly-deleted-site-.html</value>
+    </property>
+  </bean>
   <bean id="howdoIHardDeleteasite" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
       <value>howdoIHardDeleteasite</value>
@@ -1610,8 +1622,8 @@
         <ref bean="emailArchiveUserGuide"/>
         <ref bean="externalToolLTIUserGuide"/>
         <ref bean="forumsUserGuide"/>
-        <ref bean="gradebookClassicUserGuide"/>
         <ref bean="gradebookUserGuide"/>
+        <ref bean="gradebookClassicUserGuide"/>
         <ref bean="homeUserGuide"/>
         <ref bean="lessonsUserGuide"/>
         <ref bean="messagesUserGuide"/>
@@ -2884,150 +2896,6 @@
       <value>/sakai_screensteps_forumsUserGuide/How-do-I-watch-or-subscribe-to-forums-.html</value>
     </property>
   </bean>
-  <bean id="gradebookClassicUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
-    <property name="name">
-      <value>Gradebook Classic</value>
-    </property>
-    <property name="resources">
-      <list>
-        <ref bean="whatisGradebookClassic"/>
-        <ref bean="howdoIsetupmyGradebookClassic"/>
-        <ref bean="howdoIadditemstoGradebookClassic"/>
-        <ref bean="howdoIenterandoreditgradesinGradebookClassic"/>
-        <ref bean="howdoIexportgradesfromGradebookClassic"/>
-        <ref bean="howdoIimportgradesintoGradebookClassic"/>
-        <ref bean="howdoIoverrideacoursegradeinGradebookClassic"/>
-        <ref bean="howdoIsetallungradeditemstozeroinGradebookClassic"/>
-        <ref bean="howdoesextracreditworkinGradebookClassic"/>
-        <ref bean="howaregradescalculatedinGradebookClassic"/>
-        <ref bean="howdostudentsviewtheirgradesinGradebookClassic"/>
-      </list>
-    </property>
-  </bean>
-  <bean id="whatisGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>whatisGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>What is Gradebook Classic?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/What-is-Gradebook-Classic-.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.gradebookClassic</value>
-    </property>
-  </bean>
-  <bean id="howdoIsetupmyGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIsetupmyGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I set up my Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-set-up-my-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIadditemstoGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIadditemstoGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I add items to the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-add-items-to-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIenterandoreditgradesinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIenterandoreditgradesinGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I enter and/or edit grades in the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-enter-and-or-edit-grades-in-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIexportgradesfromGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIexportgradesfromGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I export grades from the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-export-grades-from-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIimportgradesintoGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIimportgradesintoGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I import grades into the Gradebook?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-import-grades-into-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIoverrideacoursegradeinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIoverrideacoursegradeinGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I override a course grade?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-override-a-course-grade-in-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoIsetallungradeditemstozeroinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoIsetallungradeditemstozeroinGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do I set all ungraded items to zero?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-set-all-ungraded-items-to-zero-in-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdoesextracreditworkinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdoesextracreditworkinGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How does extra credit work?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-does-extra-credit-work-in-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howaregradescalculatedinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howaregradescalculatedinGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How are grades calculated?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-are-grades-calculated-in-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
-  <bean id="howdostudentsviewtheirgradesinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
-    <property name="docId">
-      <value>howdostudentsviewtheirgradesinGradebookClassic</value>
-    </property>
-    <property name="name">
-      <value>How do students view their Gradebook grades?</value>
-    </property>
-    <property name="location">
-      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-students-view-their-grades-in-Gradebook-Classic-.html</value>
-    </property>
-  </bean>
   <bean id="gradebookUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
       <value>Gradebook</value>
@@ -3080,7 +2948,7 @@
       <value>howdoIsetupmyGradebook</value>
     </property>
     <property name="name">
-      <value>How do I set up GradebookNG?</value>
+      <value>How do I set up my Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-set-up-my-Gradebook-.html</value>
@@ -3091,7 +2959,7 @@
       <value>howdoIadditemstotheGradebook</value>
     </property>
     <property name="name">
-      <value>How do I add items to GradebookNG?</value>
+      <value>How do I add items to the Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-add-items-to-the-Gradebook-.html</value>
@@ -3102,7 +2970,7 @@
       <value>howdoIenterandoreditgradesinGradebook</value>
     </property>
     <property name="name">
-      <value>How do I enter and/or edit grades in GradebookNG?</value>
+      <value>How do I enter and/or edit grades in Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-enter-and-or-edit-grades-in-Gradebook-.html</value>
@@ -3113,7 +2981,7 @@
       <value>howdoIexportgradesfromGradebook</value>
     </property>
     <property name="name">
-      <value>How do I export grades from GradebookNG?</value>
+      <value>How do I export grades from Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-export-grades-from-Gradebook-.html</value>
@@ -3124,7 +2992,7 @@
       <value>howdoIimportgradesintoGradebook</value>
     </property>
     <property name="name">
-      <value>How do I import grades into GradebookNG?</value>
+      <value>How do I import grades into Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-import-grades-into-Gradebook-.html</value>
@@ -3135,7 +3003,7 @@
       <value>howdoIoverrideacoursegradeinGradebook</value>
     </property>
     <property name="name">
-      <value>How do I override a course grade in GradebookNG?</value>
+      <value>How do I override a course grade in Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-override-a-course-grade-in-Gradebook-.html</value>
@@ -3146,7 +3014,7 @@
       <value>howdoIviewthecoursegradeoverrideloginGradebook</value>
     </property>
     <property name="name">
-      <value>How do I view the course grade override log in GradebookNG?</value>
+      <value>How do I view the course grade override log in Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-view-the-course-grade-override-log-in-Gradebook-.html</value>
@@ -3157,7 +3025,7 @@
       <value>howdoIsetallungradeditemstozeroinGradebook</value>
     </property>
     <property name="name">
-      <value>How do I set all ungraded items to zero in GradebookNG?</value>
+      <value>How do I set all ungraded items to zero in Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-I-set-all-ungraded-items-to-zero-in-Gradebook-.html</value>
@@ -3168,7 +3036,7 @@
       <value>howdoesextracreditworkinGradebook</value>
     </property>
     <property name="name">
-      <value>How does extra credit work in GradebookNG?</value>
+      <value>How does extra credit work in Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-does-extra-credit-work-in-Gradebook-.html</value>
@@ -3179,7 +3047,7 @@
       <value>howaregradescalculatedinGradebook</value>
     </property>
     <property name="name">
-      <value>How are grades calculated in GradebookNG?</value>
+      <value>How are grades calculated in Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-are-grades-calculated-in-Gradebook-.html</value>
@@ -3190,10 +3058,154 @@
       <value>howdostudentsviewtheirgradesintheGradebook</value>
     </property>
     <property name="name">
-      <value>How do students view their GradebookNG grades?</value>
+      <value>How do students view their grades in the Gradebook?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_gradebookUserGuide/How-do-students-view-their-grades-in-the-Gradebook-.html</value>
+    </property>
+  </bean>
+  <bean id="gradebookClassicUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
+    <property name="name">
+      <value>Gradebook Classic</value>
+    </property>
+    <property name="resources">
+      <list>
+        <ref bean="whatisGradebookClassic"/>
+        <ref bean="howdoIsetupmyGradebookClassic"/>
+        <ref bean="howdoIadditemstoGradebookClassic"/>
+        <ref bean="howdoIenterandoreditgradesinGradebookClassic"/>
+        <ref bean="howdoIexportgradesfromGradebookClassic"/>
+        <ref bean="howdoIimportgradesintoGradebookClassic"/>
+        <ref bean="howdoIoverrideacoursegradeinGradebookClassic"/>
+        <ref bean="howdoIsetallungradeditemstozeroinGradebookClassic"/>
+        <ref bean="howdoesextracreditworkinGradebookClassic"/>
+        <ref bean="howaregradescalculatedinGradebookClassic"/>
+        <ref bean="howdostudentsviewtheirgradesinGradebookClassic"/>
+      </list>
+    </property>
+  </bean>
+  <bean id="whatisGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatisGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>What is Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/What-is-Gradebook-Classic-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.gradebookClassic</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetupmyGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetupmyGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I set up my Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-set-up-my-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIadditemstoGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIadditemstoGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I add items to Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-add-items-to-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIenterandoreditgradesinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIenterandoreditgradesinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I enter and/or edit grades in Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-enter-and-or-edit-grades-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIexportgradesfromGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIexportgradesfromGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I export grades from Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-export-grades-from-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIimportgradesintoGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIimportgradesintoGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I import grades into Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-import-grades-into-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIoverrideacoursegradeinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIoverrideacoursegradeinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I override a course grade in Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-override-a-course-grade-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIsetallungradeditemstozeroinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIsetallungradeditemstozeroinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do I set all ungraded items to zero in Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-I-set-all-ungraded-items-to-zero-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoesextracreditworkinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoesextracreditworkinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How does extra credit work in Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-does-extra-credit-work-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howaregradescalculatedinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howaregradescalculatedinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How are grades calculated in Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-are-grades-calculated-in-Gradebook-Classic-.html</value>
+    </property>
+  </bean>
+  <bean id="howdostudentsviewtheirgradesinGradebookClassic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdostudentsviewtheirgradesinGradebookClassic</value>
+    </property>
+    <property name="name">
+      <value>How do students view their grades in Gradebook Classic?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_gradebookClassicUserGuide/How-do-students-view-their-grades-in-Gradebook-Classic-.html</value>
     </property>
   </bean>
   <bean id="homeUserGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -3532,7 +3544,7 @@
       <value>howdoIaddaninlinequestiontoaLessonspage</value>
     </property>
     <property name="name">
-      <value>How do I add a question to a Lessons page?</value>
+      <value>How do I add an in-line question to a Lessons page?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_lessonsUserGuide/How-do-I-add-an-in-line-question-to-a-Lessons-page-.html</value>
@@ -4582,7 +4594,7 @@
       <value>howdoItransferfilestoResourcesusingWebDAV</value>
     </property>
     <property name="name">
-      <value>How do I upload or download multiple resources?</value>
+      <value>How do I transfer files to Resources using WebDAV?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_resourcesUserGuide/How-do-I-transfer-files-to-Resources-using-WebDAV-.html</value>
@@ -5790,7 +5802,7 @@
       <value>howdoIcreateafileuploadquestion</value>
     </property>
     <property name="name">
-      <value>How do I add a file upload question?</value>
+      <value>How do I create a file upload question?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_testsandQuizzesUserGuide/How-do-I-create-a-file-upload-question-.html</value>
@@ -5834,7 +5846,7 @@
       <value>howdoIaddcopymoveordeleteaquestionpool</value>
     </property>
     <property name="name">
-      <value>How do I add, copy, move, or remove a question pool?</value>
+      <value>How do I add, copy, move, or delete a question pool?</value>
     </property>
     <property name="location">
       <value>/sakai_screensteps_testsandQuizzesUserGuide/How-do-I-add--copy--move--or-delete-a-question-pool-.html</value>

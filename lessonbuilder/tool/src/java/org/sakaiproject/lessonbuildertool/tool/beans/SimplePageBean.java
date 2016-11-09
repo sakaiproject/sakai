@@ -1479,10 +1479,17 @@ public class SimplePageBean {
 		String[] split = id.split("/");
 
 		if("application/zip".equals(mimeType) && isWebSite) {
+		    if (split[split.length-1].lastIndexOf(".") < 1) {
+			// no extension. kernel code will fail
+			setErrMessage(messageLocator.getMessage("simplepage.website.noextension"));
+			// the problem with failing is that they won't see the error message. So return OK.
+			return "importing";
+		    }
+
 		    // We need to set the sakaiId to the resource id of the index file
 		    id = expandZippedResource(id);
 		    if (id == null)
-			return "failed";
+			return "importing"; // nothing left to do
 		    
 		    // We set this special type for the html field in the db. This allows us to
 		    // map an icon onto website links in applicationContext.xml
@@ -4080,7 +4087,15 @@ public class SimplePageBean {
 				}
 				
 				sitePage.setTitle(pageTitle);
-				siteService.save(site);
+				try {
+				    siteService.save(site);
+				} catch (Exception e) {
+				    // there's no actual error for title too long. I end up with a generic
+				    // Runtimeexception. For that reason we can only guess that this it the cause. I don't want to
+				    // check for 99 characters, because the kernel could change.
+				    setErrMessage(messageLocator.getMessage("simplepage.title_too_long"));
+				    return("failed");
+				}
 				page.setTitle(pageTitle);
 				page.setHidden(hidePage);
 				if (hasReleaseDate)
@@ -4225,23 +4240,10 @@ public class SimplePageBean {
 			if (name == null || name.length() == 0)
 				name = file.getName();
 			
-			int i = name.lastIndexOf("/");
-			if (i >= 0)
-				name = name.substring(i+1);
-			String base = name;
-			String extension = "";
-			i = name.lastIndexOf(".");
-			if (i > 0) {
-				base = name.substring(0, i);
-				extension = name.substring(i+1);
-			}
-			
 			mimeType = file.getContentType();
 			try {
-				ContentResourceEdit res = contentHostingService.addResource(collectionId, 
-						        fixFileName(collectionId, Validator.escapeResourceName(base), Validator.escapeResourceName(extension)),
-							"",
-						  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				String[] names = fixFileName(collectionId, name);
+				ContentResourceEdit res = contentHostingService.addResource(collectionId, names[0], names[1], MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				res.setContentType(mimeType);
 				res.setContent(file.getInputStream());
 				try {
@@ -4668,9 +4670,9 @@ public class SimplePageBean {
 				entry.setComplete(complete);
 				entry.setPath(path);
 				entry.setToolId(toolId);
-				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
-				trackComplete(i, complete);
+				SimplePageItem item = findItem(itemId);
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), complete));
+				trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
 				entry.setPath(path);
@@ -4690,10 +4692,10 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setToolId(toolId);
 				entry.setDummy(false);
-				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
+				SimplePageItem item = findItem(itemId);
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), complete));
 				if (complete != wasComplete)
-				    trackComplete(i, complete);
+				    trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
 				entry.setComplete(true);
@@ -5646,21 +5648,79 @@ public class SimplePageBean {
 		this.multipartMap = multipartMap;
 	}
 
-	public String fixFileName(String collectionId, String name, String extension) {
-	    if(extension.equals("") || extension.startsWith(".")) {
-		// do nothing                                                                                               
-	    } else {
-		extension = "." + extension;
-	    }
-	    name = Validator.escapeResourceName(name.trim()) + Validator.escapeResourceName(extension);
-	    // allow for possible addition of -NN for uniqueness
-	    int maxname = 250 - collectionId.length() - 3;
-	    if (name.length() > maxname)
-		name = org.apache.commons.lang.StringUtils.abbreviateMiddle(name, "_", maxname);
-	    return name;
+        public String[] fixFileName(String collectionId, String name) {
+		String[] ret = new String[2];
+		ret[0] = "";
+		ret[1] = "";
+
+		if (name == null || name.equals(""))
+		    return ret;
+
+		int i = name.lastIndexOf("/");
+		if (i >= 0)
+		    name = name.substring(i+1);
+		String base = name;
+		String extension = "";
+		i = name.lastIndexOf(".");
+		if (i > 0) {
+		    base = name.substring(0, i);
+		    extension = name.substring(i+1);
+		}
+
+		base = Validator.escapeResourceName(base);
+		extension = Validator.escapeResourceName(extension);
+		ret[0] = base;
+		ret[1] = extension;
+
+		// that was easy. But now have to deal with names that are too long
+
+		// the longest identifier content service will actually take is 247. Note sure why
+		// from that subtract 1 for the period, and 4 for _xxx if we have duplicates
+		// that would give 242. Actually use 240, just for safety.
+		int maxname = 240 - collectionId.length();
+
+		if (maxname < 1) {
+		    return ret;  // nothing we can do. let other layers return error
+		}
+
+		int namelen = name.length();
+		
+		if (namelen <= maxname)
+		    return ret;  // easy case, no problem
+
+		int overage = namelen - maxname; // amount to cut
+
+		// doesn't seem to make sense to use ellipses for less than length of 8. better just to truncate
+		// if possible, truncate the base
+		if (base.length() > (overage + 8)) {
+		    ret[0] = org.apache.commons.lang.StringUtils.abbreviateMiddle(name, "_", maxname - extension.length());
+		    return ret;
+		}
+
+		// but what about b.eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, or more likely, .xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+		if (extension.length() > (overage + 8)) {
+		    ret[1] = org.apache.commons.lang.StringUtils.abbreviateMiddle(extension, "_", maxname - base.length());
+		    return ret;
+		}
+
+		// not enough for both name and extension. just use name
+		ret[1] = "";
+		    
+		if (base.length() <= maxname)
+		    return ret;
+
+		// base has to be larger than maxname, so final length will be maxname
+		if (maxname > 8) {
+		    ret[0] = org.apache.commons.lang.StringUtils.abbreviateMiddle(base, "_", maxname);
+		    return ret;
+		}
+
+		ret[0] = base.substring(0, maxname);  // string is longer than maxname by test above
+		ret[1] = "";
+
+		return ret;
+
 	}
-
-
 
 
 // for group-owned student pages, put it in the worksite of the current user
@@ -5948,17 +6008,7 @@ public class SimplePageBean {
 				String fname = file.getOriginalFilename();
 				if (fname == null || fname.length() == 0)
 					fname = file.getName();
-				int i = fname.lastIndexOf("/");
-				if (i >= 0)
-					fname = fname.substring(i+1);
-				String base = fname;
-				String extension = "";
-				i = fname.lastIndexOf(".");
-				if (i > 0) {
-					base = fname.substring(0, i);
-					extension = fname.substring(i+1);
-				}
-				
+
 				mimeType = file.getContentType();
 				try {
 					ContentResourceEdit res = null;
@@ -5969,10 +6019,16 @@ public class SimplePageBean {
 					    res = contentHostingService.editResource(resId);
 					} else {
 					    // otherwise create a new file
-					    res = contentHostingService.addResource(collectionId, 
-						                fixFileName(collectionId, Validator.escapeResourceName(base), Validator.escapeResourceName(extension)),
-								"",
-							  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					    if (isWebsite) {
+						// the code below tests whether it's actually a zip file. But we can't be sure it is until after
+						// the file is saved, since the kernel does the test. Thus about all we can do is check isWebsite.
+						// that indicates that the user intended it to be a zip file.
+						// in order to expand it, the kernel needs an extension
+						if (fname.lastIndexOf(".") < 1)
+						    fname = fname + ".zip";
+					    }
+					    String[] names = fixFileName(collectionId, fname);
+					    res = contentHostingService.addResource(collectionId, names[0], names[1], MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 					}
 					if (isCaption)
 					    res.setContentType("text/vtt");
