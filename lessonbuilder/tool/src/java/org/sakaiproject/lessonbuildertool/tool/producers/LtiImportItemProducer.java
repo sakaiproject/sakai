@@ -84,9 +84,9 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * @author Charles Severance <csev@umich.edu>
  * 
  */
-public class LtiFileItemProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	private static final Logger log = LoggerFactory.getLogger(LtiFileItemProducer.class);
-	public static final String VIEW_ID = "LtiFileItem";
+public class LtiImportItemProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(LtiImportItemProducer.class);
+	public static final String VIEW_ID = "LtiImportItem";
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
@@ -127,7 +127,7 @@ public class LtiFileItemProducer implements ViewComponentProducer, NavigationCas
 			try {
 				simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 			} catch (Exception e) {
-				log.info("LtiFileItemProducer permission exception " + e);
+				log.info("LtiImportItemProducer permission exception " + e);
 				return;
 			}
 		}
@@ -161,8 +161,8 @@ public class LtiFileItemProducer implements ViewComponentProducer, NavigationCas
 		}
 
 		// We are not in the pop-up iframe, create a list of  tools registered as importers
-		List<Map<String, Object>> toolsFileItem = ltiService.getToolsFileItem();
-		if ( toolsFileItem.size() < 1 ) {
+		List<Map<String, Object>> toolsImportItem = ltiService.getToolsImportItem();
+		if ( toolsImportItem.size() < 1 ) {
 			UIOutput.make(tofill, "error-div");
 			UIBranchContainer er = UIBranchContainer.make(tofill, "errors:");
 			UIOutput.make(er, "error-message", messageLocator.getMessage("simplepage.lti-import-error-no-tools"));
@@ -181,12 +181,12 @@ public class LtiFileItemProducer implements ViewComponentProducer, NavigationCas
 
 		// Loving the simple elegance of how RSF handles an incoming POST and routes it to
 		// a method in SimplePageBean
-		String hack = "command link parameters&Submitting control=submit&Fast track action=simplePageBean.handleFileItem";
+		String hack = "command link parameters&Submitting control=submit&Fast track action=simplePageBean.handleImportItem";
 		Placement placement = toolManager.getCurrentPlacement();
 
 		if (simplePageBean.canEditPage()) {
-			for ( int i = 0 ; i < toolsFileItem.size(); i++ ) {
-				Map<String, Object> tool = toolsFileItem.get(i);
+			for ( int i = 0 ; i < toolsImportItem.size(); i++ ) {
+				Map<String, Object> tool = toolsImportItem.get(i);
 				if ( tool == null ) continue;
 				Long toolId = SakaiBLTIUtil.getLongNull(tool.get(LTIService.LTI_ID));
 
@@ -195,7 +195,7 @@ public class LtiFileItemProducer implements ViewComponentProducer, NavigationCas
 				// include GET data for things that we would send to ourselves as "hidden" POST data
 
 				// We want the borderless (/portal/tool/) URL as our return URL as it will be in a dialog iframe.
-				String contentReturn = ServerConfigurationService.getToolUrl() + "/" + placement.getId() + "/LtiFileItem?" +
+				String contentReturn = ServerConfigurationService.getToolUrl() + "/" + placement.getId() + "/LtiImportItem?" +
 					"back=true" + "&toolId=" + toolId + "&" + URLEncoder.encode(hack) + "=hello" ;
 
 				String contentLaunch  = ltiService.getToolLaunch(tool, placement.getContext());
@@ -231,7 +231,7 @@ public class LtiFileItemProducer implements ViewComponentProducer, NavigationCas
 	public List reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
 		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-		togo.add(new NavigationCase("failure", new SimpleViewParameters(LtiFileItemProducer.VIEW_ID)));
+		togo.add(new NavigationCase("failure", new SimpleViewParameters(LtiImportItemProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		return togo;
 	}

@@ -6225,11 +6225,11 @@ public class SimplePageBean {
 		return ret && path.delete();
 	}
 
-	public List<Map<String, Object>> getToolsFileItem() {
-		return ltiService.getToolsFileItem();
+	public List<Map<String, Object>> getToolsImportItem() {
+		return ltiService.getToolsImportItem();
 	}
 
-	public void handleFileItem() {
+	public void handleImportItem() {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		if (toolSession != null) toolSession.setAttribute("lessonbuilder.fileImportDone", "true");
                 String returnedData = ToolUtils.getRequestParameter("data");
