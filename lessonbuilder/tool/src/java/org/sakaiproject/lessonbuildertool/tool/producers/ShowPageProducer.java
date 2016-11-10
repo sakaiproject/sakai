@@ -775,16 +775,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc.tooltip")));
 
 				// Check to see if we have tools registered for external import
-				List<Map<String, Object>> toolsFileItem = simplePageBean.getToolsFileItem();
-				if ( toolsFileItem.size() > 0 ) {
+				List<Map<String, Object>> toolsImportItem = simplePageBean.getToolsImportItem();
+				if ( toolsImportItem.size() > 0 ) {
 					UIOutput.make(tofill, "show-lti-import");
 					UIForm ltiImport =  UIForm.make(tofill, "lti-import-form");
 					makeCsrf(ltiImport, "csrf1");
 					GeneralViewParameters ltiParams = new GeneralViewParameters();
 					ltiParams.setSendingPage(currentPage.getPageId());
-					ltiParams.viewID = LtiFileItemProducer.VIEW_ID;
+					ltiParams.viewID = LtiImportItemProducer.VIEW_ID;
 					UILink link = UIInternalLink.make(tofill, "lti-import-link", messageLocator.getMessage("simplepage.import_lti_button"), ltiParams);
-					link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.fileitem.tooltip")));
+					link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.importitem.tooltip")));
 				}
 			}
 			

@@ -40,7 +40,7 @@
 simplePageBean.addAssignment,
 simplePageBean.addBefore,
 simplePageBean.addBlti,
-simplePageBean.handleFileItem,
+simplePageBean.handleImportItem,
 simplePageBean.addChecklist,
 simplePageBean.addChecklistItemData,
 simplePageBean.addComment,
