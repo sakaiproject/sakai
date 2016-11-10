@@ -227,3 +227,18 @@ DELETE FROM QRTZ_TRIGGERS WHERE TRIGGER_NAME='org.sakaiproject.component.app.sch
 -- This one is the actual job that the triggers were trying to run
 DELETE FROM QRTZ_JOB_DETAILS WHERE JOB_NAME='org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner';
 -- END SAK-31819
+
+-- BEGIN SAK-15708 avoid duplicate rows
+CREATE TABLE SAKAI_POSTEM_STUDENT_DUPES (
+  id bigint(20) NOT NULL,
+  username varchar(99),
+  surrogate_key bigint(20)
+);
+INSERT INTO SAKAI_POSTEM_STUDENT_DUPES SELECT MAX(id), username, surrogate_key FROM SAKAI_POSTEM_STUDENT GROUP BY username, surrogate_key HAVING count(id) > 1;
+DELETE FROM SAKAI_POSTEM_STUDENT_GRADES WHERE student_id IN (SELECT id FROM SAKAI_POSTEM_STUDENT_DUPES);
+DELETE FROM SAKAI_POSTEM_STUDENT WHERE id IN (SELECT id FROM SAKAI_POSTEM_STUDENT_DUPES);
+DROP TABLE SAKAI_POSTEM_STUDENT_DUPES;
+
+ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY COLUMN username varchar(99), DROP INDEX POSTEM_STUDENT_USERNAME_I,
+  ADD UNIQUE INDEX POSTEM_USERNAME_SURROGATE (username, surrogate_key);
+-- END SAK-15708
