@@ -1366,7 +1366,7 @@ public class GradebookNgBusinessService {
 
 			for (int i = 0; i < assignments.size(); i++) {
 				final Assignment a = assignments.get(i);
-				if (assignmentId == a.getId()) {
+				if (assignmentId == a.getId() && a.getSortOrder() != null) {
 					return a.getSortOrder();
 				}
 			}
