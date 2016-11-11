@@ -7,7 +7,7 @@
     <parent>
         <artifactId>textarea-base</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>11-SNAPSHOT</version>
+        <version>11.2</version>
     </parent>
 
     <groupId>org.sakaiproject</groupId>

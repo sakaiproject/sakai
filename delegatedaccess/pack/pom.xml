@@ -6,7 +6,7 @@
     <parent>
         <artifactId>delegatedaccess</artifactId>
         <groupId>org.sakaiproject.delegatedaccess</groupId>
-        <version>11-SNAPSHOT</version>
+        <version>11.2</version>
     </parent>
 
     <name>Delegated Access - Components</name>
