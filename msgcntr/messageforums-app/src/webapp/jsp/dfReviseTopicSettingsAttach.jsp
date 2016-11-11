@@ -269,6 +269,7 @@
 			<script type="text/javascript">
 			      localDatePicker({
 			      	input:'[id="revise:openDate"]', 
+			      	allowEmptyDate: true, 
 			      	ashidden: { iso8601: 'openDateISO8601' },
 			      	getval:'[id="revise:openDate"]',
 			      	useTime:1
@@ -276,6 +277,7 @@
 			      
 			      localDatePicker({
 			      	input:'[id="revise:closeDate"]', 
+			      	allowEmptyDate: true, 
 			      	ashidden: { iso8601: 'closeDateISO8601' },
 			      	getval: '[id="revise:closeDate"]',
 			      	useTime:1
