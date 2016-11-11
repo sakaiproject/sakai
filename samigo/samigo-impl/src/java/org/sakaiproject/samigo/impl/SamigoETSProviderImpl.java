@@ -16,6 +16,8 @@
 package org.sakaiproject.samigo.impl;
 
 import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import javax.mail.internet.InternetAddress;
 
 import lombok.Setter;
@@ -126,6 +128,27 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             PublishedAssessmentService pubAssServ   = new PublishedAssessmentService();
             PublishedAssessmentFacade  pubAssFac    = pubAssServ.getSettingsOfPublishedAssessment(notificationValues.get("publishedAssessmentID").toString());
 
+            // Format dates
+            DateFormat dfIn                         = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+            DateFormat dfIn2                        = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+            DateFormat dfOut                        = new SimpleDateFormat("yyyy-MMM-dd hh:mm a");
+            String formattedDueDate                 = (pubAssFac.getDueDate() == null) ? "" : dfOut.format(pubAssFac.getDueDate());
+            Date submissionDate                     = null;
+            String inSubmissionDateStr              = (notificationValues.get("submissionDate") == null) ? "" : notificationValues.get("submissionDate").toString();
+            try {
+               submissionDate = dfIn.parse(inSubmissionDateStr);
+            } catch (java.text.ParseException e) {
+               LOG.debug("Submission date parse exception (first format): " + e.getMessage());
+            }
+            if (submissionDate == null) {
+               try {
+                  submissionDate = dfIn2.parse(inSubmissionDateStr);
+               } catch (java.text.ParseException e) {
+                  LOG.debug("Submission date parse exception (second format): " + e.getMessage());
+               }
+            }
+            String formattedSubmissionDate          = (submissionDate == null) ? inSubmissionDateStr : dfOut.format(submissionDate);
+
             String          siteID                  = pubAssFac.getOwnerSiteId();
             /*
              * siteName
@@ -143,9 +166,9 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             replacementValues.put("userName"            , user.getDisplayName());
             replacementValues.put("userDisplayID"       , user.getDisplayId());
             replacementValues.put("assessmentTitle"     , pubAssFac.getTitle());
-            replacementValues.put("assessmentDueDate"   , pubAssFac.getDueDate() == null ? "" : pubAssFac.getDueDate().toString());
+            replacementValues.put("assessmentDueDate"   , formattedDueDate);
             replacementValues.put("assessmentGradingID" , notificationValues.get("assessmentGradingID").toString());
-            replacementValues.put("submissionDate"      , notificationValues.get("submissionDate").toString());
+            replacementValues.put("submissionDate"      , formattedSubmissionDate);
             replacementValues.put("confirmationNumber"  , notificationValues.get("confirmationNumber").toString());
 
             notifyStudent(user, priStr, assessmentSubmittedType, replacementValues);
