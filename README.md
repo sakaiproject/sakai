@@ -65,7 +65,7 @@ If you can't find your  "at institution.edu" on the Apereo signup page then send
 
 ## Community supported versions
 
-[Sakai 11.1](https://confluence.sakaiproject.org/display/DOC/Sakai+11+Release+Notes) is the recommended version for production use.
+[Sakai 11.2](https://confluence.sakaiproject.org/display/DOC/Sakai+11+Release+Notes) is the recommended version for production use.
 
 [Sakai 10](https://confluence.sakaiproject.org/display/DOC/Sakai+10+Release+Notes) is still supported. Please use the latest maintenance release of 10.7.
 
