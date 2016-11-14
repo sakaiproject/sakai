@@ -8,6 +8,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
 import org.sakaiproject.site.tool.helper.participant.impl.UserRoleEntry;
@@ -21,14 +24,8 @@ import org.sakaiproject.rsf.util.SakaiURLUtil;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIMessage;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UISelect;
+import uk.org.ponder.rsf.components.*;
+import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -78,11 +75,27 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 	{
 		this.userDirectoryService = userDirectoryService;
 	}
+
+	private DeveloperHelperService developerHelperService;
+	public void setDeveloperHelperService(DeveloperHelperService developerHelperService) {
+		this.developerHelperService = developerHelperService;
+	}
 	  
     public void fillComponents(UIContainer tofill, ViewParameters arg1, ComponentChecker arg2) {
 
-    	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
-    	
+		String locationId = developerHelperService.getCurrentLocationId();
+		String siteTitle = "";
+		try {
+			Site s = siteService.getSite(locationId);
+			siteTitle = s.getTitle();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		UIMessage.make(tofill, "addconf.confirming", "addconf.confirming", new Object[]{siteTitle});
+
+		UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
+
 		List<Role> roles = handler.getRoles();
 	    StringList roleIds = new StringList();
 	    int i = 0;
@@ -97,6 +110,29 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 	    }
         
     	UIForm differentRoleForm = UIForm.make(content, "differentRole-form");
+
+		String[] values = new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString()};
+		String[] labels = new String[] {
+				messageLocator.getMessage("addnoti.sendnow"),
+				messageLocator.getMessage("addnoti.dontsend")
+		};
+		StringList notiItems = new StringList();
+		UISelect notiSelect = UISelect.make(differentRoleForm, "select-noti", null,
+				"#{siteAddParticipantHandler.emailNotiChoice}", handler.emailNotiChoice);
+		String selectID = notiSelect.getFullID();
+		notiSelect.optionnames = UIOutputMany.make(labels);
+		for (int j = 0; j < values.length; j++) {
+
+			UIBranchContainer notiRow = UIBranchContainer.make(differentRoleForm, "noti-row:", Integer.toString(j));
+
+			UISelectLabel lb = UISelectLabel.make(notiRow, "noti-label", selectID, j);
+			UISelectChoice choice = UISelectChoice.make(notiRow, "noti-select", selectID, j);
+			UILabelTargetDecorator.targetLabel(lb, choice);
+
+			notiItems.add(values[j]);
+		}
+		notiSelect.optionlist.setValue(notiItems.toStringArray());
+
     	// csrf token
     	UIInput.make(differentRoleForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	
@@ -108,17 +144,21 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
         	UserRoleEntry userRoleEntry = it.next();
         	String userEId = userRoleEntry.userEId;
         	// default to userEid
-        	String userName = userEId;
+        	String lastName = "";
+        	String firstName = "";
         	String displayId = userEId;
         	// if there is last name or first name specified, use it
-        	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0 
-        			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0)
-        		userName = userRoleEntry.lastName + "," + userRoleEntry.firstName;
+        	if (userRoleEntry.lastName != null && userRoleEntry.lastName.length() > 0
+        			|| userRoleEntry.firstName != null && userRoleEntry.firstName.length() > 0) {
+        		lastName = userRoleEntry.lastName;
+        		firstName = userRoleEntry.firstName;
+        	}
         	// get user from directory
         	try
         	{
         		User u = userDirectoryService.getUserByEid(userEId);
-        		userName = u.getSortName();
+        		lastName = u.getLastName();
+        		firstName = u.getFirstName();
         		displayId = u.getDisplayId();
         	}
         	catch (Exception e)
@@ -127,12 +167,43 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
         	}
             // SECOND LINE
             UIBranchContainer userRow = UIBranchContainer.make(differentRoleForm, "user-row:", curItemNum);
-            UIOutput.make(userRow, "user-name", displayId + "(" + userName + ")");
+            UIOutput.make(userRow, "last-name", lastName);
+            UIOutput.make(userRow, "first-name", firstName);
+            UIOutput.make(userRow, "user-name", displayId);
             UISelect.make(userRow, "role-select", roleIds.toStringArray(), "siteAddParticipantHandler.userRoleEntries." + i + ".role", handler.getUserRole(userEId));
 
   		}
-        
-    	UICommand.make(differentRoleForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processDifferentRoleContinue}");
+		
+		UISelect.make(differentRoleForm, "role-select-all", roleIds.toStringArray(), handler.sameRoleChoice, String.valueOf(handler.getRoles().get(0)));
+
+		// SAK-26101 only show the status choice when "activeInactiveUser" is set to be true
+		String activeInactiveUser = handler.getServerConfigurationString("activeInactiveUser", Boolean.FALSE.toString());
+		if (activeInactiveUser.equalsIgnoreCase(Boolean.TRUE.toString()))
+		{
+			UIOutput.make(differentRoleForm, "status-message", messageLocator.getMessage("participant.status"));
+			// status choice
+			String[] statusValues = new String[] { "active", "inactive"};
+			String[] statusLabels = new String[] {
+					messageLocator.getMessage("sitegen.siteinfolist.active"),
+					messageLocator.getMessage("sitegen.siteinfolist.inactive")
+			};
+			StringList statusItems = new StringList();
+			UISelect statusSelect = UISelect.make(differentRoleForm, "select-status", null, "#{siteAddParticipantHandler.statusChoice}", handler.statusChoice);
+			statusSelect.optionnames = UIOutputMany.make(statusLabels);
+			String statusSelectID = statusSelect.getFullID();
+			for (int k = 0; k < statusValues.length; ++k) {
+				UIBranchContainer statusRow = UIBranchContainer.make(differentRoleForm,"status-row:", Integer.toString(k));
+				UISelectLabel lb = UISelectLabel.make(statusRow, "status-label", statusSelectID, k);
+				UISelectChoice choice =UISelectChoice.make(statusRow, "status-select", statusSelectID, k);
+				UILabelTargetDecorator.targetLabel(lb, choice);
+				statusItems.add(statusValues[k]);
+			}
+			statusSelect.optionlist.setValue(statusItems.toStringArray());
+		}
+
+		UIMessage.make(content, "addconf.finish", "addconf.finish");
+
+    	UICommand.make(differentRoleForm, "continue", messageLocator.getMessage("gen.finish"), "#{siteAddParticipantHandler.processConfirmContinue}");
     	UICommand.make(differentRoleForm, "back", messageLocator.getMessage("gen.back"), "#{siteAddParticipantHandler.processDifferentRoleBack}");
     	UICommand.make(differentRoleForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
    
@@ -182,7 +253,6 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
     
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<NavigationCase>();
-        togo.add(new NavigationCase("continue", new SimpleViewParameters(EmailNotiProducer.VIEW_ID)));
         togo.add(new NavigationCase("back", new SimpleViewParameters(AddProducer.VIEW_ID)));
         return togo;
     }

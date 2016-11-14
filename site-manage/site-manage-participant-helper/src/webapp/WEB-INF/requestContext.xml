@@ -26,28 +26,6 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
   </bean>
    
-  <bean id="ConfirmProdcuer" 
-      class="org.sakaiproject.site.tool.helper.participant.rsf.ConfirmProducer">    
-    <property name="handler" ref="siteAddParticipantHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
-    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
-    <property name="targettedMessageList" ref="targettedMessageList" />
-    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-    <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
-  </bean>
-  
-  <bean id="SameRoleProducer"
-      class="org.sakaiproject.site.tool.helper.participant.rsf.SameRoleProducer">
-    <property name="handler" ref="siteAddParticipantHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
-    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
-    <property name="targettedMessageList" ref="targettedMessageList" />
-    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-  </bean>
-  
   <bean id="DifferentRoleProducer"
       class="org.sakaiproject.site.tool.helper.participant.rsf.DifferentRoleProducer">
     <property name="handler" ref="siteAddParticipantHandler" />
@@ -56,16 +34,6 @@
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-  </bean>
-  
-    
-  <bean id="EmailNotiProducer"
-      class="org.sakaiproject.site.tool.helper.participant.rsf.EmailNotiProducer">
-    <property name="handler" ref="siteAddParticipantHandler" />
-    <property name="messageLocator" ref="messageLocator"/>
-    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
-    <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
     <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
   </bean>

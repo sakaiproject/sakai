@@ -32,53 +32,17 @@
 		<!-- form for adding participant -->
 		<form rsf:id="participant-form" >
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
-			<!-- add official account -->
-			<h4 rsf:id="officialAccountSectionTitle"></h4>
-			<label rsf:id="officialAccountLabel" for ="officialAccountParticipant">
+			<!-- add account -->
+			<h4 rsf:id="accountSectionTitle"></h4>
+			<label rsf:id="accountLabel" for ="accountParticipant">
 	           Official Account Label
 	        </label>
 	        <br/>
-	        <textarea rsf:id="officialAccountParticipant" name="officialAccountParticipant" cols="35" rows="4" id="officialAccountParticipant"></textarea>
+	        <textarea rsf:id="accountParticipant" name="accountParticipant" cols="35" rows="4" id="accountParticipant"></textarea>
 			<a href="#" onclick="rsf:id='officialAccountPickerAction'"><h5 rsf:id="officialAccountPickerLabel"></h5></a><br />
 			<h5 class="textPanelFooter" rsf:id="msg=add.multiple"></h5>
-			
-			<!-- add non-official account -->
-			<h4  rsf:id="nonOfficialAccountSectionTitle"></h4>
-			<label rsf:id="nonOfficialAccountLabel" for ="nonOfficialAccountParticipant">
-	           Non-Official Account Label
-	        </label>
-	        <br/>
-	        <textarea rsf:id="nonOfficialAccountParticipant" name="nonOfficialAccountParticipant" cols="35" rows="4" id="nonOfficialAccountParticipant"></textarea>
 			<h5 class="textPanelFooter" rsf:id="nonOfficialAddMultiple"></h5>
-			
-			<!--  choose roles -->
-			<h4 rsf:id="msg=add.participants"></h4> 
-			<span rsf:id="select-roles"></span>
-			<table style="width:auto" summary="">
-				<tr rsf:id="role-row:">
-					<td>
-					  <input rsf:id="role-select" title="Select role type" type="radio" id="radio" name="roleChoice" value=""/>
-					  <label rsf:id="role-label" for = "role-select">
-					  	label
-					  </label>
-					</td>		
-				</tr>
-			</table>
-						
-			<!--  choose active/inactive status -->
-			<h4  rsf:id="status-message"></h4> 
-			<span rsf:id="select-status"></span>
-			<table style="width:auto" summary="">
-				<tr rsf:id="status-row:">
-					<td>
-					  <input rsf:id="status-select" title="Select status type" type="radio" id="radio" name="statusChoice" value=""/>
-					  <label rsf:id="status-label" for = "status-select">
-					  	label
-					  </label>
-					</td>		
-				</tr>
-			</table>
-			
+
 			<p class="act">
 				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />

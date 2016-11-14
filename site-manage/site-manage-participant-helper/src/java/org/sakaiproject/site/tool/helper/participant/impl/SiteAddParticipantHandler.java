@@ -100,6 +100,11 @@ public class SiteAddParticipantHandler {
 	public String getOfficialAccountParticipant() {
 		return officialAccountParticipant;
 	}
+
+	public String accountParticipant = null;
+	public String getAccountParticipant() {
+		return accountParticipant;
+	}
 	
 	private UserDirectoryService userDirectoryService;	
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -109,9 +114,13 @@ public class SiteAddParticipantHandler {
 	public void setCsrfToken(String csrfToken) {
 		this.csrfToken = csrfToken;
 	}
-	
+
 	public void setOfficialAccountParticipant(String officialAccountParticipant) {
 		this.officialAccountParticipant = officialAccountParticipant;
+	}
+
+	public void setAccountParticipant(String accountParticipant) {
+		this.accountParticipant = accountParticipant;
 	}
 
 	public String nonOfficialAccountParticipant = null;
@@ -144,7 +153,7 @@ public class SiteAddParticipantHandler {
 	
 	
 	/*whether the role choice is for same role or different role */
-	public String roleChoice = "sameRole";
+	public String roleChoice = "differentRole";
 	
     public String getRoleChoice() {
 		return roleChoice;
@@ -372,62 +381,7 @@ public class SiteAddParticipantHandler {
     	userRoleEntries = new ArrayList<>(); 
     }
     
-    /**
-     * get the same role choice and continue
-     * @return
-     */
-    public String processSameRoleContinue() {
-    	if (!validCsrfToken()) {
-    		targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
-    		return null;
-    	}
 
-    	targettedMessageList.clear();
-    	if (sameRoleChoice == null)
-    	{
-    		targettedMessageList.addMessage(new TargettedMessage("java.pleasechoose", null, TargettedMessage.SEVERITY_ERROR));
-    		return null;
-    	}
-    	else
-    	{
-    		resetTargettedMessageList();
-
-	        // if user doesn't have full rights, don't let him add one with site update
-	    	if (!authzGroupService.allowUpdate("/site/" + siteId)) {
-	    	if (realm == null)
-	    		init();
-		    Role r = realm.getRole(sameRoleChoice);
-		    if (r != null && r.isAllowed("site.upd")) {
-			targettedMessageList.addMessage(new TargettedMessage("java.roleperm", new Object[] { sameRoleChoice }, TargettedMessage.SEVERITY_ERROR));
-			return null;
-		    }
-		}
-
-	    	if (userRoleEntries != null)
-			{
-				for (UserRoleEntry entry:userRoleEntries)
-				{
-					entry.role = sameRoleChoice;
-				}
-			}
-	    	
-	    	// check whether there is a no or valid change to current user role
-			if (!checkCurrentUserRoleChange())
-				return null;
-	    	
-	        return "continue";
-    	}
-    }
-    
-    /**
-     * back to the first add participant page
-     * @return
-     */
-    public String processSameRoleBack() {
-    	resetTargettedMessageList();
-        return "back";
-    }
-    
     /**
      * get the different role choice and continue
      * @return
@@ -492,36 +446,8 @@ public class SiteAddParticipantHandler {
     	resetTargettedMessageList();
         return "back";
     }
-    
-    /**
-     * get the email noti choice and continue
-     * @return
-     */
-    public String processEmailNotiContinue() {
-    	if (!validCsrfToken()) {
-    		targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
-    		return "";
-    	}
-    	resetTargettedMessageList();
-        return "continue";
-    }
-    
-    /**
-     * back to the previous role choice page
-     * @return
-     */
-    public String processEmailNotiBack() {
-    	resetTargettedMessageList();
-    	if ("sameRole".equals(roleChoice))
-    	{
-    		return "backSameRole";
-    	}
-    	else
-    	{
-    		return "backDifferentRole";
-    	}
-    }
-    
+
+
 	/**
 	 * whether the eId is considered of official account
 	 * @param eId
@@ -802,29 +728,36 @@ public class SiteAddParticipantHandler {
 		HashSet<String> existingUsers = new HashSet<>();
 
 		// accept officialAccounts and/or nonOfficialAccount account names
-		String officialAccounts;
-		String nonOfficialAccounts;
-
-		// check that there is something with which to work
-		officialAccounts = StringUtils.trimToNull(officialAccountParticipant);
-		nonOfficialAccounts = StringUtils.trimToNull(nonOfficialAccountParticipant);
+		ArrayList<String> officialAccountArray = new ArrayList<>();
+		ArrayList<String> nonOfficialAccountArray = new ArrayList<>();
 		String updatedOfficialAccountParticipant = "";
 		String updatedNonOfficialAccountParticipant = "";
 
+		String allAccounts = StringUtils.trimToNull(accountParticipant);
+
 		// if there is no eid or nonOfficialAccount entered
-		if (officialAccounts == null && nonOfficialAccounts == null) {
+		if (allAccounts == null) {
 			targettedMessageList.addMessage(new TargettedMessage("java.guest", null, TargettedMessage.SEVERITY_ERROR));
+		} else {
+			// Split allAccounts into official and non-official
+			String[] allAccountsArray = allAccounts.split("\\r?\\n");
+
+			for(String account : allAccountsArray) {
+				if (StringUtils.contains(account, ",")) {
+					nonOfficialAccountArray.add(account);
+				} else {
+					officialAccountArray.add(account);
+				}
+			}
 		}
 
 		String at = "@";
 
-		if (officialAccounts != null) {
+		if (!officialAccountArray.isEmpty()) {
 			// adding officialAccounts
-			String[] officialAccountArray = officialAccounts
-					.split("\r\n");
 
-			for (i = 0; i < officialAccountArray.length; i++) {
-				String currentOfficialAccount = officialAccountArray[i];
+			for (String currentOfficialAccount : officialAccountArray) {
+
 				String officialAccount = StringUtils.trimToNull(currentOfficialAccount.replaceAll("[\t\r\n]", ""));
 				// if there is some text, try to use it
 				if (officialAccount != null) {
@@ -938,10 +871,10 @@ public class SiteAddParticipantHandler {
 			}
 		} // officialAccounts
 
-		if (nonOfficialAccounts != null) {
-			String[] nonOfficialAccountArray = nonOfficialAccounts.split("\r\n");
-			for (i = 0; i < nonOfficialAccountArray.length; i++) {
-				String currentNonOfficialAccount = nonOfficialAccountArray[i];
+		if (!nonOfficialAccountArray.isEmpty() && getAllowNonOfficialAccount().equalsIgnoreCase("true")) {
+
+			for (String currentNonOfficialAccount : nonOfficialAccountArray) {
+
 				String nonOfficialAccountAll = StringUtils.trimToNull(currentNonOfficialAccount.replaceAll("[\t\r\n]", ""));
 				//there could be an empty line SAK-22497
 				if (nonOfficialAccountAll == null) {
@@ -1206,7 +1139,7 @@ public class SiteAddParticipantHandler {
 		officialAccountParticipant = null;
 		officialAccountEidOnly = new ArrayList<>();
 		nonOfficialAccountParticipant = null;
-		roleChoice = "sameRole";
+		roleChoice = "differentRole";
 		statusChoice = "active";
 		sameRoleChoice = null;
 		emailNotiChoice = Boolean.FALSE.toString();

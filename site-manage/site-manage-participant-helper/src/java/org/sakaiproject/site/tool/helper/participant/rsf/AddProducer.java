@@ -90,79 +90,27 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     	UIForm participantForm = UIForm.make(content, "participant-form");
     	// csrf token
     	UIInput.make(participantForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
-    	// official participant
-    	UIInput.make(participantForm, "officialAccountParticipant", "#{siteAddParticipantHandler.officialAccountParticipant}", handler.officialAccountParticipant);
-    	UIOutput.make(participantForm, "officialAccountSectionTitle", messageLocator.getMessage("officialAccountSectionTitle"));
-    	UIOutput.make(participantForm, "officialAccountName", messageLocator.getMessage("officialAccountName"));
-    	UIOutput.make(participantForm, "officialAccountLabel", messageLocator.getMessage("officialAccountLabel"));
-    	
+
     	String pickerAction = handler.getServerConfigurationString("officialAccountPickerAction");
 		if (pickerAction != null && !"".equals(pickerAction))
 		{
 			UIOutput.make(participantForm, "officialAccountPickerLabel", handler.getServerConfigurationString("officialAccountPickerLabel"));
 			UIOutput.make(participantForm, "officialAccountPickerAction", pickerAction);
 		}
-    	
-		// non official participant
-    	String allowAddNonOfficialParticipant = handler.getAllowNonOfficialAccount();
+
+		String allowAddNonOfficialParticipant = handler.getAllowNonOfficialAccount();
     	if (allowAddNonOfficialParticipant.equalsIgnoreCase("true"))
     	{
-    		UIInput.make(participantForm, "nonOfficialAccountParticipant", "#{siteAddParticipantHandler.nonOfficialAccountParticipant}", handler.nonOfficialAccountParticipant);
-	    	UIOutput.make(participantForm, "nonOfficialAccountSectionTitle", messageLocator.getMessage("nonOfficialAccountSectionTitle"));
-	    	UIOutput.make(participantForm, "nonOfficialAccountName", messageLocator.getMessage("nonOfficialAccountName"));
-	    	UIOutput.make(participantForm, "nonOfficialAccountLabel", messageLocator.getMessage("nonOfficialAccountLabel"));
-     		UIMessage.make(participantForm, "nonOfficialAddMultiple", "add.multiple.nonofficial");
+    		UIMessage.make(participantForm, "nonOfficialAddMultiple", "add.multiple.nonofficial");
     	}
-    	
-    	// role choice
-    	String[] roleValues = new String[] { "sameRole", "differentRole"};
-	    String[] roleLabels = new String[] {
-	    		messageLocator.getMessage("add.assign"), 
-	    		messageLocator.getMessage("add.assign2")
-	    		};
-	    
-	    StringList roleItems = new StringList();
-	    
-	    UISelect roleSelect = UISelect.make(participantForm, "select-roles", null, "#{siteAddParticipantHandler.roleChoice}", handler.roleChoice);
 
-	    roleSelect.optionnames = UIOutputMany.make(roleLabels);
-	    String selectID = roleSelect.getFullID();
-	    for (int i = 0; i < roleValues.length; ++i) {
-		    UIBranchContainer roleRow = UIBranchContainer.make(participantForm,"role-row:", Integer.toString(i));
-            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
-            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
-            UILabelTargetDecorator.targetLabel(lb, choice);
-            
-            roleItems.add(roleValues[i]);
-        }
-        roleSelect.optionlist.setValue(roleItems.toStringArray());        
-		
-        // SAK-26101 only show the status choice when "activeInactiveUser" is set to be true
-        String activeInactiveUser = handler.getServerConfigurationString("activeInactiveUser", Boolean.FALSE.toString());
-        if (activeInactiveUser.equalsIgnoreCase(Boolean.TRUE.toString()))
-        {
-        	UIOutput.make(participantForm, "status-message", messageLocator.getMessage("participant.status"));
-	        // status choice
-	    	String[] statusValues = new String[] { "active", "inactive"};
-		    String[] statusLabels = new String[] {
-		    		messageLocator.getMessage("sitegen.siteinfolist.active"), 
-		    		messageLocator.getMessage("sitegen.siteinfolist.inactive")
-		    		};
-		    StringList statusItems = new StringList();
-		    UISelect statusSelect = UISelect.make(participantForm, "select-status", null, "#{siteAddParticipantHandler.statusChoice}", handler.statusChoice);
-		    statusSelect.optionnames = UIOutputMany.make(statusLabels);
-		    String statusSelectID = statusSelect.getFullID();
-		    for (int i = 0; i < statusValues.length; ++i) {
-			    UIBranchContainer statusRow = UIBranchContainer.make(participantForm,"status-row:", Integer.toString(i));
-	            UISelectLabel lb = UISelectLabel.make(statusRow, "status-label", statusSelectID, i);
-	            UISelectChoice choice =UISelectChoice.make(statusRow, "status-select", statusSelectID, i);
-	            UILabelTargetDecorator.targetLabel(lb, choice);
-	            statusItems.add(statusValues[i]);
-	        }
-	        statusSelect.optionlist.setValue(statusItems.toStringArray());
-        }
-        
-    	UICommand.make(participantForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processGetParticipant}");
+		// all participant
+		UIInput.make(participantForm, "accountParticipant", "#{siteAddParticipantHandler.accountParticipant}", handler.accountParticipant);
+		UIOutput.make(participantForm, "accountSectionTitle", messageLocator.getMessage("accountSectionTitle"));
+		UIOutput.make(participantForm, "accountName", messageLocator.getMessage("accountName"));
+		UIOutput.make(participantForm, "accountLabel", messageLocator.getMessage("accountLabel"));
+
+		UICommand.make(participantForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processGetParticipant}");
         UICommand.make(participantForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
         
         //process any messages
@@ -212,7 +160,6 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     
     public List<NavigationCase> reportNavigationCases() {
         List<NavigationCase> togo = new ArrayList<>();
-        togo.add(new NavigationCase("sameRole", new SimpleViewParameters(SameRoleProducer.VIEW_ID)));
         togo.add(new NavigationCase("differentRole", new SimpleViewParameters(DifferentRoleProducer.VIEW_ID)));
         return togo;
     }

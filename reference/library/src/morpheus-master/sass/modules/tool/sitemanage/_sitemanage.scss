@@ -11,3 +11,82 @@
 		}
 	}
 }
+
+/** SAK-31358 **/
+.#{$namespace}sakai-siteinfo {
+  .nonOfficialWarning {
+    color: #F00;
+    margin-top: .5em;
+    line-height: 1.5em;
+  }
+  div.differentRolesDiv {
+    display: inline-block;
+  }
+  table.differentRolesTable {
+    font-size: $default-font-size;
+    border: 1px solid darken($tool-background-color, 10%);
+    background-color: $tool-background-color;
+    margin: 1em 0;
+    @media #{$phone}{
+      display: block;
+      margin: 3em 0;
+      overflow: auto;
+    }
+    tr {
+      td, th {
+        border-right: 1px solid darken($tool-background-color, 10%);
+        padding: 0.25em;
+        font-family: $font-family;
+        font-size: $default-font-size;
+        > * {
+          font-family: $font-family;
+          font-size: $default-font-size;
+          font-weight: 400;
+          @media #{$phone}{
+            display: block;
+          }
+        }
+      }
+      &:nth-child(even) {
+        background: darken($tool-background-color, 5%);
+        td {
+          border-right: 1px solid darken($tool-background-color, 15%);
+        }
+      }
+    }
+    th {
+      vertical-align: top;
+      font-weight: bold;
+      background: darken($tool-background-color, 5%);
+      > span {
+        font-weight: bold;
+      }
+    }
+  }
+  .addInstructions {
+  }
+  .availableParticipantsTable {
+    padding: 0 .5em .5em .5em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  .addOfficialInstruction {
+    margin-top: 1.5em;
+    margin-bottom: .5em;
+    color: #003e75;
+  }
+  .sendEmailHeader {
+    margin-top: 1.5em;
+    margin-bottom: .5em;
+  }
+  .roleIdColumn {
+    font-weight: bold;
+    text-align: right;
+    padding-right: 1em !important;
+  }
+  label.typeLabel {
+    margin-left: 8px;
+  }
+}
+/** END SAK-31358 **/
