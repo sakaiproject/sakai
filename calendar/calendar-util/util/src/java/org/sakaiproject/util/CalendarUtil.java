@@ -44,11 +44,13 @@ public class CalendarUtil
 {	
 	/** Our logger. */
 	private static Logger M_log = LoggerFactory.getLogger(CalendarUtil.class);
+
+	private Clock clock = Clock.systemDefaultZone();
 	
 	/** The calendar object this is based upon. */
 	Calendar m_calendar = null;
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	ResourceLoader rb = new ResourceLoader("calendar");
+	ResourceLoader rb;
 
 	Date dateSunday = null;
 	Date dateMonday = null;
@@ -76,12 +78,13 @@ public class CalendarUtil
 	/**
 	* Construct.
 	*/
-	public CalendarUtil() 
+	public CalendarUtil()
 	{
+		rb = new ResourceLoader("calendar");
 		Locale locale = rb.getLocale();
 		m_calendar = Calendar.getInstance(locale);
 		initDates();
-		
+
 	}	// CalendarUtil
 	
 	/**
@@ -89,19 +92,42 @@ public class CalendarUtil
 	*/
 	public CalendarUtil(Calendar calendar) 
 	{
+		rb = new ResourceLoader("calendar");
 		m_calendar = calendar;
 		initDates();
 		
 	}	// CalendarUtil
 
+	/**
+	 * Constructor for testing.
+	 * @param clock the clock to use for the current time.
+	 */
+	public CalendarUtil(Clock clock, ResourceLoader rb)
+	{
+		this.clock = clock;
+		this.rb = rb;
+		m_calendar = getCalendarInstance();
+		initDates();
+	}
+
+	/**
+	 * This creates a calendar based on the clock. This is to allow testing of the class.
+	 * @return A calendar.
+	 */
+	private Calendar getCalendarInstance() {
+		Calendar instance = Calendar.getInstance();
+		instance.setTime(Date.from(clock.instant()));
+		return instance;
+	}
+
 	void initDates() {
-	  Calendar calendarSunday = Calendar.getInstance();
-	  Calendar calendarMonday = Calendar.getInstance();
-	  Calendar calendarTuesday = Calendar.getInstance();
-	  Calendar calendarWednesday = Calendar.getInstance();
-	  Calendar calendarThursday = Calendar.getInstance();
-	  Calendar calendarFriday = Calendar.getInstance();
-	  Calendar calendarSaturday = Calendar.getInstance();
+	  Calendar calendarSunday = getCalendarInstance();
+	  Calendar calendarMonday = getCalendarInstance();
+	  Calendar calendarTuesday = getCalendarInstance();
+	  Calendar calendarWednesday = getCalendarInstance();
+	  Calendar calendarThursday = getCalendarInstance();
+	  Calendar calendarFriday = getCalendarInstance();
+	  Calendar calendarSaturday = getCalendarInstance();
 
 	  calendarSunday.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 	  calendarMonday.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -121,7 +147,7 @@ public class CalendarUtil
 
 	  // Previously Calendar was used, but it had problems getting the month right
 	  // when the current day of the month was 31.
-	  YearMonth currentYearMonth = YearMonth.now();
+	  YearMonth currentYearMonth = YearMonth.now(clock);
 	  YearMonth jan = currentYearMonth.with(Month.JANUARY);
 	  YearMonth feb = currentYearMonth.with(Month.FEBRUARY);
 	  YearMonth mar = currentYearMonth.with(Month.MARCH);
