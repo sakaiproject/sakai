@@ -189,13 +189,13 @@
 	<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
   </bean>
   
-  <bean id="rwikiRTFHandler" 
+  <!--<bean id="rwikiRTFHandler" 
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >
     
     
-    <!-- from XSLTEntityHandler -->
-    <!-- The transformer use on the stream -->
+     from XSLTEntityHandler 
+     The transformer use on the stream 
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>rtf</value></property>    
     <property name="escaped"><value>false</value></property>
@@ -219,16 +219,16 @@
      <entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2RTFSerializer</value></entry>
       </map>     
     </property>
-    <!-- RTF doesn't embed fonts, but keep the transforms similar -->
+     RTF doesn't embed fonts, but keep the transforms similar 
     <property name="transformParameters">
       <map>
-        <!-- This pulls in the default font from sakai.properties. -->
+         This pulls in the default font from sakai.properties. 
         <entry key="default-font" value-ref="rwikiDefaultFont"/>
       </map>
     </property>
     <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
     <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>      
-  </bean>
+  </bean>-->
   <bean id="rwikiFOPHandler" 
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >
