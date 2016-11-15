@@ -47,10 +47,8 @@
       <map>
         <entry key=""><ref bean="rwikiRAWHandler" /></entry>
         <entry key="html"><ref bean="rwikiHTMLHandler" /></entry>
-        <!-- 
-	<entry key="odt"><ref bean="rwikiODTHandler" /></entry>
-	-->
-        <entry key="rtf"><ref bean="rwikiRTFHandler" /></entry>
+        <!--<entry key="odt"><ref bean="rwikiODTHandler" /></entry>-->
+        <!--<entry key="rtf"><ref bean="rwikiRTFHandler" /></entry>-->
         <entry key="pdf"><ref bean="rwikiPDFHandler" /></entry>
         <entry key="10.rss"><ref bean="rwiki10RSSHandler" /></entry>
         <entry key="09.rss"><ref bean="rwiki09RSSHandler" /></entry>
