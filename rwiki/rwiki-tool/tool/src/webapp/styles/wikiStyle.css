@@ -265,27 +265,30 @@ h3.breadcrumb{
 h3.breadcrumb #breadPref{
 	color:#aaa;
 }
-h3.breadcrumb #breadCurr{
-	color:#666;
-
-}
-.navPanel  {
+.navPanel {
 	border-bottom:1px solid #ddd;
+	padding-bottom: 0.5em;
+}
+div.navPanel {
+	overflow: visible;
+}
+.navPanel .viewNav{
+	display: inline;
 }
 .viewNav h3.breadcrumb{
 	padding:0;
 	margin:0;
+	display: inline;
 }
 #wikiCrumb {
 	text-align:left;
 	position:absolute;
 	z-index:100;
 	border:1px solid #ccc;
-	right:3em;
 	list-style-position: inside;
 	margin:0;padding:0 1em 0 0 ;
 	background:#ffe;
-	}
+}
 
 #wikiCrumb li{
 	list-style:none;
@@ -955,4 +958,10 @@ div.rwikiRenderedContent table.listHier {
 
 div.rwikiRenderedContent table.listHier th {
 	font-weight: bold;
+}
+
+.listNav.specialLink {
+	float: right;
+	text-align: right;
+	margin: 0;
 }
