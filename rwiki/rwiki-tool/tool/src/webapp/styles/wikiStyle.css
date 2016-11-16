@@ -948,3 +948,7 @@ but render it for accessibility */
 	height:1px;
 	overflow:hidden;
 }
+
+div.rwikiRenderedContent table.listHier {
+	width: auto;
+}
