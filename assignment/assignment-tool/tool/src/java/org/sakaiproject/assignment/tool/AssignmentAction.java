@@ -961,6 +961,7 @@ public class AssignmentAction extends PagedResourceActionII
 		announcementService = ComponentManager.get(AnnouncementService.class);
 		calendarService = ComponentManager.get(CalendarService.class);
 		contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
+		m_securityService = ComponentManager.get(SecurityService.class);
 	}
 	
 	
