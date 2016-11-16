@@ -37,7 +37,8 @@
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
- 		
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+
  		<!--use to allow group awareness option in assignments. 
  			By default this is true.-->
  		<property name="allowGroupAssignments"><value>true</value></property>

@@ -778,6 +778,30 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		m_relativeAccessPoint = REFERENCE_ROOT;
 		M_log.info(this + " init()");
 
+		Objects.requireNonNull(m_announcementService);
+		Objects.requireNonNull(m_assignmentActivityProducer);
+		Objects.requireNonNull(m_calendarService);
+		Objects.requireNonNull(m_contentHostingService);
+		Objects.requireNonNull(m_entityManager);
+		Objects.requireNonNull(m_gradebookExternalAssessmentService);
+		Objects.requireNonNull(m_gradebookService);
+		Objects.requireNonNull(m_memoryService);
+		Objects.requireNonNull(m_serverConfigurationService);
+		Objects.requireNonNull(m_taggingManager);
+		Objects.requireNonNull(developerHelperService);
+		Objects.requireNonNull(digestService);
+		Objects.requireNonNull(emailService);
+		Objects.requireNonNull(eventTrackingService);
+		Objects.requireNonNull(functionManager);
+		Objects.requireNonNull(gradeSheetExporter);
+		Objects.requireNonNull(idManager);
+		Objects.requireNonNull(securityService);
+		Objects.requireNonNull(sessionManager);
+		Objects.requireNonNull(siteService);
+		Objects.requireNonNull(timeService);
+		Objects.requireNonNull(toolManager);
+		Objects.requireNonNull(userDirectoryService);
+
 		// construct storage helpers and read
 		m_assignmentStorage = newAssignmentStorage();
 		m_assignmentStorage.open();
@@ -812,6 +836,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
  		{
  			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
  		}
+
+
 	} // init
 
 	/**
