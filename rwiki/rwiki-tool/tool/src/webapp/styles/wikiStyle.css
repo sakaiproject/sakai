@@ -952,3 +952,7 @@ but render it for accessibility */
 div.rwikiRenderedContent table.listHier {
 	width: auto;
 }
+
+div.rwikiRenderedContent table.listHier th {
+	font-weight: bold;
+}
