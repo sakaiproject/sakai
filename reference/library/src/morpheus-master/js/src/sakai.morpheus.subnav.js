@@ -14,7 +14,7 @@ var buildDropdownMenu = function(container, siteId, callback) {
   var navsubmenu = "<ul class=\"Mrphs-sitesNav__submenu\" role=\"menu\">";
   var maxToolsInt = parseInt($PBJQ('#linkNav').attr('data-max-tools-int'));
   var maxToolsText = $PBJQ('#linkNav').attr('data-max-tools-anchor');
-  var goToSite = '<li class=\"Mrphs-sitesNav__submenuitem\"><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai-see-all-tools\"></span>' + maxToolsText + '</a></li>';
+  var goToSite = '<li class=\"Mrphs-sitesNav__submenuitem\"><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai--see-all-tools\"></span>' + maxToolsText + '</a></li>';
   var siteURL = '/direct/site/' + siteId + '/pages.json';
   var currentSite = window.location.pathname.split('/').pop();
 
@@ -40,14 +40,14 @@ var buildDropdownMenu = function(container, siteId, callback) {
           if (item.toolpopup) {
             var link_attrs = ' role="menuitem" href="{{tool_url}}?sakai.popup=yes" title="{{item_title}}" onclick="window.open(\'{{item_toolpopupurl}}\');"';
             li_template = '<li class="Mrphs-sitesNav__submenuitem" >' +
-              '<a class="Mrphs-sitesNav__submenuitem-icon"' + link_attrs + '><span class="toolMenuIcon icon-{{icon}}"></span></a>' +
+              '<a class="Mrphs-sitesNav__submenuitem-icon"' + link_attrs + '><span class="toolMenuIcon icon-sakai--{{icon}}"></span></a>' +
               '<a class="Mrphs-sitesNav__submenuitem-title"' + link_attrs + '>{{item_title}}</a>' +
               '</li>';
           } else {
             var link_attrs = ' role="menuitem" href="{{tool_url}}" title="{{item_title}}"';
 
             li_template = '<li class="Mrphs-sitesNav__submenuitem{{is_current}}">' +
-              '<a class="Mrphs-sitesNav__submenuitem-icon"' + link_attrs + '><span class="toolMenuIcon icon-{{icon}}"></span></a>' +
+              '<a class="Mrphs-sitesNav__submenuitem-icon"' + link_attrs + '><span class="toolMenuIcon icon-sakai--{{icon}}"></span></a>' +
               '<a class="Mrphs-sitesNav__submenuitem-title"' + link_attrs + '>{{item_title}}</a>' +
               '</li>';
           }

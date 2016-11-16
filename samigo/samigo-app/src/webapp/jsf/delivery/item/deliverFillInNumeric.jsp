@@ -46,13 +46,13 @@ should be included in file importing DeliveryMessages
   separator=" " first="0" rows="100">
   <h:column>
       <h:outputText value="#{answer.text} " escape="false" />
-      <h:panelGroup styleClass="icon-sakai-check feedBackCheck" id="image"
+      <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true' && 
                     !delivery.isAnyInvalidFinInput}" >
       </h:panelGroup>
-      <h:panelGroup styleClass="icon-sakai-delete feedBackCross" id="ximage"
+      <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="ximage"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}">

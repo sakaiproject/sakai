@@ -538,7 +538,7 @@
 			#pagingPanel($pagesizeFormName)
 		#end
 		## download link for print out participant list
-		<a href="$printParticipantUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a><i class="icon-sakai-pdf"></i>
+		<a href="$printParticipantUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a><i class="icon-sakai--pdf"></i>
 		<hr />
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
 			<div class="table-responsive">

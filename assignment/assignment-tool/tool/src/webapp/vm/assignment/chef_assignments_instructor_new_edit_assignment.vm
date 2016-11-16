@@ -1690,10 +1690,10 @@
 						<tr>
 							<td class="groupCell">
 								<a href="javascript:void(0)" id="collapse_$roleCount" class="toggleRoleLink" style="display:none;" title="$collapseString">
-									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="icon-sakai-membership"></i></span>
+									<img src="/library/image/sakai/collapse.gif" alt="$collapseString" /><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
 								</a>
 								<a href="javascript:void(0)" id="expand_$roleCount" class="toggleRoleLink" style="display:inline" title="$expandString">
-									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="icon-sakai-membership"></i></span>
+									<img src="/library/image/sakai/expand.gif"  alt="$expandString"/><span class="members"><i class="icon-sakai--sakai-membership"></i></span>
 								</a>
 								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
 								<label for="showInputString_$roleCount">
