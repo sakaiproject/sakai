@@ -54,7 +54,7 @@
 				</a>
 				#if (!$!accessedFromEmail)
 					&nbsp;&nbsp;
-					<a href="javascript:jQuery('#dialog-copyright').dialog('close')" style="background-color:#EEE;border:1px solid #4A5573;color:#4A5573;padding: 3px;text-decoration:none">
+					<a href="javascript:jQuery('#dialog-copyright').dialog('close');void(0);" style="background-color:#EEE;border:1px solid #4A5573;color:#4A5573;padding: 3px;text-decoration:none">
 						$tlang.getString("gen.cancel")
 					</a> 
 				#end
@@ -63,7 +63,7 @@
 </div>
 #if($sample)	
 	<div style="margin:2em .3em .3em .3em;text-align:left">	
-		<a href="javascript:jQuery('#dialog-copyright').dialog('close')" style="background-color:#EEE;border:1px solid #4A5573;color:#4A5573;padding:3px;text-decoration:none">$tlang.getString("gen.close")</a> 
+		<a href="javascript:jQuery('#dialog-copyright').dialog('close');void(0);" style="background-color:#EEE;border:1px solid #4A5573;color:#4A5573;padding:3px;text-decoration:none">$tlang.getString("gen.close")</a> 
 	</div>		
 #end
 </div>
