@@ -47,9 +47,11 @@ public class SakaiProxyMock implements SakaiProxy {
 	public static final String BOGUS_SITE_TITLE = "bogus_site_title";
 	public static final String BOGUS_SITE_URL = "bogus_site_url";
 
-	public static final Map<String,Site> VALID_SITES = new HashMap<String,Site>();
-	static {
-		VALID_SITES.put(VALID_SITE_ID, new SiteMock(VALID_SITE_ID, VALID_SITE_TITLE, VALID_SITE_URL));
+	public final Map<String,Site> validSites = new HashMap<String,Site>();
+
+	public SakaiProxyMock(Site site) {
+		validSites.put(site.getId(), site);
+
 	}
 
 	private String serverId = "unknown-server-id";
@@ -97,8 +99,8 @@ public class SakaiProxyMock implements SakaiProxy {
 
 	public Site getSite(String siteId) {
 		Site site = null;
-		if(siteId != null && VALID_SITE_ID.equals(siteId)) {
-			site = VALID_SITES.get(VALID_SITE_ID);
+		if(siteId != null) {
+			site = validSites.get(siteId);
 		}
 		return site;
 	}
