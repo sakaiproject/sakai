@@ -398,6 +398,28 @@
         <property name="userDirectoryService"      ><ref bean="org.sakaiproject.user.api.UserDirectoryService"              /></property>
     </bean>
 
+    <!-- Hide LB-CSS folder from access user-->
+    <bean id = "org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob">
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.LBCSSFolderHideJob"
+        class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+        init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob</value>
+        </property>
+        <property name="jobName">
+            <value>Hide LB-CSS folder in Resources.</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+
     <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
         <property name="schedulerManager">
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
