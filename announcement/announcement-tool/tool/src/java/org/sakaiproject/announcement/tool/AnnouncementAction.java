@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +33,6 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -48,7 +44,6 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
-import org.sakaiproject.announcement.tool.AnnouncementActionState.DisplayOptions;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -70,8 +65,6 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Entity;
@@ -79,7 +72,6 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
-import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn.Header;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -105,7 +97,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -157,29 +148,25 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private static final String SSTATE_PUBLICVIEW_VALUE = "public_view_value";
 
-	private static final String SORT_DATE = "date";
+	public static final String SORT_DATE = "date";
 	
-	private static final String SORT_MESSAGE_ORDER = "message_order";
+	public static final String SORT_MESSAGE_ORDER = "message_order";
 	
-	private static final String SORT_RELEASEDATE = "releasedate";
+	public static final String SORT_RELEASEDATE = "releasedate";
 	
-	private static final String SORT_RETRACTDATE = "retractdate";
+	public static final String SORT_RETRACTDATE = "retractdate";
 
-	private static final String SORT_PUBLIC = "public";
+	public static final String SORT_PUBLIC = "public";
 
-	private static final String SORT_FROM = "from";
+	public static final String SORT_FROM = "from";
 
-	private static final String SORT_SUBJECT = "subject";
+	public static final String SORT_SUBJECT = "subject";
 
-	private static final String SORT_CHANNEL = "channel";
+	public static final String SORT_CHANNEL = "channel";
 
-	private static final String SORT_FOR = "for";
+	public static final String SORT_FOR = "for";
 
-	private static final String SORT_GROUPTITLE = "grouptitle";
-
-	private static final String SORT_GROUPDESCRIPTION = "groupdescription";
-	
-	private static String SORT_CURRENTORDER = "date";
+	public static String SORT_CURRENTORDER = "date";
 
 	private static final String CONTEXT_VAR_DISPLAY_OPTIONS = "displayOptions";
 
@@ -257,9 +244,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
    private ServerConfigurationService serverConfigurationService;
 
-   private RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
-
-   private Collator collator = Collator.getInstance();
    
    private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
 
@@ -784,20 +768,20 @@ public class AnnouncementAction extends PagedResourceActionII
 		 * @param maxCharsPerAnnouncement
 		 *        The maximum number of characters that will be returned when getTrimmedBody() is called.
 		 */
-		static private List wrapList(List messages, AnnouncementChannel currentChannel, AnnouncementChannel hostingChannel,
+		static private List<AnnouncementWrapper> wrapList(List<AnnouncementMessage> messages, AnnouncementChannel currentChannel, AnnouncementChannel hostingChannel,
 				AnnouncementActionState.DisplayOptions options)
 		{
 			// 365 is the default in DisplayOptions
 			int maxNumberOfDaysInThePast = (options != null) ? options.getNumberOfDaysInThePast() : 365;
 			 
 
-			List messageList = new ArrayList();
+			List<AnnouncementWrapper> messageList = new ArrayList<>();
 
-			Iterator it = messages.iterator();
+			Iterator<AnnouncementMessage> it = messages.iterator();
 
 			while (it.hasNext())
 			{
-				AnnouncementMessage message = (AnnouncementMessage) it.next();
+				AnnouncementMessage message = it.next();
 
 				// See if the message falls within the filter window.
 				// note: the default of enforceNumberOfDaysInThePastLimit is false
@@ -1048,8 +1032,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (DEFAULT_TEMPLATE.equals(template))
 				{
 					// only query for messages for the list view
-					if (channel.allowGetMessages() && !state.getCurrentSortedBy().equals(SORT_GROUPTITLE)
-							&& !state.getCurrentSortedBy().equals(SORT_GROUPDESCRIPTION))
+					if (channel.allowGetMessages())
 					{
 						// this checks for any possibility of an add, channel or any site group
 						menu_new = channel.allowAddMessage();
@@ -1213,8 +1196,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				else
 					context.put("currentSortAsc", "false");
 
-				if (currentSortedBy != null && !currentSortedBy.equals(SORT_GROUPTITLE)
-						&& !currentSortedBy.equals(SORT_GROUPDESCRIPTION))
+				if (currentSortedBy != null)
 				{
 					// sort in announcement list view
 					buildSortedContext(portlet, context, rundata, sstate);
@@ -1240,13 +1222,13 @@ public class AnnouncementAction extends PagedResourceActionII
 		if (channel != null)
 		{
 			// show all the groups in this channal that user has get message in
-			Collection groups = channel.getGroupsAllowGetMessage();
+			Collection<Group> groups = channel.getGroupsAllowGetMessage();
 			if (groups != null && groups.size() > 0)
 			{
 				//context.put("groups", groups);
-				Collection sortedGroups = new Vector();
+				Collection<Group> sortedGroups = new ArrayList<>();
 
-				for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementComparator(SORT_GROUPTITLE, true)); i.hasNext();)
+				for (Iterator<Group> i = new SortedIterator(groups.iterator(), new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true)); i.hasNext();)
 					{
 						sortedGroups.add(i.next());
 					}
@@ -1508,10 +1490,10 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * 
 	 * @throws PermissionException
 	 */
-	private List getMessages(AnnouncementChannel defaultChannel, Filter filter, boolean ascending, AnnouncementActionState state,
+	private List<AnnouncementWrapper> getMessages(AnnouncementChannel defaultChannel, Filter filter, boolean ascending, AnnouncementActionState state,
 			VelocityPortlet portlet) throws PermissionException
 	{
-		List messageList = new ArrayList();
+		List<AnnouncementWrapper> messageList = new ArrayList<>();
 
 		MergedList mergedAnnouncementList = new MergedList(); 
 
@@ -1797,11 +1779,11 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * @return
 	 * 			List of messsage this user is able to view
 	 */
-	private List getViewableMessages(List messageList, String siteId) {
-		final List filteredMessages = new ArrayList();
+	private <T extends AnnouncementMessage> List<T> getViewableMessages(List<T> messageList, String siteId) {
+		final List<T> filteredMessages = new ArrayList<>();
 		
-		for (Iterator messIter = messageList.iterator(); messIter.hasNext();) {
-			final AnnouncementMessage message = (AnnouncementMessage) messIter.next();
+		for (Iterator<T> messIter = messageList.iterator(); messIter.hasNext();) {
+			final T message = messIter.next();
 			
 			// for synoptic tool or if in MyWorkspace, 
 			// only display if not hidden AND
@@ -2112,8 +2094,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (groups.size() > 0)
 				{
 					Collection sortedGroups = new Vector();
-					//for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)); i.hasNext();)
-					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementComparator(SORT_GROUPTITLE, true)); i.hasNext();)
+					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementGroupComparator(AnnouncementGroupComparator.Criteria.TITLE, true)); i.hasNext();)
 					{
 						sortedGroups.add(i.next());
 					}
@@ -2764,18 +2745,6 @@ public class AnnouncementAction extends PagedResourceActionII
 				// attach
 				readAnnouncementForm(data, context, false);
 				doAttachments(data, context);
-			}
-			else if (option.equals("sortbygrouptitle"))
-			{
-				// sort group by title
-				readAnnouncementForm(data, context, false);
-				doSortbygrouptitle(data, context);
-			}
-			else if (option.equals("sortbygroupdescription"))
-			{
-				// sort group by description
-				readAnnouncementForm(data, context, false);
-				doSortbygroupdescription(data, context);
 			}
 		}
 	} // doAnnouncement_form
@@ -3981,286 +3950,6 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		setupSort(rundata, context, SORT_FOR);
 	} // doSortbyfor
-
-	/**
-	 * Do sort by group title
-	 */
-	public void doSortbygrouptitle(RunData rundata, Context context)
-	{
-		setupSort(rundata, context, SORT_GROUPTITLE);
-	} // doSortbygrouptitle
-
-	/**
-	 * Do sort by group description
-	 */
-	public void doSortbygroupdescription(RunData rundata, Context context)
-	{
-		setupSort(rundata, context, SORT_GROUPDESCRIPTION);
-	} // doSortbygroupdescription
-
-	private class AnnouncementComparator implements Comparator
-	{
-		// the criteria
-		String m_criteria = null;
-		{
-			try
-			{
-				collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));;
-			}
-			catch (ParseException e)
-			{
-				M_log.error(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
-			}
-		}
-		// the criteria - asc
-		boolean m_asc = true;
-
-		/**
-		 * constructor
-		 * 
-		 * @param criteria
-		 *        The sort criteria string
-		 * @param asc
-		 *        The sort order string. "true" if ascending; "false" otherwise.
-		 */
-		public AnnouncementComparator(String criteria, boolean asc)
-		{
-			m_criteria = criteria;
-			m_asc = asc;
-
-		} // constructor
-
-		/**
-		 * implementing the compare function
-		 * 
-		 * @param o1
-		 *        The first object
-		 * @param o2
-		 *        The second object
-		 * @return The compare result. 1 is o1 < o2; -1 otherwise
-		 */
-		public int compare(Object o1, Object o2)
-		{
-			int result = -1;
-
-			if (m_criteria.equals(SORT_SUBJECT))
-			{
-				// sorted by the discussion message subject
-				result = collator.compare(((AnnouncementMessage) o1).getAnnouncementHeader().getSubject(),
-						((AnnouncementMessage) o2).getAnnouncementHeader().getSubject());				
-
-			}
-			else if (m_criteria.equals(SORT_DATE))
-			{
-
-				Time o1ModDate = null;
-				Time o2ModDate = null;
-				
-				try
-				{
-					o1ModDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
-				}
-				catch (Exception e) 
-				{
-					// release date not set, use the date in header 
-					// NOTE: this is an edge use case for courses with pre-existing announcements that do not yet have MOD_DATE
-					o1ModDate = ((AnnouncementMessage) o1).getHeader().getDate();
-				}
-
-				try 
-				{
-					o2ModDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
-				}
-				catch (Exception e) 
-				{
-					// release date not set, use the date in the header
-					// NOTE: this is an edge use case for courses with pre-existing announcements that do not yet have MOD_DATE
-					o2ModDate = ((AnnouncementMessage) o2).getHeader().getDate();
-				}
-
-				if (o1ModDate != null && o2ModDate != null) 
-				{
-					// sorted by the discussion message date
-					if (o1ModDate.before(o2ModDate))
-					{
-						result = -1;
-					}
-					else
-					{
-						result = 1;
-					}
-				}
-				else if (o1ModDate == null)
-				{
-					return 1;
-				}
-				else
-				{
-					return -1;
-				}
-			}
-			else if (m_criteria.equals(SORT_MESSAGE_ORDER))
-			{
-				// sorted by the message order
-				if ((((AnnouncementMessage) o1).getAnnouncementHeader().getMessage_order()) <
-						(((AnnouncementMessage) o2).getAnnouncementHeader().getMessage_order()))
-				{
-					result = -1;
-				}
-				else
-				{
-					result = 1;
-				}
-			}
-			else if (m_criteria.equals(SORT_RELEASEDATE))
-			{
-				Time o1releaseDate = null;
-				Time o2releaseDate = null;
-				
-				try
-				{
-					o1releaseDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
-				}
-				catch (Exception e) 
-				{
-					// release date not set, go on
-				}
-
-				try 
-				{
-					o2releaseDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
-				}
-				catch (Exception e) 
-				{
-					// release date not set, go on
-				}
-
-				if (o1releaseDate != null && o2releaseDate != null) 
-				{
-					// sorted by the discussion message date
-					if (o1releaseDate.before(o2releaseDate))
-					{
-						result = -1;
-					}
-					else
-					{
-						result = 1;
-					}
-				}
-				else if (o1releaseDate == null)
-				{
-					return 1;
-				}
-				else
-				{
-					return -1;
-				}
-			}
-			else if (m_criteria.equals(SORT_RETRACTDATE))
-			{
-				Time o1retractDate = null;
-				Time o2retractDate = null;
-				
-				try
-				{
-					o1retractDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
-				}
-				catch (Exception e) 
-				{
-					// release date not set, go on
-				}
-
-				try 
-				{
-					o2retractDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
-				}
-				catch (Exception e) 
-				{
-					// release date not set, go on
-				}
-
-				if (o1retractDate != null && o2retractDate != null) 
-				{
-					// sorted by the discussion message date
-					if (o1retractDate.before(o2retractDate))
-					{
-						result = -1;
-					}
-					else
-					{
-						result = 1;
-					}
-				}
-				else if (o1retractDate == null)
-				{
-					return 1;
-				}
-				else
-				{
-					return -1;
-				}
-			}
-			else if (m_criteria.equals(SORT_FROM))
-			{
-				// sorted by the discussion message subject
-				result = collator.compare(((AnnouncementMessage) o1).getAnnouncementHeader().getFrom().getSortName(),
-				((AnnouncementMessage) o2).getAnnouncementHeader().getFrom().getSortName());
-			}
-			else if (m_criteria.equals(SORT_CHANNEL))
-			{
-				// sorted by the channel name.
-				result = collator.compare(((AnnouncementWrapper) o1).getChannelDisplayName(),
-						((AnnouncementWrapper) o2).getChannelDisplayName());
-			}
-			else if (m_criteria.equals(SORT_PUBLIC))
-			{
-				// sorted by the public view attribute
-				String factor1 = ((AnnouncementMessage) o1).getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
-				if (factor1 == null) factor1 = "false";
-				String factor2 = ((AnnouncementMessage) o2).getProperties().getProperty(ResourceProperties.PROP_PUBVIEW);
-				if (factor2 == null) factor2 = "false";
-				result = collator.compare(factor1,factor2);
-			}
-			else if (m_criteria.equals(SORT_FOR))
-			{
-				// sorted by the public view attribute
-				String factor1 = ((AnnouncementWrapper) o1).getRange();
-				String factor2 = ((AnnouncementWrapper) o2).getRange();
-				result = collator.compare(factor1,factor2);
-			}
-			else if (m_criteria.equals(SORT_GROUPTITLE))
-			{
-				// sorted by the group title
-				String factor1 = ((Group) o1).getTitle();
-				String factor2 = ((Group) o2).getTitle();
-				result = collator.compare(factor1,factor2);
-			}
-			else if (m_criteria.equals(SORT_GROUPDESCRIPTION))
-			{
-				// sorted by the group title
-				String factor1 = ((Group) o1).getDescription();
-				String factor2 = ((Group) o2).getDescription();
-				if (factor1 == null)
-				{
-					factor1 = "";
-				}
-				if (factor2 == null)
-				{
-					factor2 = "";
-				}
-				result = collator.compare(factor1,factor2);
-			}
-
-			// sort ascending or descending
-			if (!m_asc)
-			{
-				result = -result;
-			}
-			return result;
-
-		} // compare
-
-	} // AnnouncementComparator
 
 	// ********* ending for sorting *********
 
