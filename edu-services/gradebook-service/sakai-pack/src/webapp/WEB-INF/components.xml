@@ -88,6 +88,9 @@
         <property name="gradebookPermissionService">
             <ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/>
         </property>
+        <property name="gradebookFrameworkService">
+            <ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService"/>
+        </property>
         <property name="siteService">
             <ref bean="org.sakaiproject.site.api.SiteService" />
         </property>

@@ -78,6 +78,14 @@ public interface GradebookManager {
      */
     public Gradebook getGradebook(String uid) throws GradebookNotFoundException;
 
+    /**
+     * Fetches a gradebook based on its unique string id, will create it if it doesn't exist. Required to get around readOnly method
+     *
+     * @param uid The UID of the gradebook
+     * @return The gradebook
+     */
+    public Gradebook addOrGetGradebook(String uid) throws GradebookNotFoundException;
+
     public Gradebook getGradebookWithGradeMappings(Long id);
 
     /**

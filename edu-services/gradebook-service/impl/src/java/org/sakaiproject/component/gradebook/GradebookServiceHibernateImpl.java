@@ -61,6 +61,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
@@ -98,7 +99,25 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
+    private GradebookFrameworkService gradebookFrameworkService;
+    
     protected SiteService siteService;
+
+    public Gradebook addOrGetGradebook(String uid) throws GradebookNotFoundException {
+    	try {
+    		Gradebook gb = super.getGradebook(uid);
+    	}
+    	catch (GradebookNotFoundException e) {
+    		if (gradebookFrameworkService != null) {
+    			gradebookFrameworkService.addGradebook(uid,uid);
+    		}
+    		else {
+    			log.warn("Attempted to add non-existant gradebook but gradebookFrameworkService at this point == null");
+    		}
+    		
+    	}
+    	return super.getGradebook(uid);
+    }
 	
     @Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
@@ -3466,6 +3485,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		this.gradebookPermissionService = gradebookPermissionService;
 	}
 	
+	public GradebookFrameworkService getGradebookFrameworkService() {
+		return gradebookFrameworkService;
+	}
+
+	public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
+		this.gradebookFrameworkService = gradebookFrameworkService;
+	}
+
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
