@@ -744,6 +744,27 @@
 						</div>
 						#end
 				<!-- End VeriCite custom options -->
+				#elseif($reviewServiceName.equals("Compilatio"))
+						#if ($content_review_note)
+							$content_review_note
+						#end
+						<h4>
+							$tlang.getString("review.originality.reports")
+						</h4>
+						<div class="radio">
+							#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
+								<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO">
+									<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")<br/>
+								</label>
+								<br/>
+							#end
+							#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE))
+								<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO">
+									<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")<br/>
+								</label>
+							#end
+						</div>
+				<!-- End Compilatio custom options -->
 				#end
 			</div>
 		#end
