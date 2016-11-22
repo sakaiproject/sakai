@@ -651,14 +651,14 @@ var setupCategTools = function(){
         var mylist = $('#toolSelectionList ul');
         var listitems = mylist.children('li').get();
         listitems.sort(function(a, b){
-            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
+            return $(a).text().trim().toUpperCase().localeCompare($(b).text().trim().toUpperCase());
         });
         $.each(listitems, function(idx, itm){
             mylist.append(itm);
         });
         if ($('#toolSelectionList ul li').length > 1) {
-            if ($('#toolSelectionList ul').find('li#selected_sakai_home').length) {
-             $('#toolSelectionList ul').find('li#selected_sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
+            if ($('#toolSelectionList ul').find('li#sakai_home').length) {
+             $('#toolSelectionList ul').find('li#sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
             }
             // SAK-22384
             var listHeader = document.getElementById("#toolSelectionListHeader");
@@ -789,7 +789,7 @@ var setupCategTools = function(){
 
         	// selectedTools with disable checkboxes don't have the red [X] remove link
         	if ($(this).prop('disabled') !== true) {
-        		removeLink = '<a href="#" class=\"removeTool icon-sakai-delete' + toolInstance + '\"></a>';
+        		removeLink = '<a href="#" class=\"removeTool icon-sakai--delete' + toolInstance + '\"></a>';
         	}
                         
     		var selId = normalizedId($(this).attr('id'));
@@ -799,7 +799,7 @@ var setupCategTools = function(){
             var mathJaxCheckBox = buildMathJaxCheckBox(this);
             var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
             var newListItem = '<li id=\"' + thisToolId
-                    + '\"><span class=\"selectedToolTitle \"><i class="icon-' + iconId + '"></i>' + safeLabelText + "</span>"
+                    + '\"><span class=\"selectedToolTitle \"><i class="icon-sakai--' + iconId + '"></i>' + safeLabelText + "</span>"
                     + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
             $('#toolSelectionList ul').append(newListItem);
             

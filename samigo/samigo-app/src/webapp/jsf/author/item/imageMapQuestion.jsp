@@ -56,13 +56,38 @@
 		if($('#itemForm\\:serialized').val() != '')
 			dynamicList.fillElements();
 		else
-			dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true);
+			dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true,true);
 	});
 	
 	function resetList()
 	{
 		dynamicList.resetElements();
 		dynamicList.serializeElements();
+	}
+	
+	function validate(){
+		if (validateDescriptions()){
+			return validateZones();
+		}
+		return false;
+	}
+	
+	function validateDescriptions(){
+		
+		var ok = true;
+		
+		$('input[id^=value_]').each(function(){
+			if (!$.trim(this.value).length){
+				ok = false;
+				return false;
+			}
+		});
+		
+		if (!ok){
+			alert("<h:outputText value="#{authorMessages.all_im_descriptions_needed}" />");
+		}
+		
+		return ok;
 	}
 	
 	function validateZones()
@@ -136,6 +161,16 @@
             <h:message for="answerptr" styleClass="validate"/>
         </div>
     </div>
+    
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_point_value_display}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-5 samigo-inline-radio">
+            <h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+                <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
+                <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
+            </h:selectOneRadio>
+        </div>
+    </div>    
 
     <!-- 2 TEXT -->
     <div class="form-group row">
@@ -174,7 +209,7 @@
     <h:inputHidden id="serialized" value="#{itemauthor.currentItem.serializedImageMap}" /> 
 
     <div>
-        <input type='button' onclick="dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true)" value="+" style="margin-left: 45px" />
+        <input type='button' onclick="dynamicList.addElement('<h:outputText value="#{authorMessages.im_description}" escape="false" />', true,true)" value="+" style="margin-left: 45px" />
         <div id='template' style='display:none'>	
             <span name='position_'></span>
             <span>
@@ -285,11 +320,11 @@
 
 
 <p class="act">
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active" onclick="return validateZones()">
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active" onclick="return validate()">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active" onclick="return validateZones()">
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active" onclick="return validate()">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>

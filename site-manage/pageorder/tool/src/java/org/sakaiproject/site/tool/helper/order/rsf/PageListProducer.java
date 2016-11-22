@@ -100,7 +100,7 @@ public class PageListProducer
                 if (tools.size() > 0) {
                     toolId = tools.get(0).getToolId().replaceAll("\\.", "-");
                 }
-                UIOutput.make(pagerow, "tool-icon").decorate(new UIFreeAttributeDecorator("class", String.format("tool-icon icon-%s", toolId)));
+                UIOutput.make(pagerow, "tool-icon").decorate(new UIFreeAttributeDecorator("class", String.format("tool-icon icon-sakai--%s", toolId)));
 
                 PageEditViewParameters param = new PageEditViewParameters();
                                 

@@ -79,7 +79,7 @@
 		}
 	}
 	.#{$namespace}toolTitleNav__link{
-		//color: lighten( $text-color, 70% );
+		color: $tool-nav-link-color;
 		border: 1px solid #e0e0e0;
 		background: $tool-tab-background-color;
 		margin-right: 0.25em;
@@ -88,8 +88,8 @@
 		vertical-align: 0%;
 		&:hover{
 			background: $tool-background-color;
-			color: $primary-color;
-			box-shadow: 0 0 6px 0 rgba(0,0,0,.15);
+			color: $swapped-view-text-color;
+			text-decoration: none;
 		}
 		@media #{$tablet}{
 			background: $tool-background-color;
@@ -135,7 +135,7 @@
 			/*font-size: $default-font-size;*/
 			text-transform: uppercase;
 			font-size: 0.8em;
-			letter-spacing: 1.2px;
+			letter-spacing: 1px;
 			@media #{$tablet}{
 				display: none;
 			}

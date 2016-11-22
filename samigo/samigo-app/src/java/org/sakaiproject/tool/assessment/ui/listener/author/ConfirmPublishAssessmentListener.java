@@ -170,6 +170,14 @@ public class ConfirmPublishAssessmentListener
 	    }
     }
     
+    // if due date is null we cannot have late submissions
+    if (assessmentSettings.getDueDate() == null && assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
+        assessmentSettings.getRetractDate() !=null){
+        String noDueDate = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_null_with_retract_date");
+        context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, noDueDate, null));
+        error=true;
+    }
+    
     // SAM-1088
     // if late submissions not allowed and late submission date is null, set late submission date to due date
     if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&

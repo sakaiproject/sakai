@@ -350,8 +350,9 @@
 
                     m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + encodeURIComponent(roster.siteId);
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
-                    if (options.forceOfficialPicture) {
+                    if (options.forceOfficialPicture || options.showOfficialPictures) {
                         m.profileImageUrl += "/official";
+                        m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted/official?siteId=" + encodeURIComponent(roster.siteId);
                     }
                     m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
                     var groupIds = Object.keys(m.groups);
@@ -395,6 +396,8 @@
 
                         $('#roster-group-option-' + value).prop('selected', true);
                     });
+                    
+                    $('a.profile').unbind();
 
                     $('a.profile').cluetip({
                         width: '640px',
@@ -406,7 +409,8 @@
                         closeText: '<img src="/library/image/silk/cross.png" alt="close" />',
                         closePosition: 'top',
                         showTitle: false,
-                        hoverIntent: true
+                        hoverIntent: true,
+                        activation: 'toggle'
                     });
                 });
 

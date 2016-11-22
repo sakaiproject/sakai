@@ -42,8 +42,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI{
 
   private Logger log = LoggerFactory.getLogger(TypeFacadeQueries.class);
-  private HashMap typeFacadeMap;
-  private List itemTypes;
+  private HashMap<Long, TypeFacade> typeFacadeMap;
+  private List<TypeFacade> itemTypes;
 
   public TypeFacadeQueries() {
   }
@@ -52,14 +52,14 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * set the typeFacadeMap for TypeFacadeQueries
      */
     public void setTypeFacadeMap(){
-	this.typeFacadeMap = getMapForAllTypes();
+	    this.typeFacadeMap = getMapForAllTypes();
     }
 
     /**
      * get the typeFacadeMap
      */
-    public HashMap getTypeFacadeMap(){
-	return this.typeFacadeMap;
+    public HashMap<Long, TypeFacade> getTypeFacadeMap() {
+	    return this.typeFacadeMap;
     }
 
     /**
@@ -69,10 +69,10 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @return TypeFacade
      */
     public TypeFacade getTypeFacadeById(Long typeId) {
-	TypeFacade typeFacade = null;
-	HashMap typeMap = getTypeFacadeMap();
-	typeFacade = (TypeFacade)typeMap.get(typeId);
-	return typeFacade;
+	    TypeFacade typeFacade = null;
+	    HashMap<Long, TypeFacade> typeMap = getTypeFacadeMap();
+	    typeFacade = typeMap.get(typeId);
+	    return typeFacade;
     }
 
     /**
@@ -82,22 +82,17 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @return org.osid.shared.Type or null if no types of that id
      */
     public Type getTypeById(Long typeId){
-    	//pbd hack
-    	List typeList = getAllTypes();
-    	this.typeFacadeMap = createTypeFacadeMapById(typeList);
-    	
-    	// end pbd hack
-	TypeFacade typeFacade = getTypeFacadeById(typeId);
-	//SAM-1792 this could be a request for an unkown type
-	if (typeFacade == null) {
-		log.warn("Unable to find Item Type: " + typeId.toString());
-		return null;
-	}
-	TypeExtension type = new TypeExtension(typeFacade.getAuthority(),
+	    TypeFacade typeFacade = getTypeFacadeById(typeId);
+	    // SAM-1792 this could be a request for an unknown type
+	    if (typeFacade == null) {
+		    log.warn("Unable to find Item Type: " + typeId.toString());
+		    return null;
+	    }
+	    TypeExtension type = new TypeExtension(typeFacade.getAuthority(),
 					       typeFacade.getDomain(),
 					       typeFacade.getKeyword(),
 					       typeFacade.getDescription());
-	return type;
+	    return type;
     }
 
     /**
@@ -134,8 +129,9 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * fetch a list of TypeD from the DB or cache (Hibernate decides)
      * @return a list of TypeD
      */
-    private List getAllTypes() {
-	return getHibernateTemplate().find("from TypeD");
+    @SuppressWarnings("unchecked")
+	private List<TypeD> getAllTypes() {
+    	return (List<TypeD>) getHibernateTemplate().find("from TypeD");
     }
 
     /**
@@ -143,10 +139,9 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * containing all the TypeFacade available
      * @return HashMap
      */
-    private HashMap getMapForAllTypes() {
-	//HashMap typeMap = new HashMap();
-	List typeList = getAllTypes();
-	return createTypeFacadeMapById(typeList);
+    private HashMap<Long, TypeFacade> getMapForAllTypes() {
+	    List<TypeD> typeList = getAllTypes();
+	    return createTypeFacadeMapById(typeList);
     }
 
     /**
@@ -155,8 +150,8 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @param typeList
      * @return a HashMap
      */
-    private HashMap createTypeFacadeMapById(List typeList){
-	HashMap typeFacadeMap = new HashMap();
+    private HashMap<Long, TypeFacade> createTypeFacadeMapById(List typeList){
+	HashMap<Long, TypeFacade> typeFacadeMap = new HashMap<Long, TypeFacade>();
 	for (int i = 0; i < typeList.size(); i++) {
 	    TypeD typeData = (TypeD) typeList.get(i);
 	    TypeFacade typeFacade = new TypeFacade(typeData);
@@ -178,15 +173,11 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
         		Query q = session.createQuery("from TypeD as t where t.authority=? and t.domain=?");
         		q.setString(0, authority);
         		q.setString(1, domain);
+        		q.setCacheable(true);
         		return q.list();
         	};
         };
         return getHibernateTemplate().executeFind(hcb);
-
-//        return getHibernateTemplate().find(
-//                                           "from TypeD as t where t.authority=? and t.domain=?",
-//                                           new Object[] { authority, domain },
-//                                           new org.hibernate.type.Type[]{ Hibernate.STRING, Hibernate.STRING });
     }
 
     public List getFacadeListByAuthorityDomain(String authority, String domain) {

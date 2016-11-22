@@ -11,7 +11,7 @@
   <directives>
     <directive name="omitXmlDeclaration" value="true" />
     <directive name="omitDoctypeDeclaration" value="true" />
-    <!-- directive name="maxInputSize" value="100000" / --><!-- default of 100k -->
+    <directive name="maxInputSize" value="1000000" /><!-- default of 100k -->
     <directive name="useXHTML" value="true" /><!-- allow loose html, default true -->
     <directive name="validateParamAsEmbed" value="true" />
     <directive name="onUnknownTag" value="remove" /><!-- default remove, encode will keep the tag as HTML entities encoding -->
@@ -1152,33 +1152,6 @@
                 </regexp-list>
             </attribute>
         </tag>
-
-        <!--
-            If you wish to enable any of the form related tags, change the tag's action below from "filter" or "remove" to "validate". The attributes have been 
-            hardened so this is safe to do, if it's something you want to allow. Beware the <><ing possibilities!
-         -->
-            
-        <tag name="form" action="remove">
-            
-            <attribute name="action">
-                <regexp-list>
-                    <regexp name="onsiteURL"/>
-                    <regexp name="offsiteURL"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="name"/>
-            
-            <attribute name="autocomplete"/>
-            
-            <attribute name="method">
-                <literal-list>
-                    <literal value="post"/>
-                    <literal value="get"/>
-                </literal-list>
-            </attribute>
-            
-        </tag>
         
         <tag name="button" action="validate">
             <attribute name="name"/>
@@ -1197,85 +1170,6 @@
                     <literal value="button"/>
                 </literal-list>
             </attribute>
-        </tag>
-        
-        <tag name="input" action="validate">
-            
-            <attribute name="name"/>
-            
-            <attribute name="size"/>
-            
-            <attribute name="maxlength">
-                <regexp-list>
-                    <regexp name="number"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="autocomplete"/>
-            
-            <attribute name="checked">
-                <regexp-list>
-                    <regexp name="anything"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="alt"/>
-            
-            <attribute name="src">
-                <regexp-list>
-                    <regexp name="onsiteURL"/>
-                    <regexp name="offsiteURL"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="usemap">
-                <regexp-list>
-                    <regexp name="onsiteURL"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="type">
-                <literal-list>
-                    <literal value="hidden"/>
-                    <literal value="text"/>
-                    <literal value="password"/>
-                    <literal value="radio"/>
-                    <literal value="checkbox"/>
-                    <literal value="submit"/>
-                    <literal value="button"/>
-                    <literal value="image"/>
-                    <literal value="file"/>
-                    <literal value="reset"/>
-                </literal-list>
-            </attribute>
-            
-            <attribute name="value">
-                <regexp-list>
-                    <regexp name="anything"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="disabled"/>
-            <attribute name="readonly"/>
-            <attribute name="accesskey"/>
-            
-            <attribute name="border"/>
-            
-        </tag>
-        
-        <tag name="select" action="validate">
-
-            <attribute name="name"/>
-            <attribute name="disabled"/>
-            
-            <attribute name="multiple">
-                <regexp-list>
-                    <regexp name="anything"/>
-                </regexp-list>
-            </attribute>
-            
-            <attribute name="size"/>
-            
         </tag>
         
         <tag name="option" action="validate">
@@ -1300,18 +1194,6 @@
                 </regexp-list>
             </attribute>
         </tag>
-        
-        <tag name="textarea" action="validate">
-            <attribute name="rows"/>
-            <attribute name="cols"/>
-            <attribute name="name"/>
-            <attribute name="disabled"/>
-            <attribute name="readonly"/>
-            <attribute name="accesskey"/>
-        </tag>
-        
-        
-        
         
         <!-- All formatting tags -->
         

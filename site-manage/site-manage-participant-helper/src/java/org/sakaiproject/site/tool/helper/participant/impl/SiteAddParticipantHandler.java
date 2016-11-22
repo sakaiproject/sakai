@@ -411,10 +411,6 @@ public class SiteAddParticipantHandler {
 				}
 			}
 	    	
-	    	// check whether there is a no or valid change to current user role
-			if (!checkCurrentUserRoleChange())
-				return null;
-	    	
 	        return "continue";
     	}
     }
@@ -451,39 +447,11 @@ public class SiteAddParticipantHandler {
 				}
 		    }
 		}
-		
-		// check whether there is a no or valid change to current user role
-		if (!checkCurrentUserRoleChange())
-			return null;
-		
+
         return "continue";
     }
 
-	private boolean checkCurrentUserRoleChange() {
-		boolean rv = true;
-		
-		// check the change of roles whether it is valid: changed current user into role without "membership edit" permission? leaving the site without maintain role?
-		User currentUser = userDirectoryService.getCurrentUser();
-		String currentUserEid = currentUser != null ? currentUser.getEid():"";
-		for (UserRoleEntry entry : userRoleEntries)
-		{
-			if (currentUserEid.equals(entry.userEId))
-			{
-				String roleName = entry.role;
-				Role r = realm.getRole(roleName);
-				if (r != null && !r.isAllowed(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP))
-				{
-					// this seems to be down-grading current user's role from being able to update site membership into not being able to
-					// show alert message
-					targettedMessageList.addMessage(new TargettedMessage("java.roleperm.currentuser.downgrade", new Object[] {roleName}, TargettedMessage.SEVERITY_ERROR));
-					rv = false;
-				}
-			}
-			
-		}
-		return rv;
-	}
-    
+
     /**
      * back to the first add participant page
      * @return
@@ -1079,11 +1047,17 @@ public class SiteAddParticipantHandler {
 									M_log.warn(this + ".checkAddParticipant: user" + userDirectoryService.getCurrentUser()!= null ? userDirectoryService.getCurrentUser().getEid():"" + " don't have permission to add " + userEid);
 								}
 							} else  {
-								M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
-								participant.name = u.getDisplayName();
-								participant.uniqname = u.getEid();
-								participant.active = true;
-								userEid = u.getEid();
+								if (site != null && site.getUserRole(u.getId()) != null) {
+									// user already exists in the site, cannot be added
+									// again
+									existingUsers.add(userEid);
+								} else {
+									M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
+									participant.name = u.getDisplayName();
+									participant.uniqname = u.getEid();
+									participant.active = true;
+									userEid = u.getEid();
+								}
 							}
 							pList.add(participant);
 						}

@@ -128,6 +128,34 @@ public class SamigoLRSStatements {
         return statement;
     }
 
+    public static LRS_Statement getStatementForQuestionScoreUpdate(AssessmentGradingData gradingData, PublishedAssessmentData publishedAssessment, double newAutoScore, double oldAutoScore) {
+        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
+        LRS_Object lrsObject = new LRS_Object(serverConfigurationService.getPortalUrl() + "/assessment", "question-score-update");
+        HashMap<String, String> nameMap = new HashMap<>();
+        nameMap.put("en-US", "Question score updated");
+        lrsObject.setActivityName(nameMap);
+        HashMap<String, String> descMap = new HashMap<>();
+        String userId = gradingData.getAgentId();
+        String userIdLabel = "User Id";
+        try {
+        	userId = userDirectoryService.getUserEid(gradingData.getAgentId());
+        	userIdLabel = "User Eid";
+        	
+        } catch (UserNotDefinedException e) {
+        	//This is fine as userId is set by default
+        }
+
+        descMap.put("en-US", "Student score updated for: " + publishedAssessment.getTitle() + 
+        		"; " + userIdLabel + ": " + userId + 
+        		"; Release To: "+ AgentFacade.getCurrentSiteId() + 
+        		"; Submitted: " + (gradingData.getIsLate() ? "late" : "on time") +
+        		"; Old Auto Score: " + oldAutoScore +
+        		"; New Auto Score: " + newAutoScore);
+        lrsObject.setDescription(descMap);
+        LRS_Context context = new LRS_Context("other", "assessment");
+        LRS_Statement statement = new LRS_Statement(null, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
+        return statement;
+    }
     
     private static LRS_Result getLRS_Result(AssessmentGradingData gradingData, PublishedAssessmentIfc publishedAssessment) {
         double score = gradingData.getFinalScore();

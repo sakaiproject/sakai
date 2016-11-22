@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.util.api.FormattedText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -202,6 +203,27 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	}
 	
 	private AuthzGroupService authzGroupService;
+
+	private FormattedText formattedText;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public FormattedText getFormattedText() {
+		return formattedText;
+	}
+
+	/**
+	 * Sets the FormattedText Service.
+	 *
+	 * @param formattedText
+	 *            a FormattedText object
+	 */
+	public void setFormattedText(FormattedText formattedText) {
+		this.formattedText = formattedText;
+	}
+
 	public AuthzGroupService getAuthzGroupService() {
 		return authzGroupService;
 	}
@@ -1063,8 +1085,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<User> getUsersByEmail(String email) {
-		return (List<User>)userDirectoryService.findUsersByEmail(email);
+	public Collection<User> getUsersByEmail(String email) {
+		return (Collection<User>)userDirectoryService.findUsersByEmail(email);
 	}
 	
 	/**
@@ -1072,13 +1094,13 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public User getUserByEmail(String email) {
 		
-		List<User> users =  (List<User>)userDirectoryService.findUsersByEmail(email);
+		Collection<User> users =  (Collection<User>)userDirectoryService.findUsersByEmail(email);
 		
 		if(users.isEmpty()) {
 			return null;
 		}
 		
-		return users.get(0);
+		return users.iterator().next();
 	}
 	
 	/**

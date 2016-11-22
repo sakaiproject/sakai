@@ -23,6 +23,7 @@ package org.sakaiproject.calendar.impl.readers;
 
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -33,8 +34,10 @@ import java.util.Map;
 
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.DateProperty;
+import net.fortuna.ical4j.model.Dur;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Period;
+import net.fortuna.ical4j.model.PeriodList;
 import net.fortuna.ical4j.util.CompatibilityHints;
 
 import org.slf4j.Logger;
@@ -100,83 +103,66 @@ public class IcalendarReader extends Reader
 			for (Iterator i = calendar.getComponents("VEVENT").iterator(); i.hasNext();)
 			{
 				Component component = (Component) i.next();
-	
-				// Find event duration
-				DateProperty dtstartdate;
-				DateProperty dtenddate;
-				if(component instanceof VEvent){
-					VEvent vEvent = (VEvent) component;
-					dtstartdate = vEvent.getStartDate();
-					dtenddate = vEvent.getEndDate(true);
-				}else{
-					dtstartdate = (DateProperty) component.getProperty("DTSTART");
-					dtenddate =  (DateProperty) component.getProperty("DTEND");
-				}
-            
-            if ( component.getProperty("SUMMARY") == null )
-            {
-					M_log.warn("IcalendarReader: SUMMARY is required; event not imported");
-               continue;
-            }
-            String summary = component.getProperty("SUMMARY").getValue();
-            
-            if ( component.getProperty("RRULE") != null )
-            {
-					M_log.warn("IcalendarReader: Re-occurring events not supported: " + summary );
-					continue;
-            }
-            else if (dtstartdate == null || dtenddate == null )
-            {
-					M_log.warn("IcalendarReader: DTSTART/DTEND required: " + summary );
-					continue;
-            }
-			
-				int durationsecs = (int) ((dtenddate.getDate().getTime() - dtstartdate.getDate().getTime()) / 1000);
-				int durationminutes = (durationsecs/60) % 60;
-				int durationhours = (durationsecs/(60*60)) % 24;
-			
-				// Put duration in proper format (hh:mm or mm) if less than 1 hour
-				if (durationminutes < 10)
-				{
-					durationformat = "0"+durationminutes;
-				}
-				else
-				{
-					durationformat = ""+durationminutes;
-				}
 
-				if (durationhours != 0)
+	
+				if ( component.getProperty("SUMMARY") == null )
 				{
-					durationformat = durationhours+":"+durationformat;
+					M_log.warn("IcalendarReader: SUMMARY is required; event not imported");
+					continue;
 				}
-				
-				String description = "";
-				if ( component.getProperty("DESCRIPTION") != null )
-					description = component.getProperty("DESCRIPTION").getValue();
-               
-            String location = "";
-				if (component.getProperty("LOCATION") != null)
-               location = component.getProperty("LOCATION").getValue();
-               
-				String columns[]	= 
-						{component.getProperty("SUMMARY").getValue(),
-						 description,
-						 DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale()).format(dtstartdate.getDate()),
-						 DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale()).format(dtstartdate.getDate()),
-						 durationformat,
-						 location};
-				
-				// Remove trailing/leading quotes from all columns.
-				//trimLeadingTrailingQuotes(columns);
-			
-				handler.handleRow(
-					processLine(
-						columnDescriptionArray,
-						lineNumber,
-						columns));
-					
-				lineNumber++;
-			
+				DateTime from = new DateTime(Date.from(ZonedDateTime.now().minusMonths(6).toInstant()));
+				DateTime to = new DateTime(Date.from(ZonedDateTime.now().plusMonths(12).toInstant()));
+				Period range = new Period(from, to);
+
+				PeriodList list = component.calculateRecurrenceSet(range);
+				for (Iterator j = list.iterator(); j.hasNext();) 
+				{
+					Period period = (Period) j.next();
+					Dur duration = period.getDuration();
+					int durationminutes = duration.getMinutes();
+					int durationhours = duration.getHours();
+					//todo investiage ical4j's handling of 'days'
+
+					if (durationminutes < 10)
+					{
+					durationformat = "0"+durationminutes;
+					}
+					else
+					{
+					durationformat = ""+durationminutes;
+					}
+
+					if (durationhours != 0)
+					{
+						durationformat = durationhours+":"+durationformat;
+					}
+					String description = "";
+					if ( component.getProperty("DESCRIPTION") != null) {
+						description = component.getProperty("DESCRIPTION").getValue();
+					}
+					String location = "";
+					if (component.getProperty("LOCATION") != null) {
+						location = component.getProperty("LOCATION").getValue();
+					}
+					String columns[]	= 
+							{component.getProperty("SUMMARY").getValue(),
+							 description,
+							 DateFormat.getDateInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
+							 DateFormat.getTimeInstance(DateFormat.SHORT, rb.getLocale()).format(period.getStart()),
+							 durationformat,
+							 location};
+
+					// Remove trailing/leading quotes from all columns.
+					//trimLeadingTrailingQuotes(columns);
+
+					handler.handleRow(
+						processLine(
+							columnDescriptionArray,
+							lineNumber,
+							columns));
+
+					lineNumber++;
+				}
 			} // end for
 		
 		}
@@ -261,9 +247,9 @@ public class IcalendarReader extends Reader
 			// if the source time zone were known, this would be
 			// a good place to set it: startCal.setTimeZone()
 			GregorianCalendar startCal = new GregorianCalendar();
-			if ( startDate != null )
+			if ( startDate != null ) {
 				startCal.setTimeInMillis( startDate.getTime() );
-				
+			}
 			startTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
 			startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
 			startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );

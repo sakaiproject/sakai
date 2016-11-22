@@ -1973,10 +1973,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS ||
 				  gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
 			  try {
-				  Double gradeAsDouble = Double.parseDouble(grade);
+				  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+				  Double gradeAsDouble = new Double (nbFormat.parse(grade).doubleValue());
+				  String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator()+"";
 				  // grade must be greater than or equal to 0
 				  if (gradeAsDouble.doubleValue() >= 0) {
-						String[] splitOnDecimal = grade.split("\\.");
+						String[] splitOnDecimal = grade.split("\\"+decSeparator);
 					  // check that there are no more than 2 decimal places
 					  if (splitOnDecimal == null) {
 						  gradeIsValid = true;
@@ -1984,12 +1986,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					  // check for a valid score matching ##########.##
 					  // where integer is maximum of 10 integers in length
 					  // and maximum of 2 decimal places
-					  } else if (grade.matches("[0-9]{0,10}(\\.[0-9]{0,2})?")) {
+					  } else if (grade.matches("[0-9]{0,10}(\\"+decSeparator+"[0-9]{0,2})?")) {
 						  gradeIsValid = true;
 					  }
 				  }
-			  } catch (NumberFormatException nfe) {
-				  if (log.isDebugEnabled()) log.debug("Passed grade is not a numeric value");
+			  } catch (NumberFormatException | ParseException nfe) {
+				  log.debug("Passed grade is not a numeric value");
 			  }
 
 		  } else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
@@ -2277,9 +2279,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  if (grade != null && !"".equals(grade)) {
 		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS) {
 			  try {
-				  Double pointValue = Double.parseDouble(grade);
+				  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());				
+				  Double pointValue = new Double (nbFormat.parse(grade).doubleValue());
 				  convertedValue = pointValue;
-			  } catch (NumberFormatException nfe) {
+			  } catch (NumberFormatException | ParseException nfe) {
 				  throw new InvalidGradeException("Invalid grade passed to convertInputGradeToPoints");
 			  }
 		  } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE ||
@@ -3175,6 +3178,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// Rule 4. the assignment is included in course grade calculations
 		// Rule 5. the assignment is  released to the student (safety check against condition 3)
 		// Rule 6. the grade is not dropped from the calc
+		// Rule 7. extra credit items have their grade value counted only. Their total points possible does not apply to the calculations
 		log.debug("categoryId: " + categoryId);
 
 		gradeRecords.removeIf(gradeRecord -> {
@@ -3205,10 +3209,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(AssignmentGradeRecord gradeRecord: gradeRecords) {
 			
 			Assignment assignment = gradeRecord.getAssignment();
-									
-			totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
-			numOfAssignments++;
-			numScored++;
+			
+			// EC item, don't count points possible
+			if(!assignment.isExtraCredit()) {
+				totalPossible = totalPossible.add(new BigDecimal(assignment.getPointsPossible().toString()));
+				numOfAssignments++;
+				numScored++;
+			}
 			
 			//sanitise grade, null values to "0";
 			String grade = (gradeRecord.getPointsEarned() != null) ? String.valueOf(gradeRecord.getPointsEarned()) : "0";

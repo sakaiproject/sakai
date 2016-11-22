@@ -82,8 +82,8 @@
     <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
-    <sakai.commons.lang3.version>3.4</sakai.commons.lang3.version>
-    <sakai.commons.fileupload.version>1.3.1</sakai.commons.fileupload.version>
+    <sakai.commons.lang3.version>3.5</sakai.commons.lang3.version>
+    <sakai.commons.fileupload.version>1.3.2</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
@@ -115,7 +115,7 @@
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.12</sakai.tika.version>
-    <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
+    <sakai.tomcat.version>8.0.32</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -525,7 +525,7 @@
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
-        <version>1.3.1</version>
+        <version>${sakai.commons.fileupload.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -565,7 +565,7 @@
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -1655,12 +1655,12 @@
       <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.36</version>
+          <version>5.1.40</version>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.3.6</version>
+          <version>1.5.5</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -1983,7 +1983,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.0.5</version>
+                  <version>3.1.1</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${sakai.jdk.version}</version>

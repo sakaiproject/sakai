@@ -160,6 +160,7 @@ $(document).ready(function() {
 		if (section.hasClass("collapsible")) {
 			section.slideToggle();
 			setCollapsedStatus($(this), null); // toggle
+			doIndents();
 		}
 	});
 
@@ -193,6 +194,7 @@ $(document).ready(function() {
 		});
 		$("#expandAllSections").hide();
 		$("#collapseAllSections").show();
+		doIndents();
 	});
 
 	$("#collapseAllSections").on("click", function(){
@@ -435,7 +437,8 @@ $(document).ready(function() {
 			if ($(this).hasClass("add-at-end"))
 			    addAboveItem = '';
 			$('#subpage-add-before').val(addAboveItem);
-			$('#subpage-choose').attr('href', fixAddBefore($('#subpage-choose').attr('href')));
+			if (typeof $('#subpage-choose').attr('href') !== 'undefined')
+			    $('#subpage-choose').attr('href', fixAddBefore($('#subpage-choose').attr('href')));
 			$('#subpage-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
 			return false;
@@ -3279,7 +3282,7 @@ function getGroupErrors(groups) {
      $.ajax({type: "GET",
 	     async: false,
 	      url: url,
-   	  success: function(data, status, hdr) { 
+	      success: function(data, status, hdr) { 
 		 errors = data.trim();
 	    }});
      return errors;
@@ -3476,12 +3479,16 @@ function fixupHeights() {
 // maximum indent in the column.
 var indentSize = 20;
 var indentFraction = 4;
+// this is more complex than you'd think. in some cases a section starts invisible
+// in that case width is zero, and the calculation is meaningless
+// also, because it adds to the existing indent, we can't do it more than once per item
+// so check if it's visible and that a done attribute isn't set
 function doIndents() {
     $(".column").each(function(index) {
 	    var max = 0;
 	    var indents = $(this).find("[x-indent]");
 	    var width = $(this).width();
-	    if (indents.size() > 0) {
+	    if ($(this).is(':visible') && indents.size() > 0) {
 		indents.each(function(i) {
 		    var indent = $(this).attr('x-indent');
 		    if (indent > max)
@@ -3494,8 +3501,12 @@ function doIndents() {
 		// do the indents
 		indents.each(function(i) {
 		    var existing = parseInt($(this).css("padding-left"),10);
-		    $(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
-		    });
+		    // make sure we only do this once
+		    if (typeof $(this).attr('x-indent-done') === 'undefined') {
+			$(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
+			$(this).attr('x-indent-done','true');
+		    }
+		});
 	    }
 	});		
 
@@ -3517,3 +3528,32 @@ function doIndents() {
 		});
 	});
 };
+
+function afterLink(here,itemId) {
+    setTimeout(function(){fixStatus(here,itemId)},3000);
+}
+
+// if direct url we need to track it and change status to checkmark
+// if not backend does it, and we need to redisplay the page to show the status changed
+function fixStatus(here,itemId) {
+    if (itemId !== 0) {
+	var errors = '';
+	var url = location.protocol + '//' + location.host + 
+	    '/lessonbuilder-tool/ajax';
+	$.ajax({type: "GET",
+	    async: false,
+	    url: url,
+	    data: {op: 'islogged', itemid: itemId},
+   	    success: function(data, status, hdr) { 
+		 // track worked, update image to checkmark and offscreen label to completed
+		 errors = data.trim();
+		 if (errors === 'ok') {
+		     var img = here.closest('.right-col').find('.statusCol img');
+		     img.attr('src', '/lessonbuilder-tool/images/checkmark.png');
+		     here.closest('.right-col').find('.link-div .offscreen').text(msg('simplepage.status.completed') + ' ');
+		 }
+		}
+	    });
+	return;
+    };
+}

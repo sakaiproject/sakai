@@ -443,7 +443,7 @@ ALTER TABLE CITATION_COLLECTION_ORDER MODIFY COLUMN CITATION_ID VARCHAR(36) NULL
 -- End SAK-29974
 
 --  SAK-30000 Site creation notification email template updates
-UPDATE email_template_item
+UPDATE EMAIL_TEMPLATE_ITEM
 SET message = '
 From Worksite Setup to ${serviceName} support:
 
@@ -453,7 +453,7 @@ From Worksite Setup to ${serviceName} support:
 ${sections}
 '
 WHERE template_key = 'sitemanage.notifySiteCreation' AND template_locale = 'default';
-UPDATE email_template_item
+UPDATE EMAIL_TEMPLATE_ITEM
 SET subject = 'Site "${siteTitle}" was successfully created by ${currentUserDisplayName}', message = '
 Hi, ${currentUserDisplayName}:
 
@@ -765,7 +765,7 @@ ALTER TABLE lti_content MODIFY title VARCHAR(1024);
 ALTER TABLE lti_content MODIFY pagetitle VARCHAR(1024);
 ALTER TABLE lti_content MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_content MODIFY secret VARCHAR(1024);
-alter table lti_content modify custom varchar(65536);
+ALTER TABLE lti_content MODIFY custom MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY xmlimport MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY settings MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY settings_ext MEDIUMTEXT;
@@ -774,7 +774,7 @@ ALTER TABLE lti_tools MODIFY title VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY pagetitle VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY secret VARCHAR(1024);
-alter table lti_tools modify custom varchar(65536);
+ALTER TABLE lti_tools MODIFY custom MEDIUMTEXT;
 
 ALTER TABLE lti_deploy MODIFY reg_profile MEDIUMTEXT;
 ALTER TABLE lti_deploy MODIFY settings MEDIUMTEXT;

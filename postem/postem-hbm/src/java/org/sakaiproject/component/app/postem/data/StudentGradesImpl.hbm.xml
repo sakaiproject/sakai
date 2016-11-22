@@ -17,14 +17,14 @@
 		<version name="lockId" />
 
 		<property name="username" type="string">
-			<column name="username" length="255" not-null="true" index="POSTEM_STUDENT_USERNAME_I" />
+			<column name="username" length="99" not-null="true" unique-key="POSTEM_USERNAME_SURROGATE" />
 		</property>
 
 		<property name="lastChecked" type="timestamp">
 			<column name="last_checked" />
 		</property>
 
-		<many-to-one name="gradebook" column="surrogate_key" class="org.sakaiproject.component.app.postem.data.GradebookImpl" />
+		<many-to-one name="gradebook" column="surrogate_key" unique-key="POSTEM_USERNAME_SURROGATE" class="org.sakaiproject.component.app.postem.data.GradebookImpl" />
 
 		<list name="grades" lazy="false" table="SAKAI_POSTEM_STUDENT_GRADES">
 			<key column="student_id" />

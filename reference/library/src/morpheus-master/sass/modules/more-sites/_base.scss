@@ -298,7 +298,7 @@ ul#otherSiteTools{
 			display: inline-block;
                 }
 
-                .icon-sakai-see-all-tools{
+                .icon-sakai--see-all-tools{
 			display: none;
 		}
 	}
@@ -479,7 +479,9 @@ ul.favoriteSiteList{
 	border-radius: 3px;
 	text-decoration: none;
 
-	a{
+	a
+	{
+		display: inline-block; // to override flex on login links
 		color: $primary-color;
 	}
 

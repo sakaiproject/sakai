@@ -81,16 +81,16 @@ public class FilePickerViewParameters extends HelperViewParameters {
 		website = b;
 	}
 
-	public boolean getWebsite() {
+	public boolean isWebsite() {
 		return website;
 	}
 
 	public void setCaption(boolean b) {
-		website = b;
+		caption = b;
 	}
 
 	public boolean getCaption() {
-		return website;
+		return caption;
 	}
 
 	public void setAddBefore(String s) {

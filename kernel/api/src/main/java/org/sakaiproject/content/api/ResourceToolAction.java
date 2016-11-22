@@ -232,6 +232,7 @@ public interface ResourceToolAction
 	public static final String COPY_OTHER = "copy-other";
 	public static final String PRINT_FILE = "print file";
 	public static final String ACTION_DELIMITER = ":";
+	public static final String ZIPDOWNLOAD = "zipDownload";
 		
 	/**
 	 * Prefix for all keys to Tool Session attributes used in messaging between ResourcesAction and

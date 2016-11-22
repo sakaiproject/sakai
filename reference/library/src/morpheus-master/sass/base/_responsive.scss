@@ -11,7 +11,7 @@ body{
 				overflow-y:auto;
 				height:95%;
 				.Mrphs-toolsNav__menuitem--title{
-					display: inline;
+					display: inline-block;
 					letter-spacing: 0px;
 					border: 0px none;
 					@include border-radius( 0 );

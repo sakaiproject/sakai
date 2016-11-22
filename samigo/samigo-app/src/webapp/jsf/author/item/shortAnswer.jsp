@@ -111,12 +111,16 @@
 </f:subview>
 
   <!-- 2 TEXT -->
-  <div class="longtext">
-  <h:outputLabel value="#{authorMessages.q_text}" />
-  <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
-     <f:validateLength minimum="1" maximum="60000"/>
-   </samigo:wysiwyg>
+  <div class="form-group row">  
+  <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
+      <div class="col-md-8">
+          <!-- WYSIWYG -->
+          <h:panelGrid>
+              <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
+                  <f:validateLength minimum="1" maximum="60000"/>
+              </samigo:wysiwyg>
+          </h:panelGrid>
+      </div>
   </div>
 
   <!-- 2a ATTACHMENTS -->
@@ -150,23 +154,31 @@
     <h:outputText value="#{authorMessages.answer_provide_a_mo}" />  
   </h2>
 
-  <div class="tier2">
-    <h:outputLabel value="#{authorMessages.model_short_answer}" />
+  <div class="form-group row">
+    <h:outputLabel value="#{authorMessages.model_short_answer}" styleClass="col-md-2 form-control-label"/>
+    <div class="col-md-8">
+        <h:panelGrid>
+            <!-- WYSIWYG -->
+            <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes" mode="author">
+                <f:validateLength maximum="60000"/>
+            </samigo:wysiwyg>
+        </h:panelGrid>
+     </div>
+ </div>
 
- <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-
- <h:panelGroup styleClass="form-group" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputLabel value="#{commonMessages.feedback_optional}" />
-   <!-- WYSIWYG  -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
+ <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+  <h:outputLabel value="#{commonMessages.feedback_optional}"  styleClass="col-md-2 form-control-label"/>
+    <div class="col-md-8">
+        <!-- WYSIWYG  -->
+        <h:panelGrid>
+            <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
+                <f:validateLength maximum="60000"/>
+            </samigo:wysiwyg>
+        </h:panelGrid>
+    </div>
 </h:panelGroup>
 
-  </div>
+
 
 
 <!-- METADATA -->

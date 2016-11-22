@@ -8,7 +8,7 @@
 
         		 #if (${site.isMyWorkspace})
                     <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace #if (${site.isCurrentSite}) is-selected #end">
-                        <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
+                        <a class="link-container" href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem">
                             <i class="fa fa-home"></i>
                             <span class="Mrphs-sitesNav__menuitem--myworkspace-label">${rloader.sit_mywor}</span>
                             <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
@@ -19,10 +19,10 @@
                 ## Only show other sites if they're the current site, a favorite of the current user, or if there *is* no current user and we're showing Gateway sites.
                 #if (!${site.isMyWorkspace} && (${site.favorite} == "true" || ${site.isCurrentSite} || !${userIsLoggedIn}))
                     <li class="Mrphs-sitesNav__menuitem #if (${site.isCurrentSite}) is-selected #end">
-                        <a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
+                        <a class="link-container" href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
                             <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitle}#end</span>
-                            <span class="Mrphs-sitesNav__dropdown" tabindex="-1" data-site-id="${site.siteId}"></span>
                         </a>
+                        <a class="Mrphs-sitesNav__dropdown" href="#" data-site-id="${site.siteId}" role="separator"></a>
                     </li>
 
                 #end ## END of IF (${site.isMyWorkspace})

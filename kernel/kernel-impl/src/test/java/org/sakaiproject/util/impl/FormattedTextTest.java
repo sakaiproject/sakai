@@ -996,6 +996,37 @@ public class FormattedTextTest {
     }
 
     @Test
+    public void testKNL_1464() {
+        // https://jira.sakaiproject.org/browse/KNL-1464
+        String text = null;
+        String result = null;
+        StringBuilder errorMessages = new StringBuilder();
+
+        //These are all expected to be an empty string as these tags are removed
+        text = "<form>First name:<br><input type='text' name='firstname'><br>Last name:<br> <input type='text' name='lastname'></form>";
+        result = formattedText.processFormattedText(text,errorMessages);
+        Assert.assertTrue( errorMessages.length() > 1 );
+        Assert.assertEquals(result, "");
+
+        text = "<input type='text' name='firstname'>";
+        result = formattedText.processFormattedText(text,errorMessages);
+        Assert.assertTrue( errorMessages.length() > 1 );
+        Assert.assertEquals(result, "");
+
+        text = "<textarea rows='4' cols='50'>textarea</textarea>";
+        result = formattedText.processFormattedText(text,errorMessages);
+        Assert.assertTrue( errorMessages.length() > 1 );
+        Assert.assertEquals(result, "");
+
+        text = "<select><option value='sakai'>Sakai</option></select>";
+        result = formattedText.processFormattedText(text,errorMessages);
+        Assert.assertTrue( errorMessages.length() > 1 );
+        Assert.assertEquals(result, "");
+
+    }
+
+
+    @Test
     public void testGetShortenedTitles() {
         for (String siteTitle:SITE_TITLES) {
             for (int k=0; k<CUT_METHODS.length; k++) {
@@ -1019,6 +1050,37 @@ public class FormattedTextTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void testStripHtmlFromText() {
+        String text, result = null;
+
+        result = formattedText.stripHtmlFromText(null, false, false);
+        Assert.assertEquals(null, result);
+
+        text = "<table><tr><th>Column1</th></tr><tr><td>Row1</td></tr></table>";
+        result = formattedText.stripHtmlFromText(text, false, false);
+        Assert.assertEquals("Column1Row1", result);
+
+        result = formattedText.stripHtmlFromText(text, true, false);
+        Assert.assertEquals("Column1 Row1", result);
+
+        text = "<p>line one &amp;</br>newline</p>";
+        result = formattedText.stripHtmlFromText(text, true, true);
+        Assert.assertEquals("line one & newline", result);
+
+        text = "<table><tr><th>Column1 </th></tr><tr><td>Row1&nbsp; </td></tr></table>";
+        result = formattedText.stripHtmlFromText(text, false, true);
+        Assert.assertEquals("Column1 Row1", result);
+
+        text = "<table>this is a table?";
+        result = formattedText.stripHtmlFromText(text, false, false);
+        Assert.assertEquals("this is a table?", result);
+
+        text = "a<b>d";
+        result = formattedText.stripHtmlFromText(text, false, false);
+        Assert.assertEquals("ad", result);
     }
 
 }

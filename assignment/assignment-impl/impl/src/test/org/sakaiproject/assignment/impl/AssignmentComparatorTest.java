@@ -24,33 +24,35 @@ package org.sakaiproject.assignment.impl;
 import junit.framework.TestCase;
 
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.mockito.Mockito;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
+import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
+import org.sakaiproject.assignment.impl.sort.UserIdComparator;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.User;
 
+import java.util.Comparator;
+
+
+@SuppressWarnings("deprecation")
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(UserDirectoryService.class)
 public class AssignmentComparatorTest extends TestCase {
 
-	private static final Logger log = LoggerFactory.getLogger(AssignmentComparatorTest.class);
-	
-	private BaseAssignmentService.AssignmentComparator sortNameComparator;
-	private BaseAssignmentService.AssignmentComparator submitterNameComparator;
+	private Comparator<String> sortNameComparator;
+	private Comparator<AssignmentSubmission> submitterNameComparator;
 	private AssignmentSubmission assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;
 	
 	protected void setUp() throws Exception {
 		// Mock Static Cover
 		PowerMockito.mockStatic(UserDirectoryService.class);
 
-		sortNameComparator = new BaseAssignmentService.AssignmentComparator("sortname", "true");
-		submitterNameComparator = new BaseAssignmentService.AssignmentComparator("submitterName", "true");
+		sortNameComparator = new UserIdComparator();
+		submitterNameComparator = new AssignmentSubmissionComparator();
 
 		Assignment asm = Mockito.mock(Assignment.class);
 		Mockito.when(asm.isGroup()).thenReturn(false);
@@ -58,42 +60,36 @@ public class AssignmentComparatorTest extends TestCase {
 		User user1 = Mockito.mock(User.class);
 		Mockito.when(user1.getSortName()).thenReturn("Muñoz");
 
-		assignmentSubmission1 = (AssignmentSubmission) Mockito.mock(AssignmentSubmission.class);
+		assignmentSubmission1 = Mockito.mock(AssignmentSubmission.class);
 		Mockito.when(assignmentSubmission1.getAssignment()).thenReturn(asm);
 		Mockito.when(assignmentSubmission1.getSubmitters()).thenReturn(new User[]{user1});
 
 		User user2 = Mockito.mock(User.class);
 		Mockito.when(user2.getSortName()).thenReturn("Muñiz");
 
-		assignmentSubmission2 = (AssignmentSubmission) Mockito.mock(AssignmentSubmission.class);
+		assignmentSubmission2 = Mockito.mock(AssignmentSubmission.class);
 		Mockito.when(assignmentSubmission2.getAssignment()).thenReturn(asm);
 		Mockito.when(assignmentSubmission2.getSubmitters()).thenReturn(new User[]{user2});
 		
 		User user3 = Mockito.mock(User.class);
 		Mockito.when(user3.getSortName()).thenReturn("Smith");
 
-		assignmentSubmission3 = (AssignmentSubmission) Mockito.mock(AssignmentSubmission.class);
+		assignmentSubmission3 = Mockito.mock(AssignmentSubmission.class);
 		Mockito.when(assignmentSubmission3.getAssignment()).thenReturn(asm);
 		Mockito.when(assignmentSubmission3.getSubmitters()).thenReturn(new User[]{user3});
 
 		User user4 = Mockito.mock(User.class);
 		Mockito.when(user4.getSortName()).thenReturn("Adam");
 
-		assignmentSubmission4 = (AssignmentSubmission) Mockito.mock(AssignmentSubmission.class);
+		assignmentSubmission4 = Mockito.mock(AssignmentSubmission.class);
 		Mockito.when(assignmentSubmission4.getAssignment()).thenReturn(asm);
 		Mockito.when(assignmentSubmission4.getSubmitters()).thenReturn(new User[]{user4});
 
-		try {
-			Mockito.when(UserDirectoryService.getUser("user1")).thenReturn(user1);
-			Mockito.when(UserDirectoryService.getUser("user2")).thenReturn(user2);
-			Mockito.when(UserDirectoryService.getUser("user3")).thenReturn(user3);
-			Mockito.when(UserDirectoryService.getUser("user4")).thenReturn(user4);
-			Mockito.when(UserDirectoryService.getUser("usernull")).thenReturn(null);
-		} catch (Exception e) {
-			// TODO: handle exception
-			log.error(e.getMessage());
-		}
-		
+        Mockito.when(UserDirectoryService.getUser("user1")).thenReturn(user1);
+        Mockito.when(UserDirectoryService.getUser("user2")).thenReturn(user2);
+        Mockito.when(UserDirectoryService.getUser("user3")).thenReturn(user3);
+        Mockito.when(UserDirectoryService.getUser("user4")).thenReturn(user4);
+        Mockito.when(UserDirectoryService.getUser("usernull")).thenReturn(null);
 	}
 	
 	public void testSortNameEQComparator() {

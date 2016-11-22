@@ -42,11 +42,14 @@ import org.w3c.dom.NodeList;
 
 import java.util.*;
 
+import lombok.ToString;
+
 /**
  * <p>
  * BaseAuthzGroup is an implementation of the AuthGroup API AuthzGroup.
  * </p>
  */
+@ToString(exclude = {"m_properties", "m_userGrants", "m_roles", "m_lastChangedRlFn", "baseAuthzGroupService", "userDirectoryService"})
 public class BaseAuthzGroup implements AuthzGroup
 {
 	/** Our log (commons). */

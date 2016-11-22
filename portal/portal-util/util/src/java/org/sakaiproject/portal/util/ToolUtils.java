@@ -183,6 +183,7 @@ public class ToolUtils
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, 
 		String portalPrefix, boolean reset, String effectiveSiteId, String pageAlias)
 	{
+		if(page == null) return "";
 		//If portal's CONFIG_AUTO_RESET is not set, check for Site's CONFIG_AUTO_RESET value
 		boolean resetSiteProperty = false;
 		if(!reset){
@@ -218,7 +219,7 @@ public class ToolUtils
 		boolean trinity = ServerConfigurationService.getBoolean(PORTAL_INLINE_EXPERIMENTAL, PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 		if (!trinity) return pageUrl;
 
-		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + effectiveSiteId);
+		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(effectiveSiteId));
 		if (reset || resetSiteProperty) {
 			pageUrl = pageUrl + "/tool-reset/";
 		} else {

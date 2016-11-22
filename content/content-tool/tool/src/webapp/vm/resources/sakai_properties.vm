@@ -1,6 +1,6 @@
 <!-- sakai_properties.vm -->
 <script type="text/javascript">includeLatestJQuery('sakai_properties');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
 #if($item && !$model)#set($model = $item)#end
 #if(!$item && $model)#set($item = $model)#end
@@ -393,7 +393,7 @@
 			#end
 		</p>
 		<div class="panel panel-default">
-  		<div class="panel-heading container-fluid">
+  			<div class="panel-heading container-fluid">
 				<div class="row">
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<label for="hidden_false${DOT}$i">
@@ -428,7 +428,7 @@
 						</label>
 					</div>
 				</div>
-  		</div>
+			</div>
 			<div class="panel-body">
 				<div class="form-inline">
 					<div class="form-group">
@@ -508,10 +508,8 @@
 						<label for="cbCondition${DOT}$i">
 							$tlang.getString("conditional.only_if_condition_is_met")
 						</label>
-					</div>
-				#end
-				#if($conditions_enabled)
-	  			<div class="form-group">
+					</div>				
+	  				<div class="form-group">
 						#if($resourceSelections.size() == 0)
 							$tlang.getString("no.gradebook.assignments")
 						#else
@@ -545,16 +543,13 @@
 									<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
 								</span>
 							#end
-	  			</div>
+						#end
+	  				</div>
 				#end
 			</div>
 		</div>
-	</div>
 	#end
-</div>
-</div>
 
-	#end
 	######### end availability section ##########	
 	
 	#if($showItemSummary)

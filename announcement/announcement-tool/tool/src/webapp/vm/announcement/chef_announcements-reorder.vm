@@ -1,5 +1,5 @@
-<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
-<script type="text/javascript" src="/library/js/reorderer.js"></script>
+#javascript("/library/js/fluid/1.5/MyInfusion.js")
+#javascript("/library/js/reorderer.js")
 <div class="portletBody container-fluid">
 	#if($menu && $EnabledMenuItemExists)
 			#toolbar($menu)

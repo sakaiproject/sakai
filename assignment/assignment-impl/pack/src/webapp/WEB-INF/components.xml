@@ -32,6 +32,7 @@
 			<bean class="org.sakaiproject.assignment.impl.OptionalFactoryBean"
 				  name="org.sakaiproject.user.api.CandidateDetailProvider"/>
 		</property>
+		<property name="gradeSheetExporter"><ref bean="org.sakaiproject.assignment.impl.GradeSheetExporter"/></property>
  		
  		<!--use to allow group awareness option in assignments. 
  			By default this is true.-->
@@ -40,6 +41,13 @@
  		<!--use to hide or show the Assignments 'Add to Gradebook' option for group particular assignments.
  			By default this is false -->
  		<property name="allowGroupAssignmentsInGradebook"><value>true</value></property>
+	</bean>
+
+	<bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
+		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
 	<bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
