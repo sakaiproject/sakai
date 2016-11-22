@@ -1569,6 +1569,11 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.velocity</groupId>
+        <artifactId>sakai-velocity-util</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.oauth</groupId>
         <artifactId>oauth-api</artifactId>
         <version>${sakai.version}</version>

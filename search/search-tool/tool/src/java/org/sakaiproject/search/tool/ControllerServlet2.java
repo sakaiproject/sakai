@@ -24,7 +24,6 @@ package org.sakaiproject.search.tool;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -35,6 +34,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.velocity.VelocityContext;
@@ -134,6 +134,7 @@ public class ControllerServlet2 extends HttpServlet
 			vengine = new VelocityEngine();
 
 			vengine.setApplicationAttribute(ServletContext.class.getName(), sc);
+			vengine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
 
 			Properties p = new Properties();
 			is = this.getClass().getResourceAsStream("searchvelocity.config");
