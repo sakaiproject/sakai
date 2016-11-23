@@ -1645,12 +1645,14 @@ span.nextprev {
 .fa-button-text{
   font-size:125%;
 }
-.navIntraTool li.contentButton a {
+.navIntraTool li.contentButton a, .topaction a {
   padding-top:2px !important;
   padding-bottom:2px !important;
+  text-transform: uppercase;
 }
 .navIntraTool li.contentButton a .fa-button-text, .fa-fw {
   font-family:FontAwesome;
+  font-size: 0.8em;
 }
 .studentRow > .fa-fw {
   width: 1em !important;
