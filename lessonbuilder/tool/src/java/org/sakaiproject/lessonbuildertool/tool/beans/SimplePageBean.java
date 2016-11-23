@@ -5729,7 +5729,13 @@ public class SimplePageBean {
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		String folder = null;
-		if (pageOwner == null) {
+		// for owned pages, use the same kind of hierarchy. One exception: use site name as basedir
+		if (pageOwner != null) {
+		    String title = getCurrentSite().getTitle();
+		    baseDir = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(title,"_",30));
+		}		    
+
+		// if (pageOwner == null) {
 			collectionId = contentHostingService.getSiteCollection(siteId);
 			if (baseDir != null) {
 			    if (!baseDir.endsWith("/"))
@@ -5793,11 +5799,11 @@ public class SimplePageBean {
 			    simplePageToolDao.quickUpdate(page);
 			}
 			// folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
-		}else {
-			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
-			// actual folder -- just use page name for student content
-			folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
-		}
+		// }else {
+		//	collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
+		//	// actual folder -- just use page name for student content
+		//	folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
+		//}
 
 	    // folder we really want
 		if (urls)
