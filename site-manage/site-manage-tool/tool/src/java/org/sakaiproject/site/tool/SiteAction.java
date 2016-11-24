@@ -8209,7 +8209,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		//Process description so it doesn't give an error on home
-		siteInfo.description = FormattedText.processFormattedText(siteInfo.description, new StringBuilder());
+		siteInfo.description = StringUtils.trimToNull(siteInfo.description);
 		
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
