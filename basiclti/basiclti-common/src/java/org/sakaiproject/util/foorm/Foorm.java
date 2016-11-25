@@ -1391,7 +1391,10 @@ public class Foorm {
 	 */
 	public String getSearchField(String search) {
 		if (search != null) {
-			return search.substring(0, search.indexOf(":"));
+			int endIndex = search.indexOf(":");
+			if (endIndex > 0) {
+				return search.substring(0, endIndex);
+			}
 		}
 		return "";
 	}
