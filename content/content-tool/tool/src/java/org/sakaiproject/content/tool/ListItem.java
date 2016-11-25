@@ -2662,7 +2662,7 @@ public class ListItem
     		{
     			// ignore
     		}
-    		else if(gr.getId().equals(group.getId()))
+    		else if(gr.getId().equals(group.getId()) && gr.getMember(UserDirectoryService.getCurrentUser().getId()) != null)
     		{
     			isPossible = true;
     			break;
