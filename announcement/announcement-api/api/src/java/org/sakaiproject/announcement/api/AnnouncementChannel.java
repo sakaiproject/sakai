@@ -33,7 +33,7 @@ import org.sakaiproject.message.api.MessageChannel;
  * AnnouncementChannel is the extension to the MessageChanel interface for a Sakai Announcement service announcement channel.
  * </p>
  */
-public interface AnnouncementChannel extends MessageChannel
+public interface AnnouncementChannel<T extends AnnouncementMessage> extends MessageChannel<T>
 {
 	/**
 	 * A (AnnouncementMessage) cover for getMessage to return a specific announcement channel message, as specified by message id.

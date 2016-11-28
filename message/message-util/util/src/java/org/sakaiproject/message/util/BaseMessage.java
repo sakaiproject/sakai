@@ -2161,7 +2161,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 * MessageChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseMessageChannelEdit extends Observable implements MessageChannelEdit, SessionBindingListener
+	public class BaseMessageChannelEdit<T extends MessageEdit> extends Observable implements MessageChannelEdit<T>, SessionBindingListener
 	{
 		/** The context in which this channel exists. */
 		protected String m_context = null;

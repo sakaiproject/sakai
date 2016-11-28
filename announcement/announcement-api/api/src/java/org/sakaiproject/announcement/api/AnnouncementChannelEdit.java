@@ -28,6 +28,6 @@ import org.sakaiproject.message.api.MessageChannelEdit;
  * AnnouncementChannelEdit is an editable AnnouncementChannel.
  * </p>
  */
-public interface AnnouncementChannelEdit extends AnnouncementChannel, MessageChannelEdit
+public interface AnnouncementChannelEdit extends AnnouncementChannel<AnnouncementMessageEdit>, MessageChannelEdit<AnnouncementMessageEdit>
 {
 }
