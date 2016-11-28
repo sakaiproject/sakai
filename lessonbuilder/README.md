@@ -11,7 +11,7 @@ Checklist for adding code to Lessons:
   be implemented, but it still won't be shown until prerequisites 
   have been met.
 * It must be possible to restrict access to an item by group
-* The autor's UI must show if an item is restricted to groups or
+* The author's UI must show if an item is restricted to groups or
   if it is unavailable, e.g. because the underlying object hasn't
   been released, etc.
 * Make sure you verify that you can add the item using the add content
