@@ -2410,7 +2410,8 @@ GradebookAPI = {};
 GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
   var params = {
-    since: timestamp
+    since: timestamp,
+    auto: true // indicate that the request is automatic, not from a user action
   };
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
@@ -2540,6 +2541,9 @@ ConnectionPoll.prototype.ping = function() {
   $.ajax({
     type: "GET",
     url: this.PING_URL,
+    data: {
+      auto: true // indicate that the request is automatic, not from a user action
+    },
     timeout: this.PING_TIMEOUT,
     cache: false,
     success: $.proxy(this.onSuccess, this),
