@@ -187,6 +187,10 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    if (text.length() > 100)
 					text = text.substring(0,100);
 				    UIOutput.make(row, "text-snippet", text);
+				} else if (SimplePageItem.ANNOUNCEMENTS == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.announcements-snippet"));
+				} else if (SimplePageItem.FORUM_SUMMARY == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forums-snippet"));
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
 				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video"));
