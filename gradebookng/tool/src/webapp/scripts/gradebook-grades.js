@@ -111,6 +111,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     tooltip = tooltip.replace("{0}", self.getCellModel($cell).getRow().find(".gb-student-cell:first").attr("abbr"));
     tooltip = tooltip.replace("{1}", self.getCellModel($cell).header.$cell.attr("abbr"));
     $dropdown.attr("title", tooltip);
+    $dropdown.dropdown();
 
     $cell.data("has-dropdown", true);
   };
@@ -1420,12 +1421,13 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
         mouseDownEvent.stopPropagation();
         $(mouseDownEvent.target).focus();
       }
-    })
+      return true;
+    });
 
     $btnGroup.find("ul.dropdown-menu li a").on("mousedown", function(mouseDownEvent) {
       mouseDownEvent.stopPropagation();
       $(mouseDownEvent.target).focus();
-    })
+    });
 
     $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").on("blur", handleDropdownItemBlur);
 
@@ -1433,6 +1435,9 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
       $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").off("blur", handleDropdownItemBlur);
     });
   });
+
+  // initialize all dropdown menus
+  self.$spreadsheet.find('.dropdown-toggle').dropdown();
 };
 
 
