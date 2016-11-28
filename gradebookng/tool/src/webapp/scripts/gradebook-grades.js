@@ -560,9 +560,8 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   });
 
   // Clicks on the fixed column return you to the real column cell
-  self.$fixedColumns.find("td").on("mousedown", function(event) {
+  self.$fixedColumns.find("td,th").on("mousedown", function(event) {
     event.preventDefault();
-    self.$spreadsheet.scrollLeft(0);
     var cellIndex = $(this).index();
     var rowIndex = $(this).closest("tr").index();
     $targetCell = $($(self.$table.find("> tbody > tr").get(rowIndex)).find("> *").get(cellIndex));
