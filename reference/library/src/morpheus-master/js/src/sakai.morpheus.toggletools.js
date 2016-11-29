@@ -45,8 +45,10 @@ $PBJQ(document).ready(function(){
 	initialOffset = $PBJQ("#toolMenu").offset().top - $window.scrollTop();
 	$PBJQ(window).scroll(function(){
 		var follow = ($window.height()- padding) > $tools.height();
-		var _subHeight = (-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) );
-		var _top   = ( $PBJQ("#toggleSubsitesLink").length > 0 )?_subHeight:0;
+		var _top   = 0;
+		if( $PBJQ("#toggleSubsitesLink").length > 0 ){
+			_top = (-1 * ( $PBJQ('#toolMenu').height() - $PBJQ("#toggleSubsitesLink").position().top ) );
+		}
 		if( $PBJQ("#toolMenuWrap").css('position') !== 'fixed' && follow ) {
 			if($window.scrollTop() > offset.top ) {
 				$PBJQ("#toolMenu").stop().animate({
