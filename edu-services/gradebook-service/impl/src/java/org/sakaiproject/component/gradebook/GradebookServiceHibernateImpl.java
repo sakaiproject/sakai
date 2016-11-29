@@ -3159,7 +3159,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Assignment assignment = gradeRecord.getAssignment();
 						
 			// remove if not for this category (rule 1)
-			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+			if(assignment.getCategory() == null){
+				return true;
+			}
+			if(categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				return true;
 			}
 			
