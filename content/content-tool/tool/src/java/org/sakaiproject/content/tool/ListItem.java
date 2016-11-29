@@ -145,6 +145,7 @@ public class ListItem
 	 */
 	private static final MetadataService metadataService = (MetadataService) ComponentManager.get(MetadataService.class.getCanonicalName());
 	private static final org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get(org.sakaiproject.tool.api.ToolManager.class.getCanonicalName());
+	private static final AuthzGroupService authzGroupService = (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getCanonicalName());
 
 	/** 
 	 ** Comparator for sorting Group objects
@@ -2648,28 +2649,17 @@ public class ListItem
      */
     public boolean isPossible(Group group)
     {
-    	boolean isPossible = false;
+    	if (group==null) return false;
     	
-    	Collection<Group> groupsToCheck = this.possibleGroups;
-    	if(AccessMode.GROUPED == this.inheritedAccessMode)
-    	{
-    		groupsToCheck = this.inheritedGroups;
-    	}
+    	Collection<Group> groupsToCheck = (AccessMode.GROUPED == this.inheritedAccessMode) ? this.inheritedGroups : this.possibleGroups;    	
+    	Collection<String> groupsToCheckReference = new ArrayList();
+    	for (Group gr:groupsToCheck) {
+    		groupsToCheckReference.add(gr.getReference()); 
+    	}    	
+    	String userId = UserDirectoryService.getCurrentUser().getId();
+    	Collection<String> groupsOfUser = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, groupsToCheckReference);
     	
-    	for(Group gr : groupsToCheck)
-    	{
-    		if(gr == null)
-    		{
-    			// ignore
-    		}
-    		else if(gr.getId().equals(group.getId()) && gr.getMember(UserDirectoryService.getCurrentUser().getId()) != null)
-    		{
-    			isPossible = true;
-    			break;
-    		}
-    	}
-    	
-    	return isPossible;
+    	return groupsOfUser.contains(group.getReference());
     }
     
 	/**
