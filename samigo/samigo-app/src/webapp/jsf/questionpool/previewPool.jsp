@@ -12,10 +12,30 @@
 <head><%= request.getAttribute("html.head") %>
 <title><h:outputText value="#{questionPoolMessages.t_previewPool}"/></title>
 <!-- stylesheet and script widgets -->
-<script language="javascript" type="text/JavaScript">
-<!--
-<%@ include file="/js/samigotree.js" %>
-//-->
+<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+
+<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+<script type="text/JavaScript">	
+	jQuery(window).load(function(){
+			
+		$('input:hidden[id*=hiddenSerializedCoords_]').each(function(){
+			var myregexp = /hiddenSerializedCoords_(\d+)?_(\d+)_(\d+)/
+			var matches = myregexp.exec(this.id);
+			var sequence = "_";
+			if (matches[1] != undefined) {
+				sequence = matches[1];
+			}
+			sequence = sequence + matches[2];
+			var label = matches[3];
+			
+			var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageMapContainer_'+sequence);
+			try {
+				sel.setCoords(jQuery.parseJSON(this.value));
+				sel.setText(label);
+			}catch(err){}
+			
+		});	
+	});
 </script>
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -25,7 +45,8 @@
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
 <h3 class="insColor insBak insBor">
-<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>
+<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.displayNameNotCPool}" rendered="#{questionpool.notCurrentPool}"/>
+<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}" rendered="#{!questionpool.notCurrentPool}"/>
 </h3>
 
 <div class="tier1">
@@ -48,8 +69,7 @@
 	value="#{questionpool.itemsBean}" var="question" >
 
 	<h:column>
-		<f:verbatim><h5></f:verbatim>
-		<h:panelGrid columns="1" width="100%" columnClasses="navView,navList">
+		<h:panelGrid columns="1" width="100%" styleClass="table table-condensed" columnClasses="navView,navList">
 			<h:panelGroup>
 				<h:outputText value="#{authorMessages.q} " />
 				<h:outputText value="#{question.number}: " />
@@ -58,6 +78,7 @@
 					<h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{commonMessages.multiple_choice_sin}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{commonMessages.multipl_mc_ms}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 12}" value=" #{commonMessages.multipl_mc_ss}"/>
+					<h:outputText rendered="#{question.itemData.typeId== 13}" value=" #{authorMessages.matrix_choice_surv}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{authorMessages.multiple_choice_surv}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{authorMessages.true_false}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{authorMessages.short_answer_essay}"/>
@@ -66,25 +87,25 @@
 					<h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{authorMessages.matching}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{authorMessages.audio_recording}"/>
 					<h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
+					<h:outputText rendered="#{question.itemData.typeId== 14}" value=" #{authorMessages.extended_matching_items}"/>
+					<h:outputText rendered="#{question.itemData.typeId== 15}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
+					<h:outputText rendered="#{question.itemData.typeId== 16}" value=" #{authorMessages.image_map_question}"/><!-- IMAGEMAP_QUESTION -->
 
 					<h:outputText value=" #{authorMessages.dash} " />
-					<h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
+					
 					<h:inputText rendered="#{question.itemData.typeId!= 3}" id="answerptr" value="#{question.updatedScore}" disabled="true" size="6" >
 						<f:validateDoubleRange minimum="0.00"/>
 					</h:inputText>
 		
-					<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
-					<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
-					<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
+					<h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
+						<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
+						<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
+						<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
+					</h:panelGroup>
 				</h:panelGroup>
-
-			</h:panelGroup>
-		
 		</h:panelGrid>
-		<f:verbatim></h5></f:verbatim>
 
-
-		<f:verbatim><div class="tier3"></f:verbatim>
+		<f:verbatim><div class="samigo-question-callout"></f:verbatim>
 			<h:panelGroup rendered="#{question.itemData.typeId == 11}">
 				<%@ include file="/jsf/author/preview_item/FillInNumeric.jsp" %>
 			</h:panelGroup>
@@ -127,6 +148,21 @@
 
 			<h:panelGroup rendered="#{question.itemData.typeId == 12}">
 				<%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{question.itemData.typeId == 13}">
+				<%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
+			</h:panelGroup>
+
+			<h:panelGroup rendered="#{question.itemData.typeId == 14}">
+				<%@ include file="/jsf/author/preview_item/ExtendedMatchingItems.jsp" %>
+			</h:panelGroup>
+			
+			<h:panelGroup rendered="#{question.itemData.typeId == 15}">
+				<%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
+			</h:panelGroup>
+			
+			<h:panelGroup rendered="#{question.itemData.typeId == 16}">
+				<%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
 			</h:panelGroup>
 		<f:verbatim></div></f:verbatim>
 
