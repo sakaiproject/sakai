@@ -3324,17 +3324,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		Map<String,Double> bottomPercents = gbInfo.getSelectedGradingScaleBottomPercents();
 		
 		//Before we do any work, check if any existing course grade overrides might be left in an unmappable state
-		List<CourseGradeRecord> courseGradeOverrides = (List<CourseGradeRecord>)getHibernateTemplate().execute(new HibernateCallback() {
-            @Override
-			public Object doInHibernate(Session session) throws HibernateException {
-                return getCourseGradeOverrides(gradebook, session);
-            }
-		});		
-		courseGradeOverrides.forEach(cgr -> {
-			if(!bottomPercents.containsKey(cgr.getEnteredGrade())) {
-				throw new UnmappableCourseGradeOverrideException("The grading schema could not be updated as it would leave some course grade overrides in an unmappable state.");
-			}
-		});
+		// this is NOT done when in final grade mode as the course grade field is now arbitrary.
+		if(!gbInfo.isFinalGradeMode()) {
+			List<CourseGradeRecord> courseGradeOverrides = (List<CourseGradeRecord>)getHibernateTemplate().execute(new HibernateCallback() {
+	            @Override
+				public Object doInHibernate(Session session) throws HibernateException {
+	                return getCourseGradeOverrides(gradebook, session);
+	            }
+			});		
+			courseGradeOverrides.forEach(cgr -> {
+				if(!bottomPercents.containsKey(cgr.getEnteredGrade())) {
+					throw new UnmappableCourseGradeOverrideException("The grading schema could not be updated as it would leave some course grade overrides in an unmappable state.");
+				}
+			});
+		}
 		
 		//iterate all available grademappings for this gradebook and set the one that we have the ID and bottomPercents for
 		Set<GradeMapping> gradeMappings = gradebook.getGradeMappings();
