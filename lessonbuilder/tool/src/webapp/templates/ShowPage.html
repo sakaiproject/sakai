@@ -262,9 +262,6 @@
 		  <li>
 		    <a role="menuitem button" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
 		  </li>
-		  <li rsf:id="forum-summary-li">
-		    <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link"><span rsf:id="msg=simplepage.forumSummaryLinkText"></span></a>
-		  </li>
 		  <li>
 		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" href="#" rsf:id="add-multimedia" class="add-multimedia add-before-param"><span rsf:id="msg.simplepage.multimedia"></span></a>
 		  </li>
@@ -293,6 +290,9 @@
                   </li>
 		  <li rsf:id="announcements-li">
 		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
+		  </li>
+		  <li rsf:id="forum-summary-li">
+		    <a role="menuitem" href="#" rsf:id="forum-summary-link" class="forum-summary-link"><span rsf:id="msg=simplepage.forumSummaryLinkText"></span></a>
 		  </li>
 		  <hr style="border:none"/>
             <li rsf:id="checklist-li">
@@ -1917,16 +1917,13 @@
                         </div>
                     </div>
                     <div class="forum-summary-content">
-                        <p class="required">
-                            <label rsf:id="forum-summary-height-label" class="pageTitle" for="forum-summary-height"></label>
-                            <input style="margin-left: 104px;" type="text" name="forum-summary-height" rsf:id="forum-summary-height" id="forum-summary-height"  maxlength="99" size="20"/>&nbsp;<span id="forumSummaryHeightErrmsg"></span>
-                        </p>
                         <label for="forumNumberDropdown" rsf:id="forumNumberDropdownLabel"></label>
                         <select style="margin-left: 93px;" rsf:id="forumNumberDropdown" id="forumNumberDropdown" name="forumNumberDropdown">
                             <option rsf:id="forumOption:"><span rsf:id="forumOptionText"></span></option>
                         </select><br/>
                         <p class="act">
                             <input class="bold" type="submit" id="forum-summary-add-item" rsf:id="forum-summary-add-item" />
+			    <input type="hidden" rsf:id="forum-summary-add-before" id="forum-summary-add-before"/>
                             <input type="submit" rsf:id="forum-summary-cancel" onclick="closeForumSummaryDialog(); return false" />
                             <span id="forum-summary-delete-span" style="display:none"><input type="submit" class="deleteButton" rsf:id="delete-forum-summary-item" id="delete-forum-summary-item" /></span><br/>
                         </p>

@@ -2840,14 +2840,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "forum-summary-groups-titles", itemGroupTitles);
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						//get widget height from the item attribute
-						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
-						String divHeight = "height:" + height +"px;";
 						//create html for forum-summary widget
 						String html = "<div align=\"left\" class=\"forum-summary-div\"></div>";
 						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "forum-summary-id", String.valueOf(i.getId()));
-						UIOutput.make(tableRow, "forum-summary-widget-height", height);
 						//setting forums-messages url to get all recent messages for the site
 						UIOutput.make(tableRow, "forum-summary-site-url", myUrl() + "/direct/forums/messages/" + simplePageBean.getCurrentSiteId());
 						//setting the url such that request goes to ShowItemProducer to display forum conversations inside Lessons tool
@@ -3676,13 +3672,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 		UIInput.make(form, "forumSummaryEditId", "#{simplePageBean.itemId}");
-		UIInput.make(form, "forum-summary-height", "#{simplePageBean.forumSummaryHeight}");
-		UIOutput.make(form, "forum-summary-height-label", messageLocator.getMessage("simplepage.forum-summary.height_label"));
 		String[] options = {"5", "10", "15", "20", "30", "50"};
 		String[] labels = {"5", "10", "15", "20", "30", "50"};
 		UIOutput.make(form, "forumNumberDropdownLabel", messageLocator.getMessage("simplepage.forum-number-dropdown-label"));
 		UISelect.make(form, "forumNumberDropdown", options, labels, "#{simplePageBean.forumSummaryDropDown}", "5");
 		UICommand.make(form, "forum-summary-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addForumSummary}");
+		UIInput.make(form, "forum-summary-add-before", "#{simplePageBean.addBefore}");
 		UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 		UICommand.make(form, "delete-forum-summary-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 	}

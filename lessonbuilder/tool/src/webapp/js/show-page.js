@@ -1279,6 +1279,7 @@ $(document).ready(function() {
 			$("#forumSummaryEditId").val("-1");
 			$("#forum-summary-height").val("");
 			$("#forumNumberDropdown-selection").val("5");
+			$("#forum-summary-add-before").val(addAboveItem);
 			$("#add-forum-summary-dialog").dialog("open");
 			setupdialog($("#add-forum-summary-dialog"));
 			return false;
