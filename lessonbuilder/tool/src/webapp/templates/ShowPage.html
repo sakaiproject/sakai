@@ -285,15 +285,15 @@
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
 		  </li>
-		  <li rsf:id="announcements-li">
-		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
-		  </li>
 		  <li rsf:id="quiz-li">
 		    <a role="menuitem button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
 		  </li>
                   <li rsf:id="forum-li">
                     <a role="menuitem button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
                   </li>
+		  <li rsf:id="announcements-li">
+		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
+		  </li>
 		  <hr style="border:none"/>
             <li rsf:id="checklist-li">
                 <a role="menuitem button" class="add-checklist-link add-before-param" href="#" rsf:id="add-checklist"><span rsf:id="msg.simplepage.checklist"></span></a>
@@ -1187,16 +1187,13 @@
 						</div>
 					</div>
 					<div class="announcements-content">
-						<p class="required">
-							<label rsf:id="announcements-height-label" class="pageTitle" for="announcements-height"></label>
-							<input style="margin-left: 104px;" type="text" name="announcements-height" rsf:id="announcements-height" id="announcements-height"  maxlength="99" size="10"/>&nbsp;<span id="announcementsHeightErrmsg"></span>
-						</p>
 						<label for="announcementsNumberDropdown" rsf:id="announcementsNumberDropdownLabel"></label>
 						<select style="margin-left: 80px;" rsf:id="announcementsNumberDropdown" id="announcementsNumberDropdown" name="announcementsNumberDropdown">
 							<option rsf:id="announcementsOption:"><span rsf:id="announcementsOptionText"></span></option>
 						</select><br/>
 						<p class="act">
 							<input class="bold" type="submit" id="announcements-add-item" rsf:id="announcements-add-item" />
+							<input type="hidden" rsf:id="announcements-add-before" id="announcements-add-before"/>
 							<input type="submit" rsf:id="announcements-cancel" onclick="closeAnnouncementsDialog(); return false" />
 							<span id="announcements-delete-span" style="display:none"><input type="submit" class="deleteButton" rsf:id="delete-announcements-item" id="delete-announcements-item" /></span><br/>
 						</p>

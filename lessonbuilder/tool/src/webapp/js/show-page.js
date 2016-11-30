@@ -484,6 +484,7 @@ $(document).ready(function() {
 			$("#announcements-height").val("");
 			$("#announcementsNumberDropdown-selection").val("5");
 			$("#add-announcements-dialog").dialog("open");
+			$("#announcements-add-before").val(addAboveItem);
 			setupdialog($("#add-announcements-dialog"));
 			return false;
 		});
