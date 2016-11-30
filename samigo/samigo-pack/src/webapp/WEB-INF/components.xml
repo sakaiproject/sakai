@@ -365,10 +365,7 @@
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
         <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
-        <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
     </bean>
 
