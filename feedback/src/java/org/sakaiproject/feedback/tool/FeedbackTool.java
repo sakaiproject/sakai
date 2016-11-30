@@ -257,15 +257,9 @@ public class FeedbackTool extends HttpServlet {
      * @return The site ID.
      */
     private String overrideSiteId(HttpServletRequest request, String siteId) {
-        // This is set by the portal and is the site ID of the original site that was being accessed
-        // when using a URL like /portal/site/{siteId}/page/contact_us this will contain the site ID.
-        String contactUsSiteId = (String) request.getSession().getAttribute("contact.us.origin.site");
-        if (contactUsSiteId!=null) {
-            siteId = contactUsSiteId;
-        }
-        // When inside the !error site the original URL is put as a request parameter and then passed through.
-        if (siteId.equals("!error")) { // if site is unavailable then retrieve siteId
-            siteId = request.getParameter("siteId");
+        if (siteId.equals("!error")) {
+            // When inside the !error site we get the URL of the original site being accessed
+            return request.getContextPath();
         }
         return siteId;
     }
