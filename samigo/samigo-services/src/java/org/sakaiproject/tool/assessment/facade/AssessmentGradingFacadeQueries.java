@@ -1508,7 +1508,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		attachments = map.get(ag.getAssessmentGradingId());
 	    	}
 	    }
-    	ag.setAssessmentGradingAttachmentList(attachments);
+	    ag.setAssessmentGradingAttachmentList(attachments);
 	    return ag;
 	  }
 
