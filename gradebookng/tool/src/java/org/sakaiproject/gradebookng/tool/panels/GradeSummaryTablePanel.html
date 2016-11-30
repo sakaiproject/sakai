@@ -16,7 +16,7 @@
 				<tr>
 					<th class="col-md-4" scope="col"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
 					<th class="col-md-2" scope="col"><wicket:message key="column.header.studentsummary.grade" /></th>
-					<th class="col-md-1 weight-col" scope="col"><wicket:message key="column.header.studentsummary.weight" /></th>
+					<th class="col-md-1" scope="col" wicket:id="weightColumnHeader"><wicket:message key="column.header.studentsummary.weight" /></th>
 					<th class="col-md-2" scope="col"><wicket:message key="column.header.studentsummary.duedate" /></th>
 					<th class="col-md-3" scope="col"><wicket:message key="column.header.studentsummary.comments" /></th>
 					<th class="col-md-1 category-col" scope="col" wicket:id="categoryColumnHeader"><wicket:message key="column.header.studentsummary.category" /></th>
@@ -51,7 +51,7 @@
 							<span class="gb-summary-grade-score-raw" wicket:id="grade" wicket:message="aria-label:studentsummary.gradebookitem.score"></span>
 							<span class="gb-summary-grade-score-outof" wicket:id="outOf" wicket:message="aria-label:studentsummary.gradebookitem.outof"></span>
 						</td>
-						<td class="weight-col"><!-- empty --></td>
+						<td wicket:id="weight"><!-- empty --></td>
 						<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
 						<td class="gb-summary-grade-comments" wicket:id="comments"></td>
 						<td class="gb-summary-grade-category" wicket:id="category"></td>

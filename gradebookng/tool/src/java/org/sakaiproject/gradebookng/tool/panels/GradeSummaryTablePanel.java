@@ -52,7 +52,7 @@ public class GradeSummaryTablePanel extends Panel {
 		final List<String> categoryNames = (List<String>) data.get("categoryNames");
 		final Map<Long, Double> categoryAverages = (Map<Long, Double>) data.get("categoryAverages");
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
-		//final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
+		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
 		final GbGradingType gradingType = (GbGradingType) data.get("gradingType");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
@@ -98,6 +98,9 @@ public class GradeSummaryTablePanel extends Panel {
 		toggleActions.addOrReplace(new WebMarkupContainer("expandCategoriesLink").setVisible(this.isGroupedByCategory));
 		toggleActions.addOrReplace(new WebMarkupContainer("collapseCategoriesLink").setVisible(this.isGroupedByCategory));
 		addOrReplace(toggleActions);
+
+		addOrReplace(new WebMarkupContainer("weightColumnHeader").
+			setVisible(categoriesEnabled && isCategoryWeightEnabled && this.isGroupedByCategory));
 
 		addOrReplace(new WebMarkupContainer("categoryColumnHeader").
 			setVisible(categoriesEnabled && !this.isGroupedByCategory));
@@ -147,7 +150,8 @@ public class GradeSummaryTablePanel extends Panel {
 						categoryWeight = FormatHelper.formatDoubleAsPercentage(weight * 100);
 					}
 				}
-				categoryRow.add(new Label("categoryWeight", categoryWeight));
+				categoryRow.add(new Label("categoryWeight", categoryWeight).
+					setVisible(isCategoryWeightEnabled && GradeSummaryTablePanel.this.isGroupedByCategory));
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
 					private static final long serialVersionUID = 1L;
@@ -190,6 +194,9 @@ public class GradeSummaryTablePanel extends Panel {
 							.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
 							.setVisible(!assignment.isReleased()));
 						assignmentItem.add(flags);
+
+						assignmentItem.add(new WebMarkupContainer("weight").
+							setVisible(isCategoryWeightEnabled && GradeSummaryTablePanel.this.isGroupedByCategory));
 
 						final Label dueDate = new Label("dueDate",
 							FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
