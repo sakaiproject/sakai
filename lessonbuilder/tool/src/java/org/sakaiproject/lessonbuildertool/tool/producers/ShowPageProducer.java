@@ -3331,20 +3331,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
 		String URL = "";
 		boolean available = simplePageBean.isItemAvailable(i);
-		boolean fake = !available;  // by default, fake output if not available
+		boolean usable = available || canEditPage;
+		boolean fake = !usable;  // by default, fake output if not available
 		String itemString = Long.toString(i.getId());
 
 		if (i.getSakaiId().equals(SimplePageItem.DUMMY)) {
 		    fake = true; // dummy is fake, but still available
 		} else if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
-			if (available) {
+			if (usable) {
 				if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
 					params.setItemId(i.getId());
 					UILink link = UIInternalLink.make(container, "link", params);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-					
+					if (! available)
+					    fakeDisableLink(link, messageLocator);
 				}
 				else {
 				    // run this through /access/lessonbuilder so we can track it even if the user uses the context menu
@@ -3360,6 +3362,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    if (notDone)
 					link.decorate(new UIFreeAttributeDecorator("onclick", 
 										   "afterLink($(this)," + i.getId() + ") ; return true"));
+				    if (! available)
+					fakeDisableLink(link, messageLocator);
 				}
 			}
 
@@ -3393,7 +3397,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (available) {
 					link = UIInternalLink.make(container, ID, eParams);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-
 					if (i.isPrerequisite()) {
 						simplePageBean.checkItemPermissions(i, true);
 					}
@@ -3423,13 +3426,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
-			if (available && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
+			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
 				params.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", params);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (! available)
+				    fakeDisableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -3442,7 +3447,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
-			if (available && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
+			if (usable && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
 				// we've hacked Samigo to look at a special lesson builder
 				// session
 				// attribute. otherwise at the end of the test, Samigo replaces
@@ -3455,6 +3460,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (! available)
+				    fakeDisableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -3467,7 +3474,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
-			if (available && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
+			if (usable && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
 				}
@@ -3476,6 +3483,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (! available)
+				    fakeDisableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -3483,7 +3492,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		} else if (i.getType() == SimplePageItem.CHECKLIST) {
-			if (available) {
+			if (usable) {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
 				}
@@ -3492,6 +3501,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (! available)
+				    fakeDisableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -3520,7 +3531,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(container, "item-name", i.getName());
 		    } else if (!"window".equals(i.getFormat())) {
 			// this is the default if format isn't valid or is missing
-			if (available && lessonEntity != null) {
+			if (usable && lessonEntity != null) {
 			    // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
 			    // as it isn't group aware
 				if (i.isPrerequisite()) {
@@ -3529,8 +3540,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				UIComponent link = UIInternalLink.make(container, "link", view)
-				    .decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				UILink link = UIInternalLink.make(container, "link", view);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+				if (! available)
+				    fakeDisableLink(link, messageLocator);
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
@@ -3538,12 +3551,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		    } else {
-			if (available && lessonEntity != null) {
+			if (usable && lessonEntity != null) {
 			    URL = lessonEntity.getUrl();
 			    // UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
 			    UILink link = UILink.make(container, ID, i.getName(), URL);
 			    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+			    if (! available)
+				fakeDisableLink(link, messageLocator);
 			    if (notDone)
 				link.decorate(new UIFreeAttributeDecorator("onclick", 
 					 "setTimeout(function(){window.location.reload(true)},3000); return true"));
