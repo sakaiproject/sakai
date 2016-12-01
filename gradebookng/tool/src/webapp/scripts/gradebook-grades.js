@@ -506,8 +506,10 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
   var $thead = $("<thead>");
-  // append a dummy header row for when categorised
-  $thead.append($("<tr>").addClass("gb-categories-row").append($("<th>").attr("colspan", $headers.length)));
+  if(self.isGroupedByCategory()) {
+    // append a dummy header row for when categorised
+    $thead.append($("<tr>").addClass("gb-categories-row").append($("<th>").attr("colspan", $headers.length)));
+  }
 
  // add the row for all cloned cells
   $thead.append($("<tr>").addClass("gb-clone-row").addClass("gb-headers"));
