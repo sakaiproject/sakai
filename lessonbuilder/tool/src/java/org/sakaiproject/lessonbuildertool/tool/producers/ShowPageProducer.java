@@ -3418,7 +3418,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else if (i.getType() == SimplePageItem.ASSIGNMENT) {
 		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
-			if (available && i.isPrerequisite()) {
+			if (usable && i.isPrerequisite()) {
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
@@ -3439,7 +3439,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
 		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
-			if (available && i.isPrerequisite()) {
+			if (usable && i.isPrerequisite()) {
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
@@ -3466,7 +3466,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else if (i.getType() == SimplePageItem.FORUM) {
 		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
-			if (available && i.isPrerequisite()) {
+			if (usable && i.isPrerequisite()) {
 			    simplePageBean.checkItemPermissions(i, true);
 			}
 			LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
@@ -3548,6 +3548,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		    } else {
 			if (usable && lessonEntity != null) {
+			    if (i.isPrerequisite()) {
+				simplePageBean.checkItemPermissions(i, true);
+			    }
 			    URL = lessonEntity.getUrl();
 			    // UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
 			    UILink link = UILink.make(container, ID, i.getName(), URL);
