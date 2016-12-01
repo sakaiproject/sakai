@@ -1352,12 +1352,9 @@ public class DeliveryActionListener
     		   
     	}
     	if ( (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) || (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
-    		if (haswronganswer = false && mcmc_match_counter==correctAnswers){
-    			haswronganswer=false;
-    		}
-    		else {
-    			haswronganswer=true;
-    		}
+    		if (mcmc_match_counter != correctAnswers){
+				haswronganswer=true;
+			}
     	}
     	
     	if (haswronganswer) {
