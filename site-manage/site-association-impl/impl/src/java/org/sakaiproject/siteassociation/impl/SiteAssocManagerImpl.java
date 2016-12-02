@@ -27,12 +27,11 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.siteassociation.impl.AssociationImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.siteassociation.api.SiteAssocManager;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class SiteAssocManagerImpl extends HibernateDaoSupport implements SiteAssocManager {
 

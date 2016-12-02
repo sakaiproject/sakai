@@ -47,32 +47,25 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.hibernate.Hibernate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
-	
+import lombok.extern.slf4j.Slf4j;
 
-	private final static Logger Logger = LoggerFactory.getLogger(AssignmentSupplementItemServiceImpl.class);
-	
-	/**
-	 * Init
-	 */
+@Slf4j
+public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport implements AssignmentSupplementItemService {
+
    public void init()
    {
-      Logger.info("init()");
+      log.info("init()");
    }
    
-   /**
-    * Destroy
-    */
    public void destroy()
    {
-      Logger.info("destroy()");
+      log.info("destroy()");
    }
    
    /** Dependency: UserDirectoryService */
@@ -80,7 +73,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 
 	/**
 	 * Dependency: UserDirectoryService.
-	 * 
+	 *
 	 * @param service
 	 *        The UserDirectoryService.
 	 */
@@ -155,7 +148,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".saveModelAnswerQuestion() Hibernate could not save attachment " + attachment.getId());
+		 log.warn(this + ".saveModelAnswerQuestion() Hibernate could not save attachment " + attachment.getId());
 			return false;
 		}
 	}
@@ -165,18 +158,13 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public List<String> getAttachmentListForSupplementItem(final AssignmentSupplementItemWithAttachment item)
 	{	
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findAttachmentBySupplementItem");        
-	        q.setParameter("item", item);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<String>> hcb = session -> {
+          Query q = session.getNamedQuery("findAttachmentBySupplementItem");
+          q.setParameter("item", item);
+          return q.list();
+        };
 	        
-	    return (List) getHibernateTemplate().execute(hcb);
+	    return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -210,7 +198,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".removeAttachment() Hibernate could not delete attachment " + attachment.getId());
+		 log.warn(this + ".removeAttachment() Hibernate could not delete attachment " + attachment.getId());
 			return false;
 		}
 	}
@@ -237,7 +225,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".saveModelAnswerQuestion() Hibernate could not save model answer for assignment " + mItem.getAssignmentId());
+		 log.warn(this + ".saveModelAnswerQuestion() Hibernate could not save model answer for assignment " + mItem.getAssignmentId());
 			return false;
 		}
 	}
@@ -256,7 +244,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".removeModelAnswer() Hibernate could not delete ModelAnswer for assignment " + mItem.getAssignmentId());
+		 log.warn(this + ".removeModelAnswer() Hibernate could not delete ModelAnswer for assignment " + mItem.getAssignmentId());
 			return false;
 		}
 		
@@ -297,7 +285,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".saveNoteItem() Hibernate could not save private note for assignment " + nItem.getAssignmentId());
+		 log.warn(this + ".saveNoteItem() Hibernate could not save private note for assignment " + nItem.getAssignmentId());
 			return false;
 		}
 	}
@@ -316,7 +304,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".removeNoteItem() Hibernate could not delete NoteItem for assignment " + mItem.getAssignmentId());
+		 log.warn(this + ".removeNoteItem() Hibernate could not delete NoteItem for assignment " + mItem.getAssignmentId());
 			return false;
 		}
 		
@@ -358,7 +346,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment " + nItem.getAssignmentId());
+		 log.warn(this + ".saveAllPurposeItem() Hibernate could not save private AllPurpose for assignment " + nItem.getAssignmentId());
 			return false;
 		}
 	}
@@ -377,7 +365,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment " + mItem.getAssignmentId());
+		 log.warn(this + ".removeAllPurposeItem() Hibernate could not delete AllPurposeItem for assignment " + mItem.getAssignmentId());
 			return false;
 		}
 		
@@ -435,7 +423,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".saveAllPurposeItemAccess() Hibernate could not save access " + access.getAccess() + " for " + access.getAssignmentAllPurposeItem().getTitle());
+		 log.warn(this + ".saveAllPurposeItemAccess() Hibernate could not save access " + access.getAccess() + " for " + access.getAssignmentAllPurposeItem().getTitle());
 			return false;
 		}
 	}
@@ -454,7 +442,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 		catch (DataAccessException e)
 		{
 			e.printStackTrace();
-		 Logger.warn(this + ".removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item " + access.getAssignmentAllPurposeItem().getId() + " for access" + access.getAccess());
+		 log.warn(this + ".removeAllPurposeItemAccess() Hibernate could not delete access for all purpose item " + access.getAssignmentAllPurposeItem().getId() + " for access" + access.getAccess());
 			return false;
 		}
 	}
@@ -464,18 +452,13 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public List<String> getAccessListForAllPurposeItem(final AssignmentAllPurposeItem item)
 	{	
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findAccessByAllPurposeItem");        
-	        q.setParameter("item", item);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<String>> hcb = session -> {
+          Query q = session.getNamedQuery("findAccessByAllPurposeItem");
+          q.setParameter("item", item);
+          return q.list();
+        };
 	        
-	    return (List) getHibernateTemplate().execute(hcb);
+	    return getHibernateTemplate().execute(hcb);
 	}
 
 	/**
@@ -664,7 +647,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 						}
 						catch (Exception e)
 						{
-						 Logger.warn(this + ".callViewAllPurposeItem() Hibernate cannot access user role for user id= " + u.getId());
+						 log.warn(this + ".callViewAllPurposeItem() Hibernate cannot access user role for user id= " + u.getId());
 							return rv;
 						}
 						

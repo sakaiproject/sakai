@@ -68,7 +68,7 @@ public class FakeStatsManager implements StatsManager {
 	}
 
 	public List<Stat> getEventStats(String siteId, List<String> events, Date date, Date date2, List<String> userIds, boolean inverseUserSelection, PagingPosition page, List<String> totalsBy,
-			String sortBy, boolean sortAscending, int maxResults) {
+                                         String sortBy, boolean sortAscending, int maxResults) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -23,26 +23,21 @@
 package org.sakaiproject.assessment.facade.test;
 
 
-import org.hibernate.SessionFactory;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacadeQueries;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration(locations={"/spring-hibernate.xml"})
 public class ItemFacadeTest extends AbstractJUnit4SpringContextTests {
-	
-	ItemFacadeQueries queries;
 
-	@Before
-	public void onSetUpInTransaction() throws Exception {
-		queries = new ItemFacadeQueries();
-		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
-
-	}
+	@Autowired
+	@Qualifier("itemFacadeQueries")
+	private ItemFacadeQueries queries;
 
 	@Test
 	public void testGetIem() {
@@ -51,8 +46,8 @@ public class ItemFacadeTest extends AbstractJUnit4SpringContextTests {
 		 * not to escalate an exception
 		 */
 		try {
-		ItemFacade item = queries.getItem(99999999L);
-		Assert.assertNull(item);
+			ItemFacade item = queries.getItem(99999999L);
+			Assert.assertNull(item);
 		} catch (Exception e) {
 			Assert.fail("unexpected exception");
 		}

@@ -20,24 +20,22 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
@@ -50,7 +48,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>
@@ -112,7 +111,7 @@ public class ResetItemAttachmentListener
 	}
   }
 
-    private void resetItemAttachment(HashMap resourceHash, List attachmentList, AssessmentService service){
+    private void resetItemAttachment(Map resourceHash, List attachmentList, AssessmentService service){
     // 1. we need to make sure that attachment removed/added by file picker 
     //    will be restored/remove when user cancels the entire modification
     if (attachmentList != null){
@@ -192,7 +191,7 @@ public class ResetItemAttachmentListener
   }
   */
     
-    private void resetItemTextAttachment(HashMap resourceHash, Set<ItemTextAttachmentIfc> attachmentSet, AssessmentService service){
+    private void resetItemTextAttachment(Map resourceHash, Set<ItemTextAttachmentIfc> attachmentSet, AssessmentService service){
         // 1. we need to make sure that attachment removed/added by file picker 
         //    will be restored/remove when user cancels the entire modification
         if (attachmentSet != null){

@@ -1,10 +1,9 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.assessment"
+                   default-lazy="false">
 
-<hibernate-mapping default-lazy="false">
-  <class name="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData"
+<class name="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData"
     table="SAM_ASSESSMENTBASE_T">
     <id name="assessmentBaseId" column="ID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">

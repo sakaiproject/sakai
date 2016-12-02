@@ -125,10 +125,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jta</groupId>
+			<groupId>javax.transaction</groupId>
 			<artifactId>jta</artifactId>
-			<version>h2.1.8</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>

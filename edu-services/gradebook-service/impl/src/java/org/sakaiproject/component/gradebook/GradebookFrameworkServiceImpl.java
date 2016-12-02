@@ -47,13 +47,13 @@ import org.sakaiproject.tool.gradebook.LetterGradeMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class GradebookFrameworkServiceImpl extends BaseHibernateManager implements GradebookFrameworkService {
-	private static final Logger log = LoggerFactory.getLogger(GradebookFrameworkServiceImpl.class);
 
 	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
 	
@@ -70,85 +70,83 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 
         createDefaultLetterGradeMapping(getHardDefaultLetterMapping());
         
-        getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				// Get available grade mapping templates.
-				List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
+        getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
+            // Get available grade mapping templates.
+            List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
 
-				// The application won't be able to run without grade mapping
-				// templates, so if for some reason none have been defined yet,
-				// do that now.
-				if (gradingScales.isEmpty()) {
-					if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
-					gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
-				}
+            // The application won't be able to run without grade mapping
+            // templates, so if for some reason none have been defined yet,
+            // do that now.
+            if (gradingScales.isEmpty()) {
+                if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+                gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
+            }
 
-				// Create and save the gradebook
-				Gradebook gradebook = new Gradebook(name);
-				gradebook.setUid(uid);
-				session.save(gradebook);
+            // Create and save the gradebook
+            Gradebook gradebook = new Gradebook(name);
+            gradebook.setUid(uid);
+            session.save(gradebook);
 
-				// Create the course grade for the gradebook
-				CourseGrade cg = new CourseGrade();
-				cg.setGradebook(gradebook);
-				session.save(cg);
+            // Create the course grade for the gradebook
+            CourseGrade cg = new CourseGrade();
+            cg.setGradebook(gradebook);
+            session.save(cg);
 
-				// According to the specification, Display Assignment Grades is
-				// on by default, and Display course grade is off. But can be overridden via properties
+            // According to the specification, Display Assignment Grades is
+            // on by default, and Display course grade is off. But can be overridden via properties
 
 
-			  	Boolean propAssignmentsDisplayed = serverConfigurationService.getBoolean(PROP_ASSIGNMENTS_DISPLAYED,true);
-		  		gradebook.setAssignmentsDisplayed(propAssignmentsDisplayed);
+              Boolean propAssignmentsDisplayed = serverConfigurationService.getBoolean(PROP_ASSIGNMENTS_DISPLAYED,true);
+              gradebook.setAssignmentsDisplayed(propAssignmentsDisplayed);
 
-			  	Boolean propCourseGradeDisplayed = serverConfigurationService.getBoolean(PROP_COURSE_GRADE_DISPLAYED,false);
-			  	gradebook.setCourseGradeDisplayed(propCourseGradeDisplayed);
+              Boolean propCourseGradeDisplayed = serverConfigurationService.getBoolean(PROP_COURSE_GRADE_DISPLAYED,false);
+              gradebook.setCourseGradeDisplayed(propCourseGradeDisplayed);
 
-			   	Boolean propCoursePointsDisplayed = serverConfigurationService.getBoolean(PROP_COURSE_POINTS_DISPLAYED,false);
-		   		gradebook.setCoursePointsDisplayed(propCoursePointsDisplayed);
+               Boolean propCoursePointsDisplayed = serverConfigurationService.getBoolean(PROP_COURSE_POINTS_DISPLAYED,false);
+               gradebook.setCoursePointsDisplayed(propCoursePointsDisplayed);
 
-				String defaultScaleUid = GradebookFrameworkServiceImpl.this.getPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY);
+            String defaultScaleUid = GradebookFrameworkServiceImpl.this.getPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY);
 
-				// Add and save grade mappings based on the templates.
-				GradeMapping defaultGradeMapping = null;
-				Set gradeMappings = new HashSet();
-				for (Iterator iter = gradingScales.iterator(); iter.hasNext();) {
-					GradingScale gradingScale = (GradingScale)iter.next();
-					GradeMapping gradeMapping = new GradeMapping(gradingScale);
-					gradeMapping.setGradebook(gradebook);
-					session.save(gradeMapping);
-					gradeMappings.add(gradeMapping);
-					if (gradingScale.getUid().equals(defaultScaleUid)) {
-						defaultGradeMapping = gradeMapping;
-					}
-				}
+            // Add and save grade mappings based on the templates.
+            GradeMapping defaultGradeMapping = null;
+            Set gradeMappings = new HashSet();
+            for (Iterator iter = gradingScales.iterator(); iter.hasNext();) {
+                GradingScale gradingScale = (GradingScale)iter.next();
+                GradeMapping gradeMapping = new GradeMapping(gradingScale);
+                gradeMapping.setGradebook(gradebook);
+                session.save(gradeMapping);
+                gradeMappings.add(gradeMapping);
+                if (gradingScale.getUid().equals(defaultScaleUid)) {
+                    defaultGradeMapping = gradeMapping;
+                }
+            }
 
-				// Check for null default.
-				if (defaultGradeMapping == null) {
-					defaultGradeMapping = (GradeMapping)gradeMappings.iterator().next();
-					if (log.isWarnEnabled()) log.warn("No default GradeMapping found for new Gradebook=" + gradebook.getUid() + "; will set default to " + defaultGradeMapping.getName());
-				}
-				gradebook.setSelectedGradeMapping(defaultGradeMapping);
+            // Check for null default.
+            if (defaultGradeMapping == null) {
+                defaultGradeMapping = (GradeMapping)gradeMappings.iterator().next();
+                if (log.isWarnEnabled()) log.warn("No default GradeMapping found for new Gradebook=" + gradebook.getUid() + "; will set default to " + defaultGradeMapping.getName());
+            }
+            gradebook.setSelectedGradeMapping(defaultGradeMapping);
 
-				// The Hibernate mapping as of Sakai 2.2 makes this next
-				// call meaningless when it comes to persisting changes at
-				// the end of the transaction. It is, however, needed for
-				// the mappings to be seen while the transaction remains
-				// uncommitted.
-				gradebook.setGradeMappings(gradeMappings);
+            // The Hibernate mapping as of Sakai 2.2 makes this next
+            // call meaningless when it comes to persisting changes at
+            // the end of the transaction. It is, however, needed for
+            // the mappings to be seen while the transaction remains
+            // uncommitted.
+            gradebook.setGradeMappings(gradeMappings);
 
-				gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
-				gradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+            gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+            gradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 
-				//SAK-29740 make backwards compatible
-				gradebook.setCourseLetterGradeDisplayed(true);
-				
-				// Update the gradebook with the new selected grade mapping
-				session.update(gradebook);
+            //SAK-29740 make backwards compatible
+            gradebook.setCourseLetterGradeDisplayed(true);
 
-				return null;
+            // Update the gradebook with the new selected grade mapping
+            session.update(gradebook);
 
-			}
-		});
+            return null;
+
+        });
 	}
 
     private List addDefaultGradingScales(Session session) throws HibernateException {
@@ -184,58 +182,50 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 	}
 
 	public void setAvailableGradingScales(final Collection gradingScaleDefinitions) {
-        getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				mergeGradeMappings(gradingScaleDefinitions, session);
-				return null;
-			}
-		});
+        getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
+            mergeGradeMappings(gradingScaleDefinitions, session);
+            return null;
+        });
 	}
 
 	
 
 	@Override
 	public void saveGradeMappingToGradebook(final String scaleUuid, final String gradebookUid) {
-		getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
+		getHibernateTemplate().execute(session -> {
 
-				List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
+            List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
 
-
-				for (Iterator iter = gradingScales.iterator(); iter.hasNext(); ) {
-					GradingScale gradingScale = (GradingScale) iter.next();
-					if (gradingScale.getUid().equals(scaleUuid)){
-						GradeMapping gradeMapping = new GradeMapping(gradingScale);
-						Gradebook gradebookToSet = getGradebook(gradebookUid);
-						gradeMapping.setGradebook(gradebookToSet);
-						session.save(gradeMapping);
-					}
-				}
-				session.flush();
-				return null;
-			}
-		});
+            for (Iterator iter = gradingScales.iterator(); iter.hasNext(); ) {
+                GradingScale gradingScale = (GradingScale) iter.next();
+                if (gradingScale.getUid().equals(scaleUuid)){
+                    GradeMapping gradeMapping = new GradeMapping(gradingScale);
+                    Gradebook gradebookToSet = getGradebook(gradebookUid);
+                    gradeMapping.setGradebook(gradebookToSet);
+                    session.save(gradeMapping);
+                }
+            }
+            session.flush();
+            return null;
+        });
 	}
 
 	@Override
-	public List getAvailableGradingScales() {
+	public List<GradingScale> getAvailableGradingScales() {
 
-		return (List)getHibernateTemplate().execute(new HibernateCallback() {
+		return getHibernateTemplate().execute(session -> {
+            // Get available grade mapping templates.
+            List<GradingScale> gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
 
-			public List doInHibernate(Session session) throws HibernateException {
-				// Get available grade mapping templates.
-				List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
-
-				// The application won't be able to run without grade mapping
-				// templates, so if for some reason none have been defined yet,
-				// do that now.
-				if (gradingScales.isEmpty()) {
-					if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
-					gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
-				}
-				return gradingScales;
-			}
-		});
+            // The application won't be able to run without grade mapping
+            // templates, so if for some reason none have been defined yet,
+            // do that now.
+            if (gradingScales.isEmpty()) {
+                if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
+                gradingScales = GradebookFrameworkServiceImpl.this.addDefaultGradingScales(session);
+            }
+            return gradingScales;
+        });
 	}
 	
 	@Override
@@ -336,17 +326,17 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         List toBeDeleted;
         int numberDeleted;
 
-        toBeDeleted = hibTempl.find("from GradingEvent as ge where ge.gradableObject.gradebook.id=?", gradebookId);
+        toBeDeleted = hibTempl.findByNamedParam("from GradingEvent as ge where ge.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grading events");
 
-        toBeDeleted = hibTempl.find("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=?", gradebookId);
+        toBeDeleted = hibTempl.findByNamedParam("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade records");
 
-        toBeDeleted = hibTempl.find("from GradableObject as go where go.gradebook.id=?", gradebookId);
+        toBeDeleted = hibTempl.findByNamedParam("from GradableObject as go where go.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " gradable objects");
@@ -354,7 +344,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         Gradebook gradebook = (Gradebook)hibTempl.load(Gradebook.class, gradebookId);
         gradebook.setSelectedGradeMapping(null);
 
-        toBeDeleted = hibTempl.find("from GradeMapping as gm where gm.gradebook.id=?", gradebookId);
+        toBeDeleted = hibTempl.findByNamedParam("from GradeMapping as gm where gm.gradebook.id = :gradebookid", "gradebookid", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade mappings");
@@ -376,25 +366,23 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			if(validateLetterGradeMapping(gradeMap) == false)
 				throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.createDefaultLetterGradePercentMapping");
 
-			HibernateCallback hc = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException {
-					LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
-					session.save(lgpm);
-					Map saveMap = new HashMap();
-					for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
-					{
-						String key = (String) iter.next();
-						saveMap.put(key, gradeMap.get(key));
-					}
-					if (lgpm != null)
-					{                    
-						lgpm.setGradeMap(saveMap);
-						lgpm.setMappingType(1);
-						session.update(lgpm);
-					}
-					return null;
-				}
-			};
+			HibernateCallback hc = session -> {
+                LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
+                session.save(lgpm);
+                Map saveMap = new HashMap();
+                for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
+                {
+                    String key = (String) iter.next();
+                    saveMap.put(key, gradeMap.get(key));
+                }
+                if (lgpm != null)
+                {
+                    lgpm.setGradeMap(saveMap);
+                    lgpm.setMappingType(1);
+                    session.update(lgpm);
+                }
+                return null;
+            };
 			getHibernateTemplate().execute(hc);
 		}
 	}

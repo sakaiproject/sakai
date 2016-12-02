@@ -115,7 +115,7 @@ public class ItemAuthorBean
   public final static String FROM_ASSESSMENT= "assessment";
   private String assessTitle;
   private String sectionIdent;
-  private ArrayList assessmentSectionIdents;
+  private List assessmentSectionIdents;
   private String insertPosition;
   private String insertToSection;
   private String insertType;
@@ -130,7 +130,7 @@ public class ItemAuthorBean
   private String showQuestionLevelFeedback;
   private String showSelectionLevelFeedback;
   private String showFeedbackAuthoring;
-  private ArrayList trueFalseAnswerSelectList;
+  private List trueFalseAnswerSelectList;
   private ItemDataIfc item;
   private ItemBean currentItem;
   private ItemFacade itemToDelete;
@@ -140,7 +140,7 @@ public class ItemAuthorBean
   // for questionpool
   private String qpoolId;
   private String target;
-  private ArrayList poolListSelectItems;
+  private List poolListSelectItems;
 
   // for item editing
 
@@ -225,7 +225,7 @@ public class ItemAuthorBean
   /**
    * @return
    */
-  public ArrayList getAssessmentSectionIdents()
+  public List getAssessmentSectionIdents()
   {
     return assessmentSectionIdents;
   }
@@ -233,7 +233,7 @@ public class ItemAuthorBean
   /**
    * @param list
    */
-  public void setAssessmentSectionIdents(ArrayList list)
+  public void setAssessmentSectionIdents(List list)
   {
     assessmentSectionIdents = list;
   }
@@ -670,8 +670,8 @@ public class ItemAuthorBean
    * @return ArrayList of model SelectItems
    */
 
-  public ArrayList getTrueFalseAnswerSelectList() {
-    ArrayList list = new ArrayList();
+  public List getTrueFalseAnswerSelectList() {
+    List list = new ArrayList();
 
     String trueprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","true_msg");
     String falseprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","false_msg");
@@ -704,8 +704,8 @@ public class ItemAuthorBean
   }
 // TODO use sectionBean.getsectionNumberList when its ready
 
-  public ArrayList getSectionSelectList() {
-    ArrayList list = new ArrayList();
+  public List getSectionSelectList() {
+    List list = new ArrayList();
     
     ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
     AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
@@ -749,8 +749,8 @@ public class ItemAuthorBean
     return list;
   }
 
-  public ArrayList getSelectRelativeWidthList() {
-	  ArrayList<SelectItem> list = new ArrayList();
+  public List getSelectRelativeWidthList() {
+	  List<SelectItem> list = new ArrayList();
 	  ResourceLoader rb = new ResourceLoader(
 		"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  
@@ -831,13 +831,13 @@ public class ItemAuthorBean
 	 * 
 	 * @return ArrayList of model SelectItems
 	 */
-  public ArrayList getPoolSelectList() {
+  public List getPoolSelectList() {
 
     poolListSelectItems = new ArrayList();
 
 
     QuestionPoolService delegate = new QuestionPoolService();
-    ArrayList<QuestionPoolFacade> qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    List<QuestionPoolFacade> qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
     Iterator<QuestionPoolFacade> iter = qplist.iterator();
 
     try {
@@ -1168,8 +1168,8 @@ public class ItemAuthorBean
       if (item != null){
         attachmentSet = item.getItemAttachmentSet();
       }
-      HashMap map = getResourceIdHash(attachmentSet);
-      ArrayList newAttachmentList = new ArrayList();
+      Map map = getResourceIdHash(attachmentSet);
+      List newAttachmentList = new ArrayList();
       
       AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
@@ -1212,8 +1212,8 @@ public class ItemAuthorBean
     else return item.getItemAttachmentList();
   }
 
-  private HashMap getResourceIdHash(Set attachmentSet){
-    HashMap map = new HashMap();
+  private Map getResourceIdHash(Set attachmentSet){
+    Map map = new HashMap();
     if (attachmentSet !=null ){
       Iterator iter = attachmentSet.iterator();
       while (iter.hasNext()){
@@ -1224,19 +1224,19 @@ public class ItemAuthorBean
     return map;
   }
 
-  private HashMap resourceHash = new HashMap();
-  public HashMap getResourceHash() {
+  private Map resourceHash = new HashMap();
+  public Map getResourceHash() {
       return resourceHash;
   }
 
-  public void setResourceHash(HashMap resourceHash)
+  public void setResourceHash(Map resourceHash)
   {
       this.resourceHash = resourceHash;
   }
   
   private void prepareMCcorrAnswers() {
 	  if (Long.valueOf(currentItem.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT) || Long.valueOf(currentItem.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
-		  ArrayList multipleChoiceAnswers = currentItem.getMultipleChoiceAnswers();
+		  List multipleChoiceAnswers = currentItem.getMultipleChoiceAnswers();
 		  if (multipleChoiceAnswers == null) {
 			  return;
 		  }

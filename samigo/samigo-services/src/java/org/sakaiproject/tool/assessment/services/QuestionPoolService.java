@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.services;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -82,9 +83,9 @@ public class QuestionPoolService
   /**
    * Get basic info for pools(just id and  title)  for displaying in pulldown .
    */
-  public ArrayList getBasicInfoOfAllPools(String agentId)
+  public List getBasicInfoOfAllPools(String agentId)
   {
-    ArrayList results = null;
+    List results = null;
       results = PersistenceService.getInstance().
            getQuestionPoolFacadeQueries().getBasicInfoOfAllPools(agentId);
     return results;
@@ -239,9 +240,9 @@ public class QuestionPoolService
   /**
    * Get all scores for a published assessment from the back end.
    */
-  public ArrayList getAllItems(Long poolId)
+  public List getAllItems(Long poolId)
   {
-    ArrayList results = null;
+    List results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
@@ -467,7 +468,7 @@ public class QuestionPoolService
     }
   }
 
-  public HashMap getQuestionPoolItemMap(){
+  public Map getQuestionPoolItemMap(){
     return PersistenceService.getInstance().getQuestionPoolFacadeQueries().
         getQuestionPoolItemMap();
   }
@@ -505,9 +506,9 @@ public class QuestionPoolService
   /**
    * Get the count of items for all pools for one user
    */
-   public HashMap<Long, Integer> getCountItemsForUser(String agentId)
+   public Map<Long, Integer> getCountItemsForUser(String agentId)
    {
-      HashMap<Long, Integer> result = new HashMap<Long, Integer>();
+      Map<Long, Integer> result = new HashMap<Long, Integer>();
       try {
         result = PersistenceService.getInstance().getQuestionPoolFacadeQueries().getCountItemFacadesForUser(agentId);
       } catch (Exception e) {

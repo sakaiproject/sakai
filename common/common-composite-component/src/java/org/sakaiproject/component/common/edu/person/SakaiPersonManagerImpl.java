@@ -21,11 +21,6 @@
 
 package org.sakaiproject.component.common.edu.person;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,18 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.common.edu.person.PhotoService;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
@@ -59,11 +51,13 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 
 /**
@@ -260,17 +254,17 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				final Query q = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_UID);
-				q.setParameter(UID, uid, Hibernate.STRING);
+				q.setParameter(UID, uid, StringType.INSTANCE);
 				// q.setCacheable(cacheFindSakaiPersonByUid);
 				return q.list();
 			}
 		};
 
 		LOG.debug("return getHibernateTemplate().executeFind(hcb);");
-		List hb = getHibernateTemplate().executeFind(hcb);
+		List hb = (List) getHibernateTemplate().execute(hcb);
 		if (photoService.overRidesDefault()) {
 			return this.getDiskPhotosForList(hb);
 		} else {
@@ -387,11 +381,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(HQL_FIND_SAKAI_PERSON_BY_AGENT_AND_TYPE);
-				q.setParameter(AGENT_UUID, agentUuid, Hibernate.STRING);
-				q.setParameter(TYPE_UUID, recordType.getUuid(), Hibernate.STRING);
+				q.setParameter(AGENT_UUID, agentUuid, StringType.INSTANCE);
+				q.setParameter(TYPE_UUID, recordType.getUuid(), StringType.INSTANCE);
 				// q.setCacheable(false);
 				return q.uniqueResult();
 			}
@@ -465,16 +459,16 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	{
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(HQL_FIND_SAKAI_PERSONS_BY_AGENTS_AND_TYPE);
 				q.setParameterList(AGENT_UUID_COLLECTION, userIds);
-				q.setParameter(TYPE_UUID, recordType.getUuid(), Hibernate.STRING);
+				q.setParameter(TYPE_UUID, recordType.getUuid(), StringType.INSTANCE);
 				// q.setCacheable(false);
 				return q.list();
 			}
 		};
-		List hb =  getHibernateTemplate().executeFind(hcb);
+		List hb =  (List) getHibernateTemplate().execute(hcb);
 		if (photoService.overRidesDefault()) {
 			return getDiskPhotosForList(hb);
 		} else {
@@ -497,7 +491,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		final String match = PERCENT_SIGN + simpleSearchCriteria + PERCENT_SIGN;
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				final Criteria c = session.createCriteria(SakaiPersonImpl.class);
 				c.add(Expression.disjunction().add(Expression.ilike(UID, match)).add(Expression.ilike(GIVENNAME, match)).add(
@@ -510,7 +504,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		};
 
 		LOG.debug("return getHibernateTemplate().executeFind(hcb);");
-		List hb =  getHibernateTemplate().executeFind(hcb);
+		List hb = (List) getHibernateTemplate().execute(hcb);
 		if (photoService.overRidesDefault()) {
 			return getDiskPhotosForList(hb);
 		} else {
@@ -565,7 +559,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				Criteria criteria = session.createCriteria(queryByExample.getClass());
 				criteria.add(Example.create(queryByExample));
@@ -575,7 +569,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		};
 
 		LOG.debug("return getHibernateTemplate().executeFind(hcb);");
-		List hb =  getHibernateTemplate().executeFind(hcb);
+		List hb = (List) getHibernateTemplate().execute(hcb);
 		if (photoService.overRidesDefault()) {
 			return getDiskPhotosForList(hb);
 		} else {
@@ -692,7 +686,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				final Criteria c = session.createCriteria(SakaiPersonImpl.class);
 				c.add(Expression.in(AGENT_UUID, agentUuids));
@@ -700,7 +694,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 				return c.list();
 			}
 		};
-		return getHibernateTemplate().executeFind(hcb);
+		return (List) getHibernateTemplate().execute(hcb);
 	}
 
 	public List findAllFerpaEnabled()
@@ -709,14 +703,14 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 
 		final HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException, SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				final Criteria c = session.createCriteria(SakaiPersonImpl.class);
 				c.add(Expression.eq(FERPA_ENABLED, Boolean.TRUE));
 				return c.list();
 			}
 		};
-		return getHibernateTemplate().executeFind(hcb);
+		return (List) getHibernateTemplate().execute(hcb);
 	}
 	
 

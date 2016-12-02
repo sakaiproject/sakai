@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,12 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -37,9 +32,10 @@ import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements SynopticMsgcntrManager {
 	
@@ -68,35 +64,31 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 
 	public List<SynopticMsgcntrItem> getWorkspaceSynopticMsgcntrItems(final String userId) {
 
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query q = session.getNamedQuery(QUERY_WORKSPACE_SYNOPTIC_ITEMS);
-				q.setParameter("userId", userId, Hibernate.STRING);
-				return q.list();
-			}
-		};
+		HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_WORKSPACE_SYNOPTIC_ITEMS);
+            q.setParameter("userId", userId, StringType.INSTANCE);
+            return q.list();
+        };
 
-		return (List<SynopticMsgcntrItem>) getHibernateTemplate().execute(hcb);	  
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	public List<SynopticMsgcntrItem> getSiteSynopticMsgcntrItems(final List<String> userIds, final String siteId) {
 		if(userIds == null || userIds.size() == 0){
 			return new ArrayList<SynopticMsgcntrItem>();
 		}
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				List rtn = new ArrayList();
-				Query q = session.getNamedQuery(QUERY_SITE_SYNOPTIC_ITEMS);
-				q.setParameter("siteId", siteId, Hibernate.STRING);
-				for (int initIndex = 0; initIndex < userIds.size(); initIndex+=ORACLE_IN_CLAUSE_SIZE_LIMIT) {
-					q.setParameterList("userIds", userIds.subList(initIndex, Math.min(initIndex+ORACLE_IN_CLAUSE_SIZE_LIMIT, userIds.size())));
-					rtn.addAll(q.list());
-				}
-				return rtn;
-			}
-		};
+		HibernateCallback<List<SynopticMsgcntrItem>> hcb = session -> {
+            List rtn = new ArrayList();
+            Query q = session.getNamedQuery(QUERY_SITE_SYNOPTIC_ITEMS);
+            q.setParameter("siteId", siteId, StringType.INSTANCE);
+            for (int initIndex = 0; initIndex < userIds.size(); initIndex+=ORACLE_IN_CLAUSE_SIZE_LIMIT) {
+                q.setParameterList("userIds", userIds.subList(initIndex, Math.min(initIndex+ORACLE_IN_CLAUSE_SIZE_LIMIT, userIds.size())));
+                rtn.addAll(q.list());
+            }
+            return rtn;
+        };
 
-		return (List<SynopticMsgcntrItem>) getHibernateTemplate().execute(hcb);	  
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	public SynopticMsgcntrItem createSynopticMsgcntrItem(String userId, String siteId, String siteTitle){
@@ -1259,14 +1251,12 @@ public class DecoratedForumInfo{
 	}
 
 	public void updateAllSiteTitles(final String siteId, final String siteTitle) {
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query q = session.getNamedQuery(QUERY_UPDATE_ALL_SITE_TITLES);
-				q.setParameter("siteTitle", siteTitle, Hibernate.STRING);
-				q.setParameter("siteId", siteId, Hibernate.STRING);
-				return q.executeUpdate();
-			}
-		};
+		HibernateCallback<Integer> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_UPDATE_ALL_SITE_TITLES);
+            q.setParameter("siteTitle", siteTitle, StringType.INSTANCE);
+            q.setParameter("siteId", siteId, StringType.INSTANCE);
+            return q.executeUpdate();
+        };
 
 		getHibernateTemplate().execute(hcb);
 	}

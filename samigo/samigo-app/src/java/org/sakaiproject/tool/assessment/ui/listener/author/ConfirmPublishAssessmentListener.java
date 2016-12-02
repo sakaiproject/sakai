@@ -23,7 +23,11 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -34,8 +38,6 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -57,6 +59,8 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>2
@@ -272,7 +276,7 @@ public class ConfirmPublishAssessmentListener
 		  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError7, null));
 		  error = true;
 	  }
-    
+
     // if due date is null we cannot have late submissions
     if (assessmentSettings.getDueDate() == null && assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
         assessmentSettings.getRetractDate() !=null){
@@ -325,7 +329,7 @@ public class ConfirmPublishAssessmentListener
     			isTime = Boolean.getBoolean((String) time);
     		}
     		else if (time instanceof java.lang.Boolean) {
-    			isTime=((Boolean)time);
+    			isTime= (Boolean) time;
     		}
     	}
 
@@ -498,7 +502,7 @@ public class ConfirmPublishAssessmentListener
     // get the managed bean, author and reset the list.
     // Yes, we need to do that just in case the user change those delivery
     // dates and turning an inactive pub to active pub and then go back to assessment list page
-    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
+    List assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(author.getCoreAssessmentOrderBy(),author.isCoreAscending());
 	// get the managed bean, author and set the list
 	author.setAssessments(assessmentList);
 	

@@ -21,81 +21,98 @@
 
 package org.sakaiproject.springframework.orm.hibernate.impl;
 
-import java.io.*;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.MappingException;
-import org.hibernate.cfg.Configuration;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappings, Comparable<AdditionalHibernateMappings>
-{
-	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+@Slf4j
+public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappings {
 
-	private Resource[] mappingLocations;
+    @Setter private Class<?>[] annotatedClasses;
+    @Setter private String[] annotatedPackages;
+    @Setter private Resource[] cacheableMappingLocations;
+    @Setter private Resource[] mappingDirectoryLocations;
+    @Setter private Resource[] mappingJarLocations;
+    @Setter private Resource[] mappingLocations;
+    @Setter private String[] mappingResources;
+    @Setter private String[] packagesToScan;
+    @Getter @Setter private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
 
-	private Class[] additionalClasses;
+    @Override
+    public void processAdditionalMappings(LocalSessionFactoryBuilder sfb) throws IOException {
 
-	private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
+        if (annotatedClasses != null) {
+            for (Class<?> clazz : annotatedClasses) {
+                log.info("Hibernate add annotated class [{}]", clazz.getCanonicalName());
+                sfb.addAnnotatedClass(clazz);
+            }
+        }
 
-	public void setMappingResources(String[] mappingResources)
-	{
-		this.mappingLocations = new Resource[mappingResources.length];
-		for (int i = 0; i < mappingResources.length; i++)
-		{
-			this.mappingLocations[i] = new ClassPathResource(mappingResources[i].trim());
-		}
-	}
+        if (annotatedPackages != null) {
+            for (String aPackage : annotatedPackages) {
+                log.info("Hibernate add annotated package [{}]", aPackage.trim());
+                sfb.addPackage(aPackage);
+            }
+        }
 
-	public Resource[] getMappingLocations()
-	{
-		return mappingLocations;
-	}
+        if (cacheableMappingLocations != null) {
+            for (Resource resource : cacheableMappingLocations) {
+                log.info("Hibernate add cacheable mapping location [{}]", resource.getFilename());
+                sfb.addCacheableFile(resource.getFile());
+            }
+        }
 
-	public void setAdditionalClasses(Class[] additionalClasses) {
-		this.additionalClasses = additionalClasses;
-	}
+        if (mappingDirectoryLocations != null) {
+            for (Resource resource : mappingDirectoryLocations) {
+                log.info("Hibernate add mapping directory location [{}]", resource.getFilename());
+                File file = resource.getFile();
+                if (!file.isDirectory()) {
+                    log.error("Hibernate mapping directory location [{}] does not denote a directory", resource);
+                }
+                sfb.addDirectory(file);
+            }
+        }
 
-	public void processConfig(Configuration config) throws IOException, MappingException
-	{
-		if (config == null) {
-			logger.warn("config is null!");
-			return;
-		}
-		for (int i = 0; i < this.mappingLocations.length; i++)
-		{
-			try {
-				logger.info("Loading hbm: " + mappingLocations[i]);
-				config.addInputStream(this.mappingLocations[i].getInputStream());
-			} catch (MappingException me) {
-				throw new MappingException("Failed to load "+ this.mappingLocations[i], me);
-			}
-		}
-		// Load any additional classes
-		if (additionalClasses != null) {
-			Arrays.asList(additionalClasses).stream()
-					.peek(clazz -> { logger.info("Loading class: {}", clazz); })
-					.forEach(config::addAnnotatedClass);
-		}
-	}
+        if (mappingJarLocations != null) {
+            for (Resource resource : mappingJarLocations) {
+                log.info("Hibernate add mapping jar location [{}]", resource.getFilename());
+                sfb.addJar(resource.getFile());
+            }
+        }
 
-	public Integer getSortOrder()
-	{
-		return sortOrder;
-	}
+        if (mappingLocations != null) {
+            for (Resource resource : mappingLocations) {
+                log.info("Hibernate add mapping location [{}]", resource.getFilename());
+                sfb.addInputStream(resource.getInputStream());
+            }
+        }
 
-	public void setSortOrder(Integer sortOrder)
-	{
-		this.sortOrder = sortOrder;
-	}
+        if (mappingResources != null) {
+            for (String resource : mappingResources) {
+                Resource mr = new ClassPathResource(resource.trim(), getClass().getClassLoader());
+                log.info("Hibernate add mapping resource [{}]", resource.trim());
+                sfb.addInputStream(mr.getInputStream());
+            }
+        }
 
-	@Override
-	public int compareTo(AdditionalHibernateMappings o) {
-		return getSortOrder().compareTo(o.getSortOrder());
-	}
+        if (packagesToScan != null) {
+            for (String scanPackage : packagesToScan) {
+                log.info("Hibernate add package [{}]", scanPackage.trim());
+                sfb.addPackage(scanPackage);
+            }
+        }
+    }
+
+    @Override
+    public int compareTo(AdditionalHibernateMappings o) {
+        return getSortOrder().compareTo(o.getSortOrder());
+    }
 }

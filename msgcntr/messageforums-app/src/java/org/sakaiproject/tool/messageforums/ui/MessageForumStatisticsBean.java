@@ -562,7 +562,7 @@ public class MessageForumStatisticsBean {
 				totalForum = studentTotalCount.get((String) readStat[0]);
 			}
 			if (totalForum > 0) {
-				userStats.setReadForumsAmt((Integer)readStat[1]);
+				userStats.setReadForumsAmt(((Long)readStat[1]).intValue());
 			} else {
 				userStats.setReadForumsAmt(0);				
 			}
@@ -581,7 +581,7 @@ public class MessageForumStatisticsBean {
 				totalForum = studentTotalCount.get((String) authoredStat[0]);
 			}
 			if (totalForum > 0) {
-				userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
+				userStats.setAuthoredForumsAmt(((Long)authoredStat[1]).intValue());
 			} else {
 				userStats.setAuthoredForumsAmt(0);
 			}
@@ -708,7 +708,7 @@ public class MessageForumStatisticsBean {
 				List<Object[]> totalTopcsCountList = messageManager.findMessageCountByForumId(forum.getId());
 				Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
 				for(Object[] objArr : totalTopcsCountList){
-					totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
+					totalTopcsCountMap.put((Long) objArr[0], ((Long) objArr[1]).intValue());
 				}
 				// if there are no topics, reveal IDs; otherwise assume we're in a pure anonymous scenario (all topics are anonymous), if we find one that isn't anonymous, we'll flip it to false
 				m_displayAnonIds = !forum.getTopicsSet().isEmpty();
@@ -759,7 +759,7 @@ public class MessageForumStatisticsBean {
 					totalForum = userMessageTotal.get((String) readStat[0]);
 				}
 				if (totalForum > 0) {
-					userStats.setReadForumsAmt((Integer)readStat[1]);
+					userStats.setReadForumsAmt(((Long)readStat[1]).intValue());
 				} else {
 					userStats.setReadForumsAmt(0);				
 				}
@@ -784,7 +784,7 @@ public class MessageForumStatisticsBean {
 					totalForum = userMessageTotal.get((String) authoredStat[0]);
 				}
 				if (totalForum > 0) {
-					userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
+					userStats.setAuthoredForumsAmt(((Long)authoredStat[1]).intValue());
 				} else {
 					userStats.setAuthoredForumsAmt(0);
 				}
@@ -966,7 +966,7 @@ public class MessageForumStatisticsBean {
 		for (Object[] counts: topicMessageCounts) {
 			dCompiledStatsByTopic = statisticsMap.get(counts[0]);
 			if(dCompiledStatsByTopic != null){
-				dCompiledStatsByTopic.setTotalTopicMessages((Integer) counts[1]);
+				dCompiledStatsByTopic.setTotalTopicMessages(((Long) counts[1]).intValue());
 			}
 		}
 		
@@ -2978,7 +2978,7 @@ public class MessageForumStatisticsBean {
 		List<Object[]> totalTopcsCountList = messageManager.findMessageCountTotal();
 		Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
 		for(Object[] objArr : totalTopcsCountList){
-			totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
+			totalTopcsCountMap.put((Long) objArr[0], ((Long) objArr[1]).intValue());
 		}
 		Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
 

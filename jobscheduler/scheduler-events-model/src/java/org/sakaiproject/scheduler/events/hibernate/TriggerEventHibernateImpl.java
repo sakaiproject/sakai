@@ -1,125 +1,66 @@
 package org.sakaiproject.scheduler.events.hibernate;
 
-import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
-
 import java.util.Date;
 
-/**
- * Created by IntelliJ IDEA.
- * User: duffy
- * Date: Aug 26, 2010
- * Time: 5:04:12 PM
- * To change this template use File | Settings | File Templates.
- */
-public class TriggerEventHibernateImpl
-   implements TriggerEvent
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.sakaiproject.api.app.scheduler.events.TriggerEvent;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Entity
+@Table(name = "scheduler_trigger_events")
+@NamedQueries({
+        @NamedQuery(name = "purgeEventsBefore", query = "delete from TriggerEventHibernateImpl as evt where evt.time < :before")
+})
+
+@EqualsAndHashCode(of = "id")
+@Getter
+@Setter
+@ToString
+public class TriggerEventHibernateImpl implements TriggerEvent
 {
-    private TRIGGER_EVENT_TYPE
-        type;
-    private String
-        id,
-        jobName,
-        triggerName;
-    private Date
-        time;
-    private String
-        message;
-    
+    @Id
+    @Column(name = "uuid", length = 36)
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
+
+    @Column(name = "eventType", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TRIGGER_EVENT_TYPE eventType;
+
+    @Column(name = "jobName", nullable = false)
+    private String jobName;
+
+    @Column(name = "triggerName")
+    public String triggerName;
+
+    @Column(name = "eventTime", nullable = false)
+    @OrderColumn(name = "schdulr_trggr_vnts_eventTime", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date time;
+
+    @Column(name = "message")
+    @Lob
+    private String message;
+
+    @Column(name = "serverId")
     private String serverId;
-
-    public String getServerId() {
-		return serverId;
-	}
-
-	public void setServerId(String serverId) {
-		this.serverId = serverId;
-	}
-
-	public TriggerEventHibernateImpl()
-    {}
-
-    public void setId(String i)
-    {
-        id = i;
-    }
-
-    public String getId()
-    {
-        return id;
-    }
-    
-    public void setEventType (TRIGGER_EVENT_TYPE t)
-    {
-        type = t;
-    }
-
-    public TRIGGER_EVENT_TYPE getEventType()
-    {
-        return type;
-    }
-
-    public void setJobName(String name)
-    {
-        jobName = name;
-    }
-
-    public String getJobName()
-    {
-        return jobName;
-    }
-
-    public void setTriggerName(String name)
-    {
-        triggerName = name;
-    }
-
-    public String getTriggerName()
-    {
-        return triggerName;
-    }
-
-    public void setTime(Date t)
-    {
-        time = t;
-    }
-
-    public Date getTime()
-    {
-        return time;
-    }
-
-    public void setMessage(String m)
-    {
-        message = m;
-    }
-
-    public String getMessage()
-    {
-        return message;
-    }
-
-    @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-    @Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof TriggerEventHibernateImpl))
-			return false;
-		TriggerEventHibernateImpl other = (TriggerEventHibernateImpl) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
 }

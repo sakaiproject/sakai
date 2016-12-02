@@ -33,7 +33,7 @@ import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.SessionFactory;
-import org.hibernate.jmx.StatisticsService;
+import org.hibernate.stat.Statistics;
 
 /**
  * @author ieb
@@ -46,39 +46,23 @@ public class HibernateJMXAgent
 
 	private SessionFactory sessionFactory;
 
-	public MBeanServer getMBeanServer()
-	{
-		return mBeanServer;
-	}
-
 	public void init() throws MalformedObjectNameException, NullPointerException,
-			InstanceAlreadyExistsException, MBeanRegistrationException,
-			NotCompliantMBeanException
-	{
+			InstanceAlreadyExistsException, MBeanRegistrationException, NotCompliantMBeanException {
 		log.info("Registering Hibernate Session Factory with JMX " + mBeanServer);
 
-		ObjectName on = new ObjectName(
-				"Hibernate:type=statistics,application=HibernateSakai");
+		ObjectName on = new ObjectName("Hibernate:type=statistics,application=HibernateSakai");
 
 		// Enable Hibernate JMX Statistics
-		StatisticsService statsMBean = new StatisticsService();
-		statsMBean.setSessionFactory(sessionFactory);
+		Statistics statsMBean = sessionFactory.getStatistics();
 		statsMBean.setStatisticsEnabled(true);
 		mBeanServer.registerMBean(statsMBean, on);
 	}
 
-	/**
-	 * @return the sessionFactory
-	 */
 	public SessionFactory getSessionFactory()
 	{
 		return sessionFactory;
 	}
 
-	/**
-	 * @param sessionFactory
-	 *        the sessionFactory to set
-	 */
 	public void setSessionFactory(SessionFactory sessionFactory)
 	{
 		this.sessionFactory = sessionFactory;

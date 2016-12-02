@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -94,8 +95,8 @@ public class RemovePublishedAssessmentListener
           
       
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-      ArrayList publishedAssessmentList = author.getPublishedAssessments();
-      ArrayList list = new ArrayList();
+      List publishedAssessmentList = author.getPublishedAssessments();
+      List list = new ArrayList();
       for (int i=0; i<publishedAssessmentList.size();i++){
     	  PublishedAssessmentFacade pa = (PublishedAssessmentFacade) publishedAssessmentList.get(i);
         if (!(assessmentId).equals(pa.getPublishedAssessmentId().toString())) {
@@ -104,8 +105,8 @@ public class RemovePublishedAssessmentListener
       }
       author.setPublishedAssessments(list);
       
-      ArrayList inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
-      ArrayList inactiveList = new ArrayList();
+      List inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
+      List inactiveList = new ArrayList();
       for (int i=0; i<inactivePublishedAssessmentList.size();i++){
     	  PublishedAssessmentFacade pa = (PublishedAssessmentFacade) inactivePublishedAssessmentList.get(i);
         if (!(assessmentId).equals(pa.getPublishedAssessmentId().toString())) {

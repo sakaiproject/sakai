@@ -15,12 +15,18 @@
  */
 package org.sakaiproject.profile2.dao.impl;
 
+import static sun.security.krb5.Confounder.intValue;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.type.BooleanType;
+import org.hibernate.type.DateType;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
@@ -50,8 +56,8 @@ import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Internal DAO Interface for Profile2
@@ -71,19 +77,16 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 				
 		//get friends of this user [and map it automatically to the Friend object]
 		//updated: now just returns a List of Strings
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE); 
-	  			//q.setResultTransformer(Transformers.aliasToBean(Friend.class));
-	  			
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<String>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setBoolean("false", Boolean.FALSE);
+            //q.setResultTransformer(Transformers.aliasToBean(Friend.class));
+
+            return q.list();
+        };
 	  	
-	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -92,18 +95,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<String> getConfirmedConnectionUserIdsForUser(final String userId) {
 				
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  		
+		HibernateCallback<List<String>> hcb = session -> {
 	  			Query q = session.getNamedQuery(QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
+	  			q.setParameter(USER_UUID, userId, StringType.INSTANCE);
 	  			q.setBoolean("true", Boolean.TRUE); 
 	  			return q.list();
-	  		}
 	  	};
 	  	
-	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -112,16 +111,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<String> findSakaiPersonsByNameOrEmail(final String search) {
 				
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL);
-	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<String>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_NAME_OR_EMAIL);
+            q.setParameter(SEARCH, '%' + search + '%', StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -130,21 +126,18 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<String> findSakaiPersonsByInterest(final String search, final boolean includeBusinessBio) {
 		
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
+		HibernateCallback<List<String>> hcb = session -> {
+            Query q;
+            if (false == includeBusinessBio) {
+                q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
+            } else {
+                q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST_AND_BUSINESS_BIO);
+            }
+            q.setParameter(SEARCH, '%' + search + '%', StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  			Query q;
-	  			if (false == includeBusinessBio) {
-	  				q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST);
-	  			} else {
-	  				q = session.getNamedQuery(QUERY_FIND_SAKAI_PERSONS_BY_INTEREST_AND_BUSINESS_BIO);
-	  			}
-	  			q.setParameter(SEARCH, '%' + search + '%', Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
-	  	
-	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -153,16 +146,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<ProfileImageUploaded> getCurrentProfileImageRecords(final String userId) {
 				
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<ProfileImageUploaded>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -170,16 +160,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfileImageUploaded getCurrentProfileImageRecord(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfileImageUploaded> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_CURRENT_PROFILE_IMAGE_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileImageUploaded) q.uniqueResult();
+      };
 	
-		return (ProfileImageUploaded) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -188,16 +176,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<ProfileImageUploaded> getOtherProfileImageRecords(final String userId) {
 				
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<ProfileImageUploaded>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_OTHER_PROFILE_IMAGE_RECORDS);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<ProfileImageUploaded>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -206,17 +191,15 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public ProfileFriend getConnectionRecord(final String userId, final String friendId) {
 		
 		//this particular query checks for records when userId/friendId is in either column
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfileFriend> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_FRIEND_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setParameter(FRIEND_UUID, friendId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileFriend) q.uniqueResult();
+      };
 	
-		return (ProfileFriend) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -224,17 +207,15 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public CompanyProfile getCompanyProfile(final String userId, final long companyProfileId) {
 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILE);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(ID, companyProfileId, Hibernate.LONG);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<CompanyProfile> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILE);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setParameter(ID, companyProfileId, LongType.INSTANCE);
+            q.setMaxResults(1);
+            return (CompanyProfile) q.uniqueResult();
+      };
 	
-		return (CompanyProfile) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -242,17 +223,15 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public GalleryImage getGalleryImageRecord(final String userId, final long imageId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(ID, imageId, Hibernate.LONG);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<GalleryImage> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_GALLERY_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setParameter(ID, imageId, LongType.INSTANCE);
+            q.setMaxResults(1);
+            return (GalleryImage) q.uniqueResult();
+      };
 	
-		return (GalleryImage) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -260,16 +239,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfileImageOfficial getOfficialImageRecordForUser(final String userUuid) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_OFFICIAL_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfileImageOfficial> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_OFFICIAL_IMAGE_RECORD);
+            q.setParameter(USER_UUID, userUuid, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileImageOfficial) q.uniqueResult();
+      };
 	
-		return (ProfileImageOfficial) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -328,18 +305,16 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  		throw new IllegalArgumentException("Null Argument in getPendingConnection"); 
 	  	}
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUEST);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(FRIEND_UUID, friendId, Hibernate.STRING);
-	  			q.setParameter(CONFIRMED, false, Hibernate.BOOLEAN);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfileFriend> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUEST);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setParameter(FRIEND_UUID, friendId, StringType.INSTANCE);
+            q.setParameter(CONFIRMED, false, BooleanType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileFriend) q.uniqueResult();
+      };
 	
-		return (ProfileFriend) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	/**
@@ -347,17 +322,15 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfileStatus getUserStatus(final String userId, final Date oldestDate) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setParameter(OLDEST_STATUS_DATE, oldestDate, Hibernate.DATE);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfileStatus> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_USER_STATUS);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setParameter(OLDEST_STATUS_DATE, oldestDate, DateType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileStatus) q.uniqueResult();
+      };
 	
-		return (ProfileStatus) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -394,16 +367,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getStatusUpdatesCount(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_STATUS_UPDATES_COUNT);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_STATUS_UPDATES_COUNT);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -425,16 +395,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfilePrivacy getPrivacyRecord(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfilePrivacy> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_PRIVACY_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfilePrivacy) q.uniqueResult();
+      };
 	
-		return (ProfilePrivacy) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -484,16 +452,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<CompanyProfile> getCompanyProfiles(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILES);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<CompanyProfile>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_COMPANY_PROFILES);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<CompanyProfile>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -529,16 +494,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<GalleryImage> getGalleryImages(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<GalleryImage>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<GalleryImage>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -560,16 +522,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getGalleryImagesCount(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS_COUNT);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_GALLERY_IMAGE_RECORDS_COUNT);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -577,16 +536,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_SOCIAL_NETWORKING_INFO);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<SocialNetworkingInfo> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_SOCIAL_NETWORKING_INFO);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (SocialNetworkingInfo) q.uniqueResult();
+      };
 	
-		return (SocialNetworkingInfo) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -608,36 +565,32 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public boolean addNewProfileImage(final ProfileImageUploaded profileImage) {
 		
-		Boolean success = (Boolean) getHibernateTemplate().execute(new HibernateCallback() {			
-				public Object doInHibernate(Session session){
-					try {
-						//first get the current ProfileImage records for this user
-						List<ProfileImageUploaded> currentImages = new ArrayList<ProfileImageUploaded>(getCurrentProfileImageRecords(profileImage.getUserUuid()));
-            
-						for(Iterator<ProfileImageUploaded> i = currentImages.iterator(); i.hasNext();){
-							ProfileImageUploaded currentImage = (ProfileImageUploaded)i.next();
-              
-							//invalidate each
-							currentImage.setCurrent(false);
-              
-							//save
-							session.update(currentImage);
-						}
-              
-						//now save the new one
-						session.save(profileImage);
-						
-						// flush session
-			            session.flush();
-            
-					} catch(Exception e) {
-						log.error("addNewProfileImage failed. " + e.getClass() + ": " + e.getMessage()); 
-						return Boolean.FALSE;
-					}
-					return Boolean.TRUE;
-				}			
-		});
-		return success.booleanValue();
+		Boolean success = getHibernateTemplate().execute(session -> {
+            try {
+                //first get the current ProfileImage records for this user
+                List<ProfileImageUploaded> currentImages = new ArrayList<>(getCurrentProfileImageRecords(profileImage.getUserUuid()));
+
+                for(ProfileImageUploaded currentImage : currentImages){
+                    //invalidate each
+                    currentImage.setCurrent(false);
+
+                    //save
+                    session.update(currentImage);
+                }
+
+                //now save the new one
+                session.save(profileImage);
+
+                // flush session
+                session.flush();
+
+            } catch(Exception e) {
+                log.error("addNewProfileImage failed. " + e.getClass() + ": " + e.getMessage());
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        });
+		return success;
 	}
 	
 	/**
@@ -646,14 +599,12 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<String> getAllSakaiPersonIds() {
 				
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<String>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS);
+            return q.list();
+        };
 	  	
-	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -662,14 +613,12 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public int getAllSakaiPersonIdsCount() {
 		
 		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_ALL_SAKAI_PERSON_IDS_COUNT);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -679,21 +628,17 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		
 		//get fields directly from the sakaiperson table and use Transformers.aliasToBean to transform into UserProfile pojo
 		//the idea is we *dont* want a SakaiPerson object
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_SAKAI_PERSON);
-
-	  			//see scalars in the hbm
-	  			q.setFirstResult(start);
-	  			q.setMaxResults(count);
-	  			q.setResultTransformer(Transformers.aliasToBean(UserProfile.class));
-	  			q.setCacheMode(CacheMode.GET);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<UserProfile>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_SAKAI_PERSON);
+            //see scalars in the hbm
+            q.setFirstResult(start);
+            q.setMaxResults(count);
+            q.setResultTransformer(Transformers.aliasToBean(UserProfile.class));
+            q.setCacheMode(CacheMode.GET);
+            return q.list();
+        };
 	  	
-	  	return (List<UserProfile>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	
@@ -702,16 +647,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfileImageExternal getExternalImageRecordForUser(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_IMAGE_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfileImageExternal> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_IMAGE_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileImageExternal) q.uniqueResult();
+      };
 	
-		return (ProfileImageExternal) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -748,16 +691,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfilePreferences getPreferencesRecordForUser(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_PREFERENCES_RECORD);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<ProfilePreferences> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_PREFERENCES_RECORD);
+            q.setParameter(USER_UUID, userId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfilePreferences) q.uniqueResult();
+      };
 	
-		return (ProfilePreferences) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	
@@ -782,17 +723,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getAllUnreadMessagesCount(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_ALL_UNREAD_MESSAGES_COUNT);
+            q.setParameter(UUID, userId, StringType.INSTANCE);
+            q.setBoolean("false", Boolean.FALSE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -800,17 +738,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getThreadsWithUnreadMessagesCount(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_THREADS_WITH_UNREAD_MESSAGES_COUNT);
+            q.setParameter(UUID, userId, StringType.INSTANCE);
+            q.setBoolean("false", Boolean.FALSE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -818,16 +753,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<MessageThread> getMessageThreads(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<MessageThread>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS);
+            q.setParameter(UUID, userId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<MessageThread>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -835,16 +767,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getMessageThreadsCount(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREADS_COUNT);
+            q.setParameter(UUID, userId, StringType.INSTANCE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -852,16 +782,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getSentMessagesCount(final String userId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_SENT_MESSAGES_COUNT);
-	  			q.setParameter(UUID, userId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_SENT_MESSAGES_COUNT);
+            q.setParameter(UUID, userId, StringType.INSTANCE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -869,16 +796,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<Message> getMessagesInThread(final String threadId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<Message>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD);
+            q.setParameter(THREAD, threadId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<Message>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -886,16 +810,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public int getMessagesInThreadCount(final String threadId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD_COUNT);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<Number> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGES_IN_THREAD_COUNT);
+            q.setParameter(THREAD, threadId, StringType.INSTANCE);
+            return (Number) q.uniqueResult();
+        };
 	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+	  	return getHibernateTemplate().execute(hcb).intValue();
 	}
 	
 	/**
@@ -903,16 +824,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public Message getMessage(final String id) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE);
-	  			q.setParameter(ID, id, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<Message> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGE);
+            q.setParameter(ID, id, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (Message) q.uniqueResult();
+      };
 	
-		return (Message) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -920,16 +839,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public MessageThread getMessageThread(final String threadId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD);
-	  			q.setParameter(ID, threadId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<MessageThread> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGE_THREAD);
+            q.setParameter(ID, threadId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (MessageThread) q.uniqueResult();
+      };
 	
-		return (MessageThread)getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -937,16 +854,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public Message getLatestMessageInThread(final String threadId) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<Message> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_LATEST_MESSAGE_IN_THREAD);
+            q.setParameter(THREAD, threadId, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (Message) q.uniqueResult();
+      };
 	
-		return (Message) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -969,17 +884,15 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public MessageParticipant getMessageParticipant(final String messageId, final String userUuid) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID);
-	  			q.setParameter(MESSAGE_ID, messageId, Hibernate.STRING);
-	  			q.setParameter(UUID, userUuid, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<MessageParticipant> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_MESSAGE_PARTICIPANT_FOR_MESSAGE_AND_UUID);
+            q.setParameter(MESSAGE_ID, messageId, StringType.INSTANCE);
+            q.setParameter(UUID, userUuid, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (MessageParticipant) q.uniqueResult();
+      };
 	
-		return (MessageParticipant) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -988,16 +901,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	public List<String> getThreadParticipants(final String threadId) {
 		
 		//get
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_THREAD_PARTICIPANTS);
-	  			q.setParameter(THREAD, threadId, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<String>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_THREAD_PARTICIPANTS);
+            q.setParameter(THREAD, threadId, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<String>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -1076,17 +986,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ProfileKudos getKudos(final String userUuid) {
 				
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_KUDOS_RECORD);
-	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<ProfileKudos> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_KUDOS_RECORD);
+            q.setParameter(USER_UUID, userUuid, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ProfileKudos) q.uniqueResult();
+        };
 	  	
-	  	return (ProfileKudos) getHibernateTemplate().execute(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	
@@ -1109,17 +1016,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public ExternalIntegrationInfo getExternalIntegrationInfo(final String userUuid) {
 				
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_INTEGRATION_INFO);
-	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-	  		}
-	  	};
+		HibernateCallback<ExternalIntegrationInfo> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_EXTERNAL_INTEGRATION_INFO);
+            q.setParameter(USER_UUID, userUuid, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (ExternalIntegrationInfo) q.uniqueResult();
+        };
 	  	
-	  	return (ExternalIntegrationInfo) getHibernateTemplate().execute(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
@@ -1168,16 +1072,14 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	 */
 	public WallItem getWallItem(final long wallItemId) {
 
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+		HibernateCallback<List<WallItem>> hcb = session -> {
 
-				Query q = session.getNamedQuery(QUERY_GET_WALL_ITEM);
-				q.setParameter(ID, wallItemId, Hibernate.LONG);
-				return q.list();
-			}
-		};
+            Query q = session.getNamedQuery(QUERY_GET_WALL_ITEM);
+            q.setParameter(ID, wallItemId, LongType.INSTANCE);
+            return q.list();
+        };
 
-		return ((List<WallItem>) getHibernateTemplate().executeFind(hcb)).get(0);
+		return getHibernateTemplate().execute(hcb).get(0);
 	}
 
 	/**
@@ -1185,17 +1087,12 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	 */
 	public WallItemComment getWallItemComment(final long wallItemCommentId) {
 
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+		HibernateCallback<List<WallItemComment>> hcb = session -> session.createCriteria(WallItemComment.class)
+                .add(Restrictions.eq(ID, wallItemCommentId))
+                .setFetchMode("wallItem", FetchMode.JOIN)
+                .list();
 
-				return session.createCriteria(WallItemComment.class)
-						.add(Restrictions.eq(ID, wallItemCommentId))
-						.setFetchMode("wallItem", FetchMode.JOIN)
-						.list();
-			}
-		};
-
-		List<WallItemComment> comments = (List<WallItemComment>) getHibernateTemplate().executeFind(hcb);
+		List<WallItemComment> comments = getHibernateTemplate().execute(hcb);
 
 		if (comments.size() > 0) {
 		    return comments.get(0);
@@ -1209,16 +1106,13 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
  	 */
 	public List<WallItem> getWallItemsForUser(final String userUuid) {
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			
-	  			Query q = session.getNamedQuery(QUERY_GET_WALL_ITEMS);
-	  			q.setParameter(USER_UUID, userUuid, Hibernate.STRING);
-	  			return q.list();
-	  		}
-	  	};
+		HibernateCallback<List<WallItem>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_WALL_ITEMS);
+            q.setParameter(USER_UUID, userUuid, StringType.INSTANCE);
+            return q.list();
+        };
 	  	
-	  	return (List<WallItem>) getHibernateTemplate().executeFind(hcb);
+	  	return getHibernateTemplate().execute(hcb);
 	}
 	
 	/**
