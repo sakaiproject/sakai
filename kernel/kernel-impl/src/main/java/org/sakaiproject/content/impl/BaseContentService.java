@@ -5988,12 +5988,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
         m_ignoreMimeTypes = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes")));
 
         if (m_useMimeMagic && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType) && !hasContentTypeAlready) {
-            try{
+            try (
+                    TikaInputStream buff = TikaInputStream.get(edit.streamContent());
+            ) {
                 //we have to make the stream resetable so tika can read some of it and reset for saving.
                 //Also have to give the tika stream to the edit object since tika can invalidate the original 
                 //stream and replace it with a new stream.
-                TikaInputStream buff = TikaInputStream.get(edit.streamContent());
                 edit.setContent(buff);
+
                 final Metadata metadata = new Metadata();
                 //This might not want to be set as it would advise the detector
                 metadata.set(Metadata.RESOURCE_NAME_KEY, edit.getId());
@@ -6015,13 +6017,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                     M_log.debug("Magic: Setting content type from " + currentContentType + " to " + newmatch);
                 }
                 edit.setContentType(newmatch);
+                commitResourceEdit(edit, priority);
             } catch (Exception e) {
 				M_log.warn("Exception when trying to get the resource's data: " + e);
 			} 
         }
+        else {
+        	commitResourceEdit(edit, priority);
+        }
         
-		commitResourceEdit(edit, priority);
-
         // Queue up content for virus scanning
         if (virusScanner.getEnabled()) {
             virusScanQueue.add(edit.getId());
