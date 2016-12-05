@@ -1,23 +1,22 @@
  
 package org.sakaiproject.site.util;
 
-import java.text.Collator;
-import java.util.Comparator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.site.util.Participant;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import java.util.Locale;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.Collator;
 import java.text.RuleBasedCollator;
+import java.util.Comparator;
+import java.util.Locale;
 /**
  * The comparator to be used in Worksite Setup/Site Info tool
  */
@@ -218,6 +217,18 @@ public class SiteComparator implements Comparator {
 			if (result == 0)
 				result = compareParticipantName((Participant) o1, (Participant) o2);
 			
+		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_DISPLAY_ID)) {
+			String s1 = null;
+			if (o1.getClass().equals(Participant.class)) {
+				s1 = ((Participant) o1).getDisplayId();
+			}
+
+			String s2 = null;
+			if (o2.getClass().equals(Participant.class)) {
+				s2 = ((Participant) o2).getDisplayId();
+			}
+
+			result = compareString(s1, s2);
 		} else if (m_criterion.equals(SiteConstants.SORTED_BY_PARTICIPANT_CREDITS)) {
 			String s1 = null;
 			if (o1.getClass().equals(Participant.class)) {

@@ -4166,7 +4166,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return rv;
 	}
-
 	/**
 	 * whether the PageOrderHelper is allowed to be shown in this site type
 	 * @param siteType
@@ -4293,6 +4292,39 @@ public class SiteAction extends PagedResourceActionII {
 		{
 			context.put("selectedIcon", site.getIconUrl());
 		}
+	}
+
+	public String buildUserListPanelContext(VelocityPortlet portlet,
+			Context context, RunData data, SessionState state)
+	{   /*
+		 * build context for chef_site-exportMemberList.vm
+		 * Displays list of usernames. 
+		 */		
+		
+		Site site = getStateSite(state);
+		String siteId = site.getId();
+		String sortedAsc = "";
+		boolean allowUpdateSite = SiteService.allowUpdateSite(siteId);
+		
+		context.put("tlang", rb);
+		context.put("allowUpdate", Boolean.valueOf(allowUpdateSite));
+		context.put("siteTitle", site.getTitle());
+		context.put("currentSortedBy", state.getAttribute(SORTED_BY));
+		
+		if (allowUpdateSite ) {
+			Collection participantsCollection = getParticipantList(state);
+			sortedAsc = (String) state.getAttribute(SORTED_ASC);
+			if (sortedAsc == null) {
+				sortedAsc = Boolean.TRUE.toString();
+				state.setAttribute(SORTED_ASC, sortedAsc);
+			}
+			if (sortedAsc != null)
+				context.put("currentSortAsc", sortedAsc);
+			context.put("participantListSize", participantsCollection.size());
+			context.put("participantList", prepPage(state));
+		}
+		
+		return (String)getContext(data).get("template") + TEMPLATE[64];
 	}
 
 	/**
