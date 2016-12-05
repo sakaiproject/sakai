@@ -35,6 +35,12 @@ import org.slf4j.LoggerFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.*;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.authz.cover.FunctionManager;
@@ -106,6 +112,7 @@ import java.util.zip.ZipOutputStream;
 
 //Export to excel
 import java.text.DecimalFormat;
+
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 /**
@@ -6690,6 +6697,81 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 					}
 				} // if-else
+				//Import supplementary items if they are present in the assignment to be imported
+				AssignmentSupplementItemService assignmentSupplementItemService =
+						(AssignmentSupplementItemService) ComponentManager.get("org.sakaiproject.assignment.api.model.AssignmentSupplementItemService");
+				// Model Answer
+				AssignmentModelAnswerItem oModelAnswerItem = assignmentSupplementItemService.getModelAnswer(oAssignmentId);
+				if (oModelAnswerItem != null) {
+					AssignmentModelAnswerItem nModelAnswerItem = assignmentSupplementItemService.newModelAnswer();
+					assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
+					nModelAnswerItem.setAssignmentId(nAssignment.getId());
+					nModelAnswerItem.setText(oModelAnswerItem.getText());
+					nModelAnswerItem.setShowTo(oModelAnswerItem.getShowTo());
+					Set oAttachments = oModelAnswerItem.getAttachmentSet();
+					Set<AssignmentSupplementItemAttachment> nAttachments = new HashSet<AssignmentSupplementItemAttachment>();
+					for (Iterator iter = oAttachments.iterator(); iter.hasNext();) {
+						AssignmentSupplementItemAttachment a = (AssignmentSupplementItemAttachment) iter.next();
+						AssignmentSupplementItemAttachment nAttach = assignmentSupplementItemService.newAttachment();
+						// New attachment creation
+						String nAttachId = transferAttachment(fromContext, toContext, null, a.getAttachmentId().replaceFirst("/content", ""));
+						if (StringUtils.isNotEmpty(nAttachId)) {
+							nAttach.setAssignmentSupplementItemWithAttachment(nModelAnswerItem);
+							nAttach.setAttachmentId(nAttachId);
+							assignmentSupplementItemService.saveAttachment(nAttach);
+							nAttachments.add(nAttach);
+						}
+					}
+					nModelAnswerItem.setAttachmentSet(nAttachments);
+					assignmentSupplementItemService.saveModelAnswer(nModelAnswerItem);
+				}
+				// Private Note
+				AssignmentNoteItem oNoteItem = assignmentSupplementItemService.getNoteItem(oAssignmentId);
+				if (oNoteItem != null) {
+					AssignmentNoteItem nNoteItem = assignmentSupplementItemService.newNoteItem();
+					//assignmentSupplementItemService.saveNoteItem(nNoteItem);
+					nNoteItem.setAssignmentId(nAssignment.getId());
+					nNoteItem.setNote(oNoteItem.getNote());
+					nNoteItem.setShareWith(oNoteItem.getShareWith());
+					nNoteItem.setCreatorId(UserDirectoryService.getCurrentUser().getId());
+					assignmentSupplementItemService.saveNoteItem(nNoteItem);
+				}
+				// All Purpose 
+				AssignmentAllPurposeItem oAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(oAssignmentId);
+				if (oAllPurposeItem != null) {
+					AssignmentAllPurposeItem nAllPurposeItem = assignmentSupplementItemService.newAllPurposeItem();
+					assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+					nAllPurposeItem.setAssignmentId(nAssignment.getId());
+					nAllPurposeItem.setTitle(oAllPurposeItem.getTitle());
+					nAllPurposeItem.setText(oAllPurposeItem.getText());
+					nAllPurposeItem.setHide(oAllPurposeItem.getHide());
+					nAllPurposeItem.setReleaseDate(null);
+					nAllPurposeItem.setRetractDate(null);
+					Set oAttachments = oAllPurposeItem.getAttachmentSet();
+					Set<AssignmentSupplementItemAttachment> nAttachments = new HashSet<AssignmentSupplementItemAttachment>();
+					for (Iterator iter = oAttachments.iterator(); iter.hasNext();) {
+						AssignmentSupplementItemAttachment a = (AssignmentSupplementItemAttachment) iter.next();
+						AssignmentSupplementItemAttachment nAttach = assignmentSupplementItemService.newAttachment();
+						// New attachment creation
+						String nAttachId = transferAttachment(fromContext, toContext, null, a.getAttachmentId().replaceFirst("/content", ""));
+						if (StringUtils.isNotEmpty(nAttachId)) {
+							nAttach.setAssignmentSupplementItemWithAttachment(nAllPurposeItem);
+							nAttach.setAttachmentId(nAttachId);
+							assignmentSupplementItemService.saveAttachment(nAttach);
+							nAttachments.add(nAttach);
+						}
+					}
+					nAllPurposeItem.setAttachmentSet(nAttachments);
+					assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
+					Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
+					AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
+					access.setAccess(UserDirectoryService.getCurrentUser().getId());
+					access.setAssignmentAllPurposeItem(nAllPurposeItem);
+					assignmentSupplementItemService.saveAllPurposeItemAccess(access);
+					accessSet.add(access);
+					nAllPurposeItem.setAccessSet(accessSet);
+					assignmentSupplementItemService.saveAllPurposeItem(nAllPurposeItem);
+				}
 			} // if
 		} // for
 		return transversalMap;
