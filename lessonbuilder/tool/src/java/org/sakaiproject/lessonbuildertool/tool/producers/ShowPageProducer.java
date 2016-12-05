@@ -1802,7 +1802,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// edit dialog
 					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
 
-					    if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+					    boolean available = simplePageBean.isItemAvailable(i);
+					    if(canSeeAll || available) {
+					    	    if (!available)
+							UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.fake-item-unavailable"));
 						    UIOutput.make(tableRow, "imageSpan");
 
 						    if (itemGroupString != null) {
@@ -1824,9 +1827,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
 					    } else {
-					        UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
-						// Grey it out
-						    notAvailableText.decorate(new UIStyleDecorator("disabled-text-item"));
+					        UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 					    }
 
 						// stuff for the jquery dialog
@@ -1846,7 +1847,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else if (mmDisplayType == null && (youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = SimplePageBean.getYoutubeUrlFromKey(youtubeKey);
 
+						boolean available = simplePageBean.isItemAvailable(i);
 						if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						    if (!available)
+							UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.fake-item-unavailable"));
+
 						    UIOutput.make(tableRow, "youtubeSpan");
 
 						    if (itemGroupString != null) {
@@ -1879,9 +1884,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    item.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.youtube_player")));
 						    item.decorate(new UIFreeAttributeDecorator("src", youtubeUrl));
 						} else {
-						    UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
-						    // Grey it out
-						    notAvailableText.decorate(new UIStyleDecorator("disabled-text-item"));
+						    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 						}
 
 						if (canEditPage) {
@@ -1948,9 +1951,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 			UIOutput.make(tableRow, "movieSpan");
 
-                        if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+			boolean available = simplePageBean.isItemAvailable(i);
+                        if(canSeeAll || available) {
+			    if (!available)
+				UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.fake-item-unavailable"));
 
-						    UIComponent item2;
+			    UIComponent item2;
 
                             String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
                             // movieUrl = "https://heidelberg.rutgers.edu" + movieUrl;
@@ -2129,9 +2135,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             }
 			    UIOutput.make(tableRow, "description3", i.getDescription());
                         } else {
-					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
-                            // Grey it out
-						    notAvailableText.decorate(new UIStyleDecorator("disabled-multimedia-item"));
+			    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
                         }
 
 						if (canEditPage) {
@@ -2150,8 +2154,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // this is fallthrough for html or an explicit mm display type (i.e. embed code)
 					    // odd types such as MS word will be handled by the AV code, and presented as <OBJECT>
 
-					    if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						    
+					    boolean available = simplePageBean.isItemAvailable(i);
+					    if(canSeeAll || available) {
+						if (!available)
+						    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.fake-item-unavailable"));
 
 						// definition of resizeiframe, at top of page
 						if (!iframeJavascriptDone && getOrig(height).equals("auto")) {
@@ -2217,10 +2223,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						UIOutput.make(tableRow, "description5", i.getDescription());
 					    } else {
-
-					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
-                            // Grey it out
-						notAvailableText.decorate(new UIStyleDecorator("disabled-multimedia-item"));
+					        UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 					    }
 
 					}
@@ -2803,7 +2806,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (itemGroupTitles != null)
 							UIOutput.make(tableRow, "announcements-groups-titles", itemGroupTitles);
 					}
-					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+					boolean available = simplePageBean.isItemAvailable(i);
+					// note that there's currently no UI for setting availability check
+					if(canSeeAll || available) {
+						if (!available)
+						    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.fake-item-unavailable"));
 						//create html for announcements widget
 						String html = "<div align=\"left\" class=\"announcements-div\"></div>";
 						UIVerbatim.make(tableRow, "content", html);
@@ -2816,8 +2823,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String numberOfAnnouncements = i.getAttribute("numberOfAnnouncements") != null ? i.getAttribute("numberOfAnnouncements") : "";
 						UIOutput.make(tableRow, "numberOfAnnouncements", numberOfAnnouncements);
 					}else{
-						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
-						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					}
 					if (canEditPage) {
 						UIOutput.make(tableRow, "announcements-td");
@@ -2839,7 +2845,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (itemGroupTitles != null)
 							UIOutput.make(tableRow, "forum-summary-groups-titles", itemGroupTitles);
 					}
-					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+					boolean available = simplePageBean.isItemAvailable(i);
+					// note that there's currently no UI for setting availability check
+					if(canSeeAll || available) {
+						if (!available)
+						    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.fake-item-unavailable"));
 						//create html for forum-summary widget
 						String html = "<div align=\"left\" class=\"forum-summary-div\"></div>";
 						UIVerbatim.make(tableRow, "content", html);
@@ -2853,8 +2863,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String numberOfConversations = i.getAttribute("numberOfConversations") != null ? i.getAttribute("numberOfConversations") : "" ;
 						UIOutput.make(tableRow, "numberOfConversations", numberOfConversations);
 					}else {
-						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
-						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					}
 					if (canEditPage) {
 						UIOutput.make(tableRow, "forum-summary-td");
@@ -2904,7 +2913,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 						
 						UISelect multipleChoiceSelect = UISelect.make(questionForm, "multipleChoiceSelect:", options, "#{simplePageBean.questionResponse}", initValue);
+
+						// allow instructor to answer again, for testing
 						if(!isAvailable || response != null) {
+						    if (canSeeAll)
+							fakeDisableLink(multipleChoiceSelect, messageLocator);
+						    else
 							multipleChoiceSelect.decorate(new UIDisabledDecorator());
 						}
 						 
@@ -2917,12 +2931,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								.decorate(new UIFreeAttributeDecorator("for", multipleChoiceInput.getFullID()));
 							
 							if(!isAvailable || response != null) {
+							    if (canSeeAll)
+								fakeDisableLink(multipleChoiceInput, messageLocator);
+							    else
 								multipleChoiceInput.decorate(new UIDisabledDecorator());
 							}
 						}
 						 
 						UICommand answerButton = UICommand.make(questionForm, "answerMultipleChoice", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerMultipleChoiceQuestion}");
 						if(!isAvailable || response != null) {
+						    if (canSeeAll)
+							fakeDisableLink(answerButton, messageLocator);
+						    else
 							answerButton.decorate(new UIDisabledDecorator());
 						}
 					}else if("shortanswer".equals(i.getAttribute("questionType"))) {
@@ -2935,7 +2955,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						UIInput shortanswerInput = UIInput.make(questionForm, "shortanswerInput", "#{simplePageBean.questionResponse}");
 						if(!isAvailable || response != null) {
-							shortanswerInput.decorate(new UIDisabledDecorator());
+							if (canSeeAll)
+							    fakeDisableLink(shortanswerInput, messageLocator);
+							else
+							    shortanswerInput.decorate(new UIDisabledDecorator());
 							if(response != null && response.getShortanswer() != null) {
 								shortanswerInput.setValue(response.getShortanswer());
 							}
@@ -2943,6 +2966,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						UICommand answerButton = UICommand.make(questionForm, "answerShortanswer", messageLocator.getMessage("simplepage.answer_question"), "#{simplePageBean.answerShortanswerQuestion}");
 						if(!isAvailable || response != null) {
+						    if (canSeeAll)
+							fakeDisableLink(answerButton, messageLocator);
+						    else
 							answerButton.decorate(new UIDisabledDecorator());
 						}
 					}
@@ -3126,11 +3152,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
 					}
 
-					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+					boolean isAvailable = simplePageBean.isItemAvailable(i);
+					if(canSeeAll || isAvailable) {
+					    if (!isAvailable)
+						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 					} else {
-					    UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
-					    unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					}
 
 					// editing is done using a special producer that calls FCK.
@@ -3600,7 +3628,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	// show is if it was disabled but don't actually
-	private static void fakeDisableLink(UILink link, MessageLocator messageLocator) {
+	private static void fakeDisableLink(UIComponent link, MessageLocator messageLocator) {
 		link.decorate(new UIFreeAttributeDecorator("style", "color:#999 !important"));
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 	}

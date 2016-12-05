@@ -196,6 +196,11 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
     text-shadow:none !important;
 
 }
+.mainList .narrow-instruction {
+    padding-top:5px;
+    padding-bottom:5px;
+    margin-bottom: 0px;
+}
 .act .deleteButton {
     float: none
 }
