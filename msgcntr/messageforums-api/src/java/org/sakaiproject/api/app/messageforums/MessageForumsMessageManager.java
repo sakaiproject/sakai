@@ -46,7 +46,8 @@ public interface MessageForumsMessageManager {
      * @param logEvent logEvent
 	 * @param toolId id of the forums tool
 	 * @param userId user id
-	 * @param contextId context id
+	 * @param contextId context id'
+	 *
      */
 	public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId);
 	
