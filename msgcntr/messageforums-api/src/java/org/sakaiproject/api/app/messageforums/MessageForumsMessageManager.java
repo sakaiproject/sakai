@@ -44,7 +44,7 @@ public interface MessageForumsMessageManager {
      * 
      * @param message message
      * @param logEvent logEvent
-     * @param toolId id of the forums tool
+     * @param toolId id of the forums tool 
      * @param userId user id
      * @param contextId context id
      *
