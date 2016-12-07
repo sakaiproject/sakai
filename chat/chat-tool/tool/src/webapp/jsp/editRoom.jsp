@@ -1,3 +1,4 @@
+<%@page import="org.sakaiproject.portal.util.PortalUtils"%>
 <f:view>
     
 
@@ -82,19 +83,17 @@
             <h:panelGroup styleClass="chat-date-instructions">
               <sakai:instruction_message value="#{msgs.custom_date_instructions}" />
             </h:panelGroup>
-            <h:panelGroup styleClass="chat-select-date longtext indnt1">
-              <h:outputLabel value="#{msgs.custom_date_start} #{msgs.custom_date_entry_format_description}" for="startDate" styleClass="chat-date-label"/>
-              <t:inputCalendar id="startDate" value="#{ChatTool.currentChannelEdit.startDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
-                popupTodayString="#{msgs.custom_date_entry_today_is}" popupWeekString="#{msgs.custom_date_entry_week_header}"
-                popupDateFormat="#{msgs.custom_date_entry_format}" popupGotoString="#{msgs.custom_date_entry_goto}" />
-              <h:message for="startDate" styleClass="alertMessageInline" />
+			<h:panelGroup styleClass="longtext indnt1 ">
+				<h:message for="startDate" styleClass="alertMessageInline" style="padding-top:2px;display:block;"><br></h:message>
+				<h:message for="endDate" styleClass="alertMessageInline" style="padding-top:2px;display:block;"><br/></h:message>
             </h:panelGroup>
-            <h:panelGroup styleClass="chat-select-date longtext indnt1">
-              <h:outputLabel value="#{msgs.custom_date_end} #{msgs.custom_date_entry_format_description}" for="endDate" styleClass="chat-date-label"/>
-              <t:inputCalendar id="endDate" value="#{ChatTool.currentChannelEdit.endDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
-                popupTodayString="#{msgs.custom_date_entry_today_is}" popupWeekString="#{msgs.custom_date_entry_week_header}"
-                popupDateFormat="#{msgs.custom_date_entry_format}" popupGotoString="#{msgs.custom_date_entry_goto}" />
-              <h:message for="endDate" styleClass="alertMessageInline" />
+            <h:panelGroup styleClass="chat-select-date longtext indnt1">       	
+              	<h:outputLabel value="#{msgs.custom_date_start} #{msgs.custom_date_entry_format_description}" for="startDate" styleClass="chat-date-label"/>
+              	<h:inputText id="startDate" styleClass="startDate" value="#{ChatTool.currentChannelEdit.startDateString}" />
+			 </h:panelGroup>
+			 <h:panelGroup styleClass="chat-select-date longtext indnt1">
+              	<h:outputLabel value="#{msgs.custom_date_end} #{msgs.custom_date_entry_format_description}" for="endDate" styleClass="chat-date-label"/>
+              	<h:inputText id="endDate" styleClass="endDate" value="#{ChatTool.currentChannelEdit.endDateString}" />
             </h:panelGroup>
           </t:div>
         </sakai:group_box>
@@ -110,5 +109,28 @@
 					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>
 		</h:form>
+	<sakai:script contextBase="/library" path="/webjars/jquery/1.11.3/jquery.min.js" />
+	<sakai:script contextBase="/library" path="/webjars/jquery-ui/1.11.3/jquery-ui.min.js" />
+	<sakai:script contextBase="/library" path="/js/lang-datepicker/lang-datepicker.js" />  
+	<sakai:stylesheet contextBase="/library" path="/webjars/jquery-ui/1.11.3/jquery-ui.min.css" />
+	<script>
+		localDatePicker({
+	        input: '#editRoomForm\\:startDate',
+	        parseFormat: 'YYYY-MM-DD HH:mm:ss',
+	        allowEmptyDate: true,
+	        val: '<h:outputText value="#{ChatTool.currentChannelEdit.startDateString}"><f:convertDateTime pattern="YYYY-MM-DD HH:mm:ss"/></h:outputText>',
+	        ashidden: { iso8601: 'startDateISO8601' }
+	    });
+		localDatePicker({
+	        input: '#editRoomForm\\:endDate',
+	        parseFormat: 'YYYY-MM-DD HH:mm:ss',
+	        allowEmptyDate: true,
+	        val: '<h:outputText value="#{ChatTool.currentChannelEdit.endDateString}"><f:convertDateTime pattern="YYYY-MM-DD HH:mm:ss"/></h:outputText>',
+	        ashidden: { iso8601: 'endDateISO8601' }
+	    });
+	   		
+	</script>
 	</sakai:view>
+	
+	
 </f:view>
