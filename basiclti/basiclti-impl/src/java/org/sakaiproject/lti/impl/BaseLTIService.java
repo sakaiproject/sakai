@@ -625,6 +625,7 @@ public abstract class BaseLTIService implements LTIService {
 		return getTools( "lti_tools."+LTIService.LTI_PL_LAUNCH+" = 1 OR ( " +
 			"( lti_tools."+LTIService.LTI_PL_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_FILEITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_FILEITEM+" = 0 ) and " + 
+			"( lti_tools."+LTIService.LTI_PL_IMPORTITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" IS NULL OR lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) " +
 			" ) ", null, 0, 0);
@@ -637,6 +638,11 @@ public abstract class BaseLTIService implements LTIService {
         public List<Map<String, Object>> getToolsFileItem() {
 		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1",null,0,0);
 	}
+
+        public List<Map<String, Object>> getToolsImportItem() {
+		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1",null,0,0);
+	}
+
 
         public List<Map<String, Object>> getToolsContentEditor() {
 		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1",null,0,0);

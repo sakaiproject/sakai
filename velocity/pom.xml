@@ -17,6 +17,7 @@
     <modules>
         <module>tool</module>
         <module>tool-api</module>
+        <module>util</module>
     </modules>
     
     

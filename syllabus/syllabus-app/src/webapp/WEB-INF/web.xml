@@ -6,11 +6,6 @@
     <display-name>sakai-syllabus</display-name>
     <description>Sakai Syllabus Tool</description>
 
-    <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>client</param-value>
-    </context-param>
-    
 <!--sakai-->
     <context-param>
         <param-name>com.sun.faces.validateXml</param-name>

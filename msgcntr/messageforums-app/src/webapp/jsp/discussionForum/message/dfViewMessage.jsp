@@ -213,7 +213,7 @@
 			</h:panelGrid>
 			
 
-			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style=""><span class="icon-sakai-delete"></span></a></f:verbatim>
+			<f:verbatim><div id="permalinkHolder"><a class="closeMe" href="#" style=""><span class="icon-sakai--delete"></span></a></f:verbatim>
 				<h:outputText value="#{msgs.cdfm_button_bar_permalink_message}" style="display:block" styleClass="textPanelFooter"/>
 				<h:inputTextarea value="" />
 			<f:verbatim></div></f:verbatim>

@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.endorsed</groupId>
+        <artifactId>endorsed</artifactId>
+        <version>12-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Endorsed I18n</name>
+    <groupId>org.sakaiproject.endorsed</groupId>
+    <artifactId>sakai-endorsed-i18n</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>endorsed</deploy.target>
+    </properties>
+
+    <build>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src</directory>
+                <includes>
+                    <include>META-INF/services/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                    <include>*.config</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

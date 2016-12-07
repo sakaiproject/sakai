@@ -94,11 +94,11 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
        <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2"/>
        <f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3"/>
      </t:selectOneRadio>
-     <ul class="export-type">
-       <li><t:radio for="exportType" index="0" /></li>
-       <li><t:radio for="exportType" index="1" /></li>
-       <li><t:radio for="exportType" index="2" /></li>
-     </ul>
+     <h:panelGrid>
+     	<t:radio for="exportType" index="0" />
+     	<t:radio for="exportType" index="1" />
+     	<t:radio for="exportType" index="2" />
+     </h:panelGrid>
      <!-- For formatting -->
      <div class="text-warning">
        <h:outputText value="#{authorImportExport.cp_message}"/>
@@ -111,7 +111,7 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
      <h:commandButton value="#{authorImportExport.export}" type="submit"
        style="act" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
        '/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}', 
-       '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{assessmentBean.exportable2MarkupText}'); return false;" />
+       '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{!assessmentBean.exportable2MarkupText}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>

@@ -118,6 +118,7 @@
 }
 @media only screen and (max-width: 800px) {
   .pasystem-banner-alerts {
+    display: none; /* Not working correctly on mobile yet */
     position: absolute;
     top: 50px;
     right: 0;
@@ -126,10 +127,12 @@
     z-index: 1;
   }
   .pasystem-banner-alerts .pasystem-banner-alert {
+    display: none; /* Not working correctly on mobile yet */
     margin: 10px;
     border-radius: 5px;
   }
   .pasystem-banner-alert-toggle-list-item {
+    display: none !important; /* Not working correctly on mobile yet, important needed as styles get set on the element */
     position: fixed;
     left: 100px;
     top: 16px;

@@ -1964,8 +1964,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( url != null ) reqProps.setProperty("launch", url);
 		if ( title == null ) title = text;
 		if ( text == null ) text = title;
+		if ( title != null ) reqProps.setProperty(LTIService.LTI_TITLE, title);
 		if ( title != null ) reqProps.setProperty(LTIService.LTI_PAGETITLE, title);
-		if ( text != null ) reqProps.setProperty(LTIService.LTI_TITLE, text);
+		if ( text != null ) reqProps.setProperty(LTIService.LTI_DESCRIPTION, text);
 		if ( icon != null ) reqProps.setProperty(LTIService.LTI_FA_ICON, icon);
 		if ( custom_str.length() > 0 ) reqProps.setProperty(LTIService.LTI_CUSTOM, custom_str);
 

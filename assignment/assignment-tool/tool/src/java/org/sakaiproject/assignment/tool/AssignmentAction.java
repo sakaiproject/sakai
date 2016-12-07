@@ -11124,6 +11124,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
 		state.setAttribute(SORTED_BY, SORTED_SUBMISSION_BY_LASTNAME);
+		state.setAttribute(SORTED_SUBMISSION_BY, SORTED_GRADE_SUBMISSION_BY_LASTNAME);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doReport_submissions
@@ -14270,6 +14271,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		// all the resources for paging
 		List returnResources = new ArrayList();
+		boolean hasOneAnon = false;
 
 		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
 		if (MODE_LIST_ASSIGNMENTS.equals(mode))
@@ -14369,6 +14371,8 @@ public class AssignmentAction extends PagedResourceActionII
 					    _dupUsers = usersInMultipleGroups(a, true);
 						}
 					}
+					// Have we found an anonymous assignment in the list.
+					hasOneAnon = hasOneAnon || AssignmentService.getInstance().assignmentUsesAnonymousGrading(a);
 					//get the list of users which are allowed to grade this assignment
 					List allowGradeAssignmentUsers = AssignmentService.allowGradeAssignmentUsers(a.getReference());
 					String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
@@ -14476,7 +14480,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			if ( assignment != null && assignment.isGroup()) {
-
+				allOrOneGroup =  MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode)?"all":allOrOneGroup;
 				Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
 
 				// construct the group-submission list
@@ -14588,6 +14592,10 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					// ignore, continue with default sort
 				}
+			}
+			else if (hasOneAnon)
+			{
+				ac.setAnon(true);
 			}
 			
 			try

@@ -21,11 +21,14 @@
 
 package org.sakaiproject.content.tool;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,6 +117,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.SakaiException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SitePage;
@@ -137,6 +141,12 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FileItem;
 import org.w3c.dom.Element;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -539,6 +549,8 @@ public class ResourcesAction
 	private static final String MODE_SHOW_FINISH = "showFinish";
 	private static final String MODE_HIDE_FINISH = "hideFinish"; 
 	
+	private static final String MODE_ZIPDOWNLOAD_FINISH = "zipDownloadFinish";
+	
 	private static final String MODE_DROPBOX_OPTIONS = "dropboxOptions";
 
 	public  static final String MODE_HELPER = "helper";
@@ -634,6 +646,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	protected static final String STATE_SHOW_SET = PREFIX + "show_set";
 	protected static final String STATE_HIDE_SET = PREFIX + "hide_set"; 
+	
+	protected static final String STATE_ZIPDOWNLOAD_SET = PREFIX + "zipDownload_set";
 
 	protected static final String STATE_DROPBOX_HIGHLIGHT = PREFIX + REQUEST + "dropbox_highlight";
 
@@ -806,6 +820,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	private static final String TEMPLATE_SHOW_FINISH = "content/sakai_resources_showFinish";
 	private static final String TEMPLATE_HIDE_FINISH = "content/sakai_resources_hideFinish";
+	
+	private static final String TEMPLATE_ZIPDOWNLOAD_FINISH = "content/sakai_resources_zipDownloadFinish";
 
 	private static final String TEMPLATE_DROPBOX_OPTIONS = "content/sakai_dropbox_options";
 
@@ -4465,6 +4481,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                         boolean canViewHidden= canViewHidden();
                         context.put("canViewHidden", canViewHidden); 
 
+			String zipMaxIndividualFileSizeString = ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0");
+			String zipMaxTotalSizeString = ServerConfigurationService.getString("content.zip.download.maxtotalsize","0");
+			boolean canZipDownload = (!zipMaxIndividualFileSizeString.equals("0") && !zipMaxTotalSizeString.equals("0")); 
+			context.put("canZipDownload", canZipDownload);
+			
 			String containingCollectionId = contentService.getContainingCollectionId(item.getId());
 			if(contentService.COLLECTION_DROPBOX.equals(containingCollectionId))
 			{
@@ -4882,6 +4903,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 		    // build the context for the basic step of delete confirm page
 		    template = buildHideFinishContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_ZIPDOWNLOAD_FINISH))
+		{
+			template = buildZipDownloadFinishContext ( portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_OPTIONS))
 		{
@@ -7288,6 +7313,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			state.setAttribute(STATE_ITEMS_TO_BE_COPIED, selectedSet);
 			state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
+		}
+		else if(ResourceToolAction.ZIPDOWNLOAD.equals(actionId))
+		{
+			doZipDownloadconfirm(data);
 		}
 	}
 
@@ -10384,5 +10413,346 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_MODE, MODE_RESTORE);
 	}
-	
+
+	/**
+	 * set the state name to be "zipDownloadfinish" if any item has been selected for zip downloading
+	 * @param data
+	 */
+	public void doZipDownloadconfirm(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		Set<String> zipDownloadIdSet  = new TreeSet<String>();
+		String[] zipDownloadIds = data.getParameters ().getStrings ("selectedMembers");
+		if (zipDownloadIds == null)
+		{
+			addAlert(state, rb.getString("choosefile3"));
+		}
+		else
+		{
+			zipDownloadIdSet.addAll(Arrays.asList(zipDownloadIds));
+			zipDownloadItems(state, zipDownloadIdSet); 
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_ZIPDOWNLOAD_FINISH);
+			state.setAttribute(STATE_LIST_SELECTIONS, zipDownloadIdSet);
+		}
+	}       // doZipDownloadconfirm
+
+	/**
+	 * @param state
+	 * @param showIdSet
+	 */
+	protected void zipDownloadItems(SessionState state, Set<String> zipDownloadIdSet)
+	{
+		List<ListItem> zipDownloadItems = new ArrayList<ListItem>();
+
+		String zipMaxIndividualFileSizeString = ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0");
+		String zipMaxTotalSizeString = ServerConfigurationService.getString("content.zip.download.maxtotalsize","0");
+		long zipMaxIndividualFileSize=Long.parseLong(zipMaxIndividualFileSizeString);
+		long zipMaxTotalSize=Long.parseLong(zipMaxTotalSizeString);
+		long accumulatedSize=0;
+		long currentEntitySize=0;
+
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+
+		for(String showId : zipDownloadIdSet)
+		{
+			ContentEntity entity = null;
+			try
+			{
+				if(contentService.isCollection(showId))
+				{
+					entity = contentService.getCollection(showId);
+					currentEntitySize = getCollectionRecursiveSize((ContentCollection)entity,zipMaxIndividualFileSize);
+
+					if (currentEntitySize == -1)
+					{
+						addAlert(state, trb.getFormattedMessage("zipdownload.maxIndividualSizeInFolder",removeRootCollectionId(showId),zipMaxIndividualFileSize/1024/1024));
+						state.setAttribute(STATE_MODE, MODE_LIST);
+						break;
+					}
+				}
+				else if(contentService.allowUpdateResource(showId))
+				{
+					entity = contentService.getResource(showId);
+					currentEntitySize = ((ContentResource)entity).getContentLength();
+					if (currentEntitySize > zipMaxIndividualFileSize)
+					{
+						addAlert(state, trb.getFormattedMessage("zipdownload.maxIndividualSize",removeRootCollectionId(showId),zipMaxIndividualFileSize/1024/1024));
+						state.setAttribute(STATE_MODE, MODE_LIST);
+						break;
+					}
+				}
+
+				accumulatedSize = accumulatedSize + currentEntitySize;
+
+				if (accumulatedSize > zipMaxTotalSize)
+				{
+					addAlert(state, trb.getFormattedMessage("zipdownload.maxTotalSize",zipMaxTotalSize/1024/1024));
+					state.setAttribute(STATE_MODE, MODE_LIST);
+					break;
+				}
+
+				ListItem item = new ListItem(entity);
+				if(item.isCollection() && contentService.allowUpdateCollection(showId))
+				{
+					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
+					zipDownloadItems.add(item);
+				}
+				else if(!item.isCollection() && contentService.allowUpdateResource(showId))
+				{
+					zipDownloadItems.add(item);
+				}
+			}
+			catch (SakaiException e)
+			{
+				logger.error("Failed to include "+ showId+ " in Zipfile", e);
+			}
+		}
+
+		state.setAttribute (STATE_ZIPDOWNLOAD_SET, zipDownloadItems);
+	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	public String buildZipDownloadFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("tlang",trb);
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+		List zipDownloadItems = (List) state.getAttribute(STATE_ZIPDOWNLOAD_SET);
+		context.put ("zipDownloadItems", zipDownloadItems);
+
+		return TEMPLATE_ZIPDOWNLOAD_FINISH;
+	}
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException
+	{
+		String action = request.getParameter("eventSubmit_doFinalizeZipDownload");
+
+		if ((action==null)||(action.isEmpty()))
+		{
+			super.doPost(request,response);
+			return;
+		}
+
+		checkRunData(request);
+		JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+		SessionState state = rundata.getPortletSessionState (rundata.getJs_peid ());
+		List<ListItem> zipDownloadItems = (List<ListItem>) state.getAttribute(STATE_ZIPDOWNLOAD_SET);
+
+		String collectionId = (String) request.getParameter("collectionId");
+		ZipOutputStream zipOut = null;
+		try
+		{
+			ContentCollection collection = ContentHostingService.getCollection(collectionId);
+			ResourceProperties props = collection.getProperties();
+			String rootFolderName = escapeInvalidCharsEntry(props.getPropertyFormatted(props.getNamePropDisplayName()));
+
+			response.setContentType("application/zip;charset=UTF-8");
+			response.setHeader("Content-Disposition", "attachment; filename = "+rootFolderName.replace(" ","")+".zip");
+			zipOut = new ZipOutputStream(response.getOutputStream());
+
+			Iterator<ListItem> it = zipDownloadItems.iterator();
+			while(it.hasNext())
+			{
+				ListItem myElement = it.next();
+				String resourceId = myElement.getId();
+				boolean get = ContentHostingService.allowGetResource(resourceId);
+				if (get) compressResource(zipOut, collectionId, rootFolderName, resourceId);
+			}
+		}
+		catch (PermissionException pe)
+		{
+			try
+			{
+				response.sendError(response.SC_FORBIDDEN);
+			}
+			catch (IOException e)
+			{
+				logger.error("IOException when reporting permission exception",e);
+			}
+		}
+		catch (Throwable ignore)
+		{
+			try
+			{
+				response.sendError(response.SC_NO_CONTENT);
+			}
+			catch (IOException e)
+			{
+				logger.error("IOException when reporting unavailable content",e);
+			}
+		}
+		finally
+		{
+			if (zipOut != null)
+			{
+				try
+				{
+					zipOut.flush();
+					zipOut.close();
+				}
+				catch (Throwable ignore)
+				{
+					logger.warn("Throwable exception",ignore);
+				}
+			}
+		}
+	}
+
+	protected void compressResource(ZipOutputStream zipOut, String collectionId, String rootFolderName, String resourceId) throws Exception
+	{
+		if (ContentHostingService.isCollection(resourceId))
+		{
+			try
+			{
+				ContentCollection collection = ContentHostingService.getCollection(resourceId);
+				List<String> children = collection.getMembers();
+				if(children != null)
+				{
+					for(int i = children.size() - 1; i >= 0; i--)
+					{
+						String child = children.get(i);
+						compressResource(zipOut,collectionId,rootFolderName,child);
+					}
+				}
+			}
+			catch (PermissionException e)
+			{
+				//Ignore
+			}
+		}
+		else
+		{
+			try
+			{
+				ContentResource resource = ContentHostingService.getResource(resourceId);
+				String displayName = isolateName(resource.getId());
+				displayName = escapeInvalidCharsEntry(displayName);
+
+				InputStream content = resource.streamContent();
+				byte data[] = new byte[1024 * 10];
+				BufferedInputStream bContent = null;
+
+				try
+				{
+					bContent = new BufferedInputStream(content, data.length);
+					
+					String entryName = (resource.getContainingCollection().getId() + displayName);
+					entryName=entryName.replace(collectionId,rootFolderName+"/");
+					entryName = escapeInvalidCharsEntry(entryName);
+
+					ZipEntry resourceEntry = new ZipEntry(entryName);
+					zipOut.putNextEntry(resourceEntry); //A duplicate entry throw ZipException here.
+					int bCount = -1;
+					while ((bCount = bContent.read(data, 0, data.length)) != -1)
+					{
+						zipOut.write(data, 0, bCount);
+					}
+
+					try
+					{
+						zipOut.closeEntry();
+					}
+					catch (IOException ioException)
+					{
+						logger.error("IOException when closing zip file entry",ioException);
+					}
+				}
+				catch (IllegalArgumentException iException)
+				{
+					logger.error("IllegalArgumentException while creating zip file",iException);
+				}
+				catch (java.util.zip.ZipException e)
+				{
+					//Duplicate entry: ignore and continue.
+					try
+					{
+						zipOut.closeEntry();
+					}
+					catch (IOException ioException)
+					{
+						logger.error("IOException when closing zip file entry",ioException);
+					}
+				}
+				finally
+				{
+					if (bContent != null)
+					{
+						try
+						{
+							bContent.close();
+						}
+						catch (IOException ioException)
+						{
+							logger.error("IOException when closing zip file",ioException);
+						}
+					}
+				}
+			}
+			catch (PermissionException e)
+			{
+				//Ignore
+			}
+		}
+	}
+
+	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize)
+	{
+		//-1 if any file exceeds the individual max size
+		long total=0;
+		List items = currentCollection.getMemberResources();
+		Iterator it = items.iterator();
+		while(it.hasNext())
+		{
+			ContentEntity myElement = (ContentEntity) it.next();
+			if (myElement.isResource()) 
+			{
+				long tempSize = ((ContentResource)myElement).getContentLength();
+				if (tempSize > maxIndividualFileSize) return -1;
+				else total=total+tempSize;
+			}
+			else if (myElement.isCollection())
+			{
+				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement,maxIndividualFileSize);
+				if (tempSize == -1) return -1;
+				else total=total+tempSize;
+			}
+		}
+		return total;
+	}
+
+	private String removeRootCollectionId(String resource)
+	{
+		for (int i=0;i<3;i++) resource=resource.substring(resource.indexOf("/")+1,resource.length());
+		return resource;
+	}
+
+	private String escapeInvalidCharsEntry(String accentedString)
+	{
+		String decomposed = Normalizer.normalize(accentedString, Normalizer.Form.NFD);
+		String cleanString = decomposed.replaceAll( "\\p{InCombiningDiacriticalMarks}+", "");
+		return cleanString;
+	}
 }	// ResourcesAction

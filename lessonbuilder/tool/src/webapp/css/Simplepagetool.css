@@ -196,6 +196,11 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
     text-shadow:none !important;
 
 }
+.mainList .narrow-instruction {
+    padding-top:5px;
+    padding-bottom:5px;
+    margin-bottom: 0px;
+}
 .act .deleteButton {
     float: none
 }
@@ -1728,12 +1733,14 @@ span.nextprev {
 .fa-button-text{
   font-size:125%;
 }
-.navIntraTool li.contentButton a {
+.navIntraTool li.contentButton a, .topaction a {
   padding-top:2px !important;
   padding-bottom:2px !important;
+  text-transform: uppercase;
 }
 .navIntraTool li.contentButton a .fa-button-text, .fa-fw {
   font-family:FontAwesome;
+  font-size: 0.8em;
 }
 .studentRow > .fa-fw {
   width: 1em !important;

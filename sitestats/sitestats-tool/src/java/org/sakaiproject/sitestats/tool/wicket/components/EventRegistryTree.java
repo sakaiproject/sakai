@@ -129,7 +129,7 @@ public class EventRegistryTree extends Panel {
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
 				//String toolIcon = Locator.getFacade().getEventRegistryService().getToolIcon(ti.getToolId());
 				
-				listItem.add( new Label("toolIcon", "<i class=\"icon-" + toolId.replace("_", "-") + "\"></i>").setEscapeModelStrings(false) );
+				listItem.add( new Label("toolIcon", "<i class=\"icon-sakai--" + toolId.replace("_", "-") + "\"></i>").setEscapeModelStrings(false) );
 
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));

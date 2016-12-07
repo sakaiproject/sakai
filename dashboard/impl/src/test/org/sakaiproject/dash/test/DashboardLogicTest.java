@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.sakaiproject.dash.app.DashboardCommonLogic;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.SakaiProxy;
@@ -42,6 +44,8 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -127,7 +131,13 @@ public class DashboardLogicTest
 
 	@Test
 	public void testCreateContext() {
-		this.sakaiProxy = new SakaiProxyMock();
+		Site site = Mockito.mock(Site.class);
+		Mockito.when(site.getTitle()).thenReturn("valid_site_title");
+		Mockito.when(site.getId()).thenReturn("valid_site_id");
+		Mockito.when(site.getUrl()).thenReturn("valid_site_url");
+		Mockito.when(site.getReference()).thenReturn(SiteService.REFERENCE_ROOT+ Site.SEPARATOR+ "valid_site_id");
+		this.sakaiProxy = new SakaiProxyMock(site);
+
 		DashboardDao dao = new DashboardDaoMock();
 		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
 		PlatformTransactionManager txManager = new MockTransactionManager();

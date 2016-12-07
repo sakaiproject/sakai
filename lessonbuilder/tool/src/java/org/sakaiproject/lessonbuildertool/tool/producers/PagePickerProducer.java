@@ -616,11 +616,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         switch (pageItem.getType()) {
             case SimplePageItem.FORUM:
-                return new UIStyleDecorator("icon-sakai-forums");
+                return new UIStyleDecorator("icon-sakai--sakai-forums");
             case SimplePageItem.ASSIGNMENT:
-                return new UIStyleDecorator("icon-sakai-assignment-grades");
+                return new UIStyleDecorator("icon-sakai--sakai-assignment-grades");
             case SimplePageItem.ASSESSMENT:
-                return new UIStyleDecorator("icon-sakai-samigo");
+                return new UIStyleDecorator("icon-sakai--sakai-samigo");
             case SimplePageItem.QUESTION:
                 return new UIStyleDecorator("fa-question");
             case SimplePageItem.COMMENTS:

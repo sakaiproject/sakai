@@ -32,6 +32,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
+import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -43,6 +44,7 @@ import org.sakaiproject.portal.beans.PortalNotifications;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 /**
  * An entity provider to serve Portal information
@@ -61,6 +63,9 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	private ProfileLogic profileLogic;
 
 	@Setter
+	private ProfileLinkLogic profileLinkLogic;
+
+	@Setter
 	private ServerConfigurationService serverConfigurationService;
 
 	@Setter
@@ -71,13 +76,19 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	public void init() {
 
 		VelocityEngine ve = new VelocityEngine();
+		ve.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
+
 		ve.setProperty("resource.loader", "class");
 		ve.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		// No logging. (If you want to log, you need to set an approrpriate directory in an approrpriate
+		// velocity.properties file, or the log will be created in the directory in which tomcat is started, or
+		// throw an error if it can't create/write in that directory.)
+		ve.setProperty("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogSystem");
 		try {
 			ve.init();
 			formattedProfileTemplate = ve.getTemplate("org/sakaiproject/portal/entityprovider/profile-popup.vm");
 		} catch (Exception e) {
-			log.error("Failed to load formatted_profile.vm", e);
+			log.error("Failed to load profile-popup.vm", e);
 		}
 	}
 
@@ -125,6 +136,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 		VelocityContext context = new VelocityContext();
 		context.put("displayName", userProfile.getDisplayName());
+		context.put("profileUrl", profileLinkLogic.getInternalDirectUrlToUserProfile(connectionUserId));
 		context.put("email", userProfile.getEmail());
 		context.put("currentUserId", currentUserId);
 		context.put("connectionUserId", connectionUserId);

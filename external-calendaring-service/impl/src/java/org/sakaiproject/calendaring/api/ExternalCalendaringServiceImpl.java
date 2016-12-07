@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import lombok.Setter;
@@ -52,6 +53,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendaring.logic.SakaiProxy;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -62,6 +64,9 @@ import org.sakaiproject.user.api.User;
  */
 @Slf4j
 public class ExternalCalendaringServiceImpl implements ExternalCalendaringService {
+	
+	@Setter
+	private TimeService timeService;
 
 	/**
 	 * {@inheritDoc}
@@ -69,11 +74,20 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	public VEvent createEvent(CalendarEvent event) {
 		return createEvent(event, null);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees) {
+		//Default to time in GMT
+		return createEvent(event, null, false);
+	}
+
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public VEvent createEvent(CalendarEvent event, List<User> attendees) {
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees, boolean timeIsLocal) {
 		
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -82,7 +96,16 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		
 		//timezone. All dates are in GMT so we need to explicitly set that
 		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-		TimeZone timezone = registry.getTimeZone("GMT");
+		
+		//To prevent NPE on timezone
+		TimeZone timezone = null;
+		if (timeIsLocal == true) {
+			timezone = registry.getTimeZone(timeService.getLocalTimeZone().getID());
+		}
+		if (timezone == null) {
+			//This is guaranteed to return timezone if timeIsLocal == false or it fails and returns null
+			timezone = registry.getTimeZone("GMT");
+		}
 		VTimeZone tz = timezone.getVTimeZone();
 
 		//start and end date
@@ -158,7 +181,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	/**
 	 * {@inheritDoc}
 	 */
-	public VEvent addAttendeesToEvent(VEvent vevent, List<User> attendees) {
+	public VEvent addAttendeesToEvent(VEvent vevent, Set<User> attendees) {
 		return addAttendeesToEventWithRole(vevent, attendees, Role.REQ_PARTICIPANT);
 	}
 
@@ -166,7 +189,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * {@inheritDoc}
 	 */
 	@Override
-	public VEvent addChairAttendeesToEvent(VEvent vevent, List<User> attendees) {
+	public VEvent addChairAttendeesToEvent(VEvent vevent, Set<User> attendees) {
 		return addAttendeesToEventWithRole(vevent, attendees, Role.CHAIR);
 	}
 
@@ -179,7 +202,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * @param role      the role with which to add each user
 	 * @return          the VEvent for the given event or null if there was an error
 	 */
-	protected VEvent addAttendeesToEventWithRole(VEvent vevent, List<User> attendees, Role role) {
+	protected VEvent addAttendeesToEventWithRole(VEvent vevent, Set<User> attendees, Role role) {
 
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -266,7 +289,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		try {
 			calendar.validate(true);
 		} catch (ValidationException e) {
-			e.printStackTrace();
+			log.error("createCalendar failed validation", e);
 			return null;
 		}
 		

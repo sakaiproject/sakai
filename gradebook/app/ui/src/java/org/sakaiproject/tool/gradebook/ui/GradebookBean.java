@@ -35,6 +35,7 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.business.GradebookScoringAgentManager;
@@ -68,6 +69,7 @@ public class GradebookBean extends InitializableBean {
     private GradebookPermissionService gradebookPermissionService;
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     private GradebookScoringAgentManager scoringAgentManager;
+    private GradebookFrameworkService gradebookFrameworkService;
     
     /**
      * @return Returns the gradebookId.
@@ -89,22 +91,28 @@ public class GradebookBean extends InitializableBean {
      * into play on each request.
      */
     public final void setGradebookUid(String newGradebookUid) {
-        Long newGradebookId = null;
-        if (newGradebookUid != null) {
-            Gradebook gradebook = null;
-            try {
-                gradebook = getGradebookManager().getGradebook(newGradebookUid);
-            } catch (GradebookNotFoundException gnfe) {
-                logger.error("Request made for inaccessible gradebookUid=" + newGradebookUid);
-                newGradebookUid = null;
-            }
-            if(gradebook == null)
-            	throw new IllegalStateException("Gradebook gradebook == null!");
-            newGradebookId = gradebook.getId();
-            if (logger.isDebugEnabled()) logger.debug("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
-        }
-        this.gradebookUid = newGradebookUid;
-        setGradebookId(newGradebookId);
+    	Long newGradebookId = null;
+    	if (newGradebookUid != null) {
+    		Gradebook gradebook = null;
+    		try {
+    			gradebook = getGradebookManager().getGradebook(newGradebookUid);
+    		} catch (GradebookNotFoundException gnfe1) {
+    			logger.debug("Request made for inaccessible, adding gradebookUid=" + newGradebookUid);
+    			getGradebookFrameworkService().addGradebook(newGradebookUid,newGradebookUid);
+    			try {
+    				gradebook = getGradebookManager().getGradebook(newGradebookUid);
+    			} catch (GradebookNotFoundException gnfe2) {
+    				logger.error("Request made and could not add inaccessible gradebookUid=" + newGradebookUid);
+    				newGradebookUid = null;
+    			}
+    		}
+    		if(gradebook == null)
+    			throw new IllegalStateException("Gradebook gradebook == null!");
+    		newGradebookId = gradebook.getId();
+    		if (logger.isDebugEnabled()) logger.debug("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
+    	}
+    	this.gradebookUid = newGradebookUid;
+    	setGradebookId(newGradebookId);
     }
 
     private final void refreshFromRequest() {
@@ -141,10 +149,25 @@ public class GradebookBean extends InitializableBean {
     }
 
     /**
+     * @return Returns the gradebookFrameworkService
+     */
+    public GradebookFrameworkService getGradebookFrameworkService() {
+        return gradebookFrameworkService;
+    }
+
+    /**
      * @param gradebookManager The gradebookManager to set.
      */
     public void setGradebookManager(GradebookManager gradebookManager) {
         this.gradebookManager = gradebookManager;
+    }
+
+    /**
+     * @param gradebookFrameworkServicee The gradebookFrameworkService to set.
+     */
+
+    public void setGradebookFrameworkService(GradebookFrameworkService gradebookFrameworkService) {
+        this.gradebookFrameworkService = gradebookFrameworkService;
     }
 
     public SectionAwareness getSectionAwareness() {

@@ -61,7 +61,9 @@ public class ImportGradesHelper {
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+	private static final String[] XLS_FILE_EXTS = { ".xls", ".xlsx" };
 	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
+	private static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
 
 
 	/**
@@ -76,14 +78,14 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
-		// determine file type and delegate
-		if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
+		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
+		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
 			rval = ImportGradesHelper.parseCsv(is, userMap);
-		} else if (ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
+		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
 			rval = ImportGradesHelper.parseXls(is, userMap);
 		} else {
 			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);

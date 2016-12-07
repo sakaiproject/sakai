@@ -32,11 +32,11 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" styleClass="feedBackMultipleChoice">
       <h:panelGroup id="image"
         rendered="#{selection.answer.isCorrect eq 'true' && selection.response}"
-        styleClass="icon-sakai-check feedBackCheck">
+        styleClass="icon-sakai--check feedBackCheck">
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{selection.answer.isCorrect != null && !selection.answer.isCorrect && selection.response}"
-        styleClass="icon-sakai-delete feedBackCross">
+        styleClass="icon-sakai--delete feedBackCross">
       </h:panelGroup>
     </t:column>
     <t:column>

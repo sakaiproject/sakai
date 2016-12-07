@@ -23,18 +23,14 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -45,13 +41,7 @@ import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -59,26 +49,18 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
+import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.*;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
-import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
  * <p>Title: Samigo</p>2
@@ -97,8 +79,6 @@ implements ActionListener
 		IntegrationContextFactory.getInstance().isIntegrated();
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
 	private final ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	
-	private static final String EXTENDED_TIME_KEY = "extendedTime";
 	
 	public SavePublishedSettingsListener()
 	{
@@ -146,7 +126,10 @@ implements ActionListener
 			assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 			return;
 		}
-		
+
+		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+		extendedTimeFacade.saveEntriesPub(assessmentService.getBasicInfoOfPublishedAssessment(assessmentId.toString()), assessmentSettings.getExtendedTimes());
+
 		assessment.setLastModifiedBy(AgentFacade.getAgentString());
 		assessment.setLastModifiedDate(new Date());
 		assessmentService.saveAssessment(assessment); 
@@ -297,9 +280,116 @@ implements ActionListener
 		    }
 	    }
 
+        // if due date is null we cannot have late submissions
+        if (dueDate == null && assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
+            retractDate !=null){
+            String noDueDate = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","due_null_with_retract_date");
+            context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, noDueDate, null));
+            error=true;
+            
+        }
+
+		List<ExtendedTime> extendedTimeList = assessmentSettings.getExtendedTimes();
+		List<String> extendedTimeUsers = new ArrayList<>(extendedTimeList.size());
+		List<String> extendedTimeGroups = new ArrayList<>(extendedTimeList.size());
+		for(ExtendedTime entry : extendedTimeList) {
+			Date entryStartDate = entry.getStartDate();
+			Date entryDueDate = entry.getDueDate();
+			Date entryRetractDate = entry.getRetractDate();
+			if(!"".equals(entry.getUser())) {
+				extendedTimeUsers.add(entry.getUser());
+			}
+
+			if(!"".equals(entry.getGroup())) {
+				extendedTimeGroups.add(entry.getGroup());
+			}
+			boolean isEntryRetractEarlierThanAvailable = false;
+
+			if(!entry.getUser().isEmpty() && !entry.getGroup().isEmpty()) {
+				String extendedTimeError1 = getExtendedTimeErrorString("extended_time_user_and_group_set", entry, assessmentSettings);
+				context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError1, null));
+				error = true;
+			}
+			if((entryStartDate != null && entryDueDate !=null && entryDueDate.before(entryStartDate)) ||
+					(entryStartDate == null && entryDueDate != null && entryDueDate.before(new Date()))) {
+				String extendedTimeError2 = getExtendedTimeErrorString("extended_time_due_earlier_than_available", entry, assessmentSettings);
+				context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError2, null));
+				error = true;
+				entry.setStartDate(new Date());
+			}
+			if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+				if( (entryRetractDate != null && entryStartDate != null && entryRetractDate.before(entryStartDate)) ||
+						(entryRetractDate !=null && entryStartDate == null && entryRetractDate.before(new Date())) ) {
+					String extendedTimeError3 = getExtendedTimeErrorString("extended_time_retract_earlier_than_available", entry, assessmentSettings);
+					context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError3, null));
+					error = true;
+					isEntryRetractEarlierThanAvailable = true;
+					entry.setStartDate(new Date());
+				}
+				if(!isEntryRetractEarlierThanAvailable && (entryRetractDate != null && entryDueDate != null && entryRetractDate.before(entryDueDate))) {
+					String extendedTimeError4 = getExtendedTimeErrorString("extended_time_retract_earlier_than_due", entry, assessmentSettings);
+					context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError4, null));
+					error = true;
+				}
+			}
+			if(entryDueDate != null && entryStartDate != null && entryDueDate.equals(entryStartDate)) {
+				String extendedTimeError5 = getExtendedTimeErrorString("extended_time_due_same_as_available", entry, assessmentSettings);
+				context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError5, null));
+				error = true;
+			}
+		}
+
+		Set<String> duplicateExtendedTimeUsers = findDuplicates(extendedTimeUsers);
+		if(!duplicateExtendedTimeUsers.isEmpty()) {
+			String users = "";
+			int count = 0;
+			int end = extendedTimeUsers.size();
+			for(String entry : duplicateExtendedTimeUsers) {
+				if(count == 0) {
+					users = "'" + getUserName(entry, assessmentSettings) + "'";
+				} else if(count < (end - 1)) {
+					users = users + ", '" + getUserName(entry, assessmentSettings) + "'";
+				} else {
+					String and = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_and");
+					users = users + ", " + and + " '" + getUserName(entry, assessmentSettings);
+				}
+
+				count++;
+			}
+
+			String extendedTimeError6 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_duplicate_users");
+			extendedTimeError6 = extendedTimeError6.replace("{0}", users);
+			context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError6, null));
+			error = true;
+		}
+
+		Set<String> duplicateExtendedTimeGroups = findDuplicates(extendedTimeGroups);
+		if(!duplicateExtendedTimeGroups.isEmpty()) {
+			String groups = "";
+			int count = 0;
+			int end = extendedTimeUsers.size();
+			for(String entry : duplicateExtendedTimeGroups) {
+				if(count == 0) {
+					groups = "'" + getGroupName(entry, assessmentSettings) + "'";
+				} else if(count < (end - 1)) {
+					groups = groups + ", '" + getGroupName(entry, assessmentSettings) + "'";
+				} else {
+					String and = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_and");
+					groups = groups + ", " + and + " '" + getGroupName(entry, assessmentSettings);
+				}
+
+				count++;
+			}
+
+			String extendedTimeError7 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_duplicate_groups");
+			extendedTimeError7 = extendedTimeError7.replace("{0}", groups);
+			context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError7, null));
+			error = true;
+		}
+
 	    // SAM-1088
 	    // if late submissions not allowed and late submission date is null, set late submission date to due date
-	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
+	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
 	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
 	    	if (autoSubmitEnabled) {
@@ -566,7 +656,7 @@ implements ActionListener
 	    control.setFinalPageUrl(finalPageUrl);
 
 		// set Feedback
-		AssessmentFeedbackIfc feedback = (AssessmentFeedbackIfc) assessment.getAssessmentFeedback();
+		AssessmentFeedbackIfc feedback = assessment.getAssessmentFeedback();
 		if (feedback == null){
 			feedback = new AssessmentFeedback();
 			// need to fix feeback so it can take AssessmentFacade later
@@ -611,7 +701,7 @@ implements ActionListener
 		assessment.setAssessmentFeedback(feedback);
 
 		// set Grading
-		EvaluationModelIfc evaluation = (EvaluationModelIfc) assessment.getEvaluationModel();
+		EvaluationModelIfc evaluation =  assessment.getEvaluationModel();
 		if (evaluation == null){
 			evaluation = new EvaluationModel();
 			evaluation.setAssessmentBase(assessment.getData());
@@ -642,9 +732,11 @@ implements ActionListener
 		// hasRetractDate, hasAnonymous, hasAuthenticatedUser, hasIpAddress,
 		// hasUsernamePassword, hasTimeAssessment,hasAutoSubmit, hasPartMetaData, 
 		// hasQuestionMetaData
-		HashMap <String, String> h = assessmentSettings.getValueMap();
-		addExtendedTimeValuesToMetaData(assessment, assessmentSettings,h);
+		HashMap<String, String> h = assessmentSettings.getValueMap();
 		saveAssessmentSettings.updateMetaWithValueMap(assessment, h);
+
+		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+		extendedTimeFacade.saveEntriesPub(assessment.getData(), assessmentSettings.getExtendedTimes());
 		
 		// i. set Graphics
 		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgColor()));
@@ -812,41 +904,63 @@ implements ActionListener
 		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
 	}
 
+	private String getExtendedTimeErrorString(String key, ExtendedTime entry, PublishedAssessmentSettingsBean settings) {
+		String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", key);
+		errorString = errorString.replace("{0}", getUserName(entry.getUser(), settings)).replace("{1}", getGroupName(entry.getGroup(), settings));
+		return errorString;
+	}
+
 	/**
-	 * This will clear out the old extended time values and update them with new
-	 * ones.
-	 * 
-	 * @param assessment
-	 * @param assessmentSettings
+	 * gets a user name from an id and the settings bean
+	 * @param userId
+	 * @param settings
 	 * @return
 	 */
-	private HashMap addExtendedTimeValuesToMetaData(PublishedAssessmentFacade assessment,
-			PublishedAssessmentSettingsBean assessmentSettings,HashMap metaDataMap) {
+	private String getUserName(String userId, PublishedAssessmentSettingsBean settings) {
+		return getName(userId, settings.getUsersInSite());
+	}
 
-		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");		
-		String metaKey;
+	/**
+	 * Gets a group name from a groupID and a settings Bean
+	 * @param groupId
+	 * @param settings
+	 * @return
+	 */
+	private String getGroupName(String groupId, PublishedAssessmentSettingsBean settings) {
+		return getName(groupId, settings.getGroupsForSite());
+	}
 
-		// clear out the old extended Time values
-		int itemNum = 1;
-		String extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
-			metaKey = EXTENDED_TIME_KEY + itemNum;
-			metaDataMap.put(metaKey, ""); // set to empty string TODO: actually
-											// delete it.
-			extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-			itemNum++;
+	/**
+	 * helper function for getUserName / getGroupname
+	 * @param parameter
+	 * @param entries
+	 * @return
+	 */
+	private String getName(String parameter, SelectItem[] entries) {
+		if("".equals(parameter) || entries.length == 0) {
+			return "";
 		}
 
-		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
-			// server stores in JVM's time one, convert from user's zone to that
-			String extendedTimeEntry = ExtendedTimeService.convertZones(allExtendedTimeEntries[itemNum], TimeService.getLocalTimeZone(), TimeZone.getDefault());
-			metaKey = "extendedTime" + (itemNum + 1);
-
-			// Add in the new extended time values
-			metaDataMap.put(metaKey, extendedTimeEntry);
+		for(SelectItem item : entries) {
+			if(item.getValue().equals(parameter)) {
+				return item.getLabel();
+			}
 		}
 
-		return metaDataMap;
+		return ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_name_not_found");
+	}
+
+	private Set<String> findDuplicates(List<String> list) {
+		final Set<String> setToReturn = new HashSet<>();
+		final Set<String> set1 = new HashSet<>();
+
+		for (String value : list) {
+			if (!set1.add(value)) {
+				setToReturn.add(value);
+			}
+		}
+
+		return setToReturn;
 	}
 }
 

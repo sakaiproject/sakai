@@ -108,8 +108,8 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
  	</bean>
 
- 	<bean name="ltiFileItemProducer" 
-		class="org.sakaiproject.lessonbuildertool.tool.producers.LtiFileItemProducer" init-method="init">
+ 	<bean name="ltiImportItemProducer" 
+		class="org.sakaiproject.lessonbuildertool.tool.producers.LtiImportItemProducer" init-method="init">
  		<property name="messageLocator" ref="messageLocator"/>
  		<property name="simplePageBean" ref="simplePageBean" />
  		<property name="simplePageToolDao">

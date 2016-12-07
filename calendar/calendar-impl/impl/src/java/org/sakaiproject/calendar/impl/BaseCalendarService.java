@@ -6484,8 +6484,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// If a "Faculty" extra field is present, then add the node.
 		writeStringNodeToDom(doc, eventElement, FACULTY_NODE, event.getField(FACULTY_EVENT_ATTRIBUTE_NAME));
 
-
 		// If a "Description" field is present, then add the node.
+		writeStringNodeToDom(doc, eventElement, DESCRIPTION_NODE, event.getDescription());
 
 		parent.appendChild(eventElement);
 	}

@@ -389,8 +389,12 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 	 * @param events
 	 *        The collection of event to write.
 	 */
-	protected void writeBatchEvents(Collection events)
+	protected void writeBatchEvents(Collection<Event> events)
 	{
+		// any events to process
+		if (events == null || events.isEmpty()) { return; }
+		M_log.debug("writing {} batched events", events.size());
+
 		// get a connection
 		Connection conn = null;
 		boolean wasCommit = true;
@@ -411,9 +415,8 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
             Object fields[] = new Object[6];
 
 			// write all events
-			for (Iterator i = events.iterator(); i.hasNext();)
+			for (Event event : events)
 			{
-				Event event = (Event) i.next();
 				bindValues(event, fields);
 
                 // process the insert
@@ -530,24 +533,20 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 		try
 		{
 			Thread.currentThread().setName(this.getClass().getName());
-			// write any batched events
-			Collection<Event> myEvents = new Vector<Event>();
+
+			// wait for sakai's ComponentManager to finish starting before processing events
+			ComponentManager.waitTillConfigured();
+
+			// write any events we have
 			if (m_batchWrite)
 			{
+				Collection<Event> batchEvents;
 				synchronized (m_eventQueue)
 				{
-					if (m_eventQueue.size() > 0)
-					{
-						myEvents.addAll(m_eventQueue);
-						m_eventQueue.clear();
-					}
+					batchEvents = new ArrayList<>(m_eventQueue);
+					m_eventQueue.clear();
 				}
-
-				if (myEvents.size() > 0)
-				{
-					M_log.debug("writing {} batched events", myEvents.size());
-					writeBatchEvents(myEvents);
-				}
+				writeBatchEvents(batchEvents);
 			}
 
 			M_log.debug("checking for events > {}", m_lastEventSeq);
@@ -559,7 +558,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			Object[] fields = new Object[1];
 			fields[0] = Long.valueOf(m_lastEventSeq);
 
-			List events = new ArrayList();
+			List<Event> events = new ArrayList<>();
 			if (cachingEnabled) { // KNL-1184
 				// set to last event id processed + 1 since we've already processed the last event id
 				long beginEventId = m_lastEventSeq + 1;
@@ -653,8 +652,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 				});
 			}
 			// for each new event found, notify observers
-			for (int i = 0; i < events.size(); i++) {
-				Event event = (Event) events.get(i);
+			for (Event event : events) {
 				notifyObservers(event, false);
 			}
 		}

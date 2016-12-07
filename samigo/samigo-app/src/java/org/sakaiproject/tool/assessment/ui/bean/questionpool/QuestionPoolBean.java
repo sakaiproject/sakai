@@ -60,13 +60,11 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.struts.upload.FormFile;
 import org.osid.shared.SharedException;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
-import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -203,6 +201,10 @@ public class QuestionPoolBean implements Serializable
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
   private String addPoolSource;  // either from poolList.jsp , or from editPool.jsp
 
+  //SAM-3049
+  private boolean notCurrentPool;
+  private String displayNameNotCPool;
+  
   private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
   /**
    * Creates a new QuestionPoolBean object.
@@ -449,6 +451,24 @@ public class QuestionPoolBean implements Serializable
   return poolListSelectItems;
 
 }
+  
+  
+  public boolean isNotCurrentPool() {
+	  return notCurrentPool;
+  }
+
+  public void setNotCurrentPool(boolean notCurrentPool) {
+	  this.notCurrentPool = notCurrentPool;
+  }
+  
+  public String getDisplayNameNotCPool() {
+	  return displayNameNotCPool;
+  }
+
+  public void setDisplayNameNotCPool(String displayNameNotCPool) {
+	  this.displayNameNotCPool = displayNameNotCPool;
+  }
+
 
   /**
    * DOCUMENTATION PENDING
@@ -1931,6 +1951,11 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String editPool(){
+	if(notCurrentPool){	
+		notCurrentPool = false;
+		displayNameNotCPool = "";
+	}
+	  
  	startEditPool();
     this.setAddOrEdit("edit");
     setSubQpDataModelByLevel();
@@ -2300,29 +2325,38 @@ String poolId = ContextUtil.lookupParam("qpid");
 		}
 	}
 	
-	public String startPreviewPool()
+  	public String startPreviewPool()
 	{
 		String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
+		if(qpid!=null) {
+			Long qpidL = new Long(qpid);
+			
+	        QuestionPoolService delegate = new QuestionPoolService();
+	        QuestionPoolFacade thepool = delegate.getPool(qpidL, AgentFacade.getAgentString());
+	        
+	        if(qpidL.compareTo(getCurrentPool().getId())!=0){
+	        	notCurrentPool = true;
+	        	displayNameNotCPool = thepool.getDisplayName();
+			}
 
-		// Get all data from the database
-		QuestionPoolService delegate = new QuestionPoolService();
-		ItemService itemservice = new ItemService();
-		
-		QuestionPoolFacade thepool = delegate.getPool(new Long(qpid), AgentFacade.getAgentString());
-		
-		ArrayList<ItemContentsBean> list = new ArrayList<>();
-		
-		int number=0;
-		for (QuestionPoolItemData item : (Set<QuestionPoolItemData>)thepool.getQuestionPoolItems()) {
-			ItemFacade itemfacade= itemservice.getItem(item.getItemId(), AgentFacade.getAgentString());
-			ItemContentsBean itemBean = new ItemContentsBean(itemfacade.getData());
-			itemBean.setNumber(++number);
-			list.add(itemBean);
+			List<ItemFacade> listAllItems = new ArrayList(thepool.getQuestions());
+			
+			// Creating the itemContentsBean
+			ArrayList<ItemContentsBean> list = new ArrayList<>();
+			int number=0;
+			for (ItemDataIfc item : listAllItems) {
+				ItemContentsBean itemBean = new ItemContentsBean(item);
+				itemBean.setNumber(++number);
+				list.add(itemBean);
+			}
+			setItemsBean(list);
+			  		
+			return "previewPool";
 		}
-		setItemsBean(list);
-		  		
-		return "previewPool";
+		else {
+			return "";
 		}
+	}
   	
   	public List<ItemContentsBean> getItemsBean() {
   		return this.itemsBean;
@@ -2341,6 +2375,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   		String owner = AgentFacade.getDisplayName(getAgentId());
   		return owner;
   	}
+  	
   	
 	public String exportPool() {
 		String poolId= ContextUtil.lookupParam("poolId");
@@ -2594,9 +2629,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 		String questionString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_question");
 		String responseString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_response");
 		String feedbackString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedback");
+		String keyString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_key");
 
 		// Create Header List
-		headerList.add("");
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_text"));
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_type"));
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_points"));
@@ -2609,7 +2644,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		headerList.add(feedbackString.concat(" C"));
 		headerList.add(responseString.concat(" D"));
 		headerList.add(feedbackString.concat(" D"));
-		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_key"));	  
+		headerList.add(keyString);	  
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedbackCorrect"));
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedbackIncorrect"));
 
@@ -2617,15 +2652,12 @@ String poolId = ContextUtil.lookupParam("qpid");
 		final int DEFAULT_MAX_ANSWERS = 4;
 		int maxAnswers = DEFAULT_MAX_ANSWERS;
 		
-		// Get all data from the database
-		QuestionPoolService delegate = new QuestionPoolService();
-		ItemService itemservice = new ItemService();
-		
-		QuestionPoolFacade thepool = delegate.getPool(new Long(poolId), AgentFacade.getAgentString());
+		// Get the items of questionpool
+		List<ItemContentsBean>itemBeans = this.getItemsBean();
 		
 		int questionNumber = 1;
-		for ( QuestionPoolItemData qpitem : (Set<QuestionPoolItemData>)thepool.getQuestionPoolItems() ) {
-			ItemFacade item = itemservice.getItem(qpitem.getItemId(), AgentFacade.getAgentString());
+		for ( ItemContentsBean itemBean : itemBeans) {
+			ItemFacade item = new ItemFacade(itemBean.getItemData());
 				
 			List<Object> row = new ArrayList<>();
 			List<String> answerList = new ArrayList<>();
@@ -2636,7 +2668,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 			row.add(questionString + " " + questionNumber++);
 			
 			// Get the question text
-			row.add(item.getData().getText());
+			row.add(FormattedText.convertFormattedTextToPlaintext(item.getData().getText()));
 			
 			// Get the question type
 			row.add(getTypeQuestion(item.getData().getTypeId()));
@@ -2677,7 +2709,8 @@ String poolId = ContextUtil.lookupParam("qpid");
 					TypeIfc.MULTIPLE_CHOICE.equals(item.getData().getTypeId()) ||
 					TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) ||
 					TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.equals(item.getData().getTypeId()) ||
-					TypeIfc.TRUE_FALSE.equals(item.getData().getTypeId())) {
+					TypeIfc.TRUE_FALSE.equals(item.getData().getTypeId()) ||
+					TypeIfc.MATRIX_CHOICES_SURVEY.equals(item.getData().getTypeId())) {
 
 				// Answer
 				for ( ItemTextIfc itemtext : item.getData().getItemTextArraySorted() ) {
@@ -2689,7 +2722,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 						}
 												
 						contentBuffer.setLength(0);
-						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(answer.getText()));
+						String answerText = "";
+						if (TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId())) {
+							answerText = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", answer.getText());
+						}
+						else {
+							answerText = FormattedText.convertFormattedTextToPlaintext(answer.getText());
+						}
+						contentBuffer.append(answerText);
 						
 						answerList.add(contentBuffer.toString());
 						
@@ -2703,12 +2743,12 @@ String poolId = ContextUtil.lookupParam("qpid");
 					// If there are more columns than 4 we will need to add dynamically the others
 					if (answers.size() > DEFAULT_MAX_ANSWERS) {
 						for (int i=0; i<answers.size()-maxAnswers; i++) {
-							int index = headerList.lastIndexOf(feedbackString);
-							headerList.add(index+1, responseString.concat(" " + (char)('A' + maxAnswers + i)));
-							headerList.add(index+2, feedbackString);
+							int index = headerList.lastIndexOf(keyString);
+							headerList.add(index, responseString.concat(" " + (char)('A' + maxAnswers + i)));
+							headerList.add(index+1, feedbackString.concat(" " + (char)('A' + maxAnswers + i)));
 							for ( List<Object> row2 : dataList) {
+								row2.add(index, "");
 								row2.add(index+1, "");
-								row2.add(index+2, "");
 							}
 						}
 						maxAnswers = answers.size();
@@ -2716,12 +2756,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 				}
 				
 				// Key
-				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId())) {
+				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) && 
+					!TypeIfc.MATRIX_CHOICES_SURVEY.equals(item.getData().getTypeId())) {
 					key.append(item.getAnswerKey());
 				}
 				
 				// Feedback
-				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId())) {
+				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) &&
+					!TypeIfc.MATRIX_CHOICES_SURVEY.equals(item.getData().getTypeId())) {
 					if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
 						contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
 					}
@@ -2783,12 +2825,16 @@ String poolId = ContextUtil.lookupParam("qpid");
 			else if (TypeIfc.ESSAY_QUESTION.equals(item.getData().getTypeId())) {
 				
 				ItemTextIfc itemText = item.getData().getItemTextArray().get(0);
-				AnswerIfc answer = itemText.getAnswerArray().get(0);
+				String answerText = "";
+				if (itemText.getAnswerArray() != null && itemText.getAnswerArray().size() > 0) {
+					AnswerIfc answer = itemText.getAnswerArray().get(0);
+					answerText = answer.getText();
+				}
 				
 				// Key
 				key.append(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","answer_model"));
 				key.append("\n");
-				key.append(answer.getText());
+				key.append(answerText);
 				
 				// Feedback
 				contentBuffer.setLength(0);
@@ -2828,6 +2874,26 @@ String poolId = ContextUtil.lookupParam("qpid");
 					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
+			}
+			else if (TypeIfc.CALCULATED_QUESTION.equals(item.getData().getTypeId())) {
+				// key
+				
+				// Feedback
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+				
+				contentBuffer.setLength(0);
+				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
+					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
+				}
+				feedbackList.add(contentBuffer.toString());
+			}
+			else if (TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getData().getTypeId())) {
+				//TODO:
+				
 			}
 			
 			// Responses && Feedback
@@ -2870,38 +2936,52 @@ String poolId = ContextUtil.lookupParam("qpid");
 
 	private String getTypeQuestion(Long typeId) {
 		String type = "";
-		if (TypeIfc.AUDIO_RECORDING.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_aud");
+		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+		ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+		if (typeId == TypeIfc.MULTIPLE_CHOICE.intValue()) {
+			type = rc.getString("multiple_choice_sin");
 		}
-		else if (TypeIfc.FILE_UPLOAD.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_fu");
+		if (typeId == TypeIfc.MULTIPLE_CORRECT.intValue()) {
+			type = rc.getString("multipl_mc_ms");
 		}
-		else if (TypeIfc.MULTIPLE_CORRECT.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_sing");
+		if (typeId == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.intValue()) {
+			type = rc.getString("multipl_mc_ss");
 		}
-		else if (TypeIfc.MULTIPLE_CHOICE.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_mult");
+		if (typeId == TypeIfc.MULTIPLE_CHOICE_SURVEY.intValue()) {
+			type = rb.getString("q_mult_surv");
 		}
-		else if (TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_surv");
+		if (typeId == TypeIfc.TRUE_FALSE.intValue()) {
+			type = rb.getString("q_tf");
 		}
-		else if (TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_mult_sing");
+		if (typeId == TypeIfc.ESSAY_QUESTION.intValue()) {
+			type = rb.getString("q_short_ess");
 		}
-		else if (TypeIfc.TRUE_FALSE.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_tf");
+		if (typeId == TypeIfc.FILE_UPLOAD.intValue()) {
+			type = rb.getString("q_fu");
 		}
-		else if (TypeIfc.MATCHING.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_match");
+		if (typeId == TypeIfc.AUDIO_RECORDING.intValue()) {
+			type = rb.getString("q_aud");
 		}
-		else if (TypeIfc.ESSAY_QUESTION.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_short_ess");
+		if (typeId == TypeIfc.FILL_IN_BLANK.intValue()) {
+			type = rb.getString("q_fib");
 		}
-		else if (TypeIfc.FILL_IN_BLANK.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_fib");
+		if (typeId == TypeIfc.MATCHING.intValue()) {
+			type = rb.getString("q_match");
 		}
-		else if (TypeIfc.FILL_IN_NUMERIC.equals(typeId)) {
-			type = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_fin");
+		if (typeId == TypeIfc.FILL_IN_NUMERIC.intValue()) {
+			type = rb.getString("q_fin");
+		}
+		if (typeId == TypeIfc.EXTENDED_MATCHING_ITEMS.intValue()) {
+			type = rb.getString("q_emi");
+		}
+		if (typeId == TypeIfc.MATRIX_CHOICES_SURVEY.intValue()) {
+			type = rb.getString("q_matrix_choices_surv");
+		}
+		if (typeId == TypeIfc.CALCULATED_QUESTION.intValue()) {
+			type = rb.getString("q_cq");
+		}
+		if (typeId == TypeIfc.IMAGEMAP_QUESTION.intValue()) {
+			type = rb.getString("q_imq");
 		}
 		return type;
 	}

@@ -101,8 +101,8 @@ public class GlobalTriggerListener implements TriggerListener
       cal.set(Calendar.HOUR_OF_DAY, 0);
       cal.set(Calendar.MINUTE, 0);
       cal.set(Calendar.SECOND, 0);
-      
-      Date midnightToday = new Date(cal.getTimeInMillis());      
+
+      Date midnightToday = new Date(cal.getTimeInMillis());
 
       return eventManager.getTriggerEvents (midnightToday, null, null, null, null);
 /*

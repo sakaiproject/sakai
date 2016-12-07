@@ -177,13 +177,13 @@
 				<li>
 					<span>
 							<a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-								<img src="/library/image/silk/arrow_out.png"/>&nbsp;&nbsp;
+								<img src="/library/image/silk/arrow_out.png" alt=""/>&nbsp;&nbsp;
 								</f:verbatim>
 									<h:outputText value="#{msgs.expandAll}"/>
 								<f:verbatim>
 							</a>
 							<a href="javascript:void(0)" id="collapseLink" style="display:none" onclick="collapseAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">
-								<img src="/library/image/silk/arrow_in.png"/>&nbsp;&nbsp;
+								<img src="/library/image/silk/arrow_in.png" alt=""/>&nbsp;&nbsp;
 								</f:verbatim>
 									<h:outputText value="#{msgs.collapseAll}"/>
 								<f:verbatim>
@@ -216,13 +216,13 @@
 						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
 						<f:verbatim>"><h3></f:verbatim>
 						<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">
-							<h:graphicImage url="/images/cursor_drag_arrow.png" title="#{msgs.dragToReorder}"  styleClass="actionIcon"/>
-							<h:graphicImage url="/images/lightbulb.gif" styleClass="actionIcon publish publishOn" title="#{msgs.clickToUnpublish}" style="#{eachEntry.status == eachEntry.draftStatus ? 'display:none' : ''}"/>
-							<h:graphicImage url="/images/lightbulb_off.gif" styleClass="actionIcon publish publishOff" title="#{msgs.clickToPublish}" style="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/>
-							<h:graphicImage url="/images/calendar_view_month.png" rendered="#{SyllabusTool.calendarExistsForSite}" title="#{msgs.clickToRemoveCal}" styleClass="actionIcon linkCal linkCalOn" style="#{eachEntry.entry.linkCalendar ? '' : 'display:none'}"/>
-							<h:graphicImage url="/images/calendar_view_month_no.png" rendered="#{SyllabusTool.calendarExistsForSite}" title="#{msgs.clickToAddCal}" styleClass="actionIcon linkCal linkCalOff" style="#{eachEntry.entry.linkCalendar ? 'display:none' : ''}"/>
-							<h:graphicImage url="/images/world.png" title="#{msgs.clickToHideWorld}" styleClass="actionIcon linkWorld linkWorldOn" style="#{eachEntry.entry.view == 'yes' ? '' : 'display:none'}"/>
-							<h:graphicImage url="/images/world_off.png" title="#{msgs.clickToAddWorld}" styleClass="actionIcon linkWorld linkWorldOff" style="#{eachEntry.entry.view == 'no' ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/cursor_drag_arrow.png" alt="#{msgs.dragToReorder}" title="#{msgs.dragToReorder}"  styleClass="actionIcon"/>
+							<h:graphicImage url="/images/lightbulb.gif" styleClass="actionIcon publish publishOn" alt="#{msgs.clickToUnpublish}" title="#{msgs.clickToUnpublish}" style="#{eachEntry.status == eachEntry.draftStatus ? 'display:none' : ''}"/>
+							<h:graphicImage url="/images/lightbulb_off.gif" styleClass="actionIcon publish publishOff" alt="#{msgs.clickToPublish}" title="#{msgs.clickToPublish}" style="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/calendar_view_month.png" rendered="#{SyllabusTool.calendarExistsForSite}" alt="#{msgs.clickToRemoveCal}" title="#{msgs.clickToRemoveCal}" styleClass="actionIcon linkCal linkCalOn" style="#{eachEntry.entry.linkCalendar ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/calendar_view_month_no.png" rendered="#{SyllabusTool.calendarExistsForSite}" alt="#{msgs.clickToAddCal}" title="#{msgs.clickToAddCal}" styleClass="actionIcon linkCal linkCalOff" style="#{eachEntry.entry.linkCalendar ? 'display:none' : ''}"/>
+							<h:graphicImage url="/images/world.png" alt="#{msgs.clickToHideWorld}" title="#{msgs.clickToHideWorld}" styleClass="actionIcon linkWorld linkWorldOn" style="#{eachEntry.entry.view == 'yes' ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/world_off.png" alt="#{msgs.clickToAddWorld}" title="#{msgs.clickToAddWorld}" styleClass="actionIcon linkWorld linkWorldOff" style="#{eachEntry.entry.view == 'no' ? '' : 'display:none'}"/>
 							<f:verbatim>
 								<img src="/library/image/silk/cross.png" class="actionImage delete" onclick="showConfirmDeleteHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToDelete}"/><f:verbatim>">
 							</f:verbatim>
@@ -283,7 +283,7 @@
 										&nbsp;
 											<a attachmentId='</f:verbatim><h:outputText value="#{eachAttach.syllabusAttachId}"/><f:verbatim>' 
 												href="javascript:void(0)" onclick="showConfirmDeleteAttachmentHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
-												<img src="/library/image/silk/cross.png">
+												<img src="/library/image/silk/cross.png" alt="</f:verbatim><h:outputText value="#{msgs.clickToRemoveAttachment}"/><f:verbatim>">
 											</a>
 										</f:verbatim>
 									</f:subview>
@@ -295,7 +295,7 @@
 								</f:verbatim>
 								<h:commandLink action="#{SyllabusTool.processAddAttachRedirect}">
 									<f:verbatim>
-										<img src="/library/image/silk/add.png">
+										<img src="/library/image/silk/add.png" alt="">
 									</f:verbatim>
 									<h:outputText value="#{msgs.add_attach}"/>
 									<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"></f:param>
@@ -310,7 +310,7 @@
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
                <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500"/>
+  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
                </syllabus:syllabus_if>
                 <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
                     <h:outputText escape="false" value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>" />

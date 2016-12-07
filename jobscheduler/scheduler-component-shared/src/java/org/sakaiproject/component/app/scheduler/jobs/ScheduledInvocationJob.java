@@ -7,7 +7,6 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.component.cover.ComponentManager;
 
 @PersistJobDataAfterExecution
-@DisallowConcurrentExecution
 public class ScheduledInvocationJob implements Job {
 
 	private static final Log LOG = LogFactory.getLog(ScheduledInvocationJob.class);

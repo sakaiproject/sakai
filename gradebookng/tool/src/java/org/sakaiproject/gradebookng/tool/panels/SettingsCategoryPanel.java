@@ -276,12 +276,15 @@ public class SettingsCategoryPanel extends Panel {
 
 				// if categories and weighting, disable course grade points
 				final AjaxCheckBox points = settingsPage.getSettingsGradeReleasePanel().getPointsCheckBox();
-				if (type == GbCategoryType.WEIGHTED_CATEGORY) {
-					points.setEnabled(false);
-				} else {
-					points.setEnabled(true);
+				// only do this if course grade is released and the points checkbox is visible
+				if (SettingsCategoryPanel.this.model.getObject().getGradebookInformation().isCourseGradeDisplayed()) {
+					if (type == GbCategoryType.WEIGHTED_CATEGORY) {
+						points.setEnabled(false);
+					} else {
+						points.setEnabled(true);
+					}
+					target.add(points);
 				}
-				target.add(points);
 
 				// reinitialize any custom behaviour
 				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");

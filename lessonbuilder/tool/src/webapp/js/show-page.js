@@ -484,6 +484,7 @@ $(document).ready(function() {
 			$("#announcements-height").val("");
 			$("#announcementsNumberDropdown-selection").val("5");
 			$("#add-announcements-dialog").dialog("open");
+			$("#announcements-add-before").val(addAboveItem);
 			setupdialog($("#add-announcements-dialog"));
 			return false;
 		});
@@ -1278,6 +1279,7 @@ $(document).ready(function() {
 			$("#forumSummaryEditId").val("-1");
 			$("#forum-summary-height").val("");
 			$("#forumNumberDropdown-selection").val("5");
+			$("#forum-summary-add-before").val(addAboveItem);
 			$("#add-forum-summary-dialog").dialog("open");
 			setupdialog($("#add-forum-summary-dialog"));
 			return false;

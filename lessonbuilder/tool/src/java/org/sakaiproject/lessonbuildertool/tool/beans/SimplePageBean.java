@@ -4225,6 +4225,8 @@ public class SimplePageBean {
 				try {
 					ContentCollectionEdit edit = contentHostingService.addCollection(collectionId);
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "LB-CSS");
+					//this folder should be hidden from access user
+					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 					contentHostingService.commitCollection(edit);
 				}catch(Exception e) {
 					setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
@@ -4668,9 +4670,9 @@ public class SimplePageBean {
 				entry.setComplete(complete);
 				entry.setPath(path);
 				entry.setToolId(toolId);
-				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + i.getSakaiId(), complete));
-				trackComplete(i, complete);
+				SimplePageItem item = findItem(itemId);
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), complete));
+				trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
 				entry.setPath(path);
@@ -4690,10 +4692,10 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setToolId(toolId);
 				entry.setDummy(false);
-				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + i.getSakaiId(), complete));
+				SimplePageItem item = findItem(itemId);
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), complete));
 				if (complete != wasComplete)
-				    trackComplete(i, complete);
+				    trackComplete(item, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
 				entry.setComplete(true);
@@ -5729,7 +5731,13 @@ public class SimplePageBean {
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		String folder = null;
-		if (pageOwner == null) {
+		// for owned pages, use the same kind of hierarchy. One exception: use site name as basedir
+		if (pageOwner != null) {
+		    String title = getCurrentSite().getTitle();
+		    baseDir = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(title,"_",30));
+		}		    
+
+		// if (pageOwner == null) {
 			collectionId = contentHostingService.getSiteCollection(siteId);
 			if (baseDir != null) {
 			    if (!baseDir.endsWith("/"))
@@ -5793,11 +5801,11 @@ public class SimplePageBean {
 			    simplePageToolDao.quickUpdate(page);
 			}
 			// folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
-		}else {
-			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
-			// actual folder -- just use page name for student content
-			folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
-		}
+		// }else {
+		//	collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
+		//	// actual folder -- just use page name for student content
+		//	folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
+		//}
 
 	    // folder we really want
 		if (urls)
@@ -6225,11 +6233,11 @@ public class SimplePageBean {
 		return ret && path.delete();
 	}
 
-	public List<Map<String, Object>> getToolsFileItem() {
-		return ltiService.getToolsFileItem();
+	public List<Map<String, Object>> getToolsImportItem() {
+		return ltiService.getToolsImportItem();
 	}
 
-	public void handleFileItem() {
+	public void handleImportItem() {
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		if (toolSession != null) toolSession.setAttribute("lessonbuilder.fileImportDone", "true");
                 String returnedData = ToolUtils.getRequestParameter("data");
