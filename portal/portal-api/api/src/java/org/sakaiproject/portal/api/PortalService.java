@@ -325,7 +325,7 @@ public interface PortalService
 	/**
 	 * @return the quick links title for display in the top navigation bar. Will return empty string if no title is set.
 	 */
-	public String getQuickLinksTitle(String siteId);
+	public String getQuickLinksTitle(String siteSkin);
 
 	/**
 	 * @return the quick links for display in the top navigation bar. Will return and empty List if no quick links are set.

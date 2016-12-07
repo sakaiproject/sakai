@@ -566,8 +566,9 @@ public class SiteHandler extends WorksiteHandler
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
 		if (userId != null) {
-			String quickLinksTitle = portalService.getQuickLinksTitle(siteId);
-			List<Map> quickLinks = portalService.getQuickLinks(siteId);
+			String skin = getSiteSkin(siteId);
+			String quickLinksTitle = portalService.getQuickLinksTitle(skin);
+			List<Map> quickLinks = portalService.getQuickLinks(skin);
 			if (CollectionUtils.isNotEmpty(quickLinks)) {
 				rcontext.put("quickLinksInfo", quickLinksTitle);
 				rcontext.put("quickLinks", quickLinks);
