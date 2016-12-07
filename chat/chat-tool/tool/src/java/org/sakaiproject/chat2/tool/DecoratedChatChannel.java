@@ -211,6 +211,8 @@ public class DecoratedChatChannel {
 				
 			if (tempDate != null) {
 				this.startDate = tempDate.getTime();
+			}else{
+				this.startDate = null;
 			}
 
 		}
@@ -233,6 +235,8 @@ public class DecoratedChatChannel {
 			Calendar tempDate = JsfUtil.convertISO8601StringToCalendar(hiddenendDate);
 			if (tempDate != null) {
 				this.endDate = tempDate.getTime();
+			}else{
+				this.endDate = null;
 			}
 
 		}
