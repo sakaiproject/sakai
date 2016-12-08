@@ -83,9 +83,9 @@
             <h:panelGroup styleClass="chat-date-instructions">
               <sakai:instruction_message value="#{msgs.custom_date_instructions}" />
             </h:panelGroup>
-			<h:panelGroup styleClass="longtext indnt1 ">
-				<h:message for="startDate" styleClass="alertMessageInline" style="padding-top:2px;display:block;"><br></h:message>
-				<h:message for="endDate" styleClass="alertMessageInline" style="padding-top:2px;display:block;"><br/></h:message>
+			<h:panelGroup styleClass="date-validation longtext indnt1 ">
+			  <h:message for="startDate" styleClass="alertMessageInline" style="padding-top:2px;display:block;"><br></h:message>
+			  <h:message for="endDate" styleClass="alertMessageInline" style="padding-top:2px;display:block;"><br/></h:message>
             </h:panelGroup>
             <h:panelGroup styleClass="chat-select-date longtext indnt1">       	
               	<h:outputLabel value="#{msgs.custom_date_start} #{msgs.custom_date_entry_format_description}" for="startDate" styleClass="chat-date-label"/>
@@ -118,14 +118,18 @@
 	        input: '#editRoomForm\\:startDate',
 	        parseFormat: 'YYYY-MM-DD HH:mm:ss',
 	        allowEmptyDate: true,
-	        val: '<h:outputText value="#{ChatTool.currentChannelEdit.startDateString}"><f:convertDateTime pattern="YYYY-MM-DD HH:mm:ss"/></h:outputText>',
+	        dateFormat : 'YYYY-MM-DD HH:mm:ss',
+	        useTime:0,
+	        val: '<h:outputText value="#{ChatTool.currentChannelEdit.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
 	        ashidden: { iso8601: 'startDateISO8601' }
 	    });
 		localDatePicker({
 	        input: '#editRoomForm\\:endDate',
 	        parseFormat: 'YYYY-MM-DD HH:mm:ss',
+	        dateFormat : 'YYYY-MM-DD HH:mm:ss',
 	        allowEmptyDate: true,
-	        val: '<h:outputText value="#{ChatTool.currentChannelEdit.endDateString}"><f:convertDateTime pattern="YYYY-MM-DD HH:mm:ss"/></h:outputText>',
+	        useTime:0,
+	        val: '<h:outputText value="#{ChatTool.currentChannelEdit.endDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
 	        ashidden: { iso8601: 'endDateISO8601' }
 	    });
 	   		

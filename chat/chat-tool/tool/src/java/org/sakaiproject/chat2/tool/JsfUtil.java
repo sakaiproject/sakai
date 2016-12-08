@@ -87,12 +87,6 @@ public class JsfUtil {
 	 * @return
 	 */
     public static String getStringFromParam(String string) {
-    	Map map = FacesContext.getCurrentInstance()
-		.getExternalContext().getRequestParameterMap();
-    	/*for(Object key: map.keySet()){
-    		System.out.println(key+":"+map.get(key));
-    	}*/
-    	
 		return (String)FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get(string);
 	}

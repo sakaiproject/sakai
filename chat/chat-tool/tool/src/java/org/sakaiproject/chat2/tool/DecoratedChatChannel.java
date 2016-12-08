@@ -24,6 +24,7 @@ package org.sakaiproject.chat2.tool;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
@@ -203,7 +204,7 @@ public class DecoratedChatChannel {
 	
 	public void setStartDateString(String startDateString) {
 		this.startDateString = startDateString;
-		if (startDateString == null || startDateString.trim().equals("")) {
+		if (StringUtils.isEmpty(startDateString)) {
 			this.startDate = null;
 		} else {
 			String hiddenopenDate = JsfUtil.getStringFromParam(HIDDEN_START_DATE_FIELD);
@@ -228,7 +229,7 @@ public class DecoratedChatChannel {
 
 	public void setEndDateString(String endDateString) {
 		this.endDateString = endDateString;
-		if (endDateString == null || endDateString.trim().equals("")) {
+		if (StringUtils.isEmpty(endDateString)) {
 			this.endDate = null;
 		} else {
 			String hiddenendDate = JsfUtil.getStringFromParam(HIDDEN_END_DATE_FIELD);
@@ -238,9 +239,9 @@ public class DecoratedChatChannel {
 			}else{
 				this.endDate = null;
 			}
-
 		}
 	}
+	
 	public String getEndDateString() {
 		if (endDate == null) {
 			return "";
