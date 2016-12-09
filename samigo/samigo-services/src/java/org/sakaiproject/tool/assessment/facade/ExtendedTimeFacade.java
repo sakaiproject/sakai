@@ -70,6 +70,7 @@ public class ExtendedTimeFacade {
         for(ExtendedTime entry : entries) {
             ExtendedTime pubEntry = new ExtendedTime(entry);
 
+            pubEntry.setId(null);
             pubEntry.setAssessment(null);
             pubEntry.setPubAssessment(pub);
 
