@@ -17,6 +17,11 @@
 				<h:selectOneMenu id="extendedTimeUser" value="#{entry.user}" disabled="true">
 					<f:selectItems value="#{publishedSettings.usersInSite}" />
 				</h:selectOneMenu>
+				<f:facet name="footer">
+					<h:selectOneMenu id="newEntry-user" value="#{publishedSettings.extendedTime.user}">
+						<f:selectItems value="#{publishedSettings.usersInSite}" />
+					</h:selectOneMenu>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-group">
 				<f:facet name="header">
@@ -25,6 +30,11 @@
 				<h:selectOneMenu id="extendedTimeGroup" value="#{entry.group}" disabled="true">
 					<f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
 				</h:selectOneMenu>
+				<f:facet name="footer">
+					<h:selectOneMenu id="newEntry-group" value="#{publishedSettings.extendedTime.group}">
+						<f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
+					</h:selectOneMenu>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-start">
 				<f:facet name="header">
@@ -33,6 +43,9 @@
 				<h:outputText id="extendedTimeStartDate" value="#{entry.startDate}">
 					<f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
 				</h:outputText>
+				<f:facet name="footer">
+					<h:inputText id="newEntry-start_date" size="25" value="#{publishedSettings.extendedTimeStartString}"/>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-due">
 				<f:facet name="header">
@@ -41,6 +54,9 @@
 				<h:outputText id="extendedTimeEndDate" value="#{entry.dueDate}">
 					<f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
 				</h:outputText>
+				<f:facet name="footer">
+					<h:inputText id="newEntry-due_date" size="25" value="#{publishedSettings.extendedTimeDueString}"/>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-retract">
 				<f:facet name="header">
@@ -49,18 +65,31 @@
 				<h:outputText id="extendedTimeRetractDate" value="#{entry.retractDate}">
 					<f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
 				</h:outputText>
+				<f:facet name="footer">
+					<h:inputText id="newEntry-retract_date" size="25" value="#{publishedSettings.extendedTimeRetractString}"/>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-hours">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_hours}" />
 				</f:facet>
 				<h:outputText id="extendedTimeHours" value="#{entry.timeHours}" />
+				<f:facet name="footer">
+					<h:selectOneMenu id="newEntry-hours" value="#{publishedSettings.extendedTime.timeHours}" >
+						<f:selectItems value="#{publishedSettings.hours}" />
+					</h:selectOneMenu>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-mins">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_minutes}" />
 				</f:facet>
 				<h:outputText id="extendedTimeMinutes" value="#{entry.timeMinutes}" />
+				<f:facet name="footer">
+					<h:selectOneMenu id="newEntry-mins" value="#{publishedSettings.extendedTime.timeMinutes}" >
+						<f:selectItems value="#{publishedSettings.mins}" />
+					</h:selectOneMenu>
+				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-edit" rendered="#{publishedSettings.extendedTimesSize > 0}">
 				<f:facet name="header">
@@ -79,39 +108,6 @@
 				</h:commandButton>
 			</h:column>
 		</t:dataTable>
-		<table class="extendedTimeEntryTable">
-			<tr>
-				<td class="extendedTime-user">
-					<h:selectOneMenu id="newEntry-user" value="#{publishedSettings.extendedTime.user}">
-						<f:selectItems value="#{publishedSettings.usersInSite}" />
-					</h:selectOneMenu>
-				</td>
-				<td class="extendedTime-group">
-					<h:selectOneMenu id="newEntry-group" value="#{publishedSettings.extendedTime.group}">
-						<f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
-					</h:selectOneMenu>
-				</td>
-				<td class="extendedTime-start">
-					<h:inputText id="newEntry-start_date" size="25" value="#{publishedSettings.extendedTimeStartString}"/>
-				</td>
-				<td class="extendedTime-due">
-					<h:inputText id="newEntry-due_date" size="25" value="#{publishedSettings.extendedTimeDueString}"/>
-				</td>
-				<td class="extendedTime-retract">
-					<h:inputText id="newEntry-retract_date" size="25" value="#{publishedSettings.extendedTimeRetractString}"/>
-				</td>
-				<td class="extendedTime-hours">
-					<h:selectOneMenu id="newEntry-hours" value="#{publishedSettings.extendedTime.timeHours}" >
-						<f:selectItems value="#{publishedSettings.hours}" />
-					</h:selectOneMenu>
-				</td>
-				<td class="extendedTime-mins">
-					<h:selectOneMenu id="newEntry-mins" value="#{publishedSettings.extendedTime.timeMinutes}" >
-						<f:selectItems value="#{publishedSettings.mins}" />
-					</h:selectOneMenu>
-				</td>
-			</tr>
-		</table>
 		<h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" action="#{publishedSettings.addExtendedTime}" rendered="#{not publishedSettings.editingExtendedTime}"/>
 		<h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{publishedSettings.saveEditedExtendedTime}" rendered="#{publishedSettings.editingExtendedTime}"/>
 		<h:commandButton value="#{assessmentSettingsMessages.extendedTimeCancel}" action="#{publishedSettings.cancelEdit}" rendered="#{publishedSettings.editingExtendedTime}"/>

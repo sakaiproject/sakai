@@ -92,7 +92,7 @@
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:newEntry-start_date',
+              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-start_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
@@ -100,7 +100,7 @@
               ashidden: { iso8601: 'newEntry-start_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:newEntry-due_date',
+              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-due_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
@@ -108,7 +108,7 @@
               ashidden: { iso8601: 'newEntry-due_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:newEntry-retract_date',
+              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-retract_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
