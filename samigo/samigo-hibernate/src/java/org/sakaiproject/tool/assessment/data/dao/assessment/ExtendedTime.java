@@ -79,8 +79,8 @@ public class ExtendedTime implements Serializable {
         if(obj instanceof ExtendedTime) {
             final ExtendedTime other = (ExtendedTime) obj;
             return new EqualsBuilder()
-                    .append(assessment.getAssessmentBaseId(), other.assessment.getAssessmentBaseId())
-                    .append(pubAssessment.getPublishedAssessmentId(), other.getPubAssessmentId())
+                    .append(getAssessmentId(), other.getAssessmentId())
+                    .append(getPubAssessmentId(), other.getPubAssessmentId())
                     .append(user, other.user)
                     .append(group, other.group)
                     .append(startDate, other.startDate)
@@ -97,8 +97,8 @@ public class ExtendedTime implements Serializable {
     @Override
     public int      hashCode            () {
         return new HashCodeBuilder()
-                .append(assessment.getAssessmentBaseId())
-                .append(pubAssessment.getPublishedAssessmentId())
+                .append(getAssessmentId())
+                .append(getPubAssessmentId())
                 .append(user)
                 .append(group)
                 .append(startDate)
