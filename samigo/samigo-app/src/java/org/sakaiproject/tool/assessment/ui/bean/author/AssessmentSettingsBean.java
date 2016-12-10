@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import javax.faces.application.FacesMessage;
@@ -1773,7 +1774,7 @@ public class AssessmentSettingsBean
       Integer oldIndex = null;
       // is there a more efficient way?
       for(ExtendedTime entry : extendedTimes) {
-        if(entry.getId().equals(this.extendedTime.getId())) {
+        if(Objects.equals(entry.getId(), this.extendedTime.getId())) {
           oldIndex = this.extendedTimes.indexOf(entry);
           break;
         }
