@@ -4339,8 +4339,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 		
-		if (! isSpecialSite) {
-			context.put("showQuota", Boolean.valueOf(dropboxMode || allowUpdateSite));
+		if (! isSpecialSite && !dropboxMode) {
+			context.put("showQuota", Boolean.valueOf(allowUpdateSite));
 		} else {
 			context.put("showQuota", Boolean.valueOf(false));
 		}
