@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import javax.faces.application.FacesMessage;
@@ -1766,21 +1765,14 @@ public class AssessmentSettingsBean
     public void editExtendedTime() {
       this.editingExtendedTime = true;
       this.extendedTime = new ExtendedTime(this.transitoryExtendedTime);
-      this.transitoryExtendedTime = null;
     }
 
     public void saveEditedExtendedTime() {
       this.editingExtendedTime = false;
-      Integer oldIndex = null;
-      // is there a more efficient way?
-      for(ExtendedTime entry : extendedTimes) {
-        if(Objects.equals(entry.getId(), this.extendedTime.getId())) {
-          oldIndex = this.extendedTimes.indexOf(entry);
-          break;
-        }
-      }
+      Integer oldIndex = extendedTimes.indexOf(this.transitoryExtendedTime);
       this.extendedTimes.set(oldIndex, this.extendedTime);
       resetExtendedTime();
+      this.transitoryExtendedTime = null;
     }
 
     public void cancelEdit() {
