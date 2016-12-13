@@ -2652,7 +2652,7 @@ public class ListItem
     	if (group==null) return false;
     	
     	Collection<Group> groupsToCheck = (AccessMode.GROUPED == this.inheritedAccessMode) ? this.inheritedGroups : this.possibleGroups;    	
-    	Collection<String> groupsToCheckReference = new ArrayList();
+    	Collection<String> groupsToCheckReference = new ArrayList<String>();
     	for (Group gr:groupsToCheck) {
     		groupsToCheckReference.add(gr.getReference()); 
     	}    	
