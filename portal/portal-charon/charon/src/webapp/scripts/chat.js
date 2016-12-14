@@ -1091,14 +1091,17 @@
 
                 for (var k=0,m=messages.length;k<m;k++) {
                     var message = messages[k];
-                    var userId =portal.chat.currentConnectionsMap[message.from].uuid;
-                    if (userId === undefined) {
-                        userId=portal.user.id;
-                    }
-                    var dateString = portal.chat.formatDate(new Date(parseInt(message.timestamp, 10)));
-                    var fromDisplayName = portal.chat.currentConnectionsMap[message.from].displayName;
+                    var currentConnection = portal.chat.currentConnectionsMap[message.from];
+                    if (currentConnection) {
+                        var userId = currentConnection.uuid;
+                        if (!userId) {
+                            userId=portal.user.id;
+                        }
+                        var dateString = portal.chat.formatDate(new Date(parseInt(message.timestamp, 10)));
+                        var fromDisplayName = currentConnection.displayName;
 
-                    portal.chat.appendMessageToChattersPanel({'content': message.content, 'panelUuid': sms.peerUUID, 'from': userId, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
+                        portal.chat.appendMessageToChattersPanel({'content': message.content, 'panelUuid': sms.peerUUID, 'from': userId, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
+                    }
                 }
 
                 portal.chat.scrollMessageWindowToBottom(sms.peerUUID);
