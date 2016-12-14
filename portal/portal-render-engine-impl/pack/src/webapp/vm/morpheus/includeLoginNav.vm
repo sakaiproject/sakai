@@ -67,26 +67,6 @@
                                     </div>
                                 </li>
 
-                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
-                                    #if (${userType} == "staff" || ${userType} == "student" || ${userType} == "thirdparty" || ${userType} == "inactiveStudent")
-                                            <a role="menuitem" href="https://password.uct.ac.za" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
-                                                <span>Change Password</span>
-                                            </a>
-                                    #else
-                                            <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
-                                                <span>Change Password</span>
-                                            </a>
-                                    #end  ## END of IF (${userType} == "staff" || ... +3 others)
-                                        </li>
-                                    #if (${userType} == "staff" || ${userType} == "student")
-                                        #set( $psHref = "#if (${userType} == 'staff')http://staffonline.uct.ac.za#{else}http://studentsonline.uct.ac.za#end")
-                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userData">
-                                            <a role="menuitem" href="$psHref" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
-                                                <span>PeopleSoft</span>
-                                            </a>
-                                        </li>
-                                    #end  ## END of IF (${userType} == "staff" || ${userType} == "student")
-
                                     #if (${tabsSites.prefsToolUrl})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
@@ -124,6 +104,26 @@
                             #end ## END of IF (${site.isMyWorkspace})
 
                         #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+
+                                    ##Link for password changing
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                    #if (${passwordURL})
+                                            <a role="menuitem" href="${passwordURL}" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
+                                                <span>Change Password</span>
+                                            </a>
+                                    #else
+                                            <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--prefs">   ##TODO: determine if tabsSites is accessible in SkinnableCharonPortal.java
+                                                <span>Change Password</span>
+                                            </a>
+                                    #end ## END of IF (${passwordURL})
+                                        </li>
+                                    #if (${peoplesoftURL})
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userData">
+                                            <a role="menuitem" href="${peoplesoftURL}" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
+                                                <span>PeopleSoft</span>
+                                            </a>
+                                        </li>
+                                    #end  ## END of IF (${peoplesoftURL})
 
                             <li class="Mrphs-userNav__logout Mrphs-userNav__submenuitem-indented">
                                 #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
