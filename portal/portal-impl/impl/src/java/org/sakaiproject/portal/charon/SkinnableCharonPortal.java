@@ -1849,6 +1849,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				
 				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
 			}
+			
+			//Get the user type, i.e. staff, student, thirdparty, etc.
+			String userType = UserDirectoryService.getCurrentUser().getType();
+			if (userType != null) {
+				rcontext.put("userType", userType);
+			}
+			else {
+				rcontext.put("userType", "internal");
+			}
+
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);
