@@ -505,9 +505,10 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                         UIOutput.make(itemListItem,"item-icon")
                             .decorate(getImageSourceDecorator(pageItem));
 
-                        if (pageItem.isPrerequisite()) {
-                            itemListItem.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
-                        }
+			// interesting idea, but makes it invisible
+                        //if (pageItem.isPrerequisite()) {
+			    //  itemListItem.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+                        //}
 
                         if(SimplePageItem.TEXT == pageItem.getType()) {
                             UIOutput.make(itemListItem, "name",  messageLocator.getMessage("simplepage.chooser.textitemplaceholder"))
@@ -642,23 +643,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
     private UIStyleDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
 
-        String mimeType = pageItem.getHtml();
+        String mimeType;
 
         if(SimplePageItem.TEXT == pageItem.getType()) {
             mimeType = "text/html";
-        } else if("application/octet-stream".equals(mimeType)) {
-            // OS X reports octet stream for things like MS Excel documents.
-            // Force a mimeType lookup so we get a decent icon.
-            mimeType = null;
-        }
-
-        if (mimeType == null || mimeType.equals("")) {
-            String s = pageItem.getSakaiId();
-            int j = s.lastIndexOf(".");
-            if (j >= 0)
-            s = s.substring(j+1);
-            mimeType = ContentTypeImageService.getContentType(s);
-        }
+        } else {
+	    mimeType = simplePageBean.getContentType(pageItem);
+	}
 
         String src = null;
 

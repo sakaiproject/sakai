@@ -38,6 +38,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -520,6 +521,19 @@ public class SimplePageBean {
 		imageTypes.add("tiff");
 		imageTypes.add("tif");
 	}
+
+	private static final String DEFAULT_HTML_TYPES = "html,xhtml,htm,xht";
+	private static String[] htmlTypes = null;
+
+        static {
+	    String mmTypes = ServerConfigurationService.getString("lessonbuilder.html.types", DEFAULT_HTML_TYPES);
+	    htmlTypes = mmTypes.split(",");
+	    for (int i = 0; i < htmlTypes.length; i++) {
+		htmlTypes[i] = htmlTypes[i].trim().toLowerCase();
+	    }
+	    Arrays.sort(htmlTypes);
+	}
+
 
     // Spring Injection
 
@@ -3518,6 +3532,52 @@ public class SimplePageBean {
 
        }
 
+    // only makes sense for SimplePageItem.RESOURCE or .MULTIMEDIA
+	public String getContentType(SimplePageItem item) {
+	    String mimeType = item.getHtml();
+	    // for files the code no longer stores the mimetype in lessons
+	    // so if lessons doesn't have one, get it from the kernel
+	    
+	    // old code put URLs in html field. no legit types start with http
+	    if (mimeType != null && (mimeType.startsWith("http")))
+		mimeType = null;
+
+	    if (mimeType == null || mimeType.equals("")) {
+		String mmDisplayType = item.getAttribute("multimediaDisplayType");
+		// 2 is the generic "use old display" so treat it as null
+		// only do this for type 2, since that's where there's an actual file
+		if (mmDisplayType == null || "".equals(mmDisplayType) || "2".equals(mmDisplayType)) {
+		    try {
+			ContentResource res = contentHostingService.getResource(item.getSakaiId());
+			mimeType = res.getContentType();
+		    } catch (Exception ignore) {
+		    }
+		}
+	    }
+	    if("application/octet-stream".equals(mimeType)) {
+		// OS X reports octet stream for things like MS Excel documents.
+		// Force a mimeType lookup so we get a decent icon.
+		// Probably not needed for normal files, as kernel should sniff
+		// correctly, but we may need it for URLs
+		mimeType = null;
+	    }
+
+	    if (mimeType == null || mimeType.equals("")) {
+		String s = item.getSakaiId();
+		int j = s.lastIndexOf(".");
+		if (j >= 0)
+		    s = s.substring(j+1);
+		mimeType = ContentTypeImageService.getContentType(s);
+		// log.info("type " + s + ">" + mimeType);
+	    }
+
+	    // if still nothing, call it octet-stream just so we don't return null
+	    if (mimeType == null || mimeType.equals(""))
+		mimeType = "application/octet-stream";
+
+	    return mimeType;
+	}
+
     // obviously this function must be called right after getResourceGroups
        private boolean inherited = false;
        public boolean getInherited() {
@@ -4415,41 +4475,67 @@ public class SimplePageBean {
 	    gradebookIfc.updateExternalAssessmentScores(getCurrentSiteId(), "lesson-builder:" + pageId, userMap);
 	}
 
-	public boolean isImageType(SimplePageItem item) {
-		// if mime type is defined use it
-		String mimeType = item.getHtml();
-		if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
-			mimeType = null;
-
-		if (mimeType != null && mimeType.length() > 0) {
-			return mimeType.toLowerCase().startsWith("image/");
-		}
-
-		// else use extension
-
-		String name = item.getSakaiId();
+	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
+        // return lowercase version, since we want uppercase versiosns to match
+	public static String getExtension(String name) {
 
 		// starts after last /
 		int i = name.lastIndexOf("/");
 		if (i >= 0)
 			name = name.substring(i+1);
 	    
-		String extension = null;	    
+		String extension = "";
 		i = name.lastIndexOf(".");
 		if (i > 0)
-			extension = name.substring(i+1);
-
-		if (extension == null)
-			return false;
+		    extension = name.substring(i+1);
 
 		extension = extension.trim();
 		extension = extension.toLowerCase();
+	    
+		return extension;
+	}
+
+	public boolean isImageType(SimplePageItem item) {
+
+		String mimeType = getContentType(item);
+
+		if (mimeType != null && mimeType.length() > 0 && !mimeType.equals("application/octet-stream")) {
+		    return mimeType.toLowerCase().startsWith("image/");
+		}
+
+		// no usable type found
+		// getContentType already checked extensions. But we have our own idea of image types, which is site-configurable
+		// to check for them
+
+		String extension = getExtension(item.getSakaiId());
 
 		if (imageTypes.contains(extension)) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	public boolean isHtmlType(SimplePageItem item) {
+
+		String mimeType = getContentType(item);
+
+		if (mimeType != null && mimeType.length() > 0 && !mimeType.equals("application/octet-stream")) {
+		    return mimeType.equals("text/html") || mimeType.equals("application/xhtml+xml");
+		}
+
+		// no usable type found
+		// getContentType already checked extensions. But we have our own idea of html types, which is site-configurable
+		// to check for them
+
+		String extension = getExtension(item.getSakaiId());
+
+		if (Arrays.binarySearch(htmlTypes, extension) >= 0) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	public void setOrder(String order) {
@@ -6038,16 +6124,23 @@ public class SimplePageBean {
 					}
 					if (isCaption)
 					    res.setContentType("text/vtt");
-					// octet-stream is probably bogus. let content hosting try to guess
-					else if (!"application/octet-stream".equals(mimeType))
-					    res.setContentType(mimeType);
+					// don't use mime type, to give kernel a chance to look at the contents
+					//else if (!"application/octet-stream".equals(mimeType))
+					//  res.setContentType(mimeType);
 					res.setContent(file.getInputStream());
 					try {
 						contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
 						// reset mime type. kernel may have improved it if it was null
 						String newMimeType = res.getContentType();
-						if (newMimeType != null && !newMimeType.equals(""))
-						    mimeType = newMimeType;
+						if ((newMimeType == null || newMimeType.equals("") || newMimeType.equals("application/octet-stream")) &&
+						    mimeType != null && !mimeType.equals("")) {
+						    // kernel didn't find anything useful. If browser sent something, use it
+						    res = contentHostingService.editResource(res.getId());
+						    res.setContentType(mimeType);
+						    contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
+						}
+						// note that we don't save the mime type in the lessons item anymore
+						// display code will use the item type from resources
 						// 	there's a bug in the kernel that can cause
 						// 	a null pointer if it can't determine the encoding
 						// 	type. Since we want this code to work on old
@@ -6055,6 +6148,7 @@ public class SimplePageBean {
 					} catch (java.lang.NullPointerException e) {
 						setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
 					}
+					mimeType = null; // display code will use type from the object
 					sakaiId = res.getId();
 
 					if(("application/zip".equals(mimeType) || "application/x-zip-compressed".equals(mimeType))  && isWebsite) {
