@@ -78,6 +78,7 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.util.Validator;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -206,8 +207,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public MessageLocator messageLocator;
 	private LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
-	private static final String DEFAULT_HTML_TYPES = "html,xhtml,htm,xht";
-	private static String[] htmlTypes = null;
     // mp4 means it plays with the flash player if HTML5 doesn't work.
     // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
     // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
@@ -524,15 +523,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (clearAttr.startsWith("LESSONBUILDER_RETURNURL")) {
 				session.setAttribute(clearAttr, null);
 			}
-		}
-
-		if (htmlTypes == null) {
-			String mmTypes = ServerConfigurationService.getString("lessonbuilder.html.types", DEFAULT_HTML_TYPES);
-			htmlTypes = mmTypes.split(",");
-			for (int i = 0; i < htmlTypes.length; i++) {
-				htmlTypes[i] = htmlTypes[i].trim().toLowerCase();
-			}
-			Arrays.sort(htmlTypes);
 		}
 
 		if (mp4Types == null) {
@@ -1740,13 +1730,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// over time as we get more experience with different
 					// object types and browsers.
 
-					StringTokenizer token = new StringTokenizer(i.getSakaiId(), ".");
-
-					String extension = "";
-
-					while (token.hasMoreTokens()) {
-						extension = token.nextToken().toLowerCase();
-					}
+					// String extension = Validator.getFileExtension(i.getSakaiId());
 
 					// the extension is almost never used. Normally we have
 					// the MIME type and use it. Extension is used only if
@@ -1772,14 +1756,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						height = new Length(i.getHeight());
 					}
 
-					// Get the MIME type. For multimedia types is should be in
-					// the html field.
-					// The old code saved the URL there. So if it looks like a
-					// URL ignore it.
-					String mimeType = i.getHtml();
-					if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals(""))) {
-						mimeType = null;
-					}
+					// Get the MIME type.
+					String mimeType = simplePageBean.getContentType(i);
 
 					// here goes. dispatch on the type and produce the right tag
 					// type,
@@ -1902,10 +1880,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// use EMBED. OBJECT does work with Flash.
 						// application/xhtml+xml is XHTML.
 
-					} else if (mmDisplayType == null && 
-						   ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) ||
-						    // ((mimeType != null && (mimeType.startsWith("audio/") || mimeType.startsWith("video/"))) || 
-						    (mimeType == null && !(Arrays.binarySearch(htmlTypes, extension) >= 0)))) {
+						// mimeType is 
+					} else if (mmDisplayType == null && !simplePageBean.isHtmlType(i)) {
 
                         // except where explicit display is set,
 			// this code is used for everything that isn't an image,
@@ -1918,10 +1894,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // in theory the things that fall through to iframe are
 					    // html and random stuff without a defined mime type
 					    // random stuff with mime type is displayed with object
-
-						if (mimeType == null) {
-						    mimeType = "";
-                        }
 
                         String oMimeType = mimeType; // in case we change it for
                         // FLV or others
