@@ -1359,22 +1359,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						itemicon.decorate(new UIStyleDecorator("fa-folder-open-o"));
 						break;
 					    case SimplePageItem.RESOURCE:
-						String mimeType = i.getHtml();
-
-						if("application/octet-stream".equals(mimeType)) {
-						    // OS X reports octet stream for things like MS Excel documents.
-						    // Force a mimeType lookup so we get a decent icon.
-						    mimeType = null;
-						}
-
-						if (mimeType == null || mimeType.equals("")) {
-						    String s = i.getSakaiId();
-						    int j = s.lastIndexOf(".");
-						    if (j >= 0)
-							s = s.substring(j+1);
-						    mimeType = ContentTypeImageService.getContentType(s);
-						    // log.info("type " + s + ">" + mimeType);
-						}
+						String mimeType = simplePageBean.getContentType(i);
 
 						String src = null;
 						//if (!useSakaiIcons)
