@@ -10,7 +10,6 @@
                     <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
-        #end
 
         <ul id="loginLinks" class="Mrphs-userNav">
 
@@ -101,11 +100,7 @@
 
                                     #end ## END of IF (${tabsSites.tutorial})
 
-                            #end ## END of IF (${site.isMyWorkspace})
-
-                        #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
-
-                                    ##Link for password changing
+##Link for password changing
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
                                     #if (${passwordURL})
                                             <a role="menuitem" href="${passwordURL}" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
@@ -125,6 +120,10 @@
                                         </li>
                                     #end  ## END of IF (${peoplesoftURL})
 
+                            #end ## END of IF (${site.isMyWorkspace})
+
+                        #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+
                             <li class="Mrphs-userNav__logout Mrphs-userNav__submenuitem-indented">
                                 #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
                             </li>
@@ -135,7 +134,10 @@
 
         </ul> <!-- end of nav#loginLinks-->
 
-        ## parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+        #else
+           #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+        #end ## END of Logged In
+
     #else ## ELSE of IF (!${loginTopLogin})
 
         #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
