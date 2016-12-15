@@ -1854,7 +1854,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String userType = UserDirectoryService.getCurrentUser().getType();
 
 			String passwdKey = "passwordUrl." + userType;
-			String psKey = "peoplesoftUrl. " + userType;
+			String psKey = "peoplesoftUrl." + userType;
 			
 			String passwordURL = ServerConfigurationService.getString(passwdKey);
 			String peoplesoftURL = ServerConfigurationService.getString(psKey);
