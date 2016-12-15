@@ -177,6 +177,8 @@ public class LoginServlet
           // in 2.2, agentId is differnt from req.getRemoteUser()
           agentIdString = AgentFacade.getAgentString();
         }
+        delivery.setAnonymousLogin(false);
+        person.setAnonymousId(null);
       }
 
       log.debug("*** agentIdString: "+agentIdString);
