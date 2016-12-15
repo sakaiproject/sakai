@@ -20,6 +20,7 @@ package org.sakaiproject.tool.assessment.facade;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
@@ -93,6 +94,25 @@ public class ExtendedTimeFacade {
         }
         return results;
     }
+    /**
+     * A Helper method to sync up the extended time date to match the dates in the accessment access control
+     * @param ac
+     * @param et
+     */
+
+    private void syncExtendedTimeDates(AssessmentAccessControlIfc ac, List <ExtendedTime> et) {
+        for(ExtendedTime e : et) {
+			if (e.getDueDate() == null) {
+				e.setDueDate(ac.getDueDate());
+			}
+			if (e.getStartDate() == null) {
+				e.setStartDate(ac.getStartDate());
+			}
+			if (e.getRetractDate() == null) {
+				e.setRetractDate(ac.getRetractDate());
+			}
+        }
+    }
 
     /**
      * A Helper method to save extended time entries. The following must be true:
@@ -105,8 +125,10 @@ public class ExtendedTimeFacade {
         List<ExtendedTime> oldExtendedTime;
         if(assFacade == null) {
             oldExtendedTime = extendedTimeQueries.getEntriesForPub(p);
+            syncExtendedTimeDates(p.getAssessmentAccessControl(), newExtendedTime);
         } else {
             oldExtendedTime = extendedTimeQueries.getEntriesForAss(assFacade.getData());
+            syncExtendedTimeDates(assFacade.getAssessmentAccessControl(), newExtendedTime);
         }
 
         List<ExtendedTime> extraneousInOld = new ArrayList<>();
