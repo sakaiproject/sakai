@@ -161,6 +161,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -232,6 +233,8 @@ public class SiteAction extends PagedResourceActionII {
 	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
 	
 	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
+	
+	private PreferencesService preferencesService = (PreferencesService)ComponentManager.get(PreferencesService.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -9460,6 +9463,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							final List existingTools = originalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 														
 							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
+							String userId = UserDirectoryService.getCurrentUser().getId();
+							final Locale locale = preferencesService.getLocale(userId);
 							final Session session = SessionManager.getCurrentSession();
 							final ToolSession toolSession = SessionManager.getCurrentToolSession();
 							final String siteId = existingSite.getId();
@@ -9473,7 +9478,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 										importToolIntoSite(existingTools, importTools, existingSite);
 										if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
-											userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+											userNotificationProvider.notifySiteImportCompleted(userEmail, locale, existingSite.getId(), existingSite.getTitle());
 										}
 										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
 									} catch (IdUnusedException e) {
@@ -9535,6 +9540,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							final List existingTools = originalToolIds((List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 							
 							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
+							String userId = UserDirectoryService.getCurrentUser().getId();
+							final Locale locale = preferencesService.getLocale(userId);
 							final Session session = SessionManager.getCurrentSession();
 							final ToolSession toolSession = SessionManager.getCurrentToolSession();
 							final String siteId = existingSite.getId();
@@ -9549,7 +9556,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 										// Remove all old contents before importing contents from new site
 										importToolIntoSiteMigrate(existingTools, importTools, existingSite);
 										if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
-											userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+											userNotificationProvider.notifySiteImportCompleted(userEmail, locale, existingSite.getId(), existingSite.getTitle());
 										}
 										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
 									} catch (IdUnusedException e) {
