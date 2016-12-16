@@ -141,6 +141,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         ],
         toolbar_Full:
         [
+            ['About'],
             ['Source','-','Templates'],
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
