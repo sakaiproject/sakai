@@ -21,22 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.access;
 
-import java.io.IOException;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.entity.api.EntityAccessOverloadException;
-import org.sakaiproject.entity.api.EntityNotDefinedException;
-import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
@@ -47,6 +32,15 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * <p>
@@ -114,7 +108,21 @@ public class WikiAccessServlet extends HttpServlet
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		setSession(req);
-		dispatch(req, res);
+
+		// process any login that might be present
+		basicAuth.doLogin(req);
+
+		// catch the login helper requests
+		String option = req.getPathInfo();
+		String[] parts = option.split("/");
+		if ((parts.length == 2) && ((parts[1].equals("login"))))
+		{
+			doLogin(req, res, null);
+		}
+		else
+		{
+			dispatch(req, res);
+		}
 	}
 	
 	
