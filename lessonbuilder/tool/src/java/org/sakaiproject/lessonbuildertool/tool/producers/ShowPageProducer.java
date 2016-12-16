@@ -107,6 +107,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -403,7 +404,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
 
 		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
-		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js"));
+		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery()));
 
 		UIOutput.make(tofill, "portletBody").decorate(new UIFreeAttributeDecorator("sakaimajor", Integer.toString(majorVersion)))
 		    .decorate(new UIFreeAttributeDecorator("sakaiversion", fullVersion));
