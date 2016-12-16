@@ -67,7 +67,7 @@
 		<div class="navPanel">
 			<div class="viewNav">
 				<h3 class="breadcrumb">
-					<span id="breadPref">${rlb.jsp_info}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+					<span id="breadPref">${rlb.jsp_info_breadcrumb}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
 				</h3>
 			</div>	
 			<div class="listNav specialLink">
