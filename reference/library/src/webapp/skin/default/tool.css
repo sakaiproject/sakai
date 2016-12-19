@@ -1,0 +1,4 @@
+/* Old Contrib Tools might still refer to this - stop 404s */
+html {
+  color: inherit;
+}
