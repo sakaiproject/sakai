@@ -495,12 +495,7 @@
 		toolId="sakai.rwiki"
 		selected="true">
 		<event eventId="wiki.new" selected="true"/>
-		<!--
-			"wiki.read" requires the following on sakai.properties:
-				wiki.trackReads = true
-			IMPORTANT: please see SAK-11214 before enabling this event.
-		 -->
-		<!--<event eventId="wiki.read" selected="true"/>-->
+		<event eventId="wiki.read" selected="true"/>
 		<event eventId="wiki.revise" selected="true"/>
 		<eventParserTip for="contextId" separator="/" index="3"/>
 	</tool>
