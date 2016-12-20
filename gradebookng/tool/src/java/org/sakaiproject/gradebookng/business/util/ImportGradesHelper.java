@@ -58,6 +58,7 @@ public class ImportGradesHelper {
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
+	final static Pattern COURSE_GRADE_OVERRIDE_PATTERN = Pattern.compile("(\\$.+)");
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -289,7 +290,7 @@ public class ImportGradesHelper {
 
 			final ProcessedGradeItem processedGradeItem = new ProcessedGradeItem();
 
-			//default to gb_item - overridden if a comment type
+			//default to gb_item - overridden if another type
 			processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
 
 			// assignment info (if available)
@@ -311,6 +312,9 @@ public class ImportGradesHelper {
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
 				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
 				commentColumns.add(columnTitle);
+			} else if (column.getType() == ImportedColumn.Type.COURSE_GRADE_OVERRIDE) {
+				processedGradeItem.setType(ProcessedGradeItem.Type.COURSE_GRADE_OVERRIDE);
+				processedGradeItem.setItemPointValue(column.getPoints());
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
 				// nothing todo except avoid the next block
 			} else {
@@ -385,6 +389,10 @@ public class ImportGradesHelper {
 			} else if (assignment.getExternalId() != null) {
 				status = Status.EXTERNAL;
 			}
+		}
+
+		if(column.isCourseGradeOverride()) {
+			status = Status.UPDATE;
 		}
 
 		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
@@ -587,6 +595,12 @@ public class ImportGradesHelper {
 		if (m4.matches()) {
 			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
 			column.setType(ImportedColumn.Type.IGNORE);
+			return column;
+		}
+
+		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
+		if (m5.matches()) {
+			column.setType(ImportedColumn.Type.COURSE_GRADE_OVERRIDE);
 			return column;
 		}
 

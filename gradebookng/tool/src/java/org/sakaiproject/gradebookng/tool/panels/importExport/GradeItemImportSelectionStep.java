@@ -121,6 +121,10 @@ public class GradeItemImportSelectionStep extends Panel {
 		final Map<String, ProcessedGradeItem> commentMap = createCommentMap(allItems);
 		final Map<String, ProcessedGradeItem> gradeItemMap = createGradeItemMap(allItems);
 
+		// do we have course grade override to show?
+		final boolean courseGradeOverride = isCourseGradeOverrideImported(allItems);
+		System.out.println("courseGradeOverride:" + courseGradeOverride);
+
 		final Form<?> form = new Form("form") {
 			private static final long serialVersionUID = 1L;
 
@@ -398,6 +402,17 @@ public class GradeItemImportSelectionStep extends Panel {
 		rval.setType(Type.COMMENT);
 		rval.setStatus(Status.SKIP);
 		return rval;
+	}
+
+	/**
+	 * Does the list of items include the course grade override item?
+	 * @param items
+	 * @return
+	 */
+	private boolean isCourseGradeOverrideImported(final List<ProcessedGradeItem> items) {
+		final List<ProcessedGradeItem> item = filterListByType(items, Type.COURSE_GRADE_OVERRIDE);
+		return !item.isEmpty();
+
 	}
 
 }
