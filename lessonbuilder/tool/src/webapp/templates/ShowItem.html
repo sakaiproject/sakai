@@ -10,7 +10,7 @@
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
-<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.11.1.smoothness.css" rel="stylesheet" />	
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.11.1.smoothness.css" rel="stylesheet" />
 <title rsf:id="msg=simplepage.showitem"></title>
 
 <style type="text/css">
@@ -70,11 +70,13 @@ setMainFrameHeight(window.name);
 
 <script type="text/javascript" language="JavaScript">
 function resizeContent() {
+  /*
   if (window.matchMedia("only screen and (max-width: 800px)").matches) {
     jQuery("#content").css('margin-top',jQuery(".Mrphs-siteHierarchy").height() + 60);
   } else {
     jQuery("#content").css('margin-top','0px');
   }
+  */
 }
 $(function() {
          if ($(".showItemMorpheus").size() != 0) {
@@ -91,7 +93,7 @@ $(function() {
                } else { // for tests, etc need the return warning, but kill the title
                    $(".itemTitle .title").addClass("instruction title-instruction");
                    $(".title .crumb-item").hide();
-               }               
+               }
            } else {
              // call tool from picker
                    $(".itemTitle .title").addClass("instruction title-instruction");
@@ -106,7 +108,7 @@ $(function() {
 	   jQuery(window).load(resizeContent);
 	   jQuery(window).resize(resizeContent);
          }
-        
+
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
 	    $('.usebutton').button({text:true});
 	} else {
@@ -143,22 +145,22 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 </script>
 
 	<div rsf:id="portletBody" class="portletBody" id="outer">
-		
-		
+
+
 		<div rsf:id="hiddenAlert" class="ui-widget">
 			<div class="messageError below-link-help">
 				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 				<div rsf:id="hidden-text" ></div>
 			</div>
 		</div>
-		
+
 		<div rsf:id="refreshAlert" class="ui-widget">
-			<div class="instruction" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state."> 
+			<div class="instruction" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state.">
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 				<span rsf:id="msg=simplepage.refresh_prompt"></span> <strong><a role="button" href="#" rsf:id="refreshLink"><span rsf:id="msg=simplepage.refresh"></span></a></strong> <span rsf:id="msg=simplepage.update_icons"></span></p>
 			</div>
 		</div>
-		
+
 		<br rsf:id="breakAfterWarnings" />
 
         <div rsf:id="nav" role="navigation" class="neoPortletTitleWrap itemHeader">
@@ -170,7 +172,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
                     <span rsf:id="returnwarning" class="returnwarning"></span>
                 </div>
                 <div class="action itemAction">
-                    
+
                     <span class="nextprev buttonset ui-buttonset"><a role="button" style="background:none" href="#" rsf:id="prev" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left ui-button-text">prev</a><a role="button" href="#" rsf:id="next" style="background:none" class="nextprev nextbutton ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right ui-button-text">next</a></span>
                     <a role="button" aria-haspopup="dialog" aria-controls="direct-dialog" href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
@@ -215,6 +217,6 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
 		});
 		</script>
 
-	</div>	
+	</div>
 </body>
 </html>
