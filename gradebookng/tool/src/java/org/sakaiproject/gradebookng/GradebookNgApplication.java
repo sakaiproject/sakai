@@ -9,6 +9,7 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.sakaiproject.gradebookng.framework.GradebookNgStringResourceLoader;
 import org.sakaiproject.gradebookng.tool.pages.ErrorPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
@@ -38,6 +39,9 @@ public class GradebookNgApplication extends WebApplication {
 
 		// Configure for Spring injection
 		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+
+		// Add ResourceLoader that integrates with Sakai's Resource Loader
+		getResourceSettings().getStringResourceLoaders().add(0, new GradebookNgStringResourceLoader());
 
 		// Don't throw an exception if we are missing a property, just fallback
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
