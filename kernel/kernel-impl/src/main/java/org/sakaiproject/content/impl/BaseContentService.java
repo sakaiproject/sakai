@@ -10034,7 +10034,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// do our ONE security check to see if the current user can create the
 		// dropbox and all inner folders
-		if (!isDropboxMaintainer(siteId))
+		if (!isDropboxMaintainer(siteId) && !isDropboxGroups(siteId))
 		{
 			createIndividualDropbox(siteId);
 			return;

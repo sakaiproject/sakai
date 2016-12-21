@@ -4,6 +4,39 @@
 
     #if (!${loginTopLogin})
 
+        #if ($quickLinks)
+            <ul id="quickLinks" class="Mrphs-quickLinksNav">
+                <li class="Mrphs-quickLinksNav__popup" aria-haspopup="true">
+                    <a href="javascript:void(0);" class="js-toggle-quick-links-nav" title="${rloader.sit_quick_links_title}" role="menuitem"  aria-haspopup="true">
+                        <i class="fa fa-th fa-external-link-square"></i><span class="quicklinks-label">${rloader.sit_quick_links}</span>
+                    </a>
+                </li>
+
+                <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
+                    <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
+                        <span class="Mrphs-quickLinks-header--info">${quickLinksInfo}</span>
+                        <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times"></i></a>
+                    </li>
+                    <div id="selectQuickLink">
+                        <div class="tab-box">
+                            #foreach($quickLink in $quickLinks)
+                                <li class="Mrphs-quickLinksNav__submenuitem">
+                                    <a role="menuitem" href="${quickLink.url}" title="$quickLink.title" target="_blank">
+                                        #if(${quickLink.iconType} == "image")
+                                            <span id="quicklink-icon" style="background-image:url(${quickLink.imageURI})"></span>
+                                        #elseif (${quickLink.iconType} == "icon")
+                                            <span id="quicklink-icon" class="${quickLink.iconClass}"></span>
+                                        #end
+                                        <span class="Mrphs-quickLinks__submenuitem--title">${quickLink.name}</span>
+                                    </a>
+                                </li>
+                            #end
+                        </div>
+                    </div>
+                </ul>
+            </ul>
+        #end
+
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
                 <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">

@@ -228,9 +228,11 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
 		
 		//make the request
-		if(dao.addNewConnection(profileFriend)) {
+		if (dao.addNewConnection(profileFriend)) {
 			
 			log.info("User: " + userId + " requested friend: " + friendId);  
+
+			sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REQUEST, "/profile/" + friendId, true);
 
 			//send email notification
 			sendConnectionEmailNotification(friendId, userId, EmailType.EMAIL_NOTIFICATION_REQUEST);

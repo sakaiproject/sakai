@@ -402,6 +402,11 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
          */
         // ID only lookup so prefix with "id="
         User user = getUserByIdEid(ID_PREFIX+userId);
+
+        // It is possible the user is orphaned/unregistered; deleted from LDAP
+        if (user == null) {
+            return null;
+        }
         // convert
         EntityUser eu = convertUser(user);
         return eu;
@@ -625,9 +630,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                         //msg += " (attempting check using user id="+userId+")";
                         doCheckForId = true;
                     }
-                    // SAK-22690 removed this log warning
-                    //msg += " :: " + e.getMessage();
-                    //log.warn(msg);
                 }
             }
             if (doCheckForId) {
@@ -635,13 +637,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     user = userDirectoryService.getUser(userId);
                 } catch (UserNotDefinedException e) {
                     user = null;
-                    // SAK-22690 removed this log warning
-                    //String msg = "Could not find user with id="+userId+" :: " + e.getMessage();
-                    //log.warn(msg);
                 }
-            }
-            if (user == null) {
-                throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId);
             }
         }
         return user;

@@ -14282,6 +14282,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			List submissionLog=submission.getSubmissionLog();
 			
+			//Special case for old submissions prior to Sakai 10 where the submission log did not exist. Just return true for backward compatibility.
+			if (submissionLog == null || submissionLog.size() == 0) {
+				return true;
+			}
 			for (int x = 0; x < submissionLog.size(); x++)
 			{
 			    String itemString = (String) submissionLog.get(x);

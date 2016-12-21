@@ -36,7 +36,7 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_textcsv_thenCsvImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", mockUserMap());
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import.csv", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -44,7 +44,7 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_textplain_thenCsvImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", mockUserMap());
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", "grades_import.csv", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -52,7 +52,7 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_textcommaseparatedvalues_thenCsvImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/comma-separated-values", mockUserMap());
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/comma-separated-values", "grades_import.csv", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -60,7 +60,16 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_textapplicationcsv_thenCsvImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", mockUserMap());
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import.csv", mockUserMap());
+		is.close();
+		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_browser_says_applicationvndmsexcel_thenCsvImportSucceeds() throws Exception {
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
+		// Windows machine with MS Office installed is going to send this CSV with an Excel mimetype
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.csv", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -68,7 +77,7 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_applicationvndmsexcel_thenXlsImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", mockUserMap());
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.xls", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
@@ -76,15 +85,15 @@ public class TestImportGradesHelper {
 	@Test
 	public void when_applicationvndopenxmlformatsofficedocumentspreadsheetmlsheet_thenXlsImportSucceeds() throws Exception {
 		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", mockUserMap());
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "grades_import.xls", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test(expected=GbImportExportInvalidFileTypeException.class)
 	public void when_anythingelse_thenImportFails() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "x", mockUserMap());
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.pdf");
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/pdf", "grades_import.pdf", mockUserMap());
 		is.close();
 		testImport(importedSpreadsheetWrapper);
 	}

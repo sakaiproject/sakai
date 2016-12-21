@@ -443,7 +443,7 @@ ALTER TABLE CITATION_COLLECTION_ORDER MODIFY COLUMN CITATION_ID VARCHAR(36) NULL
 -- End SAK-29974
 
 --  SAK-30000 Site creation notification email template updates
-UPDATE email_template_item
+UPDATE EMAIL_TEMPLATE_ITEM
 SET message = '
 From Worksite Setup to ${serviceName} support:
 
@@ -453,7 +453,7 @@ From Worksite Setup to ${serviceName} support:
 ${sections}
 '
 WHERE template_key = 'sitemanage.notifySiteCreation' AND template_locale = 'default';
-UPDATE email_template_item
+UPDATE EMAIL_TEMPLATE_ITEM
 SET subject = 'Site "${siteTitle}" was successfully created by ${currentUserDisplayName}', message = '
 Hi, ${currentUserDisplayName}:
 

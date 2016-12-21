@@ -36,6 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
@@ -561,6 +563,17 @@ public class SiteHandler extends WorksiteHandler
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
 				+ URLUtils.getSafePathInfo(req));
 
+		//Find any quick links ready for display in the top navigation bar,
+		//they can be set per site or for the whole portal.
+		if (userId != null) {
+			String skin = getSiteSkin(siteId);
+			String quickLinksTitle = portalService.getQuickLinksTitle(skin);
+			List<Map> quickLinks = portalService.getQuickLinks(skin);
+			if (CollectionUtils.isNotEmpty(quickLinks)) {
+				rcontext.put("quickLinksInfo", quickLinksTitle);
+				rcontext.put("quickLinks", quickLinks);
+			}
+		}
 		doSendResponse(rcontext, res, null);
 
 		StoredState ss = portalService.getStoredState();
