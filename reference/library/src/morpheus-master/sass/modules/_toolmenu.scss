@@ -78,6 +78,9 @@ body.#{$namespace}toolMenu-collapsed{
   max-width: $tool-menu-width;
   height: auto;
   margin: 0 auto; 
+  @media #{$phone}{
+    display: none;
+  }
 }
 
 #toolMenuWrap{
