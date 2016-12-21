@@ -7218,6 +7218,10 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
+    if (selectedForum != null)
+    {
+      return;
+    }
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {
