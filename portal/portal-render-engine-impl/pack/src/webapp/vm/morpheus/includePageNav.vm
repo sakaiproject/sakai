@@ -157,7 +157,6 @@
 
             #if (${sitePages.pageNavShowHelp})
 
-                #if (${userIsLoggedIn})
                 <li class="Mrphs-toolsNav__menuitem--help">
                     <a class="Mrphs-toolsNav__menuitem--link" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" onclick="openWindow('${sitePages.pageNavHelpUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false" title="${rloader.sit_help}">
                         <span  class="Mrphs-toolsNav__menuitem--icon ${sitePages.helpMenuClass}"> </span>
@@ -165,7 +164,6 @@
                         <span class="skip">${rloader.site_newwindow}</span>
                     </a>
                 </li>
-                #end
 
             #end ## END of IF (${sitePages.pageNavShowHelp})
 
