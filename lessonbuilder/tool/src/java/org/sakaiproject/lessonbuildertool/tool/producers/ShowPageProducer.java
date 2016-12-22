@@ -3220,7 +3220,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			createSubpageDialog(tofill, currentPage);
 		}
 
-		createDialogs(tofill, currentPage, pageItem);
+		createDialogs(tofill, currentPage, pageItem, cssLink);
 	}
 	
 	public void makeCsrf(UIContainer tofill, String rsfid) {
@@ -3229,11 +3229,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(tofill, rsfid, "simplePageBean.csrfToken", sessionToken.toString());
 	}
 
-	public void createDialogs(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem) {
+	public void createDialogs(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem, ContentResource cssLink) {
 		createEditItemDialog(tofill, currentPage, pageItem);
 		createAddMultimediaDialog(tofill, currentPage);
 		createEditMultimediaDialog(tofill, currentPage);
-		createEditTitleDialog(tofill, currentPage, pageItem);
+		createEditTitleDialog(tofill, currentPage, pageItem, cssLink);
 		createNewPageDialog(tofill, currentPage, pageItem);
 		createRemovePageDialog(tofill, currentPage, pageItem);
 		createImportCcDialog(tofill);
@@ -4393,7 +4393,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "movie-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
-	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
+	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem, ContentResource cssLink) {
 		if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
 			UIOutput.make(tofill, "edit-title-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle")));
 		else
@@ -4469,8 +4469,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 			}
 			
+			// cssLink is set above to the actual CSS resource that's active for the page
+			String currentCss = (cssLink == null ? null : cssLink.getId());
+
 			UIOutput.make(form, "cssDropdownLabel", messageLocator.getMessage("simplepage.css-dropdown-label"));
-			UISelect.make(form, "cssDropdown", options, labels, "#{simplePageBean.dropDown}", page.getCssSheet());
+			UISelect.make(form, "cssDropdown", options, labels, "#{simplePageBean.dropDown}", currentCss);
 			
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
