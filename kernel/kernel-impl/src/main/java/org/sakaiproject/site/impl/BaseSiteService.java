@@ -2301,6 +2301,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 							+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 					out.println("<link href=\"" + skinRepo + "/" + skin
 							+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+
+					// Fix for mixed content blocked in Firefox and IE
+					if (serverConfigurationService().getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
+						out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
+						out.println("<script type=\"text/javascript\" language=\"JavaScript\">fixMixedContentOnLoad()</script>");
+					}
+
 					out.println("<title>");
 					out.println(site.getTitle());
 					out.println("</title>");
