@@ -213,6 +213,7 @@ public class ImportGradesHelper {
 				cell = new ImportedCell();
 			}
 
+			//TODO change to case/switch
 			if (column.getType() == ImportedColumn.Type.USER_ID) {
 
 				//skip blank lines
@@ -290,9 +291,6 @@ public class ImportGradesHelper {
 
 			final ProcessedGradeItem processedGradeItem = new ProcessedGradeItem();
 
-			//default to gb_item - overridden if another type
-			processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
-
 			// assignment info (if available)
 			final Assignment assignment = assignmentMap.get(columnTitle);
 			if (assignment != null) {
@@ -307,27 +305,43 @@ public class ImportGradesHelper {
 			log.debug("Column name: " + columnTitle + ", type: " + column.getType() + ", status: " + status);
 
 			// process the header as applicable
-			if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				processedGradeItem.setItemPointValue(column.getPoints());
-			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
-				commentColumns.add(columnTitle);
-			} else if (column.getType() == ImportedColumn.Type.COURSE_GRADE_OVERRIDE) {
-				processedGradeItem.setType(ProcessedGradeItem.Type.COURSE_GRADE_OVERRIDE);
-				processedGradeItem.setItemPointValue(column.getPoints());
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				// nothing todo except avoid the next block
-			} else {
-				// skip
-				//TODO could return this but as a skip status?
-				log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
-				continue;
+			switch(column.getType()) {
+				case COMMENTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
+					commentColumns.add(columnTitle);
+					break;
+				case COURSE_GRADE_OVERRIDE:
+					processedGradeItem.setType(ProcessedGradeItem.Type.COURSE_GRADE_OVERRIDE);
+					break;
+				case GB_ITEM_WITHOUT_POINTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
+					break;
+				case GB_ITEM_WITH_POINTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
+					processedGradeItem.setItemPointValue(column.getPoints());
+					break;
+				case IGNORE:
+					//never hit
+					break;
+				case USER_ID:
+					//never hit
+					break;
+				case USER_NAME:
+					//never hit
+					break;
+				default:
+					log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
+					break;
 			}
 
 			// process the data
 			final List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
 			for (final ImportedRow row : spreadsheetWrapper.getRows()) {
+				log.debug("row: " + row.getStudentEid());
+				log.debug("columnTitle: " + columnTitle);
+
 				final ImportedCell cell = row.getCellMap().get(columnTitle);
+
 				if (cell != null) {
 					final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
 					processedGradeItemDetail.setStudentEid(row.getStudentEid());
@@ -600,6 +614,15 @@ public class ImportGradesHelper {
 
 		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
 		if (m5.matches()) {
+
+			//steve i am up to here
+
+			// extract title
+			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
+
+			if (titleMatcher.find()) {
+				column.setColumnTitle(trim(titleMatcher.group()));
+			}
 			column.setType(ImportedColumn.Type.COURSE_GRADE_OVERRIDE);
 			return column;
 		}
