@@ -1056,7 +1056,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("timeoutDialogWarningSeconds", Integer.valueOf(ServerConfigurationService.getInt("timeoutDialogWarningSeconds", 600)));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
-		
+
+		// Get timestamp of user's last profile update to invalidate old profile pictures in the browser cache
+		String profileLastUpdate = (String) s.getAttribute("profileLastUpdate");
+		rcontext.put("profileLastUpdate", StringUtils.isBlank(profileLastUpdate) ? Long.toString(System.currentTimeMillis()/1000L) : profileLastUpdate);
+
 		//SAK-29457 Add warning about cookie use
 		String cookieNoticeText = rloader.getFormattedMessage("cookie_notice_text", ServerConfigurationService.getString("portal.cookie.policy.warning.url","/library/content/cookie_policy.html"));
 		rcontext.put("cookieNoticeEnabled", ServerConfigurationService.getBoolean("portal.cookie.policy.warning.enabled",false));
