@@ -284,6 +284,13 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .mm-file-input-itemname {
 	margin-left: 1.0em;
 }
+.add-another-file-div {
+	padding: 10px;
+	padding-top: 0px;
+        margin-left: 30px;
+	background-color: #eee;
+	border: 1px solid #ccc;
+}
 #edit-title {
 	margin-left: 1em
 }

@@ -1488,6 +1488,7 @@ $(document).ready(function() {
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
 			$(".mm-file-group").remove();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$(this).attr("href");
 			var editingCaption = (href.indexOf("&caption=true&")>0);
 			$("#mm-is-caption").val(editingCaption ? "true" : "false");
@@ -1852,6 +1853,7 @@ $(document).ready(function() {
 			$("#mm-is-mm").val('false');
 			$("#mm-add-before").val(addAboveItem);
 			$(".mm-file-group").remove();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#item-id").val(), "false", "false"));
 			$("#mm-choose").attr("href",href);
@@ -1888,6 +1890,7 @@ $(document).ready(function() {
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			$(".mm-file-group").remove();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1", "true", "false"));
 			$("#mm-choose").attr("href",href);
@@ -1925,6 +1928,7 @@ $(document).ready(function() {
 			$("#mm-is-website").val('false');
 			$("#mm-is-caption").val('false');
 			$(".mm-file-group").remove();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href,"-1","false","false"));
 			$("#mm-choose").attr("href",href);
@@ -1959,6 +1963,7 @@ $(document).ready(function() {
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			$(".mm-file-group").remove();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1","false","true"));
 			$("#mm-choose").attr("href",href);
@@ -2085,6 +2090,7 @@ $(document).ready(function() {
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
 			$(".mm-file-group").remove();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#multimedia-item-id").val(), true, false));
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
@@ -2973,6 +2979,8 @@ $(function() {
 	    if (doingNames) {
 		// if no files left, need to put back the original name section
 		if ($('.mm-file-group').size() === 0) {
+		    $('.add-another-file').hide();
+		    $('.add-file-div').removeClass('add-another-file-div');
 		    $('#mm-name-section').show();
 		    // if there are files left but the first one was removed, put the label on
 		    // the new first
@@ -3003,6 +3011,10 @@ $(function() {
 		if (doingNames) {
 		    newStuff = newStuff + '<input class="mm-file-input-names" type="text" size="30" maxlength="255"/>';
 		}
+		// now need annotation on the next input, so remove the old
+		$('.add-another-file').hide();
+		$('.add-file-div').removeClass('add-another-file-div');
+		$('.add-another-file').last().show().parent().addClass('add-another-file-div');
 		lastInput.after(newStuff);
 		lastInput.parent().addClass('mm-file-group');
 		lastInput.next().text(lastInput[0].files[0].name);
