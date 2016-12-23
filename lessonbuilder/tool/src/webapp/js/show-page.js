@@ -1488,6 +1488,7 @@ $(document).ready(function() {
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
 			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
 			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$(this).attr("href");
 			var editingCaption = (href.indexOf("&caption=true&")>0);
@@ -1853,6 +1854,7 @@ $(document).ready(function() {
 			$("#mm-is-mm").val('false');
 			$("#mm-add-before").val(addAboveItem);
 			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
 			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#item-id").val(), "false", "false"));
@@ -1890,6 +1892,7 @@ $(document).ready(function() {
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
 			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1", "true", "false"));
@@ -1928,6 +1931,7 @@ $(document).ready(function() {
 			$("#mm-is-website").val('false');
 			$("#mm-is-caption").val('false');
 			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
 			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href,"-1","false","false"));
@@ -1963,6 +1967,7 @@ $(document).ready(function() {
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
 			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1","false","true"));
@@ -2090,6 +2095,7 @@ $(document).ready(function() {
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
 			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
 			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#multimedia-item-id").val(), true, false));
