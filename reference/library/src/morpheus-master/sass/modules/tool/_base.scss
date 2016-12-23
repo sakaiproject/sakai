@@ -118,14 +118,14 @@
 		&--edit{
 			@extend .fa;
 			@extend .fa-pencil;
-			//@extend .fa-lg;	
+			//@extend .fa-lg;
 			/*position: absolute;
 			right: #{$icon-size * 3};*/
 		}
 		&--reset{
 			@extend .fa;
 			@extend .fa-share;
-			//@extend .fa-lg;	
+			//@extend .fa-lg;
 			display: none;
 			font-size: 0.9em;
 			float: left;
@@ -192,4 +192,8 @@
 
 .alertMessage{
 	@extend .bs-callout-danger;
+}
+
+#wrapper > #article-content {
+  padding: 0 1em 1em;
 }
