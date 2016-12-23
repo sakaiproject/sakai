@@ -1031,7 +1031,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	private double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns, boolean literalTotal)
         {
             int gbGradeType = gradebook.getGrade_type();
-            if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
+            if( gbGradeType != GradebookService.GRADE_TYPE_POINTS 
+            		&& gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE
+            		&& gbGradeType != GradebookService.GRADE_TYPE_LETTER)
             {
                 if(log.isInfoEnabled()) log.error("Wrong grade type in GradebookCalculationImpl.getTotalPointsInternal");
                 return -1;
@@ -1146,7 +1148,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        final List<AssignmentGradeRecord> gradeRecs, List<Assignment> countedAssigns) 
 	{
 	    int gbGradeType = gradebook.getGrade_type();
-	    if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
+	    if( gbGradeType != GradebookService.GRADE_TYPE_POINTS 
+	    		&& gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE
+	    		&& gbGradeType != GradebookService.GRADE_TYPE_LETTER)
 	    {
 	        if(log.isInfoEnabled()) log.error("Wrong grade type in GradebookCalculationImpl.getTotalPointsEarnedInternal");
 	        return new ArrayList();
