@@ -6478,18 +6478,19 @@ public class SimplePageBean {
 
 	}
 	
-	public void addCommentsSection(String ab) {
-		addBefore = ab; // used by appendItem
-		if(canEditPage()) {
+	public void addCommentsSection() {
+		if (!canEditPage()) 
+		    return;
+		if (!checkCsrf())
+		    return;
+
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.comments-section"), SimplePageItem.COMMENTS);
 			item.setDescription(messageLocator.getMessage("simplepage.comments-section"));
 			saveItem(item);
 			
 			// Must clear the cache so that the new item appears on the page
 			itemsCache.remove(getCurrentPage().getPageId());
-		}else {
-			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
-		}
+
 	}
 	
 	/**
@@ -6740,9 +6741,13 @@ public class SimplePageBean {
 		return "failure";
 	}
 	
-	public void addStudentContentSection(String ab) {
-		addBefore = ab; // used by appebdItem
-		if(getCurrentPage().getOwner() == null && canEditPage()) {
+	public void addStudentContentSection() {
+		if (!canEditPage()) 
+		    return;
+		if (!checkCsrf())
+		    return;
+
+		if(getCurrentPage().getOwner() == null) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);
@@ -6780,13 +6785,19 @@ public class SimplePageBean {
 	    return true;
 	}
 
-	public boolean createStudentPage(long itemId) {
+	public String createStudentPage() {
+		if (!itemOk(itemId))
+		    return "permission-failed";
+		if (!checkCsrf())
+		    return "permission-failed";
+		// no check of canedit, since students can do this
+		// canread is checked below
+
 		SimplePage curr = getCurrentPage();
 		User user = UserDirectoryService.getCurrentUser();
 		
 		// Need to make sure the section exists
 		SimplePageItem containerItem = simplePageToolDao.findItem(itemId);
-		
 		
 		// We want to make sure each student only has one top level page per section.
 		SimpleStudentPage page = findStudentPage(containerItem);
@@ -6811,7 +6822,7 @@ public class SimplePageBean {
 			    Collection<Group> groups = getCurrentSite().getGroupsWithMember(user.getId());
 			    if (groups.size() == 0) {
 				setErrMessage(messageLocator.getMessage("simplepage.owner-groups-nogroup"));
-				return false;
+				return "permission-failed";
 			    }
 			    // ideally just one matches. But if more than one does, let's be deterministic
 			    // about which one we use.
@@ -6829,7 +6840,7 @@ public class SimplePageBean {
 			    }
 			    if (groupEntries.size() == 0) {
 				setErrMessage(messageLocator.getMessage("simplepage.owner-groups-nogroup"));
-				return false;
+				return "permission-failed";
 			    }
 			    Collections.sort(groupEntries,new Comparator() {
 				    public int compare(Object o1, Object o2) {
@@ -6872,7 +6883,7 @@ public class SimplePageBean {
 				adjustPath("push", newPage.getPageId(), containerItem.getId(), newPage.getTitle());
 			}catch(Exception ex) {
 				setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
-				return false;
+				return "permission-failed";
 			}
 			
 			// Reset the edit cache so that they can actually edit their page.
@@ -6883,12 +6894,12 @@ public class SimplePageBean {
 			else
 			    editPrivs = 1;
 			
-			return true;
+			return "success";
 		}else if(page != null) { 
 			setErrMessage(messageLocator.getMessage("simplepage.page-exists"));
-			return false;
+			return "permission-failed";
 		}else{
-			return false;
+			return "permission-failed";
 		}
 	}
 	

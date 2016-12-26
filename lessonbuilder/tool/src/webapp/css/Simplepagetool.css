@@ -1089,16 +1089,7 @@ img {
 .question-multiplechoice-answer, .question-shortanswer-answer {
 	width: 250px;
 }
-
-.addStudentContent {
- -webkit-border-radius: 3px;
- -moz-border-radius: 3px;
- border-radius: 3px;
- border:solid black 1px;
- text-decoration:none;
- font-size:85%;
-}
-input[type="submit"].question-submit,.addStudentContent {
+input[type="submit"].question-submit,.linkCell .addStudentContent {
    margin: inherit;
    margin-top:15px;
    border:1px solid #999;
@@ -1113,6 +1104,15 @@ input[type="submit"].question-submit,.addStudentContent {
    line-height: inherit;
    border-radius: 3px;
    position: static;
+}
+.linkCell .addStudentContent {
+ -webkit-border-radius: 3px;
+ -moz-border-radius: 3px;
+ background-image:none;
+ border-radius: 3px;
+ border:solid black 1px;
+ text-decoration:none;
+ margin-top:0px;
 }
 
 .questionDiv .contentCol, .checklistDiv {

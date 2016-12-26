@@ -475,17 +475,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		String addBefore = params.getAddBefore();
-		if (params.addTool == GeneralViewParameters.COMMENTS) {
-			simplePageBean.addCommentsSection(addBefore);
-		}else if(params.addTool == GeneralViewParameters.STUDENT_CONTENT) {
-			simplePageBean.addStudentContentSection(addBefore);
-		}else if(params.addTool == GeneralViewParameters.STUDENT_PAGE) {
-		    simplePageBean.createStudentPage(params.studentItemId);
-			canEditPage = simplePageBean.canEditPage();
-		}
-
-
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
 		// as far as I can tell, none of these supports fck or ck
@@ -2675,10 +2664,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							
 							if (i.isRequired() && !simplePageBean.isItemComplete(i))
 								UIOutput.make(row, "student-required-image");
-							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-							eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
-							eParams.studentItemId = i.getId();
-							UIInternalLink.make(row, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
+
+							UIForm studentForm = UIForm.make(row, "add-content-form");
+							makeCsrf(studentForm, "csrf27");
+							UIInput.make(studentForm, "add-content-itemId", "#{simplePageBean.itemId}", "" + i.getId());
+							UICommand.make(studentForm, "add-content", messageLocator.getMessage("simplepage.add-page"), "#{simplePageBean.createStudentPage}");;
 						}
 					
 						String itemGroupString = null;
@@ -3708,17 +3698,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIComponent questionlink = UIInternalLink.makeURL(tofill, "question-link", "#");
 		    questionlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.question-descrip")));
 
-		    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-		    eParams.addTool = GeneralViewParameters.COMMENTS;
 		    UIOutput.make(tofill, "student-li");
-		    UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams).
-			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.comments.tooltip")));
-			
-		    eParams = new GeneralViewParameters(VIEW_ID);
-		    eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
+		    UIOutput.make(tofill, "add-comments-link").	decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.comments.tooltip")));
+		    UIForm form = UIForm.make(tofill, "add-comments-form");
+		    UIInput.make(form, "comments-addBefore", "#{simplePageBean.addBefore}");
+		    makeCsrf(form, "csrf25");
+		    UICommand.make(form, "add-comments", "#{simplePageBean.addCommentsSection}");
+
 		    UIOutput.make(tofill, "studentcontent-li");
-		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-student-content"), eParams).
-			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
+		    UIOutput.make(tofill, "add-student-link").	decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
+		    form = UIForm.make(tofill, "add-student-form");
+		    UIInput.make(form, "add-student-addBefore", "#{simplePageBean.addBefore}");
+		    makeCsrf(form, "csrf26");
+		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {

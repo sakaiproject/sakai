@@ -294,10 +294,21 @@
 		    <a role="menuitem button" aria-haspopup="dialog" aria-controls="question-dialog"  href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
 		  </li>
                   <li rsf:id="student-li">
-                    <a href="#" role="menuitem button" rsf:id="add-comments" class="add-before-param"><span rsf:id="msg.simplepage.comments"></span></a>
+		     <a id="add-comments-link" rsf:id="add-comments-link" href="#" role="menuitem button"><span rsf:id="msg=simplepage.comments"></span></a>
+		     <form rsf:id="add-comments-form" style="display:none" action="#" id="add-comments-form" method="post" enctype="multipart/form-data">
+		      <input type="hidden" rsf:id="comments-addBefore" id="comments-addBefore" />
+		      <input type="hidden" rsf:id="csrf25" />
+		      <input type="submit" rsf:id="add-comments" id="add-comments"/>
+		    </form>
                   </li>
                   <li rsf:id="studentcontent-li">
-                    <a href="#" role="menuitem button" rsf:id="add-content" class="add-before-param"><span rsf:id="msg.simplepage.add-student-content"></span></a>
+		    <a id="add-student-link" rsf:id="add-student-link" href="#" role="menuitem button"><span rsf:id="msg=simplepage.add-student-content"></span></a>
+		    <form rsf:id="add-student-form" style="display:none" action="#" id="add-student-form" method="post" enctype="multipart/form-data">
+		      <input type="hidden" rsf:id="add-student-addBefore" id="add-student-addBefore" />
+		      <input type="hidden" rsf:id="csrf26" />
+		      <input type="submit" rsf:id="add-student" id="add-student"/>
+		    </form>
+
                   </li>
                   <li rsf:id="addwebsite-li">
                     <a href="#" role="menuitem button" aria-haspopup="dialog" aria-controls="add-multimedia-dialog" rsf:id="add-website" class="add-website add-before-param"><span rsf:id="msg.simplepage.website"></span></a>
@@ -636,7 +647,12 @@
                                 <span rsf:id="studentGradingCell" class="gradingCell"></span>
                                 <div rsf:id="linkCell" class="linkCell">
                                   <img rsf:id="student-required-image" src="/lessonbuilder-tool/images/available.png" class="status-image icon-image" style="margin-right:3px"/>
-                                  <a role="button" class="addStudentContent" href="#" rsf:id="linkLink"></a>
+				  <form rsf:id="add-content-form" action="#" id="add-content-form" method="post" enctype="multipart/form-data">
+				    <input type="hidden" rsf:id="csrf27" />
+				    <input type="hidden" rsf:id="add-content-itemId" />
+				    <input type="submit" rsf:id="add-content" id="add-content" class="addStudentContent" />
+				  </form>
+
                                 </div>
                               </div>
                             </div>

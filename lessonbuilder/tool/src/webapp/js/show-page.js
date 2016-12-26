@@ -1376,6 +1376,18 @@ $(document).ready(function() {
 			$("#grouplist").show();
 		    });
 
+		$('#add-comments-link').click(function() {
+			$("#comments-addBefore").val(addAboveItem);
+                        $("#add-comments").click();
+			return false;
+		    });
+
+		$('#add-student-link').click(function() {
+			$("#add-student-addBefore").val(addAboveItem);
+                        $("#add-student").click();
+			return false;
+		    });
+
 		$('.change-resource-movie').click(function(){
 			closeMovieDialog();
 			mm_test_reset();
