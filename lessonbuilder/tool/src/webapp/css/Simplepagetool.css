@@ -1,5 +1,6 @@
 /* portal.css currently sets label to display:block. reverse it but only for our content. have to
    do iframe and inline separately, and for some reason popups  */
+
 #content label,.ui-dialog label,body[onload] label{
   display: inline;
 }
@@ -171,11 +172,20 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 	border-width: 2px;
 }
 .instructionPanel,.controlsPanel {
-    border:1px solid #ccc;
+    border:1px solid #bbb;
     font-size:12px;
-    background: #eee;
+    background: #ddd;
     padding:5px;
     margin:5px 0
+}
+.indent {
+    margin-left: 10px;
+}
+.grouplist {
+    margin-left: 20px;
+    border:1px solid #bbb;
+    background: #ddd;
+    padding: 5px;
 }
 .controlsPanel {
     padding:0;
@@ -288,8 +298,8 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding: 10px;
 	padding-top: 0px;
         margin-left: 30px;
-	background-color: #eee;
-	border: 1px solid #ccc;
+	background-color: #ddd;
+	border: 1px solid #bbb;
 }
 #edit-title {
 	margin-left: 1em
@@ -1527,7 +1537,7 @@ color: #666;
 }
 .sectionedit {
    display:inline-block;
-   background-color:#eee;
+   background-color:#ddd;
    z-index: 900;
    -webkit-border-radius: 3px;
    -moz-border-radius: 3px;
