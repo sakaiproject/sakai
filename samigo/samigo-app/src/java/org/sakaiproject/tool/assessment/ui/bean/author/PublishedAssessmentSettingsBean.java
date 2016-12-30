@@ -1224,6 +1224,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	 * @return Returns the outcome.
 	 */
 	public String getOutcome() {
+		addExtendedTime();
 		return outcome;
 	}
 
