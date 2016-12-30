@@ -1339,6 +1339,14 @@ div[role="dialog"] {
 div.navIntraTool {
   border-top:none;
 }
+/* our additions to the top menu */
+
+.top-icon:before {
+   margin-right: 5px;
+}
+#print-view {
+   margin-right: 7px;
+}
 
 /* temporary, to avoid changing old stuff for the moment */
 .edit-col {
