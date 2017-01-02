@@ -23,7 +23,8 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Set;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -256,14 +257,16 @@ public class Gradebook implements Serializable {
       this.courseAverageDisplayed = courseAverageDisplayed;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
         return new ToStringBuilder(this).
         append("id", id).
         append("uid", uid).
         append("name", name).toString();
     }
 
-    public boolean equals(Object other) {
+    @Override
+	public boolean equals(Object other) {
         if (!(other instanceof Gradebook)) {
             return false;
         }
@@ -272,7 +275,8 @@ public class Gradebook implements Serializable {
 		    append(uid, gb.getUid()).isEquals();
     }
 
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         return new HashCodeBuilder().
             append(uid).toHashCode();
     }

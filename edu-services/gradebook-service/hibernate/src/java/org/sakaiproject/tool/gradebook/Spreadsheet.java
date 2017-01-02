@@ -21,23 +21,23 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import lombok.extern.slf4j.Slf4j;
+import java.io.Serializable;
+import java.util.Date;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
-import java.io.Serializable;
-import java.util.Date;
 
 /**
  * User: louis
  * Date: Jun 12, 2006
  * Time: 3:10:12 PM
  */
-@Slf4j
-public class Spreadsheet  implements Serializable {
-
-    protected Gradebook gradebook;
+public class Spreadsheet implements Serializable {
+   
+	private static final long serialVersionUID = 1L;
+	
+	protected Gradebook gradebook;
     protected Long id;
     protected int version;
     protected String content;
@@ -116,7 +116,8 @@ public class Spreadsheet  implements Serializable {
     }
 
 
-    public boolean equals(Object other) {
+    @Override
+	public boolean equals(Object other) {
         if (!(other instanceof Spreadsheet)) {
         	return false;
         }
@@ -127,7 +128,8 @@ public class Spreadsheet  implements Serializable {
             .append(name, sp.getName()).isEquals();
     }
 
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         return new HashCodeBuilder().
           append(gradebook).
           append(id).
@@ -135,7 +137,8 @@ public class Spreadsheet  implements Serializable {
           toHashCode();
 	}
 
-    public String toString() {
+    @Override
+	public String toString() {
          return new ToStringBuilder(this).
         append("id", id).
         append("name", name).toString();
