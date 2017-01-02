@@ -24,6 +24,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
@@ -41,6 +43,9 @@ import lombok.extern.slf4j.Slf4j;
 public class GradeItemImportSelectionStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
+
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
@@ -169,13 +174,13 @@ public class GradeItemImportSelectionStep extends Panel {
 					log.debug("Items to create: " + itemsToCreate.size());
 					log.debug("Items to update: " + itemsToUpdate.size());
 					log.debug("Items to modify: " + itemsToModify.size());
+					log.debug("Course grade override? " + ((courseGradeOverride != null) ? true : false));
 
 					//set data for next page
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
 					importWizardModel.setItemsToModify(itemsToModify);
 					importWizardModel.setCourseGradeOverride(courseGradeOverride);
-
 
 					// repaint panel
 					Component newPanel = null;
@@ -421,16 +426,18 @@ public class GradeItemImportSelectionStep extends Panel {
 	/**
 	 * Get the course grade override item from the list if it is imported.
 	 * Only looks at the first (since there should only be one).
+	 *
 	 * @param items
-	 * @return ProcessedGradeItem or null
+	 * @return ProcessedGradeItem or null if not found or not enabled
 	 */
 	private ProcessedGradeItem getCourseGradeOverride(final List<ProcessedGradeItem> items) {
-		final List<ProcessedGradeItem> list = filterListByType(items, Type.COURSE_GRADE_OVERRIDE);
-		if(!list.isEmpty()){
-			return list.get(0);
+		if(this.businessService.isFinalGradeModeEnabled() && this.businessService.getGradebookSettings().isFinalGradeMode()) {
+			final List<ProcessedGradeItem> list = filterListByType(items, Type.COURSE_GRADE_OVERRIDE);
+			if(!list.isEmpty()){
+				return list.get(0);
+			}
 		}
 		return null;
-
 	}
 
 }

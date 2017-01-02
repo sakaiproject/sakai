@@ -213,40 +213,48 @@ public class ImportGradesHelper {
 				cell = new ImportedCell();
 			}
 
-			//TODO change to case/switch
-			if (column.getType() == ImportedColumn.Type.USER_ID) {
+			switch(column.getType()) {
+				case USER_ID:
+					//skip blank lines
+					if(StringUtils.isBlank(lineVal)) {
+						log.debug("Skipping empty row");
+						return null;
+					}
 
-				//skip blank lines
-				if(StringUtils.isBlank(lineVal)) {
-					log.debug("Skipping empty row");
-					return null;
-				}
-
-				// check user is in the map (ie in the site)
-				final String studentUuid = userMap.get(lineVal);
-				if(StringUtils.isBlank(studentUuid)){
-					log.debug("Student was found in file but not in site: " + lineVal);
-					throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
-				}
-				row.setStudentEid(lineVal);
-				row.setStudentUuid(studentUuid);
-
-			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
-				row.setStudentName(lineVal);
-
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				cell.setScore(lineVal);
-				row.getCellMap().put(columnTitle, cell);
-
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				cell.setScore(lineVal);
-				row.getCellMap().put(columnTitle, cell);
-
-			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				cell.setComment(lineVal);
-				row.getCellMap().put(columnTitle, cell);
+					// check user is in the map (ie in the site)
+					final String studentUuid = userMap.get(lineVal);
+					if(StringUtils.isBlank(studentUuid)){
+						log.debug("Student was found in file but not in site: " + lineVal);
+						throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
+					}
+					row.setStudentEid(lineVal);
+					row.setStudentUuid(studentUuid);
+					break;
+				case USER_NAME:
+					row.setStudentName(lineVal);
+					break;
+				case GB_ITEM_WITH_POINTS:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case GB_ITEM_WITHOUT_POINTS:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case COMMENTS:
+					cell.setComment(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case COURSE_GRADE_OVERRIDE:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case IGNORE:
+					// do nothing
+					break;
+				default:
+					break;
 			}
-
 		}
 
 		return row;
