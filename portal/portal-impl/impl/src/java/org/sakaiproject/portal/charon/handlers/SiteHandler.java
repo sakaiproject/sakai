@@ -414,8 +414,10 @@ public class SiteHandler extends WorksiteHandler
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page != null)
 		{
-			// store the last page visited
-			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+			if (ServerConfigurationService.getBoolean("portal.rememberSitePage", true)) {
+				// store the last page visited
+				session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+			}
 			title += " : " + page.getTitle();
 		}
 
