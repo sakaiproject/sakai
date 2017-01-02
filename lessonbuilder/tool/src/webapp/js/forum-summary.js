@@ -54,7 +54,7 @@ function showForums(forumsUrl, toolHref, itemsToShow, forumSummaryDiv  ){
 }
 function outputForums(messagesArray, toolHref, forumSummaryDiv){
 	var title = msg("simplepage.forum-header-title");
-	var text_for_forums = '<div class="forumSummaryHeaderDiv"><h3 class="forumSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai-forums"></span><a href="'+toolHref+'" class="forumSummaryLink" title ="'+title+'">'+title+'</a></h3></div>';
+	var text_for_forums = '<div class="forumSummaryHeaderDiv"><h3 class="forumSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai--sakai-forums"></span><a href="'+toolHref+'" class="forumSummaryLink" title ="'+title+'">'+title+'</a></h3></div>';
 	if(messagesArray.length == 0){
 		text_for_forums += '<p>'+msg("simplepage.forum-summary-no-message")+'</p>';
 	}

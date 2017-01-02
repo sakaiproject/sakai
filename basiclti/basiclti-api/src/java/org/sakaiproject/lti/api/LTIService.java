@@ -290,6 +290,11 @@ public interface LTIService {
 	public List<Map<String, Object>> getToolsFileItem();
 
 	/**
+	 * Get a list of tools that can return an imported Common Cartridge
+	 */
+	public List<Map<String, Object>> getToolsImportItem();
+
+	/**
 	 * Get a list of tools that can return content for the editor
 	 */
 	public List<Map<String, Object>> getToolsContentEditor();

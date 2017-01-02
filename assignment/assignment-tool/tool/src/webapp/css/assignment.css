@@ -50,21 +50,6 @@ a.toggleAnchor > h4 {
 .highLightBlock{
     background:#eee;
 }
-.group_icon {
-            padding: 0 16px 0 6px;
-            white-space: nowrap;
-            background: url(/library/image/silk/group.png) center no-repeat;
-}
-.user_icon {
-            padding: 0 16px 0 6px;
-            white-space: nowrap;
-            background: url(/library/image/silk/user.png) center no-repeat;
-}
-.section_icon {
-            padding: 0 16px 0 6px;
-            white-space: nowrap;
-            background: url(/library/image/silk/group_key.png) center no-repeat;
-}
 
 .popupMessage{
     background-color: #ffffcb !important;

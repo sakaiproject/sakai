@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -46,10 +45,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -57,6 +53,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -66,8 +63,6 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
  * <p>Title: Samigo</p>2
@@ -88,17 +83,12 @@ public class SaveAssessmentSettings
     // template selected
     // #1 - set Assessment
     Long assessmentId = assessmentSettings.getAssessmentId();
-    //log.info("**** save assessment assessmentId ="+assessmentId.toString());
     ItemAuthorBean iAuthor=new ItemAuthorBean();
-    //System.out.println("assessmentSettings.getFeedbackAuthoring: "+assessmentSettings.getFeedbackAuthoring());
-    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());
-    //System.out.println("iAuthor.getShowFeedbackAuthoring :"+iAuthor.getShowFeedbackAuthoring());
+    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());;
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
-    //log.info("** assessment = "+assessment);
     assessment.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getTitle()));
-    //assessment.setTitle(assessmentSettings.getTitle());
     assessment.setDescription(assessmentSettings.getDescription());
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getAuthors()));
 
@@ -141,11 +131,8 @@ public class SaveAssessmentSettings
     }
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
     control.setReleaseTo(assessmentSettings.getReleaseTo());
-    //log.info("control RELEASETO ="+control.getReleaseTo());
-    //log.info("settings RELEASETO ="+assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment
-    //log.info("** Time limit update to = "+assessmentSettings.getTimeLimit().intValue());
     control.setTimeLimit(assessmentSettings.getTimeLimit());
     if (assessmentSettings.getTimedAssessment())
       control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
@@ -316,8 +303,10 @@ public class SaveAssessmentSettings
     // hasUsernamePassword,
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
     HashMap <String, String> h = assessmentSettings.getValueMap();
-    addExtendedTimeValuesToMetaData(assessment, assessmentSettings, h);
     updateMetaWithValueMap(assessment, h);
+
+    ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+    extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());
 
     // i. set Graphics
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgColor()));
@@ -567,41 +556,4 @@ public class SaveAssessmentSettings
 
 	  return releaseToGroupsAsString.toString();
   }
-
-	/**
-	 * This will clear out the old extended time values and update them with new
-	 * ones.
-	 * 
-	 * @param assessment
-	 * @param assessmentSettings
-	 * @return
-	 */
-	private HashMap addExtendedTimeValuesToMetaData(AssessmentFacade assessment,
-			AssessmentSettingsBean assessmentSettings, HashMap metaDataMap) {
-
-		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
-		String metaKey;
-
-		// clear out the old extended Time values
-		int itemNum = 1;
-		String extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
-			metaKey = EXTENDED_TIME_KEY + itemNum;
-			metaDataMap.put(metaKey, ""); // set to empty string TODO: actually
-											// delete it.
-			extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-			itemNum++;
-		}
-
-		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
-			String extendedTimeEntry = ExtendedTimeService.convertZones(allExtendedTimeEntries[itemNum], TimeService.getLocalTimeZone(), TimeZone.getDefault());
-			metaKey = "extendedTime" + (itemNum + 1);
-
-			// Add in the new extended time values
-			metaDataMap.put(metaKey, extendedTimeEntry);
-		}
-
-		return metaDataMap;
-	}
-
 }

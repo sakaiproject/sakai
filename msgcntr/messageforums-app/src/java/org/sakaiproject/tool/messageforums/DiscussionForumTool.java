@@ -4501,7 +4501,8 @@ public class DiscussionForumTool
 		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
-		      gbItemScore = gradeDef.getGrade();
+		      String decSeparator = FormattedText.getDecimalSeparator();
+		      gbItemScore = StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator);
 		  }
 
 		  if (gradeDef.getGradeComment() != null) {
@@ -7217,10 +7218,6 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
-    if (selectedForum != null)
-    {
-      return;
-    }
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {

@@ -1,16 +1,11 @@
-
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+/*
+ * Copyright (c) 2016, The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
-
+ */
 package org.sakaiproject.tool.assessment.facade;
 
 import java.io.File;
@@ -50,6 +44,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
@@ -74,11 +69,9 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
@@ -104,12 +97,9 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
-import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
@@ -1511,15 +1501,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    }
 	    
 	    // get AssessmentGradingAttachments
-	    Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
-	    List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
-	    if (attachments != null) {
-	    	ag.setAssessmentGradingAttachmentList(attachments);
+	    List<AssessmentGradingAttachment> attachments = new ArrayList<AssessmentGradingAttachment>();
+	    if (ag != null) {
+	    	Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+	    	if (map != null && map.containsKey(ag.getAssessmentGradingId())) {
+	    		attachments = map.get(ag.getAssessmentGradingId());
+	    	}
 	    }
-	    else {
-	    	ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
-	    }
-	    
+	    ag.setAssessmentGradingAttachmentList(attachments);
 	    return ag;
 	  }
 
@@ -3525,7 +3514,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						// SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
 						PublishedAssessmentFacade assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
 						Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
-						ExtendedTimeService assessmentExtended = new ExtendedTimeService(assessment,adata.getAgentId());
+						ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment, adata.getAgentId());
 						//If it has extended time, just continue for now, no method to tell if the time is passed
 						if (assessmentExtended.hasExtendedTime()) {
 							//If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet

@@ -281,7 +281,16 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 		// check for existance
 		if (!m_storage.check(id))
 		{
-			throw new IdUnusedException(id);
+			//Try to add and return this value
+			try {
+				return add(id);
+			}
+			catch (IdUsedException e) {
+				//This should never happen
+				M_log.warn("Could not add "+id+" even after checking that it didn't exist in storage. Throwing IdUnusedException but this shouldn't be possible.",e);
+				throw new IdUnusedException(id);
+			
+			}
 		}
 
 		// ignore the cache - get the user with a lock from the info store

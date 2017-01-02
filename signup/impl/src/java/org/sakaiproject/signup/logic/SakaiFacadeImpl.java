@@ -1085,8 +1085,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<User> getUsersByEmail(String email) {
-		return (List<User>)userDirectoryService.findUsersByEmail(email);
+	public Collection<User> getUsersByEmail(String email) {
+		return (Collection<User>)userDirectoryService.findUsersByEmail(email);
 	}
 	
 	/**
@@ -1094,13 +1094,13 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public User getUserByEmail(String email) {
 		
-		List<User> users =  (List<User>)userDirectoryService.findUsersByEmail(email);
+		Collection<User> users =  (Collection<User>)userDirectoryService.findUsersByEmail(email);
 		
 		if(users.isEmpty()) {
 			return null;
 		}
 		
-		return users.get(0);
+		return users.iterator().next();
 	}
 	
 	/**

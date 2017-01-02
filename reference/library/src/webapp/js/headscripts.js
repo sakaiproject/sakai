@@ -748,7 +748,7 @@ function includeLatestJQuery(where) {
 			window.console && console.log('Adding jQuery migrate');
 		}
 		if ( typeof jQuery.fn.popover == 'undefined') {
-			document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.6/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 			window.console && console.log('Adding Bootstrap');
 		}
 		if (typeof jQuery.ui == 'undefined') {
@@ -759,7 +759,7 @@ function includeLatestJQuery(where) {
 	} else {
 		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery/1.11.3/jquery.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.0/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.6/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.11.3/jquery-ui.min.css'+ver+'"/>');
 		window.console && console.log("jQuery+migrate+BootStrap+UI Loaded by "+where+" from "+webjars);

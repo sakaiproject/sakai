@@ -189,19 +189,7 @@ public class FCKConnectorServlet extends HttpServlet {
         	  resourceLoader = new ResourceLoader("org.sakaiproject.connector.fck.Messages");
           }
           if (contentNewAdvisor == null) {
-        	  contentNewAdvisor = new SecurityAdvisor(){
-        		  	public SecurityAdvice isAllowed(String userId, String function, String reference){
-        				try {
-        					securityService.popAdvisor();
-        					return securityService.unlock(userId, "content.new".equals(function)?"content.read":function, reference)?
-        							SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
-        				} catch (Exception ex) {
-        					return SecurityAdvice.NOT_ALLOWED;
-        				} finally {
-        					securityService.pushAdvisor(this);
-        				}
-        			}
-        	  };
+        	  contentNewAdvisor = createSubmissionSecurityAdvisor();
           }
      }
 
@@ -1149,5 +1137,27 @@ public class FCKConnectorServlet extends HttpServlet {
              securityService.popAdvisor(contentNewAdvisor);
     	 }
     	 return null;
+     }
+     
+     /**
+      * This security advisor is used when making an assignment submission so that attachments can be added.
+      * This copies content in assignment-tool/tool/src/java/org/sakaiproject/assignment/tool/AssignmentAction.java
+      * @return The security advisor.
+      */
+     private SecurityAdvisor createSubmissionSecurityAdvisor() {
+    	 return (userId, function, reference) -> {
+    		 //Needed to be able to add or modify their own
+    		 if (function.equals(contentHostingService.AUTH_RESOURCE_ADD) ||
+    				 function.equals(contentHostingService.AUTH_RESOURCE_WRITE_OWN) ||
+    				 function.equals(contentHostingService.AUTH_RESOURCE_HIDDEN)
+    				 ) {
+    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    		 } else if (function.equals(contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
+    			 M_log.info(userId + " requested ability to write to any content on "+ reference+
+    					 " which we didn't expect, this should be investigated");
+    			 return SecurityAdvisor.SecurityAdvice.ALLOWED;
+    		 }
+    		 return SecurityAdvisor.SecurityAdvice.PASS;
+    	 };
      }
 }

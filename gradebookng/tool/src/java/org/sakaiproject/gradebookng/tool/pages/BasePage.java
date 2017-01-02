@@ -186,9 +186,13 @@ public class BasePage extends WebPage {
 		response.render(StringHeaderItem
 				.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 
-		// Shared stylesheets
+		// Shared JavaScript and stylesheets
+		// Bootstrap (lock in a version we've tested with and pair it with Wicket's jQuery)
+		response.render(JavaScriptHeaderItem
+			.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version)));
+		// Some global gradebookng styles
 		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
+			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
 
 	}
 
@@ -215,7 +219,7 @@ public class BasePage extends WebPage {
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
 		flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
 		flagWithPopover.add(new AttributeModifier("data-template",
-				"'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
+				"<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>"));
 		flagWithPopover.add(new AttributeModifier("data-content", generatePopoverContent(message)));
 		flagWithPopover.add(new AttributeModifier("tabindex", "0"));
 

@@ -1,15 +1,11 @@
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+/*
+ * Copyright (c) 2016, The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
+ */
 
 
 
@@ -61,7 +57,7 @@ import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -75,12 +71,6 @@ import org.sakaiproject.util.ResourceLoader;
 public class SelectActionListener
     implements ActionListener {
   private static Logger log = LoggerFactory.getLogger(SelectActionListener.class);
-  //private static ContextUtil cu;
-  private static BeanSort bs;
-  private static BeanSort bs2;
-  private static ExtendedTimeService extendedTimeService = null;
-  private static String EXTENDED_TIME_KEY = "extendedTime";
-
   private static final String AVG_SCORE = EvaluationModelIfc.AVERAGE_SCORE.toString();
   private static final String HIGH_SCORE = EvaluationModelIfc.HIGHEST_SCORE.toString();
   private static final String LAST_SCORE = EvaluationModelIfc.LAST_SCORE.toString();
@@ -206,13 +196,11 @@ public class SelectActionListener
    
     HashMap publishedAssessmentHash = getPublishedAssessmentHash(publishedAssessmentList);
     ArrayList submittedAssessmentGradingList = new ArrayList();
-    //log.info("recentSubmittedList size="+recentSubmittedList.size());
-    boolean hasHighest = false;
-    boolean hasMultipleSubmission = false;
+
+    boolean hasHighest;
+    boolean hasMultipleSubmission;
     HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
-    DeliveryBeanie deliveryAnt = null;
-    boolean isUnique = true;
-    HashSet<Long> recentSubmittedIds = new HashSet<Long>();
+    HashSet<Long> recentSubmittedIds = new HashSet<>();
     select.setHasAnyAssessmentRetractForEdit(false);
     for (int k = 0; k < recentSubmittedList.size(); k++) {
     	AssessmentGradingData g = (AssessmentGradingData)
@@ -234,19 +222,19 @@ public class SelectActionListener
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
         
         Integer submissionAllowed = getSubmissionAllowed(g.getPublishedAssessmentId(), publishedAssessmentHash);
-        if (submissionAllowed.intValue() == -1) {
+        if (submissionAllowed == -1) {
         	log.debug("submissionAllowed == -1");
         	continue;
         }
-        if (submissionAllowed.intValue() == 0) { // unlimited submissions
+        if (submissionAllowed == 0) { // unlimited submissions
           delivery.setMultipleSubmissions(true);
       	  hasMultipleSubmission=true;
         }
-        else if (submissionAllowed.intValue() == 1) {
+        else if (submissionAllowed == 1) {
        		delivery.setMultipleSubmissions(false);
        		hasMultipleSubmission=false;
        	}
-        else if (submissionAllowed.intValue() > 1) {
+        else if (submissionAllowed > 1) {
        		delivery.setMultipleSubmissions(true);
        		hasMultipleSubmission=true;
        	}
@@ -338,13 +326,13 @@ public class SelectActionListener
 			totalSubmissions++;
 			if (i == averageScoreAssessmentGradingList.size() - 1) {
 				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(db.getAssessmentId(), Double.valueOf(averageScore));
+				averageScoreMap.put(db.getAssessmentId(), averageScore);
 			}
 		}
 		else {
 			if (i > 0) {
 				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(lastPublishedAssessmentId, Double.valueOf(averageScore));
+				averageScoreMap.put(lastPublishedAssessmentId, averageScore);
 			}
 			lastPublishedAssessmentId = db.getAssessmentId(); 
 			totalScores = Double.parseDouble(db.getFinalScore());
@@ -352,7 +340,7 @@ public class SelectActionListener
 			
 			if (i == averageScoreAssessmentGradingList.size() - 1) {
 				averageScore = totalScores/totalSubmissions;
-				averageScoreMap.put(db.getAssessmentId(), Double.valueOf(averageScore));
+				averageScoreMap.put(db.getAssessmentId(), averageScore);
 			}
 		}
 	}
@@ -537,7 +525,7 @@ public class SelectActionListener
 
     if (takeAscending != null && !takeAscending.trim().equals("") && !takeAscending.equals("null")) {
       try {
-        bean.setTakeableAscending((Boolean.valueOf(takeAscending)).booleanValue());
+        bean.setTakeableAscending((Boolean.valueOf(takeAscending)));
       }
       catch (Exception ex) { //skip
         log.warn(ex.getMessage());
@@ -550,7 +538,7 @@ public class SelectActionListener
 
     if (reviewAscending != null && !reviewAscending.trim().equals("")) {
       try {
-        bean.setReviewableAscending(Boolean.valueOf(reviewAscending).booleanValue());
+        bean.setReviewableAscending(Boolean.valueOf(reviewAscending));
       }
       catch (Exception ex) { //skip
        log.warn(ex.getMessage());
@@ -572,20 +560,21 @@ public class SelectActionListener
     GradingService gradingService = new GradingService();
     HashMap numberRetakeHash = gradingService.getNumberRetakeHash(AgentFacade.getAgentString());
     HashMap actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
+    ExtendedTimeDeliveryService extendedTimeDeliveryService;
     for (int i = 0; i < assessmentList.size(); i++) {
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
 			// Handle extended time info
-			extendedTimeService = new ExtendedTimeService(f);
-			if (extendedTimeService.hasExtendedTime()) {
-				f.setStartDate(extendedTimeService.getStartDate());
-				f.setDueDate(extendedTimeService.getDueDate());
-				f.setRetractDate(extendedTimeService.getRetractDate());
-				if (extendedTimeService.getTimeLimit() != 0) {
-					f.setTimeLimit(extendedTimeService.getTimeLimit());
+			extendedTimeDeliveryService = new ExtendedTimeDeliveryService(f);
+			if (extendedTimeDeliveryService.hasExtendedTime()) {
+				f.setStartDate(extendedTimeDeliveryService.getStartDate());
+				f.setDueDate(extendedTimeDeliveryService.getDueDate());
+				f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
+				if (extendedTimeDeliveryService.getTimeLimit() != 0) {
+					f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
 				}
 			}
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
-          && f.getReleaseTo().indexOf("Anonymous Users") == -1 ) {
+          && !f.getReleaseTo().contains("Anonymous Users") ) {
         if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, updatedAssessmentNeedResubmitList, updatedAssessmentList)) {
           takeableList.add(f);
         }
@@ -624,19 +613,18 @@ public class SelectActionListener
     
     int maxSubmissionsAllowed = 9999;
     if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
-      maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
+      maxSubmissionsAllowed = f.getSubmissionsAllowed();
     }
 
     int numberRetake = 0;
     if (numberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-    	numberRetake = (((StudentGradingSummaryData) numberRetakeHash.get(f.getPublishedAssessmentId())).getNumberRetake()).intValue();
+    	numberRetake = (((StudentGradingSummaryData) numberRetakeHash.get(f.getPublishedAssessmentId())).getNumberRetake());
     }
     int totalSubmitted = 0;
     
     //boolean notSubmitted = false;
     if (h.get(f.getPublishedAssessmentId()) != null){
-      totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId())).
-          intValue();
+      totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId()));
     }
     
       //2. time to go through all the criteria
@@ -653,7 +641,7 @@ public class SelectActionListener
 			} else {
 				int actualNumberRetake = 0;
 				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId())).intValue();
+					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
 				}
 				if (actualNumberRetake < numberRetake) {
 					returnValue = true;
@@ -666,7 +654,7 @@ public class SelectActionListener
     		if (retractDate == null || retractDate.after(currentDate)) {
 				int actualNumberRetake = 0;
 				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
-					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId())).intValue();
+					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId()));
 				}
 				if (actualNumberRetake < numberRetake) {
 					returnValue = true;
@@ -725,10 +713,7 @@ public class SelectActionListener
 	      return false;
 	    }
 	  
-	  if (AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(p.getStatus())) {
-		  return true;
-	  }
-	  return false;
+	  return AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(p.getStatus());
   }
   
   private String hasStats(AssessmentGradingData a, HashMap feedbackHash){
@@ -856,7 +841,7 @@ public class SelectActionListener
   
   private void setTimedAssessment(DeliveryBeanie delivery, PublishedAssessmentFacade pubAssessment){
 	  if (pubAssessment.getTimeLimit() != null) {
-		  int seconds = pubAssessment.getTimeLimit().intValue();
+		  int seconds = pubAssessment.getTimeLimit();
 		  int hour = 0;
 		  int minute = 0;
 		  if (seconds>=3600) {

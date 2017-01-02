@@ -53,6 +53,10 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.velocity</groupId>
+            <artifactId>sakai-velocity-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
             <version>${sakai.velocity.version}</version>

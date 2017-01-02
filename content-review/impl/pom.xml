@@ -16,6 +16,7 @@
 		<module>service</module>
 		<module>turnitin</module>
 		<module>vericite</module>
+		<module>compilatio</module>
 	</modules>
 	
 	<dependencyManagement>

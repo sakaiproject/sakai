@@ -12,7 +12,7 @@
     </id>
     <many-to-one name="section"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"
-      column="SECTIONID" not-null="true" index="SAM_PUBITEM_SECTION_I" />
+      column="SECTIONID" not-null="true" />
     <property name="itemIdString" type="string" length="255" column="ITEMIDSTRING" not-null="false"/>
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="duration" type="integer" column="DURATION" not-null="false"/>
@@ -61,7 +61,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" index="SAM_PUBITEMTEXT_ITEM_I" />
+      column="ITEMID" not-null="true" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
 	<property name="requiredOptionsCount" type="integer" column="REQUIRED_OPTIONS_COUNT" not-null="false" />
@@ -82,7 +82,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" index="SAM_PUBITEMMETA_ITEM_I" />
+      column="ITEMID" not-null="true" />
     <property name="label" type="string" length="255" column="LABEL" not-null="true" />
     <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
   </class>
@@ -94,7 +94,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" index="SAM_PUBITEMFB_ITEM_I" />
+      column="ITEMID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="true" />
     <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>
@@ -106,9 +106,9 @@
       </generator>
     </id>
     <many-to-one name="itemText" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"
-      column="ITEMTEXTID" not-null="true" index="SAM_PUBANSWER_ITEMTEXT_I" />
+      column="ITEMTEXTID" not-null="true" />
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" index="SAM_PUBANSWER_ITEM_I" />
+      column="ITEMID" not-null="true" />
     <property name="text" type="materialized_clob" column="TEXT" not-null="false" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
     <property name="label" type="string" length="20" column="LABEL" not-null="false" />
@@ -131,7 +131,7 @@
       </generator>
     </id>
     <many-to-one name="answer" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"
-       column="ANSWERID" not-null="true" index="SAM_PUBANSWERFB_ANSWER_I"/>
+       column="ANSWERID" not-null="true" />
     <property name="typeId" type="string" length="255" column="TYPEID" not-null="false" />
     <property name="text" type="string" length="4000" column="TEXT" not-null="false" />
   </class>

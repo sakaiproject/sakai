@@ -22,6 +22,7 @@
 package org.sakaiproject.springframework.orm.hibernate.impl;
 
 import java.io.*;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,15 +32,18 @@ import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMapping
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+
 public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappings, Comparable<AdditionalHibernateMappings>
 {
 	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
 	private Resource[] mappingLocations;
 
+	private Class[] additionalClasses;
+
 	private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
 
-    public void setMappingResources(String[] mappingResources)
+	public void setMappingResources(String[] mappingResources)
 	{
 		this.mappingLocations = new Resource[mappingResources.length];
 		for (int i = 0; i < mappingResources.length; i++)
@@ -53,20 +57,30 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 		return mappingLocations;
 	}
 
+	public void setAdditionalClasses(Class[] additionalClasses) {
+		this.additionalClasses = additionalClasses;
+	}
+
 	public void processConfig(Configuration config) throws IOException, MappingException
 	{
+		if (config == null) {
+			logger.warn("config is null!");
+			return;
+		}
 		for (int i = 0; i < this.mappingLocations.length; i++)
 		{
 			try {
 				logger.info("Loading hbm: " + mappingLocations[i]);
-				if (config == null) {
-					logger.warn("config is null!");
-					return;
-				}
 				config.addInputStream(this.mappingLocations[i].getInputStream());
 			} catch (MappingException me) {
 				throw new MappingException("Failed to load "+ this.mappingLocations[i], me);
 			}
+		}
+		// Load any additional classes
+		if (additionalClasses != null) {
+			Arrays.asList(additionalClasses).stream()
+					.peek(clazz -> { logger.info("Loading class: {}", clazz); })
+					.forEach(config::addAnnotatedClass);
 		}
 	}
 

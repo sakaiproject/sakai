@@ -95,7 +95,7 @@
 				#if (${page.current})
 
 				    <li class="Mrphs-toolsNav__menuitem is-current">
-				        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl} title="${page.pageTitle}" role="presentation">
+				        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
 				            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 				            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 				        </a>
@@ -148,7 +148,7 @@
 
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
-                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai-subsites-list"> </span>
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai--subsites-list"> </span>
                         <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsites}</span>
                     </a>
                 </li>
@@ -171,7 +171,7 @@
 
                 <li>
                     <a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
-                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai-add-tool"></span>
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
                         <span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
                     </a>
                 </li>
