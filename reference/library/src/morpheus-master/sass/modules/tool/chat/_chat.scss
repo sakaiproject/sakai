@@ -308,7 +308,7 @@
 				    bottom: 0px;
 				    height: 300px;
 				    width: auto;
-				     position: fixed;
+				    z-index: 99;
 	    		}
 	    		&maximised{
 	    			margin-top: 0px;
@@ -496,6 +496,7 @@
 				&remotevideo{
 						background: black;
 						position: relative;
+						z-index: 101;
 				}
 				&video{
 					width: 100%;

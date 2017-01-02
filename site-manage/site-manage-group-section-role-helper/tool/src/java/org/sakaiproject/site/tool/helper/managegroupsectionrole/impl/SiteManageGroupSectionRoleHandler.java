@@ -21,13 +21,14 @@ import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -154,7 +155,7 @@ public class SiteManageGroupSectionRoleHandler {
     	this.messages = new TargettedMessageList();
     }
 	
-	private final org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager.get(org.sakaiproject.authz.api.GroupProvider.class);
+	private final GroupProvider groupProvider = ComponentManager.get(GroupProvider.class);
 	
 	// the group title
 	private String id;
@@ -410,7 +411,7 @@ public class SiteManageGroupSectionRoleHandler {
         return rv;
     }
     
-    public boolean isUserFromProvider(String userEId, String userId, Group g, List<String> rosterIds, List<String> roleIds)
+    public boolean isUserFromProvider(String userEId, String userId, Group g, List<String> rosterIds, Collection<String> roleIds)
     {
     	boolean rv = false;
     	
@@ -432,17 +433,17 @@ public class SiteManageGroupSectionRoleHandler {
     	}
     	
     	// check role next
-    	if (!rv && roleIds != null)
-    	{
-    		for (int i = 0; !rv && i < roleIds.size(); i++)
-	    	{
-    			String roleId = roleIds.get(i);
-		    	if (g.getUserRole(userId).getId().equals(roleId))
-		    	{
-		    		rv =  true;
-		    	}
-	    	}
-    	}
+		if (!rv && roleIds != null)
+		{
+			for (String roleId : roleIds)
+			{
+				if (g.getUserRole(userId).getId().equals(roleId))
+				{
+					rv =  true;
+					break;
+				}
+			}
+		}
     	
     	return rv;
     }
@@ -452,23 +453,16 @@ public class SiteManageGroupSectionRoleHandler {
      * @param g the group for which roles are being requested
      * @return Map of groups (id, group)
      */
-    public List<String> getGroupProviderRoles(Group g) {
-        List<String> rv = null;
+    public Collection<String> getGroupProviderRoles(Group g) {
+        Collection<String> rv = null;
         
         if (update) {
             rv = new ArrayList<>();
             if (g != null)
             {   
-                // get the authz group
-            	String roleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-            	if (roleProviderId != null)
-            	{
-            		if (groupProvider != null)
-            		{
-	            		String[] roleStrings = groupProvider.unpackId(roleProviderId);
-	            		rv.addAll( Arrays.asList( roleStrings ) );
-            		}
-            	}
+                // Get the group roles
+                String roleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+                rv = SiteGroupHelper.unpack(roleProviderId);
             }
         }
         return rv;
@@ -764,7 +758,7 @@ public class SiteManageGroupSectionRoleHandler {
 					s = s.replaceAll("-_p_-", ".");
 				}
 				// set provider id
-				group.setProviderGroupId(getProviderString(selectedRosters));
+				group.setProviderGroupId(groupProvider.packId(selectedRosters.toArray(new String[selectedRosters.size()])));
 			}
 			else
 			{
@@ -774,7 +768,7 @@ public class SiteManageGroupSectionRoleHandler {
 			if (!selectedRoles.isEmpty())
 			{
 				// pack the role provider id and add to property
-    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, getProviderString(selectedRoles));
+    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, SiteGroupHelper.pack(selectedRoles));
 			}
 			else
 			{
@@ -1251,15 +1245,6 @@ public class SiteManageGroupSectionRoleHandler {
 			oTitle = oTitle.substring(0, SiteConstants.SITE_GROUP_TITLE_LIMIT);
 		}
 		return oTitle.trim();
-	}
-
-	/**
-	 * Return a single string representing the provider id list
-	 * @param idsList
-	 */
-	private String getProviderString(List<String> idsList)
-	{
-		return SiteGroupHelper.pack(idsList);
 	}
 
     /**

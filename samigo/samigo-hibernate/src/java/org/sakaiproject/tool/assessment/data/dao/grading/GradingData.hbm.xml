@@ -10,7 +10,7 @@
         <param name="sequence">SAM_ITEMGRADING_ID_S</param>
       </generator>
     </id>
-    <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" index="SAM_ASSESSMENTGRADING_I" unique-key="uniqueStudentResponse" />
+    <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" unique-key="uniqueStudentResponse" />
     <property name="publishedItemId" type="long" column="PUBLISHEDITEMID" not-null="true" index="SAM_ITEMGRADING_ITEM_I" unique-key="uniqueStudentResponse" />
     <property name="publishedItemTextId" type="long" column="PUBLISHEDITEMTEXTID" not-null="true" index="SAM_ITEMGRADING_ITEMTEXT_I" unique-key="uniqueStudentResponse" />
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" unique-key="uniqueStudentResponse" />

@@ -6,11 +6,6 @@
     <description>sakai-user-tool-prefs</description>
 
     <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>client</param-value>
-    </context-param>
-
-    <context-param>
 	  <!-- Ordering changed to meet DTD - PAFH 8/30/2006 -->
         <description>
             Set this flag to true if you want the JavaServer Faces

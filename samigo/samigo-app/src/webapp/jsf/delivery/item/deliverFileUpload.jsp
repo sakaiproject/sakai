@@ -47,7 +47,6 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> #{deliveryMessages.processing}</span>"/>
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
-                       || delivery.actionString=='reviewAssessment' 
                        || delivery.actionString=='gradeAssessment'}">
   <h:outputText value="#{deliveryMessages.file}" />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->

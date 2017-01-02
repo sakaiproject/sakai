@@ -167,7 +167,7 @@
     </id>
     <many-to-one name="assessment"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-      column="ASSESSMENTID" index="SAM_PUBSECTION_ASSESSMENT_I" not-null="true" />
+      column="ASSESSMENTID" not-null="true" />
     <property name="duration" type="integer" column="DURATION" not-null="false" />
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
@@ -205,7 +205,7 @@
       </generator>
     </id>
     <many-to-one name="section" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"
-      column="SECTIONID" index="SAM_PUBSECTIONMETA_SECTION_I" not-null="true" />
+      column="SECTIONID" not-null="true" />
     <property name="label" type="string" length="255" column="LABEL" not-null="true" />
     <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
   </class>
@@ -219,7 +219,7 @@
     </id>
     <many-to-one name="assessment"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-      column="ASSESSMENTID" index="SAM_PUBIP_ASSESSMENT_I" not-null="true" />
+      column="ASSESSMENTID" not-null="true" />
     <property name="hostname" type="string" length="255" column="HOSTNAME" not-null="false" />
     <property name="ipAddress" type="string" length="255" column="IPADDRESS" not-null="false" />
   </class>

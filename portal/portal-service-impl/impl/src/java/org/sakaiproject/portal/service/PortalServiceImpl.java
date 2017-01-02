@@ -608,9 +608,10 @@ public class PortalServiceImpl implements PortalService
 		return "";
 	}
 
-	public String getQuickLinksTitle(String siteId) {
-		// Find the quick links title if it is in the properties file.
-		return serverConfigurationService.getString("portal.quicklink.info", "");
+	public String getQuickLinksTitle(String siteSkin) {
+		//Try the skin .info first, then default to the regular, then if that fails just return an empty string
+		//A null siteSkin is fine but this would generally just return the defined default (like morpheus-default) and not return anything
+		return serverConfigurationService.getString("portal.quicklink." + siteSkin + ".info", serverConfigurationService.getString("portal.quicklink.info", ""));
 	}
 
 	public List<Map> getQuickLinks(String siteSkin){
@@ -621,13 +622,15 @@ public class PortalServiceImpl implements PortalService
 		List<String>linkNames = null;
 		List<String> linkIcons = null;
 
+		//A null check really isn't needed here sin siteSkin should always be set (or it can just turn into the string "null") but it's here anyway)
 		if (siteSkin != null) {
-			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "url")));
-			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "title")));
-			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "name")));
-			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + "icon")));
+			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".url")));
+			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".title")));
+			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".name")));
+			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".icon")));
 		}
 
+		//However if it is null or if the linkUrls was empty from before, just use the default
 		if (siteSkin == null || (siteSkin != null && linkUrls.isEmpty())) {
 			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.url")));
 			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.title")));
@@ -637,7 +640,10 @@ public class PortalServiceImpl implements PortalService
 
 		List<Map> quickLinks = new ArrayList<Map>(linkUrls.size());
 		if (!linkUrls.isEmpty()) {
-
+			if (linkUrls.size() != linkTitles.size() || linkUrls.size() != linkNames.size() || linkUrls.size() != linkIcons.size()) {
+				log.info("All portal.quicklink variables must be defined and the same size for quick links feature to work. One or more is not configured correctly.");
+				return new ArrayList<Map>();
+			}
 			for (int i = 0; i < linkUrls.size(); i++) {
 				String url = linkUrls.get(i);
 				String title = linkTitles.get(i);

@@ -41,9 +41,7 @@
 		$validator.escapeHtml($assignment.getTitle()) 
 		<small>
 		#if ($!assignment.isGroup() )
-			<span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
-		#else
-			<span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
+			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
 		#end
 		  - $tlang.getString('gen.subm2')
 		</small>

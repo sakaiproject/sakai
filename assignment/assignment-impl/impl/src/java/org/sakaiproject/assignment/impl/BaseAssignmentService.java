@@ -27,10 +27,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
+import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
+import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.poi.hssf.usermodel.*;
-import org.apache.poi.ss.util.WorkbookUtil;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.*;
@@ -96,9 +97,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
-import java.text.Collator;
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.*;
@@ -183,6 +181,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private AuthzGroupService authzGroupService;
 	public void setAuthzGroupService (AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	private GradeSheetExporter gradeSheetExporter;
+
+	public void setGradeSheetExporter(GradeSheetExporter gradeSheetExporter) {
+		this.gradeSheetExporter = gradeSheetExporter;
 	}
 
 	String newline = "<br />\n";
@@ -3406,7 +3410,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * @inheritDoc
 	 */
-	public List getListAssignmentsForContext(String context)
+	public List<Assignment> getListAssignmentsForContext(String context)
 	{
 		M_log.debug(this + " getListAssignmetsForContext : CONTEXT : " + context);
 		Assignment tempAssignment = null;
@@ -4248,22 +4252,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @param context
 	 * @return
 	 */
-	public List allowAddAnySubmissionUsers(String context)
+	public List<String> allowAddAnySubmissionUsers(String context)
 	{
-		List<String> rv = new Vector();
+		List<String> rv = new Vector<>();
 		
 		try
 		{
 			AuthzGroup group = authzGroupService.getAuthzGroup(context);
 			
 			// get the roles which are allowed for submission but not for all_site control
-			Set rolesAllowSubmission = group.getRolesIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
-			Set rolesAllowAllSite = group.getRolesIsAllowed(SECURE_ALL_GROUPS);
+			Set<String> rolesAllowSubmission = group.getRolesIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
+			Set<String> rolesAllowAllSite = group.getRolesIsAllowed(SECURE_ALL_GROUPS);
 			rolesAllowSubmission.removeAll(rolesAllowAllSite);
 			
-			for (Iterator iRoles = rolesAllowSubmission.iterator(); iRoles.hasNext(); )
+			for (Iterator<String> iRoles = rolesAllowSubmission.iterator(); iRoles.hasNext(); )
 			{
-				rv.addAll(group.getUsersHasRole((String) iRoles.next()));
+				rv.addAll(group.getUsersHasRole(iRoles.next()));
 			}
 		}
 		catch (Exception e)
@@ -4360,345 +4364,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public byte[] getGradesSpreadsheet(String ref) throws IdUnusedException, PermissionException
 	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		if (getGradesSpreadsheet(out, ref)) {
+		if (gradeSheetExporter.getGradesSpreadsheet(out, ref)) {
 			return out.toByteArray();
 		}
+
 		return null;
 	}
 
-	/**
-	 * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
-	 *
-	 * @param out
-	 *        The outputStream to stream the grades spreadsheet into.
-	 * @param ref
-	 *        The reference, either to a specific assignment, or just to an assignment context.
-	 * @return Whether the grades spreadsheet is successfully output.
-	 * @throws IdUnusedException
-	 *         if there is no object with this id.
-	 * @throws PermissionException
-	 *         if the current user is not allowed to access this.
-	 */
-	public boolean getGradesSpreadsheet(final OutputStream out, final String ref)
-			throws IdUnusedException, PermissionException {
-		boolean retVal = false;
-		String typeGradesString = REF_TYPE_GRADES + Entity.SEPARATOR;
-		String [] parts = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length()).split(Entity.SEPARATOR);
-		String idSite = (parts.length>1) ? parts[1] : parts[0];
-		String context = (parts.length>1) ? SiteService.siteGroupReference(idSite, parts[3]) : SiteService.siteReference(idSite);
 
-		// get site title for display purpose
-		String siteTitle = "";
-		String sheetName = "";
-		try
-		{
-			siteTitle = (parts.length>1)?SiteService.getSite(idSite).getTitle()+" - "+SiteService.getSite(idSite).getGroup((String)parts[3]).getTitle():SiteService.getSite(idSite).getTitle();
-			sheetName = (parts.length>1)?SiteService.getSite(idSite).getGroup((String)parts[3]).getTitle():SiteService.getSite(idSite).getTitle();
-		}
-		catch (Exception e)
-		{
-			// ignore exception
-			M_log.debug(this + ":getGradesSpreadsheet cannot get site context=" + idSite + e.getMessage());
-		}
-		
-		// does current user allowed to grade any assignment?
-		boolean allowGradeAny = false;
-		List assignmentsList = getListAssignmentsForContext(idSite);
-		for (int iAssignment = 0; !allowGradeAny && iAssignment<assignmentsList.size(); iAssignment++)
-		{
-			if (allowGradeSubmission(((Assignment) assignmentsList.get(iAssignment)).getReference()))
-			{
-				allowGradeAny = true;
-			}
-		}
-		
-		if (!allowGradeAny)
-		{
-			// not permitted to download the spreadsheet
-			return false;
-		}
-		else
-		{
-			int rowNum = 0;
-			HSSFWorkbook wb = new HSSFWorkbook();
-			
-			HSSFSheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
-	
-			// Create a row and put some cells in it. Rows are 0 based.
-			HSSFRow row = sheet.createRow(rowNum++);
-	
-			row.createCell(0).setCellValue(rb.getString("download.spreadsheet.title"));
-	
-			// empty line
-			row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue("");
-	
-			// site title
-			row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue(rb.getString("download.spreadsheet.site") + siteTitle);
-	
-			// download time
-			row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue(
-					rb.getString("download.spreadsheet.date") + TimeService.newTime().toStringLocalFull());
-	
-			// empty line
-			row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue("");
-	
-			HSSFCellStyle style = wb.createCellStyle();
-	
-			// this is the header row number
-			int headerRowNumber = rowNum;
-			// set up the header cells
-			row = sheet.createRow(rowNum++);
-			int cellNum = 0;
-			
-			// user enterprise id column
-			HSSFCell cell = row.createCell(cellNum++);
-			cell.setCellStyle(style);
-			cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
-	
-			// user name column
-			cell = row.createCell(cellNum++);
-			cell.setCellStyle(style);
-			cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
-			
-			// starting from this row, going to input user data
-			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator("duedate", "true"));
-	
-			// site members excluding those who can add assignments
-			List members = new ArrayList();
-			// hashmap which stores the Excel row number for particular user
-			HashMap user_row = new HashMap();
-			
-			List allowAddAnySubmissionUsers = allowAddAnySubmissionUsers(context);
-			for (Iterator iUserIds = new SortedIterator(allowAddAnySubmissionUsers.iterator(), new AssignmentComparator("sortname", "true")); iUserIds.hasNext();)
-			{
-				String userId = (String) iUserIds.next();
-				try
-				{
-					User u = UserDirectoryService.getUser(userId);
-					members.add(u);
-					// create the column for user first
-					row = sheet.createRow(rowNum);
-					// update user_row Hashtable
-					user_row.put(u.getId(), Integer.valueOf(rowNum));
-					// increase row
-					rowNum++;
-					// put user displayid and sortname in the first two cells
-					cellNum = 0;
-					row.createCell(cellNum++).setCellValue(u.getSortName());
-					row.createCell(cellNum).setCellValue(u.getDisplayId());
-				}
-				catch (Exception e)
-				{
-					M_log.warn(" getGradesSpreadSheet " + e.getMessage() + " userId = " + userId);
-				}
-			}
-				
-			int index = 0;
-			// the grade data portion starts from the third column, since the first two are used for user's display id and sort name
-			while (assignments.hasNext())
-			{
-				Assignment a = (Assignment) assignments.next();
-				
-				int assignmentType = a.getContent().getTypeOfGrade();
-				
-				// for column header, check allow grade permission based on each assignment
-				if(!a.getDraft() && allowGradeSubmission(a.getReference()))
-				{
-					// put in assignment title as the column header
-					rowNum = headerRowNumber;
-					row = sheet.getRow(rowNum++);
-					cellNum = (index + 2);
-					cell = row.createCell(cellNum); // since the first two column is taken by student id and name
-					cell.setCellStyle(style);
-					cell.setCellValue(a.getTitle());
-					
-					for (int loopNum = 0; loopNum < members.size(); loopNum++)
-					{
-						// prepopulate the column with the "no submission" string
-						row = sheet.getRow(rowNum++);
-						cell = row.createCell(cellNum);
-						cell.setCellType(1);
-						cell.setCellValue(rb.getString("listsub.nosub"));
-					}
-
-					// begin to populate the column for this assignment, iterating through student list
-					for (Iterator sIterator=getSubmissions(a).iterator(); sIterator.hasNext();)
-					{
-						AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
-						
-						String userId = submission.getSubmitterId();
-						
-                                                if (a.isGroup()) {                                                     
-                                                   
-                                                   User[] _users = submission.getSubmitters();
-                                                   for (int i=0; _users != null && i < _users.length; i++) {
-                                                       
-                                                       userId = _users[i].getId();
-                                                       
-						if (user_row.containsKey(userId))
-						{	
-							// find right row
-							row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
-						
-							if (submission.getGraded() && submission.getGrade() != null)
-							{
-								// graded and released
-								if (assignmentType == 3)
-								{
-									try
-									{
-										// numeric cell type?
-										String grade = (StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null)?
-												submission.getGradeForUserInGradeBook(userId)!=null?
-												submission.getGradeForUserInGradeBook(userId):submission.getGradeForUser(userId):submission.getGradeForUser(userId);
-										if(grade == null)
-										{
-											grade=submission.getGradeDisplay();
-										}
-										int factor = submission.getAssignment().getContent().getFactor();
-										int dec = (int)Math.log10(factor);
-
-										//We get float number no matter the locale it was managed with.
-										NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,null);
-										float f = nbFormat.parse(grade).floatValue();
-
-										// remove the String-based cell first
-										cell = row.getCell(cellNum);
-										row.removeCell(cell);
-										// add number based cell
-										cell=row.createCell(cellNum);
-										cell.setCellType(0);
-										cell.setCellValue(f);
-			
-										style = wb.createCellStyle();
-										String format ="#,##0.";
-										for (int j=0; j<dec; j++) {
-											format = format.concat("0");
-										}
-										style.setDataFormat(wb.createDataFormat().getFormat(format));
-										cell.setCellStyle(style);
-									}
-									catch (Exception e)
-									{
-										// if the grade is not numeric, let's make it as String type
-										// No need to remove the cell and create a new one, as the existing one is String type.
-										cell = row.getCell(cellNum);
-										cell.setCellType(1);
-										cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
-                                                                                    submission.getGradeForUser(userId));
-									}
-								}
-								else
-								{
-									// String cell type
-									cell = row.getCell(cellNum);
-									cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
-                                                                                    submission.getGradeForUser(userId));
-								}
-							}
-							else if (submission.getSubmitted() && submission.getTimeSubmitted() != null)
-							{
-								// submitted, but no grade available yet
-								cell = row.getCell(cellNum);
-								cell.setCellValue(rb.getString("gen.nograd"));
-							}
-						} // if
-					}
-                                                                                                       
-				}
-                                                else 
-                                                {
-				
-                                                    if (user_row.containsKey(userId))
-                                                    {	
-							// find right row
-							row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
-						
-							if (submission.getGraded() && submission.getGrade() != null)
-							{
-								// graded and released
-								if (assignmentType == 3)
-								{
-									try
-									{
-										// numeric cell type?
-										String grade = submission.getGradeDisplay();
-										int factor = submission.getAssignment().getContent().getFactor();
-										int dec = (int)Math.log10(factor);
-			
-										//We get float number no matter the locale it was managed with.
-										NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,null);
-										float f = nbFormat.parse(grade).floatValue();
-										
-										// remove the String-based cell first
-										cell = row.getCell(cellNum);
-										row.removeCell(cell);
-										// add number based cell
-										cell=row.createCell(cellNum);
-										cell.setCellType(0);
-										cell.setCellValue(f);
-			
-										style = wb.createCellStyle();
-										String format ="#,##0.";
-										for (int j=0; j<dec; j++) {
-											format = format.concat("0");
-										}
-										style.setDataFormat(wb.createDataFormat().getFormat(format));
-										cell.setCellStyle(style);
-									}
-									catch (Exception e)
-									{
-										// if the grade is not numeric, let's make it as String type
-										// No need to remove the cell and create a new one, as the existing one is String type. 
-										cell = row.getCell(cellNum);
-										cell.setCellType(1);
-										// Setting grade display instead grade.
-										cell.setCellValue(submission.getGradeDisplay());
-									}
-								}
-								else
-								{
-									// String cell type
-									cell = row.getCell(cellNum);
-									cell.setCellValue(submission.getGradeDisplay());
-								}
-							}
-							else if (submission.getSubmitted() && submission.getTimeSubmitted() != null)
-							{
-								// submitted, but no grade available yet
-								cell = row.getCell(cellNum);
-								cell.setCellValue(rb.getString("gen.nograd"));
-							}
-                                                    } // if
-                                                    
-                                                }
-					}
-				}
-				
-				index++;
-				
-			}
-			
-			// output
-			try
-			{
-				wb.write(out);
-				retVal = true;
-			}
-			catch (IOException e)
-			{
-				M_log.warn(" getGradesSpreadsheet Can not output the grade spread sheet for reference= " + ref);
-			}
-			
-			return retVal;
-		}
-
-	} // getGradesSpreadsheet
-	
 	@SuppressWarnings("deprecation")
 	public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
 	    Collection<Group> rv = new ArrayList<Group>();
@@ -4711,7 +4384,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        if (a != null)
 	        {
 	        	Site st = SiteService.getSite(contextString);
-	        	if (allOrOneGroup.equals(AssignmentConstants.ALL))
+	        	if (StringUtils.equals(allOrOneGroup, AssignmentConstants.ALL) || StringUtils.isEmpty(allOrOneGroup))
 	        	{
 		            if (a.getAccess().equals(Assignment.AssignmentAccess.SITE))
 		            {
@@ -4723,7 +4396,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		                    rv.add(_gg);
 		                    //}
 		                }
-		            } 
+		            }
 		            else
 		            {
 		                Collection<String> groupRefs = a.getGroups();
@@ -4784,7 +4457,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
                         			commitEdit(s);
                         			// clear the permission
-                        		} 
+                        		}
                         		catch (Exception e)
                         		{
                         			M_log.warn("getSubmitterGroupList: exception thrown while creating empty submission for group who has not submitted: " + e.getMessage());
@@ -5268,7 +4941,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					if (allowGradeSubmission(aRef))
 					{
 					    zipGroupSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(), a.getContent().getTypeOfSubmission(),
-					            new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment,gradeFileFormat,includeNotSubmitted);
+					            new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator()), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment,gradeFileFormat,includeNotSubmitted);
 
 					    if (exceptionMessage.length() > 0)
 					    {
@@ -5294,8 +4967,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if (allowGradeSubmission(aRef))
 				{
 					AssignmentContent content = a.getContent();
-					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(), 
-							new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
+					SortedIterator sortedIterator;
+					if (assignmentUsesAnonymousGrading(a))
+					{
+						sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
+					} else {
+						sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator());
+					}
+					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(),
+							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
 	
 					if (exceptionMessage.length() > 0)
 					{
@@ -6164,7 +5844,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								try
 								{
 									out = res.getOutputStream();
-									getGradesSpreadsheet(out, ref.getReference());
+									gradeSheetExporter.getGradesSpreadsheet(out, ref.getReference());
 									out.flush();
 									out.close();
 								}
@@ -11651,7 +11331,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			User[] rv = new User[size];
 			for(int k = 0; k<size; k++)
 			{
-				rv[k] = (User) retVal.get(k);
+				rv[k] = retVal.get(k);
 			}
 			
 			return rv;
@@ -13847,205 +13527,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}// SubmissionStorageUser
 
 
-	private class UserComparator implements Comparator
-        {
-            public UserComparator() {}
-            
-            public int compare(Object o1, Object o2) {
-                User _u1 = (User)o1;
-                User _u2 = (User)o2;
-                return _u1.compareTo(_u2);
-            }
-        }
-
-	/**
-	 * the AssignmentComparator clas
-	 */
-	static class AssignmentComparator implements Comparator
-	{	
-		Collator collator = null;
-		
-		/**
-		 * the criteria
-		 */
-		String m_criteria = null;
-
-		/**
-		 * the criteria
-		 */
-		String m_asc = null;
-
-		/**
-		 * is group submission
-		 */
-		boolean m_group_submission = false;
-
-		/**
-		 * constructor
-		 * @param criteria
-		 *        The sort criteria string
-		 * @param asc
-		 *        The sort order string. TRUE_STRING if ascending; "false" otherwise.
-		 */
-		public AssignmentComparator(String criteria, String asc)
-		{
-			this(criteria, asc, false);
-		} // constructor
-		public AssignmentComparator(String criteria, String asc, boolean group)
-		{
-			m_criteria = criteria;
-			m_asc = asc;
-			m_group_submission = group;
-			try
-			{
-				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
-			}
-			catch (ParseException e)
-			{
-				// error with init RuleBasedCollator with rules
-				// use the default Collator
-				collator = Collator.getInstance();
-				M_log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
-			}
-		}
-
-		/**
-		 * implementing the compare function
-		 * 
-		 * @param o1
-		 *        The first object
-		 * @param o2
-		 *        The second object
-		 * @return The compare result. 1 is o1 < o2; -1 otherwise
-		 */
-		public int compare(Object o1, Object o2)
-		{
-			int result = -1;
-
-			/************** for sorting submissions ********************/
-			if ("submitterName".equals(m_criteria))
-			{
-				String name1 = getSubmitterSortname(o1);
-				String name2 = getSubmitterSortname(o2);
-				result = compareString(name1,name2);
-			}
-			/** *********** for sorting assignments ****************** */
-			else if ("duedate".equals(m_criteria))
-			{
-				// sorted by the assignment due date
-				Time t1 = ((Assignment) o1).getDueTime();
-				Time t2 = ((Assignment) o2).getDueTime();
-
-				if (t1 == null)
-				{
-					result = -1;
-				}
-				else if (t2 == null)
-				{
-					result = 1;
-				}
-				else if (t1.before(t2))
-				{
-					result = -1;
-				}
-				else
-				{
-					result = 1;
-				}
-			}
-			else if ("sortname".equals(m_criteria))
-			{
-				// sorted by the user's display name
-				String s1 = null;
-				String userId1 = (String) o1;
-				if (userId1 != null)
-				{
-					try
-					{
-						User u1 = UserDirectoryService.getUser(userId1);
-						s1 = u1!=null?u1.getSortName():null;
-					}
-					catch (Exception e)
-					{
-						M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + userId1);
-					}
-				}
-					
-				String s2 = null;
-				String userId2 = (String) o2;
-				if (userId2 != null)
-				{
-					try
-					{
-						User u2 = UserDirectoryService.getUser(userId2);
-						s2 = u2!=null?u2.getSortName():null;
-					}
-					catch (Exception e)
-					{
-						M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + userId2);
-					}
-				}
-
-				result = compareString(s1,s2);
-			}
-			
-			// sort ascending or descending
-			if (m_asc.equals(Boolean.FALSE.toString()))
-			{
-				result = -result;
-			}
-			return result;
-		}
-
-		/**
-		 * get the submitter sortname String for the AssignmentSubmission object
-		 * @param o2
-		 * @return
-		 */
-		private String getSubmitterSortname(Object o2) {
-			String rv = "";
-			if (o2 instanceof AssignmentSubmission)
-			{
-				// get Assignment
-				AssignmentSubmission _submission =(AssignmentSubmission) o2;
-				if (_submission.getAssignment().isGroup()) {
-					// get the Group
-					try {
-						Site _site = SiteService.getSite( _submission.getAssignment().getContext() );
-						rv = _site.getGroup(_submission.getSubmitterId()).getTitle();
-					} catch (Throwable _dfd) { }			
-				} else {	
-				User[] users2 = ((AssignmentSubmission) o2).getSubmitters();
-				if (users2 != null)
-				{
-					StringBuffer users2Buffer = new StringBuffer();
-					for (int i = 0; i < users2.length; i++)
-					{
-						users2Buffer.append(users2[i].getSortName() + " ");
-					}
-					rv = users2Buffer.toString();
-				}
-			}
-			}
-			return rv;
-		}
-		
-		private int compareString(String s1, String s2) 
-		{
-			int result;
-			if (s1 == null && s2 == null) {
-				result = 0;
-			} else if (s2 == null) {
-				result = 1;
-			} else if (s1 == null) {
-				result = -1;
-			} else {
-				result = collator.compare(s1.toLowerCase(), s2.toLowerCase());
-			}
-			return result;
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -14309,6 +13790,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			List submissionLog=submission.getSubmissionLog();
 			
+			//Special case for old submissions prior to Sakai 10 where the submission log did not exist. Just return true for backward compatibility.
+			if (submissionLog == null || submissionLog.size() == 0) {
+				return true;
+			}
 			for (int x = 0; x < submissionLog.size(); x++)
 			{
 			    String itemString = (String) submissionLog.get(x);

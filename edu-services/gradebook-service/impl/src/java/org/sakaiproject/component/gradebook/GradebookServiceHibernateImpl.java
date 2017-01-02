@@ -1977,9 +1977,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			  try {
 				  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
 				  Double gradeAsDouble = new Double (nbFormat.parse(grade).doubleValue());
+				  String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator()+"";
 				  // grade must be greater than or equal to 0
 				  if (gradeAsDouble.doubleValue() >= 0) {
-						String[] splitOnDecimal = grade.split("\\.");
+						String[] splitOnDecimal = grade.split("\\"+decSeparator);
 					  // check that there are no more than 2 decimal places
 					  if (splitOnDecimal == null) {
 						  gradeIsValid = true;
@@ -1987,7 +1988,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					  // check for a valid score matching ##########.##
 					  // where integer is maximum of 10 integers in length
 					  // and maximum of 2 decimal places
-					  } else if (grade.matches("[0-9]{0,10}(\\.[0-9]{0,2})?")) {
+					  } else if (grade.matches("[0-9]{0,10}(\\"+decSeparator+"[0-9]{0,2})?")) {
 						  gradeIsValid = true;
 					  }
 				  }
@@ -3186,7 +3187,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Assignment assignment = gradeRecord.getAssignment();
 						
 			// remove if not for this category (rule 1)
-			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+			if(assignment.getCategory() == null){
+				return true;
+			}
+			if(categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				return true;
 			}
 			

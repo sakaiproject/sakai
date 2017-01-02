@@ -148,7 +148,7 @@ function showToolMenu(jqObj){
       .attr('title', maxToolsText)
       .append(maxToolsText);
 
-    goToSite.find('a span').addClass('icon-sakai-see-all-tools')
+    goToSite.find('a span').addClass('icon-sakai--see-all-tools')
 
     $PBJQ.getJSON(siteURL, function(data){
       $PBJQ.each(data, function(i, item){

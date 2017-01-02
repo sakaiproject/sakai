@@ -230,7 +230,7 @@
 									#end
 								#end
 								#if ($size > 0)
-									<i class="icon-sakai-clip"></i>
+									<i class="icon-sakai--clip"></i>
 								#else
 									&nbsp;
 								#end

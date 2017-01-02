@@ -1,5 +1,6 @@
 /* portal.css currently sets label to display:block. reverse it but only for our content. have to
    do iframe and inline separately, and for some reason popups  */
+
 #content label,.ui-dialog label,body[onload] label{
   display: inline;
 }
@@ -171,11 +172,20 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
 	border-width: 2px;
 }
 .instructionPanel,.controlsPanel {
-    border:1px solid #ccc;
+    border:1px solid #bbb;
     font-size:12px;
-    background: #eee;
+    background: #ddd;
     padding:5px;
     margin:5px 0
+}
+.indent {
+    margin-left: 10px;
+}
+.grouplist {
+    margin-left: 20px;
+    border:1px solid #bbb;
+    background: #ddd;
+    padding: 5px;
 }
 .controlsPanel {
     padding:0;
@@ -195,6 +205,11 @@ div.action span .nextbutton, .Mrphs-siteHierarchy span .nextbutton{
     color: #c00 !important;    
     text-shadow:none !important;
 
+}
+.mainList .narrow-instruction {
+    padding-top:5px;
+    padding-bottom:5px;
+    margin-bottom: 0px;
 }
 .act .deleteButton {
     float: none
@@ -278,6 +293,13 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 .mm-file-input-itemname {
 	margin-left: 1.0em;
+}
+.add-another-file-div {
+	padding: 10px;
+	padding-top: 0px;
+        margin-left: 30px;
+	background-color: #ddd;
+	border: 1px solid #bbb;
 }
 #edit-title {
 	margin-left: 1em
@@ -1129,16 +1151,7 @@ img {
 .question-multiplechoice-answer, .question-shortanswer-answer {
 	width: 250px;
 }
-
-.addStudentContent {
- -webkit-border-radius: 3px;
- -moz-border-radius: 3px;
- border-radius: 3px;
- border:solid black 1px;
- text-decoration:none;
- font-size:85%;
-}
-input[type="submit"].question-submit,.addStudentContent {
+input[type="submit"].question-submit,.linkCell .addStudentContent {
    margin: inherit;
    margin-top:15px;
    border:1px solid #999;
@@ -1153,6 +1166,15 @@ input[type="submit"].question-submit,.addStudentContent {
    line-height: inherit;
    border-radius: 3px;
    position: static;
+}
+.linkCell .addStudentContent {
+ -webkit-border-radius: 3px;
+ -moz-border-radius: 3px;
+ background-image:none;
+ border-radius: 3px;
+ border:solid black 1px;
+ text-decoration:none;
+ margin-top:0px;
 }
 
 .questionDiv .contentCol, .checklistDiv {
@@ -1413,6 +1435,14 @@ padding: 10px 15px 0 15px
 div.navIntraTool {
   border-top:none;
 }
+/* our additions to the top menu */
+
+.top-icon:before {
+   margin-right: 5px;
+}
+#print-view {
+   margin-right: 7px;
+}
 
 /* temporary, to avoid changing old stuff for the moment */
 .edit-col {
@@ -1515,7 +1545,7 @@ color: #666;
 }
 .sectionedit {
    display:inline-block;
-   background-color:#eee;
+   background-color:#ddd;
    z-index: 900;
    -webkit-border-radius: 3px;
    -moz-border-radius: 3px;
@@ -1728,12 +1758,14 @@ span.nextprev {
 .fa-button-text{
   font-size:125%;
 }
-.navIntraTool li.contentButton a {
+.navIntraTool li.contentButton a, .topaction a {
   padding-top:2px !important;
   padding-bottom:2px !important;
+  text-transform: uppercase;
 }
 .navIntraTool li.contentButton a .fa-button-text, .fa-fw {
   font-family:FontAwesome;
+  font-size: 0.8em;
 }
 .studentRow > .fa-fw {
   width: 1em !important;

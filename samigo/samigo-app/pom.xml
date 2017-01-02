@@ -252,7 +252,11 @@
         	<type>jar</type>
         	<scope>compile</scope>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-impl</artifactId>
+        </dependency>
+    </dependencies>
     
 	<build>
 		<plugins>
