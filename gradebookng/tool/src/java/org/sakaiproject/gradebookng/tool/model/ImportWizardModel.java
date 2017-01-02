@@ -67,7 +67,7 @@ public class ImportWizardModel implements Serializable {
 	private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
 	/**
-	 * If coruse grade override is imported
+	 * If course grade override is imported
 	 */
 	@Getter
 	@Setter
