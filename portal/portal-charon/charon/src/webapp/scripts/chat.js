@@ -352,7 +352,14 @@
             }
 
             pc.css('height', 'auto');
+
+            //Attach the escape listener
+            $PBJQ(portal.chat.domSelectors.pcChatTitleClose).escape(function (e) {
+                    portal.chat.toggleChat();
+                });
         } else {
+            //Remove the escape listener
+            $PBJQ(portal.chat.domSelectors.pcChatTitleClose).removeEscape();
             pc.hide();
 
             pc.css('height', 'auto');
