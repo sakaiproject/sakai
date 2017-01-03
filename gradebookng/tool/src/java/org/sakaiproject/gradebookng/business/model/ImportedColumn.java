@@ -34,6 +34,7 @@ public class ImportedColumn implements Serializable {
 	public enum Type {
 		GB_ITEM_WITH_POINTS,
 		GB_ITEM_WITHOUT_POINTS,
+		COURSE_GRADE_OVERRIDE,
 		COMMENTS,
 		USER_ID,
 		USER_NAME,
@@ -68,6 +69,17 @@ public class ImportedColumn implements Serializable {
 	 */
 	public boolean isComment() {
 		if(this.type == Type.COMMENTS) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Helper to determine if the type of column is a course grade override column - purely for convenience
+	 * @return
+	 */
+	public boolean isCourseGradeOverride() {
+		if(this.type == Type.COURSE_GRADE_OVERRIDE) {
 			return true;
 		}
 		return false;

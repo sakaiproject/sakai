@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -11,9 +12,9 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class SettingsGradeEntryPanel extends Panel {
 
@@ -56,13 +57,30 @@ public class SettingsGradeEntryPanel extends Panel {
 		}
 		add(settingsGradeEntryPanel);
 
-		// points/percentage entry
+		// grade entry type
 		final RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry",
 				new PropertyModel<Integer>(this.model, "gradebookInformation.gradeType"));
-		gradeEntry.add(new Radio<>("points", Model.of(GbGradingType.POINTS.getValue())));
-		gradeEntry.add(new Radio<>("percentages", Model.of(GbGradingType.PERCENTAGE.getValue())));
+
+		gradeEntry.add(new Radio<>("points", Model.of(GradingType.POINTS.getValue())));
+		gradeEntry.add(new Radio<>("percentages", Model.of(GradingType.PERCENTAGE.getValue())));
 		settingsGradeEntryPanel.add(gradeEntry);
 
+		// final grade mode (if enabled)
+		final AjaxCheckBox finalGradeMode = new AjaxCheckBox("finalgrade", new PropertyModel<Boolean>(this.model, "gradebookInformation.finalGradeMode")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return SettingsGradeEntryPanel.this.businessService.isFinalGradeModeEnabled();
+			}
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				// nothing required
+			}
+		};
+		finalGradeMode.setOutputMarkupId(true);
+		settingsGradeEntryPanel.add(finalGradeMode);
 	}
 
 	public boolean isExpanded() {
