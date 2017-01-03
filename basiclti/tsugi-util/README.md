@@ -8,7 +8,8 @@ and make the process more opaque to the developer.
 
 There is no Sakai-specific code but the code is developed and maintained in the 
 Sakai repository since it is so core to Sakai and heavily tested being part of 
-Sakai.
+Sakai.  Please do **not** put any org.sakaiproject dependencies to this folder
+please use `basiclti-common` for code with org.sakaiproject dependencies.
 
 This code is released in two ways.  Within Sakai this code is normally released
 as part of the Sakai build process:
@@ -85,3 +86,24 @@ The second-level API for tsugi-java is here:
     https://github.com/csev/tsugi-java
 
 The tsugi-java-servlet using both the tsugi-util and tsugi-java libraries.
+
+Releasing tsugi-util to Sonatype
+--------------------------------
+
+Set up `settings.xml` as described above.
+
+    cd trunk/basiclti/tsugi-util
+    cp pom-tsugi.xml pom.xml
+    mvn compile install deploy
+    git checkout pom.xml
+
+
+Check results of the deploy at:
+
+    https://oss.sonatype.org/#nexus-search;quick~tsugi-util
+
+After a while the files migrate to:
+
+    https://oss.sonatype.org/content/repositories/snapshots/org/tsugi/
+
+
