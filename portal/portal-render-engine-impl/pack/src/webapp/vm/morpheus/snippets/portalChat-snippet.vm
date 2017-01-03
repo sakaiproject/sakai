@@ -34,6 +34,7 @@
 
 #end ## END OF IF ( $neoChatVideo )
 
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/jescape.js$!{portalCDNQuery}"></script>
 <script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
 
 #end ## END of IF ( $neoChat && $loggedIn )
