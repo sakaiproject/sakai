@@ -1064,6 +1064,14 @@
                 <regexp name="anything" />
             </regexp-list>
          </attribute>
+
+         <!-- KNL-1487 - Role tag, used by wiris and others -->
+         <attribute name="role">
+             <regexp-list>
+                 <regexp name="anything" />
+             </regexp-list>
+         </attribute>
+
     </common-attributes>
 
 
