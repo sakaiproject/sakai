@@ -187,7 +187,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
         //SAK-29598 - Add more templates to CK Editor
         templates_files: [basePath+"templates/default.js"],
-        templates: 'customtemplates'
+        templates: 'customtemplates',
+        templates_replaceContent: false
     };
 
     if (config != null && config.baseFloatZIndex) {
