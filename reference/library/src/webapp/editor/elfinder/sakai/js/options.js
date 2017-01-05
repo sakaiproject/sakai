@@ -11,7 +11,7 @@ if (startDir) {
   startDir = startDir.split('/');
   startDir = startDir.filter(function(elem) { return elem; });
   startDir = startDir.slice(1);
-  startDir = '/' + startDir.join('/') + '/content/';
+  startDir = '/' + startDir.join('/');
 
   // Hashing
   startDir = btoa(startDir);
