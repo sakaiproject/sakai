@@ -1059,7 +1059,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		// Get timestamp of user's last profile update to invalidate old profile pictures in the browser cache
 		String profileLastUpdate = (String) s.getAttribute("profileLastUpdate");
-		rcontext.put("profileLastUpdate", StringUtils.isBlank(profileLastUpdate) ? Long.toString(System.currentTimeMillis()/1000L) : profileLastUpdate);
+		rcontext.put("profileLastUpdate", StringUtils.isBlank(profileLastUpdate) ? Long.toString(s.getCreationTime()/1000L) : profileLastUpdate);
 
 		//SAK-29457 Add warning about cookie use
 		String cookieNoticeText = rloader.getFormattedMessage("cookie_notice_text", ServerConfigurationService.getString("portal.cookie.policy.warning.url","/library/content/cookie_policy.html"));
