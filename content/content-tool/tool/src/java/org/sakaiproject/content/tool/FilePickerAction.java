@@ -629,8 +629,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch(PermissionException ex)
 			{
-				logger.warn("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
-				throw ex;
+				// May occurs when user attempts to access siteCollection which is hidden, with contents accessible
+				logger.info("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
 			}
 
 			Set<String> expandedCollections = getExpandedCollections(toolSession);
@@ -647,7 +647,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 			ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
 			
-			List<ListItem> this_site = new Vector<ListItem>();
+			List<ListItem> this_site = new Vector<>();
 
 			if(contentService.isInDropbox(collectionId))
 			{
@@ -710,28 +710,30 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			else
 			{
-				ContentCollection collection = contentService.getCollection(collectionId);
-				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null, false, filter);
-				List<ListItem> items = item.convert2list();
-				if(filter != null)
-				{
-					items = filterList(items, filter);
-				}
-				//Check if the ListItem in 'items' matches with the attach_item in the new_items list , if yes then it should not have option to be selected.
-				for(Object new_item : new_items){
-					for(ListItem listItem : items){
-						if(listItem.getId().equals(((AttachItem)new_item).getId())){
-							listItem.setCanSelect(false);
-							break;
-						}
-
+				if(contentService.allowGetCollection(collectionId)) {
+					ContentCollection collection = contentService.getCollection(collectionId);
+					ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null, false, filter);
+					List<ListItem> items = item.convert2list();
+					if (filter != null) {
+						items = filterList(items, filter);
 					}
-				}
-				this_site.addAll(items);
+					//Check if the ListItem in 'items' matches with the attach_item in the new_items list , if yes then it should not have option to be selected.
+					for (Object new_item : new_items) {
+						for (ListItem listItem : items) {
+							if (listItem.getId().equals(((AttachItem) new_item).getId())) {
+								listItem.setCanSelect(false);
+								break;
+							}
 
+						}
+					}
+					this_site.addAll(items);
+				}
 			}
-			
-			context.put ("this_site", this_site);
+
+			if(!this_site.isEmpty()) {
+				context.put("this_site", this_site);
+			}
 
 			boolean show_all_sites = false;
 
