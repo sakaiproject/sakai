@@ -13818,7 +13818,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		}
 
-		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
+		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
 			rv.add(SITE_INFO_TOOL_ID);
 		}
 		
@@ -13872,7 +13872,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			toolIdList.add(NEWS_TOOL_ID);
 		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
 			toolIdList.add(LESSONS_TOOL_ID);
-		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
+		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", true)){
 			toolIdList.add(SITE_INFO_TOOL_ID);
 		}
 		
