@@ -22,7 +22,7 @@ body.#{$namespace}toolMenu-collapsed{
 		min-width: #{ $tool-menu-width-collapsed };
 		width: #{ $tool-menu-width-collapsed };
 	}
-	#toolMenu, ul#subSites{
+	#toolMenu, #subSites{
 		.img_site_toolmenu{
 			display: none;
 		}
@@ -157,19 +157,14 @@ body.#{$namespace}toolMenu-collapsed{
 
 #subSites{
 	background: darken( $tool-menu-background-color, 10% );
-	ul{
-		list-style: none;
+	ul{  
 		padding: 0 0 0 0;
 	}
 }
 
 nav#subSites{
-	width: #{$tool-menu-width };
 	position: relative;
 	z-index: 9999;
-	@media #{$desktop}{
-		min-width: 7em;
-	}
 	&.floating{
 		min-width: #{$tool-menu-width * 2 };
 		max-width: #{$tool-menu-width * 2 };
@@ -249,7 +244,7 @@ nav#subSites{
 				}
 			}
 			a{
-				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
+				border-bottom: 1px solid darken( $tool-menu-background-color, 20% );
 				color: $tool-menu-color;
 				display: block;
 				font-family: $header-font-family;
