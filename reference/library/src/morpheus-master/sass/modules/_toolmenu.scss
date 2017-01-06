@@ -22,7 +22,7 @@ body.#{$namespace}toolMenu-collapsed{
 		min-width: #{ $tool-menu-width-collapsed };
 		width: #{ $tool-menu-width-collapsed };
 	}
-	#toolMenu, ul#subSites{
+	#toolMenu, #subSites{
 		.img_site_toolmenu{
 			display: none;
 		}
@@ -161,6 +161,9 @@ body.#{$namespace}toolMenu-collapsed{
 		list-style: none;
 		padding: 0 0 0 0;
 	}
+	@media #{$phone}{
+		background: $tool-menu-background-color;
+	}
 }
 
 nav#subSites{
@@ -235,7 +238,6 @@ nav#subSites{
 				}
 			}
 			@media #{$phone}{
-				border-left: 2px solid darken( $tool-menu-background-color, 10% );
 				margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 				width: calc( 25% - 1px );
 			}
@@ -249,7 +251,7 @@ nav#subSites{
 				}
 			}
 			a{
-				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
+				border-bottom: 1px solid darken( $tool-menu-background-color, 20% );
 				color: $tool-menu-color;
 				display: block;
 				font-family: $header-font-family;
@@ -270,6 +272,9 @@ nav#subSites{
 					color: $tool-menu-hover-color;
 				}
 				@media #{$phone}{
+					border-width: 1px;
+					border-style: solid;
+					border-color: darken( $tool-menu-background-color, 10% );
 					height:  5.5em;
 					overflow: hidden;
 					padding: 0.85em 0.25em 0.1em;
