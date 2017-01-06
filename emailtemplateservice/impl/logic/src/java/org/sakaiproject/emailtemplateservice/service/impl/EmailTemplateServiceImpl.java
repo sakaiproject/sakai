@@ -159,6 +159,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
          search.addRestriction( new Restriction("locale", locale.toString()) );
          et = dao.findOneBySearch(EmailTemplate.class, search);
          if (et == null) {
+            search = new Search("key", key);
             search.addRestriction( new Restriction("locale", locale.getLanguage()) );
             et = dao.findOneBySearch(EmailTemplate.class, search);
          }

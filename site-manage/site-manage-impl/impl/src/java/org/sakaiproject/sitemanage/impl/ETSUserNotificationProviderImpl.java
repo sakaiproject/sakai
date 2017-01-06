@@ -427,7 +427,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		return null;
 	}
 	
-	public void notifySiteImportCompleted(String toEmail, String siteId, String siteTitle){
+	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){
 			
 			// Create the map of replacement values
@@ -439,7 +439,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			// Use the email template service to send the email
 			String headerTo = toEmail;
 			String replyTo = toEmail;
-			emailTemplateServiceSend(SITE_IMPORT_EMAIL_TEMPLATE_KEY, Locale.ENGLISH, userDirectoryService.getCurrentUser(), getSetupRequestEmailAddress(),
+			emailTemplateServiceSend(SITE_IMPORT_EMAIL_TEMPLATE_KEY, locale, userDirectoryService.getCurrentUser(), getSetupRequestEmailAddress(),
 					toEmail, headerTo, replyTo, replacementValues);
 		}
 	}
