@@ -96,6 +96,7 @@
         gradebookPoints double precision,
         owner varchar(99),
         groupOwned bit,
+        owned bit,
         groupid varchar(99),
         cssSheet varchar(250),
         primary key (pageId)

@@ -173,6 +173,7 @@ simplePageBean.peerEvalOpenDate,
 simplePageBean.peerEvalAllowSelfGrade,
 simplePageBean.folderPickerSubmit,
 simplePageBean.folderPath,
+simplePageBean.newOwner,
 simplePageBean.forumSummaryHeight,
 simplePageBean.forumSummaryDropDown,
 simplePageBean.addForumSummary

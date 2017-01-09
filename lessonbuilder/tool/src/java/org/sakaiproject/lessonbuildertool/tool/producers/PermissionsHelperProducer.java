@@ -134,7 +134,8 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
                 }
 
 		session.setAttribute(PermissionsHelper.TARGET_REF, site.getReference());
-		session.setAttribute(PermissionsHelper.DESCRIPTION, messageLocator.getMessage("simplepage.editpermissions") + " " +  site.getTitle());
+		session.setAttribute(PermissionsHelper.DESCRIPTION, messageLocator.getMessage("simplepage.editpermissions")
+				+ " " +  site.getTitle() + ". " + messageLocator.getMessage("simplepage.ownerpermissions"));
 		session.setAttribute(PermissionsHelper.PREFIX, "lessonbuilder.");
 
 		HashMap<String, String> pRbValues = new HashMap<String, String>();

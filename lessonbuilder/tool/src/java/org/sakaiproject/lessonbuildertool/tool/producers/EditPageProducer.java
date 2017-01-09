@@ -155,7 +155,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 			richTextEvolver.evolveTextInput(instructions);
 
-			if (page.getOwner() == null) {
+			if (!simplePageBean.isStudentPage(page)) {
 			    // these options don't apply on student pages
 			    showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
 			    UIOutput.make(form, "prerequisite-block");
