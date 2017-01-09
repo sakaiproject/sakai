@@ -297,7 +297,7 @@ public class QuestionPoolFacadeQueries
   public List getAllItems(final Long questionPoolId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab.itemId");
 	    		q.setLong(0, questionPoolId.longValue());
 	    		return q.list();
 	    	};
@@ -429,7 +429,7 @@ public class QuestionPoolFacadeQueries
   public List getAllItemFacades(final Long questionPoolId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab.itemId");
 	    		q.setLong(0, questionPoolId.longValue());
 	    		return q.list();
 	    	};
@@ -455,31 +455,9 @@ public class QuestionPoolFacadeQueries
     try {
       Set questionPoolItems = qpp.getQuestionPoolItems();
       if (questionPoolItems != null) {
-    	  
-        // let's get all the items for the specified pool in one shot
-        HashMap h = new HashMap();
-        List itemList = getAllItems(qpp.getQuestionPoolId());
 
-        Iterator j = itemList.iterator();
-        while (j.hasNext()) {
-          ItemData itemData = (ItemData) j.next();
-          h.put(itemData.getItemId(), itemData);
-        }
-        ArrayList itemArrayList = new ArrayList();
-        Iterator i = questionPoolItems.iterator();
-        while (i.hasNext()) {
-          QuestionPoolItemData questionPoolItem = (QuestionPoolItemData) i.next();
-          ItemData itemData_0 = (ItemData) h.get(questionPoolItem.getItemId());
-          /*
-          Set itemTextSet = itemData_0.getItemTextSet();
-          Iterator k = itemTextSet.iterator();
-          while (k.hasNext()) {
-            ItemText itemText = (ItemText) k.next();
-          }
-          */
-          itemArrayList.add(itemData_0);
-        }
-        qpp.setQuestions(itemArrayList);
+        List itemList = getAllItems(qpp.getQuestionPoolId());
+        qpp.setQuestions(itemList);
         qpp.setSubPoolSize( Integer.valueOf(getSubPoolSize(qpp.getQuestionPoolId())));
       }
     }
