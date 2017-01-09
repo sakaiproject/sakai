@@ -27,7 +27,7 @@ include file for displaying multiple choice single correct survey questions
   <h:dataTable value="#{question.itemTextArray}" var="itemText">
    <h:column>
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer" width="100%">
-    <h:column rendered="#{answer.text!=null && answer.text!=''}">
+    <h:column>
       <h:graphicImage id="image8" rendered="#{answer.isCorrect || (question.partialCreditFlag && answer.partialCredit gt 0)}"
          alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
       </h:graphicImage>
@@ -35,18 +35,18 @@ include file for displaying multiple choice single correct survey questions
         alt=" " url="/images/delivery/spacer.gif" >
        </h:graphicImage>
     </h:column>
-    <h:column rendered="#{answer.text!=null && answer.text!=''}">
-      <h:outputText value="#{answer.label}" escape="false"
+    <h:column>
+      <h:outputText value="#{answer.label}. " escape="false"
         rendered="#{question.hint == '***'}" />
     </h:column>
-    <h:column rendered="#{answer.text!=null && answer.text!=''}"><%-- radio button, select answer --%>
+    <h:column><%-- radio button, select answer --%>
       <h:selectOneRadio value="#{question.hint}"  disabled="true"
         rendered="#{question.hint != '***'}">
-        <f:selectItem itemLabel="#{answer.label}"
+        <f:selectItem itemLabel="#{answer.label}. "
           itemValue="#{answer.sequence}"/>
       </h:selectOneRadio>
     </h:column>
-    <h:column rendered="#{answer.text!=null && answer.text!=''}">
+    <h:column>
       <h:outputText styleClass="mcAnswerText" value="#{answer.text}" escape="false" >
       	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
       </h:outputText>
