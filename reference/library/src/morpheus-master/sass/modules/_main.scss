@@ -45,12 +45,20 @@
 		display: inline-block;
 		margin: 0 0 0 1%;
 		vertical-align: top;
-		width: 48%;
 		@media #{$phone}{
 			display: block;
 			width: 100%;
 		}
 	}
+
+	#col1of2 {
+		width: 66%;
+	}
+
+	#col2of2{
+		width: 32%;
+	}
+
 }
 
 .#{$namespace}mainContent{

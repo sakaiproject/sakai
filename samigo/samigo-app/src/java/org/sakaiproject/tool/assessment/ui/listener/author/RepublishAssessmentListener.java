@@ -36,6 +36,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -97,6 +98,10 @@ public class RepublishAssessmentListener implements ActionListener {
 		// Tell AuthorBean that we just published an assessment
 		// This will allow us to jump directly to published assessments tab
 		author.setJustPublishedAnAssessment(true);
+		
+		// Update Delivery Bean
+		DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+		delivery.setPublishedAssessment(assessment);
 		
 		//update Calendar Events
        boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate2") != null;

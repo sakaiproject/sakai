@@ -58,6 +58,7 @@ public class ImportGradesHelper {
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
+	final static Pattern COURSE_GRADE_OVERRIDE_PATTERN = Pattern.compile("(\\$.+)");
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -214,39 +215,48 @@ public class ImportGradesHelper {
 				cell = new ImportedCell();
 			}
 
-			if (column.getType() == ImportedColumn.Type.USER_ID) {
+			switch(column.getType()) {
+				case USER_ID:
+					//skip blank lines
+					if(StringUtils.isBlank(lineVal)) {
+						log.debug("Skipping empty row");
+						return null;
+					}
 
-				//skip blank lines
-				if(StringUtils.isBlank(lineVal)) {
-					log.debug("Skipping empty row");
-					return null;
-				}
-
-				// check user is in the map (ie in the site)
-				final String studentUuid = userMap.get(lineVal);
-				if(StringUtils.isBlank(studentUuid)){
-					log.debug("Student was found in file but not in site: " + lineVal);
-					throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
-				}
-				row.setStudentEid(lineVal);
-				row.setStudentUuid(studentUuid);
-
-			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
-				row.setStudentName(lineVal);
-
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				cell.setScore(lineVal);
-				row.getCellMap().put(columnTitle, cell);
-
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				cell.setScore(lineVal);
-				row.getCellMap().put(columnTitle, cell);
-
-			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				cell.setComment(lineVal);
-				row.getCellMap().put(columnTitle, cell);
+					// check user is in the map (ie in the site)
+					final String studentUuid = userMap.get(lineVal);
+					if(StringUtils.isBlank(studentUuid)){
+						log.debug("Student was found in file but not in site: " + lineVal);
+						throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
+					}
+					row.setStudentEid(lineVal);
+					row.setStudentUuid(studentUuid);
+					break;
+				case USER_NAME:
+					row.setStudentName(lineVal);
+					break;
+				case GB_ITEM_WITH_POINTS:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case GB_ITEM_WITHOUT_POINTS:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case COMMENTS:
+					cell.setComment(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case COURSE_GRADE_OVERRIDE:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case IGNORE:
+					// do nothing
+					break;
+				default:
+					break;
 			}
-
 		}
 
 		return row;
@@ -291,9 +301,6 @@ public class ImportGradesHelper {
 
 			final ProcessedGradeItem processedGradeItem = new ProcessedGradeItem();
 
-			//default to gb_item - overridden if a comment type
-			processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
-
 			// assignment info (if available)
 			final Assignment assignment = assignmentMap.get(columnTitle);
 			if (assignment != null) {
@@ -308,24 +315,43 @@ public class ImportGradesHelper {
 			log.debug("Column name: " + columnTitle + ", type: " + column.getType() + ", status: " + status);
 
 			// process the header as applicable
-			if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				processedGradeItem.setItemPointValue(column.getPoints());
-			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
-				commentColumns.add(columnTitle);
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				// nothing todo except avoid the next block
-			} else {
-				// skip
-				//TODO could return this but as a skip status?
-				log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
-				continue;
+			switch(column.getType()) {
+				case COMMENTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
+					commentColumns.add(columnTitle);
+					break;
+				case COURSE_GRADE_OVERRIDE:
+					processedGradeItem.setType(ProcessedGradeItem.Type.COURSE_GRADE_OVERRIDE);
+					break;
+				case GB_ITEM_WITHOUT_POINTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
+					break;
+				case GB_ITEM_WITH_POINTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
+					processedGradeItem.setItemPointValue(column.getPoints());
+					break;
+				case IGNORE:
+					//never hit
+					break;
+				case USER_ID:
+					//never hit
+					break;
+				case USER_NAME:
+					//never hit
+					break;
+				default:
+					log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
+					break;
 			}
 
 			// process the data
 			final List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
 			for (final ImportedRow row : spreadsheetWrapper.getRows()) {
+				log.debug("row: " + row.getStudentEid());
+				log.debug("columnTitle: " + columnTitle);
+
 				final ImportedCell cell = row.getCellMap().get(columnTitle);
+
 				if (cell != null) {
 					final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
 					processedGradeItemDetail.setStudentEid(row.getStudentEid());
@@ -387,6 +413,10 @@ public class ImportGradesHelper {
 			} else if (assignment.getExternalId() != null) {
 				status = Status.EXTERNAL;
 			}
+		}
+
+		if(column.isCourseGradeOverride()) {
+			status = Status.UPDATE;
 		}
 
 		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
@@ -589,6 +619,21 @@ public class ImportGradesHelper {
 		if (m4.matches()) {
 			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
 			column.setType(ImportedColumn.Type.IGNORE);
+			return column;
+		}
+
+		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
+		if (m5.matches()) {
+
+			//steve i am up to here
+
+			// extract title
+			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
+
+			if (titleMatcher.find()) {
+				column.setColumnTitle(trim(titleMatcher.group()));
+			}
+			column.setType(ImportedColumn.Type.COURSE_GRADE_OVERRIDE);
 			return column;
 		}
 

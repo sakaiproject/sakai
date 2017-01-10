@@ -498,6 +498,9 @@
         <property name="messageManager">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
         </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </property>
     </bean>
 
 	<bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrItemProvider" class="org.sakaiproject.component.app.messageforums.entity.SynopticMsgcntrItemEntityProviderImpl">
