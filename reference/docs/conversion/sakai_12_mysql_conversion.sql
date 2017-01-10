@@ -243,6 +243,9 @@ ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY COLUMN username varchar(99), DROP INDEX 
   ADD UNIQUE INDEX POSTEM_USERNAME_SURROGATE (username, surrogate_key);
 -- END SAK-15708
 
+-- #3431 Add final grade mode setting
+ALTER TABLE GB_GRADEBOOK_T ADD COLUMN FINAL_GRADE_MODE bit(1) NOT NULL DEFAULT b'0';
+
 -- BEGIN 3432 Grade Points Grading Scale
 -- add the new grading scale
 INSERT INTO gb_grading_scale_t (id, object_type_id, version, scale_uid, name, unavailable)
@@ -360,5 +363,5 @@ SELECT
 , gs.id
 FROM gb_gradebook_t gb
 JOIN gb_grading_scale_t gs
-	ON gs.scale_uid = 'GradePointsMapping'
+  ON gs.scale_uid = 'GradePointsMapping';
 -- END 3432

@@ -1,24 +1,7 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <parent>
-        <artifactId>basiclti</artifactId>
-        <groupId>org.sakaiproject.basiclti</groupId>
-        <version>12-SNAPSHOT</version>
-    </parent>
-<!--
-
-    <name>Tsugi LTI Utilities (basiclti-util variant)</name>
-    <groupId>org.sakaiproject.basiclti</groupId>
-    <artifactId>basiclti-util</artifactId>
-    <organization>
-        <name>Tsugi Project</name>
-        <url>www.tsugi.org/</url>
-    </organization>
-    <inceptionYear>2009</inceptionYear>
-    <packaging>jar</packaging>
--->
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.tsugi</groupId>
   <artifactId>tsugi-util</artifactId>
@@ -38,10 +21,19 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
         </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.21</version>
+      </dependency>
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
         </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
@@ -51,19 +43,18 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
+            <version>2.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
+            <version>2.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+            <version>2.3.5</version>
 		</dependency>
-	<dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
     </dependencies>
 
 
@@ -132,20 +123,6 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>fix</goal>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -164,6 +141,10 @@
 
     </plugins>
 
+    <sourceDirectory>
+        src/java
+    </sourceDirectory>
+    
     <resources>
         <resource>
             <directory>src/main/resources</directory>

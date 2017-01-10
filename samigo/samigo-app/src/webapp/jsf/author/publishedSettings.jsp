@@ -700,7 +700,7 @@
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);" >
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   

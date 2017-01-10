@@ -233,7 +233,7 @@ $PBJQ(document).ready(function(){
       $PBJQ('.fav-sites-term, .fav-sites-entry').hide();
 
       var matched_sites = $PBJQ('.fav-sites-entry').filter(function (idx, entry) {
-          return ($PBJQ('.fav-title a', entry).attr('title').toLowerCase().indexOf(queryString) >= 0);
+          return ($PBJQ('.fav-title a span.fullTitle', entry).text().toLowerCase().indexOf(queryString) >= 0);
       });
 
       matched_sites.show();

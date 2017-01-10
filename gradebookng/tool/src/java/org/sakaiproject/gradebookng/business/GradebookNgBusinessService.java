@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -52,6 +53,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
@@ -112,6 +114,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 
@@ -477,14 +482,14 @@ public class GradebookNgBusinessService {
 		final Double maxPoints = assignment.getPoints();
 
 		// check what grading mode we are in
-		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
+		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
 		// if percentage entry type, reformat the grades, otherwise use points as is
 		String newGradeAdjusted = newGrade;
 		String oldGradeAdjusted = oldGrade;
 		String storedGradeAdjusted = storedGrade;
 
-		if (gradingType == GbGradingType.PERCENTAGE) {
+		if (gradingType == GradingType.PERCENTAGE) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
 			final Double newGradePercentage = NumberUtils.toDouble(newGrade);
 			final Double newGradePointsFromPercentage = (newGradePercentage / 100) * maxPoints;
@@ -1916,6 +1921,17 @@ public class GradebookNgBusinessService {
 		return false;
 	}
 
+	/**
+	 * Is final grade mode enabled in sakai.properties? To control this set:
+	 * <code>gradebook.enable.finalgrade=true<code> in sakai.properties.
+	 *
+	 * Note that this does not check the actual setting for <em>this</em> gradebook.
+	 *
+	 * @return true or false if enabled or not
+	 */
+	public boolean isFinalGradeModeEnabled() {
+		return this.serverConfigurationService.getBoolean("gradebook.enable.finalgrade", false);
+	}
 
 
 	/**
