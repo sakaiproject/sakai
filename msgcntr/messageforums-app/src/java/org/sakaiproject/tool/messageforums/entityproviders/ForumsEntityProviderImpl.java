@@ -501,8 +501,8 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		for(Message fm : (List<Message>) forumManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages)) {
 			//message has user_Id set in the 'modifiedBy' field, setting it to 'displayId' for display purpose
 			try {
-				String displayId =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayId();
-				fm.setModifiedBy(displayId);
+				String displayName =  userDirectoryService.getUser(fm.getModifiedBy()).getDisplayName();
+				fm.setModifiedBy(displayName);
 			} catch (UserNotDefinedException e) {
 				LOG.debug(" User not defined for id '" + fm.getModifiedBy() + "'.");
 			}
