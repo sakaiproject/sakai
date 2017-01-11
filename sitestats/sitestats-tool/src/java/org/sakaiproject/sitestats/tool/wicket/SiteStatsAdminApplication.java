@@ -18,6 +18,9 @@
  */
 package org.sakaiproject.sitestats.tool.wicket;
 
+import org.apache.wicket.core.request.mapper.CryptoMapper;
+import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
+import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.settings.IExceptionSettings;
 import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 
@@ -37,6 +40,11 @@ public class SiteStatsAdminApplication extends SiteStatsApplication {
 
 		// show internal error page rather than default developer page
 		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_INTERNAL_ERROR_PAGE);
+
+		// Encrypt URLs. This immediately sets up a session (note that things like CSS now becomes bound to the session)
+		getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // Different key per user
+		final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this); 
+		setRootRequestMapper(cryptoMapper);
 	}
 
 	@SuppressWarnings("unchecked")
