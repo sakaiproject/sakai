@@ -20,7 +20,6 @@ import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingIte
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -108,9 +107,6 @@ public class GradeImportUploadStep extends Panel {
 					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					error(getString("importExport.error.incorrecttype"));
-					return;
-				} catch (final GbImportExportUnknownStudentException e) {
-					error(getString("importExport.error.unknownstudent"));
 					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
 					error(getString("importExport.error.duplicatecolumn"));
