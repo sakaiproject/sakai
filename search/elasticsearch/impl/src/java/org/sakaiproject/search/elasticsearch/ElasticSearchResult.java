@@ -5,23 +5,33 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.highlight.*;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.Scorer;
+import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.util.Version;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.facet.terms.InternalTermsFacet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
-import org.sakaiproject.search.api.*;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.PortalUrlEnabledProducer;
+import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.TermFrequency;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,11 +46,11 @@ public class ElasticSearchResult implements SearchResult {
     private SearchHit hit;
     private String newUrl;
     private InternalTermsFacet facet;
-    private SearchIndexBuilder searchIndexBuilder;
+    private ElasticSearchIndexBuilder searchIndexBuilder;
     private static Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_36, StopAnalyzer.ENGLISH_STOP_WORDS_SET);
     private String searchTerms;
 
-    public ElasticSearchResult(SearchHit hit, InternalTermsFacet facet, SearchIndexBuilder searchIndexBuilder, String searchTerms) {
+    public ElasticSearchResult(SearchHit hit, InternalTermsFacet facet, ElasticSearchIndexBuilder searchIndexBuilder, String searchTerms) {
         this.hit = hit;
         this.facet = facet;
         this.searchIndexBuilder = searchIndexBuilder;
@@ -163,7 +173,7 @@ public class ElasticSearchResult implements SearchResult {
     }
 
     protected String getFieldFromSearchHit(String field) {
-        return ElasticSearchIndexBuilder.getFieldFromSearchHit(field, hit);
+        return searchIndexBuilder.getFieldFromSearchHit(field, hit);
     }
 
     @Override

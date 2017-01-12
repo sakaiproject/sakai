@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>elasticsearch-base</artifactId>
+    <groupId>org.sakaiproject.search.elasticsearch</groupId>
+    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject.search.elasticsearch</groupId>
+  <artifactId>elasticsearch-api</artifactId>
+  <name>Sakai search - ElasticSearch API</name>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.search</groupId>
+        <artifactId>search-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>

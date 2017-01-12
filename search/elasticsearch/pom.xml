@@ -24,6 +24,8 @@
 
 
     <modules>
+        <module>api</module>
+        <module>util</module>
         <module>impl</module>
     </modules>
 
