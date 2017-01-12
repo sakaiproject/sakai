@@ -19,6 +19,7 @@
  */
 package org.sakaiproject.scorm.ui.upload.pages;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
@@ -50,6 +51,7 @@ import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.scorm.api.ScormConstants;
+import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
@@ -127,7 +129,14 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			fileUploadField = new FileUploadField( "fileInput" );
 			fileUploadField.add( new AttributeAppender( "onchange", new Model( "document.getElementsByName( \"btnSubmit\" )[0].disabled = this.value === '';" ), ";" ) );
 			add( fileUploadField );
-			add(new CheckBox("fileValidated"));
+
+			// SCO-141 hide the validate checkbox (currently unimplemented)
+			CheckBox validate = new CheckBox( "fileValidated" );
+			validate.setVisibilityAllowed( false );
+			Label lblValidate = new Label( "lblValidate", new ResourceModel( "upload.validate.checkbox" ) );
+			lblValidate.setVisibilityAllowed( false );
+			add( lblValidate );
+			add( validate );
 
 			// SCO-97 sakai.property to enable/disable (show/hide) email sending (drop down)
 			@SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -239,7 +248,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 									setResponsePage( ConfirmPage.class, params );
 								}
 							}
-							catch( Exception e )
+							catch( IOException | ResourceStorageException e )
 							{
 								UploadPage.this.warn( getLocalizer().getString( "upload.failed", UploadPage.this, new Model( e ) ) );
 								LOG.error( "Failed to upload file", e );
