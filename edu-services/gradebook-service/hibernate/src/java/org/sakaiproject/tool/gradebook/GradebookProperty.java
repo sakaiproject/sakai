@@ -26,7 +26,10 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-public class GradebookProperty implements Serializable, Comparable {
+public class GradebookProperty implements Serializable, Comparable<Object> {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private Long id;
 	private int version;
 
@@ -52,10 +55,12 @@ public class GradebookProperty implements Serializable, Comparable {
 		this.value = value;
 	}
 
-    public int compareTo(Object o) {
+    @Override
+	public int compareTo(Object o) {
         return getName().compareTo(((GradebookProperty)o).getName());
     }
-    public String toString() {
+    @Override
+	public String toString() {
         return new ToStringBuilder(this).
             append(getName()).toString();
     }

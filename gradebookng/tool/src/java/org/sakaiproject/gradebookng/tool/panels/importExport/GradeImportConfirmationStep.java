@@ -195,8 +195,6 @@ public class GradeImportConfirmationStep extends Panel {
 					});
 				}
 
-				System.out.println("courseGradeOverrideItem: " + courseGradeOverrideItem);
-
 				// update course grade override
 				if(courseGradeOverrideItem != null){
 

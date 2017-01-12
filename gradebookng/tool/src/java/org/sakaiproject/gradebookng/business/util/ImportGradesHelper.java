@@ -625,8 +625,6 @@ public class ImportGradesHelper {
 		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
 		if (m5.matches()) {
 
-			//steve i am up to here
-
 			// extract title
 			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
 

@@ -28,44 +28,43 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * A LetterGradePlusMinusMapping defines the set of grades available to a
- * gradebook as "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D",
- * "D-", and "F", each of which can be mapped to a minimum percentage value.
- *
+ * This is a modified LetterGradePlusMinusMapping.
+ * Details at: from https://github.com/sakaiproject/sakai/issues/3432
  */
-public class LetterGradePlusMinusMapping extends GradeMapping {
-	private List grades;
-	private List defaultValues;
+public class GradePointsMapping extends GradeMapping {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private List<String> grades;
+	private List<Double> defaultValues;
+	
 	@Override
-	public Collection getGrades() {
+	public Collection<String> getGrades() {
 		return grades;
 	}
+	
 	@Override
-	public List getDefaultValues() {
+	public List<Double> getDefaultValues() {
         return defaultValues;
     }
 
-    public LetterGradePlusMinusMapping() {
-        setGradeMap(new LinkedHashMap());
+    public GradePointsMapping() {
+        super.setGradeMap(new LinkedHashMap<String, Double>());
 
-        grades = new ArrayList();
-        grades.add("A+");
-        grades.add("A");
-        grades.add("A-");
-        grades.add("B+");
-        grades.add("B");
-        grades.add("B-");
-        grades.add("C+");
-        grades.add("C");
-        grades.add("C-");
-        grades.add("D+");
-        grades.add("D");
-        grades.add("D-");
-        grades.add("F");
+        grades = new ArrayList<String>();
+        grades.add("A (4.0)");
+        grades.add("A- (3.67)");
+        grades.add("B+ (3.33)");
+        grades.add("B (3.0)");
+        grades.add("B- (2.67)");
+        grades.add("C+ (2.33)");
+        grades.add("C (2.0)");
+        grades.add("C- (1.67)");
+        grades.add("D (1.0)");
+        grades.add("F (0)");
 
-        defaultValues = new ArrayList();
+        defaultValues = new ArrayList<Double>();
         defaultValues.add(Double.valueOf(100));
-        defaultValues.add(Double.valueOf(95));
         defaultValues.add(Double.valueOf(90));
         defaultValues.add(Double.valueOf(87));
         defaultValues.add(Double.valueOf(83));
@@ -74,8 +73,6 @@ public class LetterGradePlusMinusMapping extends GradeMapping {
         defaultValues.add(Double.valueOf(73));
         defaultValues.add(Double.valueOf(70));
         defaultValues.add(Double.valueOf(67));
-        defaultValues.add(Double.valueOf(63));
-        defaultValues.add(Double.valueOf(60));
         defaultValues.add(Double.valueOf(00));
     }
 
@@ -84,7 +81,7 @@ public class LetterGradePlusMinusMapping extends GradeMapping {
      */
     @Override
 	public String getName() {
-        return "Letter Grades with +/-";
+        return "Grade Points";
     }
 
 }

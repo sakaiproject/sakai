@@ -184,6 +184,7 @@
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 
 		<!-- Set up default system-wide grading scales. -->
+		<!-- Note that this is not currently used and is out of date -->
 <!--
 		<property name="availableGradingScales">
 			<list>

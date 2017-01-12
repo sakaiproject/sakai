@@ -91,17 +91,17 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
-				expanded = true;
+				SettingsGradingSchemaPanel.this.expanded = true;
 			}
 		});
 		settingsGradingSchemaPanel.add(new AjaxEventBehavior("hidden.bs.collapse") {
 			@Override
 			protected void onEvent(final AjaxRequestTarget ajaxRequestTarget) {
 				settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse"));
-				expanded = false;
+				SettingsGradingSchemaPanel.this.expanded = false;
 			}
 		});
-		if (expanded) {
+		if (this.expanded) {
 			settingsGradingSchemaPanel.add(new AttributeModifier("class", "panel-collapse collapse in"));
 		}
 		add(settingsGradingSchemaPanel);
@@ -147,7 +147,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
 
 				// if grade is F or NP, set disabled
-				if (ArrayUtils.contains(new String[] { "F", "NP" }, entry.getGrade())) {
+				if (ArrayUtils.contains(new String[] { "F", "NP", "F (0)" }, entry.getGrade())) {
 					minPercent.setEnabled(false);
 				}
 
@@ -258,13 +258,15 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	}
 
 	public boolean isExpanded() {
-		return expanded;
+		return this.expanded;
 	}
 }
 
 /**
- * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade Copied from GradebookService and made
- * Serializable as we use it in a TreeMap Also has the fix from SAK-30094.
+ * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
+ * Copied from GradebookService and made Serializable as we use it in a TreeMap.
+ * Also has the fix from SAK-30094.
+ * If this changes, be sure to update the other.
  */
 class LetterGradeComparator implements Comparator<String>, Serializable {
 
@@ -273,22 +275,26 @@ class LetterGradeComparator implements Comparator<String>, Serializable {
 	@Override
 	public int compare(final String o1, final String o2) {
 		if (o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
-			if (o1.length() == 2 && o2.length() == 2) {
-				if (o1.charAt(1) == '+') {
+			//only take the first 2 chars, to cater for GradePointsMapping as well
+			final String s1 = StringUtils.trim(StringUtils.left(o1, 2));
+			final String s2 = StringUtils.trim(StringUtils.left(o2, 2));
+
+			if (s1.length() == 2 && s2.length() == 2) {
+				if (s1.charAt(1) == '+') {
 					return -1; // SAK-30094
 				} else {
 					return 1;
 				}
 			}
-			if (o1.length() == 1 && o2.length() == 2) {
+			if (s1.length() == 1 && s2.length() == 2) {
 				if (o2.charAt(1) == '+') {
 					return 1; // SAK-30094
 				} else {
 					return -1;
 				}
 			}
-			if (o1.length() == 2 && o2.length() == 1) {
-				if (o1.charAt(1) == '+') {
+			if (s1.length() == 2 && s2.length() == 1) {
+				if (s1.charAt(1) == '+') {
 					return -1; // SAK-30094
 				} else {
 					return 1;
