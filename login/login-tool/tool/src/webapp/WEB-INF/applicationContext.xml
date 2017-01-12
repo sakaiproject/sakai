@@ -5,5 +5,9 @@
 
     <!-- We have not been able to get a SAML config working in TOMCAT_HOME/sakai/xlogin-context.xml. -->
     <!-- import resource="xlogin-context.saml.xml" / -->
+
+    <!-- Sample configuration for SAML with ADFS IdP -->
+    <!-- import resource="xlogin-context.saml.adfs-prod.xml" / -->
+
 </beans>
 
