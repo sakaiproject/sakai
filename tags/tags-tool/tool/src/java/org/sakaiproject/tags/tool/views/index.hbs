@@ -1,0 +1,103 @@
+{{#unless tagserviceactive}}
+<section class="tagservice-section">
+  <div class="alert alert-danger">{{{t this "tagservice-disabled"}}}</div>
+</section>
+{{/unless}}
+
+<section class="tagservice-section">
+  <header class="tagservice-section-header">
+    <h3>{{{t this "tagcollections"}}}</h3>
+    <div class="btn-toolbar">
+        <a href="{{{newURL this 'tagcollections' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Tag Collection"}}}</a>
+    </div>
+  </header>
+
+  <table class="tagservice-table table table-striped table-hover table-condensed">
+    <thead>
+      <tr>
+          <th class="tags-collections-percent-small">{{{t this "name"}}}</th>
+          <th class="tags-collections-percent-big">{{{t this "description"}}}</th>
+          <th class="tags-collections-percent-small">{{{t this "externalSourceName"}}}</th>
+          <th class="tags-collections-percent-big">{{{t this "externalSourceDescription"}}}</th>
+
+        <!--<th>{{{t this "creation_date"}}}</th>-->
+        <th><!-- actions --></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each tagcollections}}
+      <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.description}}</td>
+        <td>{{this.externalSourceName}}</td>
+        <td>{{this.externalSourceDescription}}</td>
+              <!-- <td>{{show-time this this.creationDate}}</td>-->
+        <td class="actions">
+            <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "edit"}}}" class="btn btn-primary btn-xs">{{{t this "Edit"}}}</a>
+            <a href="{{{actionURL this 'tagsintagcollection' this.tagCollectionId "manage"}}}" class="btn btn-primary btn-xs">{{{t this "Manage Tags"}}}</a>
+            <a href="{{{actionURL this 'tagcollections' this.tagCollectionId "delete"}}}" class="btn btn-warning btn-xs tagservice-delete-btn" data-record-type="tagcollection"><span class="glyphicon glyphicon-trash"></span></a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+    <!--pagination param ==> currentPage:{{pageNum}} totalPageCount:{{totalPages}} countPerPageGroup:{{countPerPageGroup}}-->
+    {{#pagination this pageNum totalPages countPerPageGroup}}
+        <div class="paging_bootstrap">
+            <ul class="pagination">
+                {{#if canGoPrevious}}
+                    <li class="prev"><a href="{{actionURLPaginated this 'index' "0" "manage" previousIdx pageSize}}"><i class="icon-double-angle-left">&Lt;</i></a></li>
+                {{else}}
+                    <li class="prev disabled"><a href="#"><i class="icon-double-angle-left">&Lt;</i></a></li>
+                {{/if}}
+
+                {{#each pages}}
+                    <li {{#if isCurrent}}class="active"{{/if}}><a href="{{actionURLPaginated this 'index' "0" "manage" pageInt pageSize}}">{{page}}</a></li>
+                {{/each}}
+
+                {{#if canGoNext}}
+                    <li class="next"><a href="{{actionURLPaginated this 'index' "0" "manage" nextIdx pageSize}}"><i class="icon-double-angle-right">&Gt;</i></a></li>
+                {{else}}
+                    <li class="next disabled"><a href="#"><i class="icon-double-angle-right">&Gt;</i></a></li>
+                {{/if}}
+            </ul>
+        </div>
+    {{/pagination}}
+
+
+</section>
+
+<script id="tagserviceDeleteConfirmationModalTemplate" type="text/template">
+  <div class="tag-modal modal fade" id="tagserviceDeleteConfirmationModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="{{{t this "Close"}}}"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">
+            {if recordType == "tagcollection"}
+              {{{t this "Delete Tag Collection"}}}
+            {/if}
+          </h4>
+        </div>
+        <div class="modal-body">
+          <p>
+            {if recordType == "tagcollection"}
+              {{{t this "Are you sure you want to delete this tag collection?"}}}
+            {/if}
+          </p>
+        </div>
+        <div class="modal-footer">
+          <form action="${deleteURL}" method="POST">
+            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">{{{t this "Close"}}}</button>
+            <button type="submit" class="btn btn-danger btn-sm">
+              {if recordType == "tagcollection"}
+                {{{t this "Delete Tag Collection"}}}
+              {/if}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>

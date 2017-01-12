@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<Tags>
+  <Tag Type = "TheForce">
+    <ExternalSourceName>STARWARS</ExternalSourceName>
+    <ExternalId>SW00001</ExternalId>
+    <TagLabel>Luke Skywalker</TagLabel>
+    <Description>Jedi Knight</Description>
+    <DateCreated>
+	<Year>2013</Year>
+	<Month>09</Month>
+   	<Day>13</Day>
+    </DateCreated>
+    <DateRevised>
+	<Year>2015</Year>
+	<Month>06</Month>
+   	<Day>30</Day>
+    </DateRevised>
+    <HierarchyCode></HierarchyCode>
+    <AlternativeLabels></AlternativeLabels>
+    <Data>Luke is a nice guy</Data>
+    <ParentId>SW00001</ParentId>
+  </Tag>
+  <Tag Type = "DarkSide">
+    <Action>delete</Action>
+    <ExternalSourceName>STARWARS</ExternalSourceName>
+    <ExternalId>SW00002</ExternalId>
+    <TagLabel>Anakin Skywalker</TagLabel>
+    <Description>Jedi Knight and Sith Lord</Description>
+    <DateCreated>
+	<Year>2012</Year>
+	<Month>05</Month>
+   	<Day>14</Day>
+    </DateCreated>
+    <DateRevised>
+	<Year>2015</Year>
+	<Month>06</Month>
+   	<Day>30</Day>
+    </DateRevised>
+    <HierarchyCode></HierarchyCode>
+    <AlternativeLabels>Darth Vader</AlternativeLabels>
+    <Data>Anakin was a nice guy but went to the dark side</Data>
+    <ParentId></ParentId>
+  </Tag>
+</Tags>
+
+
