@@ -44,6 +44,12 @@ a{
 			@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
 		}
 		text-decoration:underline;	
+		&.btn{
+			text-decoration: none;
+		}
+		&.btn-primary{
+			color: #FFF;
+		}
 	}
 	&.url{
 		@media #{$phone}{
