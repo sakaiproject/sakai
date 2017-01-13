@@ -2212,6 +2212,55 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		return edit;
 	}
 	/**
+	 * @param collectionId
+	 * @param name
+	 * @param limit
+	 * @return
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUnusedException
+	 *            if the collectionId does not identify an existing collection.
+	 * @exception IdUnusedException
+	 *            if the collection id for the proposed name already exists in this collection.
+	 * @exception IdLengthException
+	 *            if the new collection id exceeds the maximum number of characters for a valid collection id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception IdUniquenessException
+	 *            if we still can't find a unique after 99 attempts at incrementing the id.
+	 */
+	public ContentCollectionEdit addCollection(String collectionId, String name, int limit)
+			throws PermissionException, IdUnusedException, IdUsedException,
+			IdLengthException, IdInvalidException, TypeException, IdUniquenessException
+	{
+		String new_name = "";
+
+		try
+		{
+			return addCollection(collectionId, name);
+		}
+		catch (IdUsedException e)
+		{
+			M_log.debug("Failed to create collection with id {} will now try incrementing id", new_name);
+
+			for (int attempts = 1; attempts <= 99; attempts++)
+			{
+				new_name = StringUtils.trim(name) + "-" + attempts;
+				try
+				{
+					return addCollection(collectionId, new_name);
+				}
+				catch (IdUsedException ee)
+				{
+					M_log.debug("Failed to create unique collection with name: {}", new_name);
+				}
+			}
+		}
+
+		throw new IdUniquenessException(new_name);
+	}
+
+	/**
 	 * Create a new collection with the given resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done!
 	 * 
 	 * @param id
