@@ -102,13 +102,13 @@ implements EventLogFacadeQueriesAPI {
 	}
 	
 	public List<EventLogData> getEventLogData(final String siteId, final Long assessmentId, final String userFilter) {
-	   String query = "select eld from EventLogData as eld where eld.siteId = ?";
+	   String query = "select eld from EventLogData as eld, PublishedAssessmentData as pad where eld.siteId = ?";
 	   
 	   if (assessmentId > -1) {
 	      query += " and eld.assessmentId = ?";
 	   }
 	   
-	   query += " order by eld.assessmentId asc, eld.userEid asc";
+	   query += " and eld.assessmentId=pad.publishedAssessmentId and pad.status <> 2 order by eld.assessmentId asc, eld.userEid asc";
 
       final String hql = query;
       final HibernateCallback hcb = new HibernateCallback() {
