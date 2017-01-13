@@ -23,7 +23,10 @@ h4.toggleAnchor {
     background:#eee;
     width: 100%;
     -webkit-border-radius:5px;
-   -moz-border-radius:5px; 
+   -moz-border-radius:5px;
+}
+#archiveSiteType{
+  margin-bottom: .5em;
 }
 #siteTypeList p {
     border:none;
@@ -282,7 +285,7 @@ dl.defList dd{
 }
 #toolHolder h4 a:before {
     content:"\25B8\0020\0020";
-} 
+}
 #toolHolder h4 a.open:before {
     content:"\25BE\0020\0020";
 }
@@ -310,7 +313,7 @@ dl.defList dd{
  #toolHolder ul li div.toolListDesc, #toolHolder ul li div.toolListControl {
     padding:5px
  }
- 
+
  #toolHolder ul li div.toolListControl label {
     color:#555;
  }
@@ -379,7 +382,7 @@ dl.defList dd{
     color: #fff;
     white-space: nowrap;
     z-index: 100
-    
+
 }
 #alertBox a:first-child {
     margin-left: 20px;
@@ -387,7 +390,7 @@ dl.defList dd{
 #alertBox a{
     color:#fff;
     margin: 0 5px
-} 
+}
 
 #moreInfoHolder img {
     width:100%;
@@ -481,7 +484,7 @@ dl.defList dd{
     text-decoration: none !important;
     margin:0px 0px 0 5px;
     font-size:12px;
-    
+
     background: -moz-linear-gradient(center top , #F6F6F5 0%, #E0E0E0 93%, #E0E0E0 97%, #E9E9E9 100%) repeat scroll 0 0 transparent !important;
     border: 1px solid #E0E3E5 !important;
     border-radius: 3px 3px 3px 3px;
@@ -493,7 +496,7 @@ dl.defList dd{
     margin-left: 0 !important;
     margin-right: 3px;
     text-shadow: 0 2px 3px #FFFFFF !important;
-    
+
 }
 #newSiteAlert  a.newSiteAlertClose {
     text-decoration: none;
@@ -547,8 +550,8 @@ dl.defList dd{
 
 #toolSelectionList li .selectedToolTitle
 {
-    padding: 6px 0 6px 30px;   
-    text-align:left;    
+    padding: 6px 0 6px 30px;
+    text-align:left;
     background-position: 8px 8px;
     background-repeat: no-repeat;
 }
