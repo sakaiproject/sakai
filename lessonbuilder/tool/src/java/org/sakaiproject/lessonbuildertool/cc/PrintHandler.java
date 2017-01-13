@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  **********************************************************************************/
 
+import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.XMLOutputter;
@@ -64,10 +65,12 @@ import java.io.FileOutputStream;
 import java.io.CharArrayWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import org.w3c.dom.Document;
 import org.jdom.output.DOMOutputter;
 
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -511,9 +514,29 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String extension = Validator.getFileExtension(sakaiId);
 	      String mime = ContentTypeImageService.getContentType(extension);
 	      String intendedUse = resource.getAttributeValue(INTENDEDUSE);
+	      String fileName = getFileName(resource);
+	      //For HTML types, make a page instead of a Resource
+	      SimplePageItem item;
+	      if (mime != null && fileName != null && mime.startsWith("text/")) {
+	          item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.TEXT, sakaiId, title);
+	          StringWriter writer = new StringWriter();
+	          IOUtils.copy(utils.getFile(fileName), writer);
+	          String html = writer.toString();
 
-	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
-	      item.setHtml(mime);
+	          StringBuilder error = new StringBuilder();
+	          //Read HTML
+	          Integer filter = simplePageBean.getFilterLevel(null);
+	          if (filter.equals(simplePageBean.FILTER_HIGH))
+	              html = FormattedText.processFormattedText(html, error);
+	          else
+	              html = FormattedText.processHtmlDocument(html, error);
+	          item.setHtml(html);
+	      }
+	      else  {
+	          item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
+	          item.setHtml(mime);
+	      }
+
 	      item.setSameWindow(true);
 
 	      title = the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns());
@@ -601,7 +624,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  else if (intendedUse.equals("syllabus"))
 		      item.setDescription(simplePageBean.getMessageLocator().getMessage("simplepage.import_cc_syllabus"));
 		  else if (assigntool != null && intendedUse.equals("assignment")) {
-		      String fileName = getFileName(resource);
 		      if (itemsAdded.get(fileName) == null) {
 			  // itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 			  AssignmentInterface a = (AssignmentInterface) assigntool;
@@ -618,8 +640,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      simplePageBean.saveItem(item);
 	      if (roles.size() > 0) {  // has to be written already or we can't set groups
 		  // file hasn't been written yet to contenthosting. setitemgroups requires it to be there
-		  addFile(href);
-		  simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+	          addFile(fileName);
+	          simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
 	      }
 	      sequences.set(top, seq+1);
 	  } else if (type.equals(CC_WEBCONTENT) || type.equals(UNKNOWN)) { // i.e. hidden. if it's an assignment have to load it
@@ -1088,6 +1110,17 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void setWebLinkXml(Element the_link) {
       if (all)
 	  System.err.println("weblink xml: "+the_link);
+  }
+
+  public void addFile(Element elem) {
+      //These are processed as standard text
+       String href = elem.getAttributeValue(HREF);
+       String sakaiId = baseName + elem.getAttributeValue(HREF);
+       String extension = Validator.getFileExtension(sakaiId);
+       String mime = ContentTypeImageService.getContentType(extension);
+       if (mime != null && mime.startsWith("text/"))
+           return;
+       addFile(href);
   }
 
   public void addFile(String the_file_id) {

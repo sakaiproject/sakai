@@ -111,8 +111,8 @@ public abstract class AbstractParser {
   processFiles(DefaultHandler the_handler,
                Element the_resource) {
       for (Iterator iter=the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).iterator(); iter.hasNext();) {
-      the_handler.addFile(((Element)iter.next()).getAttributeValue(HREF));
-    }
+          the_handler.addFile((Element)iter.next());
+      }
   }
   
   public void
