@@ -642,30 +642,33 @@ function swapUpdateIndicator()
 	}
 }
 
-function checkForUpdate()
-{
-	updateWaiting = 0;
-	if ((updateUrl !== "") && (updateReq === null))
-	{
-		loadXMLDoc(updateUrl);
-	}
+function checkForUpdate(url) {
+    if (url !== undefined || url !== "") {
+        updateUrl = url;
+    }
+    updateWaiting = 0;
+    if ((updateUrl !== "") && (updateReq === null)) {
+        loadXMLDoc(updateUrl);
+    }
 }
 
-function scheduleUpdate()
-{
-	if ((updateTime > 0) && (updateWaiting === 0))
-	{
-		updateWaiting = setTimeout('checkForUpdate()', updateTime);
-	}
+function scheduleUpdate(updTime, updUrl) {
+    if (updTime !== undefined || updTime !== "") {
+        updateTime = updTime;
+    }
+    if (updUrl !== undefined || updUrl !== "") {
+        updateUrl = updUrl;
+    }
+    if ((updateTime > 0) && (updateWaiting === 0)) {
+        updateWaiting = setTimeout('checkForUpdate()', updateTime);
+    }
 }
 
-function updateNow()
-{
-	if (updateWaiting !== 0)
-	{
-		clearTimeout(updateWaiting);
-	}
-	checkForUpdate();
+function updateNow(url) {
+    if (updateWaiting !== 0) {
+        clearTimeout(updateWaiting);
+    }
+    checkForUpdate(url);
 }
 
 function portalWindowRefresh(url)
