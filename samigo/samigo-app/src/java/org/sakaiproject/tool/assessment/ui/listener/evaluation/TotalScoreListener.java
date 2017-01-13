@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -387,7 +389,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         bean.setHasRandomDrawPart(hasRandomPart(p));
       }
       if (firstTime || (isValueChange)){
-        bean.setAnsweredItems(getAnsweredItems(scores, p)); // Save for QuestionScores
+	  //        bean.setAnsweredItems(getAnsweredItems(scores, p)); // Save for QuestionScores
       }
       log.debug("**firstTime="+firstTime);
       log.debug("**isValueChange="+isValueChange);
@@ -752,7 +754,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   }
 
 
-  public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents, boolean sortAscending){
+  public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents, final boolean sortAscending){
     log.debug("TotalScoreListener: setRoleAndSortSection() starts");
 	  if (ContextUtil.lookupParam("roleSelection") != null)
     {
@@ -775,6 +777,47 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     //System.out.println("****Sort type is " + sortProperty);
     log.debug("TotalScoreListener: setRoleAndSortSection() :: sortProperty = " + sortProperty);
     
+    // for very large sites most of the time in displaying the submissinos was in BeanSort. It uses introspection
+    // to get values. So optimize the most likely cases
+    if ((sortProperty).equals("lastName")) {
+	Collections.sort(agents, new Comparator<AgentResults>() {
+		public int compare(AgentResults o1, AgentResults o2) {
+		    if (sortAscending)
+			return o1.getLastName().compareTo(o2.getLastName());
+		    else
+			return o2.getLastName().compareTo(o1.getLastName());
+		}
+	    });
+	return;
+    }
+    if ((sortProperty).equals("agentDisplayId")) {
+	Collections.sort(agents, new Comparator<AgentResults>() {
+		public int compare(AgentResults o1, AgentResults o2) {
+		    if (sortAscending)
+			return o1.getAgentDisplayId().compareTo(o2.getAgentDisplayId());
+		    else
+			return o2.getAgentDisplayId().compareTo(o1.getAgentDisplayId());
+		}
+	    });
+	return;
+    }
+    if ((sortProperty).equals("submittedDate")) {
+	final Date zero = new Date(0L);
+	Collections.sort(agents, new Comparator<AgentResults>() {
+		public int compare(AgentResults o1, AgentResults o2) {
+		    Date d1 = o1.getSubmittedDate();
+		    if (d1 == null) d1 = zero;
+		    Date d2 = o2.getSubmittedDate();
+		    if (d2 == null) d2 = zero;
+		    if (sortAscending)
+			return d1.compareTo(d2);
+		    else
+			return d2.compareTo(d1);
+		}
+	    });
+	return;
+    }
+
     bs = new BeanSort(agents, sortProperty);
 
     if ((sortProperty).equals("lastName")) bs.toStringSort();
