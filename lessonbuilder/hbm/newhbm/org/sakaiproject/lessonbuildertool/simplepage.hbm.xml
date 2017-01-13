@@ -8,7 +8,7 @@
       the table name is optional but you should specify it to avoid collisions -->
    <class name="org.sakaiproject.lessonbuildertool.SimplePageImpl" table="lesson_builder_pages">
 
-       <cache usage="nonstrict-read-write" />
+       <cache usage="read-write" />
 
       <!-- create the primary key id, using native is typically the best way -->
 

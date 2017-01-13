@@ -5,7 +5,7 @@
 
    <class name="org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl" table="lesson_builder_properties">
 
-     <cache usage="nonstrict-read-write" />
+     <cache usage="read-write" />
 
      <id name="id" type="long">
          <generator class="native"/>

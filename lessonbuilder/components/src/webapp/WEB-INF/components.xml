@@ -53,6 +53,11 @@
     </property>        
     <property name="transactionAttributes">
       <props>
+        <prop key="insert*">PROPAGATION_REQUIRED</prop>
+        <prop key="update*">PROPAGATION_REQUIRED</prop>
+        <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="can*">PROPAGATION_REQUIRED,readOnly</prop>
+        <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
         <prop key="*">PROPAGATION_REQUIRED</prop>
       </props>
     </property>
