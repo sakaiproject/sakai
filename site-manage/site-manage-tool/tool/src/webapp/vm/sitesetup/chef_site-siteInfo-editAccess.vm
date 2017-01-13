@@ -264,14 +264,14 @@
 					</select>
 				</p>
 				
-				## bjones86 - SAK-24423 - joinable site settings title
+				## SAK-24423 - joinable site settings title
 				#if( $joinGroupEnabled || $joinExcludeFromPublicListEnabled || $joinLimitAccountTypesEnabled ||
 						$joinGroupEnabledLocalDisabledGlobal || $joinExcludeEnabledLocalDisabledGlobal ||
 						$joinLimitEnabledLocalDisabledGlobal )
 					<p class="indnt3">$tlang.getString( "ediacc.additionJoinAccessOptions" )</p>
 				#end
 				
-				## bjones86 - SAK-24423 - joinable site settings - joiner group
+				## SAK-24423 - joinable site settings - joiner group
 				#if( $joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal )
 					<p class="checkbox indnt6">
 						<label for="selectJoinerGroup" #if( !$joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal ) class="instruction" #end>
@@ -289,7 +289,7 @@
 					</p>
 				#end
 				
-				## bjones86 - SAK-24423 - joinable site settings - exclude from public list
+				## SAK-24423 - joinable site settings - exclude from public list
 				#if( $joinExcludeFromPublicListEnabled || $joinExcludeEnabledLocalDisabledGlobal )
 					<p class="checkbox indnt4">
 						<input name="chkJoinExcludeFromPublicList" id="chkJoinExcludeFromPublicList" type="checkbox"
@@ -304,7 +304,7 @@
 					#end
 				#end
 				
-				## bjones86 - SAK-24423 - joinable site settings - limit by account types
+				## SAK-24423 - joinable site settings - limit by account types
 				#if( $joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal )
 					<p id="joinLimitByAccountType" class="checkbox indnt4">
 						<input name="chkJoinLimitByAccountType" id="chkJoinLimitByAccountType" type="checkbox" 
