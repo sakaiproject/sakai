@@ -1025,6 +1025,20 @@ public class FormattedTextTest {
 
     }
 
+    @Test
+    public void testKNL_1487() {
+        // https://jira.sakaiproject.org/browse/KNL-1487
+        String text = null;
+        String result = null;
+        StringBuilder errorMessages = new StringBuilder();
+
+        //These are all expected to be an empty string as these tags are removed
+        text = "<img align=\"middle\" alt=\"square root of 5555\" class=\"Wirisformula\" data-mathml=\"(some mathml)\" role=\"math\" src=\"/pluginwiris_engine/app/showimage?formula=bf57cf5ace9b1e530d7221ee512cb429\" />";
+        result = formattedText.processFormattedText(text,errorMessages);
+        Assert.assertTrue( errorMessages.length() == 0 );
+        //Verify nothing was removed
+        Assert.assertEquals(result, text);
+    }
 
     @Test
     public void testGetShortenedTitles() {
