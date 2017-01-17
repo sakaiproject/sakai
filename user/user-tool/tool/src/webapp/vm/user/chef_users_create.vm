@@ -66,7 +66,7 @@ ${includeLatestJQuery}
 					<label for="user_pw">
 						#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.crenewpass")
 					</label>
-					<input type="password" name="pw" id="user_pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+					<input type="password" name="pw" id="user_pw" oninput="USER.validatePassword();" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.displayStrengthInfo();USER.validatePassword();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
 					<div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
 					<div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
 					<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
@@ -80,7 +80,7 @@ ${includeLatestJQuery}
 					<label for="user_pw0">
 						#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.vernewpass")
 					</label>
-					<input type="password" name="pw0" id="user_pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
+					<input type="password" name="pw0" id="user_pw0" oninput="USER.hideAllElements();USER.validateForm();" onblur="USER.verifyPasswordsMatch();" autocomplete="off" />
 					<div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
 					<div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
 				</div>

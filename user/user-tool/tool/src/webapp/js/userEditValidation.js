@@ -95,7 +95,7 @@ USER.verifyPasswordsMatch = function () {
         var verPass = pw0.value;
         USER.passwordsMatch = pass === verPass;
 
-        if (pass.length > 0 || verPass.length > 0) {
+        if (pass.length > 0 && verPass.length > 0) {
             USER.display(matchMsg, USER.passwordsMatch);
             USER.display(noMatchMsg, !USER.passwordsMatch);
         }
@@ -105,7 +105,7 @@ USER.verifyPasswordsMatch = function () {
         }
     }
     else {
-        USER.passwordsMatch = true;
+        return;
     }
 
     USER.validateForm();

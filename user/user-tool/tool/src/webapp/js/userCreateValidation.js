@@ -79,7 +79,7 @@ USER.verifyPasswordsMatch = function () {
     var noMatchMsg = USER.get("noMatchMsg");
 
     USER.passwordsMatch = pw === pw2;
-    if (pw.length > 0 || pw2.length > 0) {
+    if (pw.length > 0 && pw2.length > 0) {
         USER.display(matchMsg, USER.passwordsMatch);
         USER.display(noMatchMsg, !USER.passwordsMatch);
     }
