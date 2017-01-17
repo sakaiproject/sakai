@@ -14,11 +14,14 @@
 	<body id="body">
 		<div class="wrapper">
 			<div class="stylized">
-				<h3 rsf:id="welcome1">Welcome to Sakai!</h3>
-				<div rsf:id="welcome" class="instruction">You have been invited to the following sites:</div>
-				<ul class="siteList">
-					<li rsf:id="siteListItem:"><span rsf:id="siteName">Site</span></li>
-				</ul>
+				<h1 class="topheading" rsf:id="welcome1">Welcome to Sakai!</h1>
+				<div class="logo"></div>
+				<div class="instruction">
+					<span rsf:id="welcome">You have been invited to the following sites:</span>
+					<ul class="siteList">
+						<li rsf:id="siteListItem:"><span rsf:id="siteName">Site</span></li>
+					</ul>
+				</div>
 			</div>
 			<fieldset class="activateForm">
 				<legend rsf:id="account-title" class="activateLegend">Activate</legend>
@@ -52,7 +55,7 @@
 						</div>
 						<div rsf:id="passrow1:" class="inputDiv">
 							<label><span rsf:id="msg=password">Password</span> <span class="reqStar">*</span></label>
-							<input id="passrow1::password1" type="password" class="inputBox required" rsf:id="password1" onkeyup="VALIDATOR.validatePassword();" oninput="VALIDATOR.validatePassword();" onblur="VALIDATOR.displayStrengthInfo();" onfocus="VALIDATOR.displayStrengthInfo();" required="required"/>
+							<input id="passrow1::password1" type="password" class="inputBox required" rsf:id="password1" oninput="VALIDATOR.clearPasswordMatchMsgs();VALIDATOR.validateActivateForm();" onblur="VALIDATOR.displayStrengthInfo();VALIDATOR.validatePassword();" onfocus="VALIDATOR.displayStrengthInfo();" required="required"/>
 						</div>
 						<div class="validationMsgContainer">
 							<div id="strongMsg" style="display:none" rsf:id="msg=password.strong"></div>
@@ -67,15 +70,15 @@
 
 						<div rsf:id="passrow2:" class="inputDiv">
 							<label><span rsf:id="msg=password2">Confirm password</span> <span class="reqStar">*</span></label>
-							<input id="passrow2::password2" type="password" class="inputBox required" rsf:id="password2" onkeyup="VALIDATOR.verifyPasswordsMatch();" oninput="VALIDATOR.verifyPasswordsMatch();" required="required"/>
+							<input id="passrow2::password2" type="password" class="inputBox required" rsf:id="password2" oninput="VALIDATOR.clearPasswordMatchMsgs();VALIDATOR.validateActivateForm();" onblur="VALIDATOR.verifyPasswordsMatch();" required="required"/>
 						</div>
 						<div class="validationMsgContainer">
 							<div id="matchMsg" rsf:id="msg=password.match" style="display:none;"></div>
 							<div id="noMatchMsg" rsf:id="msg=password.noMatch" style="display:none"></div>
 						</div>
-						<div class=" required terms" rsf:id="termsrow:">
+						<div class="required terms" rsf:id="termsrow:">
+							<label><span rsf:id="termsLabel" for="terms">I accept the terms and conditions</span> <span class="reqStar">*</span></label>
 							<input id="terms" type="checkbox" rsf:id="terms" onclick="VALIDATOR.validateTermsChecked();" required="required"/>
-							<label rsf:id="termsLabel" for="terms">I accept the terms and conditions</label>
 						</div>
 						<input id="addDetailsSub" class="submit" type="submit" rsf:id="addDetailsSub"/>
 					</form>
