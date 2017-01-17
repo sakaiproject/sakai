@@ -93,6 +93,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	Link<Void> myPicturesLink;
 	Link<Void> myProfileLink;
+	Link<Void> otherProfileLink;
 	Link<Void> myFriendsLink;
 	Link<Void> myMessagesLink;
 	Link<Void> myPrivacyLink;
@@ -113,7 +114,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		// get currentUserUuid
 		final String currentUserUuid = this.sakaiProxy.getCurrentUserId();
 
-		// profile link
+		// my profile link
 		this.myProfileLink = new Link<Void>("myProfileLink") {
 			private static final long serialVersionUID = 1L;
 
@@ -130,6 +131,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		}
 
 		add(this.myProfileLink);
+
+		// other profile link
+		this.otherProfileLink = new Link<Void>("otherProfileLink") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+			}
+		};
+		this.otherProfileLink.add(new Label("otherProfileLabel", new Model("INVISIBLE")));
+		this.otherProfileLink.setVisible(false);
+		add(this.otherProfileLink);
 
 		// my pictures link
 		this.myPicturesLink = new Link<Void>("myPicturesLink") {
