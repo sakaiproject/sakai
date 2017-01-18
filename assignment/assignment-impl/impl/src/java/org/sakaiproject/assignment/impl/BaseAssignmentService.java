@@ -2982,6 +2982,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
 		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), linkToToolInSite}));
 		
+		// Instructor's comments
+		buffer.append(newline + newline);
+		buffer.append(rb.getString("gen.instrcomment") + newline);
+		buffer.append(s.getFeedbackComment() + newline);
+		
 		return buffer.toString();
 	}
 	private String htmlContentReleaseResubmission(AssignmentSubmission s){
@@ -3017,8 +3022,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		else {
 		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), linkToToolInSite}));
 		}
-	 		
-	 	return buffer.toString();
+
+		// Instructor's comments
+		buffer.append(newline + newline);
+		buffer.append(rb.getString("gen.instrcomment") + newline);
+		buffer.append(s.getFeedbackComment() + newline);
+		
+		return buffer.toString();
 	}
 	
 	private String htmlContentAttachments(AssignmentSubmission s){
