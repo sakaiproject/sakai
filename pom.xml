@@ -98,22 +98,24 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.8</version>
                 <configuration>
-                    <licenseName>ecl_v2</licenseName>
-                    <licenseResolver>classpath://org/sakaiproject</licenseResolver>
-                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
-
+                    <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
+                    <includes>
+                        <include>**/org/sakaiproject/**/*.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>target/**</exclude>
+                        <exclude>**/org/adl/**</exclude>
+                        <exclude>**/org/ims/**</exclude>
+                    </excludes>
+                    <properties>
+                        <year>${project.inceptionYear}</year>
+                        <holder>The Apereo Foundation</holder>
+                    </properties>
+                    <encoding>UTF-8</encoding>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.sakaiproject.license</groupId>
-                        <artifactId>ecl-license</artifactId>
-                        <version>1.0</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
