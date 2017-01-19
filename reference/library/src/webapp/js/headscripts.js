@@ -809,3 +809,15 @@ function modalDialogWidth() {
 	if ( dWidth < 300 ) dWidth = 300; // Should not happen
 	return Math.round(dWidth);
 }
+
+//Funtion to try to improve a11y by changing where the focus is. I don't see setFocus ever called by anything
+function setInitialFocus() {
+    var errorMsg = $('table.messageSamigo');
+    if (errorMsg.length !=0) {
+        errorMsg.focus()
+        return;
+    }
+    //Default focus
+    $('.portletBody').find ('input:visible:first').focus();
+
+}
