@@ -481,7 +481,6 @@ dl.defList dd{
     text-decoration: none !important;
     margin:0px 0px 0 5px;
     font-size:12px;
-    
     background: -moz-linear-gradient(center top , #F6F6F5 0%, #E0E0E0 93%, #E0E0E0 97%, #E9E9E9 100%) repeat scroll 0 0 transparent !important;
     border: 1px solid #E0E3E5 !important;
     border-radius: 3px 3px 3px 3px;
@@ -574,28 +573,57 @@ dl.defList dd{
 }
 
 input#btnSearch {
-	margin-left: 0.7em;
+    margin-left: 0.7em;
 }
 #summary {
-	border:none;
+    border:none;
 }
 
 #summary tr{
-	background: transparent;
+    background: transparent;
 }
 
 #summary td{
-	border:none;
+    border:none;
 }
 
 #summary th{
-	font-weight: bold;
+    font-weight: bold;
 }
 
 #removeClass{
-	max-width: 800px;
+    max-width: 800px;
 }
 
 #removeClass #remove{
-	width: 5%;
+    width: 5%;
 }
+
+/* SAK-32087 */
+h3.toolHeading {
+    margin: 0;
+    padding: 0;
+}
+
+p#messageHolder {
+    width: 50%;
+    padding:0 0 0 2em;
+    margin:0
+}
+
+th#term {
+    width: 25%;
+}
+
+th#section {
+    width: 50%;
+}
+
+td.noWrap {
+    white-space: nowrap
+}
+
+td.grayText {
+    color: #888;
+}
+/* end SAK-32087 */
