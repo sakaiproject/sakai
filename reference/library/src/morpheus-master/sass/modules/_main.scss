@@ -89,3 +89,19 @@
 		}
 	}
 }
+
+.#{$namespace}noJs.js-warn-no-js
+{
+	position: fixed;
+	bottom: 0;
+	left: 10%;
+	width: 80%;
+	padding: 1em;
+	z-index: 200;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	background-color: #c00;
+	font-size: 1.143em;
+	text-align: center;
+	color: #fff;
+}

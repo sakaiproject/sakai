@@ -26,7 +26,6 @@ import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingIte
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedCell;
@@ -186,12 +185,12 @@ public class ImportGradesHelper {
 	}
 
 	/**
-	 * Takes a row of data and maps it into the appropriate {@link ImportedRow} pieces
+	 * Takes a row of data and maps it into the appropriate {@link ImportedRow} pieces.
+	 * If a row contains data for a student that does not exist in the site, that row will be skipped
 	 *
 	 * @param line
 	 * @param mapping
 	 * @return
-	 * @throws GbImportExportUnknownStudentException if a row for a student is found that does not exist in the userMap
 	 */
 	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap) {
 
@@ -224,10 +223,11 @@ public class ImportGradesHelper {
 					}
 
 					// check user is in the map (ie in the site)
+					// if not, skip the row
 					final String studentUuid = userMap.get(lineVal);
 					if(StringUtils.isBlank(studentUuid)){
-						log.debug("Student was found in file but not in site: " + lineVal);
-						throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
+						log.debug("Student was found in file but not in site. The row will be skipped: " + lineVal);
+						return null;
 					}
 					row.setStudentEid(lineVal);
 					row.setStudentUuid(studentUuid);
@@ -624,8 +624,6 @@ public class ImportGradesHelper {
 
 		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
 		if (m5.matches()) {
-
-			//steve i am up to here
 
 			// extract title
 			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);

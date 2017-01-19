@@ -22,21 +22,28 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * A LetterGradeMapping defines the set of grades available to a gradebook as
  * "A", "B", "C", "D", and "F", each of which can be mapped to a minimum
  * percentage value.
  *
- * @deprecated
  */
 public class LetterGradeMapping extends GradeMapping {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private List grades;
 	private List defaultValues;
+	@Override
 	public Collection getGrades() {
 		return grades;
 	}
+	@Override
 	public List getDefaultValues() {
         return defaultValues;
     }
@@ -61,6 +68,7 @@ public class LetterGradeMapping extends GradeMapping {
         setDefaultValues();
     }
 
+	@Override
 	public String getName() {
 		return "Letter Grades";
 	}

@@ -28,6 +28,8 @@
 		<subclass name="org.sakaiproject.tool.gradebook.PassNotPassMapping" discriminator-value="1" />
 		<subclass name="org.sakaiproject.tool.gradebook.LetterGradeMapping" discriminator-value="2" />
 		<subclass name="org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping" discriminator-value="3" />
+		<subclass name="org.sakaiproject.tool.gradebook.GradePointsMapping" discriminator-value="4" />
+		
 
 	</class>
 

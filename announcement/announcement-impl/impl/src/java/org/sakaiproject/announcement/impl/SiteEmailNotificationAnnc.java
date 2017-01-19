@@ -376,7 +376,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// SAK-20988 - emailFromReplyable@org.sakaiproject.event.api.NotificationService is deprecated
 		boolean notificationEmailFromReplyable = ServerConfigurationService.getBoolean("notify.email.from.replyable", false);
 		if (notificationEmailFromReplyable 
-		        && from.contains("no-reply@") 
+		        && from.contains(userEmail)
 		        && userId != null) 
 		{
 				try
