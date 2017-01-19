@@ -66,7 +66,7 @@ should be included in file importing DeliveryMessages
 	</h:outputLink>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.feedback eq 'true' || delivery.actionString=='previewAssessment'}">
+<h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
     <f:verbatim><b></f:verbatim>
