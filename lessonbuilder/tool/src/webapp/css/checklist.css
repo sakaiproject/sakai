@@ -38,21 +38,9 @@
     margin-top: -3px;
 }
 #addChecklistItemButton { /** Have to use important because tool.css overrides **/
-    background-image: url("/library/image/silk/add.png") !important;
-    background-position: left 4px center !important;
-    background-repeat: no-repeat !important;
-    background-color: #2a94c0;
-    background-size: auto !important;
-    padding-left: 24px !important;
     display: block !important;
 }
 #addChecklistItemButton:hover { /** Have to use important because tool.css overrides **/
-    background-image: url("/library/image/silk/add.png") !important;
-    background-position: left 4px center !important;
-    background-repeat: no-repeat !important;
-    background-color: #0082CA;
-    background-size: auto !important;
-    padding-left: 24px !important;
     display: block !important;
 }
 .titleBorder {

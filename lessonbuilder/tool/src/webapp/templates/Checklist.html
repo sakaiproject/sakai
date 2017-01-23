@@ -73,7 +73,10 @@
                     </li>
                     <ul id="createdChecklistItems"></ul>
                 </div>
-                <button onclick="checklist.addChecklistItem(); return false;" rsf:id="msg=simplepage.addChecklistItem" id="addChecklistItemButton"/>
+                <button onclick="checklist.addChecklistItem(); return false;" id="addChecklistItemButton" class="button_color">
+                    <span aria-hidden="true" class="fa fa-plus-circle"></span>
+                    <span rsf:id="msg=simplepage.addChecklistItem"></span>
+                </button>
             </fieldset>
         </div>
 
