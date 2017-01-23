@@ -3,7 +3,8 @@
 }
 #checklistItems {
     display: inline-block;
-    width: 500px;
+    width: 90%;
+    max-width: 500px;
 }
 #createdChecklistItems {
     margin-bottom: 1em;
@@ -27,11 +28,17 @@
 }
 .checklist-item-name {
     line-height: 1.7em;
-    width: 300px;
+    width: 90%;
+    max-width: 500px;
 }
 .checklistDescription {
     display: block;
     width: 500px;
+}
+#description{
+    height: 80px;
+    width: 90%;
+    max-width: 500px;
 }
 .deleteItemLink {
     float: right;
@@ -57,6 +64,9 @@
 }
 .titleBorder {
     border-bottom: 1px solid #ccc;
+}
+#name{
+    vertical-align: middle;
 }
 .checklistFormInput input, .checklistFormInput textarea {
     margin-left: 2em;
@@ -119,4 +129,10 @@ legend.no-border {
 #additionalSettings {
     margin: 1em 0;
     max-width: 600px;
+}
+/* Override the jquery ui optional settings stylings. */
+.ui-accordion-header.ui-state-default.ui-state-active {
+    border-color: #c5c5c5;
+    background-color: #ededed;
+    color: #212121;
 }
