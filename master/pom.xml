@@ -387,7 +387,7 @@
       <dependency>
         <groupId>xml-apis</groupId>
         <artifactId>xmlParserAPIs</artifactId>
-        <version>${sakai.xerces.api.version}</version>
+        <version>2.0.2</version>
         <scope>provided</scope>
       </dependency>
       <!-- shared/lib -->
