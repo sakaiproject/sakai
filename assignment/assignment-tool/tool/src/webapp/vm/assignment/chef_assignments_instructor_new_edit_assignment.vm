@@ -66,7 +66,7 @@
 				reviewSwitchNe1.style.display='none';
 				lblReviewService.className='';
 				reviewSwitchNe2.style.display='none';
-				ASNseReview.disabled=false;
+				useReview.disabled=false;
 			#end
 			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'block';
@@ -88,7 +88,7 @@
 				}
 				useReview.checked=false;
 				useReview.disabled=true;
-				lblUseReview.className='instruction';
+				lblUseReview.className='';
 				reviewSwitchNe1.style.removeProperty('display');
 			#end
 			## SAK-26640
