@@ -447,7 +447,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				if(AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION.equals(function)
 						|| AssignmentService.SECURE_UPDATE_ASSIGNMENT.equals(function)
 						|| AssignmentService.SECURE_ACCESS_ASSIGNMENT.equals(function)
-						|| AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION.equals(function)){
+						|| AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION.equals(function)
+						|| AssignmentService.GRADEBOOK_PERMISSION_GRADE_ALL.equals(function)
+						|| AssignmentService.GRADEBOOK_PERMISSION_EDIT_ASSIGNMENTS.equals(function)){
 					return SecurityAdvice.ALLOWED;
 				}else{
 					return SecurityAdvice.PASS;
