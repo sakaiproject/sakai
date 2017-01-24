@@ -114,7 +114,7 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
                 UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
             // Name of the checklist
-            UIInput.make(form, "name", "#{simplePageBean.name}").decorate(new UIFreeAttributeDecorator("style", "vertical-align:middle;"));
+            UIInput.make(form, "name", "#{simplePageBean.name}");
 
             // Is the name hidden from students
             UIBoundBoolean.make(form, "isNameHidden", "#{simplePageBean.nameHidden}");
@@ -122,7 +122,6 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
             // Description for checklist
             UIInput instructions = UIInput.make(form, "description", "#{simplePageBean.description}");
-            instructions.decorate(new UIFreeAttributeDecorator("style", "height:80px;width:500px;"));
 
             UIOutput.make(form, "checklist-item-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
 
