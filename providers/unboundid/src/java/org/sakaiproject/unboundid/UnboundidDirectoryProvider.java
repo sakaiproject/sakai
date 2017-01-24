@@ -242,7 +242,8 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 
 		SimpleBindRequest bindRequest = new SimpleBindRequest(ldapUser, ldapPassword);
 		try {
-			connectionPool = new LDAPConnectionPool(serverSet, bindRequest, 10);
+			M_log.info("Creating LDAP connection pool of size " + poolMaxConns);
+			connectionPool = new LDAPConnectionPool(serverSet, bindRequest, poolMaxConns);
 		} catch (com.unboundid.ldap.sdk.LDAPException e) {
 			M_log.error("Could not init LDAP pool", e);
 		}
