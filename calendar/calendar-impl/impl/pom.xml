@@ -66,11 +66,6 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework</artifactId>
-            <version>20020627</version>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
