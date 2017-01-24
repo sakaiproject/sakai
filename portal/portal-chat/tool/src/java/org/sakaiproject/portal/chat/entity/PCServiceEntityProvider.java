@@ -511,9 +511,14 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 			presentSakaiUsers.remove(currentUser);
 			for (User user : presentSakaiUsers) {
 				UserMessage heartbeat = heartbeatMap.get(user.getId());
-				// Flag this user as offline if they can't access portal chat
-				boolean offline = !portalChatPermittedHelper.checkChatPermitted(user.getId());
-				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), offline, heartbeatMap.get(user.getId()).content));
+				if (heartbeat != null) {
+					// Flag this user as offline if they can't access portal chat
+					boolean offline = !portalChatPermittedHelper.checkChatPermitted(user.getId());
+					presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), offline, heartbeat.content));
+				}
+				else {
+					logger.debug("Heartbeat is null so not adding {} to presentUsers", user.getId());
+				}
 			}
         }
 		
