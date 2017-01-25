@@ -204,7 +204,7 @@ public class GradebookNgBusinessService {
 			return new ArrayList<>(userUuids);
 
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.warn("IdUnusedException trying to getGradeableUsers", e);
 			return null;
 		}
 	}
@@ -1181,8 +1181,7 @@ public class GradebookNgBusinessService {
 		try {
 			this.siteService.getSite(siteId);
 		} catch (final IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("IdUnusedException trying to updateAssignmentCategorizedOrder", e);
 			return;
 		}
 
@@ -1576,7 +1575,7 @@ public class GradebookNgBusinessService {
 		try {
 			siteRef = this.siteService.getSite(siteId).getReference();
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.warn("IdUnusedException trying to getUserRole", e);
 			return null;
 		}
 
@@ -1705,7 +1704,7 @@ public class GradebookNgBusinessService {
 				rval.add(getUser(userUuid));
 			}
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.warn("IdUnusedException trying to getTeachingAssistants", e);
 		}
 
 		return rval;
