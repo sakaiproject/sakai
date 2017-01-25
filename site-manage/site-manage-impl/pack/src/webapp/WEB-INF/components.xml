@@ -122,4 +122,17 @@
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
         </property>
     </bean>
+	<!-- This is mainly used for demo so that some content is created automatically -->
+	<bean class="org.sakaiproject.component.app.scheduler.AutoRun" init-method="init">
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="startup">
+			<list>
+				<ref bean="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"/>
+			</list>
+		</property>
+		<property name="config">
+			<value>quartz.seedsites.autorun</value>
+		</property>
+	</bean>
 </beans>
