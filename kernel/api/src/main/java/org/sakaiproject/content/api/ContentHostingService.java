@@ -1941,9 +1941,14 @@ public interface ContentHostingService extends EntityProducer
 				IdLengthException, IdInvalidException, TypeException;
 
 	/**
+	 * This method with the limit parameter should be used if you want to create a unique collection id.
+	 * Because the Resources tool allows renaming folders, the end-user can become confused when folder
+	 * creation is denied because the resourceId was already taken.
+	 * 
 	 * @param collectionId
 	 * @param name
 	 * @param limit
+	 *            number of attempts to find a unique resourceId for the collection via incrementing
 	 * @return
 	 * @exception PermissionException
 	 *            if the user does not have permission to add a resource to the containing collection.
