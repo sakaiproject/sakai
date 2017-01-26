@@ -28,11 +28,11 @@
     	#foreach($archive in $archives)
     		<tr>
     			<td>
-					<a href="/sakai-archive-tool/download/?archive=$!archive.filename" class="downloadLink">
+					<a href="/sakai-archive-tool/download/?archive=#chef_html($!archive.filename)" class="downloadLink">
         				#if ($archive.siteTitle)
-        					$!archive.siteTitle <span class="smalltext">($!archive.siteId)</span>
+        					#chef_html($!archive.siteTitle) <small>(#chef_html($!archive.siteId))</small>
         				#else 
-        					$!archive.siteId
+        					#chef_html($!archive.siteId)
 						#end
 					</a>
     			<td>
