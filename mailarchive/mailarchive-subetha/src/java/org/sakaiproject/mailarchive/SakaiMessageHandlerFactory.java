@@ -167,7 +167,8 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
             @Override
             public void from(String from) throws RejectException {
-                this.from = from;
+                SplitEmailAddress address = SplitEmailAddress.parse(from);
+                this.from = address.getLocal() + "@" + address.getDomain();
             }
 
             @Override
