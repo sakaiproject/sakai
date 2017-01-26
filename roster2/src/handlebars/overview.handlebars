@@ -3,8 +3,8 @@
 {{/if}}
 
 <div class="row">
+    {{#if viewGroup}}
     <div class="form-group col-sm-6">
-        {{#if viewGroup}}
         <label for="roster-groups-selector-top" class="form-control-label col-sm-3">{{translate 'groups'}}</label>
         <div class="col-sm-4">
             <select id="roster-groups-selector-top">
@@ -14,18 +14,18 @@
                 {{/each}}
             </select>
         </div>
-        {{/if}}
     </div>
+    {{/if}}
     <div class="form-group col-sm-6">        
-            <label for="roster-roles-selector" class="form-control-label col-sm-2">{{translate 'roles_label'}}</label>
-            <div class="col-sm-4">
-                <select id="roster-roles-selector">
-                    <option value="all">{{translate 'roster_sections_all'}}</option>
-                    {{#each roles}}
-                    <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
-                    {{/each}}
-                </select>
-            </div>
+        <label for="roster-roles-selector" class="form-control-label col-sm-2">{{translate 'roles_label'}}</label>
+        <div class="col-sm-4">
+            <select id="roster-roles-selector">
+                <option value="all">{{translate 'roster_sections_all'}}</option>
+                {{#each roles}}
+                <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+        </div>
     </div>
 </div>
 
