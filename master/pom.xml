@@ -716,10 +716,9 @@
       <dependency>
         <groupId>org.mnode.ical4j</groupId>
         <artifactId>ical4j</artifactId>
-        <version>1.0.7</version>
+        <version>2.0.0</version>
         <scope>provided</scope>
       </dependency>
-      <!-- ical4j is dependent on backport -->
       <dependency>
          <groupId>backport-util-concurrent</groupId>
          <artifactId>backport-util-concurrent</artifactId>

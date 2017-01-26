@@ -81,11 +81,6 @@
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
         </dependency>
-        <!-- ical4j is dependent on backport -->
-   		<dependency>
-			<groupId>backport-util-concurrent</groupId>
-			<artifactId>backport-util-concurrent</artifactId>
-		</dependency>
         <dependency>
             <groupId>fop</groupId>
             <artifactId>fop</artifactId>
