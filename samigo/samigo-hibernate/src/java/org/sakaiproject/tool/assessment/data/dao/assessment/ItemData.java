@@ -787,7 +787,7 @@ public ItemData() {}
     
    if(wyzText!=null){
       int index=0;
-      String t=(wyzText.replaceAll("<.*?>", " ")).trim();
+      String t=(wyzText.replaceAll("(?i)<(?!img|/img).*?>", " ")).trim();
       while(index<t.length()){ 
         char c=t.charAt(index);
         if(Character.isLetterOrDigit(c)){
