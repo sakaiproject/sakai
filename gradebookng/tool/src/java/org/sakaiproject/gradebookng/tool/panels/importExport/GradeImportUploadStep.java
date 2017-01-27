@@ -30,12 +30,12 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
 
-import lombok.extern.apachecommons.CommonsLog;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Upload/Download page
  */
-@CommonsLog
+@Slf4j
 public class GradeImportUploadStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
