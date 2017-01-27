@@ -392,6 +392,21 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 		while ((nextItem = getNextItemInSubmissionQueue()).isPresent()) {
 			ContentReviewItem currentItem = nextItem.get();
 			
+			//if document has no external id, we need to add it to Compilatio
+			if(StringUtils.isBlank(currentItem.getExternalId())) {
+				
+				if(!processItem(currentItem)){
+					errors++;
+					continue;
+				}
+				
+				//check if we have added it correctly
+				if(addDocumentToCompilatio(currentItem) == false){
+					errors++;
+					continue;
+				}
+			}
+			
 			try {
 				//check if current item has to be processed after the assignment due date
 				String assignmentId = assignmentService.getEntity(entityManager.newReference(currentItem.getTaskId())).getId();
@@ -417,29 +432,9 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 			log.debug("Attempting to submit content (status:"+currentItem.getStatus()+"): " + currentItem.getContentId() + " for user: "
 					+ currentItem.getUserId() + " and site: " + currentItem.getSiteId());						
 
-			if (currentItem.getRetryCount() == null) {
-				currentItem.setRetryCount(Long.valueOf(0));
-				currentItem.setNextRetryTime(this.getNextRetryTime(0));
-				crqs.update(currentItem);
-			} else if (currentItem.getRetryCount().intValue() > maxRetry) {
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE, null, null);
+			if(!processItem(currentItem)){
 				errors++;
 				continue;
-			} else {
-				long l = currentItem.getRetryCount().longValue();
-				l++;
-				currentItem.setRetryCount(Long.valueOf(l));
-				currentItem.setNextRetryTime(this.getNextRetryTime(Long.valueOf(l)));
-				crqs.update(currentItem);
-			}
-			
-			//if document has no external id, we need to add it to compilatio
-			if(StringUtils.isBlank(currentItem.getExternalId())) {
-				//check if we have added it correctly
-				if(addDocumentToCompilatio(currentItem) == false){
-					errors++;
-					continue;
-				}
 			}
 			
 			Document document = null;
@@ -511,7 +506,6 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 		List<ContentReviewItem> awaitingReport = crqs.getAwaitingReports(getProviderId());
 
 		Iterator<ContentReviewItem> listIterator = awaitingReport.iterator();
-		HashMap<String, Integer> reportTable = new HashMap<>();
 
 		log.debug("There are " + awaitingReport.size() + " submissions awaiting reports");
 
@@ -534,20 +528,9 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 				continue;
 			}
 
-			if (currentItem.getRetryCount() == null) {
-				currentItem.setRetryCount(Long.valueOf(0));
-				currentItem.setNextRetryTime(this.getNextRetryTime(0));
-			} else if (currentItem.getRetryCount().intValue() > maxRetry) {
-				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE, null, null);
+			if(!processItem(currentItem)){
 				errors++;
 				continue;
-			} else {
-				long l = currentItem.getRetryCount().longValue();
-				log.debug("Still have retries left ("+l+" <= "+maxRetry+"), continuing. ItemID: " + currentItem.getId());
-				l++;
-				currentItem.setRetryCount(Long.valueOf(l));
-				currentItem.setNextRetryTime(this.getNextRetryTime(Long.valueOf(l)));
-				crqs.update(currentItem);
 			}
 
 			//back to analysis (this should not happen)
@@ -558,59 +541,57 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 				continue;
 			}
 
-			if (!reportTable.containsKey(currentItem.getExternalId())) {
-				// get the list from compilatio and see if the review is
-				// available
+			// get the list from compilatio and see if the review is
+			// available
 
-				log.debug("Attempting to update hashtable with reports for site " + currentItem.getSiteId());
+			log.debug("Attempting to update hashtable with reports for site " + currentItem.getSiteId());
 
-				Map<String, String> params = CompilatioAPIUtil.packMap("action", "getDocument", "idDocument", currentItem.getExternalId());
+			Map<String, String> params = CompilatioAPIUtil.packMap("action", "getDocument", "idDocument", currentItem.getExternalId());
 
-				Document document = null;
-				try {
-					document = compilatioConn.callCompilatioReturnDocument(params);
-				} catch (TransientSubmissionException | SubmissionException e) {
-					log.warn("Update failed : " + e.toString(), e);
-					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE, e.getMessage(), null);
+			Document document = null;
+			try {
+				document = compilatioConn.callCompilatioReturnDocument(params);
+			} catch (TransientSubmissionException | SubmissionException e) {
+				log.warn("Update failed : " + e.toString(), e);
+				processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_REPORT_ERROR_RETRY_CODE, e.getMessage(), null);
+				errors++;
+				continue;
+			}
+
+			Element root = document.getDocumentElement();
+			if (root.getElementsByTagName("documentStatus").item(0) != null) {
+				log.debug("Report list returned successfully");
+
+				NodeList objects = root.getElementsByTagName("documentStatus");
+				log.debug(objects.getLength() + " objects in the returned list");
+				
+				String status = getNodeValue("status", root);
+
+				if ("ANALYSE_NOT_STARTED".equals(status)) {
+					//send back to the process queue, we need no analyze it again
+					processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "ANALYSE_NOT_STARTED", null);
 					errors++;
 					continue;
-				}
-
-				Element root = document.getDocumentElement();
-				if (root.getElementsByTagName("documentStatus").item(0) != null) {
-					log.debug("Report list returned successfully");
-
-					NodeList objects = root.getElementsByTagName("documentStatus");
-					log.debug(objects.getLength() + " objects in the returned list");
-					
-					String status = getNodeValue("status", root);
-
-					if ("ANALYSE_NOT_STARTED".equals(status)) {
-						//send back to the process queue, we need no analyze it again
-						processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_CODE, "ANALYSE_NOT_STARTED", null);
-						errors++;
-						continue;
-					} else if ("ANALYSE_COMPLETE".equals(status)) {
-						String reportVal = getNodeValue("indice", root);
-						currentItem.setReviewScore((int) Math.round(Double.parseDouble(reportVal)));
-						currentItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
-						success++;
-					} else {
-						String progression = getNodeValue("progression", root);
-						if (StringUtils.isNotBlank(progression)) {
-							currentItem.setReviewScore((int) Double.parseDouble(progression));
-							inprogress++;
-						}
-					}
-					currentItem.setDateReportReceived(new Date());
-					crqs.update(currentItem);
-					log.debug("new report received: " + currentItem.getExternalId() + " -> " + currentItem.getReviewScore());
-
+				} else if ("ANALYSE_COMPLETE".equals(status)) {
+					String reportVal = getNodeValue("indice", root);
+					currentItem.setReviewScore((int) Math.round(Double.parseDouble(reportVal)));
+					currentItem.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
+					success++;
 				} else {
-					log.debug("Report list request not successful");
-					log.debug(document.getTextContent());
-					errors++;
+					String progression = getNodeValue("progression", root);
+					if (StringUtils.isNotBlank(progression)) {
+						currentItem.setReviewScore((int) Double.parseDouble(progression));
+						inprogress++;
+					}
 				}
+				currentItem.setDateReportReceived(new Date());
+				crqs.update(currentItem);
+				log.debug("new report received: " + currentItem.getExternalId() + " -> " + currentItem.getReviewScore());
+
+			} else {
+				log.debug("Report list request not successful");
+				log.debug(document.getTextContent());
+				errors++;
 			}
 		}
 
@@ -1054,5 +1035,23 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 		}
 
 		crqs.update( item );
+	}
+	
+	private boolean processItem(ContentReviewItem currentItem){
+		if (currentItem.getRetryCount() == null) {
+			currentItem.setRetryCount(Long.valueOf(0));
+			currentItem.setNextRetryTime(this.getNextRetryTime(0));
+		} else if (currentItem.getRetryCount().intValue() > maxRetry) {
+			processError(currentItem, ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_RETRY_EXCEEDED_CODE, null, null);
+			return false;
+		} else {
+			long l = currentItem.getRetryCount().longValue();
+			l++;
+			currentItem.setRetryCount(Long.valueOf(l));
+			currentItem.setNextRetryTime(this.getNextRetryTime(Long.valueOf(l)));
+		}
+		crqs.update(currentItem);
+		
+		return true;
 	}
 }
