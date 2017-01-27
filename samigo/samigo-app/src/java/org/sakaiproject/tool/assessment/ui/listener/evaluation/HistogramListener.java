@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -2187,7 +2188,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   private void getMatrixSurveyScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
 		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
-	  HashMap texts = new HashMap();
+	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	
+	  Map<Long, ItemTextIfc> texts = new LinkedHashMap<>();
 	  HashMap rows = new HashMap();
 	  HashMap answers = new HashMap();
 	  HashMap numStudentRespondedMap = new HashMap();
@@ -2270,6 +2273,8 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 			  answerTextList.add(ansStr);
 		  }
 	  }
+	Collections.sort(answerTextList);
+	
 	  
 	  //create the HistogramBarBean
 	  ArrayList<HistogramBarBean> histogramBarList = new ArrayList<HistogramBarBean>();
@@ -2322,10 +2327,13 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 					  }
 				  }
 			  }
-			  if (count > 1)
-				  barBean.setNumStudentsText(count + " responses");
-			  else
-				  barBean.setNumStudentsText(count + " response");
+			  
+			if (count > 1) {
+				barBean.setNumStudentsText(count + " " + rb.getString("responses"));
+			}
+			else {
+				barBean.setNumStudentsText(count + " " + rb.getString("response"));
+			}
 
 			  //2. get the answer text
 			  barBean.setItemText((String)answerTextList.get(i));
