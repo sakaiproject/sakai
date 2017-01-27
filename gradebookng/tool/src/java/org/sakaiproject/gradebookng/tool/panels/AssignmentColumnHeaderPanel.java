@@ -33,6 +33,8 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  *
  * Header panel for each assignment column in the UI
@@ -40,6 +42,7 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class AssignmentColumnHeaderPanel extends Panel {
 
 	public static final String ICON_SAKAI = "icon-sakai--";
@@ -234,7 +237,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
 								(order.intValue() - 1));
 					} catch (final Exception e) {
-						e.printStackTrace();
+						log.warn("Exception calculating categorized sort order and updating order", e);
 						error("error reordering within category");
 					}
 				} else {
@@ -273,7 +276,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
 								(order.intValue() + 1));
 					} catch (final Exception e) {
-						e.printStackTrace();
+						log.warn("Exception in onClick calculating categorized sort order and updating order", e);
 						error("error reordering within category");
 					}
 				} else {

@@ -128,7 +128,7 @@ public class ImportGradesHelper {
 			try {
 				reader.close();
 			} catch (final IOException e) {
-				e.printStackTrace();
+				log.warn("Error closing the reader", e);
 			}
 		}
 

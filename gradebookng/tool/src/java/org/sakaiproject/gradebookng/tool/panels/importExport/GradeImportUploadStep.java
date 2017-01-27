@@ -30,7 +30,6 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
