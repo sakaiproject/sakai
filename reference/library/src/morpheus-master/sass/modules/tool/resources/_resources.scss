@@ -206,4 +206,11 @@
 	.inactive .dropdown-menu a {
 		color:#000 !important;
 	}
+
+	fieldset legend h4 {
+		margin: 0;
+	}
+	fieldset .form-group {
+		padding-top: 0.5em;
+	}
 }
