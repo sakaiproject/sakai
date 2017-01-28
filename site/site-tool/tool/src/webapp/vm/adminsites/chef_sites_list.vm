@@ -87,19 +87,19 @@
 		
 #if ($sites.size() > 0)
 	#set ($siteCount = 0)
-		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitlis.list.summary")">
+		<table class="table table-striped table-bordered" summary="$tlang.getString("sitlis.list.summary")">
 			<tr>
-				<th id="Id">$tlang.getString("sitlis.sitid")</th>
-				<th id="Title">$tlang.getString("sitlis.tit")</th>
-				<th id="Published">$tlang.getString("sitlis.pub")</th>
-				<th id="Joinable">$tlang.getString("sitlis.joi")</th>
-				<th id="Type">$tlang.getString("sitlis.typ")</th>
-				<th id="Description">$tlang.getString("sitlis.des")</th>
+				<th scope="col" id="Id">$tlang.getString("sitlis.sitid")</th>
+				<th scope="col" id="Title">$tlang.getString("sitlis.tit")</th>
+				<th scope="col" id="Published">$tlang.getString("sitlis.pub")</th>
+				<th scope="col" id="Joinable">$tlang.getString("sitlis.joi")</th>
+				<th scope="col" id="Type">$tlang.getString("sitlis.typ")</th>
+				<th scope="col" id="Description">$tlang.getString("sitlis.des")</th>
 			</tr>
 	#foreach ($site in $sites)
 ##		#set ($realm = $realms.getAuthzGroup($site.Reference))
 			<tr>
-				<td headers="Id">
+				<th scope="row" headers="Id">
 					#if ($service.allowUpdateSite($site.Id))
 						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($site.Id)")">
 							$validator.escapeHtml($site.Id)
@@ -107,58 +107,50 @@
 					#else
 						$validator.escapeHtml($site.Id)
 					#end
-				</td>
+				</th>
 				<td headers="Title">$validator.escapeHtml($site.Title)</td>
 				<td headers="Published">#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
-				<td  headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joialt")" />#end</td>
+				<td headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joialt")" />#end</td>
 				<td headers="Type">$validator.escapeHtml($site.Type)</td>
 				<td headers="Description">
 					#if ($site.ShortDescription && $site.ShortDescription !="")
-						<div class="instruction">
-							$tlang.getString("sitlis.shodes")
-						</div>
-						<div class="indnt2">
-							$validator.escapeHtml($site.ShortDescription)
+						<div class="short-description">
+							<strong>$tlang.getString("sitlis.shodes")</strong>
+							<small> $validator.escapeHtml($site.ShortDescription) </small>
 						</div>
 					#end	
 					#if ($site.Description && $site.Description !="")
-						<div class="instruction">
-							$tlang.getString("sitlis.des2")
-						</div>
-						<div class="indnt2">
-							$site.Description
+						<div class="description">
+							<strong>$tlang.getString("sitlis.des2")</strong>
+							<small> $site.Description </small>
 						</div>
 					#end	
 					#if ($site.IconUrl && $site.IconUrl !="")
-						<div class="instruction">
-							$tlang.getString("sitlis.ico")
-						</div>
-						<div class="indnt2">
-							$validator.escapeHtml($site.IconUrl)
+						<div class="icon-url">
+							<strong>$tlang.getString("sitlis.ico")</strong>
+							<small> $validator.escapeHtml($site.IconUrl) </small>
 						</div>
 					#end
 					#if ($site.InfoUrl  && $site.InfoUrl !="")
-						<div class="instruction">
-							$tlang.getString("sitlis.sitinf")
+						<div class="info-url">
+							<strong>$tlang.getString("sitlis.sitinf")</strong>
+							<small> $validator.escapeHtml($site.InfoUrl) </small>						
 						</div>
-						<div class="indnt2">
-							$validator.escapeHtml($site.InfoUrl)
-						</div>						
 					#end
-						<div class="instruction">
-							$tlang.getString("sitlis.cre")
-						</div>
-						<div class="indnt2">
-							#if ($site.CreatedTime) $site.CreatedTime.toStringLocalFull() #end
-							#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
+						<div class="created-by">
+							<strong>$tlang.getString("sitlis.cre")</strong>
+							<small>
+								#if ($site.CreatedTime) $site.CreatedTime.toStringLocalFull() #end
+								#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
+							</small>
 						</div>
 ##					#if ($realm.ProviderGroupId)
-##						<div class="instruction">
+##						<div class="realm-provider">
 ##							Authorization Group External Group Id:
 ##						</div>
-##						<div class="indnt2">
+##						<small>
 ##							$realm.ProviderGroupId
-##						</div>
+##						</small>
 ##					#end
 					&nbsp;
 				</td>
