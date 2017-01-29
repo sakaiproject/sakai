@@ -217,8 +217,8 @@
 					<!--  expand all recurring meetings -->
 					<h:panelGroup layout="block" styleClass="col-lg-4 col-md-4" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
 						<h:panelGroup >
-								<h:selectBooleanCheckbox value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
-								<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
+								<h:selectBooleanCheckbox id="showallrecurmeeting" value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
+								<h:outputLabel for="showallrecurmeeting" value="#{msgs.expand_all_recur_events}" escape="false"/>
 						</h:panelGroup>
 						<h:outputText value="&nbsp;" escape="false" rendered="#{!SignupMeetingsBean.enableExpandOption}"/>
 					</h:panelGroup>
