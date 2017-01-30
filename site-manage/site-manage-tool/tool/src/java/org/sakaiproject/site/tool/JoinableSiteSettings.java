@@ -1392,8 +1392,6 @@ public class JoinableSiteSettings
 	
 	/**
 	 * Comparator class used to compare Group objects based on title
-	 * 
-	 * @author bjones86
 	 */
 	public static class GroupTitleComparator implements Comparator<Group>
 	{

@@ -221,7 +221,7 @@ implements ActionListener, ValueChangeListener
         private String assessmentName;
         private Date submitDate;
         private Double percentage;
-        private Float correct;
+        private Double correct;
         private Double total;
         private Long assessmentGradingId;
         private boolean notAvailableGrade;
@@ -229,10 +229,7 @@ implements ActionListener, ValueChangeListener
         public Long getAssessmentId() {
             return assessmentId;
         }
-        public void setCorrect(Double finalScore) {
-			// TODO Auto-generated method stub
-			
-		}
+
 		public void setAssessmentId(Long assessmentId) {
             this.assessmentId = assessmentId;
         }
@@ -254,10 +251,10 @@ implements ActionListener, ValueChangeListener
         public void setPercentage(Double percentage) {
             this.percentage = percentage;
         }
-        public Float getCorrect() {
+        public Double getCorrect() {
             return correct;
         }
-        public void setCorrect(Float correct) {
+        public void setCorrect(Double correct) {
             this.correct = correct;
         }
         public Double getTotal() {

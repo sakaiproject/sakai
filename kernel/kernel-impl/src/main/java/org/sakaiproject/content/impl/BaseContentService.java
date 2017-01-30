@@ -8199,6 +8199,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				// get the root collection
 				ContentCollection oCollection = getCollection(fromContext);
 
+				// Copy the Resource Properties from Root Collection to New Root Collection
+				ResourceProperties oCollectionProperties = oCollection.getProperties();
+				ContentCollectionEdit toCollectionEdit = (ContentCollectionEdit) toCollection;
+				ResourcePropertiesEdit toColPropEdit = toCollectionEdit.getPropertiesEdit();
+				toColPropEdit.clear();
+				toColPropEdit.addAll(oCollectionProperties);
+				hideImportedContent(toCollectionEdit);
+				m_storage.commitCollection(toCollectionEdit);
+
 				// Get the collection members from the 'new' collection
 				List oResources = oCollection.getMemberResources();
 				for (int i = 0; i < oResources.size(); i++)
