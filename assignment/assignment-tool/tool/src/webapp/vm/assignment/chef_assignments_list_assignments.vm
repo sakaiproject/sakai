@@ -84,10 +84,11 @@
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
-					<th id="attachments" class="attach"> 
+					<th id="attachments" class="attach" scope="col"> 
 						&nbsp;
+						<span class="sr-only">$tlang.getString("gen.att")</span>
 					</th>				
-					<th id="title">
+					<th id="title" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
 							#if ($sortedBy.equals("title"))
@@ -100,7 +101,7 @@
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
-						<th id="$tlang.getString('gen.visible')">
+						<th id="$tlang.getString('gen.visible')" scope="col">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
@@ -112,7 +113,7 @@
 							#end
 						</th>
 					#end
-					<th id="status">
+					<th id="status" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"   title="$tlang.getString("list.sorbysta")">
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status"))
@@ -124,7 +125,7 @@
 							#end
 						</a>
 					</th>
-					<th id="openDate">
+					<th id="openDate" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("gen.open")
 							#if ($sortedBy.equals("opendate"))
@@ -151,7 +152,7 @@
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
-						<th id="num_submissions">
+						<th id="num_submissions" scope="col">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
@@ -178,7 +179,7 @@
 						#end
 					#end
 					#if ($withGrade && $!allowGradeSubmission)
-						<th id="maxgrade">
+						<th id="maxgrade" scope="col">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
@@ -192,7 +193,7 @@
 						</th>
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
-						<th id="remove" class="screenOnly">
+						<th id="remove" scope="col">
 							$tlang.getString("gen.remove.q")
 						</th>
 					#end
@@ -235,9 +236,9 @@
 									&nbsp;
 								#end
 							</td>						
-							<td headers="title">
+							<td headers="title" scope="row">
 									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
-										<h4>
+										<strong>
 											#assignmentTitleIcon($assignment)
 											## normal instructor view
 											#if ($assignment.draft && $!allowUpdateAssignment )
@@ -254,7 +255,7 @@
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
 											</a>
-										</h4>
+										</strong>
 										<div class="itemAction">
 											#set($prevAction=false)
 											#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end
@@ -341,18 +342,18 @@
 													## if not submitted or returned and still allowed to submit within the due time
 													#if ($service.canSubmit($assignment.getContext(), $assignment))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<h4>#assignmentTitleIcon($assignment)
+														<strong>#assignmentTitleIcon($assignment)
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
-														</h4>
+														</strong>
 												#else
-														<h4>#assignmentTitleIcon($assignment)
+														<strong>#assignmentTitleIcon($assignment)
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
-														</h4>
+														</strong>
 													#end
 												#else
-												<h4>#assignmentTitleIcon($assignment)
+												<strong>#assignmentTitleIcon($assignment)
 													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
-												</h4>
+												</strong>
 												#end
 												#if ($taggable && $allowAddAssignment)
 													<div class="itemAction">
@@ -386,7 +387,7 @@
 													</div>
 												#end
 											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
 											#end
 										#end
 										#set ($deleted = false)
@@ -414,14 +415,14 @@
 									$tlang.getString("gen.viewallgroupssections")
 								#elseif( $groupTitleList.size() > 0 )
 									<div class="groupsContainer">
-										<h4 class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
+										<strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
 											$groupTitleList.size()
 											#if( $groupTitleList.size() == 1 )
 												$tlang.getString( "selected.group" )
 											#else
 												$tlang.getString( "selected.groups" )
 											#end
-										</h4>
+										</strong>
 
 										<div id="groupsPanel" style="display: none;">
 											<ul>
