@@ -117,7 +117,7 @@
     <sakai.tika.version>1.12</sakai.tika.version>
     <sakai.tomcat.version>8.0.32</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
-    <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
+    <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
@@ -348,13 +348,13 @@
       <dependency>
         <groupId>xalan</groupId>
         <artifactId>xalan</artifactId>
-        <version>2.6.0</version>
+        <version>2.7.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xercesImpl</artifactId>
-        <version>2.6.2</version>
+        <version>${sakai.xerces.impl.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- common/lib -->
@@ -375,13 +375,13 @@
       <dependency>
         <groupId>xerces</groupId>
         <artifactId>xmlParserAPIs</artifactId>
-        <version>2.6.2</version>
+        <version>${sakai.xerces.api.version}</version>
       </dependency>
       <!-- block these versions if the user really wants them they will have to be specific -->
       <dependency>
         <groupId>xml-apis</groupId>
         <artifactId>xml-apis</artifactId>
-        <version>1.0.b2</version>
+        <version>1.4.01</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
