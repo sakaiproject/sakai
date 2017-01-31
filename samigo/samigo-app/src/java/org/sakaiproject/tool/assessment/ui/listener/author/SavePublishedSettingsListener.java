@@ -870,6 +870,7 @@ implements ActionListener
 									}
 								}
 								gbsHelper.updateExternalAssessmentScore(ag, g);
+								gbsHelper.updateExternalAssessmentComment(ag.getPublishedAssessmentId(),ag.getAgentId() , ag.getComments(), g);
 							}
 							catch (Exception e) {
 								LOG.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
