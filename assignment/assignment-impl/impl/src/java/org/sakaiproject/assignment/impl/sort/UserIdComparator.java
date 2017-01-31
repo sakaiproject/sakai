@@ -1,7 +1,7 @@
 package org.sakaiproject.assignment.impl.sort;
 
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +18,10 @@ public class UserIdComparator implements Comparator<String> {
     private static Logger M_log = LoggerFactory.getLogger(UserIdComparator.class);
 
     private Collator collator;
+    private UserDirectoryService userDirectoryService;
 
-    public UserIdComparator() {
+    public UserIdComparator(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
         // TODO this should be in a service and should repect the current user's locale
         try {
             collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
@@ -39,7 +41,7 @@ public class UserIdComparator implements Comparator<String> {
         String s1 = null;
         if (id1 != null) {
             try {
-                User u1 = UserDirectoryService.getUser(id1);
+                User u1 = userDirectoryService.getUser(id1);
                 s1 = u1 != null ? u1.getSortName() : null;
             } catch (Exception e) {
                 M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + id1);
@@ -49,7 +51,7 @@ public class UserIdComparator implements Comparator<String> {
         String s2 = null;
         if (id2 != null) {
             try {
-                User u2 = UserDirectoryService.getUser(id2);
+                User u2 = userDirectoryService.getUser(id2);
                 s2 = u2 != null ? u2.getSortName() : null;
             } catch (Exception e) {
                 M_log.warn(" AssignmentComparator.compare " + e.getMessage() + " id=" + id2);

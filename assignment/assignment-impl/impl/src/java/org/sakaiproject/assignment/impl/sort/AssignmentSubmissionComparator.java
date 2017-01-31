@@ -2,7 +2,7 @@ package org.sakaiproject.assignment.impl.sort;
 
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,10 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
     private static Logger M_log = LoggerFactory.getLogger(AssignmentSubmissionComparator.class);
 
     private Collator collator;
+    private SiteService siteService;
 
-    public AssignmentSubmissionComparator() {
+    public AssignmentSubmissionComparator(SiteService siteService) {
+        this.siteService = siteService;
         try {
             collator = new RuleBasedCollator(((RuleBasedCollator) Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
         } catch (ParseException e) {
@@ -66,7 +68,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
             if (_submission.getAssignment().isGroup()) {
                 // get the Group
                 try {
-                    Site _site = SiteService.getSite(_submission.getAssignment().getContext());
+                    Site _site = siteService.getSite(_submission.getAssignment().getContext());
                     rv = _site.getGroup(_submission.getSubmitterId()).getTitle();
                 } catch (Throwable _dfd) {
                 }
