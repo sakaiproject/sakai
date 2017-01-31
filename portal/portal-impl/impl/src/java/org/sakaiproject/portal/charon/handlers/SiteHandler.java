@@ -1068,8 +1068,8 @@ public class SiteHandler extends WorksiteHandler
 			Map<String, String> m = new HashMap<>();
 			m.put("responseHead", pp.head);
 			m.put("responseBody", pp.body);
-			log.debug("responseHead "+pp.head.length()+
-					" bytes, responseBody "+pp.body.length()+" bytes");
+			log.debug("responseHead {} bytes, responseBody {} bytes",
+					pp.head.length(), pp.body.length());
 			return m;
 		}
 		log.debug("bufferContent could not find head/body content");
