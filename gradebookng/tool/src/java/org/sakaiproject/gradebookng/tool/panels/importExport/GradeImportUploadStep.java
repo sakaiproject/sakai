@@ -110,10 +110,6 @@ public class GradeImportUploadStep extends Panel {
 					log.debug("GBNG import error", e);
 					error(getString("importExport.error.incorrecttype"));
 					return;
-				} catch (final GbImportExportUnknownStudentException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.unknownstudent"));
-					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
 					log.debug("GBNG import error", e);
 					error(getString("importExport.error.duplicatecolumn"));
