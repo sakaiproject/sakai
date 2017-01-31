@@ -646,8 +646,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 * 
 		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
 		 */
-	    if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
-	    			&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
+		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
+				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
 				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
@@ -655,30 +655,33 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 
 		try {
-		    getHibernateTemplate().save(o);
-		    
-		    if (o instanceof SimplePageItem) {
-			SimplePageItem i = (SimplePageItem)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/item/" + i.getId(), true));
-		    } else if (o instanceof SimplePage) {
-			SimplePage i = (SimplePage)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/page/" + i.getPageId(), true));
-		    } 
+			getHibernateTemplate().save(o);
 
-		    if(o instanceof SimplePageItem || o instanceof SimplePage) {
-		    	updateStudentPage(o);
-		    }
-		    
-		    return true;
+			if (o instanceof SimplePageItem) {
+				SimplePageItem item = (SimplePageItem)o;
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/item/" + item.getId(), true));
+			} else if (o instanceof SimplePage) {
+				SimplePage page = (SimplePage)o;
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/page/" + page.getPageId(), true));
+			} else if (o instanceof SimplePageComment) {
+				SimplePageComment comment = (SimplePageComment)o;
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/comment/" + comment.getId(), true));
+			}
+
+			if(o instanceof SimplePageItem || o instanceof SimplePage) {
+				updateStudentPage(o);
+			}
+
+			return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		} catch (org.hibernate.exception.DataException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		} catch (DataAccessException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		}
 	}
 
@@ -820,18 +823,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 */
 		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
 				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
-		   		&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
+				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
 			return false;
 		}
 		
 		if (o instanceof SimplePageItem) {
-		    SimplePageItem i = (SimplePageItem)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/item/" + i.getId(), true));
+			SimplePageItem item = (SimplePageItem)o;
+			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/item/" + item.getId(), true));
 		} else if (o instanceof SimplePage) {
-		    SimplePage i = (SimplePage)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/page/" + i.getPageId(), true));
+			SimplePage page = (SimplePage)o;
+			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/page/" + page.getPageId(), true));
+		} else if (o instanceof SimplePageComment) {
+			SimplePageComment comment = (SimplePageComment)o;
+			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/comment/" + comment.getId(), true));
 		}
 
 		try {
@@ -848,21 +854,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 					getHibernateTemplate().merge(o);
 				}
 			}
-		    
-		    if(o instanceof SimplePageItem || o instanceof SimplePage) {
-		    	updateStudentPage(o);
-		    }
-		    
-		    return true;
+
+			if(o instanceof SimplePageItem || o instanceof SimplePage) {
+				updateStudentPage(o);
+			}
+
+			return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		} catch (org.hibernate.exception.DataException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		} catch (DataAccessException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		}
 	}
 

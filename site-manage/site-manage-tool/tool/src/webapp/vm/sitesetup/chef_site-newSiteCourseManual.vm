@@ -1,7 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourseManual.vm,v 1.4 2005/06/03 14:08:16 gsilver.umich.edu Exp $ -->
 <div class="portletBody container-fluid">
 
-	## bjones86 - SAK-23255
+	## SAK-23255
 	#if( $isAdmin || !$skipManualCourseCreation )
 	
 	##if($menu)#toolbar($menu)#end<br/><br/>
@@ -238,7 +238,7 @@
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 		
-	## bjones86 - SAK-23255
+	## SAK-23255
 	#else
 		## If the filter terms feature is enabled, show the user a message indicating they don't have any sections in the selected term
 		#if( $filterTerms )

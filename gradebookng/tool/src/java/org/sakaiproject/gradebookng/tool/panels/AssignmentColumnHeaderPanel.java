@@ -19,7 +19,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
@@ -31,7 +30,10 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -40,18 +42,19 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class AssignmentColumnHeaderPanel extends Panel {
 
 	public static final String ICON_SAKAI = "icon-sakai--";
 	private static final long serialVersionUID = 1L;
 
 	private final IModel<Assignment> modelData;
-	private final GbGradingType gradingType;
+	private final GradingType gradingType;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	private GradebookNgBusinessService businessService;
 
-	public AssignmentColumnHeaderPanel(final String id, final Model<Assignment> modelData, final GbGradingType gradingType) {
+	public AssignmentColumnHeaderPanel(final String id, final Model<Assignment> modelData, final GradingType gradingType) {
 		super(id);
 		this.modelData = modelData;
 		this.gradingType = gradingType;
@@ -119,7 +122,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		// we also set the attribute here that is used for the cell by the JS
 		final Label totalLabel = new Label("totalLabel");
 		final Label totalPoints = new Label("totalPoints", Model.of(assignment.getPoints()));
-		if (this.gradingType == GbGradingType.PERCENTAGE) {
+		if (this.gradingType == GradingType.PERCENTAGE) {
 			totalLabel.setDefaultModel(new ResourceModel("label.relativeweight"));
 			totalPoints.add(new AttributeModifier("data-outof-label", new ResourceModel("label.percentage.plain")));
 		} else {
@@ -234,7 +237,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
 								(order.intValue() - 1));
 					} catch (final Exception e) {
-						e.printStackTrace();
+						log.warn("Exception calculating categorized sort order and updating order", e);
 						error("error reordering within category");
 					}
 				} else {
@@ -273,7 +276,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
 								(order.intValue() + 1));
 					} catch (final Exception e) {
-						e.printStackTrace();
+						log.warn("Exception in onClick calculating categorized sort order and updating order", e);
 						error("error reordering within category");
 					}
 				} else {

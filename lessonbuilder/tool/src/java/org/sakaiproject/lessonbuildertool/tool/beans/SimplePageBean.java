@@ -38,6 +38,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -520,6 +521,19 @@ public class SimplePageBean {
 		imageTypes.add("tiff");
 		imageTypes.add("tif");
 	}
+
+	private static final String DEFAULT_HTML_TYPES = "html,xhtml,htm,xht";
+	private static String[] htmlTypes = null;
+
+        static {
+	    String mmTypes = ServerConfigurationService.getString("lessonbuilder.html.types", DEFAULT_HTML_TYPES);
+	    htmlTypes = mmTypes.split(",");
+	    for (int i = 0; i < htmlTypes.length; i++) {
+		htmlTypes[i] = htmlTypes[i].trim().toLowerCase();
+	    }
+	    Arrays.sort(htmlTypes);
+	}
+
 
     // Spring Injection
 
@@ -3387,7 +3401,8 @@ public class SimplePageBean {
 		     return null;
 		 if (page.isHidden())
 		     return messageLocator.getMessage("simplepage.hiddenpage");
-		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())) {
+		 // for index of pages we need to show even out of date release dates
+		 if (page.getReleaseDate() != null) { // && page.getReleaseDate().after(new Date())) {
 		     DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 		     TimeZone tz = TimeService.getLocalTimeZone();
 		     df.setTimeZone(tz);
@@ -3517,6 +3532,52 @@ public class SimplePageBean {
 	   return ret;
 
        }
+
+    // only makes sense for SimplePageItem.RESOURCE or .MULTIMEDIA
+	public String getContentType(SimplePageItem item) {
+	    String mimeType = item.getHtml();
+	    // for files the code no longer stores the mimetype in lessons
+	    // so if lessons doesn't have one, get it from the kernel
+	    
+	    // old code put URLs in html field. no legit types start with http
+	    if (mimeType != null && (mimeType.startsWith("http")))
+		mimeType = null;
+
+	    if (mimeType == null || mimeType.equals("")) {
+		String mmDisplayType = item.getAttribute("multimediaDisplayType");
+		// 2 is the generic "use old display" so treat it as null
+		// only do this for type 2, since that's where there's an actual file
+		if (mmDisplayType == null || "".equals(mmDisplayType) || "2".equals(mmDisplayType)) {
+		    try {
+			ContentResource res = contentHostingService.getResource(item.getSakaiId());
+			mimeType = res.getContentType();
+		    } catch (Exception ignore) {
+		    }
+		}
+	    }
+	    if("application/octet-stream".equals(mimeType)) {
+		// OS X reports octet stream for things like MS Excel documents.
+		// Force a mimeType lookup so we get a decent icon.
+		// Probably not needed for normal files, as kernel should sniff
+		// correctly, but we may need it for URLs
+		mimeType = null;
+	    }
+
+	    if (mimeType == null || mimeType.equals("")) {
+		String s = item.getSakaiId();
+		int j = s.lastIndexOf(".");
+		if (j >= 0)
+		    s = s.substring(j+1);
+		mimeType = ContentTypeImageService.getContentType(s);
+		// log.info("type " + s + ">" + mimeType);
+	    }
+
+	    // if still nothing, call it octet-stream just so we don't return null
+	    if (mimeType == null || mimeType.equals(""))
+		mimeType = "application/octet-stream";
+
+	    return mimeType;
+	}
 
     // obviously this function must be called right after getResourceGroups
        private boolean inherited = false;
@@ -4225,6 +4286,8 @@ public class SimplePageBean {
 				try {
 					ContentCollectionEdit edit = contentHostingService.addCollection(collectionId);
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "LB-CSS");
+					//this folder should be hidden from access user
+					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 					contentHostingService.commitCollection(edit);
 				}catch(Exception e) {
 					setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
@@ -4413,41 +4476,67 @@ public class SimplePageBean {
 	    gradebookIfc.updateExternalAssessmentScores(getCurrentSiteId(), "lesson-builder:" + pageId, userMap);
 	}
 
-	public boolean isImageType(SimplePageItem item) {
-		// if mime type is defined use it
-		String mimeType = item.getHtml();
-		if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
-			mimeType = null;
-
-		if (mimeType != null && mimeType.length() > 0) {
-			return mimeType.toLowerCase().startsWith("image/");
-		}
-
-		// else use extension
-
-		String name = item.getSakaiId();
+	// there's one of these in Validator, but it isn't quite right, because it doesn't look at /
+        // return lowercase version, since we want uppercase versiosns to match
+	public static String getExtension(String name) {
 
 		// starts after last /
 		int i = name.lastIndexOf("/");
 		if (i >= 0)
 			name = name.substring(i+1);
 	    
-		String extension = null;	    
+		String extension = "";
 		i = name.lastIndexOf(".");
 		if (i > 0)
-			extension = name.substring(i+1);
-
-		if (extension == null)
-			return false;
+		    extension = name.substring(i+1);
 
 		extension = extension.trim();
 		extension = extension.toLowerCase();
+	    
+		return extension;
+	}
+
+	public boolean isImageType(SimplePageItem item) {
+
+		String mimeType = getContentType(item);
+
+		if (mimeType != null && mimeType.length() > 0 && !mimeType.equals("application/octet-stream")) {
+		    return mimeType.toLowerCase().startsWith("image/");
+		}
+
+		// no usable type found
+		// getContentType already checked extensions. But we have our own idea of image types, which is site-configurable
+		// to check for them
+
+		String extension = getExtension(item.getSakaiId());
 
 		if (imageTypes.contains(extension)) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	public boolean isHtmlType(SimplePageItem item) {
+
+		String mimeType = getContentType(item);
+
+		if (mimeType != null && mimeType.length() > 0 && !mimeType.equals("application/octet-stream")) {
+		    return mimeType.equals("text/html") || mimeType.equals("application/xhtml+xml");
+		}
+
+		// no usable type found
+		// getContentType already checked extensions. But we have our own idea of html types, which is site-configurable
+		// to check for them
+
+		String extension = getExtension(item.getSakaiId());
+
+		if (Arrays.binarySearch(htmlTypes, extension) >= 0) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	public void setOrder(String order) {
@@ -5729,7 +5818,13 @@ public class SimplePageBean {
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		String folder = null;
-		if (pageOwner == null) {
+		// for owned pages, use the same kind of hierarchy. One exception: use site name as basedir
+		if (pageOwner != null) {
+		    String title = getCurrentSite().getTitle();
+		    baseDir = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(title,"_",30));
+		}		    
+
+		// if (pageOwner == null) {
 			collectionId = contentHostingService.getSiteCollection(siteId);
 			if (baseDir != null) {
 			    if (!baseDir.endsWith("/"))
@@ -5793,11 +5888,11 @@ public class SimplePageBean {
 			    simplePageToolDao.quickUpdate(page);
 			}
 			// folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
-		}else {
-			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
-			// actual folder -- just use page name for student content
-			folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
-		}
+		// }else {
+		//	collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
+		//	// actual folder -- just use page name for student content
+		//	folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
+		//}
 
 	    // folder we really want
 		if (urls)
@@ -6030,16 +6125,23 @@ public class SimplePageBean {
 					}
 					if (isCaption)
 					    res.setContentType("text/vtt");
-					// octet-stream is probably bogus. let content hosting try to guess
-					else if (!"application/octet-stream".equals(mimeType))
-					    res.setContentType(mimeType);
+					// don't use mime type, to give kernel a chance to look at the contents
+					//else if (!"application/octet-stream".equals(mimeType))
+					//  res.setContentType(mimeType);
 					res.setContent(file.getInputStream());
 					try {
 						contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
 						// reset mime type. kernel may have improved it if it was null
 						String newMimeType = res.getContentType();
-						if (newMimeType != null && !newMimeType.equals(""))
-						    mimeType = newMimeType;
+						if ((newMimeType == null || newMimeType.equals("") || newMimeType.equals("application/octet-stream")) &&
+						    mimeType != null && !mimeType.equals("")) {
+						    // kernel didn't find anything useful. If browser sent something, use it
+						    res = contentHostingService.editResource(res.getId());
+						    res.setContentType(mimeType);
+						    contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
+						}
+						// note that we don't save the mime type in the lessons item anymore
+						// display code will use the item type from resources
 						// 	there's a bug in the kernel that can cause
 						// 	a null pointer if it can't determine the encoding
 						// 	type. Since we want this code to work on old
@@ -6047,6 +6149,7 @@ public class SimplePageBean {
 					} catch (java.lang.NullPointerException e) {
 						setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
 					}
+					mimeType = null; // display code will use type from the object
 					sakaiId = res.getId();
 
 					if(("application/zip".equals(mimeType) || "application/x-zip-compressed".equals(mimeType))  && isWebsite) {
@@ -6522,18 +6625,19 @@ public class SimplePageBean {
 
 	}
 	
-	public void addCommentsSection(String ab) {
-		addBefore = ab; // used by appendItem
-		if(canEditPage()) {
+	public void addCommentsSection() {
+		if (!canEditPage()) 
+		    return;
+		if (!checkCsrf())
+		    return;
+
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.comments-section"), SimplePageItem.COMMENTS);
 			item.setDescription(messageLocator.getMessage("simplepage.comments-section"));
 			saveItem(item);
 			
 			// Must clear the cache so that the new item appears on the page
 			itemsCache.remove(getCurrentPage().getPageId());
-		}else {
-			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
-		}
+
 	}
 	
 	/**
@@ -6784,9 +6888,13 @@ public class SimplePageBean {
 		return "failure";
 	}
 	
-	public void addStudentContentSection(String ab) {
-		addBefore = ab; // used by appebdItem
-		if(getCurrentPage().getOwner() == null && canEditPage()) {
+	public void addStudentContentSection() {
+		if (!canEditPage()) 
+		    return;
+		if (!checkCsrf())
+		    return;
+
+		if(getCurrentPage().getOwner() == null) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);
@@ -6824,13 +6932,19 @@ public class SimplePageBean {
 	    return true;
 	}
 
-	public boolean createStudentPage(long itemId) {
+	public String createStudentPage() {
+		if (!itemOk(itemId))
+		    return "permission-failed";
+		if (!checkCsrf())
+		    return "permission-failed";
+		// no check of canedit, since students can do this
+		// canread is checked below
+
 		SimplePage curr = getCurrentPage();
 		User user = UserDirectoryService.getCurrentUser();
 		
 		// Need to make sure the section exists
 		SimplePageItem containerItem = simplePageToolDao.findItem(itemId);
-		
 		
 		// We want to make sure each student only has one top level page per section.
 		SimpleStudentPage page = findStudentPage(containerItem);
@@ -6855,7 +6969,7 @@ public class SimplePageBean {
 			    Collection<Group> groups = getCurrentSite().getGroupsWithMember(user.getId());
 			    if (groups.size() == 0) {
 				setErrMessage(messageLocator.getMessage("simplepage.owner-groups-nogroup"));
-				return false;
+				return "permission-failed";
 			    }
 			    // ideally just one matches. But if more than one does, let's be deterministic
 			    // about which one we use.
@@ -6873,7 +6987,7 @@ public class SimplePageBean {
 			    }
 			    if (groupEntries.size() == 0) {
 				setErrMessage(messageLocator.getMessage("simplepage.owner-groups-nogroup"));
-				return false;
+				return "permission-failed";
 			    }
 			    Collections.sort(groupEntries,new Comparator() {
 				    public int compare(Object o1, Object o2) {
@@ -6916,7 +7030,7 @@ public class SimplePageBean {
 				adjustPath("push", newPage.getPageId(), containerItem.getId(), newPage.getTitle());
 			}catch(Exception ex) {
 				setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
-				return false;
+				return "permission-failed";
 			}
 			
 			// Reset the edit cache so that they can actually edit their page.
@@ -6927,12 +7041,12 @@ public class SimplePageBean {
 			else
 			    editPrivs = 1;
 			
-			return true;
+			return "success";
 		}else if(page != null) { 
 			setErrMessage(messageLocator.getMessage("simplepage.page-exists"));
-			return false;
+			return "permission-failed";
 		}else{
-			return false;
+			return "permission-failed";
 		}
 	}
 	

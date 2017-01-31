@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -58,7 +59,7 @@ public class DownloadServlet extends HttpServlet {
 	/** 
 	 * get file
 	 */
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		if (!securityService.isSuperUser()){
 			log.error("Must be super user to download archives");
@@ -67,12 +68,14 @@ public class DownloadServlet extends HttpServlet {
 		}
 		
 		String archiveName = request.getParameter("archive");
+		if (archiveName == null || archiveName.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "You must supply a archive name");
+			return;
+		}
 		Path sakaiHome = Paths.get(serverConfigurationService.getSakaiHomePath());
 		Path archives = sakaiHome.resolve(serverConfigurationService.getString("archive.storage.path", "archive"));
 		
-		response.setContentType("application/zip");
-        response.setHeader("Content-Disposition","attachment;filename=" +archiveName);
-		
+
 		Path archivePath = archives.resolve(archiveName).normalize();
 		if (!archivePath.startsWith(archives)) {
 			log.error(String.format("The archive file (%s) is not inside the archives folder (%s)",
@@ -81,8 +84,15 @@ public class DownloadServlet extends HttpServlet {
 					"Archive param must be a valid site archive. Param was: " + archiveName);
 			return;
 		}
-		OutputStream out = response.getOutputStream();
+		if (!Files.exists(archivePath)) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
 
+		response.setContentType("application/zip");
+		response.setHeader("Content-Disposition","attachment;filename=" +archiveName);
+		OutputStream out = response.getOutputStream();
+		
 		try (InputStream in = FileUtils.openInputStream(archivePath.toFile())) {
 			IOUtils.copyLarge(in, out);
 			out.flush();

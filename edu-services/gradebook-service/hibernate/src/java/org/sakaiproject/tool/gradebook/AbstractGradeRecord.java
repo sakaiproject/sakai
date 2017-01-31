@@ -35,7 +35,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public abstract class AbstractGradeRecord implements Serializable {
-    protected Long id;
+   
+	private static final long serialVersionUID = 1L;
+	
+	protected Long id;
     protected int version;
     protected String studentId;
     protected String graderId;
@@ -127,7 +130,8 @@ public abstract class AbstractGradeRecord implements Serializable {
 		this.studentId = studentId;
 	}
 
-    public String toString() {
+    @Override
+	public String toString() {
         return new ToStringBuilder(this).
 		append("id", id).
 		append("studentId", studentId).

@@ -1,15 +1,11 @@
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+/*
+ * Copyright (c) 2016, The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
+ */
 
 
 package org.sakaiproject.tool.assessment.services.assessment;
@@ -33,12 +29,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -95,47 +86,6 @@ public class PublishedAssessmentService extends AssessmentService{
 	  getPublishedAssessmentFacadeQueries().
 	  getBasicInfoOfAllPublishedAssessments2(orderBy, ascending, siteId);
   }
-
-/**
-  public ArrayList getAllReviewableAssessments(String agentId, String orderBy,
-                                               boolean ascending) {
-
-    // 1. get total no. of submission per assessment by the given agent
-    HashMap h = getTotalSubmissionPerAssessment(agentId);
-
-    ArrayList assessmentList = PersistenceService.getInstance().
-        getPublishedAssessmentFacadeQueries().
-        getAllReviewableAssessments(orderBy, ascending);
-             assessmentList.size());
-    ArrayList reviewableAssessmentList = new ArrayList();
-    for (int i = 0; i < assessmentList.size(); i++) {
-      AssessmentGradingFacade f = (AssessmentGradingFacade) assessmentList.get(
-          i);
-
-      Integer NumberOfSubmissions = (Integer) h.get(
-          f.getPublishedAssessment().getPublishedAssessmentId());
-      if (NumberOfSubmissions == null) {
-        NumberOfSubmissions = new Integer(0);
-      }
-      try {
-        if (!PersistenceService.getInstance().getAuthzQueriesFacade().isAuthorized(null, "VIEW_PUBLISHED_ASSESSMENT",
-                                              f.getPublishedAssessment().
-                                              getPublishedAssessmentId().
-                                              toString())) {
-          break;
-        }
-      }
-      catch (Exception e1) {
-        log.fatal("Wrapping Error around unhandled Exception: "
-                  + e1.getMessage());
-        throw new RuntimeException(e1.getMessage());
-      }
-      // for testing only
-      reviewableAssessmentList.add(f);
-    }
-    return reviewableAssessmentList;
-  }
-*/
 
   public ArrayList getAllActivePublishedAssessments(String orderBy) {
     return getAllPublishedAssessments(orderBy,
@@ -449,7 +399,7 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public HashMap<Long, ItemTextIfc> preparePublishedItemTextHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap<Long, ItemTextIfc> map = new HashMap<Long, ItemTextIfc>();
+    HashMap<Long, ItemTextIfc> map = new HashMap<>();
     List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
@@ -467,7 +417,7 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public HashMap<Long, ItemDataIfc> preparePublishedItemHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+    HashMap<Long, ItemDataIfc> map = new HashMap<>();
     List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
@@ -481,7 +431,7 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public HashMap<Long, AnswerIfc> preparePublishedAnswerHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap<Long, AnswerIfc> map = new HashMap<Long, AnswerIfc>();
+    HashMap<Long, AnswerIfc> map = new HashMap<>();
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
      SectionDataIfc section = sectionArray.get(i);
@@ -512,7 +462,7 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public HashMap<Long, ItemDataIfc> prepareFIBItemHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+    HashMap<Long, ItemDataIfc> map = new HashMap<>();
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
@@ -527,7 +477,7 @@ public class PublishedAssessmentService extends AssessmentService{
   }
 
   public HashMap<Long, ItemDataIfc> prepareFINItemHash(PublishedAssessmentIfc publishedAssessment){
-	    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+	    HashMap<Long, ItemDataIfc> map = new HashMap<>();
 	    ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
 	    for (int i=0;i<sectionArray.size(); i++){
 	      SectionDataIfc section = sectionArray.get(i);
@@ -548,7 +498,7 @@ public class PublishedAssessmentService extends AssessmentService{
    */
   public Map<Long, ItemDataIfc> prepareCalcQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
       // CALCULATED_QUESTION
-      Map<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+      Map<Long, ItemDataIfc> map = new HashMap<>();
       List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
       for (int i=0;i<sectionArray.size(); i++) {
           SectionDataIfc section = sectionArray.get(i);
@@ -570,7 +520,7 @@ public class PublishedAssessmentService extends AssessmentService{
    */
   public Map<Long, ItemDataIfc> prepareImagQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
       // CALCULATED_QUESTION
-      Map<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+      Map<Long, ItemDataIfc> map = new HashMap<>();
       List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
       for (int i=0;i<sectionArray.size(); i++) {
           SectionDataIfc section = sectionArray.get(i);
@@ -587,7 +537,7 @@ public class PublishedAssessmentService extends AssessmentService{
   
   
   public HashMap<Long, ItemDataIfc> prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){
-    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+    HashMap<Long, ItemDataIfc> map = new HashMap<>();
     ArrayList<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
     for (int i=0;i<sectionArray.size(); i++){
       SectionDataIfc section = sectionArray.get(i);
@@ -602,7 +552,7 @@ public class PublishedAssessmentService extends AssessmentService{
   }
   
   public HashMap prepareEMIItemHash(PublishedAssessmentIfc publishedAssessment){
-	    HashMap<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+	    HashMap<Long, ItemDataIfc> map = new HashMap<>();
 	    List<? extends SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
 	    for (int i=0;i<sectionArray.size(); i++){
 	      SectionDataIfc section = sectionArray.get(i);
@@ -700,12 +650,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	   if (pub == null) {
 		   return false;
 	   }
-	   if (pub.getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-		   return true;
-	   }
-	   else {
-		   return false;
-	   }
+	   return pub.getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
    }
 
    public Integer getPublishedAssessmentStatus(Long publishedAssessmentId) {

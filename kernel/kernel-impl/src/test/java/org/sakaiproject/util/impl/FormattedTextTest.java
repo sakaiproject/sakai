@@ -1025,6 +1025,20 @@ public class FormattedTextTest {
 
     }
 
+    @Test
+    public void testKNL_1487() {
+        // https://jira.sakaiproject.org/browse/KNL-1487
+        String text = null;
+        String result = null;
+        StringBuilder errorMessages = new StringBuilder();
+
+        //These are all expected to be an empty string as these tags are removed
+        text = "<img align=\"middle\" alt=\"square root of 5555\" class=\"Wirisformula\" data-mathml=\"(some mathml)\" role=\"math\" src=\"/pluginwiris_engine/app/showimage?formula=bf57cf5ace9b1e530d7221ee512cb429\" />";
+        result = formattedText.processFormattedText(text,errorMessages);
+        Assert.assertTrue( errorMessages.length() == 0 );
+        //Verify nothing was removed
+        Assert.assertEquals(result, text);
+    }
 
     @Test
     public void testGetShortenedTitles() {
@@ -1032,7 +1046,7 @@ public class FormattedTextTest {
             for (int k=0; k<CUT_METHODS.length; k++) {
                 ServerConfigurationService scs = new BasicConfigurationService();
                 scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.cut.method", CUT_METHODS[k], "FormattedTextTest"));
-                scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.maxlength", MAX_LENGTHS[k], "FormattedTextTest"));
+                scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.cut.maxlength", MAX_LENGTHS[k], "FormattedTextTest"));
                 scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.cut.separator", CUT_SEPARATORS[k], "FormattedTextTest"));
                 formattedText.setServerConfigurationService(scs);
                 String resumeTitle = formattedText.makeShortenedText(siteTitle, null, null, null);

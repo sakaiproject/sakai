@@ -53,13 +53,15 @@
                 <div class="form">
                 ##<table>
                     #if($availability_is_enabled)
-                        <h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4>
-                        <div class="form-group">
-                            <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
-                            <label for="hidden_false">$tlang.getString("avail.show40")</label>
-                            <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
-                            <label for="hidden_true">$tlang.getString("avail.hide40")</label>
-                        </div>
+                        <fieldset>
+                            <legend><h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4></legend>
+                            <div class="form-group">
+                                <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
+                                <label for="hidden_false">$tlang.getString("avail.show40")</label>
+                                <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
+                                <label for="hidden_true">$tlang.getString("avail.hide40")</label>
+                            </div>
+                        </fieldset>
                     #end
                     <div class="form-group">
                         <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>

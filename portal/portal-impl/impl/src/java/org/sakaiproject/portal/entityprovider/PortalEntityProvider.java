@@ -44,6 +44,7 @@ import org.sakaiproject.portal.beans.PortalNotifications;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 
 /**
  * An entity provider to serve Portal information
@@ -75,6 +76,8 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	public void init() {
 
 		VelocityEngine ve = new VelocityEngine();
+		ve.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
+
 		ve.setProperty("resource.loader", "class");
 		ve.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 		// No logging. (If you want to log, you need to set an approrpriate directory in an approrpriate
@@ -134,7 +137,11 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		VelocityContext context = new VelocityContext();
 		context.put("displayName", userProfile.getDisplayName());
 		context.put("profileUrl", profileLinkLogic.getInternalDirectUrlToUserProfile(connectionUserId));
-		context.put("email", userProfile.getEmail());
+
+		String email = userProfile.getEmail();
+        if (StringUtils.isEmpty(email)) email = "";
+		context.put("email", email);
+
 		context.put("currentUserId", currentUserId);
 		context.put("connectionUserId", connectionUserId);
 		context.put("requestMadeLabel", rl.getString("connection.requested"));

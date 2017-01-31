@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.joda.time.DateTime;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -77,6 +78,9 @@ public class DelegatedAccessSampleDataLoader {
 			loginToSakai();
 			securityService.pushAdvisor(yesMan);
 			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.template.course");
+		
+			DateTime date = new DateTime();
+			String term = "Spring " + date.getYear();
 			for(String school : schools){
 				for(String dept : depts){
 					for(String subject : subjs){
@@ -163,6 +167,9 @@ public class DelegatedAccessSampleDataLoader {
 								propEdit.addProperty("School", school);
 								propEdit.addProperty("Department", dept);
 								propEdit.addProperty("Subject", subject);
+								
+								propEdit.addProperty("term", term);
+								propEdit.addProperty("term_eid", term);
 								
 								siteService.save(siteEdit);
 								

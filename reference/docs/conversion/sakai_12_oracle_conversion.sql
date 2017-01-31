@@ -249,3 +249,127 @@ DROP INDEX POSTEM_STUDENT_USERNAME_I;
 ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY ( "USERNAME" VARCHAR2(99 CHAR) ) ;
 CREATE UNIQUE INDEX POSTEM_USERNAME_SURROGATE ON SAKAI_POSTEM_STUDENT ("USERNAME" ASC, "SURROGATE_KEY" ASC);
 -- END SAK-15708
+
+-- #3431 Add final grade mode setting
+ALTER TABLE gb_gradebook_t ADD final_grade_mode NUMBER(1,0) DEFAULT '0' NOT NULL;
+
+-- BEGIN 3432 Grade Points Grading Scale
+-- add the new grading scale
+INSERT INTO gb_grading_scale_t (id, object_type_id, version, scale_uid, name, unavailable)
+VALUES (gb_grading_scale_s.nextval, 0, 0, 'GradePointsMapping', 'Grade Points', 0);
+
+-- add the grade ordering
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'A (4.0)', 0);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'A- (3.67)', 1);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'B+ (3.33)', 2);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'B (3.0)', 3);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'B- (2.67)', 4);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'C+ (2.33)', 5);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'C (2.0)', 6);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'C- (1.67)', 7);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'D (1.0)', 8);
+
+INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 'F (0)', 9);
+
+-- add the percent mapping
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 100, 'A (4.0)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 90, 'A- (3.67)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 87, 'B+ (3.33)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 83, 'B (3.0)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 80, 'B- (2.67)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 77, 'C+ (2.33)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 73, 'C (2.0)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 70, 'C- (1.67)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 67, 'D (1.0)');
+
+INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
+VALUES(
+(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
+, 0, 'F (0)');
+
+-- add the new scale to all existing gradebook sites
+INSERT INTO gb_grade_map_t (id, object_type_id, version, gradebook_id, gb_grading_scale_t)
+SELECT 
+  gb_grade_mapping_s.nextval
+, 0
+, 0
+, gb.id
+, gs.id
+FROM gb_gradebook_t gb
+JOIN gb_grading_scale_t gs
+  ON gs.scale_uid = 'GradePointsMapping';
+-- END 3432
+

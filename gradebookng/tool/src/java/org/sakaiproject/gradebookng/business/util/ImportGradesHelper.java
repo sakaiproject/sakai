@@ -26,7 +26,6 @@ import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingIte
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedCell;
@@ -58,10 +57,13 @@ public class ImportGradesHelper {
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
+	final static Pattern COURSE_GRADE_OVERRIDE_PATTERN = Pattern.compile("(\\$.+)");
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+	private static final String[] XLS_FILE_EXTS = { ".xls", ".xlsx" };
 	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
+	private static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
 
 
 	/**
@@ -76,14 +78,14 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
-		// determine file type and delegate
-		if (ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
+		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
+		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
 			rval = ImportGradesHelper.parseCsv(is, userMap);
-		} else if (ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
+		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
 			rval = ImportGradesHelper.parseXls(is, userMap);
 		} else {
 			throw new GbImportExportInvalidFileTypeException("Invalid file type for grade import: " + mimetype);
@@ -128,7 +130,7 @@ public class ImportGradesHelper {
 			try {
 				reader.close();
 			} catch (final IOException e) {
-				e.printStackTrace();
+				log.warn("Error closing the reader", e);
 			}
 		}
 
@@ -183,12 +185,12 @@ public class ImportGradesHelper {
 	}
 
 	/**
-	 * Takes a row of data and maps it into the appropriate {@link ImportedRow} pieces
+	 * Takes a row of data and maps it into the appropriate {@link ImportedRow} pieces.
+	 * If a row contains data for a student that does not exist in the site, that row will be skipped
 	 *
 	 * @param line
 	 * @param mapping
 	 * @return
-	 * @throws GbImportExportUnknownStudentException if a row for a student is found that does not exist in the userMap
 	 */
 	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap) {
 
@@ -212,39 +214,49 @@ public class ImportGradesHelper {
 				cell = new ImportedCell();
 			}
 
-			if (column.getType() == ImportedColumn.Type.USER_ID) {
+			switch(column.getType()) {
+				case USER_ID:
+					//skip blank lines
+					if(StringUtils.isBlank(lineVal)) {
+						log.debug("Skipping empty row");
+						return null;
+					}
 
-				//skip blank lines
-				if(StringUtils.isBlank(lineVal)) {
-					log.debug("Skipping empty row");
-					return null;
-				}
-
-				// check user is in the map (ie in the site)
-				final String studentUuid = userMap.get(lineVal);
-				if(StringUtils.isBlank(studentUuid)){
-					log.debug("Student was found in file but not in site: " + lineVal);
-					throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
-				}
-				row.setStudentEid(lineVal);
-				row.setStudentUuid(studentUuid);
-
-			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
-				row.setStudentName(lineVal);
-
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				cell.setScore(lineVal);
-				row.getCellMap().put(columnTitle, cell);
-
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				cell.setScore(lineVal);
-				row.getCellMap().put(columnTitle, cell);
-
-			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				cell.setComment(lineVal);
-				row.getCellMap().put(columnTitle, cell);
+					// check user is in the map (ie in the site)
+					// if not, skip the row
+					final String studentUuid = userMap.get(lineVal);
+					if(StringUtils.isBlank(studentUuid)){
+						log.debug("Student was found in file but not in site. The row will be skipped: " + lineVal);
+						return null;
+					}
+					row.setStudentEid(lineVal);
+					row.setStudentUuid(studentUuid);
+					break;
+				case USER_NAME:
+					row.setStudentName(lineVal);
+					break;
+				case GB_ITEM_WITH_POINTS:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case GB_ITEM_WITHOUT_POINTS:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case COMMENTS:
+					cell.setComment(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case COURSE_GRADE_OVERRIDE:
+					cell.setScore(lineVal);
+					row.getCellMap().put(columnTitle, cell);
+					break;
+				case IGNORE:
+					// do nothing
+					break;
+				default:
+					break;
 			}
-
 		}
 
 		return row;
@@ -289,9 +301,6 @@ public class ImportGradesHelper {
 
 			final ProcessedGradeItem processedGradeItem = new ProcessedGradeItem();
 
-			//default to gb_item - overridden if a comment type
-			processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
-
 			// assignment info (if available)
 			final Assignment assignment = assignmentMap.get(columnTitle);
 			if (assignment != null) {
@@ -306,24 +315,43 @@ public class ImportGradesHelper {
 			log.debug("Column name: " + columnTitle + ", type: " + column.getType() + ", status: " + status);
 
 			// process the header as applicable
-			if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				processedGradeItem.setItemPointValue(column.getPoints());
-			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
-				commentColumns.add(columnTitle);
-			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				// nothing todo except avoid the next block
-			} else {
-				// skip
-				//TODO could return this but as a skip status?
-				log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
-				continue;
+			switch(column.getType()) {
+				case COMMENTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
+					commentColumns.add(columnTitle);
+					break;
+				case COURSE_GRADE_OVERRIDE:
+					processedGradeItem.setType(ProcessedGradeItem.Type.COURSE_GRADE_OVERRIDE);
+					break;
+				case GB_ITEM_WITHOUT_POINTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
+					break;
+				case GB_ITEM_WITH_POINTS:
+					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
+					processedGradeItem.setItemPointValue(column.getPoints());
+					break;
+				case IGNORE:
+					//never hit
+					break;
+				case USER_ID:
+					//never hit
+					break;
+				case USER_NAME:
+					//never hit
+					break;
+				default:
+					log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
+					break;
 			}
 
 			// process the data
 			final List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
 			for (final ImportedRow row : spreadsheetWrapper.getRows()) {
+				log.debug("row: " + row.getStudentEid());
+				log.debug("columnTitle: " + columnTitle);
+
 				final ImportedCell cell = row.getCellMap().get(columnTitle);
+
 				if (cell != null) {
 					final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
 					processedGradeItemDetail.setStudentEid(row.getStudentEid());
@@ -385,6 +413,10 @@ public class ImportGradesHelper {
 			} else if (assignment.getExternalId() != null) {
 				status = Status.EXTERNAL;
 			}
+		}
+
+		if(column.isCourseGradeOverride()) {
+			status = Status.UPDATE;
 		}
 
 		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
@@ -587,6 +619,19 @@ public class ImportGradesHelper {
 		if (m4.matches()) {
 			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
 			column.setType(ImportedColumn.Type.IGNORE);
+			return column;
+		}
+
+		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
+		if (m5.matches()) {
+
+			// extract title
+			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
+
+			if (titleMatcher.find()) {
+				column.setColumnTitle(trim(titleMatcher.group()));
+			}
+			column.setType(ImportedColumn.Type.COURSE_GRADE_OVERRIDE);
 			return column;
 		}
 

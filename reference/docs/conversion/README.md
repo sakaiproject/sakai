@@ -2,13 +2,13 @@ For the most up-to-date conversion scripts please see the files in https://githu
 
 You should be able to check just this directory out with subversion using the command:
 
-`svn co https://github.com/sakaiproject/sakai/trunk/master/reference/docs/conversion`
+`svn co https://github.com/sakaiproject/sakai/trunk/reference/docs/conversion`
 
-Or just clone it in github.
+Or just clone it from Github.
 
-You need to run all scripts in order to ensure a proper conversion. For instance if upgrading to 11, if you're on 10.3 you need to see if scripts exist for 10.4, 10.5, 10.6, etc before running the 11 script. 
+You need to run all scripts in order to ensure a proper conversion. For instance if upgrading to 11 from 10.3, you need to see if scripts exist for 10.4, 10.5, 10.6, etc before running the 11.0 script. 
 
-A database conversion is typically required in order to upgrade from one Sakai version to another. Database conversion scripts - in distinct versions for MySQL and Oracle, respectively - are found in the reference/docs/conversion folder in the master branch.
+A database conversion is typically required in order to upgrade from one Sakai version to another. Database conversion scripts -- in distinct versions for MySQL and Oracle, respectively -- are found in the reference/docs/conversion folder in the master branch.
 
 In the same directory you will also find conversion scripts for earlier Sakai releases. Migration from an earlier version will require the successive application of all intermediate scripts (see the following table). You cannot, for example, move from 2.6.1 to 2.9.0 by applying a single script. You will need to run 6 or 7 scripts all in a row.
 (warning) Note for oracle, some of the scripts will leave your indexes in an invalid state because of LONG->CLOB conversion. You will need to run this script to find the invalid/unusable indexes, THEN run the result of this script to alter these indexes.

@@ -38,6 +38,10 @@
             <artifactId>samigo-services</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>samigo-hibernate</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.message</groupId>
             <artifactId>sakai-message-api</artifactId>
         </dependency>

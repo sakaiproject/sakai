@@ -32,6 +32,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -57,6 +59,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,8 +69,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.tools.zip.ZipEntry;
-import org.apache.tools.zip.ZipFile;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -11101,6 +11102,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
 		state.setAttribute(SORTED_BY, SORTED_SUBMISSION_BY_LASTNAME);
+		state.setAttribute(SORTED_SUBMISSION_BY, SORTED_GRADE_SUBMISSION_BY_LASTNAME);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doReport_submissions
@@ -14189,6 +14191,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		// all the resources for paging
 		List returnResources = new ArrayList();
+		boolean hasOneAnon = false;
 
 		boolean allowAddAssignment = assignmentService.allowAddAssignment(contextString);
 		if (MODE_LIST_ASSIGNMENTS.equals(mode))
@@ -14287,6 +14290,8 @@ public class AssignmentAction extends PagedResourceActionII
 					    _dupUsers = usersInMultipleGroups(a, true);
 						}
 					}
+					// Have we found an anonymous assignment in the list.
+					hasOneAnon = hasOneAnon || AssignmentService.getInstance().assignmentUsesAnonymousGrading(a);
 					//get the list of users which are allowed to grade this assignment
 					List allowGradeAssignmentUsers = assignmentService.allowGradeAssignmentUsers(a.getReference());
 					String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
@@ -14492,6 +14497,10 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					// ignore, continue with default sort
 				}
+			}
+			else if (hasOneAnon)
+			{
+				ac.setAnon(true);
 			}
 			
 			try
@@ -15807,13 +15816,11 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			tempFile = File.createTempFile(String.valueOf(System.currentTimeMillis()),"");
 			
-			tmpFileOut = new FileOutputStream(tempFile);
-			writeToStream(fileContentStream, tmpFileOut);
-			tmpFileOut.flush();
-			tmpFileOut.close();
+			final Path destination = Paths.get(tempFile.getCanonicalPath());
+			Files.copy(fileContentStream, destination, StandardCopyOption.REPLACE_EXISTING);
 
-			ZipFile zipFile = new ZipFile(tempFile, "UTF-8");
-			Enumeration<ZipEntry> zipEntries = zipFile.getEntries();
+			ZipFile zipFile = new ZipFile(tempFile, StandardCharsets.UTF_8);
+			Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
 			ZipEntry entry;
 			while (zipEntries.hasMoreElements() && validZipFormat)
 			{
@@ -17256,29 +17263,6 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 
 
-	/**
-	 * Simply take as much as possible out of 'in', and write it to 'out'. Don't
-	 * close the streams, just transfer the data.
-	 * 
-	 * @param in
-	 * 		The data provider
-	 * @param out
-	 * 		The data output
-	 * @throws IOException
-	 * 		Thrown if there is an IOException transfering the data
-	 */
-	private void writeToStream(InputStream in, OutputStream out) throws IOException {
-		byte[] buffer = new byte[INPUT_BUFFER_SIZE];
-		
-		try {
-			while (in.read(buffer) > 0) {
-				out.write(buffer);
-			}
-		} catch (IOException e) {
-			throw e;
-		}
-	}
-    
     /**
      * Categories are represented as Integers. Right now this feature only will
      * be active for new assignments, so we'll just always return 0 for the 

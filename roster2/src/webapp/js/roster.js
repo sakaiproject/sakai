@@ -108,6 +108,7 @@
                     roleFragments: roster.getRoleFragments(roster.site.roleCounts),
                     roles: roster.site.userRoles,
                     checkOfficialPicturesButton: showOfficialPictures,
+                    viewGroup : roster.currentUserPermissions.viewGroup,
                     viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto },
                 'roster_content');
 
@@ -522,6 +523,7 @@
                 'viewEmail': roster.viewEmail,
                 'viewUserDisplayId': roster.viewUserDisplayId,
                 'viewProfile': roster.currentUserPermissions.viewProfile,
+                'viewGroup' : roster.currentUserPermissions.viewGroup,
                 'viewPicture': true,
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
@@ -560,7 +562,7 @@
     roster.getRoleFragments = function (roleCounts) {
         return Object.keys(roleCounts).map(function (key) {
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            return frag.replace(/\{1\}/, '<strong>' +key + '</strong>');
+            return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
         }).join(", ");
     };
 

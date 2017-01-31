@@ -305,7 +305,7 @@ public class ToolConfigurationService {
      */
 
     public boolean toolGroupIsSelected(String groupName, String toolId) {
-        List<String> selList = m_toolGroupRequired.get(groupName);
+        List<String> selList = m_toolGroupSelected.get(groupName);
         if (selList == null) {
             return false;
         } else {

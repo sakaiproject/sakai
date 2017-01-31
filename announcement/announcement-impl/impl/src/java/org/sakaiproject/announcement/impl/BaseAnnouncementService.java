@@ -1435,7 +1435,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 * AnnouncementChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseAnnouncementChannelEdit extends BaseMessageChannelEdit implements AnnouncementChannelEdit
+	public class BaseAnnouncementChannelEdit extends BaseMessageChannelEdit<AnnouncementMessageEdit> implements AnnouncementChannelEdit
 	{
 		/**
 		 * Construct with a reference.

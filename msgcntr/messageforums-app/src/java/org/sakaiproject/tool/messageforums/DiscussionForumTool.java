@@ -7218,10 +7218,7 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
-    if (selectedForum != null)
-    {
-      return;
-    }
+    DiscussionForumBean oldSelectedForum = selectedForum;
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {
@@ -7229,17 +7226,20 @@ public class DiscussionForumTool
       String forumId = getExternalParameterByKey(FORUM_ID);
       if (forumId == null || forumId.trim().length() < 1)
       {
-        selectedForum = null;
+        selectedForum = oldSelectedForum;
         return;
       }
       forum = forumManager.getForumById(Long.valueOf(forumId));
       if (forum == null)
       {
-        selectedForum = null;
+        selectedForum = oldSelectedForum;
         return;
       }
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+    if (selectedForum == null) {
+    	selectedForum = oldSelectedForum;
+    }
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
     	selectedForum.setReadFullDesciption(true);

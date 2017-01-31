@@ -16,7 +16,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -24,6 +23,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 
 public class GradeSummaryTablePanel extends Panel {
 
@@ -52,9 +52,9 @@ public class GradeSummaryTablePanel extends Panel {
 		final List<String> categoryNames = (List<String>) data.get("categoryNames");
 		final Map<Long, Double> categoryAverages = (Map<Long, Double>) data.get("categoryAverages");
 		final boolean categoriesEnabled = (boolean) data.get("categoriesEnabled");
-		//final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
+		final boolean isCategoryWeightEnabled = (boolean) data.get("isCategoryWeightEnabled");
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
-		final GbGradingType gradingType = (GbGradingType) data.get("gradingType");
+		final GradingType gradingType = (GradingType) data.get("gradingType");
 		this.isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
 
 		if (getPage() instanceof GradebookPage) {
@@ -98,6 +98,9 @@ public class GradeSummaryTablePanel extends Panel {
 		toggleActions.addOrReplace(new WebMarkupContainer("expandCategoriesLink").setVisible(this.isGroupedByCategory));
 		toggleActions.addOrReplace(new WebMarkupContainer("collapseCategoriesLink").setVisible(this.isGroupedByCategory));
 		addOrReplace(toggleActions);
+
+		addOrReplace(new WebMarkupContainer("weightColumnHeader").
+			setVisible(categoriesEnabled && isCategoryWeightEnabled && this.isGroupedByCategory));
 
 		addOrReplace(new WebMarkupContainer("categoryColumnHeader").
 			setVisible(categoriesEnabled && !this.isGroupedByCategory));
@@ -147,7 +150,8 @@ public class GradeSummaryTablePanel extends Panel {
 						categoryWeight = FormatHelper.formatDoubleAsPercentage(weight * 100);
 					}
 				}
-				categoryRow.add(new Label("categoryWeight", categoryWeight));
+				categoryRow.add(new Label("categoryWeight", categoryWeight).
+					setVisible(isCategoryWeightEnabled && GradeSummaryTablePanel.this.isGroupedByCategory));
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
 					private static final long serialVersionUID = 1L;
@@ -191,13 +195,16 @@ public class GradeSummaryTablePanel extends Panel {
 							.setVisible(!assignment.isReleased()));
 						assignmentItem.add(flags);
 
+						assignmentItem.add(new WebMarkupContainer("weight").
+							setVisible(isCategoryWeightEnabled && GradeSummaryTablePanel.this.isGroupedByCategory));
+
 						final Label dueDate = new Label("dueDate",
 							FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate")));
 						dueDate.add(new AttributeModifier("data-sort-key",
 							assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);
 
-						if (GbGradingType.PERCENTAGE.equals(gradingType)) {
+						if (GradingType.PERCENTAGE.equals(gradingType)) {
 							assignmentItem.add(new Label("grade",
 								new StringResourceModel("label.percentage.valued", null,
 									new Object[]{FormatHelper.formatGrade(rawGrade)})) {

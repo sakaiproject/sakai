@@ -116,29 +116,32 @@ public class CourseGradeFormatter {
 		}
 
 		// percentage
-		final String calculatedGrade;
-		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+		// not shown in final grade mode
+		if(!this.gradebook.isFinalGradeMode()) {
+			final String calculatedGrade;
+			if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 
-			// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
-			// TODO this should probably inform the instructor
-			Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
-			if(mappedGrade == null) {
-				mappedGrade = new Double(0);
-			}
-			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
+				// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
+				// TODO this should probably inform the instructor
+				Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
+				if(mappedGrade == null) {
+					mappedGrade = new Double(0);
+				}
+				calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
 
-		} else {
-			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
-		}
-
-		if (StringUtils.isNotBlank(calculatedGrade)
-				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
-			if (parts.isEmpty()) {
-				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
-						new Object[] { calculatedGrade }).getString());
 			} else {
-				parts.add(new StringResourceModel("coursegrade.display.percentage-second", null,
-						new Object[] { calculatedGrade }).getString());
+				calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+			}
+
+			if (StringUtils.isNotBlank(calculatedGrade)
+					&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
+				if (parts.isEmpty()) {
+					parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
+							new Object[] { calculatedGrade }).getString());
+				} else {
+					parts.add(new StringResourceModel("coursegrade.display.percentage-second", null,
+							new Object[] { calculatedGrade }).getString());
+				}
 			}
 		}
 

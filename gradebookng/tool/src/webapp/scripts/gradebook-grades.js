@@ -111,6 +111,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     tooltip = tooltip.replace("{0}", self.getCellModel($cell).getRow().find(".gb-student-cell:first").attr("abbr"));
     tooltip = tooltip.replace("{1}", self.getCellModel($cell).header.$cell.attr("abbr"));
     $dropdown.attr("title", tooltip);
+    $dropdown.dropdown();
 
     $cell.data("has-dropdown", true);
   };
@@ -505,8 +506,10 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
   var $thead = $("<thead>");
-  // append a dummy header row for when categorised
-  $thead.append($("<tr>").addClass("gb-categories-row").append($("<th>").attr("colspan", $headers.length)));
+  if(self.isGroupedByCategory()) {
+    // append a dummy header row for when categorised
+    $thead.append($("<tr>").addClass("gb-categories-row").append($("<th>").attr("colspan", $headers.length)));
+  }
 
  // add the row for all cloned cells
   $thead.append($("<tr>").addClass("gb-clone-row").addClass("gb-headers"));
@@ -560,9 +563,8 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   });
 
   // Clicks on the fixed column return you to the real column cell
-  self.$fixedColumns.find("td").on("mousedown", function(event) {
+  self.$fixedColumns.find("td,th").on("mousedown", function(event) {
     event.preventDefault();
-    self.$spreadsheet.scrollLeft(0);
     var cellIndex = $(this).index();
     var rowIndex = $(this).closest("tr").index();
     $targetCell = $($(self.$table.find("> tbody > tr").get(rowIndex)).find("> *").get(cellIndex));
@@ -1420,12 +1422,13 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
         mouseDownEvent.stopPropagation();
         $(mouseDownEvent.target).focus();
       }
-    })
+      return true;
+    });
 
     $btnGroup.find("ul.dropdown-menu li a").on("mousedown", function(mouseDownEvent) {
       mouseDownEvent.stopPropagation();
       $(mouseDownEvent.target).focus();
-    })
+    });
 
     $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").on("blur", handleDropdownItemBlur);
 
@@ -1433,6 +1436,9 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
       $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").off("blur", handleDropdownItemBlur);
     });
   });
+
+  // initialize all dropdown menus
+  self.$spreadsheet.find('.dropdown-toggle').dropdown();
 };
 
 
@@ -2417,7 +2423,8 @@ GradebookAPI = {};
 GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
   var params = {
-    since: timestamp
+    since: timestamp,
+    auto: true // indicate that the request is automatic, not from a user action
   };
   GradebookAPI._GET(endpointURL, params, onSuccess, onError);
 };
@@ -2547,6 +2554,9 @@ ConnectionPoll.prototype.ping = function() {
   $.ajax({
     type: "GET",
     url: this.PING_URL,
+    data: {
+      auto: true // indicate that the request is automatic, not from a user action
+    },
     timeout: this.PING_TIMEOUT,
     cache: false,
     success: $.proxy(this.onSuccess, this),

@@ -7,6 +7,7 @@
 	<import resource="spring-hibernate.xml" />
 	<import resource="turnitin.xml" />
 	<import resource="vericite.xml" />
+	<import resource="compilatio.xml" />
 	
 	<bean id="org.sakaiproject.contentreview.service.ContentReviewQueueService" class="org.sakaiproject.contentreview.service.ContentReviewQueueServiceImpl">
 	   <property name="itemDao" ref="org.sakaiproject.contentreview.dao.ContentReviewItemDao" />
@@ -17,6 +18,7 @@
 			<list>
 				<ref bean="org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite" />
 				<ref bean="org.sakaiproject.contentreview.turnitin.ContentReviewServiceTurnitin" />
+				<ref bean="org.sakaiproject.contentreview.compilatio.ContentReviewServiceCompilatio" />
 			</list>
 		</property>
 

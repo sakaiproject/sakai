@@ -26,9 +26,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.hsqldb.jdbc.jdbcDataSource;
+import org.junit.*;
+import org.mockito.Mockito;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.dao.impl.DashboardDaoImpl;
 import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -39,19 +42,61 @@ import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+
+import javax.sql.DataSource;
+
+import static org.mockito.Mockito.*;
 
 /**
  * This class really only tests the HSQLDB impl. But that provides a baseline for testing 
  * of the logic methods.
  */
-@ContextConfiguration(locations={"/test.xml"})
+@ContextConfiguration(classes = {DashboardDaoTest.class})
+@Configuration
 public class DashboardDaoTest extends AbstractJUnit4SpringContextTests {
-	
-	@Autowired
+
+    @Autowired
 	protected DashboardDao dao;
-	
+
+	@Bean
+	public DataSource dataSource() {
+		jdbcDataSource ds = new jdbcDataSource();
+		ds.setUser("sa");
+		ds.setPassword("");
+		ds.setDatabase("jdbc:hsqldb:mem:dash");
+		return ds;
+	}
+
+	@Bean
+	public JdbcTemplate jdbcTemplate() {
+		return new JdbcTemplate(dataSource());
+	}
+
+	@Bean
+	public DashboardDaoImpl dashboardDao() {
+		DashboardDaoImpl dao = new DashboardDaoImpl();
+		dao.setServerConfigurationService(serverConfigurationService());
+		dao.setJdbcTemplate(jdbcTemplate());
+        dao.init();
+		return dao;
+	}
+
+	@Bean(name = {"mockServerConfigurationService"})
+	public ServerConfigurationService serverConfigurationService() {
+		ServerConfigurationService serverConfigurationService = Mockito.mock(ServerConfigurationService.class);
+		when(serverConfigurationService.getString(
+				eq("vendor@org.sakaiproject.db.api.SqlService"))).thenReturn("hsqldb");
+		when(serverConfigurationService.getString(
+				eq("vendor@org.sakaiproject.db.api.SqlService"), any())).thenReturn("hsqldb");
+		when(serverConfigurationService.getBoolean("auto.ddl", true)).thenReturn(true);
+		return serverConfigurationService;
+	}
+
 	protected static AtomicInteger counter = new AtomicInteger(999);
 
 	private static final long ONE_MINUTE = 1000L * 60L;
@@ -60,6 +105,7 @@ public class DashboardDaoTest extends AbstractJUnit4SpringContextTests {
 	private static final long ONE_WEEK = ONE_DAY * 7L;
 	
 	private static final long TIME_DELTA = 1000L * 60L * 1L;
+
 
     /**
      * ADD unit tests below here, use testMethod as the name of the unit test,

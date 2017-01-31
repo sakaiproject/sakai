@@ -499,7 +499,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		return from;
 	}
 	
-	public void notifySiteImportCompleted(String toEmail, String siteId, String siteTitle){
+	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){
 			String headerTo = toEmail;
 			String replyTo = toEmail;

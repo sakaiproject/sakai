@@ -72,22 +72,17 @@ public class StatsAggregateJobImpl implements StatefulJob {
 	private final static String ORACLE_CONTEXT_COLUMN  = ",CONTEXT";
 	private String MYSQL_GET_EVENT					= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
-														"where EVENT_ID >= ? and EVENT_ID < ? " +
-														"order by EVENT_ID asc ";
+														"where EVENT_ID >= ? " +
+														"order by EVENT_ID asc LIMIT ?";
 	
 	// SAK-28967 - this query is very slow, replace it with the one below
-	/*private String ORACLE_GET_EVENT					= "SELECT * FROM ( " +
+	private String ORACLE_GET_EVENT					= "SELECT * FROM ( " +
 														"SELECT " +
-															" ROW_NUMBER() OVER (ORDER BY EVENT_ID ASC) AS rn, " +
 															ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? " +
-														") " +
-														"WHERE rn BETWEEN ? AND  ?";*/
-	
-	private String ORACLE_GET_EVENT = "SELECT " + ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN +
-				" FROM sakai_event e JOIN sakai_session s ON e.session_id = s.SESSION_ID" +
-				" WHERE event_id >= ? AND event_id < ? ORDER BY event_id ASC";
+														"order by EVENT_ID asc) " +
+														"WHERE ROWNUM <= ?";
 	
 	private String MYSQL_PAST_SITE_EVENTS			= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
@@ -275,7 +270,7 @@ public class StatsAggregateJobImpl implements StatefulJob {
 					offset = eventIdLowerLimit;
 				}
 				st.setLong( 1, offset );
-				st.setLong( 2, offset + sqlBlockSize );
+				st.setLong( 2, sqlBlockSize );
 				
 				rs = st.executeQuery();
 				
@@ -339,10 +334,8 @@ public class StatsAggregateJobImpl implements StatefulJob {
 				firstEventIdProcessedInBlock = -1;
 				if(processedCounter >= getMaxEventsPerRun()) {
 					break;
-				} else if(processedCounter + sqlBlockSize < getMaxEventsPerRun()) {
-					offset += sqlBlockSize;
 				} else {
-					offset += getMaxEventsPerRun() - processedCounter;
+					offset += sqlBlockSize;
 				}
 			}
 

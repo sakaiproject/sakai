@@ -44,19 +44,9 @@ function toggleUserNav(event){
 $PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 $PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 
-var ie11flex = function(){
-    if( !(window.ActiveXObject) && "ActiveXObject" in window && $PBJQ(window).width() >= 800 ){ // Failback for IE11
-      _list_width = $PBJQ(window).width() - $PBJQ('#mastLogin').outerWidth() - $PBJQ('.Mrphs-headerLogo').outerWidth();
-      $PBJQ('#Mrphs-sites-nav').css( 'width', ( _list_width  ) + 'px' );
-      $PBJQ('.Mrphs-sitesNav__menu','#Mrphs-sites-nav').css( 'width', ( _list_width ) + 'px' );
-    }
-}
-
 $PBJQ(document).ready( function(){
   if( $PBJQ('.Mrphs-hierarchy--parent-sites').length > 0 && $PBJQ(window).width() <= 800 ){
     $PBJQ('#content').css( 'margin-top', ( parseInt( $PBJQ('#content').css('margin-top').replace('px', '') ) +  $PBJQ('.Mrphs-hierarchy--parent-sites').outerHeight(true) ) + 'px' );
   }
-  ie11flex();
 });
 
-$PBJQ(window).on('resize', function(){ ie11flex(); });

@@ -30,6 +30,8 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 /**
  * Panel for the course grade override window
  *
+ * Note that validation is disabled when final grade mode is activated.
+ *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
 public class CourseGradeOverridePanel extends Panel {
@@ -99,14 +101,17 @@ public class CourseGradeOverridePanel extends Panel {
 
 				// validate the grade entered is a valid one for the selected grading schema
 				// though we allow blank grades so the override is removed
-				if (StringUtils.isNotBlank(newGrade)) {
-					final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings();
+				// Note: validation is not enforced for final grade mode
+				final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings();
 
-					final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
-					if (!schema.containsKey(newGrade)) {
-						error(new ResourceModel("message.addcoursegradeoverride.invalid").getObject());
-						target.addChildren(form, FeedbackPanel.class);
-						return;
+				if(!gbInfo.isFinalGradeMode()) {
+					if (StringUtils.isNotBlank(newGrade)) {
+						final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
+						if (!schema.containsKey(newGrade)) {
+							error(new ResourceModel("message.addcoursegradeoverride.invalid").getObject());
+							target.addChildren(form, FeedbackPanel.class);
+							return;
+						}
 					}
 				}
 
@@ -177,14 +182,14 @@ public class CourseGradeOverridePanel extends Panel {
 	private String formatPoints(final CourseGrade courseGrade, final Gradebook gradebook) {
 
 		String rval;
-		
+
 		// only display points if not weighted category type
 		final GbCategoryType categoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
 		if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
-			
+
 			if(pointsEarned != null && totalPointsPossible != null) {
 				rval = new StringResourceModel("coursegrade.display.points-first", null,
 						new Object[] { pointsEarned, totalPointsPossible }).getString();
@@ -194,7 +199,7 @@ public class CourseGradeOverridePanel extends Panel {
 		} else {
 			rval = getString("coursegrade.display.points-none");
 		}
-		
+
 		return rval;
 
 	}

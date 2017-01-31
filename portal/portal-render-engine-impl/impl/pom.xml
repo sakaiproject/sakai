@@ -58,7 +58,10 @@
             <artifactId>velocity-tools</artifactId>
             <version>1.4</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.sakaiproject.velocity</groupId>
+            <artifactId>sakai-velocity-util</artifactId>
+        </dependency>
         <!-- required for unit tests -->
         <dependency>
             <groupId>commons-collections</groupId>
