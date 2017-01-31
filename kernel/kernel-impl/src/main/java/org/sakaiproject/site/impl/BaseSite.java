@@ -1730,6 +1730,10 @@ public class BaseSite implements Site
 	 */
 	public void removeGroup(Group group)
 	{
+		if(group.isLocked()) {
+			M_log.error("Error, cannot remove a locked group");
+			return;
+		}
 		// remove it
 		m_groups.remove(group);
 

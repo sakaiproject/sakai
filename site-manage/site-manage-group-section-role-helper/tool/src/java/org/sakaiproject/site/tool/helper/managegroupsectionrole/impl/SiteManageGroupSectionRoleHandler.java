@@ -669,6 +669,12 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
+			M_log.debug("Check if the group is locked : {}", group.isLocked());
+			if(group.isLocked()) {
+				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+				return null;
+			}
+			
 			group.setTitle(title);
             group.setDescription(description);
             group.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));

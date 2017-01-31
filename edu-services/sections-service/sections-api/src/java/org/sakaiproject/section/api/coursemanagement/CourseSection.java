@@ -69,4 +69,11 @@ public interface CourseSection extends LearningContext {
      * @return
      */
     public List<Meeting> getMeetings();
+
+    /**
+     * Gets if the CourseSection is locked or not by some tools.
+     * 
+     * @return True if it's locked by some tool, false otherwise
+     */
+    public boolean isLocked();
 }
