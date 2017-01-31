@@ -15,6 +15,11 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 
+/**
+ * This candidate details provider looks up information on the user object's properties, this assumes that the
+ * user provider has loaded the additional data already. It also assumes that the data is encrytped on the
+ * user object.
+ */
 public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";

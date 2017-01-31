@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 /**
  * This takes some values that are reported back and maps them to other values.
- * This is mainly just a proxy.
+ * This is mainly just a proxy, but it allows deployments to have data stored in one form but manipulate to another
+ * value based on a simple map.
  */
 public class MappingDetailProvider implements CandidateDetailProvider {
 

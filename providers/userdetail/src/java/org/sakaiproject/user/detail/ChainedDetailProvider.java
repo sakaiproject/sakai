@@ -11,6 +11,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 
+/**
+ * A candidate details provider that checks each of the providers in the chain until it gets a value.
+ * For the boolean checks it does an OR and if any of the providers return true it will return true.
+ */
 public class ChainedDetailProvider implements CandidateDetailProvider {
 
 	private List<CandidateDetailProvider> providers;

@@ -14,6 +14,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 
+/**
+ * This candidate details provider is designed to be a sensible fallback when using a chaining provider.
+ */
 public class FallbackDetailProvider implements CandidateDetailProvider {
 	
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
