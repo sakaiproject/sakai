@@ -117,6 +117,11 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		return null;
 	}
 
+	@Override
+	public Collection<String> getServerNameAliases() {
+		return Collections.emptyList();
+	}
+
 	public String getServerUrl() {
 		return "http://localhost:8080";
 	}
