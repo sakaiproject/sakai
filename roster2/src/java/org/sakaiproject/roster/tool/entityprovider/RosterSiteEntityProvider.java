@@ -70,6 +70,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	public final static String KEY_ROLE_ID						= "roleId";
 	public final static String KEY_USER_IDS					    = "userIds";
 	public final static String KEY_PAGE                         = "page";
+	public final static String KEY_ALL                          = "all";
 	public final static String KEY_ENROLLMENT_SET_ID			= "enrollmentSetId";
 	public final static String KEY_ENROLLMENT_STATUS			= "enrollmentStatus";
 
@@ -132,6 +133,8 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
             }
 		}
 
+        boolean returnAll = Boolean.valueOf((String)parameters.get(KEY_ALL));
+
 		List<RosterMember> membership
             = sakaiProxy.getMembership(userId, siteId, groupId, roleId, enrollmentSetId, enrollmentStatus);
 
@@ -139,70 +142,72 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 			throw new EntityException("Unable to retrieve membership", reference.getReference());
 		}
 
-        int pageSize = 10;
-        int start  = page * pageSize;
         int membershipsSize = membership.size();
+        log.debug("memberships.size(): {}", membershipsSize);
 
-        if (log.isDebugEnabled()) {
-            log.debug("start: " + start);
-            log.debug("memberships.size(): " + membershipsSize);
-        }
+        List<RosterMember> subList = null;
 
-        if (start >= membershipsSize) {
-            return "{\"status\": \"END\"}";
+        if (returnAll) {
+            subList = membership;
         } else {
-            int end = start + pageSize;
+            int pageSize = 10;
+            int start  = page * pageSize;
+            log.debug("start: {}", start);
 
-            if (log.isDebugEnabled()) {
-                log.debug("end: " + end);
-            }
+            if (start >= membershipsSize) {
+                return "{\"status\": \"END\"}";
+            } else {
+                int end = start + pageSize;
 
-            if (end >= membershipsSize) {
-                end = membershipsSize;
-            }
+                log.debug("end: {}", end);
 
-		    List<RosterMember> subList = membership.subList(start, end);
-
-            RosterData data = new RosterData();
-            data.setMembers(subList);
-            data.setMembersTotal(membershipsSize);
-
-            boolean showVisits = sakaiProxy.getShowVisits();
-
-            Map<String, SitePresenceTotal> sitePresenceTotals = new HashMap<String, SitePresenceTotal>();
-            
-            if (showVisits) {
-                sitePresenceTotals = sakaiProxy.getPresenceTotalsForSite(siteId);
-            }
-
-            boolean viewSiteVisits
-                = developerHelperService.isUserAllowedInEntityReference("/user/" + userId
-                                                    , RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS
-                                                    , "/site/" + siteId);
-
-            Map<String, Integer> roleCounts = new HashMap<String, Integer>();
-
-            for (RosterMember member : membership) {
-                if (showVisits && viewSiteVisits) {
-                    String memberUserId = member.getUserId();
-                    if (sitePresenceTotals.containsKey(memberUserId)) {
-                        SitePresenceTotal spt = sitePresenceTotals.get(memberUserId);
-                        member.setTotalSiteVisits(spt.getTotalVisits());
-                        member.setLastVisitTime(spt.getLastVisitTime().getTime());
-                    }
+                if (end >= membershipsSize) {
+                    end = membershipsSize;
                 }
-                String memberRoleId = member.getRole();
-                if (!roleCounts.containsKey(memberRoleId)) {
-                    roleCounts.put(memberRoleId, 1);
-                } else {
-                    roleCounts.put(memberRoleId, roleCounts.get(memberRoleId) + 1);
-                }
+
+                subList = membership.subList(start, end);
             }
-
-            data.setRoleCounts(roleCounts);
-
-		    return data;
         }
+
+        RosterData data = new RosterData();
+        data.setMembers(subList);
+        data.setMembersTotal(membershipsSize);
+
+        boolean showVisits = sakaiProxy.getShowVisits();
+
+        Map<String, SitePresenceTotal> sitePresenceTotals = new HashMap();
+
+        if (showVisits) {
+            sitePresenceTotals = sakaiProxy.getPresenceTotalsForSite(siteId);
+        }
+
+        boolean viewSiteVisits
+            = developerHelperService.isUserAllowedInEntityReference("/user/" + userId
+                                                , RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS
+                                                , "/site/" + siteId);
+
+        Map<String, Integer> roleCounts = new HashMap();
+
+        for (RosterMember member : membership) {
+            if (showVisits && viewSiteVisits) {
+                String memberUserId = member.getUserId();
+                if (sitePresenceTotals.containsKey(memberUserId)) {
+                    SitePresenceTotal spt = sitePresenceTotals.get(memberUserId);
+                    member.setTotalSiteVisits(spt.getTotalVisits());
+                    member.setLastVisitTime(spt.getLastVisitTime().getTime());
+                }
+            }
+            String memberRoleId = member.getRole();
+            if (!roleCounts.containsKey(memberRoleId)) {
+                roleCounts.put(memberRoleId, 1);
+            } else {
+                roleCounts.put(memberRoleId, roleCounts.get(memberRoleId) + 1);
+            }
+        }
+
+        data.setRoleCounts(roleCounts);
+
+        return data;
 	}
 
     @EntityCustomAction(action = "get-users", viewKey = EntityView.VIEW_SHOW)
@@ -228,8 +233,8 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 			enrollmentSetId = parameters.get(KEY_ENROLLMENT_SET_ID).toString();
 		}
 
-		List<RosterMember> membership = new ArrayList<RosterMember>();
-		Map<String, Integer> roleCounts = new HashMap<String, Integer>(1);
+		List<RosterMember> membership = new ArrayList();
+		Map<String, Integer> roleCounts = new HashMap(1);
 
 		for (String userId : userIds) {
 			RosterMember member = sakaiProxy.getMember(siteId, userId, enrollmentSetId);
