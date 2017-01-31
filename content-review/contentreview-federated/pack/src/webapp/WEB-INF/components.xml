@@ -20,6 +20,7 @@
                 <!--ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/>
                 <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
                 <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceCompilatio"/>
+                <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceUrkund"/>
                 -->
         </util:list>
         <!-- Override this list in sakai/sakai-configuration.xml (https://confluence.sakaiproject.org/display/REL/More+Flexible+Sakai+Configuration) like
