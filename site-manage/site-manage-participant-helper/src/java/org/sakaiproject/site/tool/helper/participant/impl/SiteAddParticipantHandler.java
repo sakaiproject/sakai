@@ -259,7 +259,7 @@ public class SiteAddParticipantHandler {
                 site = siteService.getSite(siteId);
                 realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
                 
-                // bjones86 - SAK-23257
+                // SAK-23257
                 roles = SiteParticipantHelper.getAllowedRoles( site.getType(), realm.getRoles() );
             
             } catch (IdUnusedException | GroupNotDefinedException e) {

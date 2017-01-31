@@ -1,15 +1,11 @@
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+/*
+ * Copyright (c) 2016, The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
+ */
 
 
 
@@ -25,7 +21,6 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -88,7 +83,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -218,7 +213,6 @@ public class DeliveryBean
   // publishedUrl
   private boolean anonymousLogin = false;
   private String contextPath;
-  private boolean initAgentAccessString = false;
 
   // daisyf added this for timed assessment for SAK-6990, to check if mutiple windows were open 
   // during timed assessment
@@ -277,7 +271,7 @@ public class DeliveryBean
   
   private boolean isFromPrint;
   
-  private ExtendedTimeService extendedTimeService = null;
+  private ExtendedTimeDeliveryService extendedTimeDeliveryService = null;
 
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
@@ -294,8 +288,6 @@ public class DeliveryBean
   private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path"); 
 
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
-
-  private static String EXTENDED_TIME_KEY = "extendedTime";
 
   private static String questionProgressUnansweredPath = ServerConfigurationService.getString("samigo.questionprogress.unansweredpath", "/images/whiteBubble15.png");
   private static String questionProgressAnsweredPath = ServerConfigurationService.getString("samigo.questionprogress.answeredpath", "/images/blackBubble15.png");
@@ -965,7 +957,7 @@ public class DeliveryBean
     this.feedbackComponentOption = feedbackComponentOption;
   }
   
-  /**
+  /*
    * Types of feedback in FeedbackComponent:
    *
    * SHOW CORRECT SCORE
@@ -976,7 +968,7 @@ public class DeliveryBean
    * SHOW STATS
    * SHOW QUESTION
    * SHOW RESPONSE
-   **/
+   */
 
   /**
    * @return
@@ -3206,7 +3198,7 @@ public class DeliveryBean
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     
-    extendedTimeService = new ExtendedTimeService(publishedAssessment);
+    extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
     
     // log.debug("check 0");
     if (isRemoved()){
@@ -3369,8 +3361,8 @@ public class DeliveryBean
 	  boolean isAvailable = true;
 	  Date currentDate = new Date();
 		Date startDate;
-		if (extendedTimeService.hasExtendedTime()) {
-			startDate = extendedTimeService.getStartDate();
+		if (extendedTimeDeliveryService.hasExtendedTime()) {
+			startDate = extendedTimeDeliveryService.getStartDate();
 		} else {
 			startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
 		}
@@ -3384,8 +3376,8 @@ public class DeliveryBean
     boolean pastDue = true;
     Date currentDate = new Date();
 		Date dueDate;
-		if (extendedTimeService.hasExtendedTime()) {
-			dueDate = extendedTimeService.getDueDate();
+		if (extendedTimeDeliveryService.hasExtendedTime()) {
+			dueDate = extendedTimeDeliveryService.getDueDate();
 		} else {
 			dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
 		}
@@ -3399,8 +3391,8 @@ public class DeliveryBean
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate;
-    if (extendedTimeService.hasExtendedTime()) {
-    	retractDate = extendedTimeService.getRetractDate();
+    if (extendedTimeDeliveryService.hasExtendedTime()) {
+    	retractDate = extendedTimeDeliveryService.getRetractDate();
     }
     else {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();

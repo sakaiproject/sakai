@@ -1256,7 +1256,7 @@ public class FormattedTextImpl implements FormattedText
     /**
      * SAK-23567 Gets the shortened version of the title
      *
-     * Controlled by "site.title.cut.method", "site.title.maxlength", and "site.title.cut.separator"
+     * Controlled by "site.title.cut.method", "site.title.cut.maxlength", and "site.title.cut.separator"
      *
      * @param text the full site title (or desc) to shorten
      * @param maxLength maximum length for the string before it is shortened (and after shortening) (null defaults to 25)
@@ -1267,7 +1267,8 @@ public class FormattedTextImpl implements FormattedText
     public String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod) {
         // this method defines the defaults for the 3 configuration options
         if (maxLength == null || maxLength < 1) {
-            maxLength = serverConfigurationService.getInt("site.title.maxlength", 25);
+        	// SAK-31985: New property needed to control the site title
+            maxLength = serverConfigurationService.getInt("site.title.cut.maxlength", serverConfigurationService.getInt("site.title.maxlength", 25));
         }
         if (separator == null) {
             separator = serverConfigurationService.getString("site.title.cut.separator", " ...");

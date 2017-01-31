@@ -218,7 +218,7 @@ function checkHowChartSelection() {
 
 function checkWhatSelection() {
 	var what = jQuery('#what').val();
-	if(what == 'what-visits') {
+	if(what == 'what-visits' || what == 'what-presences') {
 		jQuery('#what').css('width','300px');
 		jQuery('#what-selection-label').hide();
 		jQuery('#whatEventSelType').hide();

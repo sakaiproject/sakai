@@ -1,10 +1,15 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-public class LetterGradePercentMapping implements Serializable 
-{
+public class LetterGradePercentMapping implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	private Long id;
 	private int version;
 
@@ -20,7 +25,7 @@ public class LetterGradePercentMapping implements Serializable
 	{
 		if(gradeMap != null && gradeMap.containsKey(grade))
 		{
-			return (Double) gradeMap.get(grade);
+			return gradeMap.get(grade);
 		}
 		return null;
 	}
@@ -32,7 +37,7 @@ public class LetterGradePercentMapping implements Serializable
 			List percentList = new ArrayList();
 			for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
 			{
-				percentList.add(gradeMap.get((String)(iter.next())));
+				percentList.add(gradeMap.get((iter.next())));
 			}
 			Collections.sort(percentList);
 			for(int i=0; i<percentList.size(); i++)
@@ -60,7 +65,7 @@ public class LetterGradePercentMapping implements Serializable
 			while(iter.hasNext())
 			{
 				String key = (String) iter.next();
-				Double gradeValue = (Double)gradeMap.get(key);
+				Double gradeValue = gradeMap.get(key);
 				if(gradeValue.equals(value))
 				{
 					return key;

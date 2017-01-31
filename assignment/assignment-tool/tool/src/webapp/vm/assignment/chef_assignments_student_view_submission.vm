@@ -1016,7 +1016,7 @@ $(document).ready(function(){
 						<h4 id="toggleAttach" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.prefeedbackAttachments")
 						</h4>
-						<div class="attachcoms  toggledContent">
+						<div class="attachcoms toggledContent">
 						#set ($size = 0)
 						#set ($props = false)
 						#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1027,12 +1027,12 @@ $(document).ready(function(){
 						#end
 						#if ($size == 0)
 							<p class="instruction">
-                                                            #if ($submissionType == 5)
-                                                                $tlang.getString("gen.noatt.single")
-                                                            #else
-                                                                $tlang.getString("gen.noatt")
-                                                            #end
-                                                        </p>
+								#if ($submissionType == 5)
+									$tlang.getString("gen.noatt.single")
+								#else
+									$tlang.getString("gen.noatt")
+								#end
+							</p>
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1051,7 +1051,8 @@ $(document).ready(function(){
 									#end
 								#end
 							</ul>
-						#end	
+						#end
+						</div>
 					#end
 				#end
 				#if ($withGrade)
@@ -1063,7 +1064,7 @@ $(document).ready(function(){
 						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.pregra")
 						</h4>
-						<div class="gradecoms  toggledContent">		
+						<div class="gradecoms toggledContent">
 							$!previousGrades
 						</div>
 					#end

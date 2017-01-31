@@ -27,10 +27,10 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<samigo:dataLine value="#{question.fibArray}" var="answer"
-  separator=" " first="0" rows="100">
+<samigo:dataLine value="#{question.fibArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputText value="#{answer.text} " escape="false" />
+      <h:outputLabel for="fib" value="#{answer.text} " escape="false" />
+      <f:verbatim>&nbsp;</f:verbatim>
       <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
@@ -44,7 +44,7 @@ should be included in file importing DeliveryMessages
       <h:inputText size="20" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"
-         value="#{answer.response}" onkeypress="return noenter()"/>
+         value="#{answer.response}" onkeypress="return noenter()" id="fib" />
       <h:outputText style="text-decoration: underline" 
 		rendered="#{delivery.actionString=='gradeAssessment' 
 			|| delivery.actionString=='reviewAssessment'}"

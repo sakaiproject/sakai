@@ -125,7 +125,7 @@ public class SiteHandler extends WorksiteHandler
 
 	// SAK-27774 - We are going inline default but a few tools need a crutch 
 	// This is Sakai 11 only so please do not back-port or merge this default value
-	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.rsf.evaluation";
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.delegatedaccess:sakai.melete";
 
 	public SiteHandler()
 	{
@@ -414,8 +414,10 @@ public class SiteHandler extends WorksiteHandler
 		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
 		if (page != null)
 		{
-			// store the last page visited
-			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+			if (ServerConfigurationService.getBoolean("portal.rememberSitePage", true)) {
+				// store the last page visited
+				session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+			}
 			title += " : " + page.getTitle();
 		}
 
@@ -566,8 +568,9 @@ public class SiteHandler extends WorksiteHandler
 		//Find any quick links ready for display in the top navigation bar,
 		//they can be set per site or for the whole portal.
 		if (userId != null) {
-			String quickLinksTitle = portalService.getQuickLinksTitle(siteId);
-			List<Map> quickLinks = portalService.getQuickLinks(siteId);
+			String skin = getSiteSkin(siteId);
+			String quickLinksTitle = portalService.getQuickLinksTitle(skin);
+			List<Map> quickLinks = portalService.getQuickLinks(skin);
 			if (CollectionUtils.isNotEmpty(quickLinks)) {
 				rcontext.put("quickLinksInfo", quickLinksTitle);
 				rcontext.put("quickLinks", quickLinks);

@@ -24,6 +24,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Status;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem.Type;
@@ -41,6 +43,9 @@ import lombok.extern.slf4j.Slf4j;
 public class GradeItemImportSelectionStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
+
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
@@ -121,6 +126,9 @@ public class GradeItemImportSelectionStep extends Panel {
 		final Map<String, ProcessedGradeItem> commentMap = createCommentMap(allItems);
 		final Map<String, ProcessedGradeItem> gradeItemMap = createGradeItemMap(allItems);
 
+		// do we have course grade override to import?
+		final ProcessedGradeItem courseGradeOverride = getCourseGradeOverride(allItems);
+
 		final Form<?> form = new Form("form") {
 			private static final long serialVersionUID = 1L;
 
@@ -144,9 +152,9 @@ public class GradeItemImportSelectionStep extends Panel {
 				itemsToProcess.addAll(selectedGradeItems);
 				itemsToProcess.addAll(selectedCommentItems);
 
-
 				// this has an odd model so we need to have the validation in the onSubmit.
-				if (itemsToProcess.size() == 0) {
+				// course grade is automatically imported so we can skip the logic check here
+				if (itemsToProcess.size() == 0 && courseGradeOverride == null) {
 					validated = false;
 					error(getString("importExport.selection.noneselected"));
 				}
@@ -166,12 +174,16 @@ public class GradeItemImportSelectionStep extends Panel {
 					log.debug("Items to create: " + itemsToCreate.size());
 					log.debug("Items to update: " + itemsToUpdate.size());
 					log.debug("Items to modify: " + itemsToModify.size());
+					log.debug("Course grade override? " + ((courseGradeOverride != null) ? true : false));
 
-					// repaint panel
-					Component newPanel = null;
+					//set data for next page
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
 					importWizardModel.setItemsToModify(itemsToModify);
+					importWizardModel.setCourseGradeOverride(courseGradeOverride);
+
+					// repaint panel
+					Component newPanel = null;
 
 					// create those that need to be created. When finished all, continue.
 					if (itemsToCreate.size() > 0) {
@@ -329,6 +341,17 @@ public class GradeItemImportSelectionStep extends Panel {
 		itemList.setReuseItems(true);
 		form.add(itemList);
 
+		// label to show course grade override will be imported
+		final Label courseGradeOverrideLabel = new Label("courseGradeOverrideFound", new ResourceModel("importExport.selection.coursegradeoverride.found")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return courseGradeOverride != null;
+			}
+		};
+		form.add(courseGradeOverrideLabel);
+
 	}
 
 	/**
@@ -398,6 +421,23 @@ public class GradeItemImportSelectionStep extends Panel {
 		rval.setType(Type.COMMENT);
 		rval.setStatus(Status.SKIP);
 		return rval;
+	}
+
+	/**
+	 * Get the course grade override item from the list if it is imported.
+	 * Only looks at the first (since there should only be one).
+	 *
+	 * @param items
+	 * @return ProcessedGradeItem or null if not found or not enabled
+	 */
+	private ProcessedGradeItem getCourseGradeOverride(final List<ProcessedGradeItem> items) {
+		if(this.businessService.isFinalGradeModeEnabled() && this.businessService.getGradebookSettings().isFinalGradeMode()) {
+			final List<ProcessedGradeItem> list = filterListByType(items, Type.COURSE_GRADE_OVERRIDE);
+			if(!list.isEmpty()){
+				return list.get(0);
+			}
+		}
+		return null;
 	}
 
 }

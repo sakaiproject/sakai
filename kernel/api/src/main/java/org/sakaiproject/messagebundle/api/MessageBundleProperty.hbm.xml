@@ -14,17 +14,17 @@
         </id>
         <!-- We need 2 indexes on columns so that's why we use the <column> tag.
              Column order matters because it affects  multi-column index order. -->
-        <property name="baseName" type="string" not-null="true" length="255" index="SMB_BASENAME_IDX">
-            <column name="BASENAME" index="SMB_SEARCH"/>
+        <property name="baseName" type="string" not-null="true" index="SMB_BASENAME_IDX">
+            <column name="BASENAME" length="150" index="SMB_SEARCH"/>
         </property>
-        <property name="moduleName" type="string" not-null="true" length="255" index="SMB_MODULE_IDX">
-            <column name="MODULE_NAME" index="SMB_SEARCH"/>
+        <property name="moduleName" type="string" not-null="true" index="SMB_MODULE_IDX">
+            <column name="MODULE_NAME" length="150" index="SMB_SEARCH"/>
         </property>
-        <property name="locale" type="string" not-null="true" length="255" index="SMB_LOCALE_IDX">
-            <column name="LOCALE" index="SMB_SEARCH"/>
+        <property name="locale" type="string" not-null="true" index="SMB_LOCALE_IDX">
+            <column name="LOCALE" length="150" index="SMB_SEARCH"/>
         </property>
-        <property name="propertyName" type="string" not-null="true" length="255" index="SMB_PROPNAME_IDX">
-            <column name="PROP_NAME" index="SMB_SEARCH"/>
+        <property name="propertyName" type="string" not-null="true" index="SMB_PROPNAME_IDX">
+            <column name="PROP_NAME" length="150" index="SMB_SEARCH"/>
         </property>
 
         <property name="defaultValue" column="DEFAULT_VALUE" type="materialized_clob" not-null="false" />

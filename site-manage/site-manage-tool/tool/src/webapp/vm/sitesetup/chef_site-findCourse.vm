@@ -1,6 +1,6 @@
 <div class="portletBody container-fluid">
 
-	## bjones86 - SAK-23255
+	## SAK-23255
 	#if( $isAdmin || !$skipCourseSectionSelection )
 
 	#if (!$!site)
@@ -201,7 +201,7 @@
 			<br />
 			<!-- end loop through fields-->
 		 
-		## Added by bjones86 - determine to skip manual course site create link in worksite setup
+		## determine to skip manual course site create link in worksite setup
 		#if( !$skipManualCourseCreation )
 			<p>
 				<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
@@ -237,7 +237,7 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	
-	## bjones86 - SAK-23255
+	## SAK-23255
 	#else
 		## If the filter terms feature is enabled, show the user a message indicating they don't have any sections in the selected term
 		#if( $filterTerms )

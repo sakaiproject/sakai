@@ -44,10 +44,12 @@ simplePageBean.handleImportItem,
 simplePageBean.addChecklist,
 simplePageBean.addChecklistItemData,
 simplePageBean.addComment,
+simplePageBean.addCommentsSection,
 simplePageBean.addForum,
 simplePageBean.addMultimedia,
 simplePageBean.addOldPage,
 simplePageBean.addPages,
+simplePageBean.addStudentContentSection,
 simplePageBean.addQuiz,
 simplePageBean.alt,
 simplePageBean.anonymous,
@@ -57,6 +59,7 @@ simplePageBean.cancel,
 simplePageBean.comments,
 simplePageBean.contents,
 simplePageBean.copyPage,
+simplePageBean.createStudentPage,
 simplePageBean.createSubpage,
 simplePageBean.csrfToken,
 simplePageBean.customCssClass,
@@ -326,10 +329,11 @@ simplePageBean.addForumSummary
 				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="fa-file-excel-o"/>
 				<entry key="application/pdf" value="fa-file-pdf-o"/>
 				<entry key="application/x-pdf" value="fa-file-pdf-o"/>
-				<entry key="application/x-shockwave-flash" value="fa-video-o"/>
-				<entry key="video/x-flv" value="fa-video-o"/>
-				<entry key="video/mp4" value="fa-video-o"/>
-				<entry key="video/x-mp4" value="fa-video-o"/>
+				<entry key="application/x-shockwave-flash" value="fa-video-camera"/>
+				<entry key="video/x-flv" value="fa-video-camera"/>
+				<entry key="video/mp4" value="fa-video-camera"/>
+				<entry key="video/x-mp4" value="fa-video-camera"/>
+				<entry key="video/x-m4v" value="fa-video-camera"/>
 				<entry key="text/plain" value="fa-file-text-o"/>
 				<entry key="text/rtf" value="fa-file-text-o"/>
 				<entry key="LBWEBSITE" value="fa-external-link"/>

@@ -31,18 +31,30 @@
  */
 package org.sakaiproject.rsf.template;
 
-import java.util.Map;
-
+import org.sakaiproject.portal.util.PortalUtils;
 import uk.org.ponder.rsf.content.ContentTypeInfoRegistry;
 import uk.org.ponder.rsf.template.ContentTypedTPI;
 import uk.org.ponder.rsf.template.XMLLump;
 
+import java.util.Map;
+
 public class SakaiBodyTPI implements ContentTypedTPI {
 	public static final String SAKAI_BODY = "sakai-body";
+	public static final String SCRIPT = "script";
+	public static final String SRC = "src";
+	public static final String LINK = "link";
+	public static final String HREF = "href";
+	public static final String QUESTION_MARK = "?";
 
 	public void adjustAttributes(String tag, Map attributes) {
 		if (tag.equals("body") && attributes.get(XMLLump.ID_ATTRIBUTE) == null) {
 			attributes.put(XMLLump.ID_ATTRIBUTE, XMLLump.SCR_PREFIX + SAKAI_BODY);
+		}
+		else if (tag.equals(SCRIPT) && attributes.get(SRC)!=null && !((String)attributes.get(SRC)).contains(QUESTION_MARK)) {
+			attributes.put(SRC, attributes.get(SRC) + PortalUtils.getCDNQuery());
+		}
+		else if (tag.equals(LINK) && attributes.get(HREF)!=null  && !((String)attributes.get(HREF)).contains(QUESTION_MARK)) {
+			attributes.put(HREF, attributes.get(HREF) + PortalUtils.getCDNQuery());
 		}
 	}
 

@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -101,7 +100,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.util.FormattedText;
@@ -1352,10 +1351,7 @@ public class DeliveryActionListener
     		   
     	}
     	if ( (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) || (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
-    		if (mcmc_match_counter==correctAnswers){
-    			haswronganswer=false;
-    		}
-    		else {
+    		if (mcmc_match_counter != correctAnswers){
     			haswronganswer=true;
     		}
     	}
@@ -2675,12 +2671,12 @@ public class DeliveryActionListener
     delivery.setBeginTime(ag.getAttemptDate());
 
 		// Handle Extended Time Information
-		ExtendedTimeService extendedTimeService = new ExtendedTimeService(publishedAssessment);
-		if (extendedTimeService.hasExtendedTime()) {
-			if (extendedTimeService.getTimeLimit() > 0)
-				publishedAssessment.setTimeLimit(extendedTimeService.getTimeLimit());
-			publishedAssessment.setDueDate(extendedTimeService.getDueDate());
-			publishedAssessment.setRetractDate(extendedTimeService.getRetractDate());
+		ExtendedTimeDeliveryService extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
+		if (extendedTimeDeliveryService.hasExtendedTime()) {
+			if (extendedTimeDeliveryService.getTimeLimit() > 0)
+				publishedAssessment.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
+			publishedAssessment.setDueDate(extendedTimeDeliveryService.getDueDate());
+			publishedAssessment.setRetractDate(extendedTimeDeliveryService.getRetractDate());
 		}
     
     String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
@@ -2722,7 +2718,7 @@ public class DeliveryActionListener
 //    			timeLimit = Integer.parseInt(delivery.getTimeLimit());
 //    		}
 //    	}
-    	timeLimit = delivery.evaluateTimeLimit(publishedAssessment,fromBeginAssessment, extendedTimeService.getTimeLimit());
+    	timeLimit = delivery.evaluateTimeLimit(publishedAssessment,fromBeginAssessment, extendedTimeDeliveryService.getTimeLimit());
     }
     else if (delivery.getTurnIntoTimedAssessment()) {
    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting));

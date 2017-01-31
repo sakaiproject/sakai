@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * This is the externally exposed API of the gradebook application.
  * 
@@ -44,9 +46,11 @@ import java.util.Set;
  */
 public interface GradebookService {
 	// Application service hooks.
-	public static final int GRADE_TYPE_POINTS = 1;
-	public static final int GRADE_TYPE_PERCENTAGE = 2;
-	public static final int GRADE_TYPE_LETTER = 3;
+	
+	// These have been deprecated in favour of the {@link GradingType} enum
+	@Deprecated public static final int GRADE_TYPE_POINTS = 1;
+	@Deprecated public static final int GRADE_TYPE_PERCENTAGE = 2;
+	@Deprecated public static final int GRADE_TYPE_LETTER = 3;
 	
 	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
@@ -94,32 +98,38 @@ public interface GradebookService {
     /**
      * Array of chars that are not allowed in a gb item title
      */
-    public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = {'*', '#', '[', ']'};
+    public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = {'*', '#', '[', ']', '$'};
 	
     /**
      * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
+     * This is duplicated in GradebookNG. If changing here, please change there as well.
+     * TODO combine them
      */
     public static Comparator<String> lettergradeComparator = new Comparator<String>() {
 		@Override
     	public int compare(String o1, String o2){
 			if(o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
-				if(o1.length() == 2 && o2.length() == 2) {
-					if(o1.charAt(1) == '+') {
-						return -1; //SAK-30094
+				//only take the first 2 chars, to cater for GradePointsMapping as well
+				final String s1 = StringUtils.trim(StringUtils.left(o1, 2));
+				final String s2 = StringUtils.trim(StringUtils.left(o2, 2));
+				
+				if (s1.length() == 2 && s2.length() == 2) {
+					if (s1.charAt(1) == '+') {
+						return -1; // SAK-30094
 					} else {
 						return 1;
 					}
 				}
-				if(o1.length() == 1 && o2.length() == 2) {
-					if(o2.charAt(1) == '+') {
-						return 1; //SAK-30094
+				if (s1.length() == 1 && s2.length() == 2) {
+					if (o2.charAt(1) == '+') {
+						return 1; // SAK-30094
 					} else {
 						return -1;
 					}
 				}
-				if(o1.length() == 2 && o2.length() == 1) {
-					if(o1.charAt(1) == '+') {
-						return -1; //SAK-30094
+				if (s1.length() == 2 && s2.length() == 1) {
+					if (s1.charAt(1) == '+') {
+						return -1; // SAK-30094
 					} else {
 						return 1;
 					}

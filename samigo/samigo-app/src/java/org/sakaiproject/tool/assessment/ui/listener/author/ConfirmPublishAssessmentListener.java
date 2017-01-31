@@ -23,8 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -32,17 +31,17 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -95,7 +94,7 @@ public class ConfirmPublishAssessmentListener
     // Check permissions
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), false)) {
-        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_publish_assessment_error");
+        String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_publish_assessment_error");
         context.addMessage(null,new FacesMessage(err));
         assessmentSettings.setOutcomePublish("editAssessmentSettings");
         author.setIsErrorInSettings(true);
@@ -169,6 +168,110 @@ public class ConfirmPublishAssessmentListener
 	    	error=true;
 	    }
     }
+
+	if(dueDate != null && startDate != null && dueDate.equals(startDate)) {
+		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "due_same_as_available");
+		context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+		error=true;
+	}
+
+	  List<ExtendedTime> extendedTimeList = assessmentSettings.getExtendedTimes();
+	  List<String> extendedTimeUsers = new ArrayList<>(extendedTimeList.size());
+	  List<String> extendedTimeGroups = new ArrayList<>(extendedTimeList.size());
+	  for(ExtendedTime entry : extendedTimeList) {
+		  Date entryStartDate = entry.getStartDate();
+		  Date entryDueDate = entry.getDueDate();
+		  Date entryRetractDate = entry.getRetractDate();
+		  if(!"".equals(entry.getUser())) {
+			  extendedTimeUsers.add(entry.getUser());
+		  }
+
+		  if(!"".equals(entry.getGroup())) {
+			  extendedTimeGroups.add(entry.getGroup());
+		  }
+		  boolean isEntryRetractEarlierThanAvailable = false;
+
+		  if(!entry.getUser().isEmpty() && !entry.getGroup().isEmpty()) {
+			  String extendedTimeError1 = getExtendedTimeErrorString("extended_time_user_and_group_set", entry, assessmentSettings);
+			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError1, null));
+			  error = true;
+		  }
+		  if((entryStartDate != null && entryDueDate !=null && entryDueDate.before(entryStartDate)) ||
+				  (entryStartDate == null && entryDueDate != null && entryDueDate.before(new Date()))) {
+			  String extendedTimeError2 = getExtendedTimeErrorString("extended_time_due_earlier_than_available", entry, assessmentSettings);
+			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError2, null));
+			  error = true;
+			  entry.setStartDate(new Date());
+		  }
+		  if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+			  if( (entryRetractDate != null && entryStartDate != null && entryRetractDate.before(entryStartDate)) ||
+					  (entryRetractDate !=null && entryStartDate == null && entryRetractDate.before(new Date())) ) {
+				  String extendedTimeError3 = getExtendedTimeErrorString("extended_time_retract_earlier_than_available", entry, assessmentSettings);
+				  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError3, null));
+				  error = true;
+				  isEntryRetractEarlierThanAvailable = true;
+				  entry.setStartDate(new Date());
+			  }
+			  if(!isEntryRetractEarlierThanAvailable && (entryRetractDate != null && entryDueDate != null && entryRetractDate.before(entryDueDate))) {
+				  String extendedTimeError4 = getExtendedTimeErrorString("extended_time_retract_earlier_than_due", entry, assessmentSettings);
+				  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError4, null));
+				  error = true;
+			  }
+		  }
+		  if(entryDueDate != null && entryStartDate != null && entryDueDate.equals(entryStartDate)) {
+			  String extendedTimeError5 = getExtendedTimeErrorString("extended_time_due_same_as_available", entry, assessmentSettings);
+			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError5, null));
+			  error = true;
+		  }
+	  }
+
+	  Set<String> duplicateExtendedTimeUsers = findDuplicates(extendedTimeUsers);
+	  if(!duplicateExtendedTimeUsers.isEmpty()) {
+		  String users = "";
+		  int count = 0;
+		  int end = extendedTimeUsers.size();
+		  for(String entry : duplicateExtendedTimeUsers) {
+			  if(count == 0) {
+				  users = "'" + getUserName(entry, assessmentSettings) + "'";
+			  } else if(count < (end - 1)) {
+				  users = users + ", '" + getUserName(entry, assessmentSettings) + "'";
+			  } else {
+				  String and = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_and");
+				  users = users + ", " + and + " '" + getUserName(entry, assessmentSettings);
+			  }
+
+			  count++;
+		  }
+
+		  String extendedTimeError6 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_duplicate_users");
+		  extendedTimeError6 = extendedTimeError6.replace("{0}", users);
+		  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError6, null));
+		  error = true;
+	  }
+
+	  Set<String> duplicateExtendedTimeGroups = findDuplicates(extendedTimeGroups);
+	  if(!duplicateExtendedTimeGroups.isEmpty()) {
+		  String groups = "";
+		  int count = 0;
+		  int end = extendedTimeUsers.size();
+		  for(String entry : duplicateExtendedTimeGroups) {
+			  if(count == 0) {
+				  groups = "'" + getGroupName(entry, assessmentSettings) + "'";
+			  } else if(count < (end - 1)) {
+				  groups = groups + ", '" + getGroupName(entry, assessmentSettings) + "'";
+			  } else {
+				  String and = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_and");
+				  groups = groups + ", " + and + " '" + getGroupName(entry, assessmentSettings);
+			  }
+
+			  count++;
+		  }
+
+		  String extendedTimeError7 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_duplicate_groups");
+		  extendedTimeError7 = extendedTimeError7.replace("{0}", groups);
+		  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError7, null));
+		  error = true;
+	  }
     
     // if due date is null we cannot have late submissions
     if (assessmentSettings.getDueDate() == null && assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
@@ -222,12 +325,12 @@ public class ConfirmPublishAssessmentListener
     			isTime = Boolean.getBoolean((String) time);
     		}
     		else if (time instanceof java.lang.Boolean) {
-    			isTime=((Boolean)time).booleanValue();
+    			isTime=((Boolean)time);
     		}
     	}
 
 
-    	if ((isTime) &&((assessmentSettings.getTimeLimit().intValue())==0)){
+    	if ((isTime) &&((assessmentSettings.getTimeLimit())==0)){
     		String time_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","timeSelect_error");
     		context.addMessage(null,new FacesMessage(time_err));
     		error=true;
@@ -313,7 +416,7 @@ public class ConfirmPublishAssessmentListener
 	{
  	    if(assessmentBean.getTotalScore()<=0)
 		{
- 	    	String gb_err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
+ 	    	String gb_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_min_points");
             context.addMessage(null, new FacesMessage(gb_err));
             error=true;
 		}
@@ -410,4 +513,45 @@ public class ConfirmPublishAssessmentListener
   public void setIsFromActionSelect(boolean isFromActionSelect){
 	  this.isFromActionSelect = isFromActionSelect;
   }  
+
+  private String getExtendedTimeErrorString(String key, ExtendedTime entry, AssessmentSettingsBean settings) {
+	  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", key);
+	  errorString = errorString.replace("{0}", getUserName(entry.getUser(), settings)).replace("{1}", getGroupName(entry.getGroup(), settings));
+	  return errorString;
+  }
+
+  private String getUserName(String userId, AssessmentSettingsBean settings) {
+	return getName(userId, settings.getUsersInSite());
+  }
+
+	private String getGroupName(String groupId, AssessmentSettingsBean settings) {
+		return getName(groupId, settings.getGroupsForSite());
+	}
+
+  private String getName(String parameter, SelectItem[] entries) {
+	if(parameter == null || parameter.isEmpty()) {
+		return "";
+	}
+
+	for(SelectItem item : entries) {
+		if(item.getValue().equals(parameter)) {
+			return item.getLabel();
+		}
+	}
+
+	return ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","extended_time_name_not_found");
+  }
+
+  private Set<String> findDuplicates(List<String> list) {
+	final Set<String> setToReturn = new HashSet<>();
+	final Set<String> set1 = new HashSet<>();
+
+	for (String value : list) {
+		if (!set1.add(value)) {
+			setToReturn.add(value);
+		}
+	}
+
+	return setToReturn;
+  }
 }

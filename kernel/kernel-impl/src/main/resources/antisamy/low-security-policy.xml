@@ -1064,6 +1064,14 @@
                 <regexp name="anything" />
             </regexp-list>
          </attribute>
+
+         <!-- KNL-1487 - Role tag, used by wiris and others -->
+         <attribute name="role">
+             <regexp-list>
+                 <regexp name="anything" />
+             </regexp-list>
+         </attribute>
+
     </common-attributes>
 
 
@@ -1082,6 +1090,7 @@
         <!-- Not valid in base, br, frame, frameset, hr, iframe, param, and script elements.  -->
         <attribute name="lang"/>
         <attribute name="dir"/>
+        <attribute name="role"/>
     </global-tag-attributes>
 
     <!-- You can declare tags here that will not be removed, filtered, validated or truncated, but encoded using HTML entities -->
