@@ -103,15 +103,23 @@ public class GradeImportUploadStep extends Panel {
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.incorrectformat"));
 					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.incorrecttype"));
 					return;
+				} catch (final GbImportExportUnknownStudentException e) {
+					log.debug("GBNG import error", e);
+					error(getString("importExport.error.unknownstudent"));
+					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.duplicatecolumn"));
 					return;
 				} catch (final IOException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.unknown"));
 					return;
 				}
