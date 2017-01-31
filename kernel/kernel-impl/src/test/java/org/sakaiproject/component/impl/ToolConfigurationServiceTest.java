@@ -1,6 +1,5 @@
 package org.sakaiproject.component.impl;
 
-import org.hamcrest.collection.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
 
