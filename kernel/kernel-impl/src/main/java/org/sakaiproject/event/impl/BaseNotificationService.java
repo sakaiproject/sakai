@@ -480,6 +480,26 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 		return null;
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public List<Notification> findNotifications(String function, String filter)
+	{
+		List<Notification> notificationsFound = new ArrayList<Notification>();
+		// start with all those for this function (just 'cause we have a nice method to get them -ggolden)
+		List notifications = getNotifications(function);
+		for (Iterator iNotifications = notifications.iterator(); iNotifications.hasNext();)
+		{
+			Notification notification = (Notification) iNotifications.next();
+			if (notification.getResourceFilter().startsWith(filter) && !notificationsFound.contains(notification))
+			{
+				notificationsFound.add(notification);
+			}
+		}
+
+		return notificationsFound;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -703,6 +723,8 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		return notification;
 
 	} // refresh
+	
+	
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * CacheRefresher implementation (no container)
@@ -1113,6 +1135,18 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			stack.pop();
 
 			return notification;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this) {
+	            return true;
+	        }
+	        if (!(obj instanceof BaseNotification)) {
+	            return false;
+	        }
+	        BaseNotification other = (BaseNotification) obj;
+	        return this.getId().equals(other.getId());
 		}
 	}
 
