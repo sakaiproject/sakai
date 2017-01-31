@@ -14291,7 +14291,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					}
 					// Have we found an anonymous assignment in the list.
-					hasOneAnon = hasOneAnon || AssignmentService.getInstance().assignmentUsesAnonymousGrading(a);
+					hasOneAnon = hasOneAnon || assignmentService.assignmentUsesAnonymousGrading(a);
 					//get the list of users which are allowed to grade this assignment
 					List allowGradeAssignmentUsers = assignmentService.allowGradeAssignmentUsers(a.getReference());
 					String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);

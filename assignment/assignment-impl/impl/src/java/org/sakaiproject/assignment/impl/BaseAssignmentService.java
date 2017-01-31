@@ -5064,7 +5064,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
 					} else {
-						sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator());
+						sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(siteService));
 					}
 					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(),
 							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
@@ -6818,7 +6818,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					nNoteItem.setAssignmentId(nAssignment.getId());
 					nNoteItem.setNote(oNoteItem.getNote());
 					nNoteItem.setShareWith(oNoteItem.getShareWith());
-					nNoteItem.setCreatorId(UserDirectoryService.getCurrentUser().getId());
+					nNoteItem.setCreatorId(userDirectoryService.getCurrentUser().getId());
 					assignmentSupplementItemService.saveNoteItem(nNoteItem);
 				}
 				// All Purpose 
@@ -6850,7 +6850,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					assignmentSupplementItemService.cleanAllPurposeItemAccess(nAllPurposeItem);
 					Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
 					AssignmentAllPurposeItemAccess access = assignmentSupplementItemService.newAllPurposeItemAccess();
-					access.setAccess(UserDirectoryService.getCurrentUser().getId());
+					access.setAccess(userDirectoryService.getCurrentUser().getId());
 					access.setAssignmentAllPurposeItem(nAllPurposeItem);
 					assignmentSupplementItemService.saveAllPurposeItemAccess(access);
 					accessSet.add(access);
