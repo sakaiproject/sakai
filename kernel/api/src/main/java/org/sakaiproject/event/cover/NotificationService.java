@@ -21,6 +21,8 @@
 
 package org.sakaiproject.event.cover;
 
+import java.util.List;
+
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -164,6 +166,14 @@ public class NotificationService
 		if (service == null) return null;
 
 		return service.findNotification(param0, param1);
+	}
+	
+	public static List<org.sakaiproject.event.api.Notification> findNotifications(java.lang.String param0, java.lang.String param1)
+	{
+		org.sakaiproject.event.api.NotificationService service = getInstance();
+		if (service == null) return null;
+		
+		return service.findNotifications(param0, param1);
 	}
 
 	public static boolean isNotificationToReplyable()
