@@ -2,6 +2,7 @@ package org.sakaiproject.site.tool.helper.order.impl;
 
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -28,6 +29,7 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * @author Joshua Ryan joshua.ryan@asu.edu
  *
  */
+@Slf4j
 public class SitePageEditHandler {
     public Site site;
     public SiteService siteService;
@@ -580,19 +582,19 @@ public class SitePageEditHandler {
             }
             
             if (saveChanges) {
-                final Boolean specialHidden = getSitePropertySpecialHidden();
-                if(Boolean.TRUE.equals(specialHidden) && "sakai.resources".equals(toolId)) {
+                final boolean specialHidden = getSitePropertySpecialHidden();
+                if(specialHidden && "sakai.resources".equals(toolId)) {
                     final String siteCollectionId =  contentHostingService.getSiteCollection(placement.getSiteId());
-                    // It is possible, though unlikely, that remove/add property will throw a InUseException or ServerOverloadException
-                    // if so do nothing - ?
-                    try{
-                        if (visibility.equals("true")) {
+                    try {
+                        if ("true".equals(visibility)) {
                             contentHostingService.removeProperty(siteCollectionId, ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT);
                         } else {
                             contentHostingService.addProperty(siteCollectionId, ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
                         }
                     } catch (InUseException | ServerOverloadException e) {
-                        // do nothing
+                        // log & do nothing
+                        log.warn("Exception occurred when attempting to add / remove property from siteColleciton: '"
+                                + siteCollectionId +"' ", e);
                     }
 
                 }
@@ -823,7 +825,7 @@ public class SitePageEditHandler {
         return allow;
     }
 
-    private Boolean getSitePropertySpecialHidden() {
+    private boolean getSitePropertySpecialHidden() {
         return serverConfigurationService.getBoolean(SiteConstants.SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN,
                 SiteConstants.SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT);
     }
