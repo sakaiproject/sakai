@@ -3,6 +3,39 @@ var editing = false;
 var editorIndex = 1;
 var bodiesLoaded = false;
 
+//https://gist.github.com/Reinmar/b9df3f30a05786511a42
+$.widget( 'ui.dialog', $.ui.dialog, {
+    _allowInteraction: function( event ) {
+        if ( this._super( event ) ) {
+            return true;
+        }
+
+        // Address interaction issues with general iframes with the dialog.
+        // Fixes errors thrown in IE when clicking CKEditor magicline's "Insert paragraph here" button.
+        if ( event.target.ownerDocument != this.document[ 0 ] ) {
+            return true;
+        }
+
+        // Address interaction issues with dialog window.
+        if ( $( event.target ).closest( '.cke_dialog' ).length ) {
+            return true;
+        }
+
+        // Address interaction issues with iframe based drop downs in IE.
+        if ( $( event.target ).closest( '.cke' ).length ) {
+            return true;
+        }
+    },
+
+    // Uncomment this code when using jQuery UI 1.10.*.
+    // Addresses http://dev.ckeditor.com/ticket/10269
+    _moveToTop: function ( event, silent ) {
+        if ( !event || !this.options.modal ) {
+            this._super( event, silent );
+        }
+    }
+} );
+
 function setupAccordion(iframId, isInstructor, msgs, openDataId){
 	var activeVar = false;
 	if($( "#accordion .group" ).children("h3").size() <= 1){
