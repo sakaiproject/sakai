@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       https://opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.service.ContentReviewService;
@@ -35,10 +35,10 @@ import org.sakaiproject.entity.api.ResourceProperties;
  *
  */
 public class UrkundContentValidator {
-	private static final Log log = LogFactory.getLog(UrkundContentValidator.class);
+	private static final Logger log = LoggerFactory.getLogger(UrkundContentValidator.class);
 	
 	private int max_file_size;
-    private static int DEFAULT_MAX_FILE_SIZE = 20971520; //20Mb
+	private static int DEFAULT_MAX_FILE_SIZE = 20971520; //20Mb
 	
 	ContentReviewService contentReviewService = null;
 	public void setContentReviewService(ContentReviewService contentReviewService) {
@@ -59,7 +59,7 @@ public class UrkundContentValidator {
 			return false;
 		}
 		String mime = resource.getContentType();
-		log.debug("Got a content type of " + mime);
+		log.debug("Got a content type of {}", mime);
 
 		Map<String, SortedSet<String>> acceptableExtensionsToMimeTypes = contentReviewService.getAcceptableExtensionsToMimeTypes();
 		Set<String> acceptableMimeTypes = new HashSet<>();
@@ -82,7 +82,7 @@ public class UrkundContentValidator {
 			if (fileName.indexOf(".") > 0) {
 
 				String extension = fileName.substring(fileName.lastIndexOf("."));
-				log.debug("file has an extension of " + extension);
+				log.debug("file has an extension of {}", extension);
 				Set<String> extensions = acceptableExtensionsToMimeTypes.keySet();
 				if (extensions.contains(extension)) {
 					fileTypeOk = true;
@@ -101,7 +101,7 @@ public class UrkundContentValidator {
 
 		if(fileTypeOk){
 			if (resource.getContentLength() > max_file_size) {
-				log.debug("File is too big: " + resource.getContentLength());
+				log.debug("File is too big: {}", resource.getContentLength());
 				fileTypeOk = false;
 			}
 

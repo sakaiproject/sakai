@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       https://opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.contentreview.urkund.util.UrkundAPIUtil;
 
@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 public class UrkundAccountConnection {
-	private static final Log log = LogFactory.getLog(UrkundAccountConnection.class);
+	private static final Logger log = LoggerFactory.getLogger(UrkundAccountConnection.class);
 	
 	private final static String DEFAULT_API_URL = "https://secure.urkund.com/api/";
 	private final static int DEFAULT_TIMEOUT = 180000;

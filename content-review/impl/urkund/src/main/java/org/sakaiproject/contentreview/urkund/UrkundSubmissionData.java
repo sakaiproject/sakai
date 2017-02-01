@@ -6,22 +6,23 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-
+@Getter
+@Setter
 public class UrkundSubmissionData {
 
-	@Getter @Setter public Integer Id;
-	@Getter @Setter public Date Timestamp;
-	@Getter @Setter public String ExternalId;
-	@Getter @Setter public String Filename;
-	@Getter @Setter public String MimeType;
-	@Getter @Setter public Map<String, Object> Status;
-	@Getter @Setter public Map<String, Object> Document;
-	@Getter @Setter public Map<String, Object> Report;
-	@Getter @Setter public String Subject;
-	@Getter @Setter public Boolean Anonymous;
+	public Integer Id;
+	public Date Timestamp;
+	public String ExternalId;
+	public String Filename;
+	public String MimeType;
+	public Map<String, Object> Status;
+	public Map<String, Object> Document;
+	public Map<String, Object> Report;
+	public String Subject;
+	public Boolean Anonymous;
 	
-	@Getter @Setter public String LocalisedMessage;
-	@Getter @Setter public String Message;
+	public String LocalisedMessage;
+	public String Message;
 	
 	public Double getSignificance(){
 		try {
