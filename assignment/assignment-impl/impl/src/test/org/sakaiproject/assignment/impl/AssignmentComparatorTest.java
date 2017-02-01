@@ -22,25 +22,17 @@
 package org.sakaiproject.assignment.impl;
 
 import junit.framework.TestCase;
-
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.mockito.Mockito;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserIdComparator;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.util.Comparator;
 
-
-@SuppressWarnings("deprecation")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(UserDirectoryService.class)
 public class AssignmentComparatorTest extends TestCase {
 
 	private Comparator<String> sortNameComparator;
@@ -48,11 +40,8 @@ public class AssignmentComparatorTest extends TestCase {
 	private AssignmentSubmission assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;
 	
 	protected void setUp() throws Exception {
-		// Mock Static Cover
-		PowerMockito.mockStatic(UserDirectoryService.class);
-
-		sortNameComparator = new UserIdComparator();
-		submitterNameComparator = new AssignmentSubmissionComparator();
+		UserDirectoryService userDirectoryService = Mockito.mock(UserDirectoryService.class);
+		SiteService siteService = Mockito.mock(SiteService.class);
 
 		Assignment asm = Mockito.mock(Assignment.class);
 		Mockito.when(asm.isGroup()).thenReturn(false);
@@ -85,11 +74,14 @@ public class AssignmentComparatorTest extends TestCase {
 		Mockito.when(assignmentSubmission4.getAssignment()).thenReturn(asm);
 		Mockito.when(assignmentSubmission4.getSubmitters()).thenReturn(new User[]{user4});
 
-        Mockito.when(UserDirectoryService.getUser("user1")).thenReturn(user1);
-        Mockito.when(UserDirectoryService.getUser("user2")).thenReturn(user2);
-        Mockito.when(UserDirectoryService.getUser("user3")).thenReturn(user3);
-        Mockito.when(UserDirectoryService.getUser("user4")).thenReturn(user4);
-        Mockito.when(UserDirectoryService.getUser("usernull")).thenReturn(null);
+		Mockito.when(userDirectoryService.getUser("user1")).thenReturn(user1);
+		Mockito.when(userDirectoryService.getUser("user2")).thenReturn(user2);
+		Mockito.when(userDirectoryService.getUser("user3")).thenReturn(user3);
+		Mockito.when(userDirectoryService.getUser("user4")).thenReturn(user4);
+		Mockito.when(userDirectoryService.getUser("usernull")).thenReturn(null);
+
+		sortNameComparator = new UserIdComparator(userDirectoryService);
+		submitterNameComparator = new AssignmentSubmissionComparator(siteService);
 	}
 	
 	public void testSortNameEQComparator() {

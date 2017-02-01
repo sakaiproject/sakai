@@ -26,15 +26,12 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableItem;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 public class AssignmentItemImpl implements TaggableItem {
@@ -51,8 +48,11 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	protected TaggableActivity activity;
 
-	public AssignmentItemImpl(AssignmentSubmission submission, String userId,
+	protected AssignmentActivityProducerImpl producer;
+
+	public AssignmentItemImpl(AssignmentActivityProducerImpl producer, AssignmentSubmission submission, String userId,
 			TaggableActivity activity) {
+		this.producer = producer;
 		this.submission = submission;
 		this.userId = userId;
 		this.activity = activity;
@@ -81,7 +81,7 @@ public class AssignmentItemImpl implements TaggableItem {
 	public String getTitle() {
 		StringBuilder sb = new StringBuilder();
 		try {
-			User user = UserDirectoryService.getUser(userId);
+			User user = producer.userDirectoryService.getUser(userId);
 			sb.append(user.getFirstName());
 			sb.append(' ');
 			sb.append(user.getLastName());
@@ -100,14 +100,14 @@ public class AssignmentItemImpl implements TaggableItem {
 	public String getItemDetailUrl()
 	{
 		String subRef = submission.getReference().replaceAll("/", "_");
-		String url = ServerConfigurationService.getServerUrl() + 
+		String url = producer.serverConfigurationService.getServerUrl() +
 			"/direct/assignment/" + submission.getAssignmentId() + "/doView_grade/" + subRef;
 		return url;
 	}
 	
 	public String getItemDetailPrivateUrl(){
 		String subRef = submission.getReference().replaceAll("/", "_");
-		String url = ServerConfigurationService.getServerUrl() + 
+		String url = producer.serverConfigurationService.getServerUrl() +
 			"/direct/assignment/" + submission.getAssignmentId() + "/doView_grade_private/" + subRef;
 		return url;
 	}
@@ -122,7 +122,7 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	public String getIconUrl()
 	{
-		String url = ServerConfigurationService.getServerUrl() + "/library/image/silk/page_edit.png";
+		String url = producer.serverConfigurationService.getServerUrl() + "/library/image/silk/page_edit.png";
 		return url;
 	}
 	
@@ -156,10 +156,9 @@ public class AssignmentItemImpl implements TaggableItem {
 	private Site getSite(String siteId) {
 		Site site = null;
 		try {
-			site = SiteService.getSite(siteId);
+			site = producer.siteService.getSite(siteId);
 		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Failed to find site for ID of: "+ siteId);
 		}
 		return site;
 	}

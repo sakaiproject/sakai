@@ -18,10 +18,12 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Locale;
+import java.util.Map;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 
@@ -115,6 +117,11 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 	public String getServerName() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Collection<String> getServerNameAliases() {
+		return Collections.emptyList();
 	}
 
 	public String getServerUrl() {
