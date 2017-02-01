@@ -1,19 +1,19 @@
 package org.sakaiproject.user.detail;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This candidate details provider looks up information on the user object's properties, this assumes that the
@@ -31,7 +31,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 
-	private static Log M_log = LogFactory.getLog(CandidateDetailProviderImpl.class);
+	private static Logger log = LoggerFactory.getLogger(CandidateDetailProviderImpl.class);
 	
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
@@ -60,7 +60,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 				}
 			}
 		} catch(Exception e) {
-			M_log.warn("Error getting candidateID for "+((user != null) ? user.getId() : "-null-"), e);
+			log.warn("Error getting candidateID for {}", ((user != null) ? user.getId() : "-null-"), e);
 		}
 		return Optional.empty();
 	}
@@ -92,7 +92,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 				}
 			}
 		} catch(Exception e) {
-			M_log.warn("Error getting additional info for "+((user != null) ? user.getId() : "-null-"), e);
+			log.warn("Error getting additional info for {}", ((user != null) ? user.getId() : "-null-"), e);
 		}
 		return Optional.empty();
 	}

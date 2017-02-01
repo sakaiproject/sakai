@@ -27,8 +27,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -36,6 +34,8 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -56,8 +56,8 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	// Use the standard example domain name for examples.
 	public static final String EMAIL_DOMAIN = "@example.edu";
 
-	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SampleUserDirectoryProvider.class);
+	/** Our log. */
+	private final Logger log = LoggerFactory.getLogger(SampleUserDirectoryProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -153,11 +153,11 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			m_info.put("student", new Info("student", "The", "Student", "student" + EMAIL_DOMAIN));
 			m_info.put("faculty", new Info("faculty", "The", "Faculty", "faculty" + EMAIL_DOMAIN));
 
-			M_log.info("init()");
+			log.info("init()");
 		}
 		catch (Throwable t)
 		{
-			M_log.warn(".init(): ", t);
+			log.warn("Problem creating SampleUserDirectoryProvider", t);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	public void destroy()
 	{
 
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 	} // destroy
 

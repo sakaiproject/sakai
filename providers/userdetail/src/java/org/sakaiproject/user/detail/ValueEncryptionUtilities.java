@@ -1,7 +1,7 @@
 package org.sakaiproject.user.detail;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -37,7 +37,7 @@ public class ValueEncryptionUtilities {
 	// generating one. Having lots of rounds makes the key generation part too slow.
 	private static final int KEY_ROUNDS = 1;
 
-	private Log M_log = LogFactory.getLog(ValueEncryptionUtilities.class);
+	private final Logger log = LoggerFactory.getLogger(ValueEncryptionUtilities.class);
 
 	private SecureRandom random = new SecureRandom();
 	private Base64.Encoder encoder = Base64.getEncoder();
@@ -102,7 +102,7 @@ public class ValueEncryptionUtilities {
 			return encoder.encodeToString(finalCiphertext);
 		} catch(Exception e){
 			// We must not log out the value here so that the plaintext can't accidentally end up in the logs
-			M_log.error("Error while encrypting.", e);
+			log.error("Error while encrypting.", e);
 			return null;
 		}
 	}
@@ -140,7 +140,7 @@ public class ValueEncryptionUtilities {
 					decode(ByteBuffer.wrap(bytes)).toString();
 			return plaintext;
 		} catch(Exception e) {
-			M_log.error("Error while decrypting value " + encrypted + " : " + e);
+			log.error("Error while decrypting value {}", encrypted, e);
 			return null;
 		}
 	}

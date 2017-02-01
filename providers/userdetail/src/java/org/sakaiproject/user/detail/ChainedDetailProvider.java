@@ -1,15 +1,15 @@
 package org.sakaiproject.user.detail;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A candidate details provider that checks each of the providers in the chain until it gets a value.
@@ -18,7 +18,7 @@ import org.sakaiproject.user.api.User;
 public class ChainedDetailProvider implements CandidateDetailProvider {
 
 	private List<CandidateDetailProvider> providers;
-	private Log M_log = LogFactory.getLog(ChainedDetailProvider.class);
+	private final Logger log = LoggerFactory.getLogger(ChainedDetailProvider.class);
 
 	public void setProviders(List<CandidateDetailProvider> providers) {
 		this.providers = providers;
@@ -31,7 +31,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 	}
 	public Optional<String> getCandidateID(User user, Site site) {
 		if(site == null) {
-			M_log.error("getCandidateID: Null site.");
+			log.error("getCandidateID: Null site.");
 			return Optional.empty();
 		}
 		for(CandidateDetailProvider provider : getProviders()) {
@@ -54,7 +54,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 
 	public Optional<List<String>> getAdditionalNotes(User user, Site site) {
 		if(site == null) {
-			M_log.error("getAdditionalNotes: Null site.");
+			log.error("getAdditionalNotes: Null site.");
 			return Optional.empty();
 		}
 		for(CandidateDetailProvider provider : getProviders()) {

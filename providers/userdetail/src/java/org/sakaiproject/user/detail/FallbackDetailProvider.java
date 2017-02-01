@@ -1,18 +1,17 @@
 package org.sakaiproject.user.detail;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This candidate details provider is designed to be a sensible fallback when using a chaining provider.
@@ -28,7 +27,7 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 
-	private static Log M_log = LogFactory.getLog(FallbackDetailProvider.class);
+	private final Logger log = LoggerFactory.getLogger(FallbackDetailProvider.class);
 	
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
@@ -41,7 +40,7 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	}
 	
 	public Optional<String> getCandidateID(User user, Site site) {
-		M_log.debug("Getting candidate id from fallback provider");
+		log.debug("Getting candidate id from fallback provider");
 		try {
 			//check if we should use the institutional anonymous id (system-wide or site-based)
 			if(user != null && useInstitutionalAnonymousId(site)) {
@@ -49,13 +48,13 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 				return Optional.ofNullable(candidateID);
 			}
 		} catch(Exception e) {
-			M_log.warn("Error getting fallback candidateID for "+((user != null) ? user.getId() : "-null-"), e);
+			log.warn("Error getting fallback candidateID for {}", ((user != null) ? user.getId() : "-null-"), e);
 		}
 		return Optional.empty();
 	}
 	
 	public boolean useInstitutionalAnonymousId(Site site) {
-		M_log.debug("useInstitutionalAnonymousId from fallback provider");
+		log.debug("useInstitutionalAnonymousId from fallback provider");
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID))));
 		} catch(Exception ignore) {}

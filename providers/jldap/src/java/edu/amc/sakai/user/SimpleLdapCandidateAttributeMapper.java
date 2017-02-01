@@ -33,14 +33,11 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -55,7 +52,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 	private static final String EMPTY = "";
 
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(SimpleLdapCandidateAttributeMapper.class);
+	private final Logger log = LoggerFactory.getLogger(SimpleLdapCandidateAttributeMapper.class);
 
 	private ValueEncryptionUtilities encryption;
 	private int candidateIdLength;
@@ -90,30 +87,20 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 	 */
 	public void init() {
 		
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("init()");
-		}
+		log.debug("init()");
 
 		if ( getAttributeMappings() == null || getAttributeMappings().isEmpty() ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("init(): creating default attribute mappings");
-			}
+			log.debug("init(): creating default attribute mappings");
 			setAttributeMappings(AttributeMappingConstants.CANDIDATE_ATTR_MAPPINGS);
 		}
 		 
 		if ( getUserTypeMapper() == null ) {
 			setUserTypeMapper(new EmptyStringUserTypeMapper());
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("init(): created default user type mapper [mapper = " + 
-						getUserTypeMapper() + "]");
-			}
+			log.debug("init(): created default user type mapper [mapper = {}]", getUserTypeMapper());
 		}
 		if ( getValueMappings() == null ) {
 			setValueMappings(Collections.EMPTY_MAP);
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("init(): created default value mapper [mapper = " +
-						getValueMappings() + "]");
-			}
+			log.debug("init(): created default value mapper [mapper = {}]", getValueMappings());
 		} else {
 			// Check we have good value mappings and throw any out that aren't (warning user).
 			Iterator<Entry<String, MessageFormat>> iterator = getValueMappings().entrySet().iterator();
@@ -121,8 +108,8 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 				Entry<String, MessageFormat> entry = iterator.next();
 				if (entry.getValue().getFormats().length != 1) {
 					iterator.remove();
-					M_log.warn(String.format("Removed value mapping as it didn't have one format: %s -> %s",
-							entry.getKey(), entry.getValue().toPattern()));
+					log.warn("Removed value mapping as it didn't have one format: {} -> {}",
+							entry.getKey(), entry.getValue().toPattern());
 				}
 			}
 		}
