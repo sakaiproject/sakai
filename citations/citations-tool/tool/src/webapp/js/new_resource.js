@@ -534,6 +534,9 @@ citations_new_resource.init = function() {
 		return false;
 	});
 	$('.Cancel').on('click', function(eventObject) {
+
+		SPNR.disableControlsAndSpin( this, null );
+
 		if(needToSaveAnyChanges()) {
 			var successObj = {
 					invoke				: function(jsObj) {
