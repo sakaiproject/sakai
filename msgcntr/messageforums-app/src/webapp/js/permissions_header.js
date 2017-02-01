@@ -221,7 +221,7 @@ $(function(){
         header: '.permissionCustomize',
         active: false,
         collapsible: true,
-        autoHeight: false,
+        heightStyle: "content",
         change: function(event, ui){
             resizeFrame('grow');
         } 
