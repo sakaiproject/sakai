@@ -256,18 +256,16 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 
 	@Override
 	public int getReviewScore(String contentId, String assignmentRef, String userId) throws QueueException, ReportException, Exception {
-		ContentReviewItem item = null;
-		try {
-			Optional<ContentReviewItem> matchingItem = getItemByContentId(contentId);
-			if (!matchingItem.isPresent()) {
-				log.debug("Content {} has not been queued previously", contentId);
-			}
-			item = matchingItem.get();
-			if (item.getStatus().compareTo(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE) != 0) {
-				log.debug("Report not available: {}", item.getStatus());
-			}
-		} catch (Exception e) {
-			log.error("(getReviewScore)" + e);
+
+		Optional<ContentReviewItem> matchingItem = getItemByContentId(contentId);
+		if (!matchingItem.isPresent()) {
+			log.debug("Content {} has not been queued previously", contentId);
+			throw new QueueException("Content " + contentId + " has not been queued previously");
+		}
+		ContentReviewItem item = matchingItem.get();
+		if (item.getStatus().compareTo(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE) != 0) {
+			log.debug("Report not available: {}", item.getStatus());
+			throw new ReportException("Report not available: " + item.getStatus());
 		}
 
 		return item.getReviewScore().intValue();

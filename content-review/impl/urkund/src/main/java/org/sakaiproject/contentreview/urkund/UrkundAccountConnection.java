@@ -18,6 +18,7 @@
 package org.sakaiproject.contentreview.urkund;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -109,7 +110,7 @@ public class UrkundAccountConnection {
 		try {
 			JsonNode root = mapper.readTree(jsonResponse);
 			UrkundSubmissionData[] ret = mapper.treeToValue(root, UrkundSubmissionData[].class);
-			return Arrays.asList(ret);
+			return new ArrayList<UrkundSubmissionData>(Arrays.asList(ret));
 		} catch (JsonProcessingException e) {
 			log.error("Error getting submission data list : JsonProcessingException", e);
 		} catch (IOException e) {
