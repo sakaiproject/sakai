@@ -292,7 +292,7 @@
                             <h:column>
                                 <h:panelGroup>
                                     <h:selectBooleanCheckbox id="groupSelection" value="#{currentGroup.selected}" disabled="#{!currentGroup.allowedToCreate}"/>
-                                    <h:outputText value="#{currentGroup.signupGroup.title}" styleClass="longtext"/>
+                                    <h:outputLabel for="groupSelection" value="#{currentGroup.signupGroup.title}" styleClass="longtext"/>
                                 </h:panelGroup>
                             </h:column>
                         </h:dataTable>
@@ -312,13 +312,13 @@
                                 <h:column>
                                     <h:panelGroup>
                                         <h:selectBooleanCheckbox id="otherSitesSelection" value="#{site.selected}" disabled="#{!site.allowedToCreate}" onclick="otherUserSitesSelection();"/>
-                                        <h:outputText value="#{site.signupSite.title}" styleClass="editText" escape="false"/>
+                                        <h:outputLabel for="otherSitesSelection" value="#{site.signupSite.title}" styleClass="editText" escape="false"/>
                                     </h:panelGroup>
                                     <h:dataTable id="userGroups" value="#{site.signupGroupWrappers}" var="group" styleClass="meetingTypeTable">
                                         <h:column>
                                             <h:panelGroup>
                                                 <h:selectBooleanCheckbox id="otherGroupsSelection" value="#{group.selected}" disabled="#{!group.allowedToCreate}" onclick=""/>
-                                                <h:outputText value="#{group.signupGroup.title}" styleClass="longtext"/>
+                                                <h:outputLabel for="otherGroupsSelection" value="#{group.signupGroup.title}" styleClass="longtext"/>
                                             </h:panelGroup>
                                         </h:column>
                                     </h:dataTable>
@@ -391,7 +391,7 @@
                         <h:panelGrid>
                             <h:panelGroup>
                                 <h:selectBooleanCheckbox id="userDefTsChoice" value="#{NewSignupMeetingBean.userDefinedTS}" onclick="userDefinedTsChoice();" />
-                                <h:outputText value="#{msgs.label_custom_timeslots}"  escape="false"/>
+                                <h:outputLabel for="userDefTsChoice" value="#{msgs.label_custom_timeslots}" escape="false"/>
                             </h:panelGroup>
                             <h:panelGroup id="createEditTS" style="display:none;padding-left:35px;">
                                 <h:commandLink id="createTS" action="#{NewSignupMeetingBean.createUserDefTimeSlots}" rendered="#{!NewSignupMeetingBean.userDefineTimeslotBean.userEverCreateCTS}">
@@ -424,4 +424,3 @@
 	</sakai:view_container>
 
 </f:view>
-
