@@ -132,7 +132,7 @@
 				$tlang.getString("sitediinf.sittit")
 			</label>
 			<div class="col-sm-6">
-				#if ($siteTitleEditable || !$!existingSite)
+				#if ($siteTitleEditable || (!$!existingSite && !$hasRosterAttached))
 					<input type="text" name="title" id="title" size="20" maxlength="$!titleMaxLength" value="$validator.escapeHtml($!title)" />
 				#else
 					$validator.escapeHtml($!title)
