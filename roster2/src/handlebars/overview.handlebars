@@ -2,7 +2,7 @@
 	<span class="instruction rosterTitleMessage">{{translate 'title_msg'}}</span>
 {{/if}}
 
-<div class="row">
+<div id="roster-filters" class="row">
     {{#if viewGroup}}
     <div class="form-group col-sm-6">
         <label for="roster-groups-selector-top" class="form-control-label col-sm-3">{{translate 'groups'}}</label>
@@ -29,7 +29,7 @@
     </div>
 </div>
 
-<div id="roster_form:search_group" class="row">
+<div id="roster-search-group" class="row">
     <div class="form-group col-sm-6">
         <label for="roster-search-field" class="form-control-label col-sm-3">{{translate 'roster_search_text'}}</label>
         <div class="col-sm-9">
@@ -67,7 +67,17 @@
     </div>
     {{/if}}
 </div>
-<div id="roster-members"></div>
-<div id="roster-loading-image">
-<img src="/sakai-roster2-tool/images/ajax-loader.gif" />
+
+<div class="row">
+    <div class="form-group col-sm-6">
+        <button class="roster-print-button">{{translate 'print_roster'}}</button>
+    </div>
+</div>
+
+<div id="roster-members-header" class="roster-table"></div>
+<div id="roster-loading-image"><img src="/sakai-roster2-tool/images/ajax-loader.gif" /></div>
+<div class="row">
+    <div class="form-group col-sm-6">
+        <button class="roster-print-button">{{translate 'print_roster'}}</button>
+    </div>
 </div>
