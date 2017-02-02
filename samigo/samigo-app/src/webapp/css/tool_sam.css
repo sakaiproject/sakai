@@ -486,10 +486,19 @@ a.hideDivision {
     width: 650px; 
 }
 
+.samigo-question-answer {
+	margin-bottom: 12px;
+}
+.samigo-question-answer:hover {
+	margin-bottom: 12px;
+}
 .mcAnswerText {
-	display:inline-table;
-	/*width: 80%;*/
+	display:inline;
 	float:unset;
+	font-weight: bold;
+}
+.mcAnswerText span {
+	font-weight: normal;
 }
 /* Someone put a paragraph in a multiple choice answer */
 .mcAnswerText p {
@@ -516,11 +525,6 @@ a.hideDivision {
 .body {
 	overflow: auto;
 	height: 100%;
-}
-
-
-.mcAnswerText:hover {
-    background-color: #009dce;
 }
 
 #timer-expired-warning{
