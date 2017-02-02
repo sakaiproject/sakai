@@ -191,7 +191,7 @@ public class ConfirmPublishAssessmentListener
 		  }
 		  boolean isEntryRetractEarlierThanAvailable = false;
 
-     	  if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+		  if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
 			  String extendedTimeError1 = getExtendedTimeErrorString("extended_time_user_and_group_set", entry, assessmentSettings);
 			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError1, null));
 			  error = true;
