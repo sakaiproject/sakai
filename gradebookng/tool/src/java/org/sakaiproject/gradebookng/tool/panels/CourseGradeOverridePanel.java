@@ -31,7 +31,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
-public class CourseGradeOverridePanel extends GbPanel {
+public class CourseGradeOverridePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -52,9 +52,9 @@ public class CourseGradeOverridePanel extends GbPanel {
 		// get the rest of the data we need
 		// TODO this could all be passed in through the model if it was changed to a map, as per CourseGradeItemCellPanel...
 		final GbUser studentUser = this.businessService.getUser(studentUuid);
-		final String currentUserUuid = this.getCurrentUserId();
+		final String currentUserUuid = getCurrentUserId();
 		final GbRole currentUserRole = getUserRole();
-		final Gradebook gradebook = this.businessService.getGradebook();
+		final Gradebook gradebook = getGradebook();
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);

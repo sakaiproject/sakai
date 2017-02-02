@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class AssignmentColumnHeaderPanel extends GbPanel {
+public class AssignmentColumnHeaderPanel extends BasePanel {
 
 	public static final String ICON_SAKAI = "icon-sakai--";
 	private static final long serialVersionUID = 1L;

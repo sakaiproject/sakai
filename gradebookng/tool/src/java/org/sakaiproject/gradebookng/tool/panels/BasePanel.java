@@ -16,18 +16,18 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * Panel extension to abstract away some common functionality that many GBNG panels share.
  * Classes extending GbPanel do not need to inject the GradebookNgBusinessService as it is in here.
  */
-public abstract class GbPanel extends Panel {
+public abstract class BasePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	public GbPanel(final String id) {
+	public BasePanel(final String id) {
 		super(id);
 	}
 
-	public GbPanel(final String id, final IModel<?> model) {
+	public BasePanel(final String id, final IModel<?> model) {
 		super(id, model);
 	}
 

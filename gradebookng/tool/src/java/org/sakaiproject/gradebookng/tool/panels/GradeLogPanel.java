@@ -8,12 +8,9 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -24,14 +21,11 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
-public class GradeLogPanel extends Panel {
+public class GradeLogPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	public GradeLogPanel(final String id, final IModel<Map<String, Object>> model, final ModalWindow window) {
 		super(id, model);

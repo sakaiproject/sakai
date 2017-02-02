@@ -40,7 +40,7 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class UpdateUngradedItemsPanel extends GbPanel {
+public class UpdateUngradedItemsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 

@@ -22,7 +22,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-public class CourseGradeColumnHeaderPanel extends GbPanel {
+public class CourseGradeColumnHeaderPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
