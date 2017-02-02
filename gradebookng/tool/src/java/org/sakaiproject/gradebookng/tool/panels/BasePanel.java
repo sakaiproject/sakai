@@ -14,7 +14,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Panel extension to abstract away some common functionality that many GBNG panels share.
- * Classes extending GbPanel do not need to inject the GradebookNgBusinessService as it is in here.
+ * Classes extending {@link BasePanel} do not need to inject the {@link GradebookNgBusinessService} as it is in here.
  */
 public abstract class BasePanel extends Panel {
 
