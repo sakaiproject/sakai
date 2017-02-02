@@ -5828,11 +5828,47 @@ public class SiteAction extends PagedResourceActionII {
 			// remove selected section
 			removeAnyFlagedSection(state, params);
 		} else if (option.equalsIgnoreCase("norosters")) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+			prepareStateForContinueWithNoRoster(state);
 		}
 
 	} // doManual_add_course
-	
+
+	private void prepareStateForContinueWithNoRoster(SessionState state)
+	{
+		// clear title if it has been populated by previous selection of roster
+		// and not altered by the user.
+		SiteInfo sinfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+		List providerChosenList = (List) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		if (providerChosenList != null && providerChosenList.size() >= 1) {
+			String preparedTitle = prepareTitle((List) state.getAttribute(STATE_PROVIDER_SECTION_LIST),	providerChosenList);
+			if (sinfo != null && StringUtils.equals(preparedTitle, sinfo.title))
+			{
+				sinfo.title = "";
+			}
+		}
+
+		String manualTitle = constructManualAddTitle(state);
+		if (sinfo != null && StringUtils.equals(manualTitle, sinfo.title))
+		{
+			sinfo.title = "";
+		}
+
+		// clear description if it has been populated by previous selection of roster
+		// and not altered by the user
+		String constructedDesc = constructDescription(state, "");
+		if (sinfo != null && StringUtils.equals(constructedDesc, sinfo.description))
+		{
+			sinfo.description = "";
+		}
+
+		// clear any previous selection of roster
+		state.removeAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		state.removeAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
+		state.removeAttribute(STATE_MANUAL_ADD_COURSE_NUMBER);
+		state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
+
+		state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+	}
 
 	/**
 	 * dispatch to different functions based on the option value in the
@@ -5963,27 +5999,34 @@ public class SiteAction extends PagedResourceActionII {
 		if (siteInfo.title == null || siteInfo.title.length() == 0)
 		{
 			// if SiteInfo doesn't have title, construct the title
-			List providerCourseList = (List) state
-					.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-			AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
-			if ((providerCourseList == null || providerCourseList.size() == 0)
-					&& multiCourseInputs.size() > 0) {
-				String sectionEid = sectionFieldProvider.getSectionEid(t.getEid(),
-						(List) multiCourseInputs.get(0));
-				// default title
-				String title = sectionFieldProvider.getSectionTitle(t.getEid(), (List) multiCourseInputs.get(0));
-				try {
-					Section s = cms.getSection(sectionEid);
-					title = s != null?s.getTitle():title;
-				} catch (IdNotFoundException e) {
-					M_log.warn("readCourseSectionInfo: Cannot find section " + sectionEid);
-				}
-				siteInfo.title = title;
-				state.setAttribute(STATE_SITE_INFO, siteInfo);
-			}
+			siteInfo.title = constructManualAddTitle(state);
+			state.setAttribute(STATE_SITE_INFO, siteInfo);
 		}
 
 	} // readCourseSectionInfo
+
+	private String constructManualAddTitle(SessionState state)
+	{
+		String title = "";
+		List providerCourseList = (List) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		List multiCourseInputs = (List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
+		AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+		if ((providerCourseList == null || providerCourseList.size() == 0)
+				&& multiCourseInputs != null && multiCourseInputs.size() > 0) {
+			String sectionEid = sectionFieldProvider.getSectionEid(t.getEid(),
+					(List) multiCourseInputs.get(0));
+			// default title
+			title = sectionFieldProvider.getSectionTitle(t.getEid(), (List) multiCourseInputs.get(0));
+			try {
+				Section s = cms.getSection(sectionEid);
+				title = s != null?s.getTitle():title;
+			} catch (IdNotFoundException e) {
+				M_log.warn("readCourseSectionInfo: Cannot find section " + sectionEid);
+			}
+		}
+
+		return title;
+	}
 
 	/**
 	 * 
@@ -6642,7 +6685,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} else if ("cancel".equals(option)) {
 			doCancel_create(data);
 		} else if ("norosters".equals(option)) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "13");
+			prepareStateForContinueWithNoRoster(state);
 		}
 		else if (option.equalsIgnoreCase("change_user")) {  // SAK-22915
 			doChange_user(data);
@@ -14554,30 +14597,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 			if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN) != null)
 			{
-				List<String> providerDescriptionChosenList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
-				if (providerDescriptionChosenList != null)
-				{
-					for (String providerSectionId : providerDescriptionChosenList)
-					{
-						try
-						{
-							Section s = cms.getSection(providerSectionId);
-							if (s != null)
-							{
-								// only update the description if its not already present
-								if (!StringUtils.containsIgnoreCase(siteInfo.description,  s.getDescription()))
-								{
-									siteInfo.description = StringUtils.defaultString(siteInfo.description) + StringUtils.defaultString(s.getDescription());
-								}
-							}
-						}
-						catch (IdNotFoundException e)
-						{
-							M_log.warn("collectNewSiteInfo: cannot find section " + providerSectionId);
-						}
-					}
-				}
-				
+				siteInfo.description = constructDescription(state, siteInfo.description);
 			}
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 
@@ -14611,6 +14631,36 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 		}
+	}
+
+	private String constructDescription(SessionState state, String startingDesc)
+	{
+		String description = startingDesc;
+		List<String> providerDescriptionChosenList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
+		if (providerDescriptionChosenList != null)
+		{
+			for (String providerSectionId : providerDescriptionChosenList)
+			{
+				try
+				{
+					Section s = cms.getSection(providerSectionId);
+					if (s != null)
+					{
+						// only update the description if its not already present
+						if (!StringUtils.containsIgnoreCase(description,  s.getDescription()))
+						{
+							description = StringUtils.defaultString(description) + " " + StringUtils.defaultString(s.getDescription());
+						}
+					}
+				}
+				catch (IdNotFoundException e)
+				{
+					M_log.warn("collectNewSiteInfo: cannot find section " + providerSectionId);
+				}
+			}
+		}
+
+		return description;
 	}
 
 	/**
