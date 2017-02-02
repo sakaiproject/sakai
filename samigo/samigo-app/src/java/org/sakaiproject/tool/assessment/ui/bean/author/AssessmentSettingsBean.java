@@ -445,6 +445,7 @@ public class AssessmentSettingsBean
     //Huong adding for outcome error
     public String getOutcomeSave()
     {
+        addExtendedTime();
   return this.outcomeSave;
     }
     public void setOutcomeSave(String outcomeSave)
@@ -454,6 +455,7 @@ public class AssessmentSettingsBean
     
     public String getOutcomePublish()
     {
+        addExtendedTime();
   return this.outcomePublish;
     }
     public void setOutcomePublish(String outcomePublish)

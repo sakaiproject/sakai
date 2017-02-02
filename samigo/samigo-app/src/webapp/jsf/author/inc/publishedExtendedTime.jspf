@@ -1,6 +1,6 @@
 <!-- Extended Time -->
 <h:panelGroup>
-	<h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.extendedTimeHeading} </h4>" escape="false"/>
+	<h:outputLabel styleClass="col-md-11" value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
 	<div class="col-md-11 col-md-offset-1">
 		<t:dataTable cellpadding="0" cellspacing="0"
 					 id="extendedTimeTable"
