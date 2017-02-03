@@ -40,9 +40,9 @@
 				<sakai:panel_titled>
 					<div class="form-group row">
 						<h:outputLabel for="title" value="#{msgs.gradebook_title}" styleClass="form-group-label col-xs-2" />
-            <div class="col-xs-4">
+						<div class="col-xs-4">
 						  <h:inputText id="title" value="#{PostemTool.currentGradebook.title}"/>
-            </div>
+						</div>
 					</div>											
                     <%--
 						<corejsf:upload value="#{PostemTool.csv}" />
