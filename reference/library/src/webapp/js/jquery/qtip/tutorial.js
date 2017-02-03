@@ -78,7 +78,8 @@ function showTutorialPage(url, opts){
 								position: response.data.dialog == 'true' ? dialogPosition: {
 									my: response.data.positionTooltip,
 									at: response.data.positionTarget,
-									viewport: $(document.body)
+									viewport: $(window),
+									adjust: { method: 'shift' }
 								},
 								style: {
 									classes: 'sakai-tutorial qtip-shadow',
