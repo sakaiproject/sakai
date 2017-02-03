@@ -22,7 +22,7 @@
 		<!-- These can be overwritten by profiles and the profiles allow setting from
 		  the command line, eg mvn -Dlocal.service=MySakaiService install -->
 		<version.sakai>${sakai.version}</version.sakai>
-		<version.service>${git.commit.id.abbrev}</version.service>
+		<version.service>${buildNumber}</version.service>
 	</properties>
 	<profiles>
 		<profile>
@@ -61,16 +61,21 @@
 		</resources>
 		<plugins>
 			<plugin>
-				<groupId>pl.project13.maven</groupId>
-				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.2.1</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
 				<executions>
 					<execution>
+						<phase>validate</phase>
 						<goals>
-							<goal>revision</goal>
+							<goal>create</goal>
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<shortRevisionLength>8</shortRevisionLength>
+					<revisionOnScmFailure>Sakai</revisionOnScmFailure>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
