@@ -78,7 +78,7 @@ function showTutorialPage(url, opts){
 								position: response.data.dialog == 'true' ? dialogPosition: {
 									my: response.data.positionTooltip,
 									at: response.data.positionTarget,
-									viewport: $(window),
+									viewport: $(document.body),
 									adjust: { method: 'shift' }
 								},
 								style: {
