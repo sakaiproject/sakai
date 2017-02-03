@@ -38,6 +38,7 @@ import javax.faces.model.SelectItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -1752,11 +1753,28 @@ public class AssessmentSettingsBean
         this.transitoryExtendedTime = newExTime;
     }
 
+    //From the form
     public void addExtendedTime() {
-        this.extendedTimes.add(this.extendedTime);
-        resetExtendedTime();
+  	  addExtendedTime(true);
     }
 
+    //Internal to be able to supress error easier
+    public void addExtendedTime(boolean errorToContext) {
+    	ExtendedTime entry = this.extendedTime;
+  	if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+  		if (errorToContext) {
+  			  FacesContext context = FacesContext.getCurrentInstance();
+  			  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+  			  errorString = errorString.replace("{0}", entry.getUser()).replace("{1}", entry.getGroup());
+  			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
+  		}
+    	}
+    	else {
+    		this.extendedTimes.add(this.extendedTime);
+    		resetExtendedTime();
+    	}
+    }
+    
     public void deleteExtendedTime() {
         this.extendedTimes.remove(this.transitoryExtendedTime);
         this.transitoryExtendedTime = null;
