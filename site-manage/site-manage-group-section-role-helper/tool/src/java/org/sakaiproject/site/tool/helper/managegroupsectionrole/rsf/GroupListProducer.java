@@ -1,5 +1,6 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,10 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-
 import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import org.sakaiproject.rsf.util.SakaiURLUtil;
+import org.sakaiproject.util.Validator;
+
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -39,6 +41,7 @@ import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -103,6 +106,10 @@ public class GroupListProducer
 		UIForm deleteForm = UIForm.make(tofill, "delete-group-form");
 		
 		List<Group> groups;
+		
+		// Trick to refresh groups
+		handler.site = null;
+		handler.update = true;
 		groups = handler.getGroups();
       
 		if (groups != null && groups.size() > 0)
@@ -126,17 +133,29 @@ public class GroupListProducer
 				String groupId = group.getId();
 				UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
 				
-				UIOutput.make(grouprow, "group-title-label", group.getTitle());
+				String groupTitle = Validator.escapeHtml(group.getTitle());
+				if (group.isLocked()) {
+					UIOutput groupIcon = UIOutput.make(grouprow, "group-icon");
+					groupIcon.decorate(new UIStyleDecorator("fa-lock"));
+					groupIcon.decorate(new UITooltipDecorator(messageLocator.getMessage("group.locked")));
+				}
+                                
+				UIOutput.make(grouprow, "group-title-label", groupTitle);
 				UIInput name =
-						UIInput.make(grouprow, "group-name-input", "#{SitegroupEditHandler.nil}", group.getTitle());
+						UIInput.make(grouprow, "group-name-input", "#{SitegroupEditHandler.nil}", groupTitle);
 				UIOutput nameLabel =
 						UIOutput.make(grouprow, "group-name-label", messageLocator.getMessage("group.title"));
 				
 				nameLabel.decorate(new UILabelTargetDecorator(name));
-				UIInternalLink editLink = UIInternalLink.make(grouprow,"group-title",group.getTitle(),
+				UIInternalLink editLink = UIInternalLink.make(grouprow,"group-title", groupTitle,
 																					 new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));
-				editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + group.getTitle()));
-				
+				if (group.isLocked()) {
+					editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.noteditable")+ ":" + groupTitle));
+				} else {
+					editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + groupTitle));
+				}
+				M_log.debug("Check if the group is locked : {} -> {}", group.getId(), group.isLocked());
+
 				String joinableSet = "---";
 				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET) != null){
 					joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
@@ -192,11 +211,13 @@ public class GroupListProducer
 				
 				UIOutput.make(grouprow,"group-members",groupMembers);
 				
-				deletable.add(group.getId());
-				UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
-				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
-				UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
-				UILabelTargetDecorator.targetLabel(message,delete);
+				if (!group.isLocked()) {
+					deletable.add(group.getId());
+					UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
+					delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
+					UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
+					UILabelTargetDecorator.targetLabel(message,delete);
+				}
 			}
 			
 			deleteselect.optionlist.setValue(deletable.toStringArray());

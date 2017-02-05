@@ -41,8 +41,11 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIDeletionBinding;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UICSSDecorator;
+import uk.org.ponder.rsf.components.decorators.UIDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
+import uk.org.ponder.rsf.components.decorators.UIDisabledDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -160,10 +163,15 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	 
          UIOutput.make(groupForm, "prompt", headerText);
          UIOutput.make(groupForm, "emptyGroupTitleAlert", messageLocator.getMessage("editgroup.titlemissing"));
-         UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
+         
+         if (g != null && g.isLocked()) {
+            UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null)); 
+         } else {
+            UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
+         }
          
          UIOutput.make(groupForm, "group_title_label", messageLocator.getMessage("group.title"));
-         UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
+         UIInput groupTitleInput = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);     
 		 
 		
 		 UIMessage groupDescrLabel = UIMessage.make(groupForm, "group_description_label", "group.description"); 
@@ -263,7 +271,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	}
 	        }
 
-	     UISelect.makeMultiple( groupForm, "siteMembers", siteMemberValues.toArray( new String[siteMemberValues.size()] ), 
+	     UISelect siteMembersSelect = UISelect.makeMultiple( groupForm, "siteMembers", siteMemberValues.toArray( new String[siteMemberValues.size()] ), 
 	     	     	     	     siteMemberLabels.toArray( new String[siteMemberLabels.size()] ), 
 	     	     	     	     "#{SiteManageGroupSectionRoleHandler.selectedSiteMembers}", new String[] {} );
 
@@ -373,9 +381,9 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
             }
         }
 
-         UISelect.make( groupForm, "groupMembers", groupMemberValues.toArray( new String[groupMemberValues.size()] ),
+         UISelect groupMembersSelect = UISelect.make( groupForm, "groupMembers", groupMemberValues.toArray( new String[groupMemberValues.size()] ),
                                                 groupMemberLabels.toArray( new String[groupMemberLabels.size()] ), null );
-    	 UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupSectionRoleHandler.processAddGroup}");
+    	 UICommand saveButton = UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupSectionRoleHandler.processAddGroup}");
 
          UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
          cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
@@ -384,6 +392,17 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          
          // hidden field for group id
          UIInput.make(groupForm, "groupId", "#{SiteManageGroupSectionRoleHandler.id}", groupId);
+         
+         if (g != null && g.isLocked()) {
+            UIDisabledDecorator disable = new UIDisabledDecorator(true);
+            groupTitleInput.decorate(disable);
+            groupDescr.decorate(disable);
+            viewMemCheckbox.decorate(disable);
+            joinableSetSelect.decorate(disable);
+            siteMembersSelect.decorate(disable);
+            groupMembersSelect.decorate(disable);
+            saveButton.decorate(disable);
+         }
          
          //process any messages
          tml = handler.messages;

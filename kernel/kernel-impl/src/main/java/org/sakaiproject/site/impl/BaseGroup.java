@@ -21,11 +21,14 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Iterator;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -33,6 +36,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUsedException;
@@ -412,6 +416,10 @@ public class BaseGroup implements Group, Identifiable
 
 	public void addMember(String userId, String roleId, boolean active, boolean provided)
 	{
+		if(this.isLocked()) {
+			M_log.error("Error, cannot add {} with role {} into a locked group", userId, roleId);
+			return;
+		}
 		m_azgChanged = true;
 		getAzg().addMember(userId, roleId, active, provided);
 	}
@@ -531,12 +539,20 @@ public class BaseGroup implements Group, Identifiable
 
 	public void removeMember(String userId)
 	{
+		if(this.isLocked()) {
+			M_log.error("Error, can not remove a member from a locked group");
+			return;
+		}
 		m_azgChanged = true;
 		getAzg().removeMember(userId);
 	}
 
 	public void removeMembers()
 	{
+		if(this.isLocked()) {
+			M_log.error("Error, can not remove members from a locked group");
+			return;
+		}
 		m_azgChanged = true;
 		getAzg().removeMembers();
 	}
@@ -570,5 +586,56 @@ public class BaseGroup implements Group, Identifiable
 		boolean changed = getAzg().keepIntersection(other);
 		if (changed) m_azgChanged = true;
 		return changed;
+	}
+
+	public void lockGroup(Entity entity){
+		lockGroup(entity.getReference());
+	}
+
+	public void lockGroup(String lock){
+		if(StringUtils.isBlank(lock)) {
+			M_log.warn("lockGroup: null or empty lock");
+			return;
+		}
+		//TODO : this should be changed by addPropertyToList (When implemented in Kernel)
+		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
+		if(StringUtils.isNotBlank(prop)) {
+			prop += GROUP_PROP_SEPARATOR + lock;
+		} else {
+			prop = lock;
+		}
+		this.getProperties().addProperty(GROUP_PROP_LOCKED_BY, prop);
+	}
+
+	public void unlockGroup(Entity entity){
+		unlockGroup(entity.getReference());
+	}
+
+	public void unlockGroup(String lock){
+		if(StringUtils.isBlank(lock)) {
+			M_log.warn("unlockGroup: null or empty lock");
+			return;
+		}
+		//TODO : this should be changed by addPropertyToList (When implemented in Kernel)
+		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
+		if(StringUtils.isNotBlank(prop)) {           
+			this.getProperties().addProperty(GROUP_PROP_LOCKED_BY, Arrays.stream(prop.split(GROUP_PROP_SEPARATOR)).filter(s -> !lock.equals(s)).collect(Collectors.joining(GROUP_PROP_SEPARATOR)));
+		}
+	}
+
+	public void unlockGroup(){
+		this.getProperties().removeProperty(GROUP_PROP_LOCKED_BY);
+	}
+
+	public boolean isLocked(){
+		return (StringUtils.isNotBlank(this.getProperties().getProperty(GROUP_PROP_LOCKED_BY)));
+	}
+
+	public boolean isLocked(String lock){
+		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
+		if (StringUtils.contains(prop, lock)) {
+			return true;
+		}
+		return false;
 	}
 }
