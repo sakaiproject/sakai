@@ -101,7 +101,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
                 }
             }
         }
-        this.readOnly = readOnlyCategories.contains(section.getCategory());  
+        this.readOnly = readOnlyCategories.contains(section.getCategory()) || section.isLocked();  
     }
 
     /**
