@@ -84,7 +84,7 @@
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
-					<th id="attachments" class="attach" scope="col"> 
+					<th id="attachments" class="attach hidden-xs" scope="col"> 
 						&nbsp;
 						<span class="sr-only">$tlang.getString("gen.att")</span>
 					</th>				
@@ -101,7 +101,7 @@
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
-						<th id="$tlang.getString('gen.visible')" scope="col">
+						<th id="$tlang.getString('gen.visible')" scope="col" class="hidden-xs">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
@@ -125,7 +125,7 @@
 							#end
 						</a>
 					</th>
-					<th id="openDate" scope="col">
+					<th id="openDate" scope="col" class="hidden-xs">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("gen.open")
 							#if ($sortedBy.equals("opendate"))
@@ -152,7 +152,7 @@
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
-						<th id="num_submissions" scope="col">
+						<th id="num_submissions" scope="col" class="hidden-xs">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
@@ -179,7 +179,7 @@
 						#end
 					#end
 					#if ($withGrade && $!allowGradeSubmission)
-						<th id="maxgrade" scope="col">
+						<th id="maxgrade" scope="col" class="hidden-xs">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
@@ -194,7 +194,7 @@
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 						<th id="remove" scope="col">
-							$tlang.getString("gen.remove.q")
+							<span class="hidden-xs">$tlang.getString("gen.remove.q")</span>
 						</th>
 					#end
 				</tr>
@@ -218,7 +218,7 @@
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
-							<td headers="attachments" class="attach">
+							<td headers="attachments" class="attach hidden-xs">
 								#set ($attachments = $assignmentContent.getAttachments())
 								#set ($size = 0)
 								#set ($props = false)
@@ -398,7 +398,7 @@
 									#end
 							</td>
 						#if ($!allowGradeSubmission)
-							<td style="padding-bottom:0" headers="for">
+							<td headers="for" class="hidden-xs">
 								#set( $groupTitleList = [] )
 								#set( $siteRelease = $assignment.Access.toString().equals("site") )
 								#if( !$siteRelease )
@@ -455,7 +455,7 @@
 									#end
 								#end
 							</td>
-							<td headers="openDate">
+							<td headers="openDate" class="hidden-xs">
 								$!assignment.openTime.toStringLocalFull()
 							</td>
 							<td headers="dueDate">
@@ -469,7 +469,7 @@
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)
-								<td headers="num_submissions" class="specialLink">
+								<td headers="num_submissions" class="specialLink hidden-xs">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignment.getReference()))
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
@@ -496,7 +496,7 @@
 								#end
 							#end
 							#if ($withGrade && $!allowGradeSubmission)
-							<td headers="maxgrade">
+							<td headers="maxgrade" class="hidden-xs">
 									#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 									#if ($gradeScale == -1)
 										## Grade type not set
@@ -536,7 +536,7 @@
 								<td></td>
 								<!-- title col -->
 								<td class="peer-header">
-									<h5><i class="fa fa-caret-square-o-right" aria-hidden="true"></i> $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</h5>
+									<strong><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</strong>
 									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
 								#if ($!groups && $!allowGradeSubmission)
