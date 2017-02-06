@@ -11,61 +11,66 @@ body.is-logged-out{
 	}
 }
 
-body.#{$namespace}toolMenu-collapsed{
-
-	#content, .Mrphs-container--footer {
-	    margin: 0 0 0 0;
-	}
-
-	#toolMenuWrap{
-		max-width: #{ $tool-menu-width-collapsed };
-		min-width: #{ $tool-menu-width-collapsed };
-		width: #{ $tool-menu-width-collapsed };
-	}
-	#toolMenu, #subSites{
-		.img_site_toolmenu{
-			display: none;
+// Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue 
+// when switching between phone and non-phone sized screens.
+@media #{$nonPhone} {
+	// LHS tool menu collapsed to show icons only and not tool titles.
+	body.#{$namespace}toolMenu-collapsed{
+	
+		#content, .Mrphs-container--footer {
+			margin: 0 0 0 0;
 		}
-		ul{
-			li{
-				a{
-					min-height: 1.7em;
-					text-align: center;
-					&:hover{
-						.#{$namespace}toolsNav__menuitem--title{
-							position: absolute;
-							display: block;
-							float: right;
-							margin: -2.1em 0em 0em 3.2em;
-							background: $primary-color;
-							padding: 0.71em;
-							border-left: 3px solid $primary-color-shadow;
-							z-index: 10;
-							width: auto;
-							border-radius: 0 15px 15px 0;
-							line-height: 100%;
+	
+		#toolMenuWrap{
+			max-width: #{ $tool-menu-width-collapsed };
+			min-width: #{ $tool-menu-width-collapsed };
+			width: #{ $tool-menu-width-collapsed };
+		}
+		#toolMenu, #subSites{
+			.img_site_toolmenu{
+				display: none;
+			}
+			ul{
+				li{
+					a{
+						min-height: 1.7em;
+						text-align: center;
+						&:hover{
+							.#{$namespace}toolsNav__menuitem--title{
+								position: absolute;
+								display: block;
+								float: right;
+								margin: -2.1em 0em 0em 3.2em;
+								background: $primary-color;
+								padding: 0.71em;
+								border-left: 3px solid $primary-color-shadow;
+								z-index: 10;
+								width: auto;
+								border-radius: 0 15px 15px 0;
+								line-height: 100%;
+							}
+						}
+						&.is-invisible {
+							&:after {
+								display: none;
+							}
+						}
+						span.#{$namespace}toolsNav__menuitem--title{
+							white-space: pre;
 						}
 					}
-					&.is-invisible {
-						&:after {
-							display: none;
+					.#{$namespace}toolsNav__menuitem--icon{
+						@if $tool-menu-icon-on-left {
+							margin: 0 0.5em 0 0;
 						}
 					}
-					span.#{$namespace}toolsNav__menuitem--title{
-						white-space: pre;
+					.#{$namespace}toolsNav__menuitem--title{
+						display: none;
 					}
-				}
-				.#{$namespace}toolsNav__menuitem--icon{
-					@if $tool-menu-icon-on-left {
-						margin: 0 0.5em 0 0;
-					}
-				}
-				.#{$namespace}toolsNav__menuitem--title{
-					display: none;
-				}
-				&.#{$namespace}collapseTools{
-					i{
-						@include transform( scaleX(-1) ); /* flip horizontally */
+					&.#{$namespace}collapseTools{
+						i{
+							@include transform( scaleX(-1) ); /* flip horizontally */
+						}
 					}
 				}
 			}
