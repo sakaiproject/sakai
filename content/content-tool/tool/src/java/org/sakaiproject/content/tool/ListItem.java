@@ -145,7 +145,6 @@ public class ListItem
 	 */
 	private static final MetadataService metadataService = (MetadataService) ComponentManager.get(MetadataService.class.getCanonicalName());
 	private static final org.sakaiproject.tool.api.ToolManager toolManager = (org.sakaiproject.tool.api.ToolManager) ComponentManager.get(org.sakaiproject.tool.api.ToolManager.class.getCanonicalName());
-	private static final AuthzGroupService authzGroupService = (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getCanonicalName());
 
 	/** 
 	 ** Comparator for sorting Group objects
@@ -2651,15 +2650,10 @@ public class ListItem
     {
     	if (group==null) return false;
     	
-    	Collection<Group> groupsToCheck = (AccessMode.GROUPED == this.inheritedAccessMode) ? this.inheritedGroups : this.possibleGroups;    	
-    	Collection<String> groupsToCheckReference = new ArrayList<String>();
-    	for (Group gr:groupsToCheck) {
-    		groupsToCheckReference.add(gr.getReference()); 
-    	}    	
     	String userId = UserDirectoryService.getCurrentUser().getId();
-    	Collection<String> groupsOfUser = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, groupsToCheckReference);
+    	if (group.getContainingSite().isAllowed(userId, ContentHostingService.AUTH_RESOURCE_ALL_GROUPS)) return true;
     	
-    	return groupsOfUser.contains(group.getReference());
+    	return group.isAllowed(userId, SiteService.SITE_VISIT);
     }
     
 	/**
