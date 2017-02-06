@@ -2648,7 +2648,7 @@ public class ListItem
      */
     public boolean isPossible(Group group)
     {
-    	if (group==null) return false;
+    	if (group == null || group.getContainingSite() == null) return false;
     	
     	String userId = UserDirectoryService.getCurrentUser().getId();
     	if (group.getContainingSite().isAllowed(userId, ContentHostingService.AUTH_RESOURCE_ALL_GROUPS)) return true;
