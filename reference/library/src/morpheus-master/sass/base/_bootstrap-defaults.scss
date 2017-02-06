@@ -147,7 +147,7 @@ $icon-font-path: if($bootstrap-sass-asset-helper, "bootstrap/", "../" + $skin-na
 
 // SAK-32144 override the nowrap behavior of table-responsive
 .table-responsive {
-  @media screen and (max-width: 480px) {
+  @media #{$phone} {
     > .table {
       // Ensure the Sakai table content does wrap
       > thead,
