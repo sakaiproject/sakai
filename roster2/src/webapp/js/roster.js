@@ -27,8 +27,12 @@
 
             e.preventDefault();
             roster.renderMembership({renderAll: true, callback: function () {
-                    window.print();
-                }});
+
+                    //$(window).on('load', function () {
+                    $('#roster-members').waitForImages(function () {
+                        window.print();
+                    });
+            }});
         });
     };
 
@@ -452,38 +456,39 @@
                         hoverIntent: true,
                         activation: 'toggle'
                     });
+
+                    if (roster.nextPage === 0 || options.renderAll) {
+                        // We've just pulled the first page ...
+                        if (roster.currentState === roster.STATE_OVERVIEW) {
+                            // ... and are in OVERVIEW mode, so switch the link back on
+                            $('#navbar_overview_link > span > a').click(function (e) {
+                                return roster.switchState(roster.STATE_OVERVIEW);
+                            });
+                        } else if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
+                            // ... and are in ENROLLMENT_STATUS mode, so switch the link back on
+                            $('#navbar_enrollment_status_link > span > a').click(function (e) {
+                                return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
+                            });
+                        }
+                    }
+
+                    if (options.userIds) {
+                        $(window).off('scroll.roster');
+                    } else {
+                        if (!options.renderAll) {
+                            roster.nextPage += 1;
+                            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture, undefined, enrollmentsMode));
+                        }
+                    }
+
+                    loadImage.hide();
+
+                    if (options.callback) {
+                        options.callback();
+                    }
                 });
 
-                if (roster.nextPage === 0 || options.renderAll) {
-                    // We've just pulled the first page ...
-                    if (roster.currentState === roster.STATE_OVERVIEW) {
-                        // ... and are in OVERVIEW mode, so switch the link back on
-                        $('#navbar_overview_link > span > a').click(function (e) {
-                            return roster.switchState(roster.STATE_OVERVIEW);
-                        });
-                    } else if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
-                        // ... and are in ENROLLMENT_STATUS mode, so switch the link back on
-                        $('#navbar_enrollment_status_link > span > a').click(function (e) {
-                            return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
-                        });
-                    }
-                }
-
-                if (options.userIds) {
-                    $(window).off('scroll.roster');
-                } else {
-                    if (!options.renderAll) {
-                        roster.nextPage += 1;
-                        $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture, undefined, enrollmentsMode));
-                    }
-                }
-
-                loadImage.hide();
-
-                if (options.callback) {
-                    options.callback();
-                }
-            },
+                            },
             error: function (jqXHR, textStatus, errorThrown) {
 
                 console.log('Failed to get membership data. textStatus: ' + textStatus + '. errorThrown: ' + errorThrown);
@@ -609,9 +614,7 @@
     roster.getRoleFragments = function (roleCounts) {
 
         return Object.keys(roleCounts).map(function (key) {
-            console.log('roleCounts:' + roleCounts[key]);
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            console.log(frag.replace(/\{1\}/, '<span class="role">' + key + '</span>'));
             return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
         }).join(", ");
     };
