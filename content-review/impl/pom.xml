@@ -17,6 +17,7 @@
 		<module>turnitin</module>
 		<module>vericite</module>
 		<module>compilatio</module>
+		<module>urkund</module>
 	</modules>
 	
 	<dependencyManagement>
