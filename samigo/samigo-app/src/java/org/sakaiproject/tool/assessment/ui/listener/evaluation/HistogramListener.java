@@ -2430,7 +2430,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     // depending on data's instanceof 
 
     Iterator iter = scoreList.iterator();
-    ArrayList doubles = new ArrayList();
+    ArrayList<Double> doubles = new ArrayList();
     while (iter.hasNext())
     {
       Object data = iter.next();
@@ -2456,12 +2456,12 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 
     if (doubles.isEmpty())
       doubles.add(new Double(0.0));
-    Double[] scoresSorted = (Double [])doubles.toArray();
-    Arrays.sort(scoresSorted);
 
-    double[] scores = new double[scoresSorted.length];
+    doubles.sort(Comparator.naturalOrder());
+
+    double[] scores = new double[doubles.size()];
     int i = 0;
-    for (Double d : scoresSorted) {
+    for (Double d : doubles) {
         BigDecimal bd = new BigDecimal(d);
         bd = bd.setScale(2, RoundingMode.HALF_UP);
         scores[i++] = bd.doubleValue();
