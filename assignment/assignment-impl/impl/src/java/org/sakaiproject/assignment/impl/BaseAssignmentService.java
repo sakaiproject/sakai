@@ -3296,7 +3296,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				try {
 					edit = this.editSubmission(sub.getReference());
 					edit.setReviewScore(report.getReviewScore());
-					edit.setReviewIconUrl(report.getIconUrl());
 					edit.setSubmitterId(sub.getSubmitterId());
                     edit.setReviewError(report.getLastError());
 					this.commitEdit(edit);
@@ -10293,8 +10292,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected String m_reviewReport;
 		// The status of the review service
 		protected String m_reviewStatus;
-		
-		protected String m_reviewIconUrl;
 
         protected String m_reviewError;
 		
@@ -10733,12 +10730,37 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 		}
 
+		private String getReviewIconCssClass(ContentResource cr, int reviewScore) {
+			if (cr == null) {
+				M_log.debug("{} getReviewIconCssClass(ContentResource, int) called with cr == null", this.getId());
+				return null;
+			}
+			try {
+				String contentId = cr.getId();
+				//This should use getLocalizedReviewErrorMesage(contentId)
+				//to get a i18n message of the error
+				Long status = contentReviewService.getReviewStatus(contentId);
+				String reviewReport = getReviewReport(cr);
+				String iconCssClass = null;
 
-		public String getReviewIconUrl() {
-			if (m_reviewIconUrl == null )
-				m_reviewIconUrl = contentReviewService.getIconUrlforScore(Long.valueOf(this.getReviewScore()));
-				
-			return m_reviewIconUrl;
+				if (!"Error".equals(reviewReport)) {
+					iconCssClass = contentReviewService.getIconCssClassforScore(reviewScore);
+				} else {
+					iconCssClass = "contentReviewIconWarn";
+				}
+
+				// TODO: we can remove this null check if we use yoda statements below
+				if (status != null) {
+					if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
+						iconCssClass = "contentReviewIconPending";
+					}
+				}
+
+				return iconCssClass;
+			} catch (Exception e) {
+				M_log.warn("{}:getReviewIconCssClass(ContentResource, int) {}", this, e.getMessage());
+				return null;
+			}
 		}
 
 		/**
@@ -10762,8 +10784,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				reviewResult.setReviewScore(reviewScore);
 				reviewResult.setReviewReport(getReviewReport(cr));
 				//skip review status, it's unused
-				String iconUrl = contentReviewService.getIconUrlforScore(Long.valueOf(reviewScore));
-				reviewResult.setReviewIconURL(iconUrl);
+				reviewResult.setReviewIconCssClass(getReviewIconCssClass(cr, reviewScore));
 				reviewResult.setReviewError(getReviewError(cr));
 
 				if ("true".equals(cr.getProperties().getProperty(PROP_INLINE_SUBMISSION)))
@@ -12809,11 +12830,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		public void setReviewScore(int score) {
 			this.m_reviewScore = score;
-			
-		}
-
-		public void setReviewIconUrl(String url) {
-			this.m_reviewIconUrl = url;
 			
 		}
 

@@ -123,8 +123,8 @@ public class NoOpContentReviewService implements ContentReviewService {
 	}
 
 	@Override
-	public String getIconUrlforScore(Long score) {
-		return "/library/content-review/noservice.png";
+	public String getIconCssClassforScore(int score) {
+		return "contentReviewIconNoService";
 	}
 
 	@Override
