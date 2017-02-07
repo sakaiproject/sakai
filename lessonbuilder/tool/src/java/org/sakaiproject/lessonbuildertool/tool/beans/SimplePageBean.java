@@ -1067,7 +1067,7 @@ public class SimplePageBean {
     // hacking on an item in a completely different site. This method checks
     // that an item is OK to hack on, given the current page.
 
-	private boolean itemOk(Long itemId) {
+	public boolean itemOk(Long itemId) {
 		// not specified, we'll add a new one
 		if (itemId == null || itemId == -1)
 			return true;
@@ -7537,6 +7537,8 @@ public class SimplePageBean {
 		return "permission-failed";
 	    if(!canEditPage())
 		return "permission-failed";
+	    if (!itemOk(itemId))
+		return "permission-failed";
         
 	    SimplePageItem item = findItem(itemId);
 	    String gradebookId = item.getGradebookId();
@@ -7591,6 +7593,79 @@ public class SimplePageBean {
 		}
 	    }    
 
+	    return "success";
+
+	}
+
+	public String missingCommentsSetZero() {
+	    System.out.println("point 1");
+	    if (!checkCsrf())
+		return "permission-failed";
+	    if(!canEditPage())
+		return "permission-failed";
+	    if (!itemOk(itemId))
+		return "permission-failed";
+	    System.out.println("point 2 " + itemId);
+        
+	    SimplePageItem commentItem = findItem(itemId);
+	    boolean studentComments = (commentItem.getType() == SimplePageItem.STUDENT_CONTENT);
+
+	    String gradebookId;
+
+	    if (studentComments) {
+		gradebookId = commentItem.getAltGradebook();
+	    } else {
+		gradebookId = commentItem.getGradebookId();
+	    }
+
+	    if (gradebookId == null) {
+		setErrMessage(messageLocator.getMessage("simplepage.not-graded"));
+		return "failure";
+	    }
+
+	    // initialize notsubmitted to all userids or groupids
+	    Set<String> notSubmitted = new HashSet<String>();
+	    Set<Member> members = new HashSet<Member>();
+	    try {
+		members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
+	    } catch (Exception e) {
+		// since site obviously exists, this should be impossible
+	    }
+	    for (Member m: members)
+		notSubmitted.add(m.getUserId());
+					
+	    // now go through all comments and remove them from the list
+	    List<SimplePageComment> comments;
+	    
+	    if(!studentComments) {
+		comments = simplePageToolDao.findComments(itemId);
+	    }else {
+		List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(itemId);
+		
+		List<Long> commentsItemIds = new ArrayList<Long>();
+		for(SimpleStudentPage p : studentPages) {
+		    // If the page is deleted, don't show the comments
+		    if(!p.isDeleted()) {
+			commentsItemIds.add(p.getCommentsSection());
+		    }
+		}
+		
+		comments = simplePageToolDao.findCommentsOnItems(commentsItemIds);
+	    }
+
+	    // have comments. look at owners
+	    for(SimplePageComment comment : comments) {
+		if(comment.getComment() == null || comment.getComment().equals("")) {
+		    continue;
+		}
+		notSubmitted.remove(comment.getAuthor());
+	    }
+
+	    // now zero grade
+	    for (String owner: notSubmitted) {
+		gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, owner, "0.0");
+	    }
+		
 	    return "success";
 
 	}

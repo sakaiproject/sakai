@@ -24,6 +24,7 @@ import uk.org.ponder.rsf.builtin.UVBProducer;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -90,7 +91,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 
 		UIInternalLink.make(tofill, "back-link", messageLocator.getMessage("simplepage.go-back"), backParams);
 		
-		if(simplePageBean.getEditPrivs() != 0) {
+		if(simplePageBean.getEditPrivs() != 0 || !simplePageBean.itemOk(params.commentsItemId)) {
 			UIOutput.make(tofill, "permissionsError");
 			return;
 		}
@@ -183,6 +184,18 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 			    decorate(new UIFreeAttributeDecorator("title", 
 								  messageLocator.getMessage("simplepage.update-points")));
 
+		UIOutput.make(tofill, "zeroMissing", messageLocator.getMessage("simplepage.zero-missing")).
+			    decorate(new UIFreeAttributeDecorator("title", 
+								  messageLocator.getMessage("simplepage.zero-missing")));
+		
+		Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+
+		UIForm zeroForm = UIForm.make(tofill, "zero-form");
+		if (sessionToken != null)
+		    UIInput.make(zeroForm, "zero-csrf", "simplePageBean.csrfToken", sessionToken.toString());
+		UIInput.make(zeroForm, "zero-item", "#{simplePageBean.itemId}", Long.toString(params.commentsItemId));
+		UICommand.make(zeroForm, "zero", messageLocator.getMessage("simplepage.zero-missing"), "#{simplePageBean.missingCommentsSetZero}");
+
 		for(SimpleUser user : simpleUsers) {
 			UIBranchContainer branch = UIBranchContainer.make(tofill, "student-row:");
 			
@@ -241,7 +254,6 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		UIInput jsIdInput = UIInput.make(gradingForm, "gradingForm-jsId", "gradingBean.jsId");
 		UIInput pointsInput = UIInput.make(gradingForm, "gradingForm-points", "gradingBean.points");
 		UIInput typeInput = UIInput.make(gradingForm, "gradingForm-type", "gradingBean.type");
-		Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 		UIInput csrfInput = UIInput.make(gradingForm, "csrf", "gradingBean.csrfToken", (sessionToken == null ? "" : sessionToken.toString()));
 
 		UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, csrfInput, "gradingBean.results"});

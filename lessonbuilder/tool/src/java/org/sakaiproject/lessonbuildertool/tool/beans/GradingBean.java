@@ -87,7 +87,6 @@ public class GradingBean {
 	private boolean gradeComment() {
 		boolean r = false;
 		
-		
 		SimplePageComment comment = simplePageToolDao.findCommentByUUID(id);
 		SimplePageItem commentItem = simplePageToolDao.findItem(comment.getItemId());
 		SimpleStudentPage studentPage = null;  // comments on student page only
@@ -96,6 +95,11 @@ public class GradingBean {
 		if(commentItem.getPageId() <= 0) {
 		    studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentItem.getSakaiId()));
 		    topItem = simplePageToolDao.findItem(studentPage.getItemId());
+		    if (! simplePageBean.itemOk(topItem.getId()))
+			return false;
+		} else {
+		    if (! simplePageBean.itemOk(commentItem.getId()))
+			return false;
 		}
 
 		String gradebookId = null;
@@ -161,6 +165,9 @@ public class GradingBean {
 		//  return new String[] {"success", jsId, String.valueOf(page.getPoints())};
 	        //}
 		
+		if (! simplePageBean.itemOk(pageItem.getId()))
+		    return false;
+
 		if (newpoints < 0.0 || newpoints > pageItem.getGradebookPoints()) {
 			return false;
 		}
@@ -199,6 +206,9 @@ public class GradingBean {
 		SimplePageItem questionItem = simplePageBean.findItem(response.getQuestionId());
 		Double newpoints = Double.valueOf(points);
 		
+		if (! simplePageBean.itemOk(questionItem.getId()))
+		    return false;
+
 		r = "true".equals(questionItem.getAttribute("questionGraded")) || questionItem.getGradebookId() != null;
 		if (questionItem.getGradebookId() != null)
 		    if (newpoints < 0.0 || newpoints > questionItem.getGradebookPoints()) {
