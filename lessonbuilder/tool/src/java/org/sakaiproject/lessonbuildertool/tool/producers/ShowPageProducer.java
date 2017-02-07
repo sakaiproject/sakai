@@ -115,6 +115,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -174,6 +175,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private AuthzGroupService authzGroupService;
+	private SiteService siteService;
 	private FormatAwareDateInputEvolver dateevolver;
 	private TimeService timeService;
 	private HttpServletRequest httpServletRequest;
@@ -2523,10 +2525,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (!isAvailable && !canSeeAll)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
 					else {
+						boolean isGrader = simplePageBean.getEditPrivs() == 0;
+
 						UIOutput.make(tableRow, "studentDiv");
 						
 						HashMap<Long, SimplePageLogEntry> cache = simplePageBean.cacheStudentPageLogEntries(i.getId());
 						List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(i.getId());
+
+						// notSubmitted will be list of students or groups that didn't submit. Start with those who
+						// should submit and remove as we see them
+						Set<String> notSubmitted = new HashSet<String>();
+						if (i.isGroupOwned()) {
+						    String ownerGroups = i.getOwnerGroups();
+						    if (ownerGroups != null)
+							notSubmitted = new HashSet(Arrays.asList(ownerGroups.split(",")));
+						} else {
+						    Set<Member> members = new HashSet<Member>();
+						    try {
+							members = authzGroupService.getAuthzGroup(siteService.siteReference(simplePageBean.getCurrentSiteId())).getMembers();
+						    } catch (Exception e) {
+							// since site obviously exists, this should be impossible
+						    }
+						    for (Member m: members)
+							notSubmitted.add(m.getUserId());
+						}
 					
 						boolean hasOwnPage = false;
 						String userId = UserDirectoryService.getCurrentUser().getId();
@@ -2560,6 +2582,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								continue;
 							}
 
+							// remove this from notSubmitted
+							if (i.isGroupOwned()) {
+							    String pageGroup = page.getGroup();
+							    if (pageGroup != null)
+								notSubmitted.remove(pageGroup);
+							} else {
+							    notSubmitted.remove(page.getOwner());
+							}
+							    
 							SimplePageLogEntry entry = cache.get(page.getPageId());
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							
@@ -2617,8 +2648,40 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							if(i.getGradebookId() != null && simplePageBean.getEditPrivs() == 0) {
 								UIOutput.make(row, "studentGradingCell", String.valueOf((page.getPoints() != null? page.getPoints() : "")));
 							}
-					    }
+						}
 					
+						// if grader, show people who didn't submit
+						if (simplePageBean.getEditPrivs() == 0) {
+						    if (notSubmitted.size() > 0) {
+							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
+							UIOutput.make(row, "missingStudentTitle", messageLocator.getMessage("simplepage.missing-students"));
+						    }
+						    for(String owner: notSubmitted) {
+							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
+							String sownerName;
+							if (i.isGroupOwned()) {
+							    sownerName = simplePageBean.getCurrentSite().getGroup(owner).getTitle();
+							} else {
+							    try {
+								sownerName = UserDirectoryService.getUser(owner).getDisplayName();
+							    } catch (Exception e) {
+								// can't find user, just show userid. Not very useful, but at least shows
+								// what happened
+								sownerName = owner;
+							    }
+							}
+							UIOutput.make(row, "missingStudent", sownerName);
+						    }
+						    if (notSubmitted.size() > 0) {
+							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
+							UIOutput zeroRow = UIOutput.make(row, "student-zero-div");
+							UIForm zeroForm = UIForm.make(row, "student-zero-form");
+							makeCsrf(zeroForm, "student-zero-csrf");
+							UIInput.make(zeroForm, "student-zero-item", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
+							UICommand.make(zeroForm, "student-zero", messageLocator.getMessage("simplepage.zero-missing"), "#{simplePageBean.missingStudentSetZero}");
+						    }
+						}
+
 						if(!hasOwnPage && simplePageBean.myStudentPageGroupsOk(i)) {
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							UIOutput.make(row, "linkRow");
@@ -3278,6 +3341,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 
 	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {

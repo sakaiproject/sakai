@@ -7531,7 +7531,70 @@ public class SimplePageBean {
 			return "failure";
 		}
 	}
-	
+
+	public String missingStudentSetZero() {
+	    if (!checkCsrf())
+		return "permission-failed";
+	    if(!canEditPage())
+		return "permission-failed";
+        
+	    SimplePageItem item = findItem(itemId);
+	    String gradebookId = item.getGradebookId();
+	    if(gradebookId == null) {
+		setErrMessage(messageLocator.getMessage("simplepage.not-graded"));
+		return "failure";
+	    }
+
+	    // initialize notsubmitted to all userids or groupids
+	    Set<String> notSubmitted = new HashSet<String>();
+	    if (item.isGroupOwned()) {
+		String ownerGroups = item.getOwnerGroups();
+		if (ownerGroups != null)
+		    notSubmitted = new HashSet(Arrays.asList(ownerGroups.split(",")));
+	    } else {
+		Set<Member> members = new HashSet<Member>();
+		try {
+		    members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
+		} catch (Exception e) {
+		    // since site obviously exists, this should be impossible
+		}
+		for (Member m: members)
+		    notSubmitted.add(m.getUserId());
+	    }
+					
+	    // now go through all student pages and remove them from the list
+	    List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(item.getId());
+	    for(SimpleStudentPage page : studentPages) {
+		if(page.isDeleted()) continue;
+
+		// remove this from notSubmitted
+		if (item.isGroupOwned()) {
+		    String pageGroup = page.getGroup();
+		    if (pageGroup != null)
+			notSubmitted.remove(pageGroup);
+		} else {
+		    notSubmitted.remove(page.getOwner());
+		}
+	    }
+	    
+	    // now zero the grades
+	    for (String owner: notSubmitted) {
+		List<String> owners = null;
+		if (item.isGroupOwned()) {
+		    owners = studentPageGroupMembers(item, owner);
+		} else {
+		    owners = new ArrayList<String>();
+		    owners.add(owner);
+		}
+		for (String userid: owners) {
+		    gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, userid, "0.0");
+		}
+	    }    
+
+	    return "success";
+
+	}
+
 	private void regradeStudentPageComments(SimplePageItem pageItem) {
 		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
 		for(SimpleStudentPage c : pages) {
