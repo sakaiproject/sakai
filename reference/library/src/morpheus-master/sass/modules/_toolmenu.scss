@@ -70,6 +70,40 @@ body.#{$namespace}toolMenu-collapsed{
 				}
 			}
 		}
+		// Properties for portal.showSubsitesAsFlyout=true
+		&.floating {
+			ul {
+				li {
+					a.is-invisible {
+						.#{$namespace}toolsNav__menuitem--title {
+							display: block;
+						}
+						color: #AAAAAA;
+						font-style: italic;
+						position: relative;
+						&:after {
+							@extend .fa-lg;
+							@extend .fa;
+							content: '\f070';
+							position: absolute;
+							top: 4px;
+							right: 4px;
+						}
+						&:hover {
+							background: $primary-color;
+							.#{$namespace}toolsNav__menuitem--title {
+								position: relative;
+								float: none;
+								margin: 0;
+								padding: 0;
+								border-left: none;
+								line-height: initial;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -190,6 +224,9 @@ nav#subSites{
 			border-width: 7px;
 			margin-top: -7px;
 		}
+		ul li a .#{$namespace}toolsNav__menuitem--icon {
+			overflow: hidden;
+		}
 	}
 }
 
@@ -280,7 +317,7 @@ nav#subSites{
 						width: 100%;
 					}
 					text-overflow: ellipsis;
-					white-space: pre-wrap;
+					white-space: pre;
 					overflow: hidden;
 				}
 				&.is-invisible {
