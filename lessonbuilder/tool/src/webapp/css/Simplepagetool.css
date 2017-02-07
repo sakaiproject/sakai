@@ -1952,7 +1952,7 @@ nav.Mrphs-container--toolTitleNav {
         z-index: 100001 !important;
 }
 /* menu off user icon, site menu in narrow, site menu in  wide mode */
-.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal {
+.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal, #toolMenuWrap {
         z-index: 100002 !important;
 	position:relative;
 }
