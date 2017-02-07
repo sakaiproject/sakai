@@ -39,11 +39,9 @@ import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
-import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -534,7 +532,7 @@ public class DbAssignmentService extends BaseAssignmentService
 			String sqlWhere = null;
 			
 			try {
-				Assignment a = AssignmentService.getAssignment(assignmentRef);
+				Assignment a = getAssignment(assignmentRef);
 				
 				// is this a non-electronice submission type assignment
 				boolean isNonElectronicSubmission = a.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission();
@@ -568,7 +566,7 @@ public class DbAssignmentService extends BaseAssignmentService
 					asgGroups = a.getGroups();
 				}
 				
-				site = SiteService.getSite(a.getContext());
+				site = siteService.getSite(a.getContext());
 				List l = super.getSelectedResourcesWhere(sqlWhere);
 				
 				if (a.isGroup()) {

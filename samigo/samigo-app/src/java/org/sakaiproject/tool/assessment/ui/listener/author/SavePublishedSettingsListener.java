@@ -305,7 +305,7 @@ implements ActionListener
 			}
 			boolean isEntryRetractEarlierThanAvailable = false;
 
-			if(!entry.getUser().isEmpty() && !entry.getGroup().isEmpty()) {
+			if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
 				String extendedTimeError1 = getExtendedTimeErrorString("extended_time_user_and_group_set", entry, assessmentSettings);
 				context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, extendedTimeError1, null));
 				error = true;
@@ -870,6 +870,7 @@ implements ActionListener
 									}
 								}
 								gbsHelper.updateExternalAssessmentScore(ag, g);
+								gbsHelper.updateExternalAssessmentComment(ag.getPublishedAssessmentId(),ag.getAgentId() , ag.getComments(), g);
 							}
 							catch (Exception e) {
 								LOG.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());

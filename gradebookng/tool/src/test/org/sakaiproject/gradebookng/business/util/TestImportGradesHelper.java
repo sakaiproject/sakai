@@ -109,7 +109,7 @@ public class TestImportGradesHelper {
 		Assert.assertEquals("comments don't match", "graded", item11.getComment());
 		Assert.assertEquals("scores don't match", "7", item11.getScore());
 
-		final ImportedCell item12 = rows.get(0).getCellMap().get("food");
+		final ImportedCell item12 = rows.get(0).getCellMap().get("Week 2: January 22/23 - 29");
 		Assert.assertEquals("comments don't match", "null", item12.getComment());
 		Assert.assertEquals("scores don't match", "null", item12.getScore());
 
@@ -117,7 +117,7 @@ public class TestImportGradesHelper {
 		Assert.assertEquals("comments don't match", "interesting work", item21.getComment());
 		Assert.assertEquals("scores don't match", "3", item21.getScore());
 
-		final ImportedCell item22 = rows.get(1).getCellMap().get("food");
+		final ImportedCell item22 = rows.get(1).getCellMap().get("Week 2: January 22/23 - 29");
 		Assert.assertEquals("comments don't match", "I'm hungry", item22.getComment());
 		Assert.assertEquals("scores don't match", "42", item22.getScore());
 	}

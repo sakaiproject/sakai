@@ -434,11 +434,11 @@
 						<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
 						<h:panelGroup styleClass="longtext" rendered="#{OrganizerSignupMBean.publishedSite}">
 							<h:selectBooleanCheckbox id="chkBx_pub" value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;"/>
-							<h:outputText value="#{msgs.event_email_yes_label}" escape="false" />
+							<h:outputLabel for="chkBx_pub" value="#{msgs.event_email_yes_label}" escape="false" />
 						</h:panelGroup>
 						<h:panelGroup styleClass="longtext" rendered="#{!OrganizerSignupMBean.publishedSite}">
 							<h:selectBooleanCheckbox id="chkBx_unpub" value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;" disabled="true"/>
-							<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
+							<h:outputLabel for="chkBx_unpub" value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
 						</h:panelGroup>							
 						<h:panelGroup>	
 		   	    				<h:outputLabel  id="imageOpen_meetingInfoDetail"  styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(true);">

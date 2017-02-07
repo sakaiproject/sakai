@@ -262,22 +262,22 @@
 								
 								<h:outputText value="#{msgs.event_publish_attendee_name}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.showParticipants}"/>
-									<h:outputText value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
+									<h:selectBooleanCheckbox id="showparticipants" value="#{NewSignupMeetingBean.showParticipants}"/>
+									<h:outputLabel for="showparticipants" value="#{msgs.event_yes_show_attendee_public}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_select_coordinators}" escape="false"  styleClass="titleText"/>
 								<h:dataTable id="meeting_coordinators" value="#{NewSignupMeetingBean.allPossibleCoordinators}" var="coUser" styleClass="coordinatorTab">
 									<h:column>
-										<h:selectBooleanCheckbox value="#{coUser.checked}"/>
-									    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
+										<h:selectBooleanCheckbox id="meetingcoord" value="#{coUser.checked}"/>
+									    <h:outputLabel for="meetingcoord" value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
 									</h:column>
 								</h:dataTable>																
 								
 								<h:outputText value="#{msgs.event_receive_notification}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.receiveEmail}"/>
-									<h:outputText value="#{msgs.event_yes_receive_notification}" escape="false"/>
+									<h:selectBooleanCheckbox id="receiveemail" value="#{NewSignupMeetingBean.receiveEmail}"/>
+									<h:outputLabel for="receiveemail" value="#{msgs.event_yes_receive_notification}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText value="&nbsp;" escape="false"/>
@@ -287,7 +287,7 @@
 								<h:panelGrid columns="1" style="width:100%;margin-left:-3px;" rendered="#{NewSignupMeetingBean.publishedSite}">
 									<h:panelGroup styleClass="editText" >
 										<h:selectBooleanCheckbox id="emailChoice" value="#{NewSignupMeetingBean.sendEmail}" onclick="isShowEmailChoice()" disabled="#{NewSignupMeetingBean.mandatorySendEmail}"/>
-										<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
+										<h:outputLabel for="emailChoice" value="#{msgs.event_yes_email_notification}" escape="false"/>
 									</h:panelGroup>
 									
 									<h:panelGroup id="emailAttendeeOnly">
@@ -298,14 +298,14 @@
 									</h:panelGroup>
 								</h:panelGrid>
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.publishedSite}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmail}" disabled="true"/>
-									<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
+									<h:selectBooleanCheckbox id="sendemail" value="#{NewSignupMeetingBean.sendEmail}" disabled="true"/>
+									<h:outputLabel for="sendemail" value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
 								</h:panelGroup>
 									
 								<h:outputText value="#{msgs.event_meeting_default_notify_setting}" styleClass="titleText" escape="false"/>
 								<h:panelGroup styleClass="longtext" >
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.sendEmailByOwner}"/>
-									<h:outputText value="#{msgs.event_yes_meeting_default_notify_setting}" escape="false"/>
+									<h:selectBooleanCheckbox id="sendemailbyowner" value="#{NewSignupMeetingBean.sendEmailByOwner}"/>
+									<h:outputLabel for="sendemailbyowner" value="#{msgs.event_yes_meeting_default_notify_setting}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText value="#{msgs.event_other_default_setting}" escape="false" styleClass="titleText" rendered="#{!NewSignupMeetingBean.announcementType}"/>
@@ -322,46 +322,46 @@
 
 							   	<h:outputText id="otherSetting_1" style="display:none" value="#{msgs.event_allow_waitList}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
 								<h:panelGroup id="otherSetting_2" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.allowWaitList}"/>
-									<h:outputText value="#{msgs.event_yes_to_allow_waitList}" escape="false"/>
+									<h:selectBooleanCheckbox id="allowwaitlist" value="#{NewSignupMeetingBean.allowWaitList}"/>
+									<h:outputLabel for="allowwaitlist"  value="#{msgs.event_yes_to_allow_waitList}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText id="otherSetting_3" style="display:none" value="#{msgs.event_allow_addComment}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType}"/>
 								<h:panelGroup id="otherSetting_4" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.allowComment}"/>
-									<h:outputText value="#{msgs.event_yes_to_allow_addComment}" escape="false"/>
+									<h:selectBooleanCheckbox id="allowcomment" value="#{NewSignupMeetingBean.allowComment}"/>
+									<h:outputLabel for="allowcomment" value="#{msgs.event_yes_to_allow_addComment}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText id="otherSetting_5" style="display:none" value="#{msgs.event_use_eid_input_mode}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.userIdInputModeOptionChoice}"/>
 								<h:panelGroup id="otherSetting_6" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.userIdInputModeOptionChoice}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.eidInputMode}"/>
-									<h:outputText value="#{msgs.event_yes_to_use_eid_input_mode}" escape="false"/>
+									<h:selectBooleanCheckbox id="eidinputmode" value="#{NewSignupMeetingBean.eidInputMode}"/>
+									<h:outputLabel for="eidinputmode" value="#{msgs.event_yes_to_use_eid_input_mode}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText id="otherSetting_7" style="display:none" value="#{msgs.event_email_autoReminder}" styleClass="titleText" escape="false"  rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.autoReminderOptionChoice}"/>
 								<h:panelGroup id="otherSetting_8" style="display:none" styleClass="longtext" rendered="#{!NewSignupMeetingBean.announcementType && NewSignupMeetingBean.autoReminderOptionChoice}">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.autoReminder}"/>
-									<h:outputText value="#{msgs.event_yes_email_autoReminer_to_attendees}" escape="false"/>
+									<h:selectBooleanCheckbox id="autoreminder" value="#{NewSignupMeetingBean.autoReminder}"/>
+									<h:outputLabel for="autoreminder" value="#{msgs.event_yes_email_autoReminer_to_attendees}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText id="otherSetting_9" style="display:none" value="#{msgs.event_publish_to_calendar}" styleClass="titleText" escape="false" />
 								<h:panelGroup id="otherSetting_10" style="display:none" styleClass="longtext">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.publishToCalendar}"/>
-									<h:outputText value="#{msgs.event_yes_publish_to_calendar}" escape="false"/>
+									<h:selectBooleanCheckbox id="publishtocalendar" value="#{NewSignupMeetingBean.publishToCalendar}"/>
+									<h:outputLabel for="publishtocalendar" value="#{msgs.event_yes_publish_to_calendar}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText id="otherSetting_11" style="display:none" value="#{msgs.event_create_groups}" styleClass="titleText" escape="false" />
 								<h:panelGroup id="otherSetting_12" style="display:none" styleClass="longtext">
-									<h:selectBooleanCheckbox value="#{NewSignupMeetingBean.createGroups}"/>
-									<h:outputText value="#{msgs.event_yes_create_groups}" escape="false"/>
+									<h:selectBooleanCheckbox id="creategroups" value="#{NewSignupMeetingBean.createGroups}"/>
+									<h:outputLabel for="creategroups" value="#{msgs.event_yes_create_groups}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText id="otherSetting_13" style="display:none" value="#{msgs.event_allowed_slots }" styleClass="titleText" escape="false" />
 								<h:panelGroup id="otherSetting_14" style="display:none" styleClass="longtext">
-									<h:selectOneMenu value="#{ NewSignupMeetingBean.maxNumOfSlots}">  
+									<h:selectOneMenu id="slotscomments" value="#{ NewSignupMeetingBean.maxNumOfSlots}">  
 										 <f:selectItems  value="#{NewSignupMeetingBean.slots}"   /> 
 									</h:selectOneMenu>
-									<h:outputText value="#{msgs.event_allowed_slots_comments}" escape="false"/>
+									<h:outputLabel for="slotscomments" value="#{msgs.event_allowed_slots_comments}" escape="false"/>
 								</h:panelGroup>								
 								
 						</h:panelGrid>
@@ -378,7 +378,7 @@
 					<h:commandButton id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
 					<h:commandButton id="Cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}" immediate="true"/>
 					<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />  
-                </sakai:button_bar>
+				</sakai:button_bar>
 
 			 </h:form>
   		</sakai:view_content>	

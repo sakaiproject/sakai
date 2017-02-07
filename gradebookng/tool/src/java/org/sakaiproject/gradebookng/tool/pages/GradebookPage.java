@@ -46,6 +46,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
+import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -495,7 +496,7 @@ public class GradebookPage extends BasePage {
 
 			@Override
 			protected IModel<String> getCaptionModel() {
-				return Model.of(getString("gradespage.caption"));
+				return Model.of(MessageHelper.getString("gradespage.caption"));
 			}
 		};
 		table.addBottomToolbar(new NavigationToolbar(table) {
@@ -531,7 +532,6 @@ public class GradebookPage extends BasePage {
 
 		// Populate the toolbar
 		final WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
-		toolbar.setVisible(this.hasAssignmentsAndGrades);
 		this.form.add(toolbar);
 
 		toolbar.add(constructTableSummaryLabel("studentSummary", table));
@@ -653,13 +653,14 @@ public class GradebookPage extends BasePage {
 			groupFilter.setVisible(false);
 		}
 
-		toolbar.add(groupFilter);
 
 		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel(
 				"gradeItemsTogglePanel", Model.ofList(assignments));
 		add(gradeItemsTogglePanel);
 
+		//
 		// hide/show components
+		//
 
 		// no assignments, hide table, show message
 		if (assignments.isEmpty()) {
@@ -670,9 +671,19 @@ public class GradebookPage extends BasePage {
 
 		// no visible students, show table, show message
 		// don't want two messages though, hence the else
-		else if (studentGradeMatrix.size() == 0) {
+		else if (grades.size() == 0) {
 			noStudents.setVisible(true);
 		}
+
+		toolbar.setVisible(this.hasAssignmentsAndGrades);
+
+		//#3755 if group selected but it is empty, bring the groupfilter back into view so they can choose something else
+		if (settings.getGroupFilter() != null && grades.size() == 0) {
+			toolbar.setVisible(true);
+			groupFilter.setVisible(true);
+		}
+
+		toolbar.add(groupFilter);
 
 		stopwatch.time("Gradebook page done", stopwatch.getTime());
 	}

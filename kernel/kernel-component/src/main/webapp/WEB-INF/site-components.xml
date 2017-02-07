@@ -28,6 +28,7 @@
 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
 		<lookup-method name="activeToolManager" bean="org.sakaiproject.tool.api.ActiveToolManager" />
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		<lookup-method name="notificationService" bean="org.sakaiproject.event.api.NotificationService" />
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
         <property name="databaseBeans">

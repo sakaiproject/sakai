@@ -98,6 +98,30 @@
               val: '<h:outputText value="#{publishedSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-start_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '',
+              ashidden: { iso8601: 'newEntry-start_date-iso8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-due_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '',
+              ashidden: { iso8601: 'newEntry-due_date-iso8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-retract_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '',
+              ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
+          });
 
           // SAM-2121: Lockdown the question layout and mark for review if necessary
           var navVal = $('#assessmentSettingsAction\\:itemNavigation input:radio:checked').val();
@@ -105,7 +129,6 @@
           lockdownMarkForReview(navVal);
           showHideReleaseGroups();
           initTimedCheckBox();
-          extendedTimeInitialize();
           checkUncheckTimeBox();
           checkLastHandling();
         });

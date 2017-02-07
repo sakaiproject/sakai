@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<toolGroups>
+    <group name="group 1" category="project,course">
+        <tool id="tool1" required="true" selected="true"/>
+        <tool id="tool2" required="false" selected="false"/>
+        <tool id="tool3" />
+    </group>
+    <group name="empty" category="project">
+    </group>
+</toolGroups>

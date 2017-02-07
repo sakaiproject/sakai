@@ -2456,14 +2456,16 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 
     if (doubles.isEmpty())
       doubles.add(new Double(0.0));
-    Object[] array = doubles.toArray();
-    Arrays.sort(array);
+    Double[] scoresSorted = (Double [])doubles.toArray();
+    Arrays.sort(scoresSorted);
 
-    double[] scores = new double[array.length];
-    for (int i=0; i<array.length; i++)
-{
-      scores[i] = Double.valueOf(castingNum((Double)array[i],2)).doubleValue();
-}
+    double[] scores = new double[scoresSorted.length];
+    int i = 0;
+    for (Double d : scoresSorted) {
+        BigDecimal bd = new BigDecimal(d);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        scores[i++] = bd.doubleValue();
+    }
 
     HashMap statMap = new HashMap();
 

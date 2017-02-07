@@ -28,7 +28,17 @@
  		<property name="developerHelperService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
 		<property name="gradeSheetExporter"><ref bean="org.sakaiproject.assignment.impl.GradeSheetExporter"/></property>
- 		
+		<property name="digestService"><ref bean="org.sakaiproject.email.api.DigestService"/></property>
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+
  		<!--use to allow group awareness option in assignments. 
  			By default this is true.-->
  		<property name="allowGroupAssignments"><value>true</value></property>
@@ -65,6 +75,9 @@
 		</property>
 		<property name="userDirectoryService">
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		</property>
 	</bean>
 	
@@ -116,6 +129,9 @@
 		</property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService"/>
+		</property>
+		<property name="timeService">
+			<ref bean="org.sakaiproject.time.api.TimeService"/>
 		</property>
     </bean>
 

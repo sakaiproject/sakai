@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -49,6 +51,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.exception.PermissionException;
@@ -1641,9 +1644,26 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.transitoryExtendedTime = newExTime;
   }
 
+  //From the form
   public void addExtendedTime() {
-    this.extendedTimes.add(this.extendedTime);
-    resetExtendedTime();
+	  addExtendedTime(true);
+  }
+
+  //Internal to be able to supress error easier
+  public void addExtendedTime(boolean errorToContext) {
+  	ExtendedTime entry = this.extendedTime;
+	if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+		if (errorToContext) {
+			  FacesContext context = FacesContext.getCurrentInstance();
+			  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+			  errorString = errorString.replace("{0}", entry.getUser()).replace("{1}", entry.getGroup());
+			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
+		}
+  	}
+  	else {
+  		this.extendedTimes.add(this.extendedTime);
+  		resetExtendedTime();
+  	}
   }
 
   public void deleteExtendedTime() {

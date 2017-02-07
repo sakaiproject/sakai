@@ -43,6 +43,7 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
     protected Integer maxEnrollments;
     
     protected List meetings;
+    protected boolean isLocked;
 
     /** Default constructor needed by hibernate */
     public CourseSectionImpl() {}
@@ -55,6 +56,7 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
     	this.meetings = section.getMeetings();
     	this.title = section.getTitle();
     	this.uuid = section.getUuid();
+    	this.isLocked = section.isLocked();
     }
 
 
@@ -126,6 +128,9 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	}
 	public void setMeetings(List meetings) {
 		this.meetings = meetings;
+	}
+	public boolean isLocked() {
+		return isLocked;
 	}
 
 	/**
