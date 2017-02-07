@@ -2243,7 +2243,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			M_log.debug("Failed to create collection with id {} will now try incrementing id", new_name);
 
-			for (int attempts = 1; attempts <= 99; attempts++)
+			for (int attempts = 1; attempts <= limit; attempts++)
 			{
 				new_name = StringUtils.trim(name) + "-" + attempts;
 				try
