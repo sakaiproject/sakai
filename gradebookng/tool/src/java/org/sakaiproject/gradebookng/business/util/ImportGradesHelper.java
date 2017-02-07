@@ -547,7 +547,7 @@ public class ImportGradesHelper {
 
 			// check for duplicates
 			if(mapping.values().contains(column)) {
-				throw new GbImportExportDuplicateColumnException("Duplicate column header: " + column.getColumnTitle());
+				throw new GbImportExportDuplicateColumnException("Duplicate column header: " + column.getColumnTitle() + ", " + column.getType());
 			}
 
 			mapping.put(i, column);
@@ -634,6 +634,8 @@ public class ImportGradesHelper {
 			column.setType(ImportedColumn.Type.COURSE_GRADE_OVERRIDE);
 			return column;
 		}
+
+		log.debug("headerType: " + column.getType());
 
 		// if we got here, couldn't parse the column header, throw an error
 		throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
