@@ -35,23 +35,21 @@
                                 <p><wicket:message key="importExport.export.advancedOption.description"/></p>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <p><wicket:message key="importExport.export.advancedOption.warning"/></p>
-                            </div>
-                        </div>
+                        
+                       	<div class="messageWarning"><wicket:message key="importExport.export.advancedOption.warning" /></div>
+                       	
                         <div class="row">
                             <div class="col-sm-6">
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" wicket:id="includeStudentName">
-                                        <wicket:message key="importExport.export.advancedOption.includeStudentName"/>
+                                        <input type="checkbox" wicket:id="includeStudentId">
+                                        <wicket:message key="importExport.export.advancedOption.includeStudentId"/>
                                     </label>
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" wicket:id="includeStudentId">
-                                        <wicket:message key="importExport.export.advancedOption.includeStudentId"/>
+                                        <input type="checkbox" wicket:id="includeStudentName">
+                                        <wicket:message key="importExport.export.advancedOption.includeStudentName"/>
                                     </label>
                                 </div>
                                 <wicket:enclosure child="includePoints">

@@ -61,15 +61,6 @@ public class ExportPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new AjaxCheckBox("includeStudentName", Model.of(this.includeStudentName)) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
-				ExportPanel.this.includeStudentName = !ExportPanel.this.includeStudentName;
-				setDefaultModelObject(ExportPanel.this.includeStudentName);
-			}
-		});
 		add(new AjaxCheckBox("includeStudentId", Model.of(this.includeStudentId)) {
 			private static final long serialVersionUID = 1L;
 
@@ -79,6 +70,17 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeStudentId);
 			}
 		});
+
+		add(new AjaxCheckBox("includeStudentName", Model.of(this.includeStudentName)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentName = !ExportPanel.this.includeStudentName;
+				setDefaultModelObject(ExportPanel.this.includeStudentName);
+			}
+		});
+
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(this.includeGradeItemScores)) {
 			private static final long serialVersionUID = 1L;
 
@@ -220,7 +222,6 @@ public class ExportPanel extends Panel {
 
 			if (isCustomExport && this.includePoints) {
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
-
 			}
 			if (isCustomExport && this.includeCalculatedGrade) {
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));

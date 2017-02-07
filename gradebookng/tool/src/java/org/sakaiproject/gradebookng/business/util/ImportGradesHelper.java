@@ -539,11 +539,14 @@ public class ImportGradesHelper {
 				column = new ImportedColumn();
 				column.setType(ImportedColumn.Type.USER_ID);
 			} else if(i == USER_NAME_POS) {
+				//if second column is NOT user name this will cause weird things to happen. There should be validation around this
 				column = new ImportedColumn();
 				column.setType(ImportedColumn.Type.USER_NAME);
 			} else {
 				column = parseHeaderToColumn(trim(line[i]));
 			}
+
+			log.debug("type[i]: " + column.getType());
 
 			// check for duplicates
 			if(mapping.values().contains(column)) {
