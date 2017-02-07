@@ -3,7 +3,8 @@
 }
 #checklistItems {
     display: inline-block;
-    width: 500px;
+    width: 90%;
+    max-width: 500px;
 }
 #createdChecklistItems {
     margin-bottom: 1em;
@@ -27,36 +28,33 @@
 }
 .checklist-item-name {
     line-height: 1.7em;
-    width: 300px;
+    width: 90%;
+    max-width: 500px;
 }
 .checklistDescription {
     display: block;
     width: 500px;
+}
+#description{
+    height: 80px;
+    width: 90%;
+    max-width: 500px;
 }
 .deleteItemLink {
     float: right;
     margin-top: -3px;
 }
 #addChecklistItemButton { /** Have to use important because tool.css overrides **/
-    background-image: url("/library/image/silk/add.png") !important;
-    background-position: left 4px center !important;
-    background-repeat: no-repeat !important;
-    background-color: #2a94c0;
-    background-size: auto !important;
-    padding-left: 24px !important;
     display: block !important;
 }
 #addChecklistItemButton:hover { /** Have to use important because tool.css overrides **/
-    background-image: url("/library/image/silk/add.png") !important;
-    background-position: left 4px center !important;
-    background-repeat: no-repeat !important;
-    background-color: #0082CA;
-    background-size: auto !important;
-    padding-left: 24px !important;
     display: block !important;
 }
 .titleBorder {
     border-bottom: 1px solid #ccc;
+}
+#name{
+    vertical-align: middle;
 }
 .checklistFormInput input, .checklistFormInput textarea {
     margin-left: 2em;
@@ -119,4 +117,10 @@ legend.no-border {
 #additionalSettings {
     margin: 1em 0;
     max-width: 600px;
+}
+/* Override the jquery ui optional settings stylings. */
+.ui-accordion-header.ui-state-default.ui-state-active {
+    border-color: #c5c5c5;
+    background-color: #ededed;
+    color: #212121;
 }

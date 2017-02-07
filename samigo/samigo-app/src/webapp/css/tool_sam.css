@@ -486,13 +486,23 @@ a.hideDivision {
     width: 650px; 
 }
 
+.samigo-question-answer {
+	margin-bottom: 12px;
+}
+.samigo-question-answer:hover {
+	margin-bottom: 12px;
+}
 .mcAnswerText {
-	display:inline-table;
-	/*width: 80%;*/
+	display:inline;
 	float:unset;
+	font-weight: bold;
+}
+.mcAnswerText span {
+	font-weight: normal;
 }
 /* Someone put a paragraph in a multiple choice answer */
-.mcAnswerText p {
+.mcAnswerText p:first-child {
+    display: inline;
     margin: 0 0 1em 0;
 }
 
@@ -516,11 +526,6 @@ a.hideDivision {
 .body {
 	overflow: auto;
 	height: 100%;
-}
-
-
-.mcAnswerText:hover {
-    background-color: #009dce;
 }
 
 #timer-expired-warning{
@@ -1275,4 +1280,13 @@ input[type='reset'].linearButton {
 .sam-submittedPanel
 {
 	margin-top: 10px;
+}
+
+.honor-container {
+	display: table-row;
+}
+
+.honor-container label {
+	display: table-cell;
+	padding-left: .5em;
 }

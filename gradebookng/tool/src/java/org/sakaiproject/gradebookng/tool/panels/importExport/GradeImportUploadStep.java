@@ -20,7 +20,6 @@ import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingIte
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -31,12 +30,12 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
 
-import lombok.extern.apachecommons.CommonsLog;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Upload/Download page
  */
-@CommonsLog
+@Slf4j
 public class GradeImportUploadStep extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -104,18 +103,19 @@ public class GradeImportUploadStep extends Panel {
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.incorrectformat"));
 					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.incorrecttype"));
 					return;
-				} catch (final GbImportExportUnknownStudentException e) {
-					error(getString("importExport.error.unknownstudent"));
-					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.duplicatecolumn"));
 					return;
 				} catch (final IOException e) {
+					log.debug("GBNG import error", e);
 					error(getString("importExport.error.unknown"));
 					return;
 				}

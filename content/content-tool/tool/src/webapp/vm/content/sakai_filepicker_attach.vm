@@ -125,6 +125,7 @@
 			</div>
 					
 			<p class="act" style="clear:both">
+				<label for="attachButton" class="sr-only">$tlang.getString("att.explainfinish")</label>
 				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
 					onclick=" document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />

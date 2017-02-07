@@ -127,6 +127,8 @@ public interface AssignmentService extends EntityProducer
 	public static final String GRADEBOOK_INTEGRATION_ADD = "add";
 	public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
 	public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
+	public static final String GRADEBOOK_PERMISSION_GRADE_ALL = "gradebook.gradeAll";
+	public static final String GRADEBOOK_PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments";
 	
 	// and the prop name
 	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
@@ -709,25 +711,17 @@ public interface AssignmentService extends EntityProducer
 	 * @param person -
 	 *        The User who's Submission you would like.
 	 * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
-	 * @throws IdUnusedException
-	 *         if the assignmentId does not correspond to an existing Assignment.
-	 * @throws PermissionException
-	 *         if the current user is not allowed to read this.
 	 */
 	public AssignmentSubmission getSubmission(String assignmentId, User person);
 	
 	/**
 	 * Access a User or Group's AssignmentSubmission to a particular Assignment.
 	 * 
-	 * @param assignmentId -
+	 * @param assignmentReference -
 	 *        The id of the assignment.
 	 * @param submitterId -
 	 *        The string id of the person or group who's Submission you would like.
 	 * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
-	 * @throws IdUnusedException
-	 *         if the assignmentId does not correspond to an existing Assignment.
-	 * @throws PermissionException
-	 *         if the current user is not allowed to read this.
 	 */
 	public AssignmentSubmission getSubmission(String assignmentReference, String submitterId);
 

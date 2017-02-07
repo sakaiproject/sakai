@@ -402,6 +402,9 @@ body.is-logged-out{
 
 	.#{$namespace}loginUser{
 		padding: 0.9em 0.5em;
+		@media #{$phone}{
+			padding: 0em;
+		}
 	}
 
 	.#{$namespace}userNav__dropdown, .#{$namespace}userNav__drop{

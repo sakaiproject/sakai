@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.entity.api.Entity;
 
 /**
  * <p>
@@ -45,6 +46,9 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	static final String GROUP_PROP_VIEW_MEMBERS = "group_prop_view_members";
 	/** The property to indicate whether the joinable group is unjoinable or not*/
 	static final String GROUP_PROP_JOINABLE_UNJOINABLE = "group_prop_joinable_unjoinable";
+	
+	static final String GROUP_PROP_LOCKED_BY = "group_prop_locked_by";
+	static final String GROUP_PROP_SEPARATOR = "#:#";
     
 	/** @return a human readable short title of this group. */
 	String getTitle();
@@ -74,4 +78,12 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	 *        The new description.
 	 */
 	void setDescription(String description);
+	
+	void lockGroup(Entity entity);
+	void lockGroup(String lock);
+	void unlockGroup(Entity entity);
+	void unlockGroup(String lock);
+	void unlockGroup();
+	boolean isLocked(String lock);
+	boolean isLocked();
 }

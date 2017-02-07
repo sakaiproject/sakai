@@ -33,6 +33,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
@@ -514,6 +515,60 @@ public class EntityGroup implements Group {
     public Site getContainingSite() {
         if (group != null) {
             return group.getContainingSite();
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void lockGroup(Entity entity) {
+        if (group != null) {
+            group.lockGroup(entity);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void lockGroup(String lock) {
+        if (group != null) {
+            group.lockGroup(lock);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlockGroup(Entity entity) {
+        if (group != null) {
+            group.unlockGroup(entity);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlockGroup(String lock) {
+        if (group != null) {
+            group.unlockGroup(lock);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlockGroup() {
+        if (group != null) {
+            group.unlockGroup();
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isLocked(String lock) {
+        if (group != null) {
+            return group.isLocked(lock);
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isLocked() {
+        if (group != null) {
+            return group.isLocked();
         }
         throw new UnsupportedOperationException();
     }

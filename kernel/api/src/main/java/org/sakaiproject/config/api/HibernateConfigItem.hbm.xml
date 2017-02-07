@@ -36,11 +36,11 @@
 
         <property name="node" type="string" column="NODE" length="255" index="SCI_NODE_IDX" />
         <property name="name" type="string" not-null="true" column="NAME" length="255" index="SCI_NAME_IDX" />
-        <property name="value" type="string" length="4000" not-null="false" column="VALUE"/>
-        <property name="rawValue" type="string" length="4000" not-null="false" column="RAW_VALUE"/>
+        <property name="value" type="string" length="3000" not-null="false" column="VALUE"/>
+        <property name="rawValue" type="string" length="3000" not-null="false" column="RAW_VALUE"/>
         <property name="type" type="string" not-null="true" column="TYPE" length="255"/>
-        <property name="defaultValue" type="string" length="4000" not-null="false" column="DEFAULT_VALUE"/>
-        <property name="description" type="string" length="4000" not-null="false" column="DESCRIPTION"/>
+        <property name="defaultValue" type="string" length="3000" not-null="false" column="DEFAULT_VALUE"/>
+        <property name="description" type="string" length="3000" not-null="false" column="DESCRIPTION"/>
         <property name="source" type="string" not-null="false" column="SOURCE" length="255"/>
         <property name="defaulted" type="boolean" not-null="true" column="DEFAULTED"/>
         <property name="registered" type="boolean" not-null="true" column="REGISTERED"/>

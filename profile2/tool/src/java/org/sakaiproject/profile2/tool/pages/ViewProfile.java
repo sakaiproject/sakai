@@ -85,6 +85,13 @@ public class ViewProfile extends BasePage {
 			throw new RestartResponseException(new MyProfile(userUuid));
 		}
 
+		myPicturesLink.setVisible(false);
+		myFriendsLink.setVisible(false);
+		myMessagesLink.setVisible(false);
+		myPrivacyLink.setVisible(false);
+		searchLink.setVisible(false);
+		preferencesLink.setVisible(false);
+
 		// post view event
 		this.sakaiProxy.postEvent(ProfileConstants.EVENT_PROFILE_VIEW_OTHER, "/profile/" + userUuid, false);
 
@@ -99,6 +106,10 @@ public class ViewProfile extends BasePage {
 			throw new IllegalArgumentException("User does not exist: " + userUuid);
 		}
 		final String userDisplayName = user.getDisplayName();
+		otherProfileLink.get("otherProfileLabel").setDefaultModel(
+			new StringResourceModel("link.other.profile", null, new Object[] { userDisplayName }));
+		otherProfileLink.setVisible(true);
+		disableLink(otherProfileLink);
 		final String userType = user.getType();
 
 		// init

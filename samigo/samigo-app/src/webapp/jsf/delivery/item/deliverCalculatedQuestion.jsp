@@ -27,10 +27,10 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<samigo:dataLine value="#{question.finArray}" var="answer"
-  separator=" " first="0" rows="100">
+<samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputText value="#{answer.text} " escape="false" />
+      <h:outputLabel for="calcq" value="#{answer.text} " escape="false" />
+      <f:verbatim>&nbsp;</f:verbatim>
       <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
@@ -44,7 +44,7 @@ should be included in file importing DeliveryMessages
 	  <h:inputText size="10" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"
-        disabled="#{delivery.actionString=='previewAssessment'}" value="#{answer.response}" onkeypress="return noenter()"/>
+        disabled="#{delivery.actionString=='previewAssessment'}" value="#{answer.response}" onkeypress="return noenter()" id="calcq" />
       <h:outputText style="text-decoration: underline" 
 		rendered="#{delivery.actionString=='gradeAssessment' 
 			|| delivery.actionString=='reviewAssessment'}"
@@ -66,7 +66,7 @@ should be included in file importing DeliveryMessages
 	</h:outputLink>
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.feedback eq 'true' || delivery.actionString=='previewAssessment'}">
+<h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <f:verbatim><br /></f:verbatim>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
     <f:verbatim><b></f:verbatim>

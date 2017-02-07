@@ -11,61 +11,66 @@ body.is-logged-out{
 	}
 }
 
-body.#{$namespace}toolMenu-collapsed{
-
-	#content, .Mrphs-container--footer {
-	    margin: 0 0 0 0;
-	}
-
-	#toolMenuWrap{
-		max-width: #{ $tool-menu-width-collapsed };
-		min-width: #{ $tool-menu-width-collapsed };
-		width: #{ $tool-menu-width-collapsed };
-	}
-	#toolMenu, #subSites{
-		.img_site_toolmenu{
-			display: none;
+// Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue 
+// when switching between phone and non-phone sized screens.
+//@media #{$nonPhone} {
+	// LHS tool menu collapsed to show icons only and not tool titles.
+	body.#{$namespace}toolMenu-collapsed{
+	
+		#content, .Mrphs-container--footer {
+			margin: 0 0 0 0;
 		}
-		ul{
-			li{
-				a{
-					min-height: 1.7em;
-					text-align: center;
-					&:hover{
-						.#{$namespace}toolsNav__menuitem--title{
-							position: absolute;
-							display: block;
-							float: right;
-							margin: -2.1em 0em 0em 3.2em;
-							background: $primary-color;
-							padding: 0.71em;
-							border-left: 3px solid $primary-color-shadow;
-							z-index: 10;
-							width: auto;
-							border-radius: 0 15px 15px 0;
-							line-height: 100%;
+	
+		#toolMenuWrap{
+			max-width: #{ $tool-menu-width-collapsed };
+			min-width: #{ $tool-menu-width-collapsed };
+			width: #{ $tool-menu-width-collapsed };
+		}
+		#toolMenu, #subSites{
+			.img_site_toolmenu{
+				display: none;
+			}
+			ul{
+				li{
+					a{
+						min-height: 1.7em;
+						text-align: center;
+						&:hover{
+							.#{$namespace}toolsNav__menuitem--title{
+								position: absolute;
+								display: block;
+								float: right;
+								margin: -2.1em 0em 0em 3.2em;
+								background: $primary-color;
+								padding: 0.71em;
+								border-left: 3px solid $primary-color-shadow;
+								z-index: 10;
+								width: auto;
+								border-radius: 0 15px 15px 0;
+								line-height: 100%;
+							}
+						}
+						&.is-invisible {
+							&:after {
+								display: none;
+							}
+						}
+						span.#{$namespace}toolsNav__menuitem--title{
+							white-space: pre;
 						}
 					}
-					&.is-invisible {
-						&:after {
-							display: none;
+					.#{$namespace}toolsNav__menuitem--icon{
+						@if $tool-menu-icon-on-left {
+							margin: 0 0.5em 0 0;
 						}
 					}
-					span.#{$namespace}toolsNav__menuitem--title{
-						white-space: pre;
+					.#{$namespace}toolsNav__menuitem--title{
+						display: none;
 					}
-				}
-				.#{$namespace}toolsNav__menuitem--icon{
-					@if $tool-menu-icon-on-left {
-						margin: 0 0.5em 0 0;
-					}
-				}
-				.#{$namespace}toolsNav__menuitem--title{
-					display: none;
-				}
-				&.#{$namespace}collapseTools{
-					i{
-						@include transform( scaleX(-1) ); /* flip horizontally */
+					&.#{$namespace}collapseTools{
+						i{
+							@include transform( scaleX(-1) ); /* flip horizontally */
+						}
 					}
 				}
 			}
@@ -81,14 +86,14 @@ body.#{$namespace}toolMenu-collapsed{
 						color: #AAAAAA;
 						font-style: italic;
 						position: relative;
-						&:after {
-							@extend .fa-lg;
-							@extend .fa;
-							content: '\f070';
-							position: absolute;
-							top: 4px;
-							right: 4px;
-						}
+						//&:after {
+						//	@extend .fa-lg;
+						//	@extend .fa;
+						//	content: '\f070';
+						//	position: absolute;
+						//	top: 4px;
+						//	right: 4px;
+						//}
 						&:hover {
 							background: $primary-color;
 							.#{$namespace}toolsNav__menuitem--title {
@@ -105,13 +110,16 @@ body.#{$namespace}toolMenu-collapsed{
 			}
 		}
 	}
-}
+//}
 
 #toolMenuWrap .img_site_toolmenu{
   width: 100%;
   max-width: $tool-menu-width;
   height: auto;
   margin: 0 auto; 
+  @media #{$phone}{
+    display: none;
+  }
 }
 
 #toolMenuWrap{
@@ -194,6 +202,9 @@ body.#{$namespace}toolMenu-collapsed{
 	ul{  
 		padding: 0 0 0 0;
 	}
+	@media #{$phone}{
+		background: $tool-menu-background-color;
+	}
 }
 
 nav#subSites{
@@ -267,7 +278,6 @@ nav#subSites{
 				}
 			}
 			@media #{$phone}{
-				border-left: 2px solid darken( $tool-menu-background-color, 10% );
 				margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 				width: calc( 25% - 1px );
 			}
@@ -302,6 +312,9 @@ nav#subSites{
 					color: $tool-menu-hover-color;
 				}
 				@media #{$phone}{
+					border-width: 1px;
+					border-style: solid;
+					border-color: darken( $tool-menu-background-color, 10% );
 					height:  5.5em;
 					overflow: hidden;
 					padding: 0.85em 0.25em 0.1em;

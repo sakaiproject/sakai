@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Date;
 import java.util.Set;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import java.sql.SQLException;
 
 import org.slf4j.Logger;
@@ -130,7 +130,12 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	{
 		m_siteService = siteService;
 	}
-	
+
+	protected TimeService timeService;
+
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
 	/********************** attachment   ************************/
 	/**
 	 * {@inheritDoc}
@@ -503,7 +508,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					{
 						return true;
 					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseTime().before(TimeService.newTime())))
+					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseTime().before(timeService.newTime())))
 					{
 						return true;
 					}
@@ -605,7 +610,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			{
 				if (!aItem.getHide())
 				{
-					Time now = TimeService.newTime();
+					Time now = timeService.newTime();
 					Date releaseDate = aItem.getReleaseDate();
 					Date retractDate = aItem.getRetractDate();
 					

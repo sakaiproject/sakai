@@ -3167,9 +3167,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				if (anonymous) {
 					Long aFirstElement = (Long) ((ArrayList) a).get(0);
 					Long bFirstElement = (Long) ((ArrayList) b).get(0);
-					if (collator.compare(aFirstElement,bFirstElement) < 0)
+					if (aFirstElement.compareTo(bFirstElement) < 0)
 						return -1;
-					else if (collator.compare(aFirstElement,bFirstElement) > 0)
+					else if (aFirstElement.compareTo(bFirstElement) > 0)
 						return 1;
 					else
 						return 0;

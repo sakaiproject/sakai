@@ -21,7 +21,6 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -43,12 +40,15 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradeMapping;
+import org.sakaiproject.tool.gradebook.GradePointsMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -159,7 +159,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
     	GradeMapping[] oldGradeMappings = {
     		new LetterGradeMapping(),
     		new LetterGradePlusMinusMapping(),
-    		new PassNotPassMapping()
+    		new PassNotPassMapping(),
+    		new GradePointsMapping()
     	};
 
     	for (int i = 0; i < oldGradeMappings.length; i++) {

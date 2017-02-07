@@ -809,3 +809,18 @@ function modalDialogWidth() {
 	if ( dWidth < 300 ) dWidth = 300; // Should not happen
 	return Math.round(dWidth);
 }
+
+// Figure out the maximum z-index
+// http://stackoverflow.com/questions/1118198/how-can-you-figure-out-the-highest-z-index-in-your-document
+function maxZIndex(elems)
+{
+    var maxIndex = 0;
+    elems = typeof elems !== 'undefined' ? elems : $("*");
+
+    $(elems).each(function(){
+        maxIndex = (parseInt(maxIndex) < parseInt($(this).css('z-index'))) ? parseInt($(this).css('z-index')) : maxIndex;
+    });
+
+    return maxIndex;
+}
+

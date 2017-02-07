@@ -22,21 +22,25 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * A LetterGradePlusMinusMapping defines the set of grades available to a
  * gradebook as "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D",
  * "D-", and "F", each of which can be mapped to a minimum percentage value.
  *
- * @deprecated
  */
 public class LetterGradePlusMinusMapping extends GradeMapping {
 	private List grades;
 	private List defaultValues;
+	@Override
 	public Collection getGrades() {
 		return grades;
 	}
+	@Override
 	public List getDefaultValues() {
         return defaultValues;
     }
@@ -78,7 +82,8 @@ public class LetterGradePlusMinusMapping extends GradeMapping {
     /**
      * @see org.sakaiproject.tool.gradebook.GradeMapping#getName()
      */
-    public String getName() {
+    @Override
+	public String getName() {
         return "Letter Grades with +/-";
     }
 

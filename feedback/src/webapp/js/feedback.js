@@ -39,8 +39,6 @@
 
     feedback.switchState = function (state, url) {
     	
-    	document.title = feedback.i18n['state_'+state+((url != undefined) ? '_'+url : '')];
-
         $('#feedback-toolbar > li > span').removeClass('current');
 
         $('#feedback-' + state + '-item > span').addClass('current');

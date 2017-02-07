@@ -55,13 +55,8 @@ public class SakaiLocaleDeterminer implements FactoryBean {
 	}
 
 	public Object getObject() {
-		String userid = sessionmanager.getCurrentSessionUserId();
-		Locale loc = Locale.getDefault();
-		if (userid != null) {
-			ResourceLoader rl = new ResourceLoader();
-			loc = rl.getLocale();
-		}
-		return loc;
+		ResourceLoader rl = new ResourceLoader();
+		return rl.getLocale();
 	}
 
 	public Class getObjectType() {
