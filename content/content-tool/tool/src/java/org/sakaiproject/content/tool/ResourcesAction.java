@@ -10487,7 +10487,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						break;
 					}
 				}
-				else if(contentService.allowUpdateResource(showId))
+				else if(contentService.allowGetResource(showId))
 				{
 					entity = contentService.getResource(showId);
 					currentEntitySize = ((ContentResource)entity).getContentLength();
@@ -10509,12 +10509,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 
 				ListItem item = new ListItem(entity);
-				if(item.isCollection() && contentService.allowUpdateCollection(showId))
+				if(item.isCollection() && contentService.allowGetCollection(showId))
 				{
 					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
 					zipDownloadItems.add(item);
 				}
-				else if(!item.isCollection() && contentService.allowUpdateResource(showId))
+				else if(!item.isCollection() && contentService.allowGetResource(showId))
 				{
 					zipDownloadItems.add(item);
 				}
