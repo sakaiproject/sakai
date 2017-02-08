@@ -1,0 +1,151 @@
+<dom-module id="sakai-rubric-grading-comment">
+  <template>
+    <!-- Styling -->
+    <style include="polymer-bootstrap"></style>
+    <style include="sakai-rubrics-styles"></style>
+
+  
+    <!-- edit icon -->
+    <iron-icon class="comment-icon" icon="rubrics-icons:comment" on-tap="addComment" title="[[lang('criterion_comment','Leave a comment about this criterion for the student')]]" ></iron-icon>
+
+    <!-- popover -->
+    <div class="popover criterion-edit-popover left">
+      <div class="arrow"></div>
+      <div class="popover-title">
+        <div class="buttons"> 
+          <button class="btn btn-primary btn-xs done" on-tap="hideToolTip">
+            <sr-lang key="done">Done</sr-lang>
+          </button>
+        </div>
+      </div>
+      <div class="popover-content form">
+        <div class="form-group">
+          <label for=""><sr-lang key="comment_for_criterion">Comment for Criterion</sr-lang></label>
+          <textarea class="form-control" name="rbcs-criterion-comment-[[criterion.id]]" id="criterion_comment_[[criterion.id]]" value="{{comments::keyup}}"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- REST -->
+    <iron-ajax
+         id="updateCriterion"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="application/json"
+         method="PATCH"
+         on-response="updateUi"
+         debounce-duration="300">
+    </iron-ajax>
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubric-grading-comment",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        // criterion passed from parent
+        criterion: {
+          type: Object,
+          observer: 'hasCriterion'
+        },
+        comments: {
+          type: String,
+          observer: 'handleComment'
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        // listen for taps
+        'tap': 'hostEventCatch'
+      },
+      hostEventCatch: function(e) {
+        // catch and stop taps from bubbling outside the component
+        e.stopPropagation();
+        e.preventDefault();
+
+        console.log('event stopped at host');
+      },
+      handleComment: function() {
+        this.set('criterion.comments', this.comments);
+        this.fire('update-comment');
+        this.showActive();
+      },
+      addComment: function(e) {
+        e.stopPropagation();
+
+        this.fire('show-tooltip');
+
+        // // title input box reference
+        // var titleinput = this.tt.querySelector('[type="text"]');
+
+        if (!hasClass(this.tt, 'show-tooltip')) {
+          // If the tooltip isn't showing
+          // get the trigger position
+          var triggerPosition = altOffset(e.target);
+          // add the class to show the tooltip
+          addClass(this.tt, 'show-tooltip');
+          // apply position styles
+          css(this.tt, {
+            'left': e.target.offsetLeft - 270 + "px",
+            'top': (e.target.offsetTop + e.target.offsetHeight/2 - this.tt.offsetHeight/2) + "px",
+          });
+
+        } else {
+          // if the tooltip is showing
+          // hide the tooltip
+          this.hideToolTip();
+        }
+      },
+      hideToolTip: function(e){
+        e.stopPropagation();
+        e.preventDefault();
+
+        // hide the edit popover
+        removeClass(this.tt, 'show-tooltip');
+
+        // fire hide-tooltip event to allow parent components to take action.
+        // this.fire('hide-tooltip', this.criterion);
+      },
+      saveComment: function(e){
+        // set the comment on the criterion
+
+        // hide the popover
+        this.hideToolTip();
+      },
+      showActive: function() {
+        if (this.comments === "" || this.comments === null || this.comments === undefined) {
+          removeClass(this.$$('iron-icon'), 'active');
+        } else {
+          addClass(this.$$('iron-icon'), 'active')
+        }
+      },
+      hasCriterion: function() {
+        setTimeout(function(){
+          this.comments = this.criterion.comments;
+          this.showActive();
+          var commentEditor = CKEDITOR.replace('criterion_comment_'+this.criterion.id, {
+            toolbar : [
+              // ['Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink'],
+              ['Bold', 'Italic', 'Underline'],
+              ['NumberedList','BulletedList', 'Blockquote']
+            ]
+          });
+          commentEditor.on('change', function(e){
+            this.comments = commentEditor.getData();
+          }.bind(this));
+        }.bind(this));
+      },
+      ready: function(e) {
+        // // get popover reference
+        this.tt = this.$$('.popover');
+
+
+      }
+    });
+  </script>
+</dom-module>

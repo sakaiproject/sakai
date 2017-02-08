@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- ProjectLogic -->
+    <bean id="org.sakaiproject.rubrics.logic.api.RubricsService"
+        class="org.sakaiproject.rubrics.logic.impl.RubricsServiceImpl"
+        init-method="init">
+        <!-- API injection -->
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="cache" ref="org.sakaiproject.rubrics.cache" />
+    </bean>
+
+    <!-- Cache: ttl=1 hour -->
+    <bean id="org.sakaiproject.rubrics.cache"
+        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        <property name="cacheManager">
+            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        </property>
+        <property name="cacheName">
+            <value>org.sakaiproject.rubrics.cache</value>
+        </property>
+        <property name="maxElementsInMemory" value="1000" />
+        <property name="diskPersistent" value="false" />
+        <property name="eternal" value="false" />
+        <property name="timeToLive" value="3600" />
+        <property name="timeToIdle" value="3600" />
+    </bean>
+
+</beans>

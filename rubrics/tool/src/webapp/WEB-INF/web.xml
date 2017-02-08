@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+     version="2.5">
+
+	<display-name>sakai.rubrics</display-name>
+
+	<!--  This application's servlet class -->
+	<servlet>
+		<servlet-name>sakai.rubrics</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    <init-param>
+	      	<param-name>applicationClassName</param-name>
+	      	<param-value>org.sakaiproject.rubrics.tool.MyApplication</param-value>
+	    </init-param>
+		<load-on-startup>1</load-on-startup>
+  	</servlet>
+    <servlet-mapping>
+        <servlet-name>sakai.rubrics</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+	<!-- Deploy mode -->
+	<context-param>
+            <param-name>configuration</param-name>
+		<!--  <param-value>development</param-value>-->
+        <param-value>deployment</param-value>
+	</context-param>
+
+
+	<!-- Sakai Request Filter -->
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.rubrics</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+
+	<!-- Sakai Tool Listener -->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+
+	<!-- Sakai Spring Listener -->
+	<listener>
+		<listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
+	</listener>
+
+
+
+</web-app>

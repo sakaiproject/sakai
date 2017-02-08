@@ -15,3 +15,5 @@ sakai-demo.zip
 .DS_Store
 *nb-configuration.xml
 velocity.log
+node_modules
+bower_components

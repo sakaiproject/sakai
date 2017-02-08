@@ -1,0 +1,122 @@
+<!-- Sakai Rubrics Imports -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer-bootstrap/polymer-bootstrap.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-iconset-svg/iron-iconset-svg.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/polymer-sortablejs/polymer-sortablejs.html"/>
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html"/>
+
+
+<!-- Sakai Rubrics Imports -->
+<link rel="import" href="sakai-rubrics-styles.html">
+<link rel="import" href="sakai-rubrics-language.html">
+<link rel="import" href="sakai-rubrics-list.html">
+<link rel="import" href="sakai-rubrics-shared-list.html">
+<link rel="import" href="sakai-rubrics-icons.html">
+<link rel="import" href="sakai-rubric.html">
+<link rel="import" href="sakai-rubric-readonly.html">
+
+<dom-module id="sakai-rubrics-manager">
+  <template>
+    <style include="sakai-rubrics-styles"></style>
+
+    <h1>
+    	<sr-lang key="manage_rubrics">
+    		Manage Rubrics
+    	</sr-lang>
+    </h1>
+
+    <div role="tablist">
+      <div id="local-rubrics-title" aria-expanded$="[[localRubricsExpanded]]" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="[[lang('toggle_local_rubrics', 'Toggle local rubrics')]]" tabindex="0" on-tap="showLocalRubrics">
+        <iron-a11y-keys id="a11y" target="[[getNode('#local-rubrics-title')]]" keys="space" on-keys-pressed="showLocalRubrics"></iron-a11y-keys>
+        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+        <sr-lang key="local_rubrics">
+          Local Rubrics
+        </sr-lang>
+      </div>
+
+      <iron-collapse role="tabpanel" aria-labelledby="local-rubrics-title" id="local_rubrics">
+        <sakai-rubrics-list></sakai-rubrics-list>
+      </iron-collapse>
+
+
+
+      <div id="shared-rubrics-title" aria-expanded$="[[sharedRubricsExpanded]]" role="tab" aria-multiselectable="true" class="manager-collapse-title" title="[[lang('toggle_shared_rubrics', 'Toggle shared rubrics')]]" tabindex="0" on-tap="showSharedRubrics">
+        <iron-a11y-keys id="a11y" target="[[getNode('#shared-rubrics-title')]]" keys="space" on-keys-pressed="showSharedRubrics"></iron-a11y-keys>
+        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+        <sr-lang key="shared_rubrics">
+          Shared Rubrics
+        </sr-lang>
+      </div>
+
+      <iron-collapse role="tabpanel" aria-labelledby="shared-rubrics-title" id="shared_rubrics">
+        <div id="sharedlist"></div>
+      </iron-collapse>
+
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubrics-manager",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        }
+      },
+      listeners: {
+        'sharing-change': 'handleSharingChange',
+        'copy-share-local': 'copyShareLocal',
+      },
+      behaviors: [rubrics.behaviors],
+      handleSharingChange: function(e) {
+        console.log('handleSharingChange');
+        if (!this.$$('#shared_rubrics').opened) {
+          this.showSharedRubrics();
+        } else {
+          console.log('refresh');
+          this.$$('sakai-rubrics-shared-list').refresh();
+        }
+      },
+      copyShareLocal: function() {
+        this.$$('sakai-rubrics-list').ready();
+      },
+      showLocalRubrics: function() {
+        this.$$('#local_rubrics').toggle();
+        var icon = this.$$('#local-rubrics-title .collpase-icon');
+
+        if (this.$$('#local_rubrics').opened) {
+          this.localRubricsExpanded = "true";
+          icon && icon.setAttribute('icon','rubrics-icons:expand-more');
+        } else {
+          this.localRubricsExpanded = "false";
+          icon && icon.setAttribute('icon','rubrics-icons:chevron-right');
+        };
+      },
+      showSharedRubrics: function() {
+        this.$$('#shared_rubrics').toggle();
+        var icon = this.$$('#shared-rubrics-title .collpase-icon');
+        if (this.$.sharedlist.innerHTML !== '<sakai-rubrics-shared-list></sakai-rubrics-shared-list>') {
+          this.$.sharedlist.innerHTML = '<sakai-rubrics-shared-list></sakai-rubrics-shared-list>';
+        }
+        if (this.$$('#shared_rubrics').opened) {
+          this.sharedRubricsExpanded = "true";
+          icon && icon.setAttribute('icon','rubrics-icons:expand-more');
+          this.$$('sakai-rubrics-shared-list').refresh();
+        } else {
+          this.sharedRubricsExpanded = "false";
+          icon && icon.setAttribute('icon','rubrics-icons:chevron-right');
+        };
+      },
+      ready: function() {
+        this.localRubricsExpanded = "false";
+        this.sharedRubricsExpanded = "false";
+        this.showLocalRubrics();
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,132 @@
+<dom-module id="sakai-rubrics-list">
+  <template>
+
+    <!-- Styling -->
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+    <!-- Templating -->
+    <div role="presentation">
+      <div role="tablist">
+        <template id="rubricslist" is="dom-repeat" items="{{rubricslist}}" as="rubric">
+          <div class="rubric-item" id="rubric_item_[[rubric.id]]">
+            <!-- <template is="dom-if" if="[[!rubric.metadata.locked]]"> -->
+              <sakai-rubric rubric="[[rubric]]"></sakai-rubric>
+            <!-- </template> -->
+<!--             <template is="dom-if" if="[[rubric.metadata.locked]]">
+              <sakai-rubric-readonly rubric="{{rubric}}"></sakai-rubric-readonly>
+            </template>
+ -->          </div>
+        </template>
+      </div>
+    </div>
+    <br>
+    <button class="btn btn-link add-rubric" on-tap="addRubric">
+      <iron-icon class="add" icon="rubrics-icons:add"></iron-icon>
+      <sr-lang key="add_rubric">
+        Add Rubric
+      </sr-lang>
+    </button>
+
+
+
+    <!-- AJAX setup -->
+    <iron-ajax
+         id="getRubrics"
+         url="/rubrics-service/rest/rubrics?projection=inlineRubric"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         on-response="listresponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="createNewRubric"
+         url="/rubrics-service/rest/rubrics/"
+         headers$='{"Content-Type": "application/json", "x-copy-source": "default", "authorization": "[[token]]", "lang": "[[locale]]"}'
+         method="POST"
+         body="{}"
+         handle-as="json"
+         on-response="createRubricResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="cloneRubric"
+         url="/rubrics-service/rest/rubrics/"
+         headers$='{"authorization": "[[token]]"}'
+         method="POST"
+         contentType=""
+         handle-as="json"
+         on-response="createRubricResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubrics-list",
+      properties: {
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        }
+      },
+      listeners: {
+        'delete-item': 'deleteRubric',
+        'clone-rubric': 'cloneRubric',
+        'active-title': 'activate'
+      },
+      listresponse: function(request) {
+        this.rubricslist = request.detail.response._embedded.rubrics;
+      },
+      activate: function(e, aid) {
+        var rubrics = Polymer.dom(this.root).querySelectorAll('sakai-rubric');
+        for (var i = rubrics.length - 1; i >= 0; i--) {
+          rubrics[i].deactivate('deactivate',aid);
+        }
+      },
+      createRubricResponse: function(request) {
+        var nr = request.detail.response;
+        nr.new = true;
+        this.push('rubricslist', nr);
+        this.handleNewRubric(nr);
+      },
+      handleNewRubric: function(nr) {
+        setTimeout(function(n, o) {
+          var newRubric = Polymer.dom(this.root).querySelector('#rubric_item_' + nr.id + ' sakai-rubric');
+          newRubric.fire('new-rubric', nr);
+        }.bind(this));
+      },
+      errorHandler: function(err) {
+        console.log(err);
+      },
+      deleteRubric: function(e) {
+        e.stopPropagation();
+        var index = this.rubricslist.indexOf(e.detail);
+        this.splice('rubricslist',index,1);
+      },
+      cloneRubric: function(e) {
+        var index = this.rubricslist.indexOf(e.detail);
+        this.$.cloneRubric.headers = { "Content-Type": "application/json" , "x-copy-source": e.detail.id, "Authorization": this.token, "lang": this.locale };
+        this.$.cloneRubric.body = '{}'
+        this.$.cloneRubric.generateRequest();
+
+        //var clone = cloneObject(e.detail);
+        //clone.title = clone.title + ' Copy';
+        //clone.new = true;
+        //clone.id = Math.round(Math.random() * (1000 - 100) + 100);
+        //this.push('rubricslist',clone);
+        //this.handleNewRubric(clone);
+      },
+      addRubric: function(e) {
+        this.$.createNewRubric.generateRequest();
+      },
+      ready: function() {
+        this.locale = rubrics.rubricsLocale;
+        this.$.getRubrics.generateRequest();
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,227 @@
+<dom-module id="sakai-rubrics-styles">
+<template>
+<style>
+.manager-collapse-title {
+  cursor: pointer;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-width: 1px 0;
+  margin: 10px 0; }
+
+.rubric-item {
+  position: relative; }
+
+.rubric-title {
+  background: #f2f2f4;
+  padding: 20px;
+  border: 1px solid #e4e4e6;
+  border-width: 1px 0px;
+  font-weight: bold;
+  overflow: auto; }
+  .rubric-title .rubric-name {
+    cursor: default;
+    color: #0093b8; }
+  .rubric-title iron-icon:not(.collpase-icon), .rubric-title sakai-rubric-edit, .rubric-title sakai-rubric-delete {
+    display: none; }
+  .rubric-title:hover, .rubric-title.active, .rubric-title:focus {
+    background: #ced5e0; }
+    .rubric-title:hover iron-icon:not(.collpase-icon), .rubric-title:hover sakai-rubric-edit, .rubric-title:hover sakai-rubric-delete, .rubric-title.active iron-icon:not(.collpase-icon), .rubric-title.active sakai-rubric-edit, .rubric-title.active sakai-rubric-delete, .rubric-title:focus iron-icon:not(.collpase-icon), .rubric-title:focus sakai-rubric-edit, .rubric-title:focus sakai-rubric-delete {
+      display: inline-block; }
+  .rubric-title iron-icon.locked {
+    display: inline-block; }
+  .rubric-title .edit {
+    margin-left: 10px; }
+  .rubric-title .actions {
+    float: right; }
+
+iron-icon:not(.collpase-icon):not(.reorder-icon):not(.comment-icon) {
+  background: #6e757d;
+  color: #f2f2f4;
+  border-radius: 50px;
+  padding: 5px;
+  cursor: pointer;
+  --iron-icon-height: 20px;
+  --iron-icon-width: 20px; }
+  iron-icon:not(.collpase-icon):not(.reorder-icon):not(.comment-icon):hover {
+    background: #e7e7e7;
+    color: #6e757d; }
+  iron-icon:not(.collpase-icon):not(.reorder-icon):not(.comment-icon).add {
+    color: #ffffff;
+    background: #0093b8; }
+
+iron-icon.sideways {
+  transform: rotate(90deg); }
+
+iron-icon.comment-icon {
+  --iron-icon-height: 15px;
+  --iron-icon-width: 15px;
+  margin: 5px auto;
+  display: block; }
+  iron-icon.comment-icon.active {
+    fill: orange; }
+
+[class*="edit-popover"] {
+  width: 400px; }
+  [class*="edit-popover"] .buttons {
+    text-align: right; }
+    [class*="edit-popover"] .buttons .btn {
+      margin: 0; }
+      [class*="edit-popover"] .buttons .btn.cancel {
+        color: #777; }
+  [class*="edit-popover"] .form-group.title {
+    display: inline-block;
+    width: 70%; }
+  [class*="edit-popover"] .form-group.points {
+    display: inline-block;
+    width: 28%; }
+
+.show-tooltip {
+  display: inline-block;
+  position: absolute; }
+
+.btn.add-rubric {
+  color: #0093b8; }
+
+.rubric-details {
+  padding: 10px; }
+
+.criterion {
+  width: 100%;
+  border-bottom: 1px solid #d3d3d3; }
+  .criterion .criterion-row {
+    width: 100%;
+    height: 100%;
+    display: table;
+    border: 1px solid #d3d3d3;
+    border-width: 1px 0 0 0; }
+    .criterion .criterion-row.sortable-ghost, .criterion .criterion-row .sortable-ghost {
+      opacity: 0.25; }
+    .criterion .criterion-row.sortable-drag, .criterion .criterion-row .sortable-drag {
+      cursor: grabbing;
+      cursor: -webkit-grabbing;
+      cursor: -moz-grabbing; }
+    .criterion .criterion-row .criterion-detail {
+      position: relative;
+      padding: 10px;
+      display: table-cell;
+      vertical-align: top;
+      background: #f2f2f4;
+      width: 20%;
+      border-right: 1px solid #d3d3d3; }
+      .criterion .criterion-row .criterion-detail p {
+        margin: 0;
+        padding: 0;
+        font-size: 11px;
+        color: #414141; }
+      .criterion .criterion-row .criterion-detail sakai-rubric-criterion-edit {
+        display: none; }
+      .criterion .criterion-row .criterion-detail:hover sakai-rubric-criterion-edit, .criterion .criterion-row .criterion-detail.active sakai-rubric-criterion-edit {
+        display: inline-block; }
+    .criterion .criterion-row .reorder-icon {
+      cursor: grab;
+      cursor: -webkit-grab;
+      cursor: -moz-grab; }
+      .criterion .criterion-row .reorder-icon:active {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing; }
+    .criterion .criterion-row .criterion-ratings .rating-item sakai-rubric-criterion-rating-edit {
+      visibility: hidden; }
+    .criterion .criterion-row .criterion-ratings .rating-item:hover sakai-rubric-criterion-rating-edit, .criterion .criterion-row .criterion-ratings .rating-item.active sakai-rubric-criterion-rating-edit {
+      visibility: visible; }
+    .criterion .criterion-row .add-criterion-item {
+      display: none;
+      opacity: 0.5;
+      position: absolute;
+      padding-top: 5px;
+      right: -10px;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      z-index: 5; }
+      .criterion .criterion-row .add-criterion-item:hover {
+        opacity: 1; }
+    .criterion .criterion-row:hover .add-criterion-item, .criterion .criterion-row.active .add-criterion-item {
+      display: block; }
+    .criterion .criterion-row:hover sakai-rubric-criterion-edit, .criterion .criterion-row.active sakai-rubric-criterion-edit {
+      display: inline-block; }
+    .criterion .criterion-row:hover .criterion-ratings .rating-item sakai-rubric-criterion-rating-edit, .criterion .criterion-row.active .criterion-ratings .rating-item sakai-rubric-criterion-rating-edit {
+      visibility: visible; }
+    .criterion .criterion-row .criterion-ratings {
+      display: table-cell;
+      vertical-align: top;
+      width: 75%;
+      height: 100%; }
+      .criterion .criterion-row .criterion-ratings .cr-table {
+        display: table;
+        width: 100%;
+        height: 100%; }
+        .criterion .criterion-row .criterion-ratings .cr-table .cr-table-row {
+          display: table-row;
+          height: 100%; }
+      .criterion .criterion-row .criterion-ratings .rating-item {
+        position: relative;
+        display: table-cell;
+        padding: 5px;
+        height: 100%;
+        border-right: 1px solid #d3d3d3; }
+        .criterion .criterion-row .criterion-ratings .rating-item p {
+          margin: 0;
+          padding: 0;
+          font-size: 11px;
+          color: #747474; }
+        .criterion .criterion-row .criterion-ratings .rating-item .points {
+          color: #444444;
+          font-style: italic; }
+    .criterion .criterion-row .criterion-actions {
+      padding: 10px;
+      display: table-cell;
+      background: #f2f2f4;
+      width: 5%;
+      position: relative; }
+  .criterion .criterion-title, .criterion .criterion-item-title {
+    font-size: 16px;
+    color: #2f2f2f;
+    font-weight: bold;
+    margin: 0;
+    padding: 0; }
+    .criterion .criterion-title.criterion-item-title, .criterion .criterion-item-title.criterion-item-title {
+      font-weight: normal;
+      color: #3a3a3a; }
+  .criterion.grading .rating-item {
+    cursor: default; }
+    .criterion.grading .rating-item:hover:not(.student) {
+      background: #D7E1E7; }
+    .criterion.grading .rating-item.selected {
+      background: #bed8e7; }
+  .criterion.grading .fine-tune-points {
+    min-width: 75px; }
+  .criterion.grading strong.points-display {
+    display: block;
+    padding: 2px;
+    text-align: center; }
+    .criterion.grading strong.points-display.strike {
+      text-decoration: line-through; }
+
+.rubric-totals {
+  text-align: right;
+  padding: 5px 10px; }
+
+.sakai-rubric-association .disabled label {
+  color: #ccc; }
+
+.sakai-rubric-association .rubrics-list {
+  padding-left: 20px; }
+
+.sakai-rubric-association select.form-control {
+  -webkit-appearance: menulist;
+  width: auto;
+  display: inline-block;
+  margin: 0 20px 10px 0; }
+  .sakai-rubric-association select.form-control #rubricslist {
+    display: inline-block; }
+
+</style>
+</template>
+</dom-module>

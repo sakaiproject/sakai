@@ -1,0 +1,19 @@
+<dom-module id="sr-lang">
+  <script>
+    Polymer({
+      is: "sr-lang",
+      properties: {
+        key: {
+          type: String
+        }
+      },
+      ready: function() {
+      	// console.log(this.innerText.trim());
+      	var translation = rubrics.i18n(this.key);
+      	if (translation) {
+      		this.innerText = translation;
+      	}
+      }
+    });
+  </script>
+</dom-module>
