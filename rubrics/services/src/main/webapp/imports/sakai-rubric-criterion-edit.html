@@ -1,0 +1,176 @@
+<dom-module id="sakai-rubric-criterion-edit">
+  <template>
+    <!-- Styling -->
+    <style include="polymer-bootstrap"></style>
+    <style include="sakai-rubrics-styles"></style>
+
+  
+    <!-- edit icon -->
+    <iron-icon on-focus="activate" tabindex="0" role="button" class="edit" icon="rubrics-icons:edit" on-tap="editCriterion" title="[[lang('edit','Edit')]] [[criterion.title]]" ></iron-icon>
+
+    <!-- popover -->
+    <div id="edit_criterion_[[criterion.id]]" class="popover criterion-edit-popover bottom">
+      <div class="arrow"></div>
+      <div class="popover-title">
+        <div class="buttons"> 
+          <button class="btn btn-primary btn-xs save" on-tap="saveEdit">
+            <sr-lang key="save">Save</sr-lang>
+          </button>
+          <button class="btn btn-link btn-xs cancel" on-tap="cancelEdit">
+            <sr-lang key="cancel">Cancel</sr-lang>
+          </button>
+        </div>
+      </div>
+      <div class="popover-content form">
+        <div class="form-group">
+          <label>
+            <sr-lang key="criterion_title">Criterion Title</sr-lang>
+          </label>
+          <input type="text" class="form-control" value="{{criterionDataClone.title::input}}">
+        </div>
+        <div class="form-group">
+          <label>
+            <sr-lang key="criterion_description">Criterion Description</sr-lang>
+          </label>
+          <textarea class="form-control" value="{{criterionDataClone.description::input}}"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <iron-a11y-keys id="a11y" target="[[getNode('.popover')]]" keys="enter" on-keys-pressed="saveEdit"></iron-a11y-keys>
+    <iron-a11y-keys id="a11y" target="[[getNode('.popover')]]" keys="esc" on-keys-pressed="cancelEdit"></iron-a11y-keys>
+
+    <!-- REST -->
+    <iron-ajax
+         id="updateCriterion"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="application/json"
+         method="PATCH"
+         on-response="updateUi"
+         debounce-duration="300">
+    </iron-ajax>
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubric-criterion-edit",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        // criterion passed from parent
+        criterion: {
+          type: Object,
+          notify: true
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        // listen for taps
+        'tap': 'hostEventCatch'
+      },
+      activate: function(e) {
+        this.fire('activate');
+      },
+      hostEventCatch: function(e) {
+        // catch and stop taps from bubbling outside the component
+        e.stopPropagation();
+        console.log('event stopped at host');
+      },
+      editCriterion: function(e) {
+        e.stopPropagation();
+
+        this.fire('show-tooltip', this.criterion);
+
+        // title input box reference
+        var titleinput = this.tt.querySelector('[type="text"]');
+
+        if (!hasClass(this.tt, 'show-tooltip')) {
+          // If the tooltip isn't showing
+          // get the trigger position
+          var triggerPosition = altOffset(e.target);
+          // add the class to show the tooltip
+          addClass(this.tt, 'show-tooltip');
+          // apply position styles
+          css(this.tt, {
+            'top': e.target.offsetTop + 20 + "px",
+            'left': (e.target.offsetLeft + e.target.offsetWidth/2 - this.tt.offsetWidth/2) + "px",
+          });
+
+          // ... focus the cursor in the input box
+          titleinput.focus();
+          // and highlight the title
+          titleinput.setSelectionRange(0, titleinput.value.length);
+
+        } else {
+          // if the tooltip is showing
+          // hide the tooltip
+          this.hideToolTip();
+        }
+      },
+      hideToolTip: function(){
+        // hide the edit popover
+        removeClass(this.tt, 'show-tooltip');
+
+        // fire hide-tooltip event to allow parent components to take action.
+        this.fire('hide-tooltip', this.criterion);
+      },
+      cancelEdit: function(e){
+        e.stopPropagation();
+        
+        // revert changed data
+        this.set('criterionDataClone.title', this.criterion.title);
+        this.set('criterionDataClone.description', this.criterion.description);
+
+        // hide popover
+        this.hideToolTip();
+        this.fire('hide-tooltip', this.criterion);
+      },
+      saveEdit: function(e){
+        e.stopPropagation();
+        
+        this.$.updateCriterion.body = {
+          title: this.criterionDataClone.title,
+          description: this.criterionDataClone.description
+        };
+        this.$.updateCriterion.generateRequest();
+
+        
+        // hide the popover
+        this.hideToolTip();
+        this.fire('hide-tooltip', this.criterion);
+      },
+      updateUi: function(request) {
+        // set title and description to their changed values
+        this.set('criterion.title', request.detail.response.title);
+        this.set('criterion.description', request.detail.response.description);
+
+        this.hideToolTip();
+
+        this.fire('sharing-change');
+      },
+      ready: function(e) {
+        // get popover reference
+        this.tt = this.$$('.popover');
+
+        // Set criterion update URL
+        this.$.updateCriterion.url = this.$.updateCriterion.url + this.criterion.id;
+
+        // clone criterion object to use as data model
+        this.criterionDataClone = cloneObject(this.criterion);
+
+        // if new criterion, show the edit tooltip
+        if (this.criterion.new) {
+          setTimeout(function() {
+            this.$$('.edit').click();
+          }.bind(this),99);
+        }
+
+      }
+    });
+  </script>
+</dom-module>
