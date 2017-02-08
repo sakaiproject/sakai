@@ -13,7 +13,7 @@ body.is-logged-out{
 
 // Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue 
 // when switching between phone and non-phone sized screens.
-//@media #{$nonPhone} {
+@media #{$nonPhone} {
 	// LHS tool menu collapsed to show icons only and not tool titles.
 	body.#{$namespace}toolMenu-collapsed{
 	
@@ -74,35 +74,27 @@ body.is-logged-out{
 					}
 				}
 			}
-		}
-		// Properties for portal.showSubsitesAsFlyout=true
-		&.floating {
-			ul {
-				li {
-					a.is-invisible {
-						.#{$namespace}toolsNav__menuitem--title {
-							display: block;
-						}
-						color: #AAAAAA;
-						font-style: italic;
-						position: relative;
-						//&:after {
-						//	@extend .fa-lg;
-						//	@extend .fa;
-						//	content: '\f070';
-						//	position: absolute;
-						//	top: 4px;
-						//	right: 4px;
-						//}
-						&:hover {
-							background: $primary-color;
+			// Properties for portal.showSubsitesAsFlyout=true
+			&.floating {
+				ul {
+					li {
+						a.is-invisible {
 							.#{$namespace}toolsNav__menuitem--title {
-								position: relative;
-								float: none;
-								margin: 0;
-								padding: 0;
-								border-left: none;
-								line-height: initial;
+								display: block;
+							}
+							color: #AAAAAA;
+							font-style: italic;
+							position: relative;
+							&:hover {
+								background: $primary-color;
+								.#{$namespace}toolsNav__menuitem--title {
+									position: relative;
+									float: none;
+									margin: 0;
+									padding: 0;
+									border-left: none;
+									line-height: initial;
+								}
 							}
 						}
 					}
@@ -110,7 +102,20 @@ body.is-logged-out{
 			}
 		}
 	}
-//}
+}
+
+// One cannot use @extend within a media query so this has been pulled out from
+// the showSubsitesAsFlyouts properties above.  This may change with a Sass upgrade.
+#subSites.floating a.#{$namespace}toolsNav__menuitem--link.is-invisible {
+	&:after {
+		@extend .fa-lg;
+		@extend .fa;
+		content: '\f070';
+		position: absolute;
+		top: 4px;
+		right: 4px;
+	}
+}
 
 #toolMenuWrap .img_site_toolmenu{
   width: 100%;
