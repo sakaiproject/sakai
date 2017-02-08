@@ -1032,7 +1032,7 @@ public class SimplePageBean {
     // hacking on an item in a completely different site. This method checks
     // that an item is OK to hack on, given the current page.
 
-	private boolean itemOk(Long itemId) {
+	public boolean itemOk(Long itemId) {
 		// not specified, we'll add a new one
 		if (itemId == null || itemId == -1)
 			return true;
@@ -2234,7 +2234,7 @@ public class SimplePageBean {
     // Info. Site info knows nothing about us, so it will make an entry for the page without
     // creating it. When the user then tries to go to the page, this code will be the firsst
     // to notice it. Hence we have to create pages that don't exist
-	private long getCurrentPageId()  {
+	public long getCurrentPageId()  {
 		// return ((ToolConfiguration)toolManager.getCurrentPlacement()).getPageId();
 
 		if (currentPageId != null)
@@ -7384,7 +7384,145 @@ public class SimplePageBean {
 			return "failure";
 		}
 	}
-	
+
+	public String missingStudentSetZero() {
+	    if (!checkCsrf())
+		return "permission-failed";
+	    if(!canEditPage())
+		return "permission-failed";
+	    if (!itemOk(itemId))
+		return "permission-failed";
+        
+	    SimplePageItem item = findItem(itemId);
+	    String gradebookId = item.getGradebookId();
+	    if(gradebookId == null) {
+		setErrMessage(messageLocator.getMessage("simplepage.not-graded"));
+		return "failure";
+	    }
+
+	    // initialize notsubmitted to all userids or groupids
+	    Set<String> notSubmitted = new HashSet<String>();
+	    if (item.isGroupOwned()) {
+		String ownerGroups = item.getOwnerGroups();
+		if (ownerGroups != null)
+		    notSubmitted = new HashSet(Arrays.asList(ownerGroups.split(",")));
+	    } else {
+		Set<Member> members = new HashSet<Member>();
+		try {
+		    members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
+		} catch (Exception e) {
+		    // since site obviously exists, this should be impossible
+		}
+		for (Member m: members)
+		    notSubmitted.add(m.getUserId());
+	    }
+					
+	    // now go through all student pages and remove them from the list
+	    List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(item.getId());
+	    for(SimpleStudentPage page : studentPages) {
+		if(page.isDeleted()) continue;
+
+		// remove this from notSubmitted
+		if (item.isGroupOwned()) {
+		    String pageGroup = page.getGroup();
+		    if (pageGroup != null)
+			notSubmitted.remove(pageGroup);
+		} else {
+		    notSubmitted.remove(page.getOwner());
+		}
+	    }
+	    
+	    // now zero the grades
+	    for (String owner: notSubmitted) {
+		List<String> owners = null;
+		if (item.isGroupOwned()) {
+		    owners = studentPageGroupMembers(item, owner);
+		} else {
+		    owners = new ArrayList<String>();
+		    owners.add(owner);
+		}
+		for (String userid: owners) {
+		    gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, userid, "0.0");
+		}
+	    }    
+
+	    return "success";
+
+	}
+
+	public String missingCommentsSetZero() {
+	    System.out.println("point 1");
+	    if (!checkCsrf())
+		return "permission-failed";
+	    if(!canEditPage())
+		return "permission-failed";
+	    if (!itemOk(itemId))
+		return "permission-failed";
+	    System.out.println("point 2 " + itemId);
+        
+	    SimplePageItem commentItem = findItem(itemId);
+	    boolean studentComments = (commentItem.getType() == SimplePageItem.STUDENT_CONTENT);
+
+	    String gradebookId;
+
+	    if (studentComments) {
+		gradebookId = commentItem.getAltGradebook();
+	    } else {
+		gradebookId = commentItem.getGradebookId();
+	    }
+
+	    if (gradebookId == null) {
+		setErrMessage(messageLocator.getMessage("simplepage.not-graded"));
+		return "failure";
+	    }
+
+	    // initialize notsubmitted to all userids or groupids
+	    Set<String> notSubmitted = new HashSet<String>();
+	    Set<Member> members = new HashSet<Member>();
+	    try {
+		members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
+	    } catch (Exception e) {
+		// since site obviously exists, this should be impossible
+	    }
+	    for (Member m: members)
+		notSubmitted.add(m.getUserId());
+					
+	    // now go through all comments and remove them from the list
+	    List<SimplePageComment> comments;
+	    
+	    if(!studentComments) {
+		comments = simplePageToolDao.findComments(itemId);
+	    }else {
+		List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(itemId);
+		
+		List<Long> commentsItemIds = new ArrayList<Long>();
+		for(SimpleStudentPage p : studentPages) {
+		    // If the page is deleted, don't show the comments
+		    if(!p.isDeleted()) {
+			commentsItemIds.add(p.getCommentsSection());
+		    }
+		}
+		
+		comments = simplePageToolDao.findCommentsOnItems(commentsItemIds);
+	    }
+
+	    // have comments. look at owners
+	    for(SimplePageComment comment : comments) {
+		if(comment.getComment() == null || comment.getComment().equals("")) {
+		    continue;
+		}
+		notSubmitted.remove(comment.getAuthor());
+	    }
+
+	    // now zero grade
+	    for (String owner: notSubmitted) {
+		gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, owner, "0.0");
+	    }
+		
+	    return "success";
+
+	}
+
 	private void regradeStudentPageComments(SimplePageItem pageItem) {
 		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
 		for(SimpleStudentPage c : pages) {

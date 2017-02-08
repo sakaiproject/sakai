@@ -99,6 +99,11 @@ $(function() {
 		updateGrades();
 	});
 
+	$("#zeroMissing").click(function(event){
+		$("#zero").click();
+	});
+
+
 });
 
 function updateGrades() {

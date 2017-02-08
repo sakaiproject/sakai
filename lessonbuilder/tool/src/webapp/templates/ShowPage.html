@@ -186,7 +186,7 @@
 				<li class="contentButton dropdown" id="dropdownc">
 					<span>
 					    <a aria-haspopup="true" aria-controls="addContentDiv" href="#" rsf:id="addcontent" onclick="return false;" class="add-at-end" role="menuitem button">
-						<span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
+					      <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
 					        <span aria-hidden="true" class="fa-button-text fa-plus"></span>
 					    </a>				
 					</span>
@@ -654,6 +654,15 @@
 				  </form>
 
                                 </div>
+				<h3 class="missingStudentTitle studentContentTitle" rsf:id="missingStudentTitle"></h3>
+				<div class="missingStudent" rsf:id="missingStudent"></div>
+				<div rsf:id="student-zero-div">
+				<form rsf:id="student-zero-form" action="#" id="student-zero-form" method="post" enctype="multipart/form-data">
+				  <input type="hidden" rsf:id="student-zero-csrf" />
+				  <input type="hidden" rsf:id="student-zero-item" />
+				  <input type="submit" rsf:id="student-zero" id="student-zero" class="setStudentZero" />
+				</form>
+				</div>
                               </div>
                             </div>
  			    <div class="add-comment-button">
