@@ -2656,7 +2656,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							UIOutput.make(row, "missingStudentTitle", messageLocator.getMessage("simplepage.missing-students"));
 						    }
+						    List<String> missingUsers = new ArrayList<String>();
 						    for(String owner: notSubmitted) {
+							String sownerName;
+							if (i.isGroupOwned()) {
+							    sownerName = simplePageBean.getCurrentSite().getGroup(owner).getTitle();
+							} else {
+							    try {
+								sownerName = UserDirectoryService.getUser(owner).getDisplayName();
+							    } catch (Exception e) {
+								// can't find user, just show userid. Not very useful, but at least shows
+								// what happened
+								sownerName = owner;
+							    }
+							}
+							missingUsers.add(sownerName);
+						    }
+						    Collections.sort(missingUsers);
+						    for(String owner: missingUsers) {
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							String sownerName;
 							if (i.isGroupOwned()) {

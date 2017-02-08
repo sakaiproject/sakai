@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -17,6 +19,9 @@ import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParam
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.site.api.SiteService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -43,7 +48,10 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private MessageLocator messageLocator;
-	public LocaleGetter localeGetter;                                                                                             
+        private AuthzGroupService authzGroupService;
+        private SiteService siteService;
+	public LocaleGetter localeGetter;
+         
 	
 	public String getViewID() {
 		return VIEW_ID;
@@ -57,6 +65,14 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		this.simplePageToolDao = simplePageToolDao;
 	}
 	
+	public void setAuthzGroupService(AuthzGroupService a) {
+		this.authzGroupService = a;
+	}
+
+	public void setSiteService(SiteService s) {
+		this.siteService = s;
+	}
+
 	public void setMessageLocator(MessageLocator messageLocator) {
 		this.messageLocator = messageLocator;
 	}
@@ -131,13 +147,24 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		ArrayList<String> userIds = new ArrayList<String>();
 		HashMap<String, SimpleUser> users = new HashMap<String, SimpleUser>();
 		
+		// initialize notsubmitted to all userids or groupids
+		Set<String> notSubmitted = new HashSet<String>();
+		Set<Member> members = new HashSet<Member>();
+		try {
+		    members = authzGroupService.getAuthzGroup(siteService.siteReference(simplePageBean.getCurrentSiteId())).getMembers();
+		} catch (Exception e) {
+		    // since site obviously exists, this should be impossible
+		}
+		for (Member m: members)
+		    notSubmitted.add(m.getUserId());
+		
 		for(SimplePageComment comment : comments) {
 			if(comment.getComment() == null || comment.getComment().equals("")) {
 				continue;
 			}
 			
 			if(!userIds.contains(comment.getAuthor())) {
-				userIds.add(comment.getAuthor());
+				notSubmitted.remove(comment.getAuthor());
 				try {
 					SimpleUser user = new SimpleUser();
 					user.displayName = UserDirectoryService.getUser(comment.getAuthor()).getDisplayName();
@@ -164,6 +191,23 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 			}
 		}
 		
+		if (notSubmitted.size() > 0) {
+		    List<String> missing = new ArrayList<String>();
+		    for (String userId: notSubmitted) {
+			try {
+			    missing.add(UserDirectoryService.getUser(userId).getDisplayName());
+			} catch (Exception e) {
+			    missing.add(userId);
+			}
+		    }
+		    Collections.sort(missing);
+		    UIOutput.make(tofill, "missing-div");
+		    for (String name: missing) {
+			UIBranchContainer branch = UIBranchContainer.make(tofill, "missing:");
+			UIOutput.make(branch, "missing-entry", name);
+		    }
+		}
+		    
 		ArrayList<SimpleUser> simpleUsers = new ArrayList<SimpleUser>(users.values());
 		Collections.sort(simpleUsers);
 		
