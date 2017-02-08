@@ -1,4 +1,4 @@
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <script src="../Sortable/Sortable.js"></script>
 
 <dom-module id="sortable-js">
@@ -78,7 +78,7 @@
       var eventCallbacks = {
         onUpdate: function (e) {
           if (template) {
-            template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
+            // template.splice("items", e.newIndex, 0, template.splice("items", e.oldIndex, 1)[0]);
 						/*
             if (manuallyHandleUpdateEvents) {
               template.items.splice(e.newIndex, 0, template.items.splice(e.oldIndex, 1)[0]);
