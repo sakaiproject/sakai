@@ -170,9 +170,9 @@
 				</div> ##end navPanel
 				<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 				<div class="table-responsive">
-					<table class="table table-hover table-striped table-bordered" border="0" cellspacing="0" summary="$tlang.getString('gen.tablecaptionworksp')">
+					<table class="table table-hover table-striped table-bordered" summary="$tlang.getString('gen.tablecaptionworksp')">
 						<tr>
-							<th id ="subject">
+							<th id ="subject" scope="col">
 								#if (!$currentSortedBy.equals("subject"))
 									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
 								#else
@@ -183,7 +183,7 @@
 									#end
 								#end
 							</th>
-							<th id="author">
+							<th id="author" scope="col" class="hidden-xs">
 								#if (!$currentSortedBy.equals("from"))
 									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
 								#else
@@ -195,7 +195,7 @@
 								#end
 							</th>
 							#if ($toolId.equals("sakai.announcements"))
-								<th id ="date">
+								<th id="date" scope="col">
 									#if (!$currentSortedBy.equals("date"))
 										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
 									#else
@@ -208,7 +208,7 @@
 								</th>
 							#end
 							#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
-								<th id ="Site">
+								<th id="Site" scope="col" class="hidden-xs">
 									#if (!$currentSortedBy.equals("channel"))
 										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
 									#else
@@ -221,7 +221,7 @@
 								</th>
 							#end
 							#if ($toolId.equals("sakai.announcements"))
-								<th id="releaseDate">
+								<th id="releaseDate" scope="col" class="hidden-xs">
 									#if (!$currentSortedBy.equals("releasedate"))
 										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString("gen.releasedate")</a>
 									#else
@@ -232,7 +232,7 @@
 										#end
 									#end
 								</th>
-								<th id="retractDate">
+								<th id="retractDate" scope="col" class="hidden-xs">
 									#if (!$currentSortedBy.equals("retractdate"))
 										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString("gen.retractdate")</a>
 									#else
@@ -253,8 +253,8 @@
 
 							<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 
-								<td headers="subject">
-									<h4>
+								<th headers="subject" scope="row">
+									<strong>
 										## show the paperclip if existing
 										#set ($size = 0)
 										#if (!$ann_item.Header.Attachments.isEmpty())
@@ -278,9 +278,9 @@
 											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
 											$validator.escapeHtml($ann_item.Header.subject) <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
-									</h4>	
-								</td>
-								<td headers="author">
+									</strong>	
+								</th>
+								<td headers="author" class="hidden-xs">
 									$validator.escapeHtml($ann_item.AuthorDisplayName)
 								</td>
 								#if ($toolId.equals("sakai.announcements"))
@@ -289,19 +289,19 @@
 									</td>
 								#end
 								#if ($SiteColumnFlag > 0)
-									<td headers="channel">
+									<td headers="channel" class="hidden-xs">
 										$validator.escapeHtml($ann_item.channelDisplayName)
 									</td>
 								#end
 								#if ($toolId.equals("sakai.announcements"))
-									<td headers="releaseDate">
+									<td headers="releaseDate" class="hidden-xs">
 										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
 												$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
 										#else
 											&nbsp;
 										#end
 									</td>
-									<td headers="retractDate">
+									<td headers="retractDate" class="hidden-xs">
 										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
 											$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
 										#else
@@ -515,9 +515,9 @@
 						</div> ##end navPanel
 						<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 						<div class="table-responsive">
-							<table class="table table-hover table-striped table-bordered" border="0" cellspacing="0" summary="$tlang.getString('gen.tablecaptionsite')">
+							<table class="table table-hover table-striped table-bordered" summary="$tlang.getString('gen.tablecaptionsite')">
 								<tr>
-								 <th id ="subject">
+								 <th id="subject" scope="col">
 										#if (!$currentSortedBy.equals("subject"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbysubject")';return false;"  title ="$tlang.getString('gen.sortby')">$tlang.getString('gen.subject')</a>
 										#else
@@ -528,7 +528,7 @@
 											#end
 										#end
 									</th>
-									<th id="author">
+									<th id="author" scope="col" class="hidden-xs">
 										#if (!$currentSortedBy.equals("from"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfrom")';return false;"  title ="$tlang.getString('gen.sortbyauth')">$tlang.getString('gen.from')</a>
 										#else
@@ -539,7 +539,7 @@
 											#end
 										#end
 									</th>
-									<th id ="date">
+									<th id="date" scope="col">
 										#if (!$currentSortedBy.equals("date"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString("gen.date")</a>
 										#else
@@ -552,7 +552,7 @@
 									</th>
 									#if ($EnableItemCheckBoxes)
 										#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
-											<th id ="Site">
+											<th id="Site" scope="col" class="hidden-xs">
 												#if (!$currentSortedBy.equals("channel"))
 													<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;"  title ="$tlang.getString("gen.sortchannel")">$tlang.getString("gen.site")</a>
 												#else
@@ -565,7 +565,7 @@
 											</th>
 										#end
 									#end
-									<th id="channel">
+									<th id="channel" scope="col" class="hidden-xs">
 										#if (!$currentSortedBy.equals("for"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyfor")';return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 										#else
@@ -576,7 +576,7 @@
 											#end
 										#end
 									</th>
-									<th id="releaseDate">
+									<th id="releaseDate" scope="col" class="hidden-xs">
 										#if (!$currentSortedBy.equals("releasedate"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString("gen.releasedate")</a>
 										#else
@@ -587,7 +587,7 @@
 											#end
 										#end
 									</th>
-									<th id="retractDate">
+									<th id="retractDate" scope="col" class="hidden-xs">
 										#if (!$currentSortedBy.equals("retractdate"))
 											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString("gen.retractdate")</a>
 										#else
@@ -614,8 +614,8 @@
 
 								<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 
-									<td headers="subject">
-										<h4>
+									<th headers="subject" scope="row">
+										<strong>
 
 										## show the paperclip if existing
 										#set ($size = 0)
@@ -640,13 +640,13 @@
 											<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.viewann.subject', $validator.escapeHtml($ann_item.Header.subject))">
 											$validator.escapeHtml($ann_item.Header.subject) <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a>
 										#end
-										</h4>	
+										</strong>
 										#if ($channel.allowEditMessage($ann_item.Id))
 											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getFormattedMessage('gen.editann.subject', $validator.escapeHtml($ann_item.Header.subject))"><i class="fa fa-lg fa-pencil-square-o"></i> $tlang.getString("gen.revise") <span class="skip">$validator.escapeHtml($ann_item.Header.subject)</span></a></div>
 										#end
                                                                                                                                                                                                      
 									</td>
-									<td headers="author">
+									<td headers="author" class="hidden-xs">
 										$validator.escapeHtml($ann_item.Header.From.DisplayName)
 									</td>
 									<td headers="date">
@@ -658,23 +658,23 @@
 									</td>
 									#if ($EnableItemCheckBoxes)
 										#if ($SiteColumnFlag > 0)
-											<td headers="channel">
+											<td headers="channel" class="hidden-xs">
 												$validator.escapeHtml($ann_item.channelDisplayName)
 											</td>
 										#end
 									#end
-									<td >
+									<td class="hidden-xs">
 										$validator.escapeHtml($!ann_item.getRange())
 									</td>
 																		
-									<td headers="releaseDate">
+									<td headers="releaseDate" class="hidden-xs">
 									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
 											$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
 									#else
 										&nbsp;
 									#end
 									</td>
-									<td headers="retractDate">
+									<td headers="retractDate" class="hidden-xs">
 									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
 											$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
 									#else
