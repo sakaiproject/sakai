@@ -16,6 +16,18 @@
 		disableBackButton();
 	});
 </script>
+
+<script>
+  var imports = [
+    '/rubrics-service/imports/sakai-rubric-grading.html'
+  ];
+  var Polymerdom = 'shady';
+  var rbcstoken = "$!rbcs-token";
+  ASN.rubricsEventHandlers();
+</script>
+
+<script src="/rubrics-service/js/sakai-rubrics.js"></script>
+
 <div class="portletBody">
 
 ## SAK-29314
@@ -408,7 +420,18 @@
 					</ul>
 				</div>
 			#end
+
+			#if ($!hasAssociatedRubric)
+			<ul id="rubricTabs" class="nav nav-tabs">
+			  <li class="active"><a href="#submition">$tlang.getString("gen.subm")</a></li>
+			  <li><a href="#rubric">$tlang.getString("grading_rubric")</a></li>
+			</ul>
+			<div class="tab-content">
+				<div role="tabpanel" class="tab-pane active" id="submition">
+			#else
 			<h3>$tlang.getString("gen.subm")</h3>
+			#end
+
 				#set($hasInline = $value_feedback.text.length() > 0)
 				#set($size = 0)
 				#if ($!submission.submitted || !$alertGradeDraft)
@@ -483,12 +506,42 @@
 						</ul>
 					#end
 				#end
+					
+				#if ($!hasAssociatedRubric)
+
+				</div>
+				<div role="tabpanel" class="tab-pane" id="rubric">
+					<sakai-rubric-grading 
+						## grade-field-id="grade"
+
+						tool-id="sakai.assignment"
+						entity-id="$assignment.Id"
+            evaluated-item-id="$submission.Id"
+
+						#if($rbcs-state-details && "$!rbcs-state-details" != "")
+						state-details="$rbcs-state-details"
+						#end
+
+					></sakai-rubric-grading>
+				</div>
+				</div>
+
+				<script>
+					$('#rubricTabs a').click(function (e) {
+					  e.preventDefault()
+					  $(this).tab('show')
+					})
+				</script>
+				#else
+			
+
+			#end
 
 				#*					<!-- Grade types
-						GRADE_TYPE_NOT_SET: -1; 
-						UNGRADED_GRADE_TYPE: 1; 
-						LETTER_GRADE_TYPE: 2; 
-						SCORE_GRADE_TYPE = 3; 
+						GRADE_TYPE_NOT_SET: -1;
+						UNGRADED_GRADE_TYPE: 1;
+						LETTER_GRADE_TYPE: 2;
+						SCORE_GRADE_TYPE = 3;
 						PASS_FAIL_GRADE_TYPE = 4;
 						CHECK_GRADE_TYPE = 5;
 					-->
@@ -870,6 +923,7 @@
 			</div>
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<input type="hidden" name="rbcs-token" value="$!rbcs-token" />
 	</form>
 </div>
 <!-- end: check_assignments_instructor_grading_submission.vm  -->

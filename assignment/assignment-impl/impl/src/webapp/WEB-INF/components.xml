@@ -44,10 +44,11 @@
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 
- 		<!--use to allow group awareness option in assignments. 
+
+ 		<!--use to allow group awareness option in assignments.
  			By default this is true.-->
  		<property name="allowGroupAssignments"><value>true</value></property>
- 		
+
  		<!--use to hide or show the Assignments 'Add to Gradebook' option for group particular assignments.
  			By default this is false -->
  		<property name="allowGroupAssignmentsInGradebook"><value>true</value></property>
@@ -85,7 +86,7 @@
 			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		</property>
 	</bean>
-	
+
 	<!--  Hibernate persistence -->
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.assignmentSupplementItem"
@@ -100,7 +101,7 @@
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
@@ -181,5 +182,5 @@
         </property>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 
-    </bean>  
+    </bean>
 </beans>

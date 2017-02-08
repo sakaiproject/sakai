@@ -952,7 +952,7 @@ public interface AssignmentService extends EntityProducer
 	 * @return The url as a String
 	 */
 	public String getDeepLink(String context, String assignmentId) throws Exception;
-	
+
 	/**
 	 * get csv separator for exporting to CSV. It can be a comma or point configured through
 	 * csv.separator sakai property
