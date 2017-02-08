@@ -2689,7 +2689,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 							UIOutput.make(row, "missingStudent", sownerName);
 						    }
-						    if (notSubmitted.size() > 0) {
+						    if (notSubmitted.size() > 0 && i.getGradebookId() != null) {
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							UIOutput zeroRow = UIOutput.make(row, "student-zero-div");
 							UIForm zeroForm = UIForm.make(row, "student-zero-form");
@@ -4104,7 +4104,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		try {
 			releaseDateString = isoDateFormat.format(new Date());
 		} catch (Exception e) {
-			System.out.println(e + "bad format releasedate " + new Date());
+			log.error(e + "bad format releasedate " + new Date());
 		}
 
 		UIOutput releaseForm2 = UIOutput.make(form, "releaseDate2:");

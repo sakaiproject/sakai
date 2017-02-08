@@ -2276,7 +2276,7 @@ public class SimplePageBean {
     // Info. Site info knows nothing about us, so it will make an entry for the page without
     // creating it. When the user then tries to go to the page, this code will be the firsst
     // to notice it. Hence we have to create pages that don't exist
-	private long getCurrentPageId()  {
+	public long getCurrentPageId()  {
 		// return ((ToolConfiguration)toolManager.getCurrentPlacement()).getPageId();
 
 		if (currentPageId != null)

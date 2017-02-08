@@ -95,11 +95,13 @@ public class GradingBean {
 		if(commentItem.getPageId() <= 0) {
 		    studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentItem.getSakaiId()));
 		    topItem = simplePageToolDao.findItem(studentPage.getItemId());
-		    if (! simplePageBean.itemOk(topItem.getId()))
+		    if (! simplePageBean.itemOk(topItem.getId())) {
 			return false;
+		    }
 		} else {
-		    if (! simplePageBean.itemOk(commentItem.getId()))
+		    if (! simplePageBean.itemOk(commentItem.getId())) {
 			return false;
+		    }
 		}
 
 		String gradebookId = null;
@@ -158,6 +160,7 @@ public class GradingBean {
 		SimpleStudentPage page = simplePageToolDao.findStudentPage(Long.valueOf(id));
 		SimplePageItem pageItem = simplePageToolDao.findItem(page.getItemId());
 		Double newpoints = Double.valueOf(points);
+
 		// the idea was to not update if there's no change in points
 		// but there can be reasons to want to force grades back to the gradebook,
 		// particually for group pages where the group may have changed
@@ -165,8 +168,9 @@ public class GradingBean {
 		//  return new String[] {"success", jsId, String.valueOf(page.getPoints())};
 	        //}
 		
-		if (! simplePageBean.itemOk(pageItem.getId()))
+		if (page.getPageId() != simplePageBean.getCurrentPageId()) {
 		    return false;
+		}
 
 		if (newpoints < 0.0 || newpoints > pageItem.getGradebookPoints()) {
 			return false;

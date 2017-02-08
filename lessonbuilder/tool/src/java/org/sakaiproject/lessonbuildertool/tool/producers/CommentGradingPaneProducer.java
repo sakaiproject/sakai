@@ -201,6 +201,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 			}
 		    }
 		    Collections.sort(missing);
+		    UIOutput.make(tofill, "missing-head");
 		    UIOutput.make(tofill, "missing-div");
 		    for (String name: missing) {
 			UIBranchContainer branch = UIBranchContainer.make(tofill, "missing:");
@@ -228,7 +229,8 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 			    decorate(new UIFreeAttributeDecorator("title", 
 								  messageLocator.getMessage("simplepage.update-points")));
 
-		UIOutput.make(tofill, "zeroMissing", messageLocator.getMessage("simplepage.zero-missing")).
+		if (notSubmitted.size() > 0) 
+		    UIOutput.make(tofill, "zeroMissing", messageLocator.getMessage("simplepage.zero-missing")).
 			    decorate(new UIFreeAttributeDecorator("title", 
 								  messageLocator.getMessage("simplepage.zero-missing")));
 		
