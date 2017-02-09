@@ -381,7 +381,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		if (EmailType.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
-			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileWall(toUuid));
+			replacementValues.put("wallLink", linkLogic.getEntityLinkToProfileWall(toUuid));
 		}
 		
 		if (null != emailTemplateKey) {
