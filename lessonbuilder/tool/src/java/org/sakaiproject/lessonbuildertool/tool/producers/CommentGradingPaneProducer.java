@@ -20,8 +20,9 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -48,7 +49,7 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private MessageLocator messageLocator;
-        private AuthzGroupService authzGroupService;
+        private SecurityService securityService;
         private SiteService siteService;
 	public LocaleGetter localeGetter;
          
@@ -65,8 +66,8 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		this.simplePageToolDao = simplePageToolDao;
 	}
 	
-	public void setAuthzGroupService(AuthzGroupService a) {
-		this.authzGroupService = a;
+	public void setSecurityService(SecurityService a) {
+		this.securityService = a;
 	}
 
 	public void setSiteService(SiteService s) {
@@ -149,14 +150,10 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		
 		// initialize notsubmitted to all userids or groupids
 		Set<String> notSubmitted = new HashSet<String>();
-		Set<Member> members = new HashSet<Member>();
-		try {
-		    members = authzGroupService.getAuthzGroup(siteService.siteReference(simplePageBean.getCurrentSiteId())).getMembers();
-		} catch (Exception e) {
-		    // since site obviously exists, this should be impossible
-		}
-		for (Member m: members)
-		    notSubmitted.add(m.getUserId());
+		String siteRef = simplePageBean.getCurrentSite().getReference();
+		List<User> studentUsers = securityService.unlockUsers("section.role.student", siteRef);
+		for (User u: studentUsers)
+		    notSubmitted.add(u.getId());
 		
 		for(SimplePageComment comment : comments) {
 			if(comment.getComment() == null || comment.getComment().equals("")) {
