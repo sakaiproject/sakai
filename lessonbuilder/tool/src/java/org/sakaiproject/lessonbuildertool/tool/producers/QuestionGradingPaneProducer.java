@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -15,6 +17,9 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.site.api.SiteService;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -26,6 +31,7 @@ import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -39,6 +45,8 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
+        private AuthzGroupService authzGroupService;
+        private SiteService siteService;
 	private MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
 	
@@ -54,6 +62,14 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		this.simplePageToolDao = simplePageToolDao;
 	}
 	
+	public void setAuthzGroupService(AuthzGroupService a) {
+		this.authzGroupService = a;
+	}
+
+	public void setSiteService(SiteService s) {
+		this.siteService = s;
+	}
+
 	public void setMessageLocator(MessageLocator messageLocator) {
 		this.messageLocator = messageLocator;
 	}
@@ -118,9 +134,21 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		if (noSpecifiedAnswers && "true".equals(questionItem.getAttribute("questionGraded")))
 		    manuallyGraded = true;
 
+		// initialize notsubmitted to all userids or groupids
+		Set<String> notSubmitted = new HashSet<String>();
+		Set<Member> members = new HashSet<Member>();
+		try {
+		    members = authzGroupService.getAuthzGroup(siteService.siteReference(simplePageBean.getCurrentSiteId())).getMembers();
+		} catch (Exception e) {
+		    // since site obviously exists, this should be impossible
+		}
+		for (Member m: members)
+		    notSubmitted.add(m.getUserId());
+
 		for(SimplePageQuestionResponse response : responses) {			
 			if(!userIds.contains(response.getUserId())) {
 				userIds.add(response.getUserId());
+				notSubmitted.remove(response.getUserId());
 				try {
 					SimpleUser user = new SimpleUser();
 					user.displayName = UserDirectoryService.getUser(response.getUserId()).getDisplayName();
@@ -182,6 +210,28 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 			}
 		}
 		
+		if (notSubmitted.size() > 0) {
+		    List<String> missing = new ArrayList<String>();
+		    for (String userId: notSubmitted) {
+			try {
+			    missing.add(UserDirectoryService.getUser(userId).getDisplayName());
+			} catch (Exception e) {
+			    missing.add(userId);
+			}
+		    }
+		    Collections.sort(missing);
+		    UIOutput.make(tofill, "missing-head");
+		    UIOutput.make(tofill, "missing-div");
+		    for (String name: missing) {
+			UIBranchContainer branch = UIBranchContainer.make(tofill, "missing:");
+			UIOutput.make(branch, "missing-entry", name);
+		    }
+		    if (graded)
+			UIOutput.make(tofill, "zeroMissing", messageLocator.getMessage("simplepage.zero-missing")).
+			    decorate(new UIFreeAttributeDecorator("title", 
+								  messageLocator.getMessage("simplepage.zero-missing")));
+		}
+
 		UIForm gradingForm = UIForm.make(tofill, "gradingForm");
 		gradingForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
 		UIInput idInput = UIInput.make(gradingForm, "gradingForm-id", "gradingBean.id");
@@ -192,6 +242,15 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		UIInput csrfInput = UIInput.make(gradingForm, "csrf", "gradingBean.csrfToken", (sessionToken == null ? "" : sessionToken.toString()));
 
 		UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, csrfInput, "gradingBean.results"});
+
+		if (notSubmitted.size() > 0 && graded) {
+		    UIForm zeroForm = UIForm.make(tofill, "zero-form");
+		    if (sessionToken != null)
+			UIInput.make(zeroForm, "zero-csrf", "simplePageBean.csrfToken", sessionToken.toString());
+		    UIInput.make(zeroForm, "zero-item", "#{simplePageBean.itemId}", Long.toString(questionItem.getId()));
+		    UICommand.make(zeroForm, "zero", messageLocator.getMessage("simplepage.zero-missing"), "#{simplePageBean.missingAnswersSetZero}");
+		}
+
 	}
 	
 	public ViewParameters getViewParameters() {

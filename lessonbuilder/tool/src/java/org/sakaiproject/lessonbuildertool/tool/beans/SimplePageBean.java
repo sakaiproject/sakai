@@ -7451,14 +7451,12 @@ public class SimplePageBean {
 	}
 
 	public String missingCommentsSetZero() {
-	    System.out.println("point 1");
 	    if (!checkCsrf())
 		return "permission-failed";
 	    if(!canEditPage())
 		return "permission-failed";
 	    if (!itemOk(itemId))
 		return "permission-failed";
-	    System.out.println("point 2 " + itemId);
         
 	    SimplePageItem commentItem = findItem(itemId);
 	    boolean studentComments = (commentItem.getType() == SimplePageItem.STUDENT_CONTENT);
@@ -7512,6 +7510,51 @@ public class SimplePageBean {
 		    continue;
 		}
 		notSubmitted.remove(comment.getAuthor());
+	    }
+
+	    // now zero grade
+	    for (String owner: notSubmitted) {
+		gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), gradebookId, owner, "0.0");
+	    }
+		
+	    return "success";
+
+	}
+
+	public String missingAnswersSetZero() {
+	    if (!checkCsrf())
+		return "permission-failed";
+	    if(!canEditPage())
+		return "permission-failed";
+	    if (!itemOk(itemId))
+		return "permission-failed";
+        
+	    SimplePageItem questionItem = findItem(itemId);
+
+	    String gradebookId = questionItem.getGradebookId();
+
+	    if (gradebookId == null) {
+		setErrMessage(messageLocator.getMessage("simplepage.not-graded"));
+		return "failure";
+	    }
+
+	    // initialize notsubmitted to all userids or groupids
+	    Set<String> notSubmitted = new HashSet<String>();
+	    Set<Member> members = new HashSet<Member>();
+	    try {
+		members = authzGroupService.getAuthzGroup(siteService.siteReference(getCurrentSiteId())).getMembers();
+	    } catch (Exception e) {
+		// since site obviously exists, this should be impossible
+	    }
+	    for (Member m: members)
+		notSubmitted.add(m.getUserId());
+					
+	    // now go through all answers and remove them from the list
+	    List<SimplePageQuestionResponse> responses = simplePageToolDao.findQuestionResponses(questionItem.getId());
+		
+	    // have answers. look at owners
+	    for(SimplePageQuestionResponse response : responses) {
+		    notSubmitted.remove(response.getUserId());
 	    }
 
 	    // now zero grade
