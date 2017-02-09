@@ -39,6 +39,7 @@
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		
 		<property name="simplePageToolDao">
@@ -193,7 +194,7 @@
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     	</property>
-	<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     	<property name="messageLocator" ref="messageLocator"/>
 	<property name="localeGetter" ref="requestLocaleProxy" />
@@ -204,7 +205,7 @@
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     	</property>
-	<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     	<property name="messageLocator" ref="messageLocator"/>
 	<property name="localeGetter" ref="requestLocaleProxy" />
