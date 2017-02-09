@@ -21,6 +21,8 @@
 
 package edu.amc.sakai.user;
 
+import java.util.List;
+
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPAttributeSet;
 import com.novell.ldap.LDAPEntry;
@@ -95,6 +97,22 @@ public class SimpleLdapAttributeMapperTest extends TestCase {
 		attributeMapper.mapLdapEntryOntoUserData(ldapEntry, userData);
 		
 		assertEquals("email@example.com", userData.getEmail());
+		
+	}
+	
+	public void testMultipleValues() {
+		Map<String, String> mappings = new HashMap<String, String>();
+		mappings.put("ou", "ou");
+		attributeMapper.setAttributeMappings(mappings);
+		attributeMapper.init();
+		
+		LDAPAttributeSet attributes = new LDAPAttributeSet();
+		attributes.add(new LDAPAttribute("ou", new String[]{"Unit 1", "Unit 2"}));
+		LDAPEntry ldapEntry = new LDAPEntry("somestring", attributes);
+		LdapUserData userData = new LdapUserData();
+		
+		attributeMapper.mapLdapEntryOntoUserData(ldapEntry, userData);
+		assertTrue(userData.getProperties().get("ou") instanceof List);
 		
 	}
 

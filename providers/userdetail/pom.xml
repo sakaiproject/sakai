@@ -7,9 +7,9 @@
     <version>12-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <name>sakai-jldap-provider</name>
+  <name>sakai-userdetail-provider</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-jldap-provider</artifactId>
+  <artifactId>sakai-userdetail-provider</artifactId>
   <organization>
     <name>Sakai Project Contributor see (see NOTICE.txt)</name>
     <url>http://sakaiproject.org/</url>
@@ -20,11 +20,6 @@
     <deploy.target />
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-userdetail-provider</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
@@ -38,49 +33,17 @@
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-pool</groupId>
-      <artifactId>commons-pool</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.novell.ldap</groupId>
-      <artifactId>jldap</artifactId>
-      <version>2009-10-07</version>
-    </dependency>
-    <dependency>
-      <groupId>jmock</groupId>
-      <artifactId>jmock</artifactId>
-      <version>1.1.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>jmock</groupId>
-      <artifactId>jmock-cglib</artifactId>
-      <version>1.1.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-full</artifactId>
-      <version>2.0.2</version>
-      <scope>test</scope>
     </dependency>
 <!-- This exists strictly so we can control logging
     	levels in Maven-executed unit tests -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jldap-provider-mock</artifactId>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
       <scope>test</scope>
     </dependency>
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
   </dependencies>
   <build>
     <plugins>
@@ -97,19 +60,6 @@
         </configuration>
       </plugin>
     </plugins>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/test-resources</directory>
-        <includes>
-          <include>log4j.properties</include>
-        </includes>
-      </testResource>
-    </testResources>
 <!-- java source -->
   </build>
 </project>
