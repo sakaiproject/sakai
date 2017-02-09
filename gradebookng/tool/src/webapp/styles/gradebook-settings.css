@@ -44,3 +44,9 @@
 .radio input[type="radio"][disabled]+label{
   color: #999;
 }
+
+.panel-heading > .panel-title > a {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
