@@ -113,12 +113,7 @@ public class ChecklistProgressProducer implements ViewComponentProducer, Navigat
 
             List<SimplePageItem> allChecklists = simplePageToolDao.findAllChecklistsInSite(siteId);
             if (allChecklists != null) {
-                Collections.sort(allChecklists, new Comparator<SimplePageItem>() {
-                    @Override
-                    public int compare(SimplePageItem simplePageItem, SimplePageItem t1) {
-                        return simplePageItem.getName().compareTo(t1.getName());
-                    }
-                });
+                allChecklists.sort( (SimplePageItem o1, SimplePageItem o2) -> o1.getName().compareToIgnoreCase(o2.getName()) );
                 for (SimplePageItem checklist : allChecklists) {
                     // Don't include the current checklist
                     if(checklist.getId() != simplePageBean.getItemId()) {

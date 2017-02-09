@@ -1258,6 +1258,12 @@ public class SimplePageBean {
 			return "failure";
 		}
 
+		final String checklistName = StringUtils.trimToEmpty(name);
+		if(checklistName.isEmpty()) {
+			setErrMessage(messageLocator.getMessage("simplepage.checklist-empty-name"));
+			return "failure";
+		}
+
 		SimplePageItem item;
 		if (itemId != null && itemId != -1) {
 			item = findItem(itemId);
@@ -1266,7 +1272,7 @@ public class SimplePageBean {
 			item = appendItem("", messageLocator.getMessage("simplepage.checklistName"), SimplePageItem.CHECKLIST);
 		}
 
-		item.setName(name);
+		item.setName(checklistName);
 		item.setDescription(description);
 		setItemGroups(item, selectedGroups);
 
@@ -1293,20 +1299,28 @@ public class SimplePageBean {
 			// get data sent from post operation for this answer
 			String data = checklistItems.get(i);
 			// split the data into the actual fields
-			String[] fields = data.split(":", 2);
-			String itemName = fields[1];
+			String[] fields = data.split(":", 3);
+			String itemName = StringUtils.trimToEmpty(fields[1]);
 			// Don't save checklist items with a blank name
 			if(!"".equals(itemName)) {
 				Long checklistItemId;
-				if (fields[0].equals(""))
+				if (fields[0].equals("")) {
 					checklistItemId = -1L;
-				else
+				} else {
 					checklistItemId = Long.valueOf(fields[0]);
-				if (checklistItemId <= 0L)
+				}
+				if (checklistItemId <= 0L) {
 					checklistItemId = ++max;
+				}
+				Long linkedId;
+				if(fields[2].equals("")) {
+					linkedId = -1L;
+				} else {
+					linkedId = Long.valueOf(fields[2]);
+				}
 				// Remove checklistItemId from list of those to be cleaned up
 				previousIds.remove(checklistItemId);
-				Long id = simplePageToolDao.addChecklistItem(item, checklistItemId, itemName);
+				Long id = simplePageToolDao.addChecklistItem(item, checklistItemId, itemName, linkedId);
 			}
 		}
 

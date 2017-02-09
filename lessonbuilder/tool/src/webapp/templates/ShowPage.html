@@ -66,7 +66,7 @@
  <script type="text/javascript" src="$context/js/twitter.js"></script>
  <script type="text/javascript" src="$context/js/announcements.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
- <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
+ <script type="text/javascript" src="$context/js/checklistDisplay.js"></script>
  <script type="text/javascript" src="$context/js/forum-summary.js"></script>
  <script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
  <script type="text/javascript" src="$context/js/fullcalendar.js"></script>
@@ -694,7 +694,12 @@
                                         <div id="checklistItemsDiv" rsf:id="checklistItemsDiv">
                                             <span rsf:id="checklist-span"/>
                                             <div rsf:id="select-checklistitem-list:">
-                                                <label class="checklistLabel"><input type="checkbox" rsf:id="select-checklistitem" /><span rsf:id="select-checklistitem-name"></span></label>
+                                                <label class="checklistLabel">
+                                                    <input type="checkbox" rsf:id="select-checklistitem" />
+                                                    <span class="fa fa-link fa-lg externally-linked" rsf:id="select-checklistitem-linked-icon"></span>
+                                                    <span rsf:id="select-checklistitem-name"></span>
+                                                </label>
+                                                <span class="tooltip-content" rsf:id="select-checklistitem-linked-details" ></span>
                                                 <span class="saveChecklistSuccess checklistSaveMessage" style="display: none;">Save successful!</span>
                                                 <span class="saveChecklistError checklistSaveMessage" style="display: none;">Unable to save checklist item</span>
                                                 <span class="saveChecklistSaving checklistSaveMessage" style="display: none;"><img src="../images/loading.gif" alt="Saving checklist..."/></span>
