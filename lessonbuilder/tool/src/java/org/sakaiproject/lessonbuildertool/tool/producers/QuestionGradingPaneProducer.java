@@ -18,8 +18,9 @@ import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParam
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -45,7 +46,7 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
-        private AuthzGroupService authzGroupService;
+        private SecurityService securityService;
         private SiteService siteService;
 	private MessageLocator messageLocator;
 	public LocaleGetter localeGetter;                                                                                             
@@ -62,8 +63,8 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 		this.simplePageToolDao = simplePageToolDao;
 	}
 	
-	public void setAuthzGroupService(AuthzGroupService a) {
-		this.authzGroupService = a;
+	public void setSecurityService(SecurityService a) {
+		this.securityService = a;
 	}
 
 	public void setSiteService(SiteService s) {
@@ -136,14 +137,11 @@ public class QuestionGradingPaneProducer implements ViewComponentProducer, ViewP
 
 		// initialize notsubmitted to all userids or groupids
 		Set<String> notSubmitted = new HashSet<String>();
-		Set<Member> members = new HashSet<Member>();
-		try {
-		    members = authzGroupService.getAuthzGroup(siteService.siteReference(simplePageBean.getCurrentSiteId())).getMembers();
-		} catch (Exception e) {
-		    // since site obviously exists, this should be impossible
-		}
-		for (Member m: members)
-		    notSubmitted.add(m.getUserId());
+		String siteRef = simplePageBean.getCurrentSite().getReference();
+		// only check students
+		List<User> studentUsers = securityService.unlockUsers("section.role.student", siteRef);
+		for (User u: studentUsers)
+		    notSubmitted.add(u.getId());
 
 		for(SimplePageQuestionResponse response : responses) {			
 			if(!userIds.contains(response.getUserId())) {
