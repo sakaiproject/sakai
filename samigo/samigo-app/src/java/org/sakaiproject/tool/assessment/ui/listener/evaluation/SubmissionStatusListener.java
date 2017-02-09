@@ -160,10 +160,10 @@ public class SubmissionStatusListener
       	log.debug("submissionStatus() :: sortAscending = " + sortAscending);
       }
 
-      totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
-      
       bean.setPublishedId(publishedId);
-      
+
+      totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
+
       // we are only interested in showing last submissions
 
       List scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
