@@ -78,11 +78,22 @@
 		  <td></td>
 		  <td rsf:id="clickfiller"></td>
           <td></td>
-		  <td><a id="clickToSubmit" href="#" class="usebutton toggleButton" style="" onclick="return false;" rsf:id="clickToSubmit"></a> </td>
+		  <td><a id="clickToSubmit" href="#" class="usebutton toggleButton" style="" onclick="return false;" rsf:id="clickToSubmit"></a></td>
 		</tr>
 
 	</table>
+	<h3 rsf:id="missing-head"><span rsf:id="msg=simplepage.missing-title"></span></h3>
+	<div rsf:id="missing-div" style="margin-bottom:1em">
+	  <div rsf:id="missing:"><span rsf:id="missing-entry"></span></div>
+	</div>
 	
+	<a id="zeroMissing" href="#" class="zeroMissing usebutton toggleButton" style="" rsf:id="zeroMissing"></a> 
+	<form rsf:id="zero-form" action="#" id="zero-form" method="post" enctype="multipart/form-data" style="display:none">
+	  <input type="hidden" rsf:id="zero-csrf" />
+	  <input type="hidden" rsf:id="zero-item" />
+	  <input type="submit" rsf:id="zero" id="zero" />
+	</form>
+
 	<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
 		<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
 		<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
@@ -91,6 +102,7 @@
 		<input type="hidden" class="csrfField" id="csrf" rsf:id="csrf"/>
 	</form>
 		
+
 	<script rsf:id="gradingForm-init" type="text/javascript">
     	// a real function call with real values which come from the 
     	// "emitJavascriptCall" method will be placed here by RSF
