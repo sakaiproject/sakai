@@ -120,18 +120,8 @@ function textCounter(field, maxlimit) {
 <h:panelGroup layout="block" styleClass="form-group row">
     <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}" styleClass="col-sm-2 form-control-label"/>
     <div class="col-sm-6">
-        <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt();textCounter(this,255);" id="descfield" value="#{questionpool.currentPool.description}" cols="40" rows="6"
-                         onblur="textCounter(this,255);"
-                         onclick="textCounter(this,255);"
-                         ondblclick="textCounter(this,255);"
-                         onfocus="textCounter(this,255);"
-                         onkeyup="textCounter(this,255);"
-                         onkeypress="textCounter(this,255);"
-                         onmouseup="textCounter(this,255);"
-                         onmousemove="textCounter(this,255);"
-                         onmouseout="textCounter(this,255);"
-                         onmouseover="textCounter(this,255);"
-        />
+        <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}"
+         onchange="inIt();" id="descfield" value="#{questionpool.currentPool.description}" cols="40" rows="6"/>
     </div>
 </h:panelGroup>  
 <h:panelGroup layout="block"  styleClass="form-group row">
