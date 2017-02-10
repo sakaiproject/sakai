@@ -765,6 +765,11 @@
 							#end
 						</div>
 				<!-- End Compilatio custom options -->
+				#elseif($reviewServiceName.equals("Urkund"))
+						#if ($content_review_note)
+							$content_review_note
+						#end
+				<!-- End Urkund custom options -->
 				#end
 			</div>
 		#end
