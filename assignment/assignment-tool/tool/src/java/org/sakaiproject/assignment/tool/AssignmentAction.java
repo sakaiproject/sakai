@@ -8429,7 +8429,7 @@ public class AssignmentAction extends PagedResourceActionII
 							M_log.debug("locked group: {}", group.getReference());
 
 							try {
-								siteService.save(group.getContainingSite());
+								SiteService.save(group.getContainingSite());
 							}
 							catch (IdUnusedException e)
 							{
@@ -8447,7 +8447,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 				if (!aOldGroups.isEmpty()) {
 					try {
-						Site site = siteService.getSite(siteId);
+						Site site = SiteService.getSite(siteId);
 
 						for (String reference : aOldGroups) {
 								if (!lockedGroupsReferences.contains(reference)) {
@@ -8456,7 +8456,7 @@ public class AssignmentAction extends PagedResourceActionII
 									if (group != null) {
 										String groupReferenceAssignment = group.getReference() + "/assignment/" + a.getId();
 										group.unlockGroup(groupReferenceAssignment);
-										siteService.save(group.getContainingSite());
+										SiteService.save(group.getContainingSite());
 									}
 								}
 						}
@@ -10451,13 +10451,13 @@ public class AssignmentAction extends PagedResourceActionII
 				String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
 				try {
-					Site site = siteService.getSite(siteId);
+					Site site = SiteService.getSite(siteId);
 
 					for (String reference : groups) {
 						Group group = site.getGroup(reference);
 						if (group != null) {
 							group.unlockGroup(group.getReference() + "/assignment/" + aEdit.getId());
-							siteService.save(group.getContainingSite());
+							SiteService.save(group.getContainingSite());
 						}
 					}
 				}
