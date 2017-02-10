@@ -2576,9 +2576,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// should submit and remove as we see them
 						Set<String> notSubmitted = new HashSet<String>();
 						if (i.isGroupOwned()) {
-						    String ownerGroups = i.getOwnerGroups();
-						    if (ownerGroups != null)
-							notSubmitted = new HashSet(Arrays.asList(ownerGroups.split(",")));
+						    notSubmitted = simplePageBean.getOwnerGroups(i);
 						} else {
 						    String siteRef = simplePageBean.getCurrentSite().getReference();
 						    // only check students
