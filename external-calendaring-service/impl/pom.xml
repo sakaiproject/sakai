@@ -11,7 +11,11 @@
 	<name>External Calendaring Service :: Implementation</name>
 	<groupId>org.sakaiproject.calendaring</groupId>
 	<artifactId>external-calendaring-service-impl</artifactId>
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
 	
   	<dependencies>
     	<dependency>

@@ -26,9 +26,7 @@
     <module>api</module>
     <module>deploy</module>
     <module>impl</module>
-    <module>pack</module>
     <module>tool</module>
-    <module>util</module>
   </modules>
 
 

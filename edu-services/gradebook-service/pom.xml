@@ -17,7 +17,6 @@
         <module>api</module>
         <module>hibernate</module>
         <module>impl</module>
-        <module>sakai-pack</module>
     </modules>
 
 </project>

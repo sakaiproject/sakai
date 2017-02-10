@@ -27,7 +27,6 @@
     <module>api</module>
     <module>component-manager</module>
     <module>kernel-private</module>
-    <module>kernel-component</module>
     <module>kernel-common</module>
     <module>kernel-impl</module>
     <module>kernel-util</module>

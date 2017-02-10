@@ -25,7 +25,6 @@
 
     <modules>
         <module>impl</module>
-        <module>pack</module>
     </modules>
 
     <dependencyManagement>

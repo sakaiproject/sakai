@@ -21,7 +21,6 @@
     <module>citations-osid/web2bridge</module>
     <module>citations-osid/xserver</module>
     <module>citations-impl/impl</module>
-    <module>citations-impl/pack</module>
   </modules>
 
   <dependencyManagement>

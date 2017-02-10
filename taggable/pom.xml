@@ -18,7 +18,6 @@
         <module>taggable-api/api</module>
         <module>taggable-hbm/hbm</module>
         <module>taggable-impl/impl</module>
-        <module>taggable-impl/pack</module>
     </modules>
 
     

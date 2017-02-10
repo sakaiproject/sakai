@@ -25,7 +25,6 @@
 		<module>api</module>
 		<module>impl</module>
 		<module>util</module>
-		<module>pack</module>
 		<module>tool</module>
 		<module>bundle</module>
 	</modules>

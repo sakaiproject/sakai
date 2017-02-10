@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
     <maven.test.jvmargs />
     <kernel.basedir>${basedir}/..</kernel.basedir>
   </properties>

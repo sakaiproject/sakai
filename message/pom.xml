@@ -19,7 +19,6 @@
         <module>message-util/util</module>
         <module>message-tool/tool</module>
         <module>search-adapters/impl</module>
-        <module>search-adapters/pack</module>
     </modules>
     
     

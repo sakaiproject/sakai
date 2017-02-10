@@ -13,7 +13,10 @@
 	<groupId>org.sakaiproject.dash</groupId>
 	<artifactId>dashboard-impl</artifactId>
 
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -61,6 +64,10 @@
         <dependency>
             <groupId>org.sakaiproject.dash</groupId>
             <artifactId>dashboard-hbm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.dash</groupId>
+            <artifactId>dashboard-bundles</artifactId>
         </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.assignment</groupId>

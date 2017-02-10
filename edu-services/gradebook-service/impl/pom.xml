@@ -10,9 +10,9 @@
     <groupId>org.sakaiproject.edu-services.gradebook</groupId>
     <artifactId>gradebook-service-impl</artifactId>
     <name>gradebook-service-impl</name>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
     <properties>
-        <deploy.target />
+        <deploy.target>components</deploy.target>
     </properties>
     <dependencies>
         <dependency>

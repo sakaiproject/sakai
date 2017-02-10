@@ -21,16 +21,13 @@
     <module>type-api</module>
     <module>privacy-api</module>
     <module>privacy-comp-impl</module>
-    <module>privacy-components</module>
     <module>privacy-hbm</module>
     <!-- module>privacy-integration-test</module -->
     <!-- archive and import -->
     <module>archive-api</module>
     <module>archive-impl/impl2</module>
-    <module>archive-impl/pack</module>
     <module>import-impl</module>
     <module>import-handlers/content-handlers</module>
-    <module>import-pack</module>
     <module>import-util</module>
     <module>import-parsers/common-cartridge</module>
     <module>import-parsers/sakai-archive</module>

@@ -36,7 +36,6 @@
     <module>impl</module>
     <module>rest</module>
     <module>tool</module>
-    <module>pack</module>
     <module>mocks</module>
     <module>utils</module>
     <module>core-providers</module>

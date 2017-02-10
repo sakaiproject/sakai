@@ -10,9 +10,9 @@
 	</organization>
 	<inceptionYear>2007</inceptionYear>
 	<description>Account Validator implementation</description>
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
 	<properties>
-		<deploy.target />
+		<deploy.target>components</deploy.target>
 	</properties>
 
    <!-- the base is parent -->

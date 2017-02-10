@@ -12,7 +12,10 @@
     <name>Sakai Signup Implementation</name>
     <groupId>org.sakaiproject.signup</groupId>
     <artifactId>signup-impl</artifactId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>

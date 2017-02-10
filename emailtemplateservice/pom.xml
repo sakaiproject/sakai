@@ -26,7 +26,6 @@
     <module>api</module>
     <module>deploy</module>
     <module>impl/logic</module>
-    <module>pack</module>
     <module>tool</module>
   </modules>
 

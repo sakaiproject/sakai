@@ -9,13 +9,16 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2007</inceptionYear>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 <!-- the base is parent -->
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
         <version>12-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
     <dependencies>
 <!-- internal dependencies -->
         <dependency>
