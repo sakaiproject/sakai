@@ -2697,7 +2697,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    for(String owner: notSubmitted) {
 							String sownerName;
 							if (i.isGroupOwned()) {
-							    sownerName = simplePageBean.getCurrentSite().getGroup(owner).getTitle();
+							    try {
+								sownerName = simplePageBean.getCurrentSite().getGroup(owner).getTitle();
+							    } catch (Exception e) {
+								// the only way I can make this happen is to add a group
+								// to the item and then delete the group. If we can't find the
+								// group, don't show the item.
+								continue;
+							    }
 							} else {
 							    try {
 								sownerName = UserDirectoryService.getUser(owner).getDisplayName();
