@@ -143,16 +143,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			externalAppFlag.add(new AttributeModifier("data-content",
 					gradebookPage.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel",
 							null, new Object[] { assignment.getExternalAppName() }).getString())));
-			String iconClass = ICON_SAKAI + "default-tool";
-			if ("Assignments".equals(assignment.getExternalAppName())) {
-				iconClass = ICON_SAKAI + "sakai-assignment-grades";
-			} else if ("Tests & Quizzes".equals(assignment.getExternalAppName())) {
-				iconClass = ICON_SAKAI + "sakai-samigo";
-			} else if ("Lesson Builder".equals(assignment.getExternalAppName())) {
-				iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
-			}
-			externalAppFlag
-					.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
+			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag " + this.businessService.getIconClass(assignment)));
 		}
 		add(externalAppFlag);
 
