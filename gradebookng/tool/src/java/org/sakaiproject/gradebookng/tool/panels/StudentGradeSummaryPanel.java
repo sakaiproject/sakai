@@ -7,12 +7,11 @@ import java.util.Map;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 
@@ -23,14 +22,11 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class StudentGradeSummaryPanel extends Panel {
+public class StudentGradeSummaryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	public StudentGradeSummaryPanel(final String id, final IModel<Map<String, Object>> model, final GbModalWindow window) {
 		super(id, model);
@@ -62,15 +58,19 @@ public class StudentGradeSummaryPanel extends Panel {
 		studentNavigation.setOutputMarkupPlaceholderTag(true);
 		add(studentNavigation);
 
-		final List tabs = new ArrayList();
+		final List<ITab> tabs = new ArrayList<>();
 
 		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.instructorviewtab"))) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Panel getPanel(final String panelId) {
 				return new InstructorGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
 			}
 		});
 		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Panel getPanel(final String panelId) {
 				return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());

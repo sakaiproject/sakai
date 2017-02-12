@@ -69,11 +69,6 @@ public class PageListProducer
             ComponentChecker checker) {
 
         if (handler.update) {
-            PageAddViewParameters addParam = new PageAddViewParameters();
-            addParam.viewID = PageAddProducer.VIEW_ID;
-
-            fullyDecorate(UIInternalLink.make(tofill, "add-link", UIMessage.make("show_add"), addParam), 
-                UIMessage.make("page_show_add"));
             UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
             
             UIForm pageForm = UIForm.make(content, "pages-form");

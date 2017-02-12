@@ -398,13 +398,14 @@ public class AjaxServer extends HttpServlet
 	    // get all users in site and add entries to user@groups
 	    // this will have all the groups each user belongs to
 	    site = siteService.getSite(siteId);
+	    String siteRef = site.getReference();
 	    HashSet<String> siteGroup = new HashSet<String>();
 	    siteGroup.add("/site/" + siteId);
-	    // not in 2.8   users = authzGroupService.getAuthzUsersInGroups(siteGroup);
-	    users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
-
-	    for (String userId: users) {
-		user2groups.put(userId, null);
+	    //users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
+	    // only want students
+	    List<User>userList = SecurityService.unlockUsers("section.role.student", siteRef);
+	    for (User user: userList) {
+		user2groups.put(user.getId(), null);
 	    }
 
 	    // get list of groups, either specified list or all groups in site

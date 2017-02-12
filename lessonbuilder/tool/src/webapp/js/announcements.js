@@ -17,7 +17,7 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 		//get the announcement tool url
 		var link_to_tool = tool_href.split("?", 1);
 		var title = msg("simplepage.announcements-header-title");
-		var text_for_announcements = '<div class="announcementsHeaderDiv"><h3 class="announcementSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai--sakai-announcements"></span><a href="'+link_to_tool+'" target="_top" class="announcementLink" title ="'+title+'">'+title+'</a></h3></div><div class="announcementList">';
+		var text_for_announcements = '<div class="announcementsHeaderDiv"><h3 class="announcementSummaryHeader"><span aria-hidden="true" class="fa-item-text icon-sakai--sakai-announcements"></span><a href="'+link_to_tool+'" target="_top" class="announcementLink" title ="'+title+'">'+title+'</a></h3></div><ul class="announcementSummaryList">';
 		//Get announcements
 		$.ajax({
 			url: announcementsUrl,
@@ -36,16 +36,16 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						var min = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 						//using javascript's toLocaleDateString() to include user's locale and local time zone
 						date_time = hour +":"+min+ " " + date.toLocaleDateString();
-						text_for_announcements += '<div class="itemDiv">';
+						text_for_announcements += '<li class="itemDiv announcementSummaryItem">';
 						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata";
 						var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 						var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-						text_for_announcements += '<div class="itemTitle"><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
+						text_for_announcements += '<div><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
 						text_for_announcements += '<div class="itemDate">'+date_time+'</div>';
-						text_for_announcements += '</div>';
+						text_for_announcements += '</li>';
 					});
 				}
-		                text_for_announcements += '</div>';
+		                text_for_announcements += '</ul>';
 				announcementsDiv.html(text_for_announcements);
 			},
 			error: function(xhr, textStatus, errorThrown){

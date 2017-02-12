@@ -162,6 +162,20 @@
 					#end
 				</td>
 			</tr>
+			#if($!isAdditionalNotesEnabled && !$assignment.isGroup() && $!notes.size() > 0)
+			<tr>
+				<th>
+					$tlang.getString("gen.notes")
+				</th>
+				<td headers="notes">
+					<ul>
+					#foreach($note in $notes)
+						#if($!note) <li>$!note</li> #end
+					#end
+					</ul>
+				</td>
+			</tr>
+			#end
 			#if ($!submissionType != 4)
 				## exclude non-electronic type of submission
 				<tr>
