@@ -54,7 +54,7 @@ public class ImportGradesHelper {
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([^\\*\\[\\]\\*]+\\[[0-9]+(\\.[0-9][0-9]?)?\\])");
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* .*)");
-	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\[\\]\\*]+)");
+	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\#\\$\\[\\]\\*]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
@@ -556,19 +556,19 @@ public class ImportGradesHelper {
 			return column;
 		}
 
-		final Matcher m3 = STANDARD_HEADER_PATTERN.matcher(headerValue);
+		final Matcher m3 = IGNORE_PATTERN.matcher(headerValue);
 		if (m3.matches()) {
+			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
+			column.setType(ImportedColumn.Type.IGNORE);
+			return column;
+		}
+
+		final Matcher m5 = STANDARD_HEADER_PATTERN.matcher(headerValue);
+		if (m5.matches()) {
 
 			column.setColumnTitle(headerValue);
 			column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);
 
-			return column;
-		}
-
-		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
-		if (m4.matches()) {
-			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
-			column.setType(ImportedColumn.Type.IGNORE);
 			return column;
 		}
 
