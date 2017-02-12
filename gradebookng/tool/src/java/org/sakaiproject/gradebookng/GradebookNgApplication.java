@@ -6,6 +6,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -67,6 +68,9 @@ public class GradebookNgApplication extends WebApplication {
 				return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e)));
 			}
 		});
+
+		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in BasePage.java
+		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(GradebookNgApplication.class,"empty.js"));
 
 		// cleanup the HTML
 		getMarkupSettings().setStripWicketTags(true);

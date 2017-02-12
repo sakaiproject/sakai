@@ -187,9 +187,16 @@ public class BasePage extends WebPage {
 				.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 
 		// Shared JavaScript and stylesheets
-		// Bootstrap (lock in a version we've tested with and pair it with Wicket's jQuery)
-		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version)));
+		// Force Wicket to use Sakai's version of jQuery
+		response.render(
+			new PriorityHeaderItem(
+				JavaScriptHeaderItem
+					.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+		// And pair this instance of jQuery with a Bootstrap version we've tested with
+		response.render(
+			new PriorityHeaderItem(
+				JavaScriptHeaderItem
+					.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
 		// Some global gradebookng styles
 		response.render(CssHeaderItem
 			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
