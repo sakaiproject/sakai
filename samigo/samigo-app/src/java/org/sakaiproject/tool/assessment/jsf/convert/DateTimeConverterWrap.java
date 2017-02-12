@@ -26,7 +26,9 @@ public class DateTimeConverterWrap extends DateTimeConverter {
 	@Override
 	public void setTimeZone(final TimeZone timeZone) {
 		if (timeZone == null) {
-			super.setTimeZone(TimeService.getLocalTimeZone());
+			// SAM-3106 This previously would use client timezone (TimeService.getLocalTimeZone)
+			// which could produce inconsistent results when client in different timezone than server.
+			super.setTimeZone(TimeZone.getDefault());
 		} else {
 			super.setTimeZone(timeZone);
 		}
