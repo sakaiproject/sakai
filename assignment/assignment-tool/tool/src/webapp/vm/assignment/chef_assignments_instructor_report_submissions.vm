@@ -102,6 +102,11 @@
 								#end
 							</a>
 						</th>
+						#if($!isAdditionalNotesEnabled)
+						<th id="notes">
+							<a href="#">$tlang.getString("gen.notes")</a>
+						</th>
+						#end
 						<th id="grade">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_grade")'; return false;"
 							  title=" $tlang.getString("gen.sorbygra")">
@@ -180,6 +185,17 @@
 								#assignmentTitleIcon($assignment)
 								$validator.escapeHtml($validator.limit($assignment.Title, 40))
 							</td>
+							#if($!isAdditionalNotesEnabled)
+							<td headers="notes">
+								#set($notes = [])
+								#set($notes = $notesMap.get($submission.user.id))
+								<ul>
+								#foreach($note in $!notes)
+									#if($!note) <li>$!note</li> #end
+								#end
+								</ul>
+							</td>
+							#end
 							<td headers="grade">
 								#if ($submission.getSubmission())
 									#if ($submission.getSubmission().Graded)

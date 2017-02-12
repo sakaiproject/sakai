@@ -9,7 +9,7 @@ body.active-more-sites{
 
 #selectSiteModal{
 	position: fixed;
-        z-index: 1005;
+    z-index: 10000;
 	overflow:visible;
 	@include transition( left 0.4s linear 0s );
 	&.dhtml_more_tabs{

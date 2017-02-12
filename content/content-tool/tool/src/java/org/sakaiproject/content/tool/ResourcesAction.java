@@ -1130,7 +1130,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			try
 			{
-				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, Validator.escapeResourceName(name));
+				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, Validator.escapeResourceName(name), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 				Object obj = fp.getRevisedListItem();
@@ -1172,7 +1172,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				// TODO Auto-generated catch block
 				logger.warn("IdInvalidException " + collectionId + name, e);
 			}
-			catch (IdUsedException e)
+			catch (IdUsedException|IdUniquenessException e)
 			{
 				String[] args = { name };
 				addAlert(state, trb.getFormattedMessage("alert.exists", args));

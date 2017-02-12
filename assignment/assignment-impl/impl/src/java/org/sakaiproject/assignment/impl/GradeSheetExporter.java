@@ -1,5 +1,6 @@
 package org.sakaiproject.assignment.impl;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
@@ -15,6 +16,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
@@ -42,6 +44,7 @@ public class GradeSheetExporter {
     private SiteService siteService;
     private TimeService timeService;
     private UserDirectoryService userDirectoryService;
+    private CandidateDetailProvider candidateDetailProvider;
 
     public void setAssignmentService(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
@@ -59,18 +62,18 @@ public class GradeSheetExporter {
         this.userDirectoryService = userDirectoryService;
     }
 
+    public void setCandidateDetailProvider(CandidateDetailProvider candidateDetailProvider) {
+        this.candidateDetailProvider = candidateDetailProvider;
+    }
+
     /**
      * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
      *
-     * @param out
-     *        The outputStream to stream the grades spreadsheet into.
-     * @param ref
-     *        The reference, either to a specific assignment, or just to an assignment context.
+     * @param out The outputStream to stream the grades spreadsheet into.
+     * @param ref The reference, either to a specific assignment, or just to an assignment context.
      * @return Whether the grades spreadsheet is successfully output.
-     * @throws IdUnusedException
-     *         if there is no object with this id.
-     * @throws PermissionException
-     *         if the current user is not allowed to access this.
+     * @throws IdUnusedException   if there is no object with this id.
+     * @throws PermissionException if the current user is not allowed to access this.
      */
     public boolean getGradesSpreadsheet(final OutputStream out, final String ref)
             throws IdUnusedException, PermissionException {
@@ -83,8 +86,9 @@ public class GradeSheetExporter {
         // get site title for display purpose
         String siteTitle = "";
         String sheetName = "";
+        Site site = null;
         try {
-            Site site = siteService.getSite(idSite);
+            site = siteService.getSite(idSite);
             siteTitle = (parts.length > 1) ? site.getTitle() + " - " + site.getGroup(parts[3]).getTitle() : site.getTitle();
             sheetName = (parts.length > 1) ? site.getGroup(parts[3]).getTitle() : site.getTitle();
         } catch (Exception e) {
@@ -158,13 +162,19 @@ public class GradeSheetExporter {
 
             List<String> allowAddAnySubmissionUsers = assignmentService.allowAddAnySubmissionUsers(context);
             List<User> members = userDirectoryService.getUsers(allowAddAnySubmissionUsers);
+            boolean isNotesEnabled = candidateDetailProvider != null &&
+                    site != null && candidateDetailProvider.isAdditionalNotesEnabled(site);
             // For details of all the users in the site.
             Map<String, Submitter> submitterMap = new HashMap<>();
             members.sort(new UserComparator());
             for (User user : members) {
                 // put user displayid and sortname in the first two cells
-                submitterMap.put(user.getId(), new Submitter(user.getDisplayId(), user.getSortName()));
-
+                Submitter submitter = new Submitter(user.getDisplayId(), user.getSortName());
+                submitterMap.put(user.getId(), submitter);
+                if (isNotesEnabled) {
+                    Optional<List<String>> additionalNotes = candidateDetailProvider.getAdditionalNotes(user, site);
+                    submitter.setNotes(additionalNotes);
+                }
             }
             rowNum++;
 
@@ -209,7 +219,7 @@ public class GradeSheetExporter {
                                         // find right row
                                         // Get the user ID for this result
                                         if (assignmentService.assignmentUsesAnonymousGrading(a)) {
-                                            submitter = new Submitter(userId);
+                                            submitter = new Submitter(userId, submitter);
                                         }
 
                                         List<Object> objects = results.get(submitter);
@@ -269,7 +279,7 @@ public class GradeSheetExporter {
                                 }
                                 // Get the user ID for this result
                                 if(assignmentService.assignmentUsesAnonymousGrading(a)) {
-                                        submitter = new Submitter(submission.getAnonymousSubmissionId());
+                                    submitter = new Submitter(submission.getAnonymousSubmissionId(), submitter);
                                 }
 
                                 List<Object> objects = results.get(submitter);
@@ -321,6 +331,17 @@ public class GradeSheetExporter {
 
                 }
 
+                if (isNotesEnabled) {
+                    // Add the notes header
+                    int cellNum = (index + 2);
+                    rowNum = headerRowNumber;
+                    row = sheet.getRow(rowNum++);
+                    cell = row.createCell(cellNum);
+                    cell.setCellType(1);
+                    cell.setCellValue(rb.getString("gen.notes"));
+                }
+
+
                 // The map is already sorted and so we just iterate over it and output rows.
                 for (Iterator<Map.Entry<Submitter, List<Object>>> resultsIt = results.entrySet().iterator(); resultsIt.hasNext();) {
                     Map.Entry<Submitter, List<Object>> entry = resultsIt.next();
@@ -350,6 +371,16 @@ public class GradeSheetExporter {
                             cell = sheetRow.createCell(column++, Cell.CELL_TYPE_STRING);
                             cell.setCellValue(rb.getString("listsub.nosub"));
                         }
+                    }
+                    if (isNotesEnabled) {
+                        final int startColumn = column;
+                        submitter.notes.ifPresent(notes -> {
+                            int col = startColumn;
+                            for (String note: notes) {
+                                Cell noteCell = sheetRow.createCell(col++, Cell.CELL_TYPE_STRING);
+                                noteCell.setCellValue(note);
+                            }
+                        });
                     }
 
                 }
@@ -387,9 +418,10 @@ public class GradeSheetExporter {
       */
     private class Submitter implements Comparable<Submitter> {
         // Create Anonymous one.
-        public Submitter(String id) {
+        public Submitter(String id, Submitter original) {
             this.anonymous = true;
             this.id = id;
+            this.notes = original.notes;
         }
         // Create normal one
         public Submitter(String id, String sortName) {
@@ -401,6 +433,7 @@ public class GradeSheetExporter {
         public boolean anonymous;
         public String id;
         public String sortName;
+        public Optional<List<String>> notes = Optional.empty();
 
         @Override
         public boolean equals(Object o) {
@@ -434,6 +467,10 @@ public class GradeSheetExporter {
                 }
             }
             return value;
+        }
+
+        public void setNotes(Optional<List<String>> notes) {
+            this.notes = notes;
         }
     }
 

@@ -506,6 +506,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>4.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>commons-configuration</groupId>
         <artifactId>commons-configuration</artifactId>
         <version>1.10</version>
@@ -1664,7 +1670,7 @@
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.5.5</version>
+          <version>1.5.7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

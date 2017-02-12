@@ -44,9 +44,49 @@ function toggleUserNav(event){
 $PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 $PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 
+var header = $(".Mrphs-topHeader");
+var currentHeaderWidth = -1;
+var mainHeaderSize  = $(header).height();
+
 $PBJQ(document).ready( function(){
+	
+  $(header).data("sticked",false);
+	
   if( $PBJQ('.Mrphs-hierarchy--parent-sites').length > 0 && $PBJQ(window).width() <= 800 ){
     $PBJQ('#content').css( 'margin-top', ( parseInt( $PBJQ('#content').css('margin-top').replace('px', '') ) +  $PBJQ('.Mrphs-hierarchy--parent-sites').outerHeight(true) ) + 'px' );
   }
+  
+  $PBJQ(window).resize(function() {
+	  currentHeaderWidth = $(".Mrphs-mainHeader").width();
+	  $(header).css('height', 'auto');
+	  mainHeaderSize = $(header).height();
+  });
+  
+  $PBJQ(window).scroll(function(){
+	if(currentHeaderWidth > 799) {
+		var size = 0;
+		var stick = (($(document).height() - $(window).height()) > $(header).height()) === true;
+		if($(window).scrollTop() > 0) {
+		  if($(header).data("sticked") === false && stick === true) {
+		    $(header).data("sticked",true);
+			$(".Mrphs-mainHeader").addClass("is-fixed");
+			$(header).stop().animate({
+				height: $('.is-fixed').css('height')	
+			}, 200);
+		  }
+		} else {
+		  $(".Mrphs-mainHeader").removeClass("is-fixed");
+		  $(header).data("sticked",false);
+		  $(header).css('height', null);
+		  $(header).stop().animate({
+			 height: mainHeaderSize 
+		  }, 200);
+		}
+		animateToolBar();
+	} else $(".Mrphs-mainHeader").removeClass("is-fixed");
+  });
+  
+  currentHeaderWidth = $(".Mrphs-mainHeader").width();
+  
 });
 

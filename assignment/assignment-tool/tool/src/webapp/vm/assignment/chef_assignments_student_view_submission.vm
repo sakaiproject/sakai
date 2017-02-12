@@ -482,6 +482,23 @@ $(document).ready(function(){
 				<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
 
+		#set($notes = [])
+		#set($notes = $notesMap.get($submitter.id))
+		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $notes.size() > 0)
+			#set($notesstr = "")
+			#foreach($note in $!notes)
+				#if($!note) #set($notesstr = "$notesstr<li>$note</li>") #end
+			#end
+			#if($notesstr) 
+				#set($notesstr = "<ul>$notesstr</ul>")
+			#else 
+				#set($notesstr = "---")
+			#end
+			<div class="instruction">
+				$tlang.getFormattedMessage("assignment.additional.notes.students.explanation", $notesstr)
+			</div>
+		#end
+
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
 			<p class="instruction">

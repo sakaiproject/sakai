@@ -1,27 +1,21 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.Map;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
-import java.util.Map;
-
-public class HeaderFlagPopoverPanel extends Panel {
+public class HeaderFlagPopoverPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	private GradebookNgBusinessService businessService;
 
 	public enum Flag {
 		GRADE_ITEM_EXTRA_CREDIT("label.gradeitem.extracredit"),
@@ -50,7 +44,7 @@ public class HeaderFlagPopoverPanel extends Panel {
 	public HeaderFlagPopoverPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
 
-		Map<String, Object> modelData = model.getObject();
+		final Map<String, Object> modelData = model.getObject();
 		this.flag = (Flag) modelData.get("flag");
 		this.assignmentId = (Long) modelData.get("assignmentId");
 		this.role = (GbRole) modelData.get("role");
@@ -62,7 +56,7 @@ public class HeaderFlagPopoverPanel extends Panel {
 
 		add(new Label("message", getString(this.flag.getMessageKey())));
 
-		final boolean isInstructor = GbRole.INSTRUCTOR == role;
+		final boolean isInstructor = GbRole.INSTRUCTOR == this.role;
 
 		if (isInstructor) {
 			if (this.flag == Flag.COURSE_GRADE_NOT_RELEASED || this.flag == Flag.COURSE_GRADE_RELEASED) {
