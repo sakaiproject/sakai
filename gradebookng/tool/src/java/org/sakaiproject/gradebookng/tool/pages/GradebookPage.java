@@ -38,7 +38,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbGradingType;
@@ -106,6 +105,10 @@ public class GradebookPage extends BasePage {
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
+		if(this.role == null) {
+			sendToAccessDeniedPage(getString("error.role"));
+		}
+
 		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
@@ -116,17 +119,13 @@ public class GradebookPage extends BasePage {
 
 			//roleswapped?
 			if(this.businessService.isUserRoleSwapped()) {
-				final PageParameters params = new PageParameters();
-				params.add("message", getString("ta.roleswapped"));
-				throw new RestartResponseException(AccessDeniedPage.class, params);
+				sendToAccessDeniedPage(getString("ta.roleswapped"));
 			}
 
 			// no perms
 			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
 			if(this.permissions.isEmpty()) {
-				final PageParameters params = new PageParameters();
-				params.add("message", getString("ta.nopermission"));
-				throw new RestartResponseException(AccessDeniedPage.class, params);
+				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
 
@@ -518,7 +517,7 @@ public class GradebookPage extends BasePage {
 
 		// enable drag and drop based on user role (note: entity provider has
 		// role checks on exposed API)
-		table.add(new AttributeModifier("data-sort-enabled", this.businessService.getUserRole() == GbRole.INSTRUCTOR));
+		table.add(new AttributeModifier("data-sort-enabled", this.role == GbRole.INSTRUCTOR));
 
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
 		noAssignments.setVisible(false);

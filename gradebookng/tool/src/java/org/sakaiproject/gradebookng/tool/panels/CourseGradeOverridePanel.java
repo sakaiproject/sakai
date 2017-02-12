@@ -10,15 +10,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
@@ -32,14 +29,11 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
-public class CourseGradeOverridePanel extends Panel {
+public class CourseGradeOverridePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private final ModalWindow window;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	public CourseGradeOverridePanel(final String id, final IModel<String> model, final ModalWindow window) {
 		super(id, model);
@@ -56,9 +50,9 @@ public class CourseGradeOverridePanel extends Panel {
 		// get the rest of the data we need
 		// TODO this could all be passed in through the model if it was changed to a map, as per CourseGradeItemCellPanel...
 		final GbUser studentUser = this.businessService.getUser(studentUuid);
-		final String currentUserUuid = this.businessService.getCurrentUser().getId();
-		final GbRole currentUserRole = this.businessService.getUserRole();
-		final Gradebook gradebook = this.businessService.getGradebook();
+		final String currentUserUuid = getCurrentUserId();
+		final GbRole currentUserRole = getUserRole();
+		final Gradebook gradebook = getGradebook();
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);

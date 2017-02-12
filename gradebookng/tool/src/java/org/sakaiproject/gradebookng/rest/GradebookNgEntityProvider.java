@@ -20,6 +20,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -154,9 +155,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 *
 	 * @param siteId
 	 * @return
-	 * @throws IdUnusedException
+	 * @throws SecurityException if error in auth/role
 	 */
-	private void checkInstructor(final String siteId) {
+	private void checkInstructor(final String siteId)  {
 
 		final String currentUserId = getCurrentUserId();
 
@@ -164,7 +165,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
 
-		if (this.businessService.getUserRole(siteId) != GbRole.INSTRUCTOR) {
+		final GbRole role = getUserRole(siteId);
+
+		if (role != GbRole.INSTRUCTOR) {
 			throw new SecurityException("You do not have instructor-type permissions in this site.");
 		}
 	}
@@ -185,7 +188,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
 
-		final GbRole role = this.businessService.getUserRole(siteId);
+		final GbRole role = getUserRole(siteId);
 
 		if (role != GbRole.INSTRUCTOR && role != GbRole.TA) {
 			throw new SecurityException("You do not have instructor or TA-type permissions in this site.");
@@ -213,6 +216,21 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		} catch (final IdUnusedException e) {
 			throw new IllegalArgumentException("Invalid site id");
 		}
+	}
+
+	/**
+	 * Get role for current user in given site
+	 * @param siteId
+	 * @return
+	 */
+	private GbRole getUserRole(final String siteId) {
+		GbRole role;
+		try {
+			role = this.businessService.getUserRole(siteId);
+		} catch (final GbAccessDeniedException e) {
+			throw new SecurityException("Your role could not be checked properly. This may be a role configuration issue in this site.");
+		}
+		return role;
 	}
 
 	@Setter

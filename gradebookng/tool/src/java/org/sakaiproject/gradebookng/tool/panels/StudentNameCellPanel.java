@@ -1,12 +1,11 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -23,7 +22,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class StudentNameCellPanel extends Panel {
+public class StudentNameCellPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 

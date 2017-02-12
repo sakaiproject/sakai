@@ -13,7 +13,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbGradingType;
@@ -25,7 +24,7 @@ import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-public class GradeSummaryTablePanel extends Panel {
+public class GradeSummaryTablePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 	boolean isGroupedByCategory;

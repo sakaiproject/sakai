@@ -15,15 +15,12 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
@@ -43,12 +40,9 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class UpdateUngradedItemsPanel extends Panel {
+public class UpdateUngradedItemsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	private final ModalWindow window;
 
@@ -153,9 +147,9 @@ public class UpdateUngradedItemsPanel extends Panel {
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
 
-		if (this.businessService.getUserRole() == GbRole.TA) {
-			boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
-			List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
+		if (getUserRole() == GbRole.TA) {
+			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
 				this.businessService.getCurrentUser().getId());
 
 			List<String> gradableGroupIds = new ArrayList<>();
