@@ -48,7 +48,7 @@ public class TimeUtil
 
   private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
   // SAM-3106 ignore the timezone passed by the client browser
-  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
   private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 
   private TimeZone m_client_timezone= null;
@@ -139,9 +139,6 @@ public class TimeUtil
 
     try {
       // Hidden field from the datepicker will look like: 2015-02-19T02:25:00-06:00
-      if (dateString.length() > 20) {
-        dateString = dateString.substring(0, dateString.length() - 6);
-      }
       DateTime dt = dtf.parseDateTime(dateString);
       return dt.toDate();
     } catch (Exception e) {
