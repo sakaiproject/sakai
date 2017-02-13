@@ -1,6 +1,8 @@
 <!-- Extended Time -->
 <div class="clearfix">
-  <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
+  <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeHeading}">
+    <small><h:outputText value="#{assessmentSettingsMessages.extendedTimeSubHeading}" /></small>
+  </h:outputLabel>
 </div>
 <h:panelGroup styleClass="clearfix" layout="block">
 		<t:dataTable
