@@ -608,4 +608,16 @@ $PBJQ(document).ready(function($){
     dhtml_view_sites();
   });
 
+  $PBJQ('.moresites-header').click(function (e) {
+
+    var span = $(this).find('span');
+    var currentClass = span.attr('class');
+    if (currentClass === 'icon-sakai--arrow-right') {
+        span.attr('class', 'icon-sakai--arrow-down');
+    } else if (currentClass === 'icon-sakai--arrow-down') {
+        span.attr('class', 'icon-sakai--arrow-right');
+    }
+
+    $(this).next().toggle();
+  });
 });
