@@ -2006,6 +2006,8 @@
               <goals>
                   <goal>enforce</goal>
               </goals>
+              <!-- Against a clean repository you can't run `mvn validate` with enforcer enabled -->
+              <phase>install</phase>
               <configuration>
                   <rules>
                       <banCircularDependencies/>
