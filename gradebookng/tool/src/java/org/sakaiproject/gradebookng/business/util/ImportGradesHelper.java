@@ -437,21 +437,24 @@ public class ImportGradesHelper {
 					importedComment = importedCell.getComment();
 				}
 
-				// handle grade items
-				// checks imported vs existing data
-				if(column.isGradeItem()) {
 
-					String existingScore = null;
-					if(assignment != null){
-						final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
+				//get existing data
+				String existingScore = null;
+				String existingComment = null;
+				if(assignment != null){
+					final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
 
-						if (assignmentStudentGradeInfo != null) {
-							final GbGradeInfo existingGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(row.getStudentEid());
-							if (existingGradeInfo != null) {
-								existingScore = existingGradeInfo.getGrade();
-							}
+					if (assignmentStudentGradeInfo != null) {
+						final GbGradeInfo existingGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(row.getStudentEid());
+						if (existingGradeInfo != null) {
+							existingScore = existingGradeInfo.getGrade();
+							existingComment = existingGradeInfo.getGradeComment();
 						}
 					}
+				}
+
+				// handle grade items
+				if(column.isGradeItem()) {
 
 					importedScore = StringUtils.removeEnd(importedScore, ".0");
 					existingScore = StringUtils.removeEnd(existingScore, ".0");
@@ -465,10 +468,9 @@ public class ImportGradesHelper {
 				}
 
 				// handle comments
-				// note that we are unable to fetch the existing comments so we just check if new data exists and statuses
 				if (column.isComment()) {
 
-					log.debug("Comparing data, importedComment: " + importedComment);
+					log.debug("Comparing data, importedComment: " + importedComment + ", existingComment: " + existingComment);
 
 					if(StringUtils.isBlank(importedComment)) {
 						status = Status.SKIP;
@@ -476,9 +478,11 @@ public class ImportGradesHelper {
 					}
 					// has a value, could be NEW or an UPDATE. Preserve NEW if we already had it
 					if(status != Status.NEW) {
-						status = Status.UPDATE;
+						if(StringUtils.isNotBlank(importedComment) && !StringUtils.equals(importedComment, existingComment)){
+							status = Status.UPDATE;
+							break;
+						}
 					}
-					break;
 				}
 			}
 		}
@@ -672,4 +676,5 @@ public class ImportGradesHelper {
 	private static String trim(final String s) {
 		return StringUtils.trimToNull(s);
 	}
+
 }
