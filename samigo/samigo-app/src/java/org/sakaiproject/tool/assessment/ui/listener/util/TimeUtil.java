@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -66,9 +67,7 @@ public class TimeUtil
   * tz1 is the client timezone,  tz2 is the server timezone
   */
 
-  private String convertFromServerDateToTimeZone2String 
-    (SimpleDateFormat ndf, Date tz2Date, TimeZone tz1){
-    // for display
+  private String convertFromServerDateToTimeZone2String(SimpleDateFormat ndf, Date tz2Date, TimeZone tz1) {
     Calendar cal1= new GregorianCalendar(tz1);
     ndf.setCalendar(cal1);
     String clientStr= ndf.format(tz2Date);
@@ -119,6 +118,13 @@ public class TimeUtil
       DateTimeFormatter localFmt = fmt.withLocale(new ResourceLoader().getLocale());
       DateTimeFormatter fmtTime = DateTimeFormat.shortTime();
       DateTimeFormatter localFmtTime = fmtTime.withLocale(new ResourceLoader().getLocale());
+
+      // If the client browser is in a different timezone than server, need to modify date
+      if (m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
+        DateTimeZone dateTimeZone = DateTimeZone.forTimeZone(m_client_timezone);
+        localFmt = localFmt.withZone(dateTimeZone);
+        localFmtTime = localFmtTime.withZone(dateTimeZone);
+      }
       return dt.toString(localFmt) + " " + dt.toString(localFmtTime);
   }
   
