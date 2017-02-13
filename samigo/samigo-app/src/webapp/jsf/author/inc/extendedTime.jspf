@@ -1,12 +1,15 @@
 <!-- Extended Time -->
-<h:panelGroup styleClass="form-group row" layout="block">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
-    <div class="col-md-11 col-md-offset-1">
-        <t:dataTable cellpadding="0" cellspacing="0"
+<div class="clearfix">
+  <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeHeading}">
+    <small><h:outputText value="#{assessmentSettingsMessages.extendedTimeSubHeading}" /></small>
+  </h:outputLabel>
+</div>
+<h:panelGroup styleClass="clearfix" layout="block">
+        <t:dataTable
                      id="extendedTimeTable"
                      value="#{assessmentSettings.extendedTimes}"
                      var="entry"
-                     styleClass="extendedTimeDataTable"
+                     styleClass="table table-condensed table-borderless extendedTimeDataTable"
                      columnClasses="extendedTime-user, extendedTime-group, extendedTime-start, extendedTime-due,
                      extendedTime-retract, extendedTime-hours, extendedTime-mins, extendedTime-edit, extendedTime-delete"
                      title="#{assessmentSettingsMessages.extendedTime_data_table_title}">
@@ -111,5 +114,4 @@
         <h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" action="#{assessmentSettings.addExtendedTime}" rendered="#{not assessmentSettings.editingExtendedTime}"/>
         <h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{assessmentSettings.saveEditedExtendedTime}" rendered="#{assessmentSettings.editingExtendedTime}"/>
         <h:commandButton value="#{assessmentSettingsMessages.extendedTimeCancel}" action="#{assessmentSettings.cancelEdit}" rendered="#{assessmentSettings.editingExtendedTime}"/>
-    </div>
 </h:panelGroup>
