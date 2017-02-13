@@ -52,10 +52,6 @@
       <artifactId>gradebook-service-hibernate</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-      <artifactId>gradebook-service-impl</artifactId>
-    </dependency>
 <!-- Section Awareness -->
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>

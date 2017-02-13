@@ -90,10 +90,6 @@
             <artifactId>userauditservice-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.userauditservice</groupId>
-            <artifactId>userauditservice-util</artifactId>
-        </dependency>
-        <dependency>
         	<groupId>org.quartz-scheduler</groupId>
         	<artifactId>quartz</artifactId>
         </dependency>

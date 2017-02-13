@@ -19,12 +19,7 @@
     <packaging>war</packaging>
     
     <dependencies>
-        <!-- HACK -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>basiclti-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <!-- HACK -->
 
         <dependency>

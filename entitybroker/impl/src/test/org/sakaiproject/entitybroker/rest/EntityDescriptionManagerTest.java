@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.rest;
+package rest;
 
 import junit.framework.TestCase;
 
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
-import org.sakaiproject.entitybroker.rest.EntityDescriptionManager;
 
 /**
  * Testing the central logic of the entity handler

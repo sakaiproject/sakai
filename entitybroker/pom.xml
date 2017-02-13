@@ -34,7 +34,6 @@
   <modules>
     <module>api</module>
     <module>impl</module>
-    <module>rest</module>
     <module>tool</module>
     <module>mocks</module>
     <module>utils</module>

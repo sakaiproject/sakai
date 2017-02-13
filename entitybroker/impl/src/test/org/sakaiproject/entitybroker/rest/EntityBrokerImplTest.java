@@ -2,7 +2,7 @@
  * EntityBrokerImplTest.java - 2007 Jul 21, 2007 3:04:55 PM - entity-broker - AZ
  */
 
-package org.sakaiproject.entitybroker.rest;
+package rest;
 
 import static org.junit.Assert.*;
 

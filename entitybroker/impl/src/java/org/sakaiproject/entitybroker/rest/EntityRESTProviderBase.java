@@ -18,7 +18,7 @@
  * limitations under the License.
  **********************************************************************************/
 
-package org.sakaiproject.entitybroker.rest;
+package rest;
 
 import java.io.InputStream;
 import java.io.OutputStream;

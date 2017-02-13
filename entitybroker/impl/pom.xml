@@ -60,6 +60,10 @@
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
         <!-- generic DAO -->
         <dependency>
             <groupId>org.sakaiproject.genericdao</groupId>

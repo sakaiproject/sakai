@@ -42,11 +42,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>sakai-assignment-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>sakai-assignment-bundles</artifactId>
         </dependency>
         <dependency>
@@ -116,6 +111,11 @@
     	<dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
             <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.14</version>
         </dependency>
 
     </dependencies>

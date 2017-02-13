@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>pack</module>
     <module>common-composite-component</module>
     <module>impl</module>
     <module>edu-person-api</module>

@@ -18,7 +18,7 @@
  * limitations under the License.
  **********************************************************************************/
 
-package org.sakaiproject.entitybroker.rest.caps;
+package rest.caps;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.DescribePropertiesable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;

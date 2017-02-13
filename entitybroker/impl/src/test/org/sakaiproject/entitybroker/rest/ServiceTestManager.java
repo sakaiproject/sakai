@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.rest;
+package rest;
 
 import org.sakaiproject.entitybroker.impl.EntityBrokerImpl;
 import org.sakaiproject.entitybroker.impl.EntityBrokerManagerImpl;
@@ -30,12 +30,6 @@ import org.sakaiproject.entitybroker.mocks.data.TestData;
 
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
-import org.sakaiproject.entitybroker.rest.EntityActionsManager;
-import org.sakaiproject.entitybroker.rest.EntityBatchHandler;
-import org.sakaiproject.entitybroker.rest.EntityDescriptionManager;
-import org.sakaiproject.entitybroker.rest.EntityEncodingManager;
-import org.sakaiproject.entitybroker.rest.EntityHandlerImpl;
-import org.sakaiproject.entitybroker.rest.EntityRedirectsManager;
 
 import org.sakaiproject.entitybroker.util.core.EntityPropertiesServiceSimple;
 import org.sakaiproject.entitybroker.util.core.EntityProviderMethodStoreImpl;

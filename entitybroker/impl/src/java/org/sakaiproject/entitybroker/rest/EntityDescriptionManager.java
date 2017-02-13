@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.sakaiproject.entitybroker.rest;
+package rest;
 
 import java.util.ArrayList;
 import java.util.Collections;
