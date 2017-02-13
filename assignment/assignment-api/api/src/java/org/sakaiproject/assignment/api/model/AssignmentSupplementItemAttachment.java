@@ -21,36 +21,43 @@
 
 package org.sakaiproject.assignment.api.model;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * the attachment for the AssigmentSupplementItem object
- * @author zqian
- *
  */
-public class AssignmentSupplementItemAttachment {
-	private Long id;
-	private String attachmentId;
-	private AssignmentSupplementItemWithAttachment assignmentSupplementItemWithAttachment;
-	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public String getAttachmentId() {
-		return attachmentId;
-	}
-	public void setAttachmentId(String attachmentId) {
-		this.attachmentId = attachmentId;
-	}
-	public AssignmentSupplementItemWithAttachment getAssignmentSupplementItemWithAttachment()
-	{
-		return this.assignmentSupplementItemWithAttachment;
-	}
-	public void setAssignmentSupplementItemWithAttachment(AssignmentSupplementItemWithAttachment assignmentSupplementItemWithAttachment)
-	{
-		this.assignmentSupplementItemWithAttachment = assignmentSupplementItemWithAttachment;
-	}
-	
+@Entity
+@Table(name = "ASN_SUP_ATTACH_T",
+	   indexes = { @Index(name = "uniqueAttachmentItem", columnList = "ATTACHMENT_ID, ASN_SUP_ITEM_ID", unique = true),
+                   @Index(name = "ASN_SUP_ITEM_I", columnList = "ASN_SUP_ITEM_ID") })
+@NamedQuery(name = "findAttachmentBySupplementItem", query = "select attachmentId from AssignmentSupplementItemAttachment a where a.assignmentSupplementItemWithAttachment = :item")
 
+@Data
+@NoArgsConstructor
+public class AssignmentSupplementItemAttachment {
+	@Id
+	@Column(name = "ID")
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_supplemental_item_attachment_sequence")
+	@SequenceGenerator(name = "assignment_supplemental_item_attachment_sequence", sequenceName = "ASN_SUP_ITEM_ATT_S")
+	private Long id;
+
+	@Column(name = "ATTACHMENT_ID", nullable = false)
+	private String attachmentId;
+
+	@ManyToOne
+    @JoinColumn(name = "ASN_SUP_ITEM_ID", nullable = false)
+	private AssignmentSupplementItemWithAttachment assignmentSupplementItemWithAttachment;
 }

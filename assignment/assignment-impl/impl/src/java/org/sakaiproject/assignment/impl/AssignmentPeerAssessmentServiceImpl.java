@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sakaiproject.assignment.api.model.AssessorSubmissionId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
@@ -146,9 +147,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				}
 				//loop through the items and update the map values:
 				for(PeerAssessmentItem p : existingItems){
-					if(submissionIdMap.containsKey(p.getSubmissionId())){
+					if(submissionIdMap.containsKey(p.getId().getSubmissionId())){
 						//first, add this assessment to the AssignedAssessmentsMap
-						AssignmentSubmission s = submissionIdMap.get(p.getSubmissionId());
+						AssignmentSubmission s = submissionIdMap.get(p.getId().getSubmissionId());
 						//Next, increment the count for studentAssessorsMap
 						Integer count = studentAssessorsMap.get(s.getSubmitterId());
 						if(count == null){
@@ -160,20 +161,20 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 						if(count < numOfReviews || p.getScore() != null || p.getComment() != null){
 							count++;
 							studentAssessorsMap.put(s.getSubmitterId(), count);
-							Map<String, PeerAssessmentItem> peerAssessments = assignedAssessmentsMap.get(p.getAssessorUserId());
+							Map<String, PeerAssessmentItem> peerAssessments = assignedAssessmentsMap.get(p.getId().getAssessorUserId());
 							if(peerAssessments == null){
 								//probably not possible, but just check
 								peerAssessments = new HashMap<String, PeerAssessmentItem>();
 							}
-							peerAssessments.put(p.getSubmissionId(), p);
-							assignedAssessmentsMap.put(p.getAssessorUserId(), peerAssessments);
+							peerAssessments.put(p.getId().getSubmissionId(), p);
+							assignedAssessmentsMap.put(p.getId().getAssessorUserId(), peerAssessments);
 						}else{
 							//this shoudln't happen since the code above removes all empty assessments, but just in case:
 							getHibernateTemplate().delete(p);
 						}
 					}else{
 						//this isn't realy possible since we looked up the peer assessments by submission id
-						log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid session id: " + p.getSubmissionId());
+						log.error("AssignmentPeerAssessmentServiceImpl: found a peer assessment with an invalid session id: " + p.getId().getSubmissionId());
 					}
 				}
 				
@@ -204,8 +205,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 								assessorsAssessmentMap = new HashMap<String, PeerAssessmentItem>();
 							}
 							PeerAssessmentItem newItem = new PeerAssessmentItem();
-							newItem.setAssessorUserId(lowestAssignedAssessor);
-							newItem.setSubmissionId(submissionId);
+							newItem.setId(new AssessorSubmissionId(submissionId, lowestAssignedAssessor));
 							newItem.setAssignmentId(assignment.getId());
 							newItems.add(newItem);
 							assessorsAssessmentMap.put(submissionId, newItem);
@@ -225,11 +225,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 					}
 				}
 			}
-		} catch (IdUnusedException e) {
+		} catch (IdUnusedException | PermissionException e) {
 			log.error(e.getMessage(), e);
-		} catch (PermissionException e) {
-			log.error(e.getMessage(), e);
-		}finally{
+		} finally {
 			sessionManager.getCurrentSession().setUserEid(null);
 			sessionManager.getCurrentSession().setUserId(null);
 		}
@@ -247,7 +245,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				//check if this user already has a peer assessment for this assessee
 				boolean found = false;
 				for(PeerAssessmentItem p : peerAssessments.get(s.getSubmitterId()).values()){
-					if(p.getSubmissionId().equals(assesseeSubmissionId)){
+					if(p.getId().getSubmissionId().equals(assesseeSubmissionId)){
 						found = true;
 						break;
 					}
@@ -395,7 +393,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	}
 
 	public void savePeerAssessmentItem(PeerAssessmentItem item){
-		if(item != null && item.getAssessorUserId() != null && item.getSubmissionId() != null){
+		if(item != null && item.getId().getAssessorUserId() != null && item.getId().getSubmissionId() != null){
 			getHibernateTemplate().saveOrUpdate(item);
 			getHibernateTemplate().flush();
 		}
@@ -448,7 +446,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 					Integer totalScore = 0;
 					int denominator = 0;
 					for(PeerAssessmentItem item : items){
-						if(!item.isRemoved() && item.getScore() != null){
+						if(!item.getRemoved() && item.getScore() != null){
 							totalScore += item.getScore();
 							denominator++;
 						}
@@ -485,14 +483,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 					}
 				}
 			}
-		} catch (IdUnusedException e) {
+		} catch (IdUnusedException | InUseException | PermissionException e) {
 			log.error(e.getMessage(), e);
-		} catch (InUseException e) {
-			log.error(e.getMessage(), e);
-		} catch (PermissionException e) {
-			log.error(e.getMessage(), e);
-		}finally
-		{
+		} finally {
 			// remove advisor
 			if(sa != null){
 				securityService.popAdvisor(sa);

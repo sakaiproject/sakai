@@ -464,7 +464,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
 	
 	private static final String GRADE_SUBMISSION_SHOW_STUDENT_DETAILS = "grade_showStudentDetails";
-	
+
 	/** ******************* instructor's export assignment ***************************** */
 	private static final String EXPORT_ASSIGNMENT_REF = "export_assignment_ref";
 
@@ -726,7 +726,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String TEMPLATE_INSTRUCTOR_UPLOAD_ALL = "_instructor_uploadAll";
 	/** The student view to edit reviews **/
 	private static final String TEMPLATE_STUDENT_REVIEW_EDIT = "_student_review_edit";
-	
+
 	/** The instructor view to list users details **/
 	private static final String TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS = "_instructor_view_students_details";
 
@@ -833,7 +833,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private AuthzGroupService authzGroupService = null;
 	
 	private CandidateDetailProvider candidateDetailProvider = null;
-	
+
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
 	/******** Model Answer ************/
@@ -1580,7 +1580,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, s);
-			
+
 			addAdditionalNotesToContext(submitter, context, state);
 		}
 
@@ -2196,7 +2196,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if(reviews != null){
 					List<PeerAssessmentItem> completedReviews = new ArrayList<PeerAssessmentItem>();
 					for(PeerAssessmentItem review : reviews){
-						if(!review.isRemoved() && (review.getScore() != null || (review.getComment() != null && !"".equals(review.getComment().trim())))){
+						if(!review.getRemoved() && (review.getScore() != null || (review.getComment() != null && !"".equals(review.getComment().trim())))){
 							//only show peer reviews that have either a score or a comment saved
 							if(assignment.getPeerAssessmentAnonEval()){
 								//annonymous eval
@@ -2204,7 +2204,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}else{
 								//need to set the assessor's display name
 								try {
-									review.setAssessorDisplayName(userDirectoryService.getUser(review.getAssessorUserId()).getDisplayName());
+									review.setAssessorDisplayName(userDirectoryService.getUser(review.getId().getAssessorUserId()).getDisplayName());
 								} catch (UserNotDefinedException e) {
 									//reviewer doesn't exist or userId is wrong
 									M_log.error(e.getMessage(), e);
@@ -2213,7 +2213,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 							}
 							// get attachments for peer review item
-							List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(review.getSubmissionId(),review.getAssessorUserId());
+							List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(review.getId().getSubmissionId(),review.getId().getAssessorUserId());
 							if(attachments != null && !attachments.isEmpty()) {
 								List<Reference> attachmentRefList = new ArrayList<>();
 								for(PeerAssessmentAttachment attachment : attachments) {
@@ -3352,7 +3352,7 @@ public class AssignmentAction extends PagedResourceActionII
 				&& ((s.getSubmittedText() != null && s.getSubmittedText().length()> 0) // has some text
 					|| (s.getSubmittedAttachments() != null && s.getSubmittedAttachments().size() > 0))) // has some attachment
 			{
-				if (s.getCloseTime().after(timeService.newTime()))	 
+				if (s.getCloseTime().after(timeService.newTime()))
 				{
 					// not pass the close date yet
 					addGradeDraftAlert = true;
@@ -3384,15 +3384,15 @@ public class AssignmentAction extends PagedResourceActionII
 			// put the re-submission info into context
 			putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
 			assignment_resubmission_option_into_context(context, state);
-			
+
 			boolean isAdditionalNotesEnabled = false;
 			Site st = null;
 			try{
 				st = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 				isAdditionalNotesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
-				
+
 				context.put("isAdditionalNotesEnabled", isAdditionalNotesEnabled);
-				
+
 				if(isAdditionalNotesEnabled && candidateDetailProvider != null && a != null && !a.isGroup()) {
 					User[] _users = s.getSubmitters();
 					if(_users != null && _users.length == 1) {
@@ -4266,7 +4266,7 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
-			
+
 			addAdditionalNotesToContext(userSubmissions, context, state);
 
 			//find peer assessment grades if exist
@@ -4284,18 +4284,18 @@ public class AssignmentAction extends PagedResourceActionII
 				if(items != null){
 					for(PeerAssessmentItem item : items){
 						//update items map
-						List<PeerAssessmentItem> sItems = itemsMap.get(item.getSubmissionId());
+						List<PeerAssessmentItem> sItems = itemsMap.get(item.getId().getSubmissionId());
 						if(sItems == null){
 							sItems = new ArrayList<PeerAssessmentItem>();
 						}
 						sItems.add(item);
-						itemsMap.put(item.getSubmissionId(), sItems);
+						itemsMap.put(item.getId().getSubmissionId(), sItems);
 						//update users map:
-						User u = reviewersMap.get(item.getAssessorUserId());
+						User u = reviewersMap.get(item.getId().getAssessorUserId());
 						if(u == null){
 							try {
-								u = userDirectoryService.getUser(item.getAssessorUserId());
-								reviewersMap.put(item.getAssessorUserId(), u);
+								u = userDirectoryService.getUser(item.getId().getAssessorUserId());
+								reviewersMap.put(item.getId().getAssessorUserId(), u);
 							} catch (UserNotDefinedException e) {
 								M_log.error(e.getMessage(), e);
 							}
@@ -4423,7 +4423,7 @@ public class AssignmentAction extends PagedResourceActionII
 		Site sst = null;
 		try {
 			sst = siteService.getSite(contextString);
-		
+
 			Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
 			for (User u : submitters.keySet())
 			{
@@ -4431,12 +4431,12 @@ public class AssignmentAction extends PagedResourceActionII
 					M_log.debug("Skipping user with no additional notes " + u.getEid());
 					continue;
 				}
-	
+
 				AssignmentSubmission sub = submitters.get(u);
 				SubmitterSubmission us = new SubmitterSubmission(u, sub);
 				returnResources.add(us);
 			}
-	
+
 			String ascending = "true";
 			String sort = "sorted_grade_submission_by_lastname";
 			String anon = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
@@ -4454,16 +4454,16 @@ public class AssignmentAction extends PagedResourceActionII
 				// log exception during sorting for helping debugging
 				M_log.warn(this + ":build_show_students_additional_information_context sort=" + sort + " ascending=" + ascending, e);
 			}
-	
+
 			state.setAttribute(USER_NOTES, returnResources);
 			context.put("userNotes", state.getAttribute(USER_NOTES));
-			
+
 			addAdditionalNotesToContext(returnResources, context, state);
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":build_show_students_additional_information_context: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);
 		}
-		 
+
 
 	} // build_show_students_additional_information_context
 
@@ -4706,18 +4706,18 @@ public class AssignmentAction extends PagedResourceActionII
 			//find the peerAssessmentItem for this submission:
 			PeerAssessmentItem peerAssessmentItem = null;
 			for(PeerAssessmentItem item : peerAssessmentItems){
-				if(submissionId.equals(item.getSubmissionId())
-						&& assessorId.equals(item.getAssessorUserId())){
+				if(submissionId.equals(item.getId().getSubmissionId())
+						&& assessorId.equals(item.getId().getAssessorUserId())){
 					peerAssessmentItem = item;
 					break;
 				}
 			}
 			if(peerAssessmentItem != null){
 				//check if current user is the peer assessor, if not, only display data (no editing)
-				if(!sessionUser.getId().equals(peerAssessmentItem.getAssessorUserId())){
+				if(!sessionUser.getId().equals(peerAssessmentItem.getId().getAssessorUserId())){
 					context.put("view_only", true);
 					try {
-						User reviewer = userDirectoryService.getUser(peerAssessmentItem.getAssessorUserId());
+						User reviewer = userDirectoryService.getUser(peerAssessmentItem.getId().getAssessorUserId());
 						context.put("reviewer", reviewer);
 					} catch (UserNotDefinedException e) {
 						M_log.error(e.getMessage(), e);
@@ -4727,7 +4727,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 
 				// get attachments for peer review item
-				List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(peerAssessmentItem.getSubmissionId(),peerAssessmentItem.getAssessorUserId());
+				List<PeerAssessmentAttachment> attachments = assignmentPeerAssessmentService.getPeerAssessmentAttachments(peerAssessmentItem.getId().getSubmissionId(),peerAssessmentItem.getId().getAssessorUserId());
 				List<Reference> attachmentRefList = new ArrayList<Reference>();
 				if(attachments != null && !attachments.isEmpty()) {
 					for(PeerAssessmentAttachment attachment : attachments) {
@@ -4769,7 +4769,7 @@ public class AssignmentAction extends PagedResourceActionII
 					context.put("value_grade", null);
 					context.put("display_grade", "");
 				}
-				context.put("item_removed", peerAssessmentItem.isRemoved());
+				context.put("item_removed", peerAssessmentItem.getRemoved());
 				context.put("value_feedback_comment", peerAssessmentItem.getComment());
 				
 				//set previous/next values
@@ -4787,8 +4787,8 @@ public class AssignmentAction extends PagedResourceActionII
 				}else{
 					//student view
 					for(PeerAssessmentItem item : peerAssessmentItems){
-						if(!userSubmissions.contains(item.getSubmissionId()) && !item.isSubmitted()){
-							userSubmissions.add(item.getSubmissionId());
+						if(!userSubmissions.contains(item.getId().getSubmissionId()) && !item.getSubmitted()){
+							userSubmissions.add(item.getId().getSubmissionId());
 						}
 					}
 				}
@@ -4798,13 +4798,13 @@ public class AssignmentAction extends PagedResourceActionII
 					Map<String, List<PeerAssessmentItem>> itemMap = new HashMap<String, List<PeerAssessmentItem>>();
 					for(String userSubmissionId : userSubmissions){
 						for (PeerAssessmentItem item : peerAssessmentItems){
-							if(userSubmissionId.equals(item.getSubmissionId())){
+							if(userSubmissionId.equals(item.getId().getSubmissionId())){
 								List<PeerAssessmentItem> items = itemMap.get(userSubmissionId);
 								if(items == null){
 									items = new ArrayList<PeerAssessmentItem>();
 								}
 								items.add(item);
-								itemMap.put(item.getSubmissionId(), items);
+								itemMap.put(item.getId().getSubmissionId(), items);
 							}
 						}
 					}
@@ -4817,7 +4817,7 @@ public class AssignmentAction extends PagedResourceActionII
 							if(submissionItems != null){
 								for (int j = 0; j < submissionItems.size(); j++){
 									PeerAssessmentItem item = submissionItems.get(j);
-									if(item.getAssessorUserId().equals(assessorId)){
+									if(item.getId().getAssessorUserId().equals(assessorId)){
 										context.put("anonNumber", i + 1);
 										boolean goPT = false;
 										boolean goNT = false;
@@ -4835,8 +4835,8 @@ public class AssignmentAction extends PagedResourceActionII
 										if (j>0)
 										{
 											// retrieve the previous submission id
-											context.put("prevSubmissionId", (submissionItems.get(j-1).getSubmissionId()));
-											context.put("prevAssessorId", (submissionItems.get(j-1).getAssessorUserId()));
+											context.put("prevSubmissionId", (submissionItems.get(j-1).getId().getSubmissionId()));
+											context.put("prevAssessorId", (submissionItems.get(j-1).getId().getAssessorUserId()));
 										}else if(i > 0){
 											//go to previous submission and grab the last item in that list
 											int k = i - 1;
@@ -4846,8 +4846,8 @@ public class AssignmentAction extends PagedResourceActionII
 											if(k >= 0 && itemMap.get(userSubmissions.get(k)).size() > 0){
 												List<PeerAssessmentItem> pItems = itemMap.get(userSubmissions.get(k));
 												PeerAssessmentItem pItem = pItems.get(pItems.size() - 1);
-												context.put("prevSubmissionId", (pItem.getSubmissionId()));
-												context.put("prevAssessorId", (pItem.getAssessorUserId()));
+												context.put("prevSubmissionId", (pItem.getId().getSubmissionId()));
+												context.put("prevAssessorId", (pItem.getId().getAssessorUserId()));
 											}else{
 												//no previous option, set to false
 												context.put("goPTButton", Boolean.valueOf(false));
@@ -4857,8 +4857,8 @@ public class AssignmentAction extends PagedResourceActionII
 										if (j < submissionItems.size() - 1)
 										{
 											// retrieve the next submission id
-											context.put("nextSubmissionId", (submissionItems.get(j+1).getSubmissionId()));
-											context.put("nextAssessorId", (submissionItems.get(j+1).getAssessorUserId()));
+											context.put("nextSubmissionId", (submissionItems.get(j+1).getId().getSubmissionId()));
+											context.put("nextAssessorId", (submissionItems.get(j+1).getId().getAssessorUserId()));
 										}else if (i < userSubmissions.size() - 1){
 											//go to previous submission and grab the last item in that list
 											int k = i + 1;
@@ -4868,8 +4868,8 @@ public class AssignmentAction extends PagedResourceActionII
 											if(k < userSubmissions.size() && itemMap.get(userSubmissions.get(k)).size() > 0){
 												List<PeerAssessmentItem> pItems = itemMap.get(userSubmissions.get(k));
 												PeerAssessmentItem pItem = pItems.get(0);
-												context.put("nextSubmissionId", (pItem.getSubmissionId()));
-												context.put("nextAssessorId", (pItem.getAssessorUserId()));
+												context.put("nextSubmissionId", (pItem.getId().getSubmissionId()));
+												context.put("nextAssessorId", (pItem.getId().getAssessorUserId()));
 											}else{
 												//no next option, set to false
 												context.put("goNTButton", Boolean.valueOf(false));
@@ -5108,7 +5108,7 @@ public class AssignmentAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 
 		context.put("assignmentService", assignmentService);
-		
+
 		addAdditionalNotesToContext(submissions, context, state);
 
 		String template = (String) getContext(data).get("template");
@@ -6040,7 +6040,7 @@ public class AssignmentAction extends PagedResourceActionII
 				//call the DB to make sure this user can edit this assessment, otherwise it wouldn't exist
 				PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, peerAssessor);
 				if(item != null){
-					item.setRemoved(!item.isRemoved());
+					item.setRemoved(!item.getRemoved());
 					assignmentPeerAssessmentService.savePeerAssessmentItem(item);
 					if(item.getScore() != null){
 						//item was part of the calculation, re-calculate
@@ -6060,14 +6060,14 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					}
 					state.setAttribute(GRADE_SUBMISSION_DONE, Boolean.TRUE);
-					state.setAttribute(PEER_ASSESSMENT_REMOVED_STATUS, item.isRemoved());
+					state.setAttribute(PEER_ASSESSMENT_REMOVED_STATUS, item.getRemoved());
 					//update session state:
 					List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) state.getAttribute(PEER_ASSESSMENT_ITEMS);
 					if(peerAssessmentItems != null){
 						for(int i = 0; i < peerAssessmentItems.size(); i++) {
 							PeerAssessmentItem sItem = peerAssessmentItems.get(i);
-							if(sItem.getSubmissionId().equals(item.getSubmissionId())
-									&& sItem.getAssessorUserId().equals(item.getAssessorUserId())){
+							if(sItem.getId().getSubmissionId().equals(item.getId().getSubmissionId())
+									&& sItem.getId().getAssessorUserId().equals(item.getId().getAssessorUserId())){
 								//found it, just update it
 								peerAssessmentItems.set(i, item);
 								state.setAttribute(PEER_ASSESSMENT_ITEMS, peerAssessmentItems);
@@ -6804,7 +6804,7 @@ public class AssignmentAction extends PagedResourceActionII
 					    // if assignment is a group submission... send group id and not user id
 					    M_log.debug(this + " NEW SUBMISSION IS GROUP: " + a.isGroup() + " GROUP:" + group_id);
 					    AssignmentSubmissionEdit edit = a.isGroup() ? 
-					            assignmentService.addSubmission(contextString, assignmentId, group_id): 
+					            assignmentService.addSubmission(contextString, assignmentId, group_id):
 					                assignmentService.addSubmission(contextString, assignmentId, sessionManager.getCurrentSessionUserId());
 						if (edit != null)
 						{
@@ -8591,7 +8591,7 @@ public class AssignmentAction extends PagedResourceActionII
 				commitAssignmentEdit(state, post, ac, a, title, visibleTime, openTime, dueTime, closeTime, enableCloseDate, section, range, groups, isGroupSubmit, 
 						usePeerAssessment,peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions);
 
-				// Locking and unlocking groups   
+				// Locking and unlocking groups
 				List<String> lockedGroupsReferences = new ArrayList<String>();
 				if (post && isGroupSubmit && !groups.isEmpty()) {
 					for (Group group : groups) {
@@ -10128,7 +10128,7 @@ public class AssignmentAction extends PagedResourceActionII
 			List<String> submissionIds = new ArrayList<String>();
 			if(peerAssessmentItems != null){
 				for(PeerAssessmentItem item : peerAssessmentItems){
-					submissionIds.add(item.getSubmissionId());
+					submissionIds.add(item.getId().getSubmissionId());
 				}
 			}
 			state.setAttribute(USER_SUBMISSIONS, submissionIds);
@@ -10156,8 +10156,8 @@ public class AssignmentAction extends PagedResourceActionII
 			List<String> submissionIds = new ArrayList<String>();
 			if(peerAssessmentItems != null){
 				for(PeerAssessmentItem item : peerAssessmentItems){
-					if(!item.isSubmitted()){
-						submissionIds.add(item.getSubmissionId());
+					if(!item.getSubmitted()){
+						submissionIds.add(item.getId().getSubmissionId());
 					}
 				}
 			}
@@ -11928,8 +11928,8 @@ public class AssignmentAction extends PagedResourceActionII
 				//if so, save it
 				boolean changed = false;
 
-				if(submissionId.equals(item.getSubmissionId())
-						&& assessorUserId.equals(item.getAssessorUserId())){
+				if(submissionId.equals(item.getId().getSubmissionId())
+						&& assessorUserId.equals(item.getId().getAssessorUserId())){
 					//Grade
 					String g = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
 					Integer score = item.getScore();
@@ -12011,12 +12011,12 @@ public class AssignmentAction extends PagedResourceActionII
 						List<PeerAssessmentAttachment> attachmentsFromForm = new ArrayList<>();
 						for(Object attachment : submittedAttachmentRefs) {
 							// Try to get existing attachment first
-							PeerAssessmentAttachment peerAssessmentAttachment = assignmentPeerAssessmentService.getPeerAssessmentAttachment(item.getSubmissionId(), item.getAssessorUserId(), ((Reference) attachment).getId());
+							PeerAssessmentAttachment peerAssessmentAttachment = assignmentPeerAssessmentService.getPeerAssessmentAttachment(item.getId().getSubmissionId(), item.getId().getAssessorUserId(), ((Reference) attachment).getId());
 							if (peerAssessmentAttachment != null) {
 								attachmentsFromForm.add(peerAssessmentAttachment);
 							} else {
 								// Build a new attachment
-								peerAssessmentAttachment = new PeerAssessmentAttachment(item.getSubmissionId(), item.getAssessorUserId(), ((Reference) attachment).getId());
+								peerAssessmentAttachment = new PeerAssessmentAttachment(item.getId().getSubmissionId(), item.getId().getAssessorUserId(), ((Reference) attachment).getId());
 								attachmentsFromForm.add(peerAssessmentAttachment);
 							}
 						}
@@ -12090,8 +12090,8 @@ public class AssignmentAction extends PagedResourceActionII
 					if(peerAssessmentItems != null){
 						for(int i = 0; i < peerAssessmentItems.size(); i++) {
 							PeerAssessmentItem sItem = peerAssessmentItems.get(i);
-							if(sItem.getSubmissionId().equals(item.getSubmissionId())
-									&& sItem.getAssessorUserId().equals(item.getAssessorUserId())){
+							if(sItem.getId().getSubmissionId().equals(item.getId().getSubmissionId())
+									&& sItem.getId().getAssessorUserId().equals(item.getId().getAssessorUserId())){
 								//found it, just update it
 								peerAssessmentItems.set(i, item);
 								state.setAttribute(PEER_ASSESSMENT_ITEMS, peerAssessmentItems);
@@ -12483,7 +12483,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (candidateDetailProvider == null) {
 			candidateDetailProvider = ComponentManager.get(CandidateDetailProvider.class);
 		}
-		
+
 
 		String siteId = toolManager.getCurrentPlacement().getContext();
 
@@ -12797,7 +12797,7 @@ public class AssignmentAction extends PagedResourceActionII
 		int year = tB.getYear();
 
 		// set the visible time to be 12:00 PM
-                if (Boolean.valueOf(serverConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {                
+                if (Boolean.valueOf(serverConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {
                     state.setAttribute(NEW_ASSIGNMENT_VISIBLEMONTH, Integer.valueOf(month));
                     state.setAttribute(NEW_ASSIGNMENT_VISIBLEDAY, Integer.valueOf(day));
                     state.setAttribute(NEW_ASSIGNMENT_VISIBLEYEAR, Integer.valueOf(year));
@@ -17823,8 +17823,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		
-		boolean allowReadAssignment = assignmentService.allowGetAssignment(contextString); 
-		boolean allowSubmitAssignment = assignmentService.allowAddSubmission(contextString); 
+		boolean allowReadAssignment = assignmentService.allowGetAssignment(contextString);
+		boolean allowSubmitAssignment = assignmentService.allowAddSubmission(contextString);
 		boolean allowAddAssignment = assignmentService.allowAddAssignment(contextString);
 		
 		// Retrieve the status of the assignment
@@ -17949,7 +17949,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 	}
-	
+
 	private void addAdditionalNotesToContext(Object o, Context context, SessionState state){
 
 		try {
@@ -17981,7 +17981,7 @@ public class AssignmentAction extends PagedResourceActionII
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":addAdditionalNotesToContext: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);
-		} 
+		}
 	}
 
-}	
+}

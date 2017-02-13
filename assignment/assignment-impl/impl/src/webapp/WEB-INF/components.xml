@@ -90,13 +90,16 @@
 
 	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.assignmentSupplementItem"
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-		<property name="mappingResources">
+		<property name="annotatedClasses">
 			<list>
-				<value>org/sakaiproject/assignment/api/model/AssignmentSupplementItemAttachment.hbm.xml</value>
-				<value>org/sakaiproject/assignment/api/model/AssignmentSupplementItem.hbm.xml</value>
-				<value>org/sakaiproject/assignment/api/model/AssignmentAllPurposeItemAccess.hbm.xml</value>
-				<value>org/sakaiproject/assignment/api/model/PeerAssessmentItem.hbm.xml</value>
-				<value>org/sakaiproject/assignment/api/model/PeerAssessmentAttachment.hbm.xml</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentNoteItem</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment</value>
+				<value>org.sakaiproject.assignment.api.model.PeerAssessmentAttachment</value>
+				<value>org.sakaiproject.assignment.api.model.PeerAssessmentItem</value>
 			</list>
 		</property>
 	</bean>

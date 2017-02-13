@@ -20,55 +20,35 @@
  **********************************************************************************/
 package org.sakaiproject.assignment.api.model;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.NamedQuery;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * To provide sample answers to student
- * @author zqian
- *
  */
+@Entity
+@Table(name = "ASN_MA_ITEM_T")
+@PrimaryKeyJoinColumn(name = "ID")
+@NamedQuery(name = "findModelAnswerByAssignmentId", query = "from AssignmentModelAnswerItem m where m.assignmentId = :id")
+
+@Data
+@NoArgsConstructor
 public class AssignmentModelAnswerItem extends AssignmentSupplementItemWithAttachment {
 
-	/************* constructors ***********************/
-	public AssignmentModelAnswerItem() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	/*************** attributes and methods *************/
-	
-	/** assignment id **/
+	@Column(name = "ASSIGNMENT_ID", nullable = false)
 	private String assignmentId;
 
-	public String getAssignmentId()
-	{
-		return assignmentId;
-	}
-	public void setAssignmentId(String assignmentId)
-	{
-		this.assignmentId = assignmentId;
-	}
-	
-	/** text **/
+	@Lob
+	@Column(name = "TEXT")
 	public String text;
-	public String getText()
-	{
-		return text;
-	}
-	public void setText(String text)
-	{
-		this.text = text;
-	}
-	
-	/** when to show the model answer to student **/
-	private int showTo;
 
-	public int getShowTo() {
-		return showTo;
-	}
-	public void setShowTo(int showTo) {
-		this.showTo = showTo;
-	}
+	@Column(name = "SHOW_TO")
+	private Integer showTo;
 }

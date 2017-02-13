@@ -20,13 +20,28 @@
  **********************************************************************************/
 package org.sakaiproject.assignment.api.model;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 /**
@@ -34,38 +49,24 @@ import org.sakaiproject.entity.cover.EntityManager;
  * @author zqian
  *
  */
+@Entity
+@Table(name = "ASN_SUP_ITEM_T")
+@Inheritance(strategy = InheritanceType.JOINED)
+
+@Data
+@NoArgsConstructor
 public class AssignmentSupplementItemWithAttachment {
 
-	/************* constructors ***********************/
-	public AssignmentSupplementItemWithAttachment() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-	
-	/*************** attributes and methods *************/
-	/** id in db **/
+	@Id
+	@Column(name = "ID")
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_supplemental_item_sequence")
+	@SequenceGenerator(name = "assignment_supplemental_item_sequence", sequenceName = "ASN_SUP_ITEM_S")
 	private Long id;
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	/** attachments **/
-	private Set<AssignmentSupplementItemAttachment> attachmentSet;	// the attachment set
-	public Set<AssignmentSupplementItemAttachment> getAttachmentSet() {
-		return attachmentSet;
-	}
-	public void setAttachmentSet(
-			Set<AssignmentSupplementItemAttachment> attachmentSet) {
-		this.attachmentSet = attachmentSet;
-	}
-	
-	/**
-	 * return the set of Reference objects for attachments
-	 * @return
-	 */
+
+	@OneToMany(mappedBy = "assignmentSupplementItemWithAttachment", orphanRemoval = true)
+	private Set<AssignmentSupplementItemAttachment> attachmentSet;
+
+	@Transient
 	public Set<Reference> getAttachmentObjectSet()
 	{
 		Set<Reference> rv = new HashSet<Reference>();

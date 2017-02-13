@@ -21,72 +21,56 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * The AssignmentSupplementItem is to store additional information for the assignment. Candidates include model answers, instructor notes, grading guidelines, etc.
- * @author zqian
- *
  */
-public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttachment{
-	
-	private String assignmentId;
-	private String title;
-	private String text;
-	private Date releaseDate;	// the start showing date
-	private Date retractDate; // the end showing date
-	private boolean hide;
 
-	public String getAssignmentId() {
-		return assignmentId;
-	}
-	public void setAssignmentId(String assignmentId) {
-		this.assignmentId = assignmentId;
-	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public String getText() {
-		return text;
-	}
-	public void setText(String text) {
-		this.text = text;
-	}
-	public Date getReleaseDate() {
-		return releaseDate;
-	}
-	public void setReleaseDate(Date releaseDate) {
-		this.releaseDate = releaseDate;
-	}
-	public Date getRetractDate() {
-		return retractDate;
-	}
-	public void setRetractDate(Date retractDate) {
-		this.retractDate = retractDate;
-	}
-	public boolean getHide()
-	{
-		return hide;
-	}
-	public void setHide(boolean hide) {
-		this.hide = hide;
-	}
-	
-	public AssignmentAllPurposeItem() {
-		super();
-	}
-	
-	/** access **/
-	private Set<AssignmentAllPurposeItemAccess> accessSet;	// the access set
-	public Set<AssignmentAllPurposeItemAccess> getAccessSet() {
-		return accessSet;
-	}
-	public void setAccessSet(
-			Set<AssignmentAllPurposeItemAccess> accessSet) {
-		this.accessSet = accessSet;
-	}
+@Entity
+@Table(name = "ASN_AP_ITEM_T")
+@PrimaryKeyJoinColumn(name = "ID")
+@NamedQuery(name = "findAllPurposeItemByAssignmentId", query = "from AssignmentAllPurposeItem m where m.assignmentId = :id")
+
+@Data
+@NoArgsConstructor
+public class AssignmentAllPurposeItem extends AssignmentSupplementItemWithAttachment {
+
+    @Column(name = "ASSIGNMENT_ID", nullable = false)
+	private String assignmentId;
+
+    @Column(name = "TITLE")
+    private String title;
+
+    @Lob
+    @Column(name = "TEXT")
+	private String text;
+
+    @Column(name = "RELEASE_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+	private Date releaseDate;
+
+    @Column(name = "RETRACT_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+	private Date retractDate;
+
+    @Column(name = "HIDE", nullable = false)
+	private Boolean hide;
+
+    @OneToMany(mappedBy = "assignmentAllPurposeItem")
+	private Set<AssignmentAllPurposeItemAccess> accessSet;
 }

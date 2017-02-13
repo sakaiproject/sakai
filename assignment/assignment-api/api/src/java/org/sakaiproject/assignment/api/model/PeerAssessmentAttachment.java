@@ -1,68 +1,47 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "ASN_PEER_ASSESSMENT_ATTACH_T",
+        indexes = {@Index(name = "PEER_ASSESSOR_I", columnList = "SUBMISSION_ID, ASSESSOR_USER_ID")})
+@NamedQuery(name = "findPeerAssessmentAttachmentsByUserAndSubmission", query = "from PeerAssessmentAttachment p	where p.assessorUserId = :assessorUserId and p.submissionId = :submissionId	order by p.resourceId, p.submissionId, p.assessorUserId")
+@Data
+@NoArgsConstructor
 public class PeerAssessmentAttachment implements Serializable{
 
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "peer_assessment_attachment_sequence")
+    @SequenceGenerator(name = "peer_assessment_attachment_sequence", sequenceName = "ASN_PEER_ATTACH_S")
     private Long id;
-    private String submissionId;
-    private String assessorUserId;
-    private String resourceId;
 
-    public PeerAssessmentAttachment(){}
+    @Column(name = "SUBMISSION_ID", nullable = false)
+    private String submissionId;
+
+    @Column(name = "ASSESSOR_USER_ID", nullable = false)
+    private String assessorUserId;
+
+    @Column(name = "RESOURCE_ID", nullable = false)
+    private String resourceId;
 
     public PeerAssessmentAttachment(String s, String a, String r) {
         submissionId = s;
         assessorUserId = a;
         resourceId = r;
     }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getSubmissionId() {
-        return submissionId;
-    }
-
-    public void setSubmissionId(String submissionId) {
-        this.submissionId = submissionId;
-    }
-
-    public String getAssessorUserId() {
-        return assessorUserId;
-    }
-
-    public void setAssessorUserId(String assessorUserId) {
-        this.assessorUserId = assessorUserId;
-    }
-
-    public String getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(String resourceId) {
-        this.resourceId = resourceId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PeerAssessmentAttachment that = (PeerAssessmentAttachment) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(submissionId, that.submissionId) &&
-                Objects.equals(assessorUserId, that.assessorUserId) &&
-                Objects.equals(resourceId, that.resourceId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, submissionId, assessorUserId, resourceId);
-    }
 }
+
