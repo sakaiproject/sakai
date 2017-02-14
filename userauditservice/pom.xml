@@ -27,6 +27,7 @@
     <module>deploy</module>
     <module>impl</module>
     <module>tool</module>
+    <module>util</module>
   </modules>
 
 

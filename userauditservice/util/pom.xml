@@ -8,19 +8,19 @@
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
-    <name>Sakai Userauditservice Implementation (userauditservice-impl)</name>
+    <name>Sakai Userauditservice Util (userauditservice-util)</name>
     <groupId>org.sakaiproject.userauditservice</groupId>
-    <artifactId>userauditservice-impl</artifactId>
+    <artifactId>userauditservice-util</artifactId>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2013</inceptionYear>
-    <description>Userauditservice implementation</description>
-    <packaging>sakai-component</packaging>
+    <description>Userauditservice utility</description>
+    <packaging>jar</packaging>
 
     <properties>
-        <deploy.target>components</deploy.target>
+        <deploy.target />
     </properties>
 
     <dependencies>
@@ -29,16 +29,28 @@
             <artifactId>userauditservice-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>userauditservice-util</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-util</artifactId>
+            <artifactId>sakai-kernel-storage-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.jsf</groupId>
+            <artifactId>jsf-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -50,12 +62,6 @@
                     <include>**/*.xml</include>
                 </includes>
                 <filtering>false</filtering>
-            </resource>
-            <resource>
-                <directory>${basedir}/src/sql</directory>
-                <includes>
-                    <include>**/*.sql</include>
-                </includes>
             </resource>
         </resources>
     </build>
