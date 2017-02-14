@@ -14,6 +14,7 @@
         <module>cm-api/api</module>
         <module>cm-impl/hibernate-impl/hibernate</module>
         <module>cm-impl/hibernate-impl/impl</module>
+        <module>cm-impl/hibernate-pack</module>
     </modules>
 
     <dependencyManagement>
