@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package rest;
+package org.sakaiproject.entitybroker.rest;
 
 import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.access.EntityViewAccessProviderManager;

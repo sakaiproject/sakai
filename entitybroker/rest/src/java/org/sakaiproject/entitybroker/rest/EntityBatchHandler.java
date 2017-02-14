@@ -18,7 +18,7 @@
  * limitations under the License.
  **********************************************************************************/
 
-package rest;
+package org.sakaiproject.entitybroker.rest;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -42,7 +42,7 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 import org.sakaiproject.entitybroker.providers.ExternalIntegrationProvider;
-import rest.caps.BatchProvider;
+import org.sakaiproject.entitybroker.rest.caps.BatchProvider;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletRequest;
 import org.sakaiproject.entitybroker.util.http.EntityHttpServletResponse;
 import org.sakaiproject.entitybroker.util.http.HttpClientWrapper;

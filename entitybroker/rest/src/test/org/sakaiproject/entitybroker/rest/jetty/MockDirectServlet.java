@@ -18,7 +18,7 @@
  * limitations under the License.
  **********************************************************************************/
 
-package rest.jetty;
+package org.sakaiproject.entitybroker.rest.jetty;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
-import rest.ServiceTestManager;
+import org.sakaiproject.entitybroker.rest.ServiceTestManager;
 import org.sakaiproject.entitybroker.util.servlet.DirectServlet;
 
 

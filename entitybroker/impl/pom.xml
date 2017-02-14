@@ -9,16 +9,13 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2007</inceptionYear>
-    <packaging>sakai-component</packaging>
+    <packaging>jar</packaging>
 <!-- the base is parent -->
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
         <version>12-SNAPSHOT</version><!--entitybroker.version-->
     </parent>
-    <properties>
-        <deploy.target>components</deploy.target>
-    </properties>
     <dependencies>
 <!-- internal dependencies -->
         <dependency>
@@ -59,10 +56,6 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
         </dependency>
         <!-- generic DAO -->
         <dependency>
