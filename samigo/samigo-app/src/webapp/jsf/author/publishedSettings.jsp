@@ -57,7 +57,20 @@
       <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
-          $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true, active: 1 });
+          var accordionPanel = 1;
+          if (window.sessionStorage && window.sessionStorage.getItem('samigo_publishedsettings')) {
+              accordionPanel = parseInt(window.sessionStorage.getItem('samigo_publishedsettings'));
+          }
+          $("#jqueryui-accordion").accordion({
+              heightStyle: "content",
+              activate: function(event, ui) {
+                  if (window.sessionStorage) {
+                      window.sessionStorage.setItem('samigo_publishedsettings', $("#jqueryui-accordion").accordion("option", "active"));
+                  }
+              },
+              active: accordionPanel,
+              collapsible: true
+          });
           // This is a sub-accordion inside of the About the Assessment Panel
           $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
           // This is a sub-accordion inside of the Availability and Submission Panel
