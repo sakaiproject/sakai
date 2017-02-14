@@ -1189,7 +1189,7 @@ public class SimplePageBean {
 				item.setHtml(html);
 				item.setPrerequisite(this.prerequisite);
 				setItemGroups(item, selectedGroups);
-				saveItem(item);
+				saveOrUpdate(item);
 			} else {
 				rv = "cancel";
 			}
@@ -3846,6 +3846,26 @@ public class SimplePageBean {
 	   myGroups = ret;
 	   return ret;
        }
+
+    // get actual groups that should submit to this student content item
+    // only called if the item has groups. If there are specified groups
+    // use them, otherwise get all groups
+	public Set<String> getOwnerGroups(SimplePageItem item) {
+	    Set<String> ret = new HashSet<String>();
+	    String ownerGroups = item.getOwnerGroups();
+	    if (ownerGroups == null || ownerGroups.equals("")) {
+		List<GroupEntry> groupEntries = getCurrentGroups();
+		for (GroupEntry entry: groupEntries)
+		    ret.add(entry.id);
+	    } else {
+		String [] groups = ownerGroups.split(",");
+		for (String group: groups) {
+		    if (group != null && !group.equals(""))
+			ret.add(group);
+		}
+	    }
+	    return ret;
+	}
 
     // sort the list, since it will typically be presented
     // to the user. This skips our access groups
@@ -7415,8 +7435,14 @@ public class SimplePageBean {
 			    page.setOwnerGroups("");
 			else {
 			    StringBuilder ownerGroups = new StringBuilder();
+			    boolean first = true;
 			    for (int i = 0; i < studentSelectedGroups.length; i++) {
-				if (i > 0)
+				// ignore groups that don't exist or aren't in this site
+				if (getCurrentSite().getGroup(studentSelectedGroups[i]) == null)
+				    continue;
+				if (first)
+				    first = false;
+				else
 				    ownerGroups.append(",");
 				ownerGroups.append(studentSelectedGroups[i]);
 			    }
@@ -7550,9 +7576,7 @@ public class SimplePageBean {
 	    // initialize notsubmitted to all userids or groupids
 	    Set<String> notSubmitted = new HashSet<String>();
 	    if (item.isGroupOwned()) {
-		String ownerGroups = item.getOwnerGroups();
-		if (ownerGroups != null)
-		    notSubmitted = new HashSet(Arrays.asList(ownerGroups.split(",")));
+		notSubmitted = getOwnerGroups(item);
 	    } else {
 		Set<Member> members = new HashSet<Member>();
 		try {

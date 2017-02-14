@@ -1,6 +1,6 @@
 package org.sakaiproject.tool.assessment.ui.bean.print;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -14,9 +14,9 @@ public class PDFPartBean {
 
 	private String sectionId;
 
-	private ArrayList questions = null;
+	private List questions = null;
 
-	private ArrayList resources = null;
+	private List resources = null;
 
 	private boolean hasResources = false;
 
@@ -59,7 +59,7 @@ public class PDFPartBean {
 	 * gets the Array of questions (PDFItemBean)
 	 * @return
 	 */
-	public ArrayList getQuestions() {
+	public List getQuestions() {
 		return questions;
 	}
 
@@ -67,7 +67,7 @@ public class PDFPartBean {
 	 * sets the array of questions (PDFItemBean)
 	 * @param questions
 	 */
-	public void setQuestions(ArrayList questions) {
+	public void setQuestions(List questions) {
 		this.questions = questions;
 	}
 
@@ -76,7 +76,7 @@ public class PDFPartBean {
 	 *
 	 * @return resource list
 	 */
-	public ArrayList getResources() {
+	public List getResources() {
 		return resources;
 	}
 
@@ -85,7 +85,7 @@ public class PDFPartBean {
 	 *
 	 * @param resources
 	 */
-	public void setResources(ArrayList resources) {
+	public void setResources(List resources) {
 		this.resources = resources;
 	}
 }

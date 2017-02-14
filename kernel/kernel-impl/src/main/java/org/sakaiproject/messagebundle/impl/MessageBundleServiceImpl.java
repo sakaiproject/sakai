@@ -20,24 +20,40 @@
  **********************************************************************************/
 package org.sakaiproject.messagebundle.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.messagebundle.api.MessageBundleService;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
-import org.hibernate.*;
-import org.hibernate.type.BasicType;
-import org.hibernate.type.StandardBasicTypes;
-import org.hibernate.type.Type;
+import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.SessionHolder;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.SessionHolder;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Map.Entry;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Responsible for managing the message bundle data in a database.  Provides search capabilities
@@ -49,10 +65,9 @@ import java.util.Map.Entry;
  * Time: 1:38:05 PM
  * To change this template use File | Settings | File Templates.
  */
+@Slf4j
 public class MessageBundleServiceImpl extends HibernateDaoSupport implements MessageBundleService {
-    private static Logger logger = LoggerFactory.getLogger(MessageBundleServiceImpl.class);
-
-   /**
+    /**
      * list of bundles that we've already indexed, only want to update once per startup
      */
     private Set<String> indexedList = new HashSet<String>();
@@ -70,7 +85,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
      */
     private Timer timer = new Timer(true);
     /**
-     *  Queue of method invocations to save or update message bundle data
+     * Queue of method invocations to save or update message bundle data
      */
     private List<SaveOrUpdateCall> queue = Collections.synchronizedList(new ArrayList<>());
 
@@ -78,69 +93,39 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         timer.schedule(new SaveOrUpdateTask(), 0, scheduleDelay);
     }
 
+    @Transactional(readOnly = true)
     public int getSearchCount(String searchQuery, String module, String baseName, String locale) {
-        List<String> values = new ArrayList<String>();
-        List<BasicType> types = new ArrayList<BasicType>();
-        StringBuffer queryString = new StringBuffer("");
-
+        Number count = 0;
+        DetachedCriteria query = DetachedCriteria.forClass(MessageBundleProperty.class);
         try {
             if (StringUtils.isNotEmpty(searchQuery)) {
-                queryString.append("(defaultValue like ? OR value like ? OR propertyName = ?)");
-                values.add("%" + searchQuery + "%");
-                values.add("%" + searchQuery + "%");
-                values.add(searchQuery);
-                types.add(StandardBasicTypes.STRING);
-                types.add(StandardBasicTypes.STRING);
-                types.add(StandardBasicTypes.STRING);
+                query.add(Restrictions.disjunction()
+                        .add(Restrictions.ilike("defaultValue", searchQuery, MatchMode.ANYWHERE))
+                        .add(Restrictions.ilike("value", searchQuery, MatchMode.ANYWHERE))
+                        .add(Restrictions.ilike("propertyName", searchQuery, MatchMode.ANYWHERE)));
             }
             if (StringUtils.isNotEmpty(module)) {
-                if (queryString.length() > 0) {
-                    queryString.append(" AND ");
-                }
-                queryString.append("moduleName = ? ");
-                values.add(module);
-                types.add(StandardBasicTypes.STRING);
-
+                query.add(Restrictions.eq("moduleName", module));
             }
             if (StringUtils.isNotEmpty(baseName)) {
-                if (queryString.length() > 0) {
-                    queryString.append(" AND ");
-                }
-                queryString.append("baseName = ?");
-                values.add(baseName);
-                types.add(StandardBasicTypes.STRING);
-
+                query.add(Restrictions.eq("baseName", baseName));
             }
             if (StringUtils.isNotEmpty(locale)) {
-                if (queryString.length() > 0) {
-                    queryString.append(" AND ");
-                }
-                queryString.append("locale = ?");
-                values.add(locale);
-                types.add(StandardBasicTypes.STRING);
-
+                query.add(Restrictions.eq("locale", locale));
             }
-            if (queryString.length() > 0) {
-                queryString.insert(0, "select count(*) from MessageBundleProperty where ");
-            } else {
-                queryString.insert(0, "select count(*) from MessageBundleProperty");
-            }
-            Integer count = null;
+            query.setProjection(Projections.rowCount());
             try {
-                Query query = getSessionFactory().getCurrentSession().createQuery(queryString.toString());
-                query.setParameters(values.toArray(), (Type[]) types.toArray(new Type[types.size()]));
-                count= (Integer) query.uniqueResult();
+                count = (Number) query.getExecutableCriteria(getSessionFactory().getCurrentSession()).uniqueResult();
             } catch (HibernateException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
-            return count.intValue();
         } catch (Exception e) {
-            logger.error("problem searching the message bundle data", e);
+            log.error("problem searching the message bundle data", e);
         }
-        return 0;
+        return count.intValue();
     }
 
-   /**
+    /**
      * schedule timer task to save/update the bundle data.  We are using Timer to offload the work,
      * otherwise intial loads of tools will appear very slow, this way it happens in the background.
      * In the original rSmart impl JMS was used, but since the MessageService is in contrib not core
@@ -153,13 +138,14 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
      * @param newBundle
      * @param loc
      */
+    @Transactional
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc) {
         if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null || newBundle == null) {
             return;
         }
 
         if (scheduleSaves) {
-            queueBundle(baseName, moduleName, convertResourceBundleToMap(newBundle),loc);
+            queueBundle(baseName, moduleName, convertResourceBundleToMap(newBundle), loc);
         } else {
             saveOrUpdateInternal(baseName, moduleName, convertResourceBundleToMap(newBundle), loc);
         }
@@ -178,7 +164,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
     protected void saveOrUpdateInternal(String baseName, String moduleName, Map<String, String> newBundle, Locale loc) {
         String keyName = getIndexKeyName(baseName, moduleName, loc.toString());
         if (indexedList.contains(keyName)) {
-            logger.debug("skip bundle as its already happened once for: {}", keyName);
+            log.debug("skip bundle as its already happened once for: {}", keyName);
             return;
         }
         
@@ -190,66 +176,47 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
                 // new property so add
                 mbp.setDefaultValue(value);
                 updateMessageBundleProperty(mbp);
-                logger.debug("adding message bundle: {}", mbp.toString());
+                log.debug("adding message bundle: {}", mbp.toString());
             } else {
                 // update an existing properties default value if different
                 if (!StringUtils.equals(value, existingMbp.getDefaultValue())) {
                     existingMbp.setDefaultValue(value);
                     updateMessageBundleProperty(existingMbp);
-                    logger.debug("updating message bundle: {}", existingMbp.toString());
+                    log.debug("updating message bundle: {}", existingMbp.toString());
                 }
             }
         }
         indexedList.add(keyName);
     }
 
-    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
     public List<MessageBundleProperty> search(String searchQuery, String module, String baseName, String locale) {
-        List<String> values = new ArrayList<String>();
-        StringBuffer queryString = new StringBuffer("");
+
+        DetachedCriteria query = DetachedCriteria.forClass(MessageBundleProperty.class);
 
         try {
             if (StringUtils.isNotEmpty(searchQuery)) {
-                queryString.append("(defaultValue like ? OR value like ? OR propertyName = ?)");
-                values.add("%" + searchQuery + "%");
-                values.add("%" + searchQuery + "%");
-                values.add(searchQuery);
+                query.add(Restrictions.disjunction()
+                        .add(Restrictions.ilike("defaultValue", searchQuery, MatchMode.ANYWHERE))
+                        .add(Restrictions.ilike("value", searchQuery, MatchMode.ANYWHERE))
+                        .add(Restrictions.ilike("propertyName", searchQuery, MatchMode.ANYWHERE)));
             }
             if (StringUtils.isNotEmpty(module)) {
-                if (queryString.length() > 0) {
-                    queryString.append(" AND ");
-                }
-                queryString.append("moduleName = ? ");
-                values.add(module);
+                query.add(Restrictions.eq("moduleName", module));
             }
             if (StringUtils.isNotEmpty(baseName)) {
-                if (queryString.length() > 0) {
-                    queryString.append(" AND ");
-                }
-                queryString.append("baseName = ?");
-                values.add(baseName);
-
+                query.add(Restrictions.eq("baseName", baseName));
             }
             if (StringUtils.isNotEmpty(locale)) {
-                if (queryString.length() > 0) {
-                    queryString.append(" AND ");
-                }
-                queryString.append("locale = ?");
-                values.add(locale);
+                query.add(Restrictions.eq("locale", locale));
             }
 
-            if (queryString.length() > 0) {
-                queryString.insert(0, "from MessageBundleProperty where ");
-            } else {
-                queryString.insert(0, "from MessageBundleProperty");
-            }
-
-            return (List<MessageBundleProperty>) getHibernateTemplate().find(queryString.toString(), values.toArray() );
+            return (List<MessageBundleProperty>) query.getExecutableCriteria(getSessionFactory().getCurrentSession()).list();
 
         } catch (Exception e) {
-            logger.error("problem searching the message bundle data", e);
+            log.error("problem searching the message bundle data", e);
         }
-        return new ArrayList<MessageBundleProperty>();
+        return new ArrayList<>();
     }
 
     private Map<String, String> convertResourceBundleToMap(ResourceBundle resource) {
@@ -264,11 +231,12 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         return map;
     }
 
-
+    @Transactional(readOnly = true)
     public MessageBundleProperty getMessageBundleProperty(long id) {
-        return (MessageBundleProperty) getHibernateTemplate().get(MessageBundleProperty.class, id);
+        return getHibernateTemplate().get(MessageBundleProperty.class, id);
     }
 
+    @Transactional
     public void updateMessageBundleProperty(MessageBundleProperty mbp) {
         if (mbp == null) return;
         if (mbp.getDefaultValue() == null) {
@@ -277,43 +245,46 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         getHibernateTemplate().saveOrUpdate(mbp);
     }
 
+    @Transactional
     public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
         try {
             getHibernateTemplate().delete(mbp);
         } catch (Exception e) {
-            logger.warn("Cound not delete MessageBundleProperty " + mbp + ", " + e.getMessage(), e);
+            log.warn("Cound not delete MessageBundleProperty " + mbp + ", " + e.getMessage(), e);
         }
     }
 
+    @Transactional(readOnly = true)
     public MessageBundleProperty getProperty(MessageBundleProperty mbp) {
-        if (mbp == null) return null;
-        Object[] values = new Object[]{mbp.getBaseName(), mbp.getModuleName(), mbp.getPropertyName(), mbp.getLocale()};
-        String sql = "from MessageBundleProperty where baseName = ? and moduleName = ? and propertyName = ? and locale = ?";
-        List<?> results = getHibernateTemplate().find(sql, values );
+        if (mbp == null) { return null; }
+        String[] names = new String[] {"basename", "module", "name", "locale"};
+        Object[] values = new Object[] {mbp.getBaseName(), mbp.getModuleName(), mbp.getPropertyName(), mbp.getLocale()};
+        List<MessageBundleProperty> results = (List<MessageBundleProperty>) getHibernateTemplate().findByNamedQueryAndNamedParam("findProperty", names, values);
         if (results.size() == 0) {
-            if (logger.isDebugEnabled()) logger.debug("can't find a message bundle property for : " + mbp);
+            if (log.isDebugEnabled()) log.debug("can't find a message bundle property for : " + mbp);
             return null;
         }
-        return (MessageBundleProperty) results.get(0);
+        return results.get(0);
     }
 
+    @Transactional(readOnly = true)
     public Map<String,String> getBundle(String baseName, String moduleName, Locale loc) {
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String,String> map = new HashMap<>();
 
         if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null) {
             return map;
         }
 
-        Object[] values = new Object[]{baseName, moduleName, loc.toString()};
-        String sql = "from MessageBundleProperty where baseName = ? and moduleName = ? and locale = ? and value != null";
+        String[] names = new String[] {"basename", "module", "locale"};
+        Object[] values = new Object[] {baseName, moduleName, loc.toString()};
 
-        List<MessageBundleProperty> results = (List<MessageBundleProperty>) getHibernateTemplate().find(sql, values);
+        List<MessageBundleProperty> results = (List<MessageBundleProperty>) getHibernateTemplate().findByNamedQueryAndNamedParam("findPropertyWithNullValue", names, values);
 
         for (MessageBundleProperty mbp : results) {
             map.put(mbp.getPropertyName(), mbp.getValue());
         }
 
-        if (map.isEmpty() && logger.isDebugEnabled()) logger.debug("can't find any values for: " + getIndexKeyName(baseName, moduleName, loc.toString()));
+        if (map.isEmpty() && log.isDebugEnabled()) log.debug("can't find any values for: " + getIndexKeyName(baseName, moduleName, loc.toString()));
         return map;
     }
 
@@ -322,52 +293,51 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         return context + "_"  + baseName + "_"  + loc;
     }
 
+    @Transactional(readOnly = true)
     public int getModifiedPropertiesCount() {
         String query = "select count(*) from MessageBundleProperty where value != null";
         return executeCountQuery(query);
     }
-    
+
+    @Transactional(readOnly = true)
     public int getAllPropertiesCount() {
         String query = "select count(*) from MessageBundleProperty";
         return executeCountQuery(query);
     }
 
-    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
     public List<MessageBundleProperty> getAllProperties(String locale, String module) {
-        if (StringUtils.isEmpty(locale) && StringUtils.isEmpty(module)) {
-            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty");
-        } else if (module == null || module.length() == 0) {
-            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty where locale = ?", locale);
-        } else if (locale == null || locale.length() == 0) {
-            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty where moduleName = ?", module);
-        } else {
-            return (List<MessageBundleProperty>) getHibernateTemplate().find("from MessageBundleProperty where locale = ? and moduleName = ?",
-                    new String[]{locale, module});
+
+        DetachedCriteria query = DetachedCriteria.forClass(MessageBundleProperty.class);
+
+        if (StringUtils.isNotEmpty(locale)) {
+            query.add(Restrictions.eq("locale", locale));
         }
+        if (StringUtils.isNotEmpty(module)) {
+            query.add(Restrictions.eq("moduleName", module));
+        }
+
+        return (List<MessageBundleProperty>) getHibernateTemplate().findByCriteria(query);
     }
 
-    @SuppressWarnings("unchecked")
+    @Transactional
     public int revertAll(final String locale) {
-        HibernateCallback callback = new HibernateCallback() {
-           public Object doInHibernate(org.hibernate.Session session) throws HibernateException, SQLException {
-               String hql = "update MessageBundleProperty set value = null where locale = :locale";
-               org.hibernate.Query query = session.createQuery(hql);
-               query.setString("locale", locale);
-               int rowCount = query.executeUpdate();
-               return  Integer.valueOf(rowCount);
-           }
+        HibernateCallback<Integer> callback = session -> {
+            Query query = session.createQuery("update MessageBundleProperty set value = null where locale = :locale");
+            query.setString("locale", locale);
+            return query.executeUpdate();
         };
 
         try {
-          return ((Integer) getHibernateTemplate().execute(callback)).intValue();
+          return getHibernateTemplate().execute(callback);
         } catch (Exception e) {
-            logger.warn("Cound not revert all MessageBundleProperty's " + e.getMessage(), e);
+            log.warn("Cound not revert all MessageBundleProperty's " + e.getMessage(), e);
         }
-
 
         return 0;
     }
 
+    @Transactional
     public int importProperties(List<MessageBundleProperty> properties) {
         int rows = 0;
         for (MessageBundleProperty property: properties) {
@@ -384,46 +354,50 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         return rows;
     }
 
-    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
     public List<String> getAllModuleNames() {
-        List<String> retValue = (List<String>) getHibernateTemplate().find("select distinct(moduleName) from MessageBundleProperty  order by moduleName");
-        if (retValue == null) return new ArrayList<>();
-        //force deep load
-        retValue.size();
-        return retValue;
+        DetachedCriteria query = DetachedCriteria.forClass(MessageBundleProperty.class)
+                .setProjection(Projections.distinct(Projections.property("moduleName")))
+                .addOrder(Order.asc("moduleName"));
+
+        List<String> results = (List<String>) getHibernateTemplate().findByCriteria(query);
+        Hibernate.initialize(results);
+        return results;
     }
 
-    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
     public List<String> getAllBaseNames() {
-         List<String> retValue = (List<String>) getHibernateTemplate().find("select distinct(baseName) from MessageBundleProperty  order by baseName");
-        if (retValue == null) return new ArrayList<>();
-        //force deep load
-        retValue.size();
-        return retValue;
+        DetachedCriteria query = DetachedCriteria.forClass(MessageBundleProperty.class)
+                .setProjection(Projections.distinct(Projections.property("baseName")))
+                .addOrder(Order.asc("baseName"));
+        List<String> results = (List<String>) getHibernateTemplate().findByCriteria(query);
+        Hibernate.initialize(results);
+        return results;
 
     }
 
+    @Transactional
     public void revert(MessageBundleProperty mbp) {
         if (mbp == null) return;
         mbp.setValue(null);
         try {
             getHibernateTemplate().update(mbp);
         } catch (Exception e) {
-            logger.warn("Cound not revert MessageBundleProperty " + mbp + ", " + e.getMessage(), e);
+            log.warn("Cound not revert MessageBundleProperty " + mbp + ", " + e.getMessage(), e);
         }
     }
 
     protected int executeCountQuery(String query) {
-      Integer count = null;
+      Long count;
       try {
-         count = (Integer) getSessionFactory().getCurrentSession().createQuery(query).uniqueResult();
+         count = (Long) getSessionFactory().getCurrentSession().createQuery(query).uniqueResult();
       } catch (HibernateException e) {
          throw new RuntimeException(e.getMessage(),e);
       }
       return count.intValue();
    }
 
-    @SuppressWarnings("unchecked")
+   @Transactional(readOnly = true)
     public List<MessageBundleProperty> getModifiedProperties(int sortOrder, int sortField, int startingIndex, int pageSize) {
         String orderBy = "asc";
         if (sortOrder == SORT_ORDER_DESCENDING) {
@@ -470,9 +444,9 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         queue.add(call);
     }
 
-    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
     public List<String> getLocales() {
-        return (List<String>) getHibernateTemplate().find("select distinct(locale) from MessageBundleProperty");
+        return (List<String>) getHibernateTemplate().findByNamedQuery("findLocales");
     }
 
     public void setScheduleDelay(long scheduleDelay) {
@@ -516,7 +490,7 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
 						session.beginTransaction();
 						saveOrUpdateInternal(call.baseName, call.moduleName, call.bundleData, call.loc);
 					} catch (Throwable e) {
-						logger.error("problem saving bundle data:", e);
+						log.error("problem saving bundle data:", e);
 						session.getTransaction().rollback();
 					} finally {
 						if (!session.getTransaction().wasRolledBack()) {

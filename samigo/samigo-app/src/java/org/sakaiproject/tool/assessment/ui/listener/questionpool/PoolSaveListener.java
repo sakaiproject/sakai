@@ -193,7 +193,7 @@ public class PoolSaveListener implements ActionListener
       currentPool.setDescription(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getDescription()));
       currentPool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getObjectives()));
       currentPool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getKeywords()));
-      ArrayList addedPools = qpbean.getAddedPools();
+      List addedPools = qpbean.getAddedPools();
       if (addedPools == null) {
     	  addedPools = new ArrayList();
       }

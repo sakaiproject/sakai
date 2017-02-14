@@ -13,9 +13,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -25,10 +26,13 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
-public class GradeSummaryTablePanel extends Panel {
+public class GradeSummaryTablePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 	boolean isGroupedByCategory;
+
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
 	public GradeSummaryTablePanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -180,6 +184,8 @@ public class GradeSummaryTablePanel extends Panel {
 						assignmentItem.add(title);
 
 						final BasePage page = (BasePage) getPage();
+
+						// popover flags
 						final WebMarkupContainer flags = new WebMarkupContainer("flags");
 						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
 							.add(new AttributeModifier("data-trigger", "focus"))
@@ -193,6 +199,12 @@ public class GradeSummaryTablePanel extends Panel {
 							.add(new AttributeModifier("data-trigger", "focus"))
 							.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
 							.setVisible(!assignment.isReleased()));
+						flags.add(page.buildFlagWithPopover("isExternal", new StringResourceModel("label.gradeitem.externalapplabel",null, new Object[] { assignment.getExternalAppName() }).getString())
+								.add(new AttributeModifier("data-trigger", "focus"))
+								.add(new AttributeModifier("data-container", "#gradeSummaryTable"))
+								.add(new AttributeModifier("class", "gb-external-app-flag " + GradeSummaryTablePanel.this.businessService.getIconClass(assignment)))
+								.setVisible(assignment.isExternallyMaintained()));
+
 						assignmentItem.add(flags);
 
 						assignmentItem.add(new WebMarkupContainer("weight").

@@ -22,8 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.select;
 
 import java.io.Serializable;
-
-import java.util.ArrayList;
+import java.util.List;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -37,13 +36,13 @@ import org.sakaiproject.component.cover.ComponentManager;
 public class SelectAssessmentBean
 implements Serializable
 {
-	private ArrayList takeableAssessments;
+	private List takeableAssessments;
 
 	/** Use serialVersionUID for interoperability. */
 	private final static long serialVersionUID = 7401578412639293693L;
-	private ArrayList lateHandlingAssessments;
-	private ArrayList reviewableAssessments;
-	private ArrayList nonReviewableAssessments;
+	private List lateHandlingAssessments;
+	private List reviewableAssessments;
+	private List nonReviewableAssessments;
 	private String reviewableSortOrder="title";
 	private String takeableSortOrder ="title";
 	private boolean takeableAscending = true;
@@ -64,7 +63,7 @@ implements Serializable
 	 *
 	 * @return ArrayLists of DeliveryBean objects
 	 */
-	public ArrayList getTakeableAssessments()
+	public List getTakeableAssessments()
 	{
 		return takeableAssessments;
 	}
@@ -74,7 +73,7 @@ implements Serializable
 	 *
 	 * @param takeableAssessments ArrayLists of DeliveryBean objects
 	 */
-	public void setTakeableAssessments(ArrayList takeableAssessments)
+	public void setTakeableAssessments(List takeableAssessments)
 	{
 		this.takeableAssessments = takeableAssessments;
 	}
@@ -84,7 +83,7 @@ implements Serializable
 	 *
 	 * @return ArrayLists of DeliveryBean objects
 	 */
-	public ArrayList getLateHandlingAssessments()
+	public List getLateHandlingAssessments()
 	{
 		return lateHandlingAssessments;
 	}
@@ -94,7 +93,7 @@ implements Serializable
 	 *
 	 * @param lateHandlingAssessments ArrayLists of DeliveryBean objects
 	 */
-	public void setLateHandlingAssessments(ArrayList lateHandlingAssessments)
+	public void setLateHandlingAssessments(List lateHandlingAssessments)
 	{
 		this.lateHandlingAssessments = lateHandlingAssessments;
 	}
@@ -104,7 +103,7 @@ implements Serializable
 	 *
 	 * @return ArrayLists of DeliveryBean objects
 	 */
-	public ArrayList getReviewableAssessments()
+	public List getReviewableAssessments()
 	{
 		return reviewableAssessments;
 	}
@@ -114,7 +113,7 @@ implements Serializable
 	 *
 	 * @param reviewAssessments ArrayLists should be lists of DeliveryBean objects
 	 */
-	public void setReviewableAssessments(ArrayList reviewableAssessments)
+	public void setReviewableAssessments(List reviewableAssessments)
 	{
 		this.reviewableAssessments = reviewableAssessments;
 	}
@@ -124,7 +123,7 @@ implements Serializable
 	 *
 	 * @return ArrayLists of DeliveryBean objects
 	 */
-	public ArrayList getNonReviewableAssessments()
+	public List getNonReviewableAssessments()
 	{
 		return this.nonReviewableAssessments;
 	}
@@ -134,7 +133,7 @@ implements Serializable
 	 *
 	 * @param nonReviewableAssessments ArrayLists should be lists of DeliveryBean objects
 	 */
-	public void setNonReviewableAssessments(ArrayList nonReviewableAssessments)
+	public void setNonReviewableAssessments(List nonReviewableAssessments)
 	{
 		this.nonReviewableAssessments = nonReviewableAssessments;
 	}

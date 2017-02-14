@@ -19,7 +19,6 @@
 package org.sakaiproject.sitestats.impl;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -28,18 +27,15 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DBHelper extends HibernateDaoSupport {
-	private static Logger	LOG						= LoggerFactory.getLogger(DBHelper.class);
 	private boolean		autoDdl					= false;
 	private String		dbVendor				= null;
 	private boolean		notifiedIndexesUpdate	= false;
@@ -63,64 +59,42 @@ public class DBHelper extends HibernateDaoSupport {
 	}
 	
 	public void preloadDefaultReports() {
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {				
-				Connection c = null;
-				InputStreamReader isr = null;
-				BufferedReader br = null;
-				try{					
-					ClassPathResource defaultReports = new ClassPathResource(dbVendor + "/default_reports.sql");
-					LOG.info("init(): - preloading sitestats default reports");
-					isr = new InputStreamReader(defaultReports.getInputStream());
-					br = new BufferedReader(isr);
+		HibernateCallback hcb = session -> {
+            InputStreamReader isr = null;
+            BufferedReader br = null;
+            try{
+                ClassPathResource defaultReports = new ClassPathResource(dbVendor + "/default_reports.sql");
+                log.info("init(): - preloading sitestats default reports");
+                isr = new InputStreamReader(defaultReports.getInputStream());
+                br = new BufferedReader(isr);
 
-					c = session.connection();
-					String sqlLine = null;
-					while((sqlLine = br.readLine()) != null) {
-						sqlLine = sqlLine.trim();
-						if(!sqlLine.equals("") && !sqlLine.startsWith("--")) {
-							if(sqlLine.endsWith(";")) {
-								sqlLine = sqlLine.substring(0, sqlLine.indexOf(";"));
-							}
-							Statement st = null;
-							try{
-								st = c.createStatement();
-								st.execute(sqlLine);
-							}catch(SQLException e){
-								if(!"23000".equals(e.getSQLState())) {
-									LOG.warn("Failed to preload default report: " + sqlLine, e);	
-								}
-							}catch(Exception e){
-								LOG.warn("Failed to preload default report: " + sqlLine, e);
-							}finally{
-								if (st != null)
-					                st.close();
-							}
-						}
-					}
-					
-				}catch(HibernateException e){
-					LOG.error("Error while preloading default reports", e);
-				}catch(Exception e){
-					LOG.error("Error while preloading default reports", e);
-				}finally{
-					if(br != null) {
-						try{
-							br.close();
-						}catch(IOException e){ }
-					}
-					if(isr != null) {
-						try{
-							isr.close();
-						}catch(IOException e){ }
-					}
-					if(c != null) {
-						c.close();
-					}
-				}
-				return null;
-			}
-		};
+                session.getSessionFactory().openSession();
+                session.beginTransaction();
+                String sqlLine = null;
+                while((sqlLine = br.readLine()) != null) {
+                    sqlLine = sqlLine.trim();
+                    if(!sqlLine.equals("") && !sqlLine.startsWith("--")) {
+                        if(sqlLine.endsWith(";")) {
+                            sqlLine = sqlLine.substring(0, sqlLine.indexOf(";"));
+                        }
+                        try{
+                            session.createSQLQuery(sqlLine).executeUpdate();
+                            session.flush();
+                        }catch(Exception e){
+                            log.warn("Failed to preload default report: " + sqlLine, e);
+                        }
+                    }
+                }
+                session.getTransaction().commit();
+            }catch(Exception e){
+                log.error("Error while preloading default reports", e);
+            }finally{
+                if(session != null) {
+                    session.close();
+                }
+            }
+            return null;
+        };
 		getHibernateTemplate().execute(hcb);
 	}
 
@@ -128,69 +102,62 @@ public class DBHelper extends HibernateDaoSupport {
 		if(!dbVendor.equals("mysql") && !dbVendor.equals("oracle"))
 			return;
 		notifiedIndexesUpdate = false;
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Connection c = null;
-				try{
-					c = session.connection();
-					List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
-					List<String> sstResourcesIxs = listIndexes(c, "SST_RESOURCES");
-					List<String> sstSiteActivityIxs = listIndexes(c, "SST_SITEACTIVITY");
-					List<String> sstSiteVisitsIxs = listIndexes(c, "SST_SITEVISITS");
-					List<String> sstReportsIxs = listIndexes(c, "SST_REPORTS");
-		
-					// SST_EVENTS
-					if(sstEventsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
-					else if(!sstEventsIxs.contains("SST_EVENTS_SITE_ID_IX")) createIndex(c, "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
-					if(sstEventsIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
-					else if(!sstEventsIxs.contains("SST_EVENTS_EVENT_ID_IX")) createIndex(c, "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
-					if(sstEventsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
-					else if(!sstEventsIxs.contains("SST_EVENTS_DATE_ID_IX")) createIndex(c, "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
-		
-					// SST_RESOURCES
-					if(sstResourcesIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
-					else if(!sstResourcesIxs.contains("SST_RESOURCES_SITE_ID_IX")) createIndex(c, "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
-					if(sstResourcesIxs.contains("USER_ID_IX")) renameIndex(c, "USER_ID_IX", "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
-					else if(!sstResourcesIxs.contains("SST_RESOURCES_USER_ID_IX")) createIndex(c, "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
-					if(sstResourcesIxs.contains("RES_ACT_IDX")) renameIndex(c, "RES_ACT_IDX", "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
-					else if(!sstResourcesIxs.contains("SST_RESOURCES_RES_ACT_IDX")) createIndex(c, "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
-					if(sstResourcesIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
-					else if(!sstResourcesIxs.contains("SST_RESOURCES_DATE_ID_IX")) createIndex(c, "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
-		
-					// SST_SITEACTIVITY
-					if(sstSiteActivityIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
-					else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_SITE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
-					if(sstSiteActivityIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
-					else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_EVENT_ID_IX")) createIndex(c, "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
-					if(sstSiteActivityIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
-					else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_DATE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
-		
-					// SST_SITEVISITS
-					if(sstSiteVisitsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
-					else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_SITE_ID_IX")) createIndex(c, "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
-					if(sstSiteVisitsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
-					else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_DATE_ID_IX")) createIndex(c, "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
-		
-					// SST_REPORTS
-					if(!sstReportsIxs.contains("SST_REPORTS_SITE_ID_IX")) createIndex(c, "SST_REPORTS_SITE_ID_IX", "SITE_ID", "SST_REPORTS");
-					
-				}catch(HibernateException e){
-					LOG.error("Error while updating indexes", e);
-				}catch(Exception e){
-					LOG.error("Error while updating indexes", e);
-				}finally{
-					if(c != null)
-						c.close();
-				}
-				return null;
-			}
-		};
+		HibernateCallback hcb = session -> {
+            session.doWork(c -> {
+                try{
+                    List<String> sstEventsIxs = listIndexes(c, "SST_EVENTS");
+                    List<String> sstResourcesIxs = listIndexes(c, "SST_RESOURCES");
+                    List<String> sstSiteActivityIxs = listIndexes(c, "SST_SITEACTIVITY");
+                    List<String> sstSiteVisitsIxs = listIndexes(c, "SST_SITEVISITS");
+                    List<String> sstReportsIxs = listIndexes(c, "SST_REPORTS");
+
+                    // SST_EVENTS
+                    if(sstEventsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
+                    else if(!sstEventsIxs.contains("SST_EVENTS_SITE_ID_IX")) createIndex(c, "SST_EVENTS_SITE_ID_IX", "SITE_ID", "SST_EVENTS");
+                    if(sstEventsIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
+                    else if(!sstEventsIxs.contains("SST_EVENTS_EVENT_ID_IX")) createIndex(c, "SST_EVENTS_EVENT_ID_IX", "EVENT_ID", "SST_EVENTS");
+                    if(sstEventsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
+                    else if(!sstEventsIxs.contains("SST_EVENTS_DATE_ID_IX")) createIndex(c, "SST_EVENTS_DATE_ID_IX", "EVENT_DATE", "SST_EVENTS");
+
+                    // SST_RESOURCES
+                    if(sstResourcesIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
+                    else if(!sstResourcesIxs.contains("SST_RESOURCES_SITE_ID_IX")) createIndex(c, "SST_RESOURCES_SITE_ID_IX", "SITE_ID", "SST_RESOURCES");
+                    if(sstResourcesIxs.contains("USER_ID_IX")) renameIndex(c, "USER_ID_IX", "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
+                    else if(!sstResourcesIxs.contains("SST_RESOURCES_USER_ID_IX")) createIndex(c, "SST_RESOURCES_USER_ID_IX", "USER_ID", "SST_RESOURCES");
+                    if(sstResourcesIxs.contains("RES_ACT_IDX")) renameIndex(c, "RES_ACT_IDX", "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
+                    else if(!sstResourcesIxs.contains("SST_RESOURCES_RES_ACT_IDX")) createIndex(c, "SST_RESOURCES_RES_ACT_IDX", "RESOURCE_ACTION", "SST_RESOURCES");
+                    if(sstResourcesIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
+                    else if(!sstResourcesIxs.contains("SST_RESOURCES_DATE_ID_IX")) createIndex(c, "SST_RESOURCES_DATE_ID_IX", "RESOURCE_DATE", "SST_RESOURCES");
+
+                    // SST_SITEACTIVITY
+                    if(sstSiteActivityIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
+                    else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_SITE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_SITE_ID_IX", "SITE_ID", "SST_SITEACTIVITY");
+                    if(sstSiteActivityIxs.contains("EVENT_ID_IX")) renameIndex(c, "EVENT_ID_IX", "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
+                    else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_EVENT_ID_IX")) createIndex(c, "SST_SITEACTIVITY_EVENT_ID_IX", "EVENT_ID", "SST_SITEACTIVITY");
+                    if(sstSiteActivityIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
+                    else if(!sstSiteActivityIxs.contains("SST_SITEACTIVITY_DATE_ID_IX")) createIndex(c, "SST_SITEACTIVITY_DATE_ID_IX", "ACTIVITY_DATE", "SST_SITEACTIVITY");
+
+                    // SST_SITEVISITS
+                    if(sstSiteVisitsIxs.contains("SITE_ID_IX")) renameIndex(c, "SITE_ID_IX", "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
+                    else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_SITE_ID_IX")) createIndex(c, "SST_SITEVISITS_SITE_ID_IX", "SITE_ID", "SST_SITEVISITS");
+                    if(sstSiteVisitsIxs.contains("DATE_ID_IX")) renameIndex(c, "DATE_ID_IX", "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
+                    else if(!sstSiteVisitsIxs.contains("SST_SITEVISITS_DATE_ID_IX")) createIndex(c, "SST_SITEVISITS_DATE_ID_IX", "VISITS_DATE", "SST_SITEVISITS");
+
+                    // SST_REPORTS
+                    if(!sstReportsIxs.contains("SST_REPORTS_SITE_ID_IX")) createIndex(c, "SST_REPORTS_SITE_ID_IX", "SITE_ID", "SST_REPORTS");
+
+                }catch(Exception e){
+                    log.error("Error while updating indexes", e);
+                }
+            });
+            return null;
+        };
 		getHibernateTemplate().execute(hcb);
 	}
 
 	private void notifyIndexesUpdate(){
 		if(!notifiedIndexesUpdate)
-			LOG.info("init(): updating indexes on SiteStats tables...");
+			log.info("init(): updating indexes on SiteStats tables...");
 		notifiedIndexesUpdate = true;
 	}
 	
@@ -215,7 +182,7 @@ public class DBHelper extends HibernateDaoSupport {
 				indexes.add(ixName);
 			}
 		}catch(SQLException e){
-			LOG.warn("Failed to execute sql: " + sql, e);
+			log.warn("Failed to execute sql: " + sql, e);
 		}finally{
 			try {
                 if (rs != null)
@@ -237,7 +204,7 @@ public class DBHelper extends HibernateDaoSupport {
 			st = c.createStatement();
 			st.execute(sql);
 		}catch(SQLException e){
-			LOG.warn("Failed to execute sql: " + sql, e);
+			log.warn("Failed to execute sql: " + sql, e);
 		}finally{
 			if (st != null)
                 st.close();
@@ -254,7 +221,7 @@ public class DBHelper extends HibernateDaoSupport {
 			st = c.createStatement();
 			st.execute(sql);
 		}catch(SQLException e){
-			LOG.warn("Failed to execute sql: " + sql, e);
+			log.warn("Failed to execute sql: " + sql, e);
 		}finally{
 			if (st != null)
                 st.close();

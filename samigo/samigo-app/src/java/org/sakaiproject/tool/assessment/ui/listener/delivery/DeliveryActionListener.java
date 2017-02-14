@@ -214,7 +214,7 @@ public class DeliveryActionListener
       // (Long publishedItemId, ArrayList itemGradingDatas) and
       // (String "sequence"+itemId, Integer sequence) and
       // (String "items", Long itemscount)
-      HashMap itemGradingHash = new HashMap();
+      Map itemGradingHash = new HashMap();
       GradingService service = new GradingService();
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
@@ -355,7 +355,7 @@ public class DeliveryActionListener
             	  while (iter.hasNext())
             	  {
             		  ItemGradingData data = (ItemGradingData) iter.next();
-            		  ArrayList thisone = (ArrayList) itemGradingHash.get(data.getPublishedItemId());
+            		  List thisone = (List) itemGradingHash.get(data.getPublishedItemId());
             		  if (thisone == null) {
             			  thisone = new ArrayList();
             		  }
@@ -363,14 +363,14 @@ public class DeliveryActionListener
             		  itemGradingHash.put(data.getPublishedItemId(), thisone);
             	  }
 
-            	  // For file upload and audio questions, adding the corresponding itemGradingData into itemGradingHash and itemGradingSet to display correctly in delivery
-            	  // this hash compose (itemGradingId, array list of MediaData)
-            	  HashMap mediaItemGradingHash = service.getMediaItemGradingHash(ag.getAssessmentGradingId()); 
-            	  Set<Map.Entry<Long, ArrayList>> set = mediaItemGradingHash.entrySet();
-            	  for (Map.Entry<Long, ArrayList> me : set) {
-            		  Long publishedItemId = (Long) me.getKey();
-            		  ArrayList al = (ArrayList) me.getValue();
-            		  ArrayList itemGradingArray = (ArrayList) itemGradingHash.get(publishedItemId);
+                  // For file upload and audio questions, adding the corresponding itemGradingData into itemGradingHash and itemGradingSet to display correctly in delivery
+                  // this hash compose (itemGradingId, array list of MediaData)
+                  Map<Long, List<ItemGradingData>> mediaItemGradingHash = service.getMediaItemGradingHash(ag.getAssessmentGradingId());
+                  Set<Map.Entry<Long, List<ItemGradingData>>> set = mediaItemGradingHash.entrySet();
+            	  for (Map.Entry<Long, List<ItemGradingData>> me : set) {
+            		  Long publishedItemId = me.getKey();
+            		  List<ItemGradingData> al = me.getValue();
+            		  List itemGradingArray = (List) itemGradingHash.get(publishedItemId);
             		  if (itemGradingArray != null) {
             			  itemGradingArray.addAll(al);
             		  }
@@ -519,9 +519,8 @@ public class DeliveryActionListener
       overloadItemData(delivery, itemGradingHash, publishedAssessment);
 
       // get table of contents
-      HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
-      delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash,
-                                              delivery, publishedAnswerHash));
+      Map<Long, AnswerIfc> publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
+      delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash, delivery, publishedAnswerHash));
       // get current page contents
       log.debug("**** resetPageContents="+this.resetPageContents);
       // If it comes from Show Feedback link clicks, call getShowFeedbackPageContents() to 
@@ -587,8 +586,7 @@ public class DeliveryActionListener
    * @param itemGradingHash the itemGradingHash hash map
    * @param setNullOK if there is none set null if true
    */
-  protected AssessmentGradingData setAssessmentGradingFromItemData(DeliveryBean delivery,
-                      HashMap itemGradingHash, boolean setNullOK)
+  protected AssessmentGradingData setAssessmentGradingFromItemData(DeliveryBean delivery, Map itemGradingHash, boolean setNullOK)
   {
     AssessmentGradingData agrading = null;
     Iterator keys = itemGradingHash.keySet().iterator();
@@ -596,7 +594,7 @@ public class DeliveryActionListener
     GradingService gradingService = new GradingService();
     if (keys.hasNext()) 
     {
-      ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemGradingHash.get(
+      ItemGradingData igd = (ItemGradingData) ( (List) itemGradingHash.get(
         keys.next())).toArray()[0];
       AssessmentGradingData agd = gradingService.load(igd.getAssessmentGradingId().toString(), false);
       agd.setItemGradingSet(gradingService.getItemGradingSet(agd.getAssessmentGradingId().toString()));
@@ -670,18 +668,18 @@ public class DeliveryActionListener
    */
   protected ContentsDeliveryBean getContents(PublishedAssessmentFacade
                                            publishedAssessment,
-                                           HashMap itemGradingHash,
+                                           Map itemGradingHash,
                                            DeliveryBean delivery,
-                                           HashMap publishedAnswerHash)
+                                           Map publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
     double currentScore = 0;
     double maxScore = 0;
 
     // get parts
-    ArrayList partSet = publishedAssessment.getSectionArraySorted();
+    List partSet = publishedAssessment.getSectionArraySorted();
     Iterator iter = partSet.iterator();
-    ArrayList partsContents = new ArrayList();
+    List partsContents = new ArrayList();
     while (iter.hasNext())
     {
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
@@ -711,7 +709,7 @@ public class DeliveryActionListener
    */
   public ContentsDeliveryBean getPageContents(
     PublishedAssessmentFacade publishedAssessment,
-    DeliveryBean delivery, HashMap itemGradingHash, HashMap publishedAnswerHash)
+    DeliveryBean delivery, Map itemGradingHash, Map publishedAnswerHash)
   {
 
     if (delivery.getSettings().isFormatByAssessment())
@@ -753,7 +751,7 @@ public class DeliveryActionListener
    */
   public ContentsDeliveryBean getShowFeedbackPageContents(
     PublishedAssessmentFacade publishedAssessment,
-    DeliveryBean delivery, HashMap itemGradingHash, HashMap publishedAnswerHash)
+    DeliveryBean delivery, Map itemGradingHash, Map publishedAnswerHash)
   {
     
     if (delivery.getSettings().isFormatByAssessment())
@@ -789,17 +787,17 @@ public class DeliveryActionListener
    * @return ContentsDeliveryBean for page
    */
   private ContentsDeliveryBean getPageContentsByAssessment(
-    PublishedAssessmentFacade publishedAssessment, HashMap itemGradingHash,
-    DeliveryBean delivery, HashMap publishedAnswerHash)
+    PublishedAssessmentFacade publishedAssessment, Map itemGradingHash,
+    DeliveryBean delivery, Map publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
     double currentScore = 0;
     double maxScore = 0;
 
     // get parts
-    ArrayList partSet = publishedAssessment.getSectionArraySorted();
+    List partSet = publishedAssessment.getSectionArraySorted();
     Iterator iter = partSet.iterator();
-    ArrayList partsContents = new ArrayList();
+    List partsContents = new ArrayList();
     while (iter.hasNext())
     {
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
@@ -834,8 +832,8 @@ public class DeliveryActionListener
    */
   private ContentsDeliveryBean getPageContentsByPart(
     PublishedAssessmentFacade publishedAssessment,
-    int itemIndex, int sectionIndex, HashMap itemGradingHash, 
-    DeliveryBean delivery, HashMap publishedAnswerHash)
+    int itemIndex, int sectionIndex, Map itemGradingHash,
+    DeliveryBean delivery, Map publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
     double currentScore = 0;
@@ -843,9 +841,9 @@ public class DeliveryActionListener
     int sectionCount = 0;
 
     // get parts
-    ArrayList partSet = publishedAssessment.getSectionArraySorted();
+    List partSet = publishedAssessment.getSectionArraySorted();
     Iterator iter = partSet.iterator();
-    ArrayList partsContents = new ArrayList();
+    List partsContents = new ArrayList();
     while (iter.hasNext())
     {
       SectionContentsBean partBean = getPartBean( (SectionDataIfc) iter.next(),
@@ -897,8 +895,8 @@ public class DeliveryActionListener
    */
   private ContentsDeliveryBean getPageContentsByQuestion(
     PublishedAssessmentFacade publishedAssessment,
-    int itemIndex, int sectionIndex, HashMap itemGradingHash,
-    DeliveryBean delivery, HashMap publishedAnswerHash)
+    int itemIndex, int sectionIndex, Map itemGradingHash,
+    DeliveryBean delivery, Map publishedAnswerHash)
   {
     ContentsDeliveryBean contents = new ContentsDeliveryBean();
     double currentScore = 0;
@@ -907,9 +905,9 @@ public class DeliveryActionListener
     int questionCount = 0; // This is to increment the part if we run
     // out of questions
     // get parts
-    ArrayList partSet = publishedAssessment.getSectionArraySorted();
+    List partSet = publishedAssessment.getSectionArraySorted();
     Iterator iter = partSet.iterator();
-    ArrayList partsContents = new ArrayList();
+    List partsContents = new ArrayList();
     if (itemIndex < 0)
     {
       sectionIndex--;
@@ -993,8 +991,8 @@ public class DeliveryActionListener
    * @param part this section
    * @return
    */
-  private SectionContentsBean getPartBean(SectionDataIfc part, HashMap itemGradingHash,
-                                          DeliveryBean delivery, HashMap publishedAnswerHash)
+  private SectionContentsBean getPartBean(SectionDataIfc part, Map itemGradingHash,
+                                          DeliveryBean delivery, Map publishedAnswerHash)
   {
     double maxPoints = 0;
     double points = 0;
@@ -1038,7 +1036,7 @@ public class DeliveryActionListener
     sec.setMetaData(part);
 
     Iterator iter = itemSet.iterator();
-    ArrayList itemContents = new ArrayList();
+    List itemContents = new ArrayList();
     int i = 0;
     while (iter.hasNext())
     {
@@ -1088,8 +1086,8 @@ public class DeliveryActionListener
    * @return
    */
   private SectionContentsBean getPartBeanWithOneQuestion(
-    SectionDataIfc part, int itemIndex, HashMap itemGradingHash, 
-    DeliveryBean delivery, HashMap publishedAnswerHash)
+    SectionDataIfc part, int itemIndex, Map itemGradingHash,
+    DeliveryBean delivery, Map publishedAnswerHash)
   {
     double maxPoints = 0;
     double points = 0;
@@ -1120,7 +1118,7 @@ public class DeliveryActionListener
 
     // get items
     Iterator iter = itemSet.iterator();
-    ArrayList itemContents = new ArrayList();
+    List itemContents = new ArrayList();
     int i = 0;
     while (iter.hasNext())
     {
@@ -1172,8 +1170,8 @@ public class DeliveryActionListener
    * @param item  an Item
    * @return
    */
-  private ItemContentsBean getQuestionBean(ItemDataIfc item, HashMap itemGradingHash,
-                                           DeliveryBean delivery, HashMap publishedAnswerHash)
+  private ItemContentsBean getQuestionBean(ItemDataIfc item, Map itemGradingHash,
+                                           DeliveryBean delivery, Map publishedAnswerHash)
   {
     ItemContentsBean itemBean = new ItemContentsBean();
     itemBean.setItemData(item);
@@ -1193,14 +1191,14 @@ public class DeliveryActionListener
     }
 
     itemBean.setItemGradingDataArray
-      ( (ArrayList) itemGradingHash.get(item.getItemId()));
+      ( (List) itemGradingHash.get(item.getItemId()));
 
     if (itemBean.getItemGradingDataArray().size() > 0) {
     	itemBean.setItemGradingIdForFilePicker(((ItemGradingData) itemBean.getItemGradingDataArray().get(0)).getItemGradingId());
     }
     // Set comments and points
     Iterator i = itemBean.getItemGradingDataArray().iterator();
-    ArrayList itemGradingAttachmentList = new ArrayList();
+    List itemGradingAttachmentList = new ArrayList();
     while (i.hasNext())
     {
       ItemGradingData data = (ItemGradingData) i.next();
@@ -1271,7 +1269,7 @@ public class DeliveryActionListener
     	List<ItemGradingData> itemgradingList = itemBean.getItemGradingDataArray();
     	Iterator<ItemGradingData> iterAnswer = itemgradingList.iterator();
     	boolean haswronganswer =true;
-    	HashMap fibmap = new HashMap();
+    	Map fibmap = new HashMap();
     	int mcmc_match_counter = 0;
     	// if no answers yet, then display incorrect feedback. 
     	// if there are answers, then initialize haswronganswer =false;  // correct feedback
@@ -1384,7 +1382,7 @@ public class DeliveryActionListener
       }
     }
 
-    ArrayList myanswers = new ArrayList();
+    List myanswers = new ArrayList();
     ResourceLoader rb = null;
 	rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
 
@@ -1434,7 +1432,7 @@ public class DeliveryActionListener
       if (alwaysRandomizeTypes.contains(item.getTypeId()) ||
               (randomize && !neverRandomizeTypes.contains(item.getTypeId())))
       {
-            ArrayList shuffled = new ArrayList();
+            List shuffled = new ArrayList();
             Iterator i1 = text.getAnswerArraySorted().iterator();
             while (i1.hasNext())
 
@@ -1601,7 +1599,7 @@ public class DeliveryActionListener
     itemBean.setShuffledAnswers(myanswers);
 
     // This creates the list of answers for an item
-    ArrayList answers = new ArrayList();
+    List answers = new ArrayList();
     if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
         item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
         item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
@@ -1761,12 +1759,12 @@ public class DeliveryActionListener
   }
 
   // This method treats EMI in a similar way as multiple MCMR questions
-  public void populateEMI(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
+  public void populateEMI(ItemDataIfc item, ItemContentsBean bean, Map publishedAnswerHash)
   {
     Iterator itemTextIter = item.getItemTextArraySorted().iterator();
     //int j = 1;
-    ArrayList beans = new ArrayList();
-    ArrayList newAnswers = null;
+    List beans = new ArrayList();
+    List newAnswers = null;
     
     // Iterate through the PublishedItemTexts
     // Each ItemText represents a sub-question question
@@ -1798,7 +1796,7 @@ public class DeliveryActionListener
      
       // Now add the user responses (ItemGrading)
       int responseCount = 0;
-      ArrayList userResponseLabels = new ArrayList();
+      List userResponseLabels = new ArrayList();
       Iterator itemGradingIter = bean.getItemGradingDataArray().iterator();
       while (itemGradingIter.hasNext())
       {
@@ -1831,15 +1829,15 @@ public class DeliveryActionListener
     bean.setIsMultipleItems(beans.size() > 1);
   }
 
-  public void populateMatching(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
+  public void populateMatching(ItemDataIfc item, ItemContentsBean bean, Map publishedAnswerHash)
   {
 	  // used only for questions with distractors where the user has selected None of the Above
 	  final Long NONE_OF_THE_ABOVE = -1l;
 	  
     Iterator iter = item.getItemTextArraySorted().iterator();
     int j = 1;
-    ArrayList beans = new ArrayList();
-    ArrayList newAnswers = null;
+    List beans = new ArrayList();
+    List newAnswers = null;
     while (iter.hasNext())
     {
       ItemTextIfc text = (ItemTextIfc) iter.next();
@@ -1849,8 +1847,8 @@ public class DeliveryActionListener
       mbean.setItemText(text);
       mbean.setItemContentsBean(bean);
 
-      ArrayList choices = new ArrayList();
-      ArrayList shuffled = new ArrayList();
+      List choices = new ArrayList();
+      List shuffled = new ArrayList();
       Iterator iter2 = text.getAnswerArraySorted().iterator();
       while (iter2.hasNext())
       {
@@ -1931,13 +1929,13 @@ public class DeliveryActionListener
     bean.setAnswers(newAnswers); // Change the answers to just text
   }
 
-  public void populateFib(ItemDataIfc item, ItemContentsBean bean, HashMap<Long, AnswerIfc> publishedAnswerHash)
+  public void populateFib(ItemDataIfc item, ItemContentsBean bean, Map<Long, AnswerIfc> publishedAnswerHash)
   {
     // Only one text in FIB
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
-    ArrayList fibs = new ArrayList();
+    List fibs = new ArrayList();
     String alltext = text.getText();
-    ArrayList texts = extractFIBFINTextArray(alltext);
+    List texts = extractFIBFINTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
@@ -2002,9 +2000,9 @@ public class DeliveryActionListener
     bean.setFibArray(fibs);
   }
 
-  private static ArrayList extractFIBFINTextArray(String alltext)
+  private static List extractFIBFINTextArray(String alltext)
   {
-    ArrayList texts = new ArrayList();
+    List texts = new ArrayList();
 
     while (alltext.indexOf("{}") > -1)
     {
@@ -2081,13 +2079,13 @@ public class DeliveryActionListener
   } 
   */
    
-  public void populateFin(ItemDataIfc item, ItemContentsBean bean, HashMap<Long, AnswerIfc> publishedAnswerHash)
+  public void populateFin(ItemDataIfc item, ItemContentsBean bean, Map<Long, AnswerIfc> publishedAnswerHash)
   {
     // Only one text in FIN
     ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
-    ArrayList fins = new ArrayList();
+    List fins = new ArrayList();
     String alltext = text.getText();
-    ArrayList texts = extractFIBFINTextArray(alltext);
+    List texts = extractFIBFINTextArray(alltext);
     int i = 0;
     Iterator iter = text.getAnswerArraySorted().iterator();
     while (iter.hasNext())
@@ -2157,9 +2155,9 @@ public class DeliveryActionListener
     bean.setFinArray(fins);
   }
 
-  public void populateMatrixChoices(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash){
+  public void populateMatrixChoices(ItemDataIfc item, ItemContentsBean bean, Map publishedAnswerHash){
 
-	  ArrayList matrixArray = new ArrayList();
+	  List matrixArray = new ArrayList();
 
 	  List<Integer> columnIndexList = new ArrayList<Integer>();
 	  List itemTextArray = item.getItemTextArraySorted();
@@ -2413,14 +2411,14 @@ public class DeliveryActionListener
 
   }
 
-  public void populateImageMapQuestion(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
+  public void populateImageMapQuestion(ItemDataIfc item, ItemContentsBean bean, Map publishedAnswerHash)
   {	
 	bean.setImageSrc(item.getImageMapSrc());
 	
 	Iterator iter = item.getItemTextArraySorted().iterator();
     int j = 1;
-    ArrayList beans = new ArrayList();
-    ArrayList newAnswers = new ArrayList();
+    List beans = new ArrayList();
+    List newAnswers = new ArrayList();
     while (iter.hasNext())
     {
       
@@ -2613,12 +2611,12 @@ public class DeliveryActionListener
     }
   }
 
-  public void overloadItemData(DeliveryBean delivery, HashMap itemGradingHash, 
+  public void overloadItemData(DeliveryBean delivery, Map itemGradingHash,
                                PublishedAssessmentFacade publishedAssessment){
 
     // We're going to overload itemGradingHash with the sequence in case
     // renumbering is turned off.
-    itemGradingHash.put("sequence", Long.valueOf(0));
+    itemGradingHash.put("sequence", 0L);
     long items = 0;
     int sequenceno = 1;
     if (publishedAssessment != null && publishedAssessment.getSectionArraySorted() != null) {    	
@@ -2643,12 +2641,11 @@ public class DeliveryActionListener
     		while (i2.hasNext()) {
     			items = items + 1; // bug 464
     			ItemDataIfc item = (ItemDataIfc) i2.next();
-    			itemGradingHash.put("sequence" + item.getItemId().toString(),
-    					Integer.valueOf(sequenceno++));
+    			itemGradingHash.put("sequence" + item.getItemId().toString(), sequenceno++);
     		}
     	}
     }
-    itemGradingHash.put("items", Long.valueOf(items));
+    itemGradingHash.put("items", items);
   }
 
   private void setGraderComment(DeliveryBean delivery){
@@ -2863,7 +2860,7 @@ public class DeliveryActionListener
     if ((part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
 
       // same ordering for each student
-      ArrayList randomsample = new ArrayList();
+      List randomsample = new ArrayList();
       Collections.shuffle(list,  new Random(seed));
 
       if (part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {

@@ -2538,9 +2538,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// should submit and remove as we see them
 						Set<String> notSubmitted = new HashSet<String>();
 						if (i.isGroupOwned()) {
-						    String ownerGroups = i.getOwnerGroups();
-						    if (ownerGroups != null)
-							notSubmitted = new HashSet(Arrays.asList(ownerGroups.split(",")));
+						    notSubmitted = simplePageBean.getOwnerGroups(i);
 						} else {
 						    String siteRef = simplePageBean.getCurrentSite().getReference();
 						    // only check students
@@ -2659,7 +2657,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    for(String owner: notSubmitted) {
 							String sownerName;
 							if (i.isGroupOwned()) {
-							    sownerName = simplePageBean.getCurrentSite().getGroup(owner).getTitle();
+							    try {
+								sownerName = simplePageBean.getCurrentSite().getGroup(owner).getTitle();
+							    } catch (Exception e) {
+								// the only way I can make this happen is to add a group
+								// to the item and then delete the group. If we can't find the
+								// group, don't show the item.
+								continue;
+							    }
 							} else {
 							    try {
 								sownerName = UserDirectoryService.getUser(owner).getDisplayName();

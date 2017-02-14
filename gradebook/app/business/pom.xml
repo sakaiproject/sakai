@@ -40,6 +40,10 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-private</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-api</artifactId>
     </dependency>
@@ -131,9 +135,8 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>jta</groupId>
+      <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
-      <version>h2.1.8</version>
     </dependency>
     <dependency>
       <groupId>cglib</groupId>

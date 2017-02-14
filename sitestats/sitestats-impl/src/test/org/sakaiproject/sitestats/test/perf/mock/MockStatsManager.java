@@ -227,10 +227,10 @@ public class MockStatsManager implements StatsManager {
 
 	@Override
 	public List<Stat> getEventStats(String siteId, List<String> events,
-			Date iDate, Date fDate, List<String> userIds,
-			boolean inverseUserSelection, PagingPosition page,
-			List<String> totalsBy, String sortBy, boolean sortAscending,
-			int maxResults) {
+                                         Date iDate, Date fDate, List<String> userIds,
+                                         boolean inverseUserSelection, PagingPosition page,
+                                         List<String> totalsBy, String sortBy, boolean sortAscending,
+                                         int maxResults) {
 		// TODO Auto-generated method stub
 		return null;
 	}

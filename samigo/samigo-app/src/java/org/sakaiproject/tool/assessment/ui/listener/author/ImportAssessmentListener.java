@@ -24,6 +24,8 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -100,7 +102,7 @@ public class ImportAssessmentListener implements ActionListener
 
     // update core AssessmentList: get the managed bean, author and set the list
       AssessmentService assessmentService = new AssessmentService();
-      ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
+      List list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
     //
       author.setAssessments(list);

@@ -1,8 +1,8 @@
 package org.sakaiproject.component.app.scheduler;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;

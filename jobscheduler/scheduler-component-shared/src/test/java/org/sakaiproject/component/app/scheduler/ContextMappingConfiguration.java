@@ -1,49 +1,61 @@
 package org.sakaiproject.component.app.scheduler;
 
+import java.util.Properties;
+
+import javax.sql.DataSource;
+
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hsqldb.jdbcDriver;
 import org.sakaiproject.scheduler.events.hibernate.ContextMapping;
 import org.sakaiproject.scheduler.events.hibernate.DelayedInvocation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * Configuration for tests.
  */
-@org.springframework.context.annotation.Configuration
+@Configuration
 @EnableTransactionManagement
+@PropertySource("classpath:/hibernate.properties")
 public class ContextMappingConfiguration {
 
-    private SessionFactory sessionFactory;
+    @Autowired
+    private org.springframework.core.env.Environment env;
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
     public SessionFactory sessionFactory() {
-        if (sessionFactory == null) {
-            String dialectClassName = HSQLDialect.class.getName();
-            Configuration config = new Configuration();
-            config.addAnnotatedClass(ContextMapping.class);
-            config.addAnnotatedClass(DelayedInvocation.class);
+        LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
+        sfb.addAnnotatedClasses(ContextMapping.class, DelayedInvocation.class);
+        sfb.addProperties(hibernateProperties());
+        return sfb.buildSessionFactory();
+    }
 
-            config.setProperty(Environment.DIALECT, dialectClassName);
-            config.setProperty(Environment.DRIVER, jdbcDriver.class.getName());
-            config.setProperty(Environment.URL, "jdbc:hsqldb:mem:testDB");
-            config.setProperty(Environment.USER, "SA");
-            config.setProperty(Environment.PASS, "");
-            // If we let spring create the session factory we probably wouldn't have to do this.
-            config.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "org.springframework.orm.hibernate3.SpringSessionContext");
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource db = new DriverManagerDataSource();
+        db.setDriverClassName(env.getProperty(Environment.DRIVER, jdbcDriver.class.getName()));
+        db.setUrl(env.getProperty(Environment.URL, "jdbc:hsqldb:mem:test"));
+        db.setUsername(env.getProperty(Environment.USER, "SA"));
+        db.setPassword(env.getProperty(Environment.PASS, ""));
+        return db;
+    }
 
-            SchemaExport export = new SchemaExport(config);
-            export.create(false, true);
-
-            sessionFactory = config.buildSessionFactory();
-        }
-        return sessionFactory;
+    @Bean
+    public Properties hibernateProperties() {
+        return new Properties() {
+            {
+                setProperty(Environment.DIALECT, env.getProperty(Environment.DIALECT, HSQLDialect.class.getName()));
+                setProperty(Environment.HBM2DDL_AUTO, env.getProperty(Environment.HBM2DDL_AUTO));
+            }
+        };
     }
 
     @Bean
@@ -53,8 +65,10 @@ public class ContextMappingConfiguration {
     }
 
     @Bean
-    public PlatformTransactionManager txManager() {
-        return new HibernateTransactionManager(sessionFactory());
+    @Autowired
+    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
+        HibernateTransactionManager txManager =  new HibernateTransactionManager();
+        txManager.setSessionFactory(sessionFactory);
+        return txManager;
     }
-
 }

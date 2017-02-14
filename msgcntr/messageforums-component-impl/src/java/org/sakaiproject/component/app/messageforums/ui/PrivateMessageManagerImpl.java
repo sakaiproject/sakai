@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.ui;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,13 +32,10 @@ import java.util.Map.Entry;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -78,13 +74,13 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
-    PrivateMessageManager
-{
+public class PrivateMessageManagerImpl extends HibernateDaoSupport implements PrivateMessageManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(PrivateMessageManagerImpl.class);
 
@@ -713,54 +709,18 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           + orderField + ", order:" + order + ")");
     }
 
-    //    HibernateCallback hcb = new HibernateCallback() {
-    //      public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    //        Criteria messageCriteria = session.createCriteria(PrivateMessageImpl.class);
-    //        Criteria recipientCriteria = messageCriteria.createCriteria("recipients");
-    //        
-    //        Conjunction conjunction = Expression.conjunction();
-    //        conjunction.add(Expression.eq("userId", getCurrentUser()));
-    //        conjunction.add(Expression.eq("typeUuid", typeUuid));        
-    //        
-    //        recipientCriteria.add(conjunction);
-    //        
-    //        if ("asc".equalsIgnoreCase(order)){
-    //          messageCriteria.addOrder(Order.asc(orderField));
-    //        }
-    //        else if ("desc".equalsIgnoreCase(order)){
-    //          messageCriteria.addOrder(Order.desc(orderField));
-    //        }
-    //        else{
-    //          LOG.debug("getMessagesByType failed with (typeUuid:" + typeUuid + ", orderField: " + orderField +
-    //              ", order:" + order + ")");
-    //          throw new IllegalArgumentException("order must have value asc or desc");          
-    //        }
-    //        
-    //        //todo: parameterize fetch mode
-    //        messageCriteria.setFetchMode("recipients", FetchMode.EAGER);
-    //        messageCriteria.setFetchMode("attachments", FetchMode.EAGER);
-    //        
-    //        return messageCriteria.list();        
-    //      }
-    //    };
+    HibernateCallback<List> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
+      Query qOrdered = session.createQuery(q.getQueryString() + " order by "
+          + orderField + " " + order);
 
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
-        Query qOrdered = session.createQuery(q.getQueryString() + " order by "
-            + orderField + " " + order);
-
-        qOrdered.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-        qOrdered.setParameter("contextId", getContextId(), Hibernate.STRING);
-        return qOrdered.list();
-      }
+      qOrdered.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
+      qOrdered.setParameter("typeUuid", typeUuid, StringType.INSTANCE);
+      qOrdered.setParameter("contextId", getContextId(), StringType.INSTANCE);
+      return qOrdered.list();
     };
 
-    return (List) getHibernateTemplate().execute(hcb);        
+    return getHibernateTemplate().execute(hcb);
   }
   
   /**
@@ -783,21 +743,16 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       LOG.debug("getMessagesByTypeForASite(typeUuid:" + typeUuid + ")");
     }
 
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
+    HibernateCallback<List> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
 
-        q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-        q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-        q.setParameter("contextId", contextId, Hibernate.STRING);
-        return q.list();
-      }
+      q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
+      q.setParameter("typeUuid", typeUuid, StringType.INSTANCE);
+      q.setParameter("contextId", contextId, StringType.INSTANCE);
+      return q.list();
     };
 
-    return (List) getHibernateTemplate().execute(hcb);        
+    return getHibernateTemplate().execute(hcb);
   }
   
   public List getMessagesByTypeByContext(final String typeUuid, final String contextId, final String userId, final String orderField,
@@ -807,22 +762,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       LOG.debug("getMessagesByTypeForASite(typeUuid:" + typeUuid + ")");
     }
 
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
-        Query qOrdered = session.createQuery(q.getQueryString() + " order by "
-                + orderField + " " + order);
-        qOrdered.setParameter("userId", userId, Hibernate.STRING);
-        qOrdered.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-        qOrdered.setParameter("contextId", contextId, Hibernate.STRING);
-        return qOrdered.list();
-      }
+    HibernateCallback<List> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT);
+      Query qOrdered = session.createQuery(q.getQueryString() + " order by "
+              + orderField + " " + order);
+      qOrdered.setParameter("userId", userId, StringType.INSTANCE);
+      qOrdered.setParameter("typeUuid", typeUuid, StringType.INSTANCE);
+      qOrdered.setParameter("contextId", contextId, StringType.INSTANCE);
+      return qOrdered.list();
     };
 
-    return (List) getHibernateTemplate().execute(hcb);        
+    return getHibernateTemplate().execute(hcb);
   }
 
 
@@ -907,19 +857,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       LOG.debug("initializeMessageCounts executing");
     }
 
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_AGGREGATE_COUNT);        
-        q.setParameter("contextId", contextId, Hibernate.STRING);
-        q.setParameter("userId", userId, Hibernate.STRING);
-        return q.list();
-      }
+    HibernateCallback<List> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_AGGREGATE_COUNT);
+      q.setParameter("contextId", contextId, StringType.INSTANCE);
+      q.setParameter("userId", userId, StringType.INSTANCE);
+      return q.list();
     };
         
-    return (List) getHibernateTemplate().execute(hcb);        
+    return getHibernateTemplate().execute(hcb);
   }
 
 
@@ -932,17 +877,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    * 	List of site id, count of unread message pairs
    */
   public List getPrivateMessageCountsForAllSites() {
-	  HibernateCallback hcb = new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws HibernateException,
-	  	 	SQLException
-	  	 {
-			  Query q = session.getNamedQuery("findUnreadPvtMsgCntByUserForAllSites");
-			  q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
-			  return q.list();
-	  	 }
-	  };
+	  HibernateCallback<List> hcb = session -> {
+         Query q = session.getNamedQuery("findUnreadPvtMsgCntByUserForAllSites");
+         q.setParameter("userId", getCurrentUser(), StringType.INSTANCE);
+         return q.list();
+      };
   
-	  return (List) getHibernateTemplate().execute(hcb);
+	  return getHibernateTemplate().execute(hcb);
 	  
   }
 
@@ -1553,19 +1494,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       throw new IllegalArgumentException("Null Argument");
     }
 
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);
-        q.setParameter("id", message.getId(), Hibernate.LONG);
-        return q.uniqueResult();
-      }
+    HibernateCallback<PrivateMessage> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_MESSAGES_BY_ID_WITH_RECIPIENTS);
+      q.setParameter("id", message.getId(), LongType.INSTANCE);
+      return (PrivateMessage) q.uniqueResult();
     };
 
-    PrivateMessage pvtMessage = (PrivateMessage) getHibernateTemplate()
-        .execute(hcb);
+    PrivateMessage pvtMessage = getHibernateTemplate().execute(hcb);
 
     if (pvtMessage == null)
     {
@@ -1890,16 +1825,14 @@ return topicTypeUuid;
   
   public Area getAreaByContextIdAndTypeId(final String typeId) {
     LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
-    HibernateCallback hcb = new HibernateCallback() {
-        public Object doInHibernate(Session session) throws HibernateException, SQLException {
-            Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
-            q.setParameter("contextId", getContextId(), Hibernate.STRING);
-            q.setParameter("typeId", typeId, Hibernate.STRING);
-            return q.uniqueResult();
-        }
+    HibernateCallback<Area> hcb = session -> {
+        Query q = session.getNamedQuery("findAreaByContextIdAndTypeId");
+        q.setParameter("contextId", getContextId(), StringType.INSTANCE);
+        q.setParameter("typeId", typeId, StringType.INSTANCE);
+        return (Area) q.uniqueResult();
     };
 
-    return (Area) getHibernateTemplate().execute(hcb);
+    return getHibernateTemplate().execute(hcb);
   }
   
   /**

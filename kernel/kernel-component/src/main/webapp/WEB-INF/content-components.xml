@@ -138,23 +138,22 @@
 	<bean id="org.sakaiproject.content.api.ContentChangeHandler" class="org.sakaiproject.content.api.ContentChangeHandlerImpl" />
 
 	<bean id="lockManagerHibernateMappings"
-			class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-		<property name="mappingResources">
+          class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
 			<list>
-				<value>org/sakaiproject/content/hbm/LockManager.hbm.xml</value>
+				<value>org.sakaiproject.content.hbm.Lock</value>
 			</list>
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.content.impl.LockManagerTarget"
-			class="org.sakaiproject.content.impl.LockManagerImpl">
-        <property name="sessionFactory"> <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/> </property>
-	</bean>
-
 	<bean id="org.sakaiproject.content.api.LockManager"
-			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">  <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>  </property>
-        <property name="target">              <ref bean="org.sakaiproject.content.impl.LockManagerTarget"/>                          </property>
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="target">
+            <bean class="org.sakaiproject.content.impl.LockManagerImpl">
+                <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+            </bean>
+        </property>
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 		<property name="transactionAttributes">
 			<props>
 				<prop key="*">PROPAGATION_REQUIRED</prop>

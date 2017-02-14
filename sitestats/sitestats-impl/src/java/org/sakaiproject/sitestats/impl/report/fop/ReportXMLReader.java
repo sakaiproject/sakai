@@ -258,7 +258,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         //handler.element("chart", "sitestats://" + M_ers.getToolIcon(toolId));
 	}
 	
-	private void generateReportTable(List<Stat> data, ReportParams params) throws SAXException {
+	private void generateReportTable(List<? extends Stat> data, ReportParams params) throws SAXException {
         if (data == null || params == null) {
             throw new NullPointerException("Parameter 'data', 'params' must not be null");
         }
@@ -281,7 +281,7 @@ public class ReportXMLReader extends AbstractObjectReader {
         boolean showTotalUnique = M_rm.isReportColumnAvailable(params, StatsManager.T_UNIQUEVISITS);
         boolean showDuration = M_rm.isReportColumnAvailable(params, StatsManager.T_DURATION);
 
-        Iterator<Stat> i = data.iterator();
+        Iterator<? extends Stat> i = data.iterator();
         while(i.hasNext()){
         	Stat cs = i.next();
             handler.startElement("datarow");

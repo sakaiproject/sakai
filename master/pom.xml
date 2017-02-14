@@ -74,12 +74,6 @@
 
   <properties>
     <sakai.version>12-SNAPSHOT</sakai.version>
-    <!-- Retain this for backward compatibility -->
-    <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
-    <kernel.spring.version>${sakai.spring.version}</kernel.spring.version>
-    <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
-    <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
-    <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
     <!-- Standard dependency versions -->
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.5</sakai.commons.lang3.version>
@@ -91,7 +85,7 @@
     <sakai.elasticsearch.version>1.7.6</sakai.elasticsearch.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
-    <sakai.hibernate.version>3.6.10.Final</sakai.hibernate.version>
+    <sakai.hibernate.version>4.3.11.Final</sakai.hibernate.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.jts.version>1.13</sakai.jts.version>
@@ -114,7 +108,8 @@
     <sakai.spring.security.version>3.2.9.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.12</sakai.tika.version>
+
+    <sakai.tika.version>1.14</sakai.tika.version>
     <sakai.tomcat.version>8.0.41</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
@@ -124,7 +119,7 @@
     <sakai.poi.version>3.14</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.9.7</joda.time.version>
-    <sakai.genericdao.version>0.10.0</sakai.genericdao.version>
+    <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -395,73 +390,73 @@
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-core</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-aop</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-beans</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-context-support</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-expression</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-jdbc</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-orm</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-tx</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-web</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-webmvc</artifactId>
-        <version>${kernel.spring.version}</version>
+        <version>${sakai.spring.version}</version>
       </dependency>
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
@@ -490,7 +485,7 @@
       <dependency>
         <groupId>antlr</groupId>
         <artifactId>antlr</artifactId>
-        <version>2.7.6</version>
+        <version>2.7.7</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -503,6 +498,12 @@
         <groupId>commons-collections</groupId>
         <artifactId>commons-collections</artifactId>
         <version>3.2.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>4.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -680,25 +681,13 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-        <version>${kernel.hibernate.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-commons-annotations</artifactId>
-        <version>${kernel.hibernate.annotations.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.javax.persistence</groupId>
-        <artifactId>hibernate-jpa-2.0-api</artifactId>
-        <version>${kernel.hibernate.jpa.version}</version>
+        <version>${sakai.hibernate.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-ehcache</artifactId>
-        <version>${kernel.hibernate.version}</version>
+        <version>${sakai.hibernate.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -710,7 +699,7 @@
       <dependency>
         <groupId>org.hsqldb</groupId>
         <artifactId>hsqldb</artifactId>
-        <version>1.8.0.10</version>
+        <version>2.3.4</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -795,6 +784,18 @@
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-storage-util</artifactId>
         <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-private</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-component</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- Tika includes asm-debug-all which it really shouldn't
@@ -2000,6 +2001,8 @@
               <goals>
                   <goal>enforce</goal>
               </goals>
+              <!-- Against a clean repository you can't run `mvn validate` with enforcer enabled -->
+              <phase>install</phase>
               <configuration>
                   <rules>
                       <banCircularDependencies/>

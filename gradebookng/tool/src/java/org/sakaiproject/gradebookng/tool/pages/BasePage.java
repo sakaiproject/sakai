@@ -5,6 +5,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -17,10 +18,12 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +64,12 @@ public class BasePage extends WebPage {
 
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
-		this.role = this.businessService.getUserRole();
+		try {
+			this.role = this.businessService.getUserRole();
+		} catch (final GbAccessDeniedException e) {
+			log.error("Error getting user role", e);
+			// do not redirect here, let the subclasses handle this!
+		}
 
 		// set locale
 		setUserPreferredLocale();
@@ -187,9 +195,16 @@ public class BasePage extends WebPage {
 				.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 
 		// Shared JavaScript and stylesheets
-		// Bootstrap (lock in a version we've tested with and pair it with Wicket's jQuery)
-		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version)));
+		// Force Wicket to use Sakai's version of jQuery
+		response.render(
+			new PriorityHeaderItem(
+				JavaScriptHeaderItem
+					.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+		// And pair this instance of jQuery with a Bootstrap version we've tested with
+		response.render(
+			new PriorityHeaderItem(
+				JavaScriptHeaderItem
+					.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
 		// Some global gradebookng styles
 		response.render(CssHeaderItem
 			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
@@ -243,5 +258,16 @@ public class BasePage extends WebPage {
 		final Locale locale = this.businessService.getUserPreferredLocale();
 		log.debug("User preferred locale: " + locale);
 		getSession().setLocale(locale);
+	}
+
+	/**
+	 * Send a user to the access denied page with a message
+	 * @param message the message
+	 */
+	public void sendToAccessDeniedPage(final String message){
+		final PageParameters params = new PageParameters();
+		params.add("message", message);
+		log.debug("Redirecting to AccessDeniedPage: " + message);
+		throw new RestartResponseException(AccessDeniedPage.class, params);
 	}
 }
