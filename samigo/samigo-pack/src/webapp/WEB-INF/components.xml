@@ -155,8 +155,10 @@
       <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
-          <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
+          <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+          <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+          <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+	    </bean>
       </property>
       <property name="transactionAttributes">
         <props>

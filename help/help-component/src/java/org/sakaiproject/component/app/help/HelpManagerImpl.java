@@ -95,10 +95,10 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.UrlResource;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateObjectRetrievalFailureException;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -706,8 +706,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	{
 		HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException,
-			SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				org.hibernate.Query q = session
 				.getNamedQuery(QUERY_GETRESOURCEBYDOCID);
@@ -731,23 +730,16 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	public String getWelcomePage()
 	{
 		initialize();
-		HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException,
-			SQLException
-			{
-				org.hibernate.Query q = session
-				.getNamedQuery(QUERY_GET_WELCOME_PAGE);
-				q.setString(WELCOME_PAGE, "true");
-				if (q.list().size() == 0){
-					return null;
-				}
-				else{
-					return ((Resource) q.list().get(0)).getDocId();
-				}
-			}
-		};
-		return (String) getHibernateTemplate().execute(hcb);
+		HibernateCallback<List<ResourceBean>> hcb = session -> session
+            .getNamedQuery(QUERY_GET_WELCOME_PAGE)
+				.setString(WELCOME_PAGE, "true")
+				.list();
+
+		List<ResourceBean> list = getHibernateTemplate().execute(hcb);
+        if (list.isEmpty()) {
+            return null;
+		}
+        return list.get(0).getDocId();
 	}
 
 	/**
@@ -759,8 +751,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	{
 		HibernateCallback hcb = new HibernateCallback()
 		{
-			public Object doInHibernate(Session session) throws HibernateException,
-			SQLException
+			public Object doInHibernate(Session session) throws HibernateException
 			{
 				org.hibernate.Query q = session
 				.getNamedQuery(QUERY_GETCATEGORYBYNAME);

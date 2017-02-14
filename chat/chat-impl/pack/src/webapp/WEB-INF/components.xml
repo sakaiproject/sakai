@@ -5,11 +5,10 @@
 
     <bean id="org.sakaiproject.chat2.model.ChatHibernateBean"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-        <property name="mappingResources">
+        <property name="annotatedClasses">
             <list>
-                <value>
-                    org/sakaiproject/chat2/model/impl/ChatImpl.hbm.xml
-                </value>
+                <value>org.sakaiproject.chat2.model.ChatChannel</value>
+				<value>org.sakaiproject.chat2.model.ChatMessage</value>
             </list>
         </property>
     </bean>
@@ -17,35 +16,24 @@
 
     <bean id="org.sakaiproject.chat2.model.ChatManager"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-        </property>
-        <property name="target">
-            <ref bean="org.sakaiproject.chat2.model.impl.ChatManagerImpl" />
-        </property>
-        <property name="transactionAttributes">
+		<property name="target">
+			<bean class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
+				  init-method="init"
+				  destroy-method="destroy">
+				<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+				<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+				<property name="defaultChannelSettings" ref="defaultChatChannelSettings"/>
+			</bean>
+		</property>
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="transactionAttributes">
             <props>
                 <prop key="*">PROPAGATION_REQUIRED</prop>
             </props>
         </property>
     </bean>
 
-    <bean id="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
-    	class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
-    	init-method="init" destroy-method="destroy">
-    	<property name="sessionFactory">
-    		<ref
-    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    	</property>
-    	<property name="entityManager">
-    		<ref bean="org.sakaiproject.entity.api.EntityManager" />
-    	</property>
-    	<property name="defaultChannelSettings">
-    		<ref bean="defaultChatChannelSettings" />
-    	</property>
-    </bean>
-    
-    <bean id="defaultChatChannelSettings" 
+    <bean id="defaultChatChannelSettings"
     		class="org.sakaiproject.chat2.model.ChatChannel">
     	<property name="filterType">
     		<bean id="org.sakaiproject.chat2.model.ChatChannel.FILTER_ALL"

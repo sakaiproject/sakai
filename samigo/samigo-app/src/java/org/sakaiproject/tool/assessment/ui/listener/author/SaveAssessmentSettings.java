@@ -302,7 +302,7 @@ public class SaveAssessmentSettings
     // hasRetractDate, hasAnonymous, hasAuthenticatedUser, hasIpAddress,
     // hasUsernamePassword,
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
-    HashMap <String, String> h = assessmentSettings.getValueMap();
+    Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
 
     //Update with any settings that are unsaved
@@ -392,7 +392,7 @@ public class SaveAssessmentSettings
             }
     		
     		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    		TreeMap groupsForSite = publishedAssessmentService.getGroupsForSite();
+    		Map groupsForSite = publishedAssessmentService.getGroupsForSite();
     		if (groupsForSite != null && groupsForSite.size() > 0) {
     			String releaseToGroups = getReleaseToGroupsAsString(groupsForSite, groupsAuthorized);
     			assessmentSettings.setReleaseToGroupsAsString(releaseToGroups);
@@ -428,7 +428,7 @@ public class SaveAssessmentSettings
   }
 
 
-  public void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
+  public void updateMetaWithValueMap(AssessmentIfc assessment, Map map){
 	  //log.info("** map size ="+map.size());
 
 	  if (map!=null){
@@ -493,7 +493,7 @@ public class SaveAssessmentSettings
   public void updateAttachment(List oldList, List newList, AssessmentIfc assessment, boolean isAuthorSettings){
     if ((oldList == null || oldList.isEmpty() ) && (newList == null || newList.isEmpty())) return;
     List list = new ArrayList();
-    HashMap map = getAttachmentIdHash(oldList);
+    Map map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
       AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)newList.get(i);
       if (map.get(a.getAttachmentId())!=null){
@@ -525,8 +525,8 @@ public class SaveAssessmentSettings
     }
   }
 
-  private HashMap getAttachmentIdHash(List list){
-    HashMap map = new HashMap();
+  private Map getAttachmentIdHash(List list){
+    Map map = new HashMap();
     for (int i=0; i<list.size(); i++){
       AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);
@@ -534,7 +534,7 @@ public class SaveAssessmentSettings
     return map;
   }
 
-  private String getReleaseToGroupsAsString(TreeMap groupsForSiteMap, String [] groupsAuthorized) {
+  private String getReleaseToGroupsAsString(Map groupsForSiteMap, String [] groupsAuthorized) {
 	  List releaseToGroups = new ArrayList();
       for( String groupsAuthorized1 : groupsAuthorized )
       {

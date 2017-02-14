@@ -1,11 +1,9 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.authz"
+                   default-lazy="false">
 
-<!DOCTYPE hibernate-mapping
-    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-
-<hibernate-mapping default-lazy="false">
-    <class name="org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData"
+<class name="org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData"
         table="SAM_AUTHZDATA_T">
       <id name="surrogateKey" type="long">
         <column name="ID" not-null="true" length="19" />

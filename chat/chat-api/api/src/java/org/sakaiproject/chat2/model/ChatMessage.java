@@ -25,30 +25,75 @@ package org.sakaiproject.chat2.model;
 import java.util.Date;
 import java.util.Stack;
 
+import javax.persistence.Cacheable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/**
- * 
- * @author andersjb
- *
- */
-public class ChatMessage implements Entity {
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Entity
+@Table(name = "CHAT2_MESSAGE")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@NamedQueries({
+        @NamedQuery(name = "findMigratedMessage", query = "from ChatMessage m where m.migratedMessageId = :messageId")
+})
+
+@EqualsAndHashCode(of = "id")
+@Getter
+@Setter
+@ToString
+public class ChatMessage implements org.sakaiproject.entity.api.Entity {
+
+   @Id
+   @Column(name = "MESSAGE_ID", length = 36)
+   @GeneratedValue(generator = "uuid")
+   @GenericGenerator(name = "uuid", strategy = "uuid2")
    private String id;
+
+   @ManyToOne
+   @JoinColumn(name = "CHANNEL_ID")
+   @OrderColumn(name = "CHAT_MESSAGE_CHANNEL_I")
    private ChatChannel chatChannel;
+
+   @Column(name = "OWNER", length = 96, nullable = false)
+   @OrderColumn(name = "CHAT_MESSAGE_OWNER_I")
    private String owner;
+
+   @Column(name = "MESSAGE_DATE")
+   @Temporal(TemporalType.TIMESTAMP)
+   @OrderColumn(name = "CHAT_MESSAGE_DATE_I")
    private Date messageDate;
+
+   @Column(name = "BODY", nullable = false)
+   @Lob
    private String body;
+
+   @Column(length = 99)
    private String migratedMessageId;
 
-   
-   public ChatMessage() {
-   }
-   
    static String urlRegexp = "https?://[\\S]+";
    static String bodyRegexp = ".*"+urlRegexp+".*";
    static String parenRegexp = "[\\s+(]";
@@ -60,13 +105,7 @@ public class ChatMessage implements Entity {
    static String href_1regexp = ".*"+href_1+".*";
    static String href_2 = "\">";
    static String href_3 = "</a> ";
-   
-   /** Get body of chat message
-    **/
-   public String getBody() {
-      return body;
-   }
-     
+
    /** Set body of chat message, adding html anchor tags as appropriate
     **/
    public void setBody(String body) {
@@ -106,32 +145,6 @@ public class ChatMessage implements Entity {
       this.body = formattedBody;
    }
 
-   public ChatChannel getChatChannel() {
-      return chatChannel;
-   }
-   public void setChatChannel(ChatChannel chatChannel) {
-      this.chatChannel = chatChannel;
-   }
-   public String getId() {
-      return id;
-   }
-   public void setId(String id) {
-      this.id = id;
-   }
-   public Date getMessageDate() {
-      return messageDate;
-   }
-   public void setMessageDate(Date messageDate) {
-      this.messageDate = messageDate;
-   }
-   public String getOwner() {
-      return owner;
-   }
-   public void setOwner(String owner) {
-      this.owner = owner;
-   }
-   
-   
    /**
     * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
     * 
@@ -192,8 +205,8 @@ public class ChatMessage implements Entity {
     * @see org.sakaiproject.entity.api.Entity#getReference()
     */
    public String getReference() {
-      return ChatManager.REFERENCE_ROOT + Entity.SEPARATOR + ChatManager.REF_TYPE_MESSAGE + Entity.SEPARATOR + chatChannel.getContext() + Entity.SEPARATOR
-      + chatChannel.getId() + Entity.SEPARATOR + id;
+      return ChatManager.REFERENCE_ROOT + org.sakaiproject.entity.api.Entity.SEPARATOR + ChatManager.REF_TYPE_MESSAGE + org.sakaiproject.entity.api.Entity.SEPARATOR + chatChannel.getContext() + org.sakaiproject.entity.api.Entity.SEPARATOR
+      + chatChannel.getId() + org.sakaiproject.entity.api.Entity.SEPARATOR + id;
    }
 
    /* (non-Javadoc)
@@ -216,13 +229,4 @@ public class ChatMessage implements Entity {
    public String getUrl(String rootProperty) {
       return getUrl();
    }
-
-   public String getMigratedMessageId() {
-      return migratedMessageId;
-   }
-
-   public void setMigratedMessageId(String migratedMessageId) {
-      this.migratedMessageId = migratedMessageId;
-   }
-   
 }

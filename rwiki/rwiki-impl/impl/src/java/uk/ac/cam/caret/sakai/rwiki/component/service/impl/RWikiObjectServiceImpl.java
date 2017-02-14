@@ -62,7 +62,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.hibernate.HibernateException;
 import org.sakaiproject.util.api.FormattedText;
 import org.w3c.dom.Document;

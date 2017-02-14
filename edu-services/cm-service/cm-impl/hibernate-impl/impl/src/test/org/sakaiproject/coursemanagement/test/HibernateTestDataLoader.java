@@ -45,7 +45,7 @@ import org.sakaiproject.coursemanagement.impl.MembershipCmImpl;
 import org.sakaiproject.coursemanagement.impl.SectionCategoryCmImpl;
 import org.sakaiproject.coursemanagement.impl.SectionCmImpl;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Loads data into the current transaction for use in a test case.

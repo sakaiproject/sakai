@@ -23,7 +23,12 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -33,15 +38,20 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.*;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -49,18 +59,27 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.facade.*;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
+import org.sakaiproject.tool.assessment.facade.GradebookFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.tool.assessment.ui.bean.author.*;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>2
@@ -79,7 +98,7 @@ implements ActionListener
 		IntegrationContextFactory.getInstance().isIntegrated();
 	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
 	private final ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
-	
+
 	public SavePublishedSettingsListener()
 	{
 	}
@@ -138,7 +157,7 @@ implements ActionListener
 	    assessmentService.saveAssessment(assessment);
 	    assessmentService.deleteAllSecuredIP(assessment);
 	    // k. set ipAddresses
-	    HashSet ipSet = new HashSet();
+	    Set ipSet = new HashSet();
 	    String ipAddresses = assessmentSettings.getIpAddresses();
 	    if (ipAddresses == null)
 	      ipAddresses = "";
@@ -737,7 +756,7 @@ implements ActionListener
 
 		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
 		extendedTimeFacade.saveEntriesPub(assessment.getData(), assessmentSettings.getExtendedTimes());
-		
+
 		// i. set Graphics
 		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgColor()));
 		assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGIMAGE, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgImage()));
@@ -900,7 +919,7 @@ implements ActionListener
 			PublishedAssessmentService assessmentService) {
 		AuthorActionListener authorActionListener = new AuthorActionListener();
 		GradingService gradingService = new GradingService();
-		ArrayList publishedAssessmentList = assessmentService.getBasicInfoOfAllPublishedAssessments2(
+		List publishedAssessmentList = assessmentService.getBasicInfoOfAllPublishedAssessments2(
 				  PublishedAssessmentFacadeQueries.TITLE, true, AgentFacade.getCurrentSiteId());
 		authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
 	}

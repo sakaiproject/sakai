@@ -46,8 +46,8 @@
 	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
   		<property name="dataSource" ref="javax.sql.DataSource"/>
 	</bean>
-	
-  	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
+
+  	<bean id="org.sakaiproject.dash.logic.DashboardLogic"
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init" destroy-method="destroy">
   		<constructor-arg>

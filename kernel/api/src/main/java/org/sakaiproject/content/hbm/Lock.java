@@ -23,117 +23,69 @@ package org.sakaiproject.content.hbm;
 
 import java.util.Date;
 
-public class Lock implements org.sakaiproject.content.api.Lock
-{
+import javax.persistence.Cacheable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Entity
+@Table(name = "content_resource_lock")
+@BatchSize(size = 10)
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@NamedQueries({
+		@NamedQuery(name = "getLocks", query = "from Lock w where asset_id = :asset and qualifier_id = :qualifier"),
+		@NamedQuery(name = "getActiveAssets", query = "from Lock w where is_active is true and asset_id = :asset"),
+		@NamedQuery(name = "getActiveQualifierLocks", query = "from Lock w where is_active is true and qualifier_id = :qualifier")
+})
+
+@EqualsAndHashCode(of = "id")
+@Getter
+@Setter
+@ToString
+public class Lock implements org.sakaiproject.content.api.Lock {
+	@Id
+	@Column(name = "id", length = 36)
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid2")
 	private String id;
 
+	@Column(name = "asset_id", length = 36)
 	private String asset;
 
+	@Column(name = "qualifier_id", length = 36)
 	private String qualifier;
 
+	@Column(name = "is_active")
 	private boolean active;
 
+	@Column(name = "is_system")
 	private boolean system;
 
+	@Column(name = "reason", length = 36)
 	private String reason;
 
+	@Column(name = "date_added")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateAdded;
 
+	@Column(name = "date_removed")
+	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateRemoved;
-
-	public boolean equals(Object in)
-	{
-		if (in == null && this == null) return true;
-		if (in == null && this != null) return false;
-		if (this == null && in != null) return false;
-		if (!this.getClass().isAssignableFrom(in.getClass())) return false;
-		if (this.getId() == null && ((Lock) in).getId() == null) return true;
-		if (this.getId() == null || ((Lock) in).getId() == null) return false;
-		return this.getId().equals(((Lock) in).getId());
-	}
-
-	public int hashCode()
-	{
-		return (id != null ? id.hashCode() : 0);
-	}
-
-	public String getId()
-	{
-		return id;
-	}
-
-	public void setId(String id)
-	{
-		this.id = id;
-	}
-
-	public boolean isActive()
-	{
-		return active;
-	}
-
-	public void setActive(boolean active)
-	{
-		this.active = active;
-	}
-
-	public Date getDateAdded()
-	{
-		return dateAdded;
-	}
-
-	public void setDateAdded(Date dateAdded)
-	{
-		this.dateAdded = dateAdded;
-	}
-
-	public Date getDateRemoved()
-	{
-		return dateRemoved;
-	}
-
-	public void setDateRemoved(Date dateRemoved)
-	{
-		this.dateRemoved = dateRemoved;
-	}
-
-	public String getQualifier()
-	{
-		return qualifier;
-	}
-
-	public void setQualifier(String qualifier)
-	{
-		this.qualifier = qualifier;
-	}
-
-	public String getReason()
-	{
-		return reason;
-	}
-
-	public void setReason(String reason)
-	{
-		this.reason = reason;
-	}
-
-	public String getAsset()
-	{
-		return asset;
-	}
-
-	public void setAsset(String asset)
-	{
-		this.asset = asset;
-	}
-
-	public boolean isSystem()
-	{
-		return system;
-	}
-
-	public void setSystem(boolean system)
-	{
-		this.system = system;
-	}
 }

@@ -37,8 +37,8 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport implements AssignmentPeerAssessmentService {
 	private static Logger log = LoggerFactory.getLogger(AssignmentPeerAssessmentServiceImpl.class);
@@ -266,18 +266,13 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			//return an empty list
 			return listPeerAssessmentItem;
 		}
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findPeerAssessmentItemsBySubmissions");
-	        q.setParameterList("submissionIds", submissionsIds);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
+          Query q = session.getNamedQuery("findPeerAssessmentItemsBySubmissions");
+          q.setParameterList("submissionIds", submissionsIds);
+          return q.list();
+        };
 	    
-	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
 	        
 	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
 	    	item.setScaledFactor(scaledFactor);
@@ -292,19 +287,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			//return an empty list
 			return listPeerAssessmentItem;
 		}
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findPeerAssessmentItemsByUserAndAssignment");
-	        q.setParameter("assignmentId", assignmentId);
-	        q.setParameter("assessorUserId", assessorUserId);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
+          Query q = session.getNamedQuery("findPeerAssessmentItemsByUserAndAssignment");
+          q.setParameter("assignmentId", assignmentId);
+          q.setParameter("assessorUserId", assessorUserId);
+          return q.list();
+        };
 	    
-	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
 	    
 	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
 	    	item.setScaledFactor(scaledFactor);
@@ -319,18 +309,13 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			//return an empty list
 			return listPeerAssessmentItem;
 		}
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findPeerAssessmentItemsBySubmissionId");
-	        q.setParameter("submissionId", submissionId);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
+          Query q = session.getNamedQuery("findPeerAssessmentItemsBySubmissionId");
+          q.setParameter("submissionId", submissionId);
+          return q.list();
+        };
 	    
-	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
 	    
 	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
 	    	item.setScaledFactor(scaledFactor);
@@ -345,18 +330,13 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			//return an empty list
 			return listPeerAssessmentItem;
 		}
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findPeerAssessmentItemsByAssignmentId");
-	        q.setParameter("assignmentId", assignmentId);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
+          Query q = session.getNamedQuery("findPeerAssessmentItemsByAssignmentId");
+          q.setParameter("assignmentId", assignmentId);
+          return q.list();
+        };
 	    
-	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb); 
+	    listPeerAssessmentItem = getHibernateTemplate().execute(hcb);
 	        
 	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
 	    	item.setScaledFactor(scaledFactor);
@@ -370,19 +350,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			//return an empty list
 			return null;
 		}
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findPeerAssessmentItemsByUserAndSubmission");
-	        q.setParameter("submissionId", submissionId);
-	        q.setParameter("assessorUserId", assessorUserId);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback<List<PeerAssessmentItem>> hcb = session -> {
+          Query q = session.getNamedQuery("findPeerAssessmentItemsByUserAndSubmission");
+          q.setParameter("submissionId", submissionId);
+          q.setParameter("assessorUserId", assessorUserId);
+          return q.list();
+        };
 	        
-	    List<PeerAssessmentItem> results = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    List<PeerAssessmentItem> results = getHibernateTemplate().execute(hcb);
 	    if(results != null && results.size() == 1){
 	    	return results.get(0);
 	    }else{
@@ -393,16 +368,16 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	public List<PeerAssessmentAttachment> getPeerAssessmentAttachments(final String submissionId, final String assessorUserId){
 		if(submissionId == null || "".equals(submissionId) || assessorUserId == null || "".equals(assessorUserId)){
 			//return an empty list
-			return new ArrayList<PeerAssessmentAttachment>();
+			return new ArrayList<>();
 		}
-		HibernateCallback hcb = session -> {
+		HibernateCallback<List<PeerAssessmentAttachment>> hcb = session -> {
 			Query q = session.getNamedQuery("findPeerAssessmentAttachmentsByUserAndSubmission");
 			q.setParameter("submissionId", submissionId);
 			q.setParameter("assessorUserId", assessorUserId);
 			return q.list();
 		};
 
-		return (List<PeerAssessmentAttachment>) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 	}
 
 	public PeerAssessmentAttachment getPeerAssessmentAttachment(final String submissionId, final String assessorUserId, final String resourceId) {

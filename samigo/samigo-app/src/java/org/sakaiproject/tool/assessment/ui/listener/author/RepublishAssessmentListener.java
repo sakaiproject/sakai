@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -111,9 +112,9 @@ public class RepublishAssessmentListener implements ActionListener {
 	}
 	
 	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) {
-		HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
-		HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
-		HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
+		Map publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
+		Map publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
+		Map publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil
 			.lookupBean("publishedSettings");
 		// Actually we don't really need to consider linear or random here.

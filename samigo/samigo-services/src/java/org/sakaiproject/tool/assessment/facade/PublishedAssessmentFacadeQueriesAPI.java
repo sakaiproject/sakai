@@ -21,15 +21,26 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.Collection;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.*;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -123,20 +134,20 @@ public interface PublishedAssessmentFacadeQueriesAPI
    */
   public PublishedAssessmentData loadPublishedAssessment(Long assessmentId);
 
-  public ArrayList getAllTakeableAssessments(String orderBy, boolean ascending,
-      Integer status);
+  public List<PublishedAssessmentFacade> getAllTakeableAssessments(String orderBy, boolean ascending,
+                                                                   Integer status);
 
   public Integer getNumberOfSubmissions(String publishedAssessmentId,
       String agentId);
 
   public List getNumberOfSubmissionsOfAllAssessmentsByAgent(String agentId);
 
-  public ArrayList getAllPublishedAssessments(String sortString);
+  public List<PublishedAssessmentFacade> getAllPublishedAssessments(String sortString);
 
-  public ArrayList getAllPublishedAssessments(String sortString, Integer status);
+  public List getAllPublishedAssessments(String sortString, Integer status);
 
-  public ArrayList getAllPublishedAssessments(int pageSize, int pageNumber,
-      String sortString, Integer status);
+  public List<PublishedAssessmentFacade> getAllPublishedAssessments(int pageSize, int pageNumber,
+                                                                    String sortString, Integer status);
 
   public void removeAssessment(Long assessmentId, String action);
   
@@ -146,7 +157,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void delete(PublishedAssessmentIfc assessment);
 
-  public ArrayList getBasicInfoOfAllActivePublishedAssessments(
+  public List<PublishedAssessmentFacade> getBasicInfoOfAllActivePublishedAssessments(
       String sortString, String siteAgentId, boolean ascending);
 
   /**
@@ -155,7 +166,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * @param sortString
    * @return
    */
-  public ArrayList getBasicInfoOfAllInActivePublishedAssessments(
+  public List getBasicInfoOfAllInActivePublishedAssessments(
       String sortString, String siteAgentId, boolean ascending);
 
   /** return a set of PublishedSectionData
@@ -168,7 +179,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * initialize it myself. I will take a look at it again next year.
    * - daisyf (12/13/04)
    */
-  public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment);
+  public Set<PublishedSectionData> getSectionSetForAssessment(PublishedAssessmentIfc assessment);
 
   // IMPORTANT:
   // 1. we do not want any Section info, so set loadSection to false
@@ -182,9 +193,9 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedItemText loadPublishedItemText(Long itemTextId);
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
-  public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
+  public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments(String orderBy, boolean ascending, String siteId);
 
-  public ArrayList getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId);
+  public List<PublishedAssessmentFacade> getBasicInfoOfAllPublishedAssessments2(String orderBy, boolean ascending, String siteId);
   
   /**
    * return an array list of the last AssessmentGradingFacade per assessment that
@@ -194,15 +205,15 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * @param ascending
    * @return
    */
-  public ArrayList getBasicInfoOfLastSubmittedAssessments(String agentId,
-      String orderBy, boolean ascending);
+  public List<AssessmentGradingData> getBasicInfoOfLastSubmittedAssessments(String agentId,
+                                                                            String orderBy, boolean ascending);
 
   /** total submitted for grade
    * returns HashMap (Long publishedAssessmentId, Integer totalSubmittedForGrade);
    */
-  public HashMap getTotalSubmissionPerAssessment(String agentId);
+  public Map<Long, Integer> getTotalSubmissionPerAssessment(String agentId);
 
-    public HashMap getTotalSubmissionPerAssessment(String agentId, String siteId);
+    public Map<Long, Integer> getTotalSubmissionPerAssessment(String agentId, String siteId);
 
   public Integer getTotalSubmission(String agentId, Long publishedAssessmentId);
 
@@ -221,7 +232,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void saveOrUpdateMetaData(PublishedMetaData meta);
 
-  public HashMap getFeedbackHash();
+  public Map<Long, PublishedFeedback> getFeedbackHash();
 
   /** this return a HashMap containing
    *  (Long publishedAssessmentId, PublishedAssessmentFacade publishedAssessment)
@@ -229,7 +240,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    *  do not use it for persisting. It only contains title, releaseTo, startDate, dueDate
    *  & retractDate
    */
-  public HashMap getAllAssessmentsReleasedToAuthenticatedUsers();
+  public Map<Long, PublishedAssessmentFacade> getAllAssessmentsReleasedToAuthenticatedUsers();
 
   /* 
    * This function returns a site id that "owns" the assessment not a user id.
@@ -247,11 +258,11 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public List getPublishedItemIds(Long publishedAssessmentId);
 
-  public HashSet getPublishedItemSet(Long publishedAssessmentId, Long sectionId);
+  public Set<PublishedItemData> getPublishedItemSet(Long publishedAssessmentId, Long sectionId);
   
   public Long getItemType(Long publishedItemId);
   
-  public HashSet getSectionSetForAssessment(Long publishedAssessmentId);
+  public Set<PublishedSectionData> getSectionSetForAssessment(Long publishedAssessmentId);
 
   public boolean isRandomDrawPart(Long publishedAssessmentId, Long sectionId);
  
@@ -296,12 +307,12 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void saveOrUpdateAttachments(List<AttachmentIfc> list);
   
-  public TreeMap getGroupsForSite();
+  public Map getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);
   
-  public HashMap getToGradebookPublishedAssessmentSiteIdMap();
+  public Map<String, String> getToGradebookPublishedAssessmentSiteIdMap();
   
-  public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(	final String agentId, final String siteId, boolean allAssessments);
+  public List<AssessmentGradingData> getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(final String agentId, final String siteId, boolean allAssessments);
      
   public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 }

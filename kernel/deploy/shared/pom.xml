@@ -159,30 +159,39 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <scope>compile</scope>
-            <exclusions>
-                <exclusion>
-                  <groupId>net.sf.ehcache</groupId>
-                  <artifactId>ehcache</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+	    <!-- start hibernate dependencies -->
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.1.3.GA</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging-annotations</artifactId>
+            <version>1.2.0.Beta1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss</groupId>
+            <artifactId>jandex</artifactId>
+            <version>1.1.0.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.common</groupId>
             <artifactId>hibernate-commons-annotations</artifactId>
-            <scope>compile</scope>
+            <version>4.0.5.Final</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <scope>compile</scope>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>1.0.0.Final</version>
         </dependency>
-
+	    <!-- end hibernate dependencies -->
         <dependency>
             <groupId>javax.sql</groupId>
             <artifactId>jdbc-stdext</artifactId>
             <scope>compile</scope>
         </dependency>
-	<!-- dependency of hibernate -->
         <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>

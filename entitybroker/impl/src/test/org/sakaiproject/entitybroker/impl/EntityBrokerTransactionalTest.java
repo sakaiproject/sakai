@@ -25,21 +25,18 @@ import org.sakaiproject.entitybroker.mocks.data.MyEntity;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 /**
  * Testing the entitybroker implementation
  * 
  * @author Aaron Zeckoski (azeckoski@gmail.com)
  */
-@DirtiesContext(classMode=ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(locations={
 		"/database-test.xml",
 		"classpath:org/sakaiproject/entitybroker/spring-jdbc.xml" })
-public class EntityBrokerTransactionalTest extends AbstractJUnit4SpringContextTests {
+public class EntityBrokerTransactionalTest extends AbstractTransactionalJUnit4SpringContextTests {
 
     protected EntityBrokerImpl entityBroker;
 

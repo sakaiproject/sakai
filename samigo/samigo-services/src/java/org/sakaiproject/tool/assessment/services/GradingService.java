@@ -52,6 +52,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexFormat;
 import org.apache.commons.math3.exception.MathParseException;
 import org.apache.commons.math3.util.Precision;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -127,9 +129,9 @@ public class GradingService
   /**
    * Get all scores for a published assessment from the back end.
    */
-  public ArrayList getTotalScores(String publishedId, String which)
+  public List getTotalScores(String publishedId, String which)
   {
-    ArrayList results = null;
+    List results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
@@ -141,9 +143,9 @@ public class GradingService
     return results;
   }
   
-  public ArrayList getTotalScores(String publishedId, String which, boolean getSubmittedOnly)
+  public List getTotalScores(String publishedId, String which, boolean getSubmittedOnly)
   {
-    ArrayList results = null;
+    List results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
@@ -182,9 +184,9 @@ public class GradingService
     return results;
   }
 
-  public ArrayList getHighestAssessmentGradingList(Long publishedId)
+  public List getHighestAssessmentGradingList(Long publishedId)
   {
-    ArrayList results = null;
+    List results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
@@ -197,7 +199,7 @@ public class GradingService
   
   public List getHighestSubmittedOrGradedAssessmentGradingList(Long publishedId)
   {
-    ArrayList results = null;
+    List results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
@@ -208,9 +210,9 @@ public class GradingService
     return results;
   }
 
-  public ArrayList getLastAssessmentGradingList(Long publishedId)
+  public List getLastAssessmentGradingList(Long publishedId)
   {
-    ArrayList results = null;
+    List results = null;
     try {
       results =
         new ArrayList(PersistenceService.getInstance().
@@ -247,7 +249,7 @@ public class GradingService
     return results;
   }
   
-  public void saveTotalScores(ArrayList gdataList, PublishedAssessmentIfc pub)
+  public void saveTotalScores(List gdataList, PublishedAssessmentIfc pub)
   {
       //log.debug("**** GradingService: saveTotalScores");
     try {
@@ -257,8 +259,7 @@ public class GradingService
       else return;
 
       Integer scoringType = getScoringType(pub);
-      ArrayList oldList = getAssessmentGradingsByScoringType(
-          scoringType, gdata.getPublishedAssessmentId());
+      List oldList = getAssessmentGradingsByScoringType(scoringType, gdata.getPublishedAssessmentId());
       for (int i=0; i<gdataList.size(); i++){
         AssessmentGradingData ag = (AssessmentGradingData)gdataList.get(i);
         saveOrUpdateAssessmentGrading(ag);
@@ -274,9 +275,9 @@ public class GradingService
 
       // no need to notify gradebook if this submission is not for grade
       // we only want to notify GB when there are changes
-      ArrayList newList = getAssessmentGradingsByScoringType(
+      List newList = getAssessmentGradingsByScoringType(
         scoringType, gdata.getPublishedAssessmentId());
-      ArrayList l = getListForGradebookNotification(newList, oldList);
+      List l = getListForGradebookNotification(newList, oldList);
       
       notifyGradebook(l, pub);
     } catch (GradebookServiceException ge) {
@@ -293,7 +294,7 @@ public class GradingService
    * @param studentId
    */
 
-  public void notifyDeleteToGradebook(ArrayList gdataList, PublishedAssessmentIfc pub, String studentId){
+  public void notifyDeleteToGradebook(List gdataList, PublishedAssessmentIfc pub, String studentId){
     try {
       AssessmentGradingData gdata = null;
       if (gdataList.size()>0) {
@@ -304,10 +305,10 @@ public class GradingService
       }
 
       Integer scoringType = getScoringType(pub);
-      ArrayList fullList = getAssessmentGradingsByScoringType(
+      List fullList = getAssessmentGradingsByScoringType(
           scoringType, gdata.getPublishedAssessmentId());
 
-      ArrayList l = new ArrayList();
+      List l = new ArrayList();
       for (int i=0; i< fullList.size(); i++){
          AssessmentGradingData ag = (AssessmentGradingData)fullList.get(i);
          if (ag.getAgentId().equals(studentId))
@@ -330,10 +331,9 @@ public class GradingService
 
   }
 
-  private ArrayList getListForGradebookNotification(
-       ArrayList newList, ArrayList oldList){
-    ArrayList l = new ArrayList();
-    HashMap h = new HashMap();
+  private List getListForGradebookNotification(List newList, List oldList) {
+    List l = new ArrayList();
+    Map h = new HashMap();
     for (int i=0; i<oldList.size(); i++){
       AssessmentGradingData ag = (AssessmentGradingData)oldList.get(i);
       h.put(ag.getAssessmentGradingId(), ag);
@@ -369,7 +369,7 @@ public class GradingService
     return l;
   }
 
-  public ArrayList getAssessmentGradingsByScoringType(
+  public List getAssessmentGradingsByScoringType(
        Integer scoringType, Long publishedAssessmentId){
     List l = null;
     // get the list of highest score
@@ -408,7 +408,7 @@ public class GradingService
     return (forGrade && toGradebook);
   }
 
-  private void notifyGradebook(ArrayList l, PublishedAssessmentIfc pub){
+  private void notifyGradebook(List l, PublishedAssessmentIfc pub){
     for (int i=0; i<l.size(); i++){
       notifyGradebook((AssessmentGradingData)l.get(i), pub);
     }
@@ -418,10 +418,10 @@ public class GradingService
   /**
    * Get the score information for each item from the assessment score.
    */
-  public HashMap getItemScores(Long publishedId, Long itemId, String which)
+  public Map getItemScores(Long publishedId, Long itemId, String which)
   {
     try {
-      return (HashMap) PersistenceService.getInstance().
+      return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
           .getItemScores(publishedId, itemId, which);
     } catch (Exception e) {
@@ -430,10 +430,10 @@ public class GradingService
     }
   }
   
-  public HashMap getItemScores(Long publishedId, Long itemId, String which, boolean loadItemGradingAttachment)
+  public Map getItemScores(Long publishedId, Long itemId, String which, boolean loadItemGradingAttachment)
   {
     try {
-      return (HashMap) PersistenceService.getInstance().
+      return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
           .getItemScores(publishedId, itemId, which, loadItemGradingAttachment);
     } catch (Exception e) {
@@ -442,10 +442,10 @@ public class GradingService
     }
   }
 
-  public HashMap getItemScores(Long itemId, List scores, boolean loadItemGradingAttachment)
+  public Map getItemScores(Long itemId, List scores, boolean loadItemGradingAttachment)
   {
     try {
-      return (HashMap) PersistenceService.getInstance().
+      return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
           .getItemScores(itemId, scores, loadItemGradingAttachment);
     } catch (Exception e) {
@@ -457,10 +457,10 @@ public class GradingService
   /**
    * Get the last set of itemgradingdata for a student per assessment
    */
-  public HashMap getLastItemGradingData(String publishedId, String agentId)
+  public Map getLastItemGradingData(String publishedId, String agentId)
   {
     try {
-      return (HashMap) PersistenceService.getInstance().
+      return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
           .getLastItemGradingData(Long.valueOf(publishedId), agentId);
     } catch (Exception e) {
@@ -472,10 +472,10 @@ public class GradingService
   /**
    * Get the grading data for a given submission
    */
-  public HashMap getStudentGradingData(String assessmentGradingId)
+  public Map getStudentGradingData(String assessmentGradingId)
   {
     try {
-      return (HashMap) PersistenceService.getInstance().
+      return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries()
           .getStudentGradingData(assessmentGradingId);
     } catch (Exception e) {
@@ -487,12 +487,12 @@ public class GradingService
   /**
    * Get the last submission for a student per assessment
    */
-  public HashMap getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId)
+  public Map getSubmitData(String publishedId, String agentId, Integer scoringoption, String assessmentGradingId)
   {
     try {
       Long gradingId = null;
       if (assessmentGradingId != null) gradingId = Long.valueOf(assessmentGradingId);
-      return (HashMap) PersistenceService.getInstance().
+      return PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries().getSubmitData(Long.valueOf(publishedId), agentId, scoringoption, gradingId);
     } catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -536,22 +536,22 @@ public class GradingService
         getMedia(Long.valueOf(mediaId));
   }
 
-  public ArrayList getMediaArray(String itemGradingId){
+  public List<MediaData> getMediaArray(String itemGradingId){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
         getMediaArray(Long.valueOf(itemGradingId));
   }
   
-  public ArrayList getMediaArray2(String itemGradingId){
+  public List<MediaData> getMediaArray2(String itemGradingId){
 	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 	        getMediaArray2(Long.valueOf(itemGradingId));
   }
 
-  public ArrayList getMediaArray(ItemGradingData i){
+  public List<MediaData> getMediaArray(ItemGradingData i){
     return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
         getMediaArray(i);
   }
   
-  public HashMap getMediaItemGradingHash(Long assessmentGradingId) {
+  public Map<Long, List<ItemGradingData>> getMediaItemGradingHash(Long assessmentGradingId) {
 	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 	    getMediaItemGradingHash(assessmentGradingId);
   }
@@ -781,7 +781,7 @@ public class GradingService
     }
   }
 
-  public HashMap getAssessmentGradingByItemGradingId(String publishedAssessmentId){
+  public Map<Long, AssessmentGradingData> getAssessmentGradingByItemGradingId(String publishedAssessmentId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
                getAssessmentGradingByItemGradingId(Long.valueOf(publishedAssessmentId));
@@ -836,8 +836,8 @@ public class GradingService
    * Assume this is a new item.
    */
   public void storeGrades(AssessmentGradingData data, PublishedAssessmentIfc pub,
-                          HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
+                          Map publishedItemHash, Map publishedItemTextHash,
+                          Map publishedAnswerHash, Map invalidFINMap, List invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
 	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true, invalidFINMap, invalidSALengthList);
@@ -847,16 +847,16 @@ public class GradingService
    * Assume this is a new item.
    */
   public void storeGrades(AssessmentGradingData data, PublishedAssessmentIfc pub,
-                          HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
+                          Map publishedItemHash, Map publishedItemTextHash,
+                          Map publishedAnswerHash, boolean persistToDB, Map invalidFINMap, List invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
 	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, invalidFINMap, invalidSALengthList);
   }
   
   public void storeGrades(AssessmentGradingData data, boolean regrade, PublishedAssessmentIfc pub,
-		  HashMap publishedItemHash, HashMap publishedItemTextHash,
-		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
+		  Map publishedItemHash, Map publishedItemTextHash,
+		  Map publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
 	  storeGrades(data, regrade, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null, null);
   }
@@ -870,8 +870,8 @@ public class GradingService
    * false, we do everything from scratch.
    */
   public void storeGrades(AssessmentGradingData data, boolean regrade, PublishedAssessmentIfc pub,
-                          HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) 
+                          Map publishedItemHash, Map publishedItemTextHash,
+                          Map publishedAnswerHash, boolean persistToDB, Map invalidFINMap, List invalidSALengthList)
          throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
@@ -922,7 +922,7 @@ public class GradingService
       Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap = new HashMap<Long, Map<Long,Set<EMIScore>>>();
       
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
-      HashMap totalItems = new HashMap();
+      Map totalItems = new HashMap();
       log.debug("****x2. {}", (new Date()).getTime());
       double autoScore = (double) 0;
       Long itemId = (long)0;
@@ -990,11 +990,11 @@ public class GradingService
         	autoScore = 0d;
         	if (invalidFINMap != null) {
         		if (invalidFINMap.containsKey(itemId)) {
-        			ArrayList list = (ArrayList) invalidFINMap.get(itemId);
+        			List list = (ArrayList) invalidFINMap.get(itemId);
         			list.add(itemGrading.getItemGradingId());
         		}
         		else {
-        			ArrayList list = new ArrayList();
+        			List list = new ArrayList();
         			list.add(itemGrading.getItemGradingId());
         			invalidFINMap.put(itemId, list);
         		}
@@ -1287,7 +1287,7 @@ public class GradingService
   private double getScoreByQuestionType(ItemGradingData itemGrading, ItemDataIfc item,
                                        Long itemType, Map publishedItemTextHash, 
                                        Map totalItems, Map fibAnswersMap, Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap,
-                                       HashMap publishedAnswerHash, boolean regrade,
+                                       Map publishedAnswerHash, boolean regrade,
                                        int calcQuestionAnswerSequence) throws FinFormatException {
     //double score = (double) 0;
     double initScore = (double) 0;
@@ -1407,14 +1407,14 @@ public class GradingService
     	  }
     	  //overridescore - cwen
           if (itemGrading.getOverrideScore() != null)
-            autoScore += itemGrading.getOverrideScore().doubleValue();
+            autoScore += itemGrading.getOverrideScore();
 
           if (!totalItems.containsKey(itemId))
-            totalItems.put(itemId, Double.valueOf(autoScore));
+            totalItems.put(itemId, autoScore);
           else {
-            accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
+            accumelateScore = (Double) totalItems.get(itemId);
             accumelateScore += autoScore;
-            totalItems.put(itemId, Double.valueOf(accumelateScore));
+            totalItems.put(itemId, accumelateScore);
           }
           break;
 
@@ -1429,17 +1429,17 @@ public class GradingService
     	  	    autoScore = itemGrading.getAutoScore();
     	  	  }
               if (itemGrading.getOverrideScore() != null)
-                autoScore += itemGrading.getOverrideScore().doubleValue();
+                autoScore += itemGrading.getOverrideScore();
               if (!totalItems.containsKey(itemId))
-                totalItems.put(itemId, Double.valueOf(autoScore));
+                totalItems.put(itemId, autoScore);
               else {
-                accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
+                accumelateScore = (Double) totalItems.get(itemId);
                 accumelateScore += autoScore;
-                totalItems.put(itemId, Double.valueOf(accumelateScore));
+                totalItems.put(itemId, accumelateScore);
               }
               break;
       case 16:    	  
-    	  initScore = getImageMapScore(itemGrading,item, (HashMap) publishedItemTextHash,publishedAnswerHash);
+    	  initScore = getImageMapScore(itemGrading,item, publishedItemTextHash,publishedAnswerHash);
     	  //if one answer is 0 or negative, and need all OK to be scored, then autoScore=-123456789
     	  //and we break the case...
     	  
@@ -1467,14 +1467,14 @@ public class GradingService
     	  
           //overridescore?
           if (itemGrading.getOverrideScore() != null)
-            autoScore += itemGrading.getOverrideScore().doubleValue();
+            autoScore += itemGrading.getOverrideScore();
           
           if (!totalItems.containsKey(itemId)){
-            totalItems.put(itemId,  Double.valueOf(autoScore));
+            totalItems.put(itemId, autoScore);
           }else {
-            accumelateScore = ((Double)totalItems.get(itemId)).doubleValue();
+            accumelateScore = (Double) totalItems.get(itemId);
             accumelateScore += autoScore;
-            totalItems.put(itemId,  Double.valueOf(accumelateScore));
+            totalItems.put(itemId, accumelateScore);
           }
           
           break;
@@ -1498,17 +1498,17 @@ public class GradingService
     }
     ItemDataIfc item = (ItemDataIfc) answer.getItem();
     Long itemType = item.getTypeId();
-    if (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())
+    if (answer.getIsCorrect() == null || !answer.getIsCorrect())
     {
     	// return (double) 0;
     	// Para que descuente (For discount)
     	if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType)||(TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)||(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType)){
-    		return (Math.abs(answer.getDiscount().doubleValue()) * ((double) -1));
+    		return (Math.abs(answer.getDiscount()) * ((double) -1));
     	}else{
     		return (double) 0;
     	}
     }
-    return answer.getScore().doubleValue();
+    return answer.getScore();
   }
 
   public void notifyGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub) throws GradebookServiceException {
@@ -1535,7 +1535,7 @@ public class GradingService
     // add retry logic to resolve deadlock problem while sending grades to gradebook
 
     Double originalFinalScore = data.getFinalScore();
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
     	try {
     		// Send the average score if average was selected for multiple submissions
@@ -1753,7 +1753,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return totalScore;
   }
 
-  public boolean getFIBResult(ItemGradingData data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public boolean getFIBResult(ItemGradingData data, Map fibmap,  ItemDataIfc itemdata, Map publishedAnswerHash)
   {
 	  // this method is similiar to getFIBScore(), except it returns true/false for the answer, not scores.  
 	  // may be able to refactor code out to be reused, but totalscores for mutually exclusive case is a bit tricky. 
@@ -1941,7 +1941,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }  
   
   
-  public double getImageMapScore(ItemGradingData data, ItemDataIfc itemdata, HashMap publishedItemTextHash, HashMap publishedAnswerHash)
+  public double getImageMapScore(ItemGradingData data, ItemDataIfc itemdata, Map publishedItemTextHash, Map publishedAnswerHash)
   {
 	  // Final score must be... 
 	  // IF NOT PARTIALCREDIT THEN 0 or total
@@ -1970,7 +1970,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	 
 	 ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(data.getPublishedItemTextId());
 	 
-	 ArrayList answerArray = (ArrayList) itemTextIfc.getAnswerArray();
+	 List answerArray = (List) itemTextIfc.getAnswerArray();
 	 AnswerIfc answerIfc= (AnswerIfc) answerArray.get(0); 
 	 
 	 try{
@@ -2006,7 +2006,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return a Map containing either Real or Complex answer keyed by {@link #ANSWER_TYPE_REAL} or {@link #ANSWER_TYPE_COMPLEX} 
    */
   public Map validate(String value) {
-	  HashMap map = new HashMap();
+	  Map map = new HashMap();
 	  if (value == null || value.trim().equals("")) {
 		  return map;
 	  }
@@ -2127,7 +2127,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		if (itemGrading.getOverrideScore() != null)
 			autoScore += itemGrading.getOverrideScore().doubleValue();
 
-		HashMap totalItemTextScores = (HashMap) totalItems.get(itemId);
+		Map totalItemTextScores = (Map) totalItems.get(itemId);
 		totalItemTextScores.put(itemTextId, Double.valueOf(autoScore));
 		return autoScore;
 	}
@@ -2333,8 +2333,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return pub;
 	  }
   
-  public ArrayList getLastItemGradingDataPosition(Long assessmentGradingId, String agentId) {
-	  	ArrayList results = null;
+  public List<Integer> getLastItemGradingDataPosition(Long assessmentGradingId, String agentId) {
+	  	List<Integer> results = null;
 	    try {
 	    	results = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getLastItemGradingDataPosition(assessmentGradingId, agentId);
@@ -2365,8 +2365,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return results;
 	  }
   
-  public HashSet getItemSet(Long publishedAssessmentId, Long sectionId) {
-	  	HashSet results = null;
+  public Set<PublishedItemData> getItemSet(Long publishedAssessmentId, Long sectionId) {
+	  	Set<PublishedItemData> results = null;
 	    try {
 	    	results = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getItemSet(publishedAssessmentId, sectionId);
@@ -2445,8 +2445,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return results;
   }
   
-  public HashMap getSiteSubmissionCountHash(String siteId) {
-	  HashMap results = new HashMap();
+  public Map<Long, Map<String, Integer>> getSiteSubmissionCountHash(String siteId) {
+	    Map<Long, Map<String, Integer>> results = new HashMap<>();
 	    try {
 	    	results = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getSiteSubmissionCountHash(siteId);
@@ -2456,8 +2456,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return results;
   }  
   
-  public HashMap getSiteInProgressCountHash(final String siteId) {
-	  HashMap results = new HashMap();
+  public Map<Long, Map<String, Long>> getSiteInProgressCountHash(final String siteId) {
+        Map<Long, Map<String, Long>> results = new HashMap<>();
 	    try {
 	    	results = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getSiteInProgressCountHash(siteId);
@@ -2478,8 +2478,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return actualNumberReatke;
   }
   
-  public HashMap getActualNumberRetakeHash(String agentIdString) {
-	  HashMap actualNumberReatkeHash = new HashMap();
+  public Map<Long, Long> getActualNumberRetakeHash(String agentIdString) {
+	    Map<Long, Long> actualNumberReatkeHash = new HashMap<>();
 	    try {
 	    	actualNumberReatkeHash = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getActualNumberRetakeHash(agentIdString);
@@ -2489,8 +2489,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return actualNumberReatkeHash;
   }
     
-  public HashMap getSiteActualNumberRetakeHash(String siteIdString) {
-	  HashMap numberRetakeHash = new HashMap();
+  public Map<Long, Map<String, Long>> getSiteActualNumberRetakeHash(String siteIdString) {
+        Map<Long, Map<String, Long>> numberRetakeHash = new HashMap<>();
 	    try {
 	    	numberRetakeHash = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getSiteActualNumberRetakeHash(siteIdString);
@@ -2523,8 +2523,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return numberRetake;
   }
   
-  public HashMap getNumberRetakeHash(String agentIdString) {
-	  HashMap numberRetakeHash = new HashMap();
+  public Map<Long, StudentGradingSummaryData> getNumberRetakeHash(String agentIdString) {
+	    Map<Long, StudentGradingSummaryData> numberRetakeHash = new HashMap<>();
 	    try {
 	    	numberRetakeHash = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getNumberRetakeHash(agentIdString);
@@ -2534,8 +2534,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return numberRetakeHash;
   }
   
-  public HashMap getSiteNumberRetakeHash(String siteIdString) {
-	  HashMap siteActualNumberRetakeList = new HashMap();
+  public Map<Long, Map<String, Integer>> getSiteNumberRetakeHash(String siteIdString) {
+	    Map<Long, Map<String, Integer>> siteActualNumberRetakeList = new HashMap();
 	    try {
 	    	siteActualNumberRetakeList = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getSiteNumberRetakeHash(siteIdString);
@@ -2623,7 +2623,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @return map of calc answers
    */
   private Map<Integer, String> getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item) {
-      HashMap<Integer, String> calculatedAnswersMap = new HashMap<Integer, String>();
+      Map<Integer, String> calculatedAnswersMap = new HashMap<Integer, String>();
       // return value from extractCalcQAnswersArray is not used, calculatedAnswersMap is populated by this call
       extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
       return calculatedAnswersMap;
@@ -3080,7 +3080,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           expression = "";
       } else {
           Matcher keyMatcher = CALCQ_CALCULATION_PATTERN.matcher(expression);
-          ArrayList<String> toReplace = new ArrayList<String>();
+          List<String> toReplace = new ArrayList<String>();
           while (keyMatcher.find()) {
               String match = keyMatcher.group(1);
               toReplace.add(match); // should be the formula
@@ -3238,7 +3238,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * variable names and variable ranges.
    */
    private Map<String, String> buildVariableRangeMap(ItemDataIfc item) {
-       HashMap<String, String> variableRangeMap = new HashMap<String, String>();
+       Map<String, String> variableRangeMap = new HashMap<String, String>();
 
        String instructions = item.getInstruction();
        List<String> variables = this.extractVariables(instructions);
@@ -3278,7 +3278,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * CALCULATED_QUESTION
    * Simple to check to see if this is a calculated question. It's used in storeGrades() to see if the sort is necessary.
    */
-  private boolean isCalcQuestion(List tempItemGradinglist, HashMap publishedItemHash) {
+  private boolean isCalcQuestion(List tempItemGradinglist, Map publishedItemHash) {
 	  if (tempItemGradinglist == null) return false;
 	  if (tempItemGradinglist.size() == 0) return false;
 	  
@@ -3295,8 +3295,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
 
   
-  public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId) {
-	  ArrayList al = new ArrayList();
+  public List<Boolean> getHasGradingDataAndHasSubmission(Long publishedAssessmentId) {
+	    List<Boolean> al = new ArrayList<>();
 	    try {
 	    	al = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().getHasGradingDataAndHasSubmission(publishedAssessmentId);
@@ -3392,12 +3392,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  .saveOrUpdateAttachments(list);
   }
   
-  public HashMap getInProgressCounts(String siteId)  {
+  public Map getInProgressCounts(String siteId)  {
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
       getInProgressCounts(siteId);
   }
   
-  public HashMap getSubmittedCounts(String siteId)  {
+  public Map getSubmittedCounts(String siteId)  {
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
       getSubmittedCounts(siteId);
   }

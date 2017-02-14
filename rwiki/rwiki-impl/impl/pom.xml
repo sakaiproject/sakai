@@ -76,47 +76,42 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-radeox</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-model</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-util</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-api</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-util</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -148,7 +143,6 @@
       <groupId>easymock</groupId>
       <artifactId>easymock</artifactId>
       <version>1.1</version>
-      <type>jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>

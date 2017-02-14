@@ -5,7 +5,7 @@
 
 	<!-- Session Factory -->
 	<bean id="externalSitestatsSessionFactory"
-		class="org.sakaiproject.springframework.orm.hibernate.impl.ClassicLocalSessionFactoryBeanHibernate31"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
 		lazy-init="true">
 		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
 		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
@@ -15,7 +15,7 @@
 	
 	<!-- Transaction Manager -->
 	<bean id="externalSitestatsTransactionManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager"
 		lazy-init="true">
 		<property name="sessionFactory">
 			<ref bean="externalSitestatsSessionFactory" />
@@ -29,7 +29,6 @@
 		<property name="properties">
 			<props>
 				<prop key="hibernate.dialect">@{sitestats.externalDb.hibernate.dialect}</prop>
-				<prop key="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
 				<prop key="hibernate.query.substitutions">
 					true 1, false 0, yes 'Y', no 'N'
@@ -45,19 +44,24 @@
 	
 	
 	<!-- Data Source -->
-	<bean id="org.sakaiproject.sitestats.externalDbDataSource" 
-		class="org.apache.commons.dbcp.BasicDataSource"
-		lazy-init="true">
-		<property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-		<property name="url" value="jdbc:hsqldb:mem:sitestats_db"/>
-		<property name="username" value="sa"/>
-		<property name="password" value=""/>
-		
-		<property name="initialSize" value="3"/>
-		<property name="maxActive" value="5"/>
-		<property name="maxIdle" value="3"/>
-		<property name="minIdle" value="3"/>
-		<property name="timeBetweenEvictionRunsMillis" value="-1"/>
+	<bean id="externalDbDataSourceConfig"
+		  class="com.zaxxer.hikari.HikariConfig">
+		<property name="poolName" value="externalDBCP" />
+		<property name="connectionTestQuery" value="SELECT 1" />
+		<property name="dataSourceClassName" value="org.hsqldb.jdbcDriver"/>
+		<property name="dataSourceProperties">
+			<props>
+				<prop key="url">jdbc:hsqldb:mem:sitestats_db</prop>
+				<prop key="user">sa</prop>
+				<prop key="password"></prop>
+			</props>
+		</property>
 	</bean>
-			
+
+	<bean id="externalDbDataSource"
+		  class="com.zaxxer.hikari.HikariDataSource"
+		  destroy-method="close">
+		<constructor-arg ref="externalDbDataSourceConfig" />
+	</bean>
+
 </beans>

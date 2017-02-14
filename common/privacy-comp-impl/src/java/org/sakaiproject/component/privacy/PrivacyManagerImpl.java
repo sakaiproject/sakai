@@ -21,12 +21,16 @@
 
 package org.sakaiproject.component.privacy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupAdvisor;
@@ -37,18 +41,22 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.hbm.privacy.PrivacyRecordImpl;
+import org.sakaiproject.hbm.privacy.PrivacyRecord;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Map.Entry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 
 public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyManager, AuthzGroupAdvisor
@@ -65,9 +73,11 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 	private static final String USER_ID = "userId";
 	private static final String RECORD_TYPE = "recordType";
 	private static final String VIEWABLE = "viewable";
-	
+
 	private PreferencesService preferencesService;
 	private AuthzGroupService authzGroupService;
+	private PlatformTransactionManager transactionManager;
+	private TransactionTemplate transactionTemplate;
 	
 	protected boolean defaultViewable = true;
 	protected Boolean overrideViewable = null;
@@ -75,6 +85,8 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 	protected int maxResultSetNumber = 1000;
 	
 	public void init() {
+		Assert.notNull(transactionManager, "The 'transactionManager' argument must not be null.");
+		transactionTemplate = new TransactionTemplate(transactionManager);
 		authzGroupService.addAuthzGroupAdvisor(this);
 	}
 
@@ -82,6 +94,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		authzGroupService.removeAuthzGroupAdvisor(this);
 	}
 
+	@Transactional(readOnly = true)
 	public Set findViewable(String contextId, Set userIds)
 	{
 		if (contextId == null || userIds == null)
@@ -132,11 +145,11 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			{
 				resultPieceList = getPrivacyByContextAndTypeAndUserIds(contextId, PrivacyManager.SYSTEM_RECORD_TYPE, pieceList);
 				for(int j=0; j<resultPieceList.size(); j++)
-					sysMap.put(((PrivacyRecordImpl)resultPieceList.get(j)).getUserId(), (PrivacyRecordImpl)resultPieceList.get(j));
+					sysMap.put(((PrivacyRecord)resultPieceList.get(j)).getUserId(), (PrivacyRecord)resultPieceList.get(j));
 
 				resultPieceList = getPrivacyByContextAndTypeAndUserIds(contextId, PrivacyManager.USER_RECORD_TYPE, pieceList);
 				for(int j=0; j<resultPieceList.size(); j++)
-					userMap.put(((PrivacyRecordImpl)resultPieceList.get(j)).getUserId(), (PrivacyRecordImpl)resultPieceList.get(j));
+					userMap.put(((PrivacyRecord)resultPieceList.get(j)).getUserId(), (PrivacyRecord)resultPieceList.get(j));
 			}
 		}
 		
@@ -144,13 +157,14 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		for(int i=0; i<userIdList.size(); i++)
 		{
 			String id = (String) userIdList.get(i);
-			if(!getDisabled((PrivacyRecordImpl)sysMap.get(id), (PrivacyRecordImpl)userMap.get(id)))
+			if(!getDisabled((PrivacyRecord)sysMap.get(id), (PrivacyRecord)userMap.get(id)))
 				returnSet.add(id);
 		}
 		
 		return returnSet;
 	}
 
+	@Transactional(readOnly = true)
 	public Set findHidden(String contextId, Set userIds)
 	{
 		if (contextId == null || userIds == null)
@@ -201,11 +215,11 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			{
 				resultPieceList = getPrivacyByContextAndTypeAndUserIds(contextId, PrivacyManager.SYSTEM_RECORD_TYPE, pieceList);
 				for(int j=0; j<resultPieceList.size(); j++)
-					sysMap.put(((PrivacyRecordImpl)resultPieceList.get(j)).getUserId(), (PrivacyRecordImpl)resultPieceList.get(j));
+					sysMap.put(((PrivacyRecord)resultPieceList.get(j)).getUserId(), (PrivacyRecord)resultPieceList.get(j));
 
 				resultPieceList = getPrivacyByContextAndTypeAndUserIds(contextId, PrivacyManager.USER_RECORD_TYPE, pieceList);
 				for(int j=0; j<resultPieceList.size(); j++)
-					userMap.put(((PrivacyRecordImpl)resultPieceList.get(j)).getUserId(), (PrivacyRecordImpl)resultPieceList.get(j));
+					userMap.put(((PrivacyRecord)resultPieceList.get(j)).getUserId(), (PrivacyRecord)resultPieceList.get(j));
 			}
 		}
 		
@@ -213,13 +227,14 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		for(int i=0; i<userIdList.size(); i++)
 		{
 			String id = (String) userIdList.get(i);
-			if(getDisabled((PrivacyRecordImpl)sysMap.get(id), (PrivacyRecordImpl)userMap.get(id)))
+			if(getDisabled((PrivacyRecord)sysMap.get(id), (PrivacyRecord)userMap.get(id)))
 				returnSet.add(id);
 		}
 		
 		return returnSet;
 	}
 
+	@Transactional(readOnly = true)
 	public Set getViewableState (String contextId, Boolean value, String recordType)
 	{
   	if(contextId == null || value == null || recordType == null)
@@ -271,7 +286,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   			Set returnSet = new HashSet();
   			for(int i=0; i<returnedList.size(); i++)
   			{
-  				returnSet.add(((PrivacyRecordImpl)returnedList.get(i)).getUserId());
+  				returnSet.add(((PrivacyRecord)returnedList.get(i)).getUserId());
   			}
   			return returnSet;
   		}
@@ -284,6 +299,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   	}
 	}
 
+	@Transactional(readOnly = true)
 	public Map getViewableState(String contextId, String recordType)
 	{
   	if(contextId == null || recordType == null)
@@ -333,11 +349,11 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   		if(returnedList != null)
   		{
   			HashMap returnMap = new HashMap(); 
-  			PrivacyRecordImpl pr;
+  			PrivacyRecord pr;
   			for(int i=0; i<returnedList.size(); i++)
   			{
-  				pr = (PrivacyRecordImpl)returnedList.get(i);
-  				returnMap.put(pr.getUserId(), Boolean.valueOf(pr.getViewable()));
+  				pr = (PrivacyRecord)returnedList.get(i);
+  				returnMap.put(pr.getUserId(), Boolean.valueOf(pr.isViewable()));
   			}
   			return returnMap;
   		}
@@ -349,6 +365,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
   	}
 	}
 
+	@Transactional(readOnly = true)
 	public boolean isViewable(String contextId, String userId)
 	{
 		if(contextId == null || userId == null)
@@ -362,23 +379,25 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		}
 		else
 		{
-			PrivacyRecordImpl sysRecord = getPrivacy(contextId, userId, PrivacyManager.SYSTEM_RECORD_TYPE);
-			PrivacyRecordImpl userRecord = getPrivacy(contextId, userId, PrivacyManager.USER_RECORD_TYPE);
+			PrivacyRecord sysRecord = getPrivacy(contextId, userId, PrivacyManager.SYSTEM_RECORD_TYPE);
+			PrivacyRecord userRecord = getPrivacy(contextId, userId, PrivacyManager.USER_RECORD_TYPE);
 			
 			return checkPrivacyRecord(sysRecord, userRecord);
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public boolean userMadeSelection(String contextId, String userId){
 		if(contextId == null || userId == null)
 		{
 			throw new IllegalArgumentException("Null Argument in isViewable");
 		}
-		PrivacyRecordImpl userRecord = getPrivacy(contextId, userId, PrivacyManager.USER_RECORD_TYPE);
+		PrivacyRecord userRecord = getPrivacy(contextId, userId, PrivacyManager.USER_RECORD_TYPE);
 			
 		return (userRecord == null ? false : true);
 	}
-	
+
+	@Transactional
 	public void setViewableState(String contextId, String userId, Boolean value, String recordType)
 	{
 		if (contextId == null || userId == null || value == null || recordType == null)
@@ -386,7 +405,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			throw new IllegalArgumentException("Null Argument in setViewableState");
 		}
 		
-		PrivacyRecordImpl pr = getPrivacy(contextId, userId, recordType);
+		PrivacyRecord pr = getPrivacy(contextId, userId, recordType);
 		if(pr != null)
 		{
 			pr.setViewable(value.booleanValue());
@@ -398,6 +417,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		}
 	}
 
+	@Transactional
 	public void setViewableState(String contextId, Map userViewableState, String recordType)
 	{
 		if (contextId == null || userViewableState == null || recordType == null)
@@ -427,30 +447,38 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		
 		// only updating site level authz groups
 		if (gIdParts.length == 3 && "site".equals(gIdParts[1])) {
-			String context = "/site/" + gIdParts[2];
-			List<PrivacyRecordImpl> prList = getPrivacyByContextAndType(context, PrivacyManager.USER_RECORD_TYPE);
-			Set<String> grpMembers = new HashSet<String>();
-			
-			grpMembers.addAll(group.getUsers());
-			
-			// ignore members who already have a privacy record for this site
-			for (PrivacyRecordImpl record : prList) {
-				if(!grpMembers.remove(record.getUserId())) {
-					// user is no longer a member of this authz group remove their record
-					removePrivacyObject(record);
-				}
-			}
 
-			// the remaining members will need to lookup their default preference
-			for (String member : grpMembers) {
-				// the default is visible so we only need to update those that are set to hidden
-				String privacy = getDefaultPrivacyState(member);
-				if (PrivacyManager.VISIBLE.equals(privacy)) {
-					setViewableState(context, member, true, PrivacyManager.USER_RECORD_TYPE);
-				} else if (PrivacyManager.HIDDEN.equals(privacy)) {
-					setViewableState(context, member, false, PrivacyManager.USER_RECORD_TYPE);
+			// Perform the updates in a transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+
+					String context = "/site/" + gIdParts[2];
+					List<PrivacyRecord> prList = getPrivacyByContextAndType(context, PrivacyManager.USER_RECORD_TYPE);
+					Set<String> grpMembers = new HashSet<>();
+
+					grpMembers.addAll(group.getUsers());
+
+					// ignore members who already have a privacy record for this site
+					for (PrivacyRecord record : prList) {
+						if(!grpMembers.remove(record.getUserId())) {
+							// user is no longer a member of this authz group remove their record
+							removePrivacyObject(record);
+						}
+					}
+
+					// the remaining members will need to lookup their default preference
+					for (String member : grpMembers) {
+						// the default is visible so we only need to update those that are set to hidden
+						String privacy = getDefaultPrivacyState(member);
+						if (PrivacyManager.VISIBLE.equals(privacy)) {
+							setViewableState(context, member, true, PrivacyManager.USER_RECORD_TYPE);
+						} else if (PrivacyManager.HIDDEN.equals(privacy)) {
+							setViewableState(context, member, false, PrivacyManager.USER_RECORD_TYPE);
+						}
+					}
 				}
-			}
+			});
 		}
 	}
 	
@@ -473,12 +501,19 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		
 		// only removing site level authz groups
 		if (gIdParts.length == 3 && "site".equals(gIdParts[1])) {
-			String context = "/site/" + gIdParts[2];
-			List<PrivacyRecordImpl> prList = getPrivacyByContextAndType(context, PrivacyManager.USER_RECORD_TYPE);
 
-			for (PrivacyRecordImpl record : prList) {
-				removePrivacyObject(record);
-			}
+			// Perform the updates in a transaction
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				@Override
+				protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+					String context = "/site/" + gIdParts[2];
+					List<PrivacyRecord> prList = getPrivacyByContextAndType(context, PrivacyManager.USER_RECORD_TYPE);
+
+					for (PrivacyRecord record : prList) {
+						removePrivacyObject(record);
+					}
+				}
+			});
 		}
 	}
 
@@ -541,27 +576,22 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		return privacy;
 	}
 
-	private PrivacyRecordImpl getPrivacy(final String contextId, final String userId, final String recordType)
+	private PrivacyRecord getPrivacy(final String contextId, final String userId, final String recordType)
 	{
 		if (contextId == null || userId == null || recordType == null)
 		{
 			throw new IllegalArgumentException("Null Argument in getPrivacy");
 		}
 
-		HibernateCallback hcb = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session) throws HibernateException,
-			SQLException
-			{
-				Query q = session.getNamedQuery(QUERY_BY_USERID_CONTEXTID_TYPEID);
-				q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);
-				q.setParameter(USER_ID, userId, Hibernate.STRING);
-				q.setParameter(RECORD_TYPE, recordType, Hibernate.STRING);
-				return q.uniqueResult();
-			}
-		};
+		HibernateCallback<PrivacyRecord> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_BY_USERID_CONTEXTID_TYPEID);
+            q.setString(CONTEXT_ID, contextId);
+            q.setString(USER_ID, userId);
+            q.setString(RECORD_TYPE, recordType);
+            return (PrivacyRecord) q.uniqueResult();
+        };
 
-		return (PrivacyRecordImpl) getHibernateTemplate().execute(hcb);
+		return getHibernateTemplate().execute(hcb);
 
 	}
 
@@ -572,172 +602,124 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		{
 			throw new IllegalArgumentException("Null Argument in getDisabledPrivacy");
 		}
-		PrivacyRecordImpl sysRecord = getPrivacy(contextId, userId, PrivacyManager.SYSTEM_RECORD_TYPE);
-		PrivacyRecordImpl userRecord = getPrivacy(contextId, userId, PrivacyManager.USER_RECORD_TYPE);
+		PrivacyRecord sysRecord = getPrivacy(contextId, userId, PrivacyManager.SYSTEM_RECORD_TYPE);
+		PrivacyRecord userRecord = getPrivacy(contextId, userId, PrivacyManager.USER_RECORD_TYPE);
 		if(!checkPrivacyRecord(sysRecord, userRecord))
 			return userId;
 		else
 			return null;
 	}
 	
-	private boolean getDisabled(PrivacyRecordImpl sysRecord, PrivacyRecordImpl userRecord)
+	private boolean getDisabled(PrivacyRecord sysRecord, PrivacyRecord userRecord)
 	{
 		if(!checkPrivacyRecord(sysRecord, userRecord))
 			return true;
 		else
 			return false;
 	}
-	
-//	private PrivacyRecord findPrivacyWithFullArg(final String contextId, final String userId, final String recordType, final Boolean viewable)
-//	{
-//		if (contextId == null || userId == null || recordType == null || viewable == null)
-//		{
-//			throw new IllegalArgumentException("Null Argument in findPrivacyWithFullArg");
-//		}
-//		HibernateCallback hcb = new HibernateCallback()
-//		{
-//			public Object doInHibernate(Session session) throws HibernateException,
-//			SQLException
-//			{
-//        Query q = session.getNamedQuery(QUERY_BY_DISABLED_USERID_CONTEXTID);
-//        q.setParameter(USER_ID, userId, Hibernate.STRING);
-//        q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);
-//        q.setParameter(RECORD_TYPE, recordType, Hibernate.STRING);
-//        q.setParameter(VIEWABLE, viewable, Hibernate.BOOLEAN);
-//        return q.uniqueResult();
-//			}
-//		};
-//
-//		return (PrivacyRecord) getHibernateTemplate().execute(hcb);
-//	}
 
-  private PrivacyRecordImpl createPrivacyRecord(final String userId, 
-  		final String contextId, final String recordType, final boolean viewable)
-  {
-    if (userId == null || contextId == null || recordType == null )
-    {
-      throw new IllegalArgumentException("Null Argument in createPrivacyRecord");
-    }
-    else
-    {
-      PrivacyRecordImpl privacy = new PrivacyRecordImpl(userId, contextId, recordType, viewable);      
-      savePrivacyRecord(privacy);
-      return privacy;
-    }
-  }
-  
-  private List 	getViewableStateList(final String contextId, final Boolean viewable, final String recordType)
+	private PrivacyRecord createPrivacyRecord(final String userId, final String contextId, final String recordType, final boolean viewable) {
+		if (userId == null || contextId == null || recordType == null) {
+			throw new IllegalArgumentException("Null Argument in createPrivacyRecord");
+		} else {
+			PrivacyRecord privacy = new PrivacyRecord(userId, contextId, recordType, viewable);
+			savePrivacyRecord(privacy);
+			return privacy;
+		}
+	}
+
+  private List<PrivacyRecord> getViewableStateList(final String contextId, final Boolean viewable, final String recordType)
   {
   	if(contextId == null || viewable == null || recordType == null)
   	{
       throw new IllegalArgumentException("Null Argument in getViewableStateList");
   	}
   	
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE);
-        q.setParameter("contextId", contextId, Hibernate.STRING);
-        q.setParameter("viewable", viewable, Hibernate.BOOLEAN);
-        q.setParameter("recordType", recordType, Hibernate.STRING);
-        return q.list();
-      }
+    HibernateCallback<List<PrivacyRecord>> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE);
+      q.setString(CONTEXT_ID, contextId);
+      q.setBoolean(VIEWABLE, viewable);
+      q.setString(RECORD_TYPE, recordType);
+      return q.list();
     };
 
-    return (List) getHibernateTemplate().execute(hcb); 
+    return getHibernateTemplate().execute(hcb);
   }
-  
-  private List getViewableStateList(final String contextId, final Boolean viewable, final String recordType, final List userIds)
+
+  private List<PrivacyRecord> getViewableStateList(final String contextId, final Boolean viewable, final String recordType, final List userIds)
   {
   	if(contextId == null || viewable == null || recordType == null || userIds == null)
   	{
       throw new IllegalArgumentException("Null Argument in getViewableStateList");
   	}
   	
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE_IDLIST);
-        q.setParameter("contextId", contextId, Hibernate.STRING);
-        q.setParameter("viewable", viewable, Hibernate.BOOLEAN);
-        q.setParameter("recordType", recordType, Hibernate.STRING);
-        q.setParameterList("userIds", userIds);
-        return q.list();
-      }
+    HibernateCallback<List<PrivacyRecord>> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_BY_CONTEXT_VIEWABLE_TYPE_IDLIST);
+      q.setString(CONTEXT_ID, contextId);
+      q.setBoolean(VIEWABLE, viewable);
+      q.setString(RECORD_TYPE, recordType);
+      q.setParameterList("userIds", userIds);
+      return q.list();
     };
 
-    return (List) getHibernateTemplate().execute(hcb); 
+    return getHibernateTemplate().execute(hcb);
   }
-  
-  private List getPrivacyByContextAndType(final String contextId, final String recordType)
+
+  private List<PrivacyRecord> getPrivacyByContextAndType(final String contextId, final String recordType)
   {
   	if(contextId == null || recordType == null)
   	{
   		throw new IllegalArgumentException("Null Argument in getPrivacyByContextAndType");
   	}
+
+	  HibernateCallback<List<PrivacyRecord>> hcb = session -> {
+		  Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE);
+		  q.setString(CONTEXT_ID, contextId);
+		  q.setString(RECORD_TYPE, recordType);
+		  return q.list();
+	  };
   	
-  	HibernateCallback hcb = new HibernateCallback()
-  	{
-  		public Object doInHibernate(Session session) throws HibernateException,
-  		    SQLException
-  		{
-        Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE);
-        q.setParameter("contextId", contextId, Hibernate.STRING);
-        q.setParameter("recordType", recordType, Hibernate.STRING);
-        return q.list();
-  		}
-  	};
-  	
-  	return (List) getHibernateTemplate().executeFind(hcb);
+  	return getHibernateTemplate().execute(hcb);
   }
-  
-  private List getPrivacyByContextAndTypeAndUserIds(final String contextId, final String recordType, final List userIds)
+
+  private List<PrivacyRecord> getPrivacyByContextAndTypeAndUserIds(final String contextId, final String recordType, final List userIds)
   {
   	if(contextId == null || recordType == null || userIds == null)
   	{
   		throw new IllegalArgumentException("Null Argument in getPrivacyByContextAndTypeAndUserIds");
   	}
+
+	  HibernateCallback<List<PrivacyRecord>> hcb = session -> {
+		  Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE_IDLIST);
+		  q.setString(CONTEXT_ID, contextId);
+		  q.setString(RECORD_TYPE, recordType);
+		  q.setParameterList("userIds", userIds);
+		  return q.list();
+	  };
   	
-  	HibernateCallback hcb = new HibernateCallback()
-  	{
-  		public Object doInHibernate(Session session) throws HibernateException,
-  		    SQLException
-  		{
-        Query q = session.getNamedQuery(QUERY_BY_CONTEXT__TYPE_IDLIST);
-        q.setParameter("contextId", contextId, Hibernate.STRING);
-        q.setParameter("recordType", recordType, Hibernate.STRING);
-        q.setParameterList("userIds", userIds);        
-        return q.list();
-  		}
-  	};
-  	
-  	return (List) getHibernateTemplate().executeFind(hcb);
+  	return getHibernateTemplate().execute(hcb);
   }
 
-  private void savePrivacyRecord(PrivacyRecordImpl privacy)
+  private void savePrivacyRecord(PrivacyRecord privacy)
   {
   	getHibernateTemplate().saveOrUpdate(privacy);
   }
 
-  private void removePrivacyObject(PrivacyRecordImpl o)
+  private void removePrivacyObject(PrivacyRecord o)
   {
     getHibernateTemplate().delete(o);
   }
   
-  private boolean checkPrivacyRecord(PrivacyRecordImpl sysRecord, PrivacyRecordImpl userRecord)
+  private boolean checkPrivacyRecord(PrivacyRecord sysRecord, PrivacyRecord userRecord)
   {
 		if(sysRecord != null && userRecord != null)
 		{
 			if(userRecordHasPrecedence)
 			{
-				return userRecord.getViewable();
+				return userRecord.isViewable();
 			}
 			else
-				return sysRecord.getViewable();
+				return sysRecord.isViewable();
 		}
 		else if(sysRecord == null && userRecord == null)
 		{
@@ -748,11 +730,11 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 		}
 		else if(sysRecord != null)
 		{
-			return sysRecord.getViewable();
+			return sysRecord.isViewable();
 		}
 		else
 		{
-			return userRecord.getViewable();
+			return userRecord.isViewable();
 		}
   }
   
@@ -815,5 +797,9 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
 	}
 }
