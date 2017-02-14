@@ -61,82 +61,82 @@
 <h:panelGroup styleClass="row" layout="block" rendered="#{not empty publishedSettings.extendedTimes}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeExisting}" />
     <h:panelGroup styleClass="col-md-10 table-responsive" layout="block">
-		<t:dataTable
-					 id="extendedTimeTable"
-					 value="#{publishedSettings.extendedTimes}"
-					 var="entry"
+        <t:dataTable
+                     id="extendedTimeTable"
+                     value="#{publishedSettings.extendedTimes}"
+                     var="entry"
                      styleClass="table table-condensed table-borderless extendedTimeDataTable"
-					 columnClasses="extendedTime-user, extendedTime-group, extendedTime-start, extendedTime-due,
-					 extendedTime-retract, extendedTime-hours, extendedTime-mins, extendedTime-edit, extendedTime-delete"
-					 title="#{assessmentSettingsMessages.extendedTime_data_table_title}">
-			<h:column headerClass="extendedTime-user">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_user}" />
-				</f:facet>
-				<h:selectOneMenu id="extendedTimeUser" value="#{entry.user}" disabled="true">
-					<f:selectItems value="#{publishedSettings.usersInSite}" />
-				</h:selectOneMenu>
-			</h:column>
-			<h:column headerClass="extendedTime-group">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_group}" />
-				</f:facet>
-				<h:selectOneMenu id="extendedTimeGroup" value="#{entry.group}" disabled="true">
-					<f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
-				</h:selectOneMenu>
-			</h:column>
-			<h:column headerClass="extendedTime-start">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_start_date}" />
-				</f:facet>
-				<h:outputText id="extendedTimeStartDate" value="#{entry.startDate}">
+                     columnClasses="extendedTime-user, extendedTime-group, extendedTime-start, extendedTime-due,
+                     extendedTime-retract, extendedTime-hours, extendedTime-mins, extendedTime-edit, extendedTime-delete"
+                     title="#{assessmentSettingsMessages.extendedTime_data_table_title}">
+            <h:column headerClass="extendedTime-user">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_user}" />
+                </f:facet>
+                <h:selectOneMenu id="extendedTimeUser" value="#{entry.user}" disabled="true">
+                    <f:selectItems value="#{publishedSettings.usersInSite}" />
+                </h:selectOneMenu>
+            </h:column>
+            <h:column headerClass="extendedTime-group">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_group}" />
+                </f:facet>
+                <h:selectOneMenu id="extendedTimeGroup" value="#{entry.group}" disabled="true">
+                    <f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
+                </h:selectOneMenu>
+            </h:column>
+            <h:column headerClass="extendedTime-start">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_start_date}" />
+                </f:facet>
+                <h:outputText id="extendedTimeStartDate" value="#{entry.startDate}">
                     <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
-				</h:outputText>
-			</h:column>
-			<h:column headerClass="extendedTime-due">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
-				</f:facet>
-				<h:outputText id="extendedTimeEndDate" value="#{entry.dueDate}">
+                </h:outputText>
+            </h:column>
+            <h:column headerClass="extendedTime-due">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
+                </f:facet>
+                <h:outputText id="extendedTimeEndDate" value="#{entry.dueDate}">
                     <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
-				</h:outputText>
-			</h:column>
-			<h:column headerClass="extendedTime-retract">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
-				</f:facet>
-				<h:outputText id="extendedTimeRetractDate" value="#{entry.retractDate}">
+                </h:outputText>
+            </h:column>
+            <h:column headerClass="extendedTime-retract">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
+                </f:facet>
+                <h:outputText id="extendedTimeRetractDate" value="#{entry.retractDate}">
                     <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
-				</h:outputText>
-			</h:column>
-			<h:column headerClass="extendedTime-hours">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_hours}" />
-				</f:facet>
-				<h:outputText id="extendedTimeHours" value="#{entry.timeHours}" />
-			</h:column>
-			<h:column headerClass="extendedTime-mins">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_minutes}" />
-				</f:facet>
-				<h:outputText id="extendedTimeMinutes" value="#{entry.timeMinutes}" />
-			</h:column>
-			<h:column headerClass="extendedTime-edit" rendered="#{publishedSettings.extendedTimesSize > 0}">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_edit}" />
-				</f:facet>
-				<h:commandButton value="#{assessmentSettingsMessages.header_extendedTime_edit}" action="#{publishedSettings.editExtendedTime}">
-					<f:setPropertyActionListener target="#{publishedSettings.transitoryExtendedTime}" value="#{entry}" />
-				</h:commandButton>
-			</h:column>
-			<h:column headerClass="extendedTime-delete" rendered="#{publishedSettings.extendedTimesSize > 0}">
-				<f:facet name="header">
-					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_delete}" />
-				</f:facet>
-				<h:commandButton value="#{assessmentSettingsMessages.header_extendedTime_delete}" action="#{publishedSettings.deleteExtendedTime}"  >
-					<f:setPropertyActionListener target="#{publishedSettings.transitoryExtendedTime}" value="#{entry}" />
-				</h:commandButton>
-			</h:column>
-		</t:dataTable>
+                </h:outputText>
+            </h:column>
+            <h:column headerClass="extendedTime-hours">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_hours}" />
+                </f:facet>
+                <h:outputText id="extendedTimeHours" value="#{entry.timeHours}" />
+            </h:column>
+            <h:column headerClass="extendedTime-mins">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_minutes}" />
+                </f:facet>
+                <h:outputText id="extendedTimeMinutes" value="#{entry.timeMinutes}" />
+            </h:column>
+            <h:column headerClass="extendedTime-edit" rendered="#{publishedSettings.extendedTimesSize > 0}">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_edit}" />
+                </f:facet>
+                <h:commandButton value="#{assessmentSettingsMessages.header_extendedTime_edit}" action="#{publishedSettings.editExtendedTime}">
+                    <f:setPropertyActionListener target="#{publishedSettings.transitoryExtendedTime}" value="#{entry}" />
+                </h:commandButton>
+            </h:column>
+            <h:column headerClass="extendedTime-delete" rendered="#{publishedSettings.extendedTimesSize > 0}">
+                <f:facet name="header">
+                    <h:outputText value="#{assessmentSettingsMessages.header_extendedTime_delete}" />
+                </f:facet>
+                <h:commandButton value="#{assessmentSettingsMessages.header_extendedTime_delete}" action="#{publishedSettings.deleteExtendedTime}"  >
+                    <f:setPropertyActionListener target="#{publishedSettings.transitoryExtendedTime}" value="#{entry}" />
+                </h:commandButton>
+            </h:column>
+        </t:dataTable>
     </h:panelGroup>
 </h:panelGroup>
