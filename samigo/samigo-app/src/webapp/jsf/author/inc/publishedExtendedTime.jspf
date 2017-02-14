@@ -46,9 +46,14 @@
                 </h:panelGroup>
         </h:panelGroup>
         <h:panelGroup styleClass="form-group row" layout="block">
-                <h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" action="#{publishedSettings.addExtendedTime}" rendered="#{not publishedSettings.editingExtendedTime}"/>
-                <h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{publishedSettings.saveEditedExtendedTime}" rendered="#{publishedSettings.editingExtendedTime}"/>
-                <h:commandButton value="#{assessmentSettingsMessages.extendedTimeCancel}" action="#{publishedSettings.cancelEdit}" rendered="#{publishedSettings.editingExtendedTime}"/>
+                <h:panelGroup rendered="#{not publishedSettings.editingExtendedTime}">
+                    <h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" id="extendedTimeAdd" action="#{publishedSettings.addExtendedTime}" />
+                    <h:outputLabel styleClass="help-block info-text small" for="extendedTimeAdd" value="#{assessmentSettingsMessages.extendedTimeInstruction}" />
+                </h:panelGroup>
+                <h:panelGroup rendered="#{publishedSettings.editingExtendedTime}">
+                    <h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{publishedSettings.saveEditedExtendedTime}" />
+                    <h:commandButton value="#{assessmentSettingsMessages.extendedTimeCancel}" action="#{publishedSettings.cancelEdit}" />
+                </h:panelGroup>
         </h:panelGroup>
     </h:panelGroup>
 </h:panelGroup>

@@ -96,7 +96,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeStartString}"/>',
               ashidden: { iso8601: 'newEntry-start_date-iso8601' }
           });
           localDatePicker({
@@ -104,7 +104,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeDueString}"/>',
               ashidden: { iso8601: 'newEntry-due_date-iso8601' }
           });
           localDatePicker({
@@ -112,7 +112,7 @@
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeRetractString}"/>',
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
 

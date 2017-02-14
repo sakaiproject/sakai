@@ -32,6 +32,7 @@ import java.util.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -165,6 +166,20 @@ public class TimeUtil
       DateTimeFormatter fmtTime = DateTimeFormat.shortTime();
       DateTimeFormatter localFmtTime = fmtTime.withLocale(new ResourceLoader().getLocale());
       return dt.toString(localFmt) + " " + dt.toString(localFmtTime);
+  }
+
+  public String getDateTimeWithTimezoneConversion(Date dateToConvert) {
+      DateTime dt = new DateTime(dateToConvert);
+      DateTimeFormatter fmt = ISODateTimeFormat.yearMonthDay();
+      DateTimeFormatter fmtTime = ISODateTimeFormat.hourMinuteSecond();
+
+      // If the client browser is in a different timezone than server, need to modify date
+      if (m_client_timezone !=null && m_server_timezone!=null && !m_client_timezone.hasSameRules(m_server_timezone)) {
+        DateTimeZone dateTimeZone = DateTimeZone.forTimeZone(m_client_timezone);
+        fmt = fmt.withZone(dateTimeZone);
+        fmtTime = fmtTime.withZone(dateTimeZone);
+      }
+      return dt.toString(fmt) + " " + dt.toString(fmtTime);
   }
   
   /*

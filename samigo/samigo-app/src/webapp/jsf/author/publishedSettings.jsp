@@ -99,27 +99,27 @@
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-start_date',
+              input: '#assessmentSettingsAction\\:newEntry-start_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{publishedSettings.extendedTimeStartString}"/>',
               ashidden: { iso8601: 'newEntry-start_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-due_date',
+              input: '#assessmentSettingsAction\\:newEntry-due_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{publishedSettings.extendedTimeDueString}"/>',
               ashidden: { iso8601: 'newEntry-due_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-retract_date',
+              input: '#assessmentSettingsAction\\:newEntry-retract_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{publishedSettings.extendedTimeRetractString}"/>',
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
 
