@@ -36,6 +36,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
@@ -424,6 +425,7 @@ public class SettingsCategoryPanel extends BasePanel {
 						if(value.intValue() > 0) {
 							categoryKeepHighest.setModelValue(new String[]{"0"});
 							categoryKeepHighest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryKeepHighest);
 						}
 
 						target.add(categoryKeepHighest);
@@ -460,6 +462,7 @@ public class SettingsCategoryPanel extends BasePanel {
 						if(value1.intValue() > 0 || value2.intValue() > 0) {
 							categoryKeepHighest.setModelValue(new String[]{"0"});
 							categoryKeepHighest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryKeepHighest);
 						}
 						target.add(categoryKeepHighest);
 					}
@@ -488,8 +491,10 @@ public class SettingsCategoryPanel extends BasePanel {
 						if(value.intValue() > 0) {
 							categoryDropHighest.setModelValue(new String[]{"0"});
 							categoryDropHighest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryDropHighest);
 							categoryDropLowest.setModelValue(new String[]{"0"});
 							categoryDropLowest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryDropLowest);
 						}
 						target.add(categoryDropHighest);
 						target.add(categoryDropLowest);
@@ -736,5 +741,13 @@ public class SettingsCategoryPanel extends BasePanel {
 	// to enable inter panel comms
 	Radio<Integer> getCategoriesAndWeightingRadio() {
 		return this.categoriesAndWeighting;
+	}
+
+	/**
+	 * Helper to add the tooltip when drop/keep settings cause a field to be disabled.
+	 * @param textfield
+	 */
+	private void addDropKeepDisabledToolTip(final Component textfield) {
+		textfield.add(AttributeModifier.replace("title", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
 	}
 }
