@@ -1,10 +1,61 @@
 <!-- Extended Time -->
-<div class="clearfix">
-  <h:outputLabel value="#{assessmentSettingsMessages.extendedTimeHeading}">
-    <small><h:outputText value="#{assessmentSettingsMessages.extendedTimeSubHeading}" /></small>
-  </h:outputLabel>
-</div>
-<h:panelGroup styleClass="clearfix" layout="block">
+<h:panelGroup styleClass="row" layout="block">
+    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeNew}" />
+    <h:panelGroup styleClass="col-md-10" layout="block">
+        <h:panelGroup styleClass="form-group row" layout="block">
+                <h:outputLabel styleClass="col-md-2" for="newEntry-user" value="#{assessmentSettingsMessages.extendedTimeUser}"/>
+                <h:panelGroup styleClass="col-md-4" layout="block">
+                    <h:selectOneMenu id="newEntry-user" value="#{publishedSettings.extendedTime.user}">
+                        <f:selectItems value="#{publishedSettings.usersInSite}" />
+                    </h:selectOneMenu>
+                </h:panelGroup>
+        </h:panelGroup>
+        <h:panelGroup styleClass="form-group row" layout="block">
+                <h:outputLabel styleClass="col-md-2" for="newEntry-group" value="#{assessmentSettingsMessages.extendedTimeGroup}"/>
+                <h:panelGroup styleClass="col-md-4" layout="block">
+                    <h:selectOneMenu id="newEntry-group" value="#{publishedSettings.extendedTime.group}">
+                        <f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
+                    </h:selectOneMenu>
+                </h:panelGroup>
+        </h:panelGroup>
+        <h:panelGroup styleClass="form-group row" layout="block">
+                <h:outputLabel styleClass="col-md-2" for="newEntry-due_date" value="#{assessmentSettingsMessages.assessment_available}"/>
+                <h:panelGroup styleClass="col-md-3" layout="block">
+                    <h:inputText id="newEntry-start_date" size="25" value="#{publishedSettings.extendedTimeStartString}"/>
+                </h:panelGroup>
+        </h:panelGroup>
+        <h:panelGroup styleClass="form-group row" layout="block">
+                <h:outputLabel styleClass="col-md-2" for="newEntry-due_date" value="#{assessmentSettingsMessages.assessment_due}"/>
+                <h:panelGroup styleClass="col-md-3" layout="block">
+                 <h:inputText id="newEntry-due_date" size="25" value="#{publishedSettings.extendedTimeDueString}"/>
+                </h:panelGroup>
+                <h:panelGroup styleClass="col-md-6" layout="block">
+        <h:outputText value="#{assessmentSettingsMessages.has_time_limit} " />
+                    <h:selectOneMenu id="newEntry-hours" value="#{publishedSettings.extendedTime.timeHours}" >
+                        <f:selectItems value="#{publishedSettings.hours}" />
+                    </h:selectOneMenu>
+                    <h:selectOneMenu id="newEntry-mins" value="#{publishedSettings.extendedTime.timeMinutes}" >
+                        <f:selectItems value="#{publishedSettings.mins}" />
+                    </h:selectOneMenu>
+                </h:panelGroup>
+        </h:panelGroup>
+        <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.lateHandling_isInstructorEditable==true}">
+                <h:outputLabel styleClass="col-md-2" for="newEntry-retract_date" value="#{assessmentSettingsMessages.late_accept_until}"/>
+                <h:panelGroup styleClass="col-md-3" layout="block">
+                    <h:inputText id="newEntry-retract_date" size="25" value="#{publishedSettings.extendedTimeRetractString}"/>
+                </h:panelGroup>
+        </h:panelGroup>
+        <h:panelGroup styleClass="form-group row" layout="block">
+                <h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" action="#{publishedSettings.addExtendedTime}" rendered="#{not publishedSettings.editingExtendedTime}"/>
+                <h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{publishedSettings.saveEditedExtendedTime}" rendered="#{publishedSettings.editingExtendedTime}"/>
+                <h:commandButton value="#{assessmentSettingsMessages.extendedTimeCancel}" action="#{publishedSettings.cancelEdit}" rendered="#{publishedSettings.editingExtendedTime}"/>
+        </h:panelGroup>
+    </h:panelGroup>
+</h:panelGroup>
+
+<h:panelGroup styleClass="row" layout="block" rendered="#{not empty publishedSettings.extendedTimes}">
+    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeExisting}" />
+    <h:panelGroup styleClass="col-md-10 table-responsive" layout="block">
 		<t:dataTable
 					 id="extendedTimeTable"
 					 value="#{publishedSettings.extendedTimes}"
@@ -20,11 +71,6 @@
 				<h:selectOneMenu id="extendedTimeUser" value="#{entry.user}" disabled="true">
 					<f:selectItems value="#{publishedSettings.usersInSite}" />
 				</h:selectOneMenu>
-				<f:facet name="footer">
-					<h:selectOneMenu id="newEntry-user" value="#{publishedSettings.extendedTime.user}">
-						<f:selectItems value="#{publishedSettings.usersInSite}" />
-					</h:selectOneMenu>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-group">
 				<f:facet name="header">
@@ -33,66 +79,42 @@
 				<h:selectOneMenu id="extendedTimeGroup" value="#{entry.group}" disabled="true">
 					<f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
 				</h:selectOneMenu>
-				<f:facet name="footer">
-					<h:selectOneMenu id="newEntry-group" value="#{publishedSettings.extendedTime.group}">
-						<f:selectItems value="#{publishedSettings.groupsForSiteWithNoGroup}" />
-					</h:selectOneMenu>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-start">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_start_date}" />
 				</f:facet>
 				<h:outputText id="extendedTimeStartDate" value="#{entry.startDate}">
-					<f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+                    <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
 				</h:outputText>
-				<f:facet name="footer">
-					<h:inputText id="newEntry-start_date" size="25" value="#{publishedSettings.extendedTimeStartString}"/>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-due">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_due_date}" />
 				</f:facet>
 				<h:outputText id="extendedTimeEndDate" value="#{entry.dueDate}">
-					<f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+                    <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
 				</h:outputText>
-				<f:facet name="footer">
-					<h:inputText id="newEntry-due_date" size="25" value="#{publishedSettings.extendedTimeDueString}"/>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-retract">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_retract_date}" />
 				</f:facet>
 				<h:outputText id="extendedTimeRetractDate" value="#{entry.retractDate}">
-					<f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+                    <f:convertDateTime pattern="#{generalMessages.output_date_no_sec}"/>
 				</h:outputText>
-				<f:facet name="footer">
-					<h:inputText id="newEntry-retract_date" size="25" value="#{publishedSettings.extendedTimeRetractString}"/>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-hours">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_hours}" />
 				</f:facet>
 				<h:outputText id="extendedTimeHours" value="#{entry.timeHours}" />
-				<f:facet name="footer">
-					<h:selectOneMenu id="newEntry-hours" value="#{publishedSettings.extendedTime.timeHours}" >
-						<f:selectItems value="#{publishedSettings.hours}" />
-					</h:selectOneMenu>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-mins">
 				<f:facet name="header">
 					<h:outputText value="#{assessmentSettingsMessages.header_extendedTime_minutes}" />
 				</f:facet>
 				<h:outputText id="extendedTimeMinutes" value="#{entry.timeMinutes}" />
-				<f:facet name="footer">
-					<h:selectOneMenu id="newEntry-mins" value="#{publishedSettings.extendedTime.timeMinutes}" >
-						<f:selectItems value="#{publishedSettings.mins}" />
-					</h:selectOneMenu>
-				</f:facet>
 			</h:column>
 			<h:column headerClass="extendedTime-edit" rendered="#{publishedSettings.extendedTimesSize > 0}">
 				<f:facet name="header">
@@ -111,7 +133,5 @@
 				</h:commandButton>
 			</h:column>
 		</t:dataTable>
-		<h:commandButton value="#{assessmentSettingsMessages.extendedTimeAdd}" action="#{publishedSettings.addExtendedTime}" rendered="#{not publishedSettings.editingExtendedTime}"/>
-		<h:commandButton value="#{assessmentSettingsMessages.extendedTimeEdit}" action="#{publishedSettings.saveEditedExtendedTime}" rendered="#{publishedSettings.editingExtendedTime}"/>
-		<h:commandButton value="#{assessmentSettingsMessages.extendedTimeCancel}" action="#{publishedSettings.cancelEdit}" rendered="#{publishedSettings.editingExtendedTime}"/>
+    </h:panelGroup>
 </h:panelGroup>

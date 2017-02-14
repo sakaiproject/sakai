@@ -92,7 +92,7 @@
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-start_date',
+              input: '#assessmentSettingsAction\\:newEntry-start_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
@@ -100,7 +100,7 @@
               ashidden: { iso8601: 'newEntry-start_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-due_date',
+              input: '#assessmentSettingsAction\\:newEntry-due_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
@@ -108,7 +108,7 @@
               ashidden: { iso8601: 'newEntry-due_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-retract_date',
+              input: '#assessmentSettingsAction\\:newEntry-retract_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
@@ -383,9 +383,6 @@
     </div>
   </h:panelGroup>
 
-  <!-- Extended Time -->
-  <%@ include file="inc/extendedTime.jspf"%>
-
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
@@ -494,6 +491,11 @@
 </div><!-- This is the end of the sub-accordion -->
 
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
+
+<samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}" >
+  <!-- Extended Time -->
+  <%@ include file="inc/extendedTime.jspf"%>
+</samigo:hideDivision>
 
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading_feedback}" >
 
