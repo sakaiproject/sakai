@@ -1,6 +1,6 @@
 <!-- Extended Time -->
 <h:panelGroup styleClass="form-group row" layout="block">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
+    <h:outputLabel styleClass="col-md-12" value="#{assessmentSettingsMessages.extendedTimeHeading}"/>
     <div class="col-md-11 col-md-offset-1">
         <t:dataTable cellpadding="0" cellspacing="0"
                      id="extendedTimeTable"
