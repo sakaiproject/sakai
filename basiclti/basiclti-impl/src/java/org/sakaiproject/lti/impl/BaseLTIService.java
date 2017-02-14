@@ -47,7 +47,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Properties;
 
 /**

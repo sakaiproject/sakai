@@ -30,8 +30,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.sakaiproject.util.foorm.Foorm;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import java.lang.Class;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -38,10 +37,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.sakaiproject.util.foorm.Foorm;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
