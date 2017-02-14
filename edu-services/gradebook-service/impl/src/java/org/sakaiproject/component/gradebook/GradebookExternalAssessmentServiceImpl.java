@@ -190,8 +190,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		getHibernateTemplate().execute(session -> {
 			// Ensure that the externalId is unique within this gradebook
 			Number externalIdConflicts = (Number) session.createCriteria(Assignment.class)
+                    .createAlias("gradebook", "g")
                     .add(Restrictions.eq("externalId", externalId))
-                    .add(Restrictions.eq("gradebook", gradebookUid))
+                    .add(Restrictions.eq("g.uid", gradebookUid))
                     .setProjection(Projections.rowCount())
                     .uniqueResult();
 
@@ -714,8 +715,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		getHibernateTemplate().execute(session -> {
             // Ensure that the externalId is unique within this gradebook
             Number externalIdConflicts = (Number) session.createCriteria(Assignment.class)
+                    .createAlias("gradebook", "g")
                     .add(Restrictions.eq("externalId", externalId))
-                    .add(Restrictions.eq("gradebook.uid", gradebookUid))
+                    .add(Restrictions.eq("g.uid", gradebookUid))
                     .setProjection(Projections.rowCount())
                     .uniqueResult();
             if (externalIdConflicts.intValue() > 0) {
