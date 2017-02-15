@@ -51,6 +51,9 @@ public interface PreferencesService extends EntityProducer
 	/** Securiy / Event for removing a preferences. */
 	static final String SECURE_REMOVE_PREFS = "prefs.del";
 
+	/** Prefs key under which stuff like the site tab order and hiding is stored. */
+	static final String SITENAV_PREFS_KEY = "sakai:portal:sitenav";
+
 	/**
 	 * Access a set of preferences associated with this id.
 	 * 

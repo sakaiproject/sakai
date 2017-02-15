@@ -137,7 +137,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		if (session.getUserId() != null)
 		{
 			Preferences prefs = preferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 
 			List l = props.getPropertyList("exclude");
 			if (l != null)

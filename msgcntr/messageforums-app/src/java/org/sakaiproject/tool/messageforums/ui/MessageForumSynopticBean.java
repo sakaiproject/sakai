@@ -191,7 +191,6 @@ public class MessageForumSynopticBean {
 	private final String CONTEXTID="contextId";
 
 	/** Used to retrieve non-notification sites for MyWorkspace page */
-	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
 	private final String TAB_EXCLUDED_SITES = "exclude";
 	
 	/** Preferences service (injected dependency) */
@@ -1769,7 +1768,7 @@ public class MessageForumSynopticBean {
 		final Preferences prefs = preferencesService.getPreferences(
 								SessionManager.getCurrentSessionUserId());
 
-		final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
+		final ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
 
 		return l;		
