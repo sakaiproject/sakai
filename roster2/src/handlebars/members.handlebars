@@ -72,15 +72,14 @@
     {{#if ../viewGroup}}
     <div class="roster-table-cell">
         <div class="roster-mobile-label">{{translate 'facet_groups'}}</div>
-        {{#if singleGroup}}
-        <a href="javascript:;" class="roster-single-group-link" data-groupid="{{singleGroup.id}}">{{singleGroup.title}}</a>
-        {{else}}
-        <select class="roster-groups-selector">
-            <option value="all">{{translate 'pick_group_instruction'}}</option>
+        {{#if hasGroups}}
+            <div class="roster-group-cell">
             {{#each groups}}
-            <option value="{{@key}}">{{this}}</option>
+            <a href="javascript:;" class="roster-group-link" data-groupid="{{id}}">{{title}}</a>
             {{/each}}
-        </select>
+            </div>
+        {{else}}
+        <span class="roster-no-groups-label">{{translate 'roster_group_ungrouped'}}</span>
         {{/if}}
     </div>
     {{/if}}
