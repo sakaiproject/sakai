@@ -5120,7 +5120,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
 
 			SpreadsheetExporter.Type type = SpreadsheetExporter.Type.valueOf(gradeFileFormat.toUpperCase());
-			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString);
+			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString, getCsvSeparator());
 
 	        String submittedText = "";
 	        if (!submissions.hasNext())
@@ -5351,7 +5351,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
 
 			SpreadsheetExporter.Type type = SpreadsheetExporter.Type.valueOf(gradeFileFormat.toUpperCase());
-			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString);
+			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString, getCsvSeparator());
 
 			String submittedText = "";
 			if (!submissions.hasNext())
@@ -14125,5 +14125,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		return "";
 	}
+	
+	public String getCsvSeparator() {
+		String defaultSeparator  = ",";
+		//If the decimal separator is a comma
+		if (",".equals(FormattedText.getDecimalSeparator())) {
+			defaultSeparator = ";";
+		}
+
+		return m_serverConfigurationService.getString("csv.separator", defaultSeparator);
+	}
+	
 } // BaseAssignmentService
 
