@@ -2388,7 +2388,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 
     statMap.put("numStudentCollection", numStudents);
     statMap.put(
-      "rangeCollection", calRange(scores, numStudents, min, max, interval));
+      "rangeCollection", calRange(numStudents, min, max, interval));
     statMap.put("standDev", castingNum(calStandDev(scores, mean),2));
     //NEW
     //statMap.put("columnHeight", calColumnHeight(numStudents));
@@ -2627,15 +2627,12 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
    * @return number of students per interval
    */
   private static int[] calNumStudents(
-    double[] scores, double min, double max, int interval)
-  {
+    double[] scores, double min, double max, int interval){
 
-    if(min > max)
-    {
-      //log.info("max(" + max + ") <min(" + min + ")");
-      max = min;
+    if(min > max){
+        max = min;
     }
-    
+
     min = Math.floor(min); // SAM-2409
     max = Math.ceil(max); // SAM-2409
 
@@ -2643,118 +2640,77 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 
     // this handles a case where there are no num students, treats as if
     // a single value of 0
-    if(numStudents.length == 0)
-    {
-      numStudents = new int[1];
-      numStudents[0] = 0;
+    if(numStudents.length == 0){
+        numStudents = new int[1];
+        numStudents[0] = 0;
     }
 
-    for(int i = 0; i < scores.length; i++)
-    {
-      if(scores[i] <= (min + interval))
-      {
-        numStudents[0]++;
-      }
-      else
-      {
-        for(int j = 1; j < (numStudents.length); j++)
-        {
-          if(
-            ((scores[i] > (min + (j * interval))) &&
-              (scores[i] <= (min + ((j + 1) * interval)))))
-          {
-            numStudents[j]++;
+    for(int i = 0; i < scores.length; i++){
+        if(scores[i] < (min + interval)){
+            numStudents[0]++;
+        }else{
+            for(int j = 1; j < (numStudents.length); j++){
 
-            break;
-          }
+                double lowerEndpoint = min + (j * interval);
+                double uppperEndpoint =  min + ((j + 1) * interval);
+
+                if ( j < (numStudents.length -1) ){
+                    if( (scores[i] >= lowerEndpoint ) && (scores[i] < uppperEndpoint) ){
+                        numStudents[j]++;
+                        break;
+                    }
+                }else{
+                    if( (scores[i] >= lowerEndpoint ) && (scores[i] <= uppperEndpoint) ){
+                        numStudents[j]++;
+                        break;
+                    }
+                }
+            }
         }
-      }
     }
 
     return numStudents;
   }
 
   /**
-   * Get range text for each interval
-   *
-   * @param answers array of ansers
-   *
-   *
-   * @return array of range text strings for each interval
-   */
-  
-  /*
-  private static String[] calRange(String[] answers, String[] choices)
-  {
-    String[] range = new String[choices.length];
-    int current = 0;
-
-    // gracefully handle a condition where there are no answers
-    if(answers.length == 0)
-    {
-      for(int i = 0; i < range.length; i++)
-      {
-        range[i] = "unknown";
-      }
-
-      return range;
-    }
-
-    choices[0] = answers[0];
-    for(int a = 1; a < answers.length; a++)
-    {
-      if(! (answers[a].equals(choices[current])))
-      {
-        current++;
-        choices[current] = answers[a];
-      }
-    }
-
-    return range;
-  }
-  */
-
-  /**
    * Calculate range strings for each interval.
    *
-   * @param scores array of scores
    * @param numStudents number of students for each interval
-   * @param min the minimium
+   * @param min the minimum
    * @param max the maximum
    * @param interval the number of intervals
    *
    * @return array of range strings for each interval.
    */
-  private static String[] calRange(
-    double[] scores, int[] numStudents, double min, double max, int interval)
+  private static String[] calRange(int[] numStudents, double min, double max, int interval)
   {
     String[] ranges = new String[numStudents.length];
 
     if(Double.compare(max, min) == 0){
       String num = castingNum(min,2);
-      ranges[0] = num + " - " + num;
+      ranges[0] = "[ " + num + " , " + num + " ]";
     }
     else
     {	
-      ranges[0] = (int) min + " - " + (int) (min + interval);
-      int i = 1;
+      ranges[0] = "[ " +(int) min + " , " + (int) (min + interval) + " )";
+
       Integer nextVal = null;
-      while(i < ranges.length)
+      for(int i=1; i < ranges.length; i++)
       {
-        nextVal = new Integer((int) (((i + 1) * interval) + min));  
+        nextVal = new Integer((int) (((i + 1) * interval) + min));
+
         if(nextVal.doubleValue() < max)
         {
-          ranges[i] =
-            ">" + (int) ((i * interval) + min) + " - " + nextVal;
+          ranges[i] = "[ " + (int) ((i * interval) + min) + " , " + nextVal + " )";
         }
         else
         {
-          ranges[i] = ">" + (int) ((i * interval) + min) + " - " + castingNum(max,2);
+          ranges[i] = "[ " + (int) ((i * interval) + min) + " , " + castingNum(max,2) + " ]";
         }
-        i++;
+
       }
-  } 
-	    
+    } 
+
     return ranges;
   }
 
