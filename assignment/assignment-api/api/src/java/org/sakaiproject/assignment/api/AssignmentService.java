@@ -269,8 +269,6 @@ public interface AssignmentService extends EntityProducer
 	public boolean allowAddSubmission(String context);
 	
 	/**
-	 * SAK-21525
-	 * 
 	 * @param context
 	 * @param assignment - An Assignment object. Needed for the groups to be checked.
 	 * @return
@@ -914,8 +912,6 @@ public interface AssignmentService extends EntityProducer
 	/*
 	 * If the assignment uses anonymous grading returns true, else false
 	 *
-	 * SAK-27824
-	 *
 	 * Params: AssignmentSubmission s
 	 */
 	public boolean assignmentUsesAnonymousGrading(Assignment a);
@@ -928,8 +924,6 @@ public interface AssignmentService extends EntityProducer
 	
 	/*
 	 * This method allows you to know if there are submissions submitted
-	 *
-	 * SAK-30062
 	 *
 	 * Params: AssignmentSubmission s
 	 */
@@ -960,7 +954,6 @@ public interface AssignmentService extends EntityProducer
 	public String getDeepLink(String context, String assignmentId) throws Exception;
 	
 	/**
-	 * SAK-31923
 	 * get csv separator for exporting to CSV. It can be a comma or point configured through
 	 * csv.separator sakai property
 	 * @return
