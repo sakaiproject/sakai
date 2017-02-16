@@ -47,7 +47,6 @@ public class TimeUtil
 {
 
   private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
-  // SAM-3106 ignore the timezone passed by the client browser
   private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
   private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 
