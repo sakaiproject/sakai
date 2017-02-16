@@ -199,17 +199,12 @@ public class QuestionPoolService
   /**
    * Get the size of a subpool.
    */
-  public int getSubPoolSize(Long poolId)
+  public long getSubPoolSize(Long poolId)
   {
-    int poolSize = 0;
-    try
-    {
-      poolSize =
-	  PersistenceService.getInstance().getQuestionPoolFacadeQueries().
-            getSubPoolSize(poolId);
-    }
-    catch(Exception e)
-    {
+    long poolSize;
+    try {
+      poolSize = PersistenceService.getInstance().getQuestionPoolFacadeQueries().getSubPoolSize(poolId);
+    } catch(Exception e) {
       log.error(e.getMessage(), e);
       throw new RuntimeException(e);
     }

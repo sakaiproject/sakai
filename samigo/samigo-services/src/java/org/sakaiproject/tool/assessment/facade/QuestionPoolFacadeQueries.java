@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -120,7 +121,11 @@ public class QuestionPoolFacadeQueries
     // #1.
     // lydial: 9/22/05 we are not really using QuestionPoolAccessData, so filter by ownerid 
     //List poolList = getAllPools(); 
-    List poolList = getHibernateTemplate().findByNamedParam("from QuestionPoolData a where a.ownerId = :id", "id", agentId);
+    HibernateCallback<List<QuestionPoolData>> hcb = session -> session
+            .createQuery("from QuestionPoolData a where a.ownerId = :id")
+            .setString("id", agentId)
+            .list();
+    List<QuestionPoolData> poolList = getHibernateTemplate().execute(hcb);
 /*
     // #2. get all the QuestionPoolAccessData record belonging to the agent
     List questionPoolAccessList = getHibernateTemplate().find(
@@ -141,32 +146,16 @@ public class QuestionPoolFacadeQueries
     try {
     	// counts is a hashmap going from poolid to number of subpools. It is significantly
     	// faster to build this with a single SQL query and then look up data in it.
-    	Map counts = new HashMap();
+        Map<Long, Long> counts = getSubPoolSizes(agentId).stream().collect(Collectors.toMap(pool -> pool[0], pool -> pool[1]));
 
-    	// hibernate returns a list of arrays, the arrays being the values
-    	// returned by the query, in this case poolid and count. Both are
-    	// returned as BigInteger. We need Long and Integer.
-    	Iterator i1 = getSubPoolSizes(agentId).iterator();
-    	while (i1.hasNext()) {
-    		Object[]result = (Object [])i1.next();
-    		//counts.put( Long.valueOf(((Integer)result[0]).longValue()), Integer.valueOf(((Integer)result[1]).intValue()));
-    		counts.put((Long) result[0], (Integer)result[1]);
-        	
-    	}    	
-
-    	Iterator j = poolList.iterator();
-    	while (j.hasNext()) {
-    		QuestionPoolData qpp = (QuestionPoolData) j.next();
+        for (QuestionPoolData qpp : poolList) {
     		// I really wish we don't need to populate  the questionpool size & subpool size for JSF
     		// watch this for performance. hope Hibernate is smart enough not to load the entire question
     		// - daisy, 10/04/04
     		// populateQuestionPoolItemDatas(qpp);
     		// lookup number of subpools for this pool in our handy hash table
-    		Integer subPoolSize = (Integer)counts.get( Long.valueOf(qpp.getQuestionPoolId()));
-    		if (subPoolSize == null)
-    			qpp.setSubPoolSize( Integer.valueOf(0));
-    		else
-    			qpp.setSubPoolSize(subPoolSize);
+    		Long subPoolSize = counts.get(qpp.getQuestionPoolId());
+            qpp.setSubPoolSize(subPoolSize == null ? 0L : subPoolSize);
 
     		qpList.add(getQuestionPool(qpp));
     	}
@@ -179,14 +168,9 @@ public class QuestionPoolFacadeQueries
 
   public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId) {
 	  List qpList = new ArrayList();
-	  Map<Long, Integer> counts = new HashMap<Long, Integer>();
-	  
+
 	  // First get the size of all pools in one query
-	  Iterator i1 = getSubPoolSizes(agentId).iterator();
-	  while (i1.hasNext()) {
-  		Object[]result = (Object [])i1.next();
-  		counts.put((Long) result[0], (Integer)result[1]);
-	  }
+      Map<Long, Long> counts = getSubPoolSizes(agentId).stream().collect(Collectors.toMap(pool -> pool[0], pool -> pool[1]));
 
 	  List poolList = getAllPoolsByAgent(agentId); 
 
@@ -206,14 +190,14 @@ public class QuestionPoolFacadeQueries
   }
   
   public List<QuestionPoolFacade> getBasicInfoOfAllPools(final String agentId) {
-	    final HibernateCallback<List> hcb = session -> {
-            Query q = session.createQuery(
-                    "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
-                                          "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId = :agent)");
-            q.setString("agent", agentId);
-            return q.list();
-        };
-	    List list = getHibernateTemplate().execute(hcb);
+      final HibernateCallback<List> hcb = session -> {
+          Query q = session.createQuery(
+                  "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
+                          "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId = :agent)");
+          q.setString("agent", agentId);
+          return q.list();
+      };
+      List list = getHibernateTemplate().execute(hcb);
 
     List<QuestionPoolFacade> poolList = new ArrayList<QuestionPoolFacade>();
     for (int i = 0; i < list.size(); i++) {
@@ -419,7 +403,7 @@ public class QuestionPoolFacadeQueries
       if (questionPoolItems != null) {
         List itemList = getAllItems(qpp.getQuestionPoolId());
         qpp.setQuestions(itemList);
-        qpp.setSubPoolSize( Integer.valueOf(getSubPoolSize(qpp.getQuestionPoolId())));
+        qpp.setSubPoolSize(getSubPoolSize(qpp.getQuestionPoolId()));
       }
     }
     catch (Exception e) {
@@ -877,31 +861,34 @@ public class QuestionPoolFacadeQueries
 	    return getHibernateTemplate().execute(hcb);
   }
 
-  // get number of subpools for each pool in a single query.
-  // returns a List of arrays. Each array is 0: poolid, 1: count of subpools
-  // both are BigInteger.
-  public List getSubPoolSizes(final String agent) {
-	  final HibernateCallback<List> hcb = session -> {
+  @Override
+  public List<Long[]> getSubPoolSizes(final String agent) {
+	  final HibernateCallback<List<Object[]>> hcb = session -> {
           Query q = session.createQuery("select a.questionPoolId, (select count(*) from QuestionPoolData b where b.parentPoolId=a.questionPoolId) " +
                   "from QuestionPoolData a where a.ownerId = :id");
           q.setCacheable(true);
           q.setString("id", agent);
           return q.list();
       };
-	  return getHibernateTemplate().execute(hcb);
+	  List<Object[]> objectResult = getHibernateTemplate().execute(hcb);
+	  List<Long[]> longResult = new ArrayList<>(objectResult.size());
+	  for (Object[] array : objectResult) {
+	      longResult.add(new Long[]{(Long) array[0], (Long) array[1]});
+      }
+      return longResult;
   }
 
   //number of subpools for this pool. But consider getSubPoolSizes if you're going to 
   // need this for all the pools.
-  public int getSubPoolSize(final Long poolId) {
-	  final HibernateCallback<Integer> hcb = session -> {
+  public long getSubPoolSize(final Long poolId) {
+	  final HibernateCallback<Number> hcb = session -> {
           Query q = session.createQuery("select count(qpp) from QuestionPoolData qpp where qpp.parentPoolId = :id");
           q.setCacheable(true);
           q.setLong("id", poolId);
-          return (Integer) q.uniqueResult();
+          return (Number) q.uniqueResult();
       };
 	  
-	  return getHibernateTemplate().execute(hcb);
+	  return getHibernateTemplate().execute(hcb).longValue();
   }
 
   /**
@@ -914,7 +901,7 @@ public class QuestionPoolFacadeQueries
   // for lots of pools consider doing getSubPoolSizes, saving the results
   // and then testing.
   public boolean hasSubPools(final Long poolId) {
-	  int poolSize = getSubPoolSize(poolId);
+	  long poolSize = getSubPoolSize(poolId);
 	  if (poolSize >= 0) 
 		  return true;
 	  else
@@ -1308,15 +1295,15 @@ public class QuestionPoolFacadeQueries
 	  return toSet;
   }
   
-  public Integer getCountItemFacades(final Long questionPoolId) {	    
-	  final HibernateCallback<Integer> hcb = session -> {
-          Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id");
+  public Integer getCountItemFacades(final Long questionPoolId) {
+      final HibernateCallback<Number> hcb = session -> {
+          Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId = qpi.itemId and qpi.questionPoolId = :id");
           q.setLong("id", questionPoolId);
           q.setCacheable(true);
-          return (Integer) q.uniqueResult();
+          return (Number) q.uniqueResult();
       };
 	  	    
-	  return getHibernateTemplate().execute(hcb);
+	  return getHibernateTemplate().execute(hcb).intValue();
   }
   
   /**
