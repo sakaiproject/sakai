@@ -11,26 +11,26 @@ calendar Portlet
 #macro (eventLegend $tlang)
 	<h4>$tlang.getString('view.legend')</h4>
 	<ul class="calendarLegend">
-		<li><i class="icon icon-calendar-academic-calendar"></i> $tlang.getString('legend.key1')</li>
-		<li><i class="icon icon-calendar-activity"></i> $tlang.getString('legend.key2')</li>
-		<li><i class="icon icon-calendar-cancellation"></i> $tlang.getString('legend.key3')</li>
-		<li><i class="icon icon-calendar-class-section-discussion"></i> $tlang.getString('legend.key4')</li>
-		<li><i class="icon icon-calendar-class-section-lab"></i> $tlang.getString('legend.key5')</li>
-		<li><i class="icon icon-calendar-class-section-lecture"></i> $tlang.getString('legend.key6')</li>
-		<li><i class="icon icon-calendar-class-section-small-group"></i> $tlang.getString('legend.key7')</li>
-		<li><i class="icon icon-calendar-class-session"></i> $tlang.getString('legend.key8')</li>
-		<li><i class="icon icon-calendar-computer-session"></i> $tlang.getString('legend.key9')</li>
-		<li><i class="icon icon-calendar-deadline"></i> $tlang.getString('legend.key10')</li>
-		<li><i class="icon icon-calendar-exam"></i> $tlang.getString('legend.key11')</li>
-		<li><i class="icon icon-calendar-formative-assessment"></i> $tlang.getString('legend.key17')</li>
-		<li><i class="icon icon-calendar-meeting"></i> $tlang.getString('legend.key12')</li>
-		<li><i class="icon icon-calendar-multidisciplinary-conference"></i> $tlang.getString('legend.key13')</li>
-		<li><i class="icon icon-calendar-quiz"></i> $tlang.getString('legend.key14')</li>
-		<li><i class="icon icon-calendar-special-event"></i> $tlang.getString('legend.key15')</li>
-		<li><i class="icon icon-calendar-submission-date"></i> $tlang.getString('legend.key18')</li>
-		<li><i class="icon icon-calendar-tutorial"></i> $tlang.getString('legend.key19')</li>
-		<li><i class="icon icon-calendar-web-assignment"></i> $tlang.getString('legend.key16')</li>
-		<li><i class="icon icon-calendar-workshop"></i> $tlang.getString('legend.key20')</li>
+		<li><span class="icon icon-calendar-academic-calendar"></span> $tlang.getString('legend.key1')</li>
+		<li><span class="icon icon-calendar-activity"></span> $tlang.getString('legend.key2')</li>
+		<li><span class="icon icon-calendar-cancellation"></span> $tlang.getString('legend.key3')</li>
+		<li><span class="icon icon-calendar-class-section-discussion"></span> $tlang.getString('legend.key4')</li>
+		<li><span class="icon icon-calendar-class-section-lab"></span> $tlang.getString('legend.key5')</li>
+		<li><span class="icon icon-calendar-class-section-lecture"></span> $tlang.getString('legend.key6')</li>
+		<li><span class="icon icon-calendar-class-section-small-group"></span> $tlang.getString('legend.key7')</li>
+		<li><span class="icon icon-calendar-class-session"></span> $tlang.getString('legend.key8')</li>
+		<li><span class="icon icon-calendar-computer-session"></span> $tlang.getString('legend.key9')</li>
+		<li><span class="icon icon-calendar-deadline"></span> $tlang.getString('legend.key10')</li>
+		<li><span class="icon icon-calendar-exam"></span> $tlang.getString('legend.key11')</li>
+		<li><span class="icon icon-calendar-formative-assessment"></span> $tlang.getString('legend.key17')</li>
+		<li><span class="icon icon-calendar-meeting"></span> $tlang.getString('legend.key12')</li>
+		<li><span class="icon icon-calendar-multidisciplinary-conference"></span> $tlang.getString('legend.key13')</li>
+		<li><span class="icon icon-calendar-quiz"></span> $tlang.getString('legend.key14')</li>
+		<li><span class="icon icon-calendar-special-event"></span> $tlang.getString('legend.key15')</li>
+		<li><span class="icon icon-calendar-submission-date"></span> $tlang.getString('legend.key18')</li>
+		<li><span class="icon icon-calendar-tutorial"></span> $tlang.getString('legend.key19')</li>
+		<li><span class="icon icon-calendar-web-assignment"></span> $tlang.getString('legend.key16')</li>
+		<li><span class="icon icon-calendar-workshop"></span> $tlang.getString('legend.key20')</li>
 	</ul>
 	<div class="clear"></div>
 #end
@@ -40,45 +40,45 @@ calendar Portlet
 
 #macro (iconImage $eventType)
 #if ($eventType=="Academic Calendar")
-<i class="icon icon-calendar-academic-calendar" title="$tlang.getString('legend.key1')" ></i>
+<span class="icon icon-calendar-academic-calendar" title="$tlang.getString('legend.key1')" ></span>
 #elseif ($eventType =="Activity")
-<i class="icon icon-calendar-activity" title="$tlang.getString('legend.key2')" ></i>
+<span class="icon icon-calendar-activity" title="$tlang.getString('legend.key2')" ></span>
 #elseif ($eventType =="Cancellation")
-<i class="icon icon-calendar-cancellation" title="$tlang.getString('legend.key3')" ></i>
+<span class="icon icon-calendar-cancellation" title="$tlang.getString('legend.key3')" ></span>
 #elseif ($eventType =="Class section - Discussion")
-<i class="icon icon-calendar-class-section-discussion" title="$tlang.getString('legend.key4')" ></i>
+<span class="icon icon-calendar-class-section-discussion" title="$tlang.getString('legend.key4')" ></span>
 #elseif ($eventType =="Class section - Lab")
-<i class="icon icon-calendar-class-section-lab" title="$tlang.getString('legend.key5')" ></i>
+<span class="icon icon-calendar-class-section-lab" title="$tlang.getString('legend.key5')" ></span>
 #elseif ($eventType =="Class section - Lecture")
-<i class="icon icon-calendar-class-section-lecture" title="$tlang.getString('legend.key6')" ></i>
+<span class="icon icon-calendar-class-section-lecture" title="$tlang.getString('legend.key6')" ></span>
 #elseif ($eventType =="Class section - Small Group")
-<i class="icon icon-calendar-class-section-small-group" title="$tlang.getString('legend.key7')" ></i>
+<span class="icon icon-calendar-class-section-small-group" title="$tlang.getString('legend.key7')" ></span>
 #elseif ($eventType =="Class session")
-<i class="icon icon-calendar-class-session" title="$tlang.getString('legend.key8')" ></i>
+<span class="icon icon-calendar-class-session" title="$tlang.getString('legend.key8')" ></span>
 #elseif ($eventType =="Computer Session")
-<i class="icon icon-calendar-computer-session" title="$tlang.getString('legend.key9')" ></i>
+<span class="icon icon-calendar-computer-session" title="$tlang.getString('legend.key9')" ></span>
 #elseif ($eventType =="Deadline")
-<i class="icon icon-calendar-deadline" title="$tlang.getString('legend.key10')" ></i>
+<span class="icon icon-calendar-deadline" title="$tlang.getString('legend.key10')" ></span>
 #elseif ($eventType =="Exam")
-<i class="icon icon-calendar-exam" title="$tlang.getString('legend.key11')" ></i>
+<span class="icon icon-calendar-exam" title="$tlang.getString('legend.key11')" ></span>
 #elseif ($eventType =="Formative Assessment")
-<i class="icon icon-calendar-formative-assessment" title="$tlang.getString('legend.key17')" ></i>
+<span class="icon icon-calendar-formative-assessment" title="$tlang.getString('legend.key17')" ></span>
 #elseif ($eventType =="Meeting")
-<i class="icon icon-calendar-meeting" title="$tlang.getString('legend.key12')" ></i>
+<span class="icon icon-calendar-meeting" title="$tlang.getString('legend.key12')" ></span>
 #elseif ($eventType =="Multidisciplinary Conference")
-<i class="icon icon-calendar-multidisciplinary-conference" title="$tlang.getString('legend.key13')" ></i>
+<span class="icon icon-calendar-multidisciplinary-conference" title="$tlang.getString('legend.key13')" ></span>
 #elseif ($eventType =="Quiz")
-<i class="icon icon-calendar-quiz" title="$tlang.getString('legend.key14')" ></i>
+<span class="icon icon-calendar-quiz" title="$tlang.getString('legend.key14')" ></span>
 #elseif ($eventType =="Special event")
-<i class="icon icon-calendar-special-event" title="$tlang.getString('legend.key15')" ></i>
+<span class="icon icon-calendar-special-event" title="$tlang.getString('legend.key15')" ></span>
 #elseif ($eventType =="Submission Date")
-<i class="icon icon-calendar-submission-date" title="$tlang.getString('legend.key18')" ></i>
+<span class="icon icon-calendar-submission-date" title="$tlang.getString('legend.key18')" ></span>
 #elseif ($eventType =="Tutorial")
-<i class="icon icon-calendar-tutorial" title="$tlang.getString('legend.key19')" ></i>
+<span class="icon icon-calendar-tutorial" title="$tlang.getString('legend.key19')" ></span>
 #elseif ($eventType =="Web Assignment")
-<i class="icon icon-calendar-web-assignment" title="$tlang.getString('legend.key16')" ></i>
+<span class="icon icon-calendar-web-assignment" title="$tlang.getString('legend.key16')" ></span>
 #elseif ($eventType =="Workshop")
-<i class="icon icon-calendar-workshop" title="$tlang.getString('legend.key20')" ></i>
+<span class="icon icon-calendar-workshop" title="$tlang.getString('legend.key20')" ></span>
 #end
 #end
 
