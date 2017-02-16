@@ -198,7 +198,7 @@ public class QuestionPoolServiceImpl
   /**
    * Get the size of a subpool.
    */
-  public int getSubPoolSize(Long poolId)
+  public long getSubPoolSize(Long poolId)
   {
     try
     {

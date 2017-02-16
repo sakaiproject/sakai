@@ -166,7 +166,16 @@ public interface QuestionPoolFacadeQueriesAPI
 
   public List getSubPools(Long poolId);
 
-  public int getSubPoolSize(Long poolId);
+  public long getSubPoolSize(Long poolId);
+
+  /**
+   * get number of subpools for each pool in a single query.
+   * returns a List of Long arrays. Each array is 0: poolid, 1: count of subpools
+   *
+   * @param agent
+   * @return List<Long[]>
+   */
+  public List<Long[]> getSubPoolSizes(String agent);
 
   /**
    * DOCUMENTATION PENDING
