@@ -1742,9 +1742,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                             " where a.publishedAssessmentId = :id and a.agentId = :agent and a.forGrade = :forgrade " +
                             " and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
                             " and a.submittedDate > s.createdDate");
-            q.setLong(0, publishedAssessmentId);
-            q.setString(1, agentIdString);
-            q.setBoolean(2, true);
+            q.setLong("id", publishedAssessmentId);
+            q.setString("agent", agentIdString);
+            q.setBoolean("forgrade", true);
             return q.list();
         };
         List<Long> countList = getHibernateTemplate().execute(hcb);
