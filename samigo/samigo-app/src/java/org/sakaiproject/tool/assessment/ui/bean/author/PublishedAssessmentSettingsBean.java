@@ -1038,7 +1038,8 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     }
 
     try {
-      dateString = tu.getDisplayDateTime(displayFormat, date);
+      // Do not manipulate the date based on the client browser timezone.
+      dateString = tu.getDisplayDateTime(displayFormat, date, false);
     }
     catch (Exception ex) {
       // we will leave it as an empty string

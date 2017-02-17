@@ -137,7 +137,7 @@ window.close();
 
     <h:outputLabel value="#{deliveryMessages.submission_dttm}" />
     <h:outputText value="#{delivery.submissionDate}">
-        <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+        <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}" />
      </h:outputText>
 
     <h:outputLabel value="#{deliveryMessages.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>

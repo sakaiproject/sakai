@@ -487,7 +487,7 @@ public class DeliveryBean
 
 	    try {
 	      TimeUtil tu = new TimeUtil();
-	      beginTimeString = tu.getDisplayDateTime(dayDisplayFormat, beginTime);
+	      beginTimeString = tu.getDisplayDateTime(dayDisplayFormat, beginTime, true);
 	    }
 	    catch (Exception ex) {
 	      // we will leave it as an empty string
@@ -1098,7 +1098,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, dueDate);
+      dateString = tu.getDisplayDateTime(displayFormat, dueDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1116,7 +1116,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(dayDisplayFormat, dueDate);
+      dateString = tu.getDisplayDateTime(dayDisplayFormat, dueDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1142,7 +1142,7 @@ public class DeliveryBean
 
 	    try {
 	      TimeUtil tu = new TimeUtil();
-	      adjustedTimedAssesmentDueDateString = tu.getDisplayDateTime(dayDisplayFormat, adjustedTimedAssesmentDueDate);
+	      adjustedTimedAssesmentDueDateString = tu.getDisplayDateTime(dayDisplayFormat, adjustedTimedAssesmentDueDate, true);
 	    }
 	    catch (Exception ex) {
 	      // we will leave it as an empty string
@@ -1169,7 +1169,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(dayDisplayFormat, retractDate);
+      dateString = tu.getDisplayDateTime(dayDisplayFormat, retractDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1329,7 +1329,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, submissionDate);
+      dateString = tu.getDisplayDateTime(displayFormat, submissionDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -2692,7 +2692,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate);
+      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -3599,7 +3599,7 @@ public class DeliveryBean
 
 		    try {
 		      TimeUtil tu = new TimeUtil();
-		      deadlineString = tu.getDisplayDateTime(dayDisplayFormat, deadline);
+		      deadlineString = tu.getDisplayDateTime(dayDisplayFormat, deadline, true);
 		    }
 		    catch (Exception ex) {
 		      // we will leave it as an empty string
