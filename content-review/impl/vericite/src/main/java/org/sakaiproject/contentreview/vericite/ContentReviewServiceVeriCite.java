@@ -280,22 +280,19 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		return crqs.getDateSubmitted(getProviderId(), contextId);
 	}
 
-	public String getIconUrlforScore(Long score) {
-		String urlBase = "/library/content-review/";
-		String suffix = ".png";
-
-		if (score.compareTo(Long.valueOf(0)) < 0) {
-			return urlBase + "greyflag" + suffix;
-		}else if (score.equals(Long.valueOf(0))) {
-			return urlBase + "blueflag" + suffix;
-		} else if (score.compareTo(Long.valueOf(25)) < 0 ) {
-			return urlBase + "greenflag" + suffix;
-		} else if (score.compareTo(Long.valueOf(50)) < 0  ) {
-			return urlBase + "yellowflag" + suffix;
-		} else if (score.compareTo(Long.valueOf(75)) < 0 ) {
-			return urlBase + "orangeflag" + suffix;
+	public String getIconCssClassforScore(int score) {
+		if (score < 0) {
+			return "contentReviewIconThreshold-6";
+		} else if (score == 0) {
+			return "contentReviewIconThreshold-5";
+		} else if (score < 25) {
+			return "contentReviewIconThreshold-4";
+		} else if (score < 50) {
+			return "contentReviewIconThreshold-3";
+		} else if (score < 75) {
+			return "contentReviewIconThreshold-2";
 		} else {
-			return urlBase + "redflag" + suffix;
+			return "contentReviewIconThreshold-1";
 		}
 	}
 
