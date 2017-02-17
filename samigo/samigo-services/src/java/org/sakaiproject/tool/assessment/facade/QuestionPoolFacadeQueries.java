@@ -873,7 +873,7 @@ public class QuestionPoolFacadeQueries
 	  List<Object[]> objectResult = getHibernateTemplate().execute(hcb);
 	  List<Long[]> longResult = new ArrayList<>(objectResult.size());
 	  for (Object[] array : objectResult) {
-	      longResult.add(new Long[]{(Long) array[0], (Long) array[1]});
+	      longResult.add(new Long[]{((Number) array[0]).longValue(), ((Number) array[1]).longValue()});
       }
       return longResult;
   }
@@ -1314,7 +1314,7 @@ public class QuestionPoolFacadeQueries
    * @param agentId Sakai internal user id. Most likely the currently logged in user
    */
   public Map<Long, Integer> getCountItemFacadesForUser(final String agentId) {
-	  final HibernateCallback<List> hcb = session -> {
+	  final HibernateCallback<List<Object[]>> hcb = session -> {
           Query q = session.createQuery(
                   "select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " +
                   "where ab.itemId = qpi.itemId and qpi.questionPoolId = qpd.questionPoolId AND qpd.questionPoolId = qpad.questionPoolId AND qpad.agentId = :agent AND qpad.accessTypeId != :access " +
@@ -1325,13 +1325,11 @@ public class QuestionPoolFacadeQueries
           return q.list();
       };
 
-	  Map<Long, Integer> counts = new HashMap<Long, Integer>();
-	  List list = getHibernateTemplate().execute(hcb);
+	  Map<Long, Integer> counts = new HashMap<>();
+	  List<Object[]> list = getHibernateTemplate().execute(hcb);
 
-	  Iterator i1 = list.iterator();
-	  while (i1.hasNext()) {
-		  Object[]result = (Object [])i1.next();
-		  counts.put((Long) result[0], (Integer)result[1]);
+	  for (Object[] result : list) {
+		  counts.put(((Number) result[0]).longValue(), ((Number) result[1]).intValue());
 	  }
 
 	  return counts;
