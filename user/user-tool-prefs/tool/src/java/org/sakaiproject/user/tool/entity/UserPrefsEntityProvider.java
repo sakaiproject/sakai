@@ -323,8 +323,8 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 					rv.put(name, values);
 				} else {
 					rv.put(name, null);
-			        log.info("No value for property '%s'. Setting null ...", name);
-                }
+					log.info("No value for property '%s'. Setting null ...", name);
+				}
 			}
 		}
 		return rv;
