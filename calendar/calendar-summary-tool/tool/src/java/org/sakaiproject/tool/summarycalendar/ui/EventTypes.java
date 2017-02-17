@@ -50,11 +50,15 @@ public class EventTypes {
 		eventTypes.add("Computer Session");
 		eventTypes.add("Deadline");
 		eventTypes.add("Exam");
+		eventTypes.add("Formative Assessment");
 		eventTypes.add("Meeting");
 		eventTypes.add("Multidisciplinary Conference");
 		eventTypes.add("Quiz");
 		eventTypes.add("Special event");
+		eventTypes.add("Submission Date");
+		eventTypes.add("Tutorial");
 		eventTypes.add("Web Assignment");
+		eventTypes.add("Workshop");
 	}
 
 	private static Map<String, String>	eventTypesToLocalized	= new HashMap<String, String>();
@@ -101,11 +105,15 @@ public class EventTypes {
 		eventTypesToLocalized.put("Computer Session", msgs.getString("legend.key9"));
 		eventTypesToLocalized.put("Deadline", msgs.getString("legend.key10"));
 		eventTypesToLocalized.put("Exam", msgs.getString("legend.key11"));
+		eventTypesToLocalized.put("Formative Assessment", msgs.getString("legend.key17"));
 		eventTypesToLocalized.put("Meeting", msgs.getString("legend.key12"));
 		eventTypesToLocalized.put("Multidisciplinary Conference", msgs.getString("legend.key13"));
 		eventTypesToLocalized.put("Quiz", msgs.getString("legend.key14"));
 		eventTypesToLocalized.put("Special event", msgs.getString("legend.key15"));
+		eventTypesToLocalized.put("Submission Date", msgs.getString("legend.key18"));
+		eventTypesToLocalized.put("Tutorial", msgs.getString("legend.key19"));
 		eventTypesToLocalized.put("Web Assignment", msgs.getString("legend.key16"));
+		eventTypesToLocalized.put("Workshop", msgs.getString("legend.key20"));
 	}
 
 }

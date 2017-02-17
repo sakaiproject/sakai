@@ -38,10 +38,14 @@ event.lecture="Class section - Lecture"
 event.class="Class session"
 event.computer="Computer Session"
 event.deadline="Deadline"
+event.formative="Formative Assessment"
 event.conference="Multidisciplinary Conference"
 event.quiz="Quiz"
 event.special="Special event"
+event.submission="Submission Date"
+event.tutorial="Tutorial"
 event.assignment="Web Assignment"
+event.workshop="Workshop"
 
 Location: This can be anything that you like.  You could put building/room numbers,
 city, state, or anything that you wish to show up as the location of the event.  If
