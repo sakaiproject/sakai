@@ -46,7 +46,7 @@ public class IndexHandler extends BaseHandler {
         context.put("subpage", "index");
         context.put("banners", paSystem.getBanners().getAll());
         context.put("popups", paSystem.getPopups().getAll());
-        context.put("timezoneCheckActive", ServerConfigurationService.getBoolean("pasystem.timezone-check", false));
+        context.put("timezoneCheckActive", ServerConfigurationService.getBoolean("pasystem.timezone-check", true));
         context.put("paSystemActive", ServerConfigurationService.getBoolean("pasystem.enabled", true));
     }
 }
