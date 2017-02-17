@@ -161,6 +161,10 @@
 			}
 		}
 	}
+
+	#assessmentSettingsAction input#assessmentSettingsAction\:selTimeAssess {
+		float: none;
+	}
 	
 	#assessmentSettingsAction input[type="checkbox"]{
 		@media #{$tablet}{
