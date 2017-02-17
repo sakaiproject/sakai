@@ -288,8 +288,12 @@ public class AuthorActionListener
 		  PublishedAssessmentFacade f = (PublishedAssessmentFacade) assessmentList1;
 		  f.setTitle(FormattedText.convertFormattedTextToPlaintext(f.getTitle()));
 		  Long publishedAssessmentId = f.getPublishedAssessmentId();
-		  if (isActive(f, (Map) submissionCountHash.get(publishedAssessmentId), (Map) inProgressCountHash.get(publishedAssessmentId),
-																					(Map) numberRetakeHash.get(publishedAssessmentId), (Map) actualNumberRetake.get(publishedAssessmentId), needResubmitList)) {
+		  if (isActive(f, 
+				  (Map<String, Integer>) submissionCountHash.get(publishedAssessmentId), 
+				  (Map<String, Long>) inProgressCountHash.get(publishedAssessmentId),
+				  (Map<String, Integer>) numberRetakeHash.get(publishedAssessmentId),
+				  (Map<String, Long>) actualNumberRetake.get(publishedAssessmentId),
+				  needResubmitList)) {
 			  f.setActiveStatus(true);
 			  activeList.add(f);
 		  }
@@ -310,8 +314,8 @@ public class AuthorActionListener
 	  return list;
   }
 
-  public boolean isActive(PublishedAssessmentFacade f, Map submissionCountHash, Map inProgressCountHash, Map numberRetakeHash,
-		  Map actualNumberRetakeHash, List needResubmitList) {
+  public boolean isActive(PublishedAssessmentFacade f, Map<String, Integer> submissionCountHash, Map<String, Long> inProgressCountHash, Map<String, Integer> numberRetakeHash,
+		  Map<String, Long> actualNumberRetakeHash, List needResubmitList) {
 	  boolean returnValue = false;
 	  //1. prepare our significant parameters
 	  Integer status = f.getStatus();
@@ -375,7 +379,7 @@ public class AuthorActionListener
 			  int submittedCounts = 0;
 			  int inProgressCounts = 0;
 			  if (userIdList != null) {
-				  Iterator iter = userIdList.iterator();
+				  Iterator<String> iter = userIdList.iterator();
 				  String userId;
 				  boolean isStillAvailable;
 				  while(iter.hasNext()) {
@@ -383,13 +387,13 @@ public class AuthorActionListener
 					  int totalSubmitted = 0;
 					  int totalInProgress;
 					  if (submissionCountHash != null && submissionCountHash.get(userId) != null){
-						  totalSubmitted = ( (Integer) submissionCountHash.get(userId));
+						  totalSubmitted = submissionCountHash.get(userId);
 						  if (totalSubmitted > 0) {
 							  submittedCounts++;
 						  }
 					  }
 					  if (inProgressCountHash != null && inProgressCountHash.get(userId) != null){
-						  totalInProgress = ( (Integer) inProgressCountHash.get(userId));
+						  totalInProgress = inProgressCountHash.get(userId).intValue();
 						  if (totalInProgress > 0) {
 							  inProgressCounts++;
 						  }
@@ -442,7 +446,7 @@ public class AuthorActionListener
 	  return returnValue;
   }
 
-  private boolean isStillAvailable(int totalSubmitted, Map numberRetakeHash, Map actualNumberRetakeHash,
+  private boolean isStillAvailable(int totalSubmitted, Map<String, Integer> numberRetakeHash, Map<String, Long> actualNumberRetakeHash,
 		  String userId, Date currentDate, Date dueDate, 
 		  boolean acceptLateSubmission, int maxSubmissionsAllowed) {
 	  boolean isStillAvailable = false;
@@ -461,7 +465,7 @@ public class AuthorActionListener
 		  }
 		  int actualNumberRetake = 0;
 		  if (actualNumberRetakeHash != null && actualNumberRetakeHash.get(userId) != null) {
-			  actualNumberRetake = ((Integer) actualNumberRetakeHash.get(userId));
+			  actualNumberRetake = actualNumberRetakeHash.get(userId).intValue();
 		  }
 		  if (actualNumberRetake < numberRetake && acceptLateSubmission) {
 			  isStillAvailable = true;
