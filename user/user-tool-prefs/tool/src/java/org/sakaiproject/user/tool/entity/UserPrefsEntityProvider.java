@@ -315,8 +315,16 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 			for (Iterator<String> iNames = p.getPropertyNames(); iNames.hasNext();)
 			{
 				String name = iNames.next();
-				String value = p.getProperty(name);
-				rv.put(name, value);
+				List<String> values = p.getPropertyList(name);
+
+				if (values.size() == 1) {
+					rv.put(name, values.get(0));
+				} else if (values.size() > 1) {
+					rv.put(name, values);
+				} else {
+					rv.put(name, null);
+					log.info("No value for property '%s'. Setting null ...", name);
+				}
 			}
 		}
 		return rv;
