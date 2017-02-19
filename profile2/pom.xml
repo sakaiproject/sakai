@@ -19,7 +19,7 @@
 	<inceptionYear>2008</inceptionYear>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>6.25.0</wicket.version>
+		<wicket.version>6.26.0</wicket.version>
 	</properties>
 	<modules>
 		<module>api</module>
