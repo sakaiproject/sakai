@@ -35,7 +35,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.tree.AbstractTree;
+import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -165,7 +165,7 @@ public abstract class BaseTreePage extends BasePage
 					getTree().getTreeState().collapseAll();
 					expandCollapse.setDefaultModel(new StringResourceModel("exapndNodes", null));
 				}
-				target.addComponent(expandCollapse);
+				target.add(expandCollapse);
 				getTree().updateTree(target);
 				expand = !expand;
 

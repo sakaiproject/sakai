@@ -33,7 +33,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -58,7 +57,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
@@ -95,18 +94,18 @@ public class UserPageSiteSearch extends BasePage {
 
 	public UserPageSiteSearch(PageParameters params){
 		String search = "";
-		if(params.containsKey("search")){
-			search = params.getString("search");
+		if(params.getNamedKeys().contains("search")){
+			search = params.get("search").toString();
 		}
 		Map<String, Object> advancedFields = new HashMap<String, Object>();
-		if(params.containsKey("term")){
-			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, params.getString("term"));
+		if(params.getNamedKeys().contains("term")){
+			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, params.get("term").toString());
 		}
-		if(params.containsKey("instructor")){
-			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, params.getString("instructor"));
+		if(params.getNamedKeys().contains("instructor")){
+			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, params.get("instructor").toString());
 			//set type:
 			String instructorType = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR;
-			if(params.containsKey("instructorType") && DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(params.getString("instructorType"))){
+			if(params.getNamedKeys().contains("instructorType") && DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(params.get("instructorType").toString())){
 				instructorType = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER;
 			}
 			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE, instructorType);
@@ -114,8 +113,8 @@ public class UserPageSiteSearch extends BasePage {
 		//we have at least one  hierarchy key/value:
 		Map<String, String> hierarchyParams = new HashMap<String, String>();
 		int i = 0;
-		while(params.containsKey("hierarchyKey" + i) && params.containsKey("hierarchyValue" + i)){
-			hierarchyParams.put(params.getString("hierarchyKey" + i), params.getString("hierarchyValue" + i));
+		while(params.getNamedKeys().contains("hierarchyKey" + i) && params.getNamedKeys().contains("hierarchyValue" + i)){
+			hierarchyParams.put(params.get("hierarchyKey").toString() + i, params.get("hierarchyValue").toString() + i);
 			i++;
 		}
 		if(hierarchyParams.size() > 0){
@@ -403,8 +402,11 @@ public class UserPageSiteSearch extends BasePage {
 			}
 
 			@Override
-			public Iterator<? extends String> iterator(int first, int count) {
-				return nodeSelectOrder.subList(first, first + count).iterator();
+			public Iterator<? extends String> iterator(long first, long count) {
+				//should really check bounds here 
+				int f = (int) first;
+				int c = (int) count;
+				return nodeSelectOrder.subList(f, f + c).iterator();
 			}
 
 			@Override
@@ -420,7 +422,7 @@ public class UserPageSiteSearch extends BasePage {
 			}
 
 			@Override
-			public int size() {
+			public long size() {
 				return nodeSelectOrder.size();
 			}
 
@@ -431,6 +433,7 @@ public class UserPageSiteSearch extends BasePage {
 				final String hierarchyLevel = item.getModelObject().toString();
 				item.add(new Label("hierarchyLabel", hierarchyLabels.containsKey(hierarchyLevel) ? hierarchyLabels.get(hierarchyLevel) : hierarchyLevel));
 				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(hierarchyLevel), hierarchySelectOptions.get(hierarchyLevel), choiceRenderer);
+				
 				//keeps the null option (choose one) after a user selects an option
 				choice.setNullValid(true);
 				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
@@ -451,7 +454,7 @@ public class UserPageSiteSearch extends BasePage {
 						}
 
 						//refresh everything:
-						target.addComponent(form);
+						target.add(form);
 					}
 				});
 				item.add(choice);
@@ -689,7 +692,7 @@ public class UserPageSiteSearch extends BasePage {
 					public void onClick(AjaxRequestTarget target) {
 						if(siteSearchResult.getSiteUrl() != null){
 							//redirect the user to the site
-							target.appendJavascript("popupWindow('" + siteSearchResult.getSiteUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
+							target.appendJavaScript("popupWindow('" + siteSearchResult.getSiteUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
 						}
 					}
 				};
@@ -1001,7 +1004,9 @@ public class UserPageSiteSearch extends BasePage {
 				if(fileObj != null && fileObj instanceof File){
 					File file = (File) fileObj;
 					IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(file));
-					getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, file.getName()).setFileName(new StringResourceModel("searchExportFileName", null).getObject() + ".csv"));
+					//TODO: FIX THIS
+					log.error("TODO: Fix code to exportData removed in migration.");
+//					getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, file.getName()).setFileName(new StringResourceModel("searchExportFileName", null).getObject() + ".csv"));
 				}
 			}
 		});
@@ -1080,8 +1085,11 @@ public class UserPageSiteSearch extends BasePage {
 		public void detachManually(){
 			this.list = null;
 		}
-		public Iterator<? extends SiteSearchResult> iterator(int first, int count) {
-			return getData().subList(first, first + count).iterator();
+		public Iterator<? extends SiteSearchResult> iterator(long first, long count) {
+			//should really check bounds here 
+			int f = (int) first;
+			int c = (int) count;
+			return getData().subList(f, f + c).iterator();
 		}
 
 		public IModel<SiteSearchResult> model(final SiteSearchResult object) {
@@ -1095,7 +1103,7 @@ public class UserPageSiteSearch extends BasePage {
 			};
 		}
 
-		public int size() {
+		public long size() {
 			return getData().size();
 		}
 
