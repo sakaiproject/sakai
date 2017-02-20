@@ -28,14 +28,9 @@ public class ExportPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	private GradebookNgBusinessService businessService;
-
 	private static final String IGNORE_COLUMN_PREFIX = "#";
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
 	private static final String COURSE_GRADE_OVERRIDE_COLUMN_PREFIX = "$";
-	private static final String CUSTOM_EXPORT_COLUMN_PREFIX = "# ";
-	private static final String COLUMN_COLUMN_PREFIX = "* ";
 
 	enum ExportFormat {
 		CSV
