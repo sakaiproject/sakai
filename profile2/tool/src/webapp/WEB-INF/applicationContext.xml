@@ -42,6 +42,13 @@
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	</bean>
+
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.profile2.tool.entityprovider.ProfileImageEntityProvider">
+		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="profileImageService" ref="org.sakaiproject.profile2.service.ProfileImageService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
 	
 	<!-- ENTITY PROVIDERS END -->
        

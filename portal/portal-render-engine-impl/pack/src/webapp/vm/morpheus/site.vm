@@ -123,6 +123,7 @@
         <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.core.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.js$!{portalCDNQuery}"></script>
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
@@ -193,5 +194,46 @@
         #parse("/vm/morpheus/includeGoogleTagManager.vm")
 
         ${includeExtraHead}
+
+        <!-- Modal popup for profile picture changer -->
+        <div class="modal fade" id="profileImageUpload" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header"><h3>${rloader.getString("pic_changer_title")}</h3></div>
+                    <div class="modal-body">
+                        <div id="remove-error" class="alert alert-danger">${rloader.getString("pic_changer_remove_error")}</div>
+                        <div id="upload-error" class="alert alert-danger">${rloader.getString("pic_changer_upload_error")}</div>
+                        <a id="upload" class="button">
+                            ${rloader.getString("pic_changer_upload")}
+                            <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*">
+                        </a>
+                        <div id="cropme">
+                            <img style="maxWidth: 100%" />
+                        </div>
+                        <div id="cropToolbar" class="btn-toolbar" style="display: none;">
+                            <div class="btn-group">
+                                <a class="profile-image-zoom-in btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-zoom-out btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="profile-image-pan-up btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-pan-down btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-pan-left btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-pan-right btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="profile-image-rotate btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button_color pull-left" id="save" disabled="disabled">${rloader.getString("pic_changer_save")}</button>
+                        <button type="button" class="button pull-left" data-dismiss="modal">${rloader.getString("pic_changer_cancel")}</button>
+                        <button class="btn btn-link remove-profile-image pull-right">${rloader.getString("pic_changer_remove")}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </body>
 </html>
