@@ -68,6 +68,14 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		List<User> users = getConnectedUsers(userUuid);
 		return profileLogic.getPersons(users);
 	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	@Override
+	public List<User> getConnectedUsersForUserInsecurely(final String userUuid) {
+		return getConnectedUsersInsecurely(userUuid);
+	}
 	
 	
 	/**
@@ -510,15 +518,24 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			throw new SecurityException("You must be logged in to get a connection list.");
 		}
 		
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		
 		//check privacy
 		if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS)) {
 			return users;
 		}
-		
+
 		users = sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userUuid));
 		return users;
+	}
+
+	/**
+	 * Check auth, privacy and get the list of users that are connected to this user.
+	 * @param userUuid
+	 * @return List<User>, will be empty if none or not allowed.
+	 */
+	private List<User> getConnectedUsersInsecurely(final String userUuid) {
+		return sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userUuid));
 	}
 	
 

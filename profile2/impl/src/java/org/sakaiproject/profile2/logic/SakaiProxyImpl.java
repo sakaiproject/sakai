@@ -972,15 +972,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	@Override
 	public String getDirectUrlToProfileComponent(final String userId, final String component, final Map<String, String> extraParams) {
+	    return getDirectUrlToProfileComponent(getCurrentUserId(), userId, component, extraParams);
+	}
+
+    /**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDirectUrlToProfileComponent(final String viewerUuid, final String viewedUuid, final String component, final Map<String, String> extraParams) {
+
 		final String portalUrl = getFullPortalUrl();
 
-		// this is for current user
-		final String siteId = getUserMyWorkspace(getCurrentUserId());
+		// this is for the viewer
+		final String siteId = getUserMyWorkspace(viewerUuid);
 		final ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileConstants.TOOL_ID);
 		if (toolConfig == null) {
 			// if the user doesn't have the Profile2 tool installed in their My Workspace,
 			log.warn("SakaiProxy.getDirectUrlToProfileComponent() failed to find " + ProfileConstants.TOOL_ID
-					+ " installed in My Workspace for userId: " + userId);
+					+ " installed in My Workspace for userId: " + viewerUuid);
 
 			// just return a link to their My Workspace
 			final StringBuilder url = new StringBuilder();
@@ -988,7 +997,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			url.append("/site/");
 			url.append(siteId);
 			return url.toString();
-
 		}
 
 		final String placementId = toolConfig.getId();
@@ -1008,7 +1016,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				}
 				case "viewprofile": {
 					url.append("/viewprofile/");
-					url.append(userId);
+					url.append(viewedUuid);
 					break;
 				}
 			}
@@ -1018,7 +1026,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			log.error("SakaiProxy.getDirectUrlToProfileComponent():" + e.getClass() + ":" + e.getMessage());
 			return null;
 		}
-
 	}
 
 	/**
