@@ -25,14 +25,19 @@
 
         $('.roster-print-button').click(function (e) {
 
+            var button = $(this);
+
+            button.prop('disabled', true);
+
             e.preventDefault();
             roster.renderMembership({
                 renderAll: true,
                 forceOfficialPicture: roster.officialPictureMode,
                 callback: function () {
 
-                    //$(window).on('load', function () {
                     $('#roster-members').waitForImages(function () {
+
+                        button.prop('disabled', false);
                         window.print();
                     });
                 }
