@@ -34,6 +34,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.extensions.markup.html.tree.DefaultAbstractTree;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
@@ -47,7 +48,7 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.tree.AbstractTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.TableTree;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -82,7 +83,7 @@ public class UserEditPage  extends BaseTreePage{
 	private boolean modifiedAlert = false;
 	
 	@Override
-	protected AbstractTree getTree() {
+	protected DefaultAbstractTree getTree() {
 		return  tree;
 	}
 
@@ -143,14 +144,14 @@ public class UserEditPage  extends BaseTreePage{
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
 					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
-					target.addComponent(formFeedback2);
+					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
-					target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
-					target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+					target.appendJavaScript("hideFeedbackTimer('" + formFeedbackId + "');");
+					target.appendJavaScript("hideFeedbackTimer('" + formFeedback2Id + "');");
 				}else{
 					//now go through the tree and make sure its been loaded at every level:
 					Integer depth = null;
@@ -178,19 +179,19 @@ public class UserEditPage  extends BaseTreePage{
 				if(!modifiedAlert && anyNodesModified(rootNode)){
 					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
 					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
-					target.addComponent(formFeedback2);
+					target.add(formFeedback2);
 					modifiedAlert = true;
 					//call a js function to hide the message in 5 seconds
-					target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
-					target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+					target.appendJavaScript("hideFeedbackTimer('" + formFeedbackId + "');");
+					target.appendJavaScript("hideFeedbackTimer('" + formFeedback2Id + "');");
 				}else{
 					filterSearch = "";
 					filterHierarchy = null;
-					target.addComponent(filterSearchTextField);
-					target.addComponent(filterHierarchyDropDown);
+					target.add(filterSearchTextField);
+					target.add(filterHierarchyDropDown);
 
 					((NodeModel) rootNode.getUserObject()).setAddedDirectChildrenFlag(false);
 					rootNode.removeAllChildren();				
@@ -329,22 +330,22 @@ public class UserEditPage  extends BaseTreePage{
 					//display a "saved" message
 					formFeedback.setDefaultModel(new ResourceModel("success.save"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("success.save"));
 					formFeedback2.add(new AttributeModifier("class", true, new Model("success")));
-					target.addComponent(formFeedback2);
+					target.add(formFeedback2);
 				}catch (Exception e) {
 					log.error(e.getMessage(), e);
 					formFeedback.setDefaultModel(new ResourceModel("failed.save"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 					formFeedback2.setDefaultModel(new ResourceModel("failed.save"));
 					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
-					target.addComponent(formFeedback2);
+					target.add(formFeedback2);
 				}
 				//call a js function to hide the message in 5 seconds
-				target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
-				target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				target.appendJavaScript("hideFeedbackTimer('" + formFeedbackId + "');");
+				target.appendJavaScript("hideFeedbackTimer('" + formFeedback2Id + "');");
 				modifiedAlert = false;
 			}
 		};

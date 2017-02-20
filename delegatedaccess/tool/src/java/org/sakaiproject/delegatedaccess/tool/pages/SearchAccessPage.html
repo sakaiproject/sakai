@@ -54,18 +54,18 @@
 				<span class="headerText" wicket:id="searchByLabel"/>
 			</div>
 			<div class="colDiv"> 
-				<wicket:component wicket:id="searchGroup">
+				<span wicket:id="searchGroup">
 					<input wicket:id="searchByHierarchy" id="searchByHierarchy" name="searchAccessRadio" type="radio" onclick="$('.eidFields').hide();$('.hierarchyFields').fadeIn();">
 					<label for="searchByHierarchy" wicket:id="searchByHierarchyLabel"><span class="headerText" wicket:id="searchByHierarchyLabelText"/></label>
 					<input wicket:id="searchByEid" id="searchByEid" name="searchAccessRadio" type="radio" onclick="$('.hierarchyFields').hide();$('.eidFields').fadeIn();">
 					<label for="searchByEid" wicket:id="searchByEidLabel"><span class="headerText" wicket:id="searchByEidLabelText"/></label>
-				</wicket:component>
+				</span>
 			</div>
 			<div class="colDiv">
 				<div class="hierarchyFields" wicket:id="hierarchyFields">
-						<wicket:component wicket:id="hierarchyDropdowns">
-							<select wicket:id="hierarchyLevel" onchange=" this.form.submit();"/>
-						</wicket:component>
+						<span wicket:id="hierarchyDropdowns">
+							<select wicket:id="hierarchyLevel"/>
+						</span>
 						<input type="checkbox" wicket:id="includeLowerPerms" id="includeLowerPerms"/><label for="includeLowerPerms" wicket:id="includeLowerPermsLabel"><span class="headerText" wicket:id="includeLowerPermsLabelText"/></label>
 				</div>
 				<div class="eidFields" wicket:id="eidFields">
