@@ -22,21 +22,19 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>2
@@ -68,7 +66,7 @@ public class SortQuestionListListener
         throw new IllegalArgumentException("userId " + userId + " does not have access to question pool id " + qpid);
     }
 
-    ArrayList list= null;
+    List list;
     if (StringUtils.isNotBlank(getItems) && getItems.trim().equals("false")) {
         log.debug("Do not getItems: getItems = " + getItems);
     }

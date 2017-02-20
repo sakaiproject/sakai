@@ -6,8 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
@@ -40,6 +39,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.sakaiproject.portal.api.BullhornService;
+import org.sakaiproject.portal.beans.BullhornAlert;
 import org.sakaiproject.portal.beans.PortalNotifications;
 
 import lombok.Setter;
@@ -57,6 +58,12 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 	public final static String TOOL_ID = "sakai.portal";
 
 	@Setter
+	private BullhornService bullhornService;
+
+	@Setter
+	private SessionManager sessionManager;
+
+	@Setter
 	private ProfileConnectionsLogic profileConnectionsLogic;
 
 	@Setter
@@ -67,9 +74,6 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
-
-	@Setter
-	private SessionManager sessionManager;
 
 	private Template formattedProfileTemplate = null;
 
@@ -122,6 +126,104 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		s.removeAttribute("userWarning");
 		return noti;
 	}
+
+    private ActionReturn getBullhornAlerts(List<BullhornAlert> alerts) {
+
+        ResourceLoader rl = new ResourceLoader("bullhorns");
+
+		if (alerts.size() > 0) {
+			Map<String, Object> data = new HashMap();
+			data.put("alerts", alerts);
+			data.put("i18n", rl);
+
+			return new ActionReturn(data);
+		} else {
+			Map<String, String> i18n = new HashMap();
+			i18n.put("noAlerts", rl.getString("noAlerts"));
+
+			Map<String, Object> data = new HashMap();
+			data.put("message", "NO_ALERTS");
+			data.put("i18n", i18n);
+
+			return new ActionReturn(data);
+		}
+    }
+
+	@EntityCustomAction(action = "socialAlerts", viewKey = EntityView.VIEW_LIST)
+	public ActionReturn getSocialAlerts(EntityView view) {
+		return getBullhornAlerts(bullhornService.getSocialAlerts(getCheckedCurrentUser()));
+	}
+
+	@EntityCustomAction(action = "clearBullhornAlert", viewKey = EntityView.VIEW_LIST)
+	public boolean clearBullhornAlert(Map<String, Object> params) {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		try {
+			long alertId = Long.parseLong((String) params.get("id"));
+			return bullhornService.clearBullhornAlert(currentUserId, alertId);
+		} catch (Exception e) {
+			log.error("Failed to clear social alert", e);
+		}
+
+		return false;
+	}
+
+	@EntityCustomAction(action = "clearAllSocialAlerts", viewKey = EntityView.VIEW_LIST)
+	public boolean clearAllSocialAlerts(Map<String, Object> params) {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		try {
+			return bullhornService.clearAllSocialAlerts(currentUserId);
+		} catch (Exception e) {
+			log.error("Failed to clear all social alerts", e);
+		}
+
+		return false;
+	}
+
+	@EntityCustomAction(action = "academicAlerts", viewKey = EntityView.VIEW_LIST)
+	public ActionReturn getAcademicAlerts(EntityView view) {
+		return getBullhornAlerts(bullhornService.getAcademicAlerts(getCheckedCurrentUser()));
+	}
+
+	@EntityCustomAction(action = "clearAllAcademicAlerts", viewKey = EntityView.VIEW_LIST)
+	public boolean clearAllAcademicAlerts(Map<String, Object> params) {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		try {
+			return bullhornService.clearAllAcademicAlerts(currentUserId);
+		} catch (Exception e) {
+			log.error("Failed to clear all academic alerts", e);
+		}
+
+		return false;
+	}
+
+	@EntityCustomAction(action = "bullhornCounts", viewKey = EntityView.VIEW_LIST)
+	public ActionReturn getBullhornCounts(EntityView view) {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		Map<String, Integer> counts = new HashMap();
+		counts.put("academic", bullhornService.getAcademicAlertCount(currentUserId));
+		counts.put("social", bullhornService.getSocialAlertCount(currentUserId));
+
+		return new ActionReturn(counts);
+	}
+
+	private String getCheckedCurrentUser() throws SecurityException {
+
+		String currentUserId = developerHelperService.getCurrentUserId();
+
+		if (StringUtils.isBlank(currentUserId)) {
+			throw new SecurityException("You must be logged in to use this service");
+		} else {
+            return currentUserId;
+        }
+    }
 
 	@EntityCustomAction(action="formatted",viewKey=EntityView.VIEW_SHOW)
 	public ActionReturn getFormattedProfile(EntityReference ref) {

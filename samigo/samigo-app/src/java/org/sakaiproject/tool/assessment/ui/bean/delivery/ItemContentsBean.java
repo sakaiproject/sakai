@@ -1177,8 +1177,8 @@ public class ItemContentsBean implements Serializable {
 		duration = param;
 	}
 
-	public ArrayList getMediaArray() {
-		ArrayList mediaArray = new ArrayList();
+	public List<MediaData> getMediaArray() {
+		List<MediaData> mediaArray = new ArrayList<>();
 		ItemGradingData itemGradingData = null;
 		try {
 			Iterator<ItemGradingData> iter = getItemGradingDataArray().iterator();
@@ -1201,7 +1201,7 @@ public class ItemContentsBean implements Serializable {
 		return mediaArray;
 	}
 
-  private void setDurationIsOver(ItemDataIfc item, ArrayList mediaList){
+  private void setDurationIsOver(ItemDataIfc item, List<MediaData> mediaList){
     // we set maxDurationAllowed = 60s for audio question published without
     // a duration. This is created from imported assessment when duration for
     // audio question was not set correctly. Note that this is just a work 
@@ -1449,7 +1449,7 @@ public class ItemContentsBean implements Serializable {
   public void setAttachment(Long itemGradingId){
 	  List itemGradingAttachmentList = new ArrayList();
 	  DeliveryBean dbean = (DeliveryBean) ContextUtil.lookupBean("delivery");
-	  HashMap itemContentsMap = dbean.getItemContentsMap();
+	  Map itemContentsMap = dbean.getItemContentsMap();
       if (itemContentsMap != null)
       {
         ItemContentsBean itemContentsBean = (ItemContentsBean) itemContentsMap.get(itemGradingId);

@@ -1,6 +1,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -90,7 +91,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		Long publishedAssessmentId = publishedAssessmentSettings.getAssessmentId();
 		GradingService gradingService = new GradingService();
 
-		ArrayList al = gradingService.getHasGradingDataAndHasSubmission(publishedAssessmentId);
+		List<Boolean> al = gradingService.getHasGradingDataAndHasSubmission(publishedAssessmentId);
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
 		if (al.size() == 2) {

@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>Title: Samigo</p>
@@ -341,12 +342,12 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     //    also work out no. of attempts remaining 
     ItemGradingData itemGrading = gradingService.getItemGradingData(
                                   adata.getAssessmentGradingId().toString(), questionId);
-    ArrayList mediaList = new ArrayList();
+    List<MediaData> mediaList = new ArrayList<>();
     if (itemGrading != null){
       // just need update itemGrading, and media.media 
       GradingService service = new GradingService();
       if (itemGrading.getItemGradingId() != null)
-	mediaList = service.getMediaArray(itemGrading.getItemGradingId().toString());
+	  mediaList = service.getMediaArray(itemGrading.getItemGradingId().toString());
 
       if (mediaList.size()>0){
         log.debug("*** delete old audio");

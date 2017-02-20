@@ -4,14 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Random;
-
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sakaiproject.basiclti.util.SimpleEncryption;
-
 
 public class SimpleEncryptionTest {
+
 
 	private String CIPHER = "AES/CBC/PKCS5Padding";
 	// Result of SimpleEncryption.encrypt("key", "plain text"));
@@ -56,10 +54,21 @@ public class SimpleEncryptionTest {
 	public void testBadDecryptNotHex() {
 		SimpleEncryption.decrypt("key", badEncryptNotHex);
 	}
-	
-	@Test(expected=Exception.class)
+
+	@Test()
 	public void testBadKey() {
-		SimpleEncryption.decrypt("badkey", SimpleEncryption.encrypt("goodkey", "Hello"));
+		String encrypt;
+		// W
+		for (int i = 0; i < 100; i++) {
+			try {
+				encrypt = SimpleEncryption.encrypt("goodkey", "Hello");
+				// Sometimes this won't fail but the data we get out isn't good.
+				String decrypt = SimpleEncryption.decrypt("badkey", encrypt);
+				assertNotEquals("Hello", decrypt);
+			} catch (Exception e) {
+				// This is expected.
+			}
+		}
 	}
 
 	@Test

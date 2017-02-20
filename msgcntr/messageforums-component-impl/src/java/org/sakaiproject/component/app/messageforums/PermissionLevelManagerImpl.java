@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,32 +28,33 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
+import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.Query;
+import org.hibernate.type.LongType;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
-import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 public class PermissionLevelManagerImpl extends HibernateDaoSupport implements PermissionLevelManager {
 
@@ -63,6 +64,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private IdManager idManager;
 	private MessageForumsTypeManager typeManager;
 	private AreaManager areaManager;
+	private PlatformTransactionManager transactionManager;
+	private TransactionTemplate transactionTemplate;
 	
 	private Map<String, PermissionLevel> defaultPermissionsMap;
 	
@@ -79,11 +82,18 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			
 	public void init(){
 		LOG.info("init()");
+		Assert.notNull(transactionManager, "The 'transactionManager' argument must not be null.");
+		transactionTemplate = new TransactionTemplate(transactionManager);
 		try {
 
 			// add the default permission level and type data, if necessary
 			if (autoDdl != null && autoDdl) {
-				loadDefaultTypeAndPermissionLevelData();
+				transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+					@Override
+					protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+						loadDefaultTypeAndPermissionLevelData();
+					}
+				});
 			}
 
 			// for performance, load the default permission level information now
@@ -192,7 +202,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	 * @param name
 	 * @param typeUuid
 	 * @param mask
-	 * @param uuid
 	 * @return
 	 */
 	private PermissionLevel createDefaultPermissionLevel(String name, String typeUuid, PermissionsMask mask)
@@ -493,16 +502,14 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	  
 	  } else {
 		  // retrieve it from the table
-		  HibernateCallback hcb = new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				  Query q = session.getNamedQuery(QUERY_BY_TYPE_UUID);
-				  q.setParameter("typeUuid", typeUuid);            
+		  HibernateCallback<PermissionLevel> hcb = session -> {
+              Query q = session.getNamedQuery(QUERY_BY_TYPE_UUID);
+              q.setParameter("typeUuid", typeUuid);
 
-				  return q.uniqueResult();
-			  }
-		  };
+              return (PermissionLevel) q.uniqueResult();
+          };
 
-		  level = (PermissionLevel) getHibernateTemplate().execute(hcb);
+		  level = getHibernateTemplate().execute(hcb);
 		  if (LOG.isDebugEnabled()) LOG.debug("Returned Permission Level from query was "+level);
 	  }
 
@@ -607,17 +614,13 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			LOG.debug("getAllMembershipItemsForForumsForSite executing");
 		}
 		
-		HibernateCallback hcb = new HibernateCallback() 
-		{
-      public Object doInHibernate(Session session) throws HibernateException, SQLException 
-      {
-        Query q = session.getNamedQuery(QUERY_BY_AREA_ALL_FORUMS_MEMBERSHIP);
-        q.setParameter("areaId", areaId, Hibernate.LONG);
-        return q.list();
-      }
-    };
+		HibernateCallback<List> hcb = session -> {
+          Query q = session.getNamedQuery(QUERY_BY_AREA_ALL_FORUMS_MEMBERSHIP);
+          q.setParameter("areaId", areaId, LongType.INSTANCE);
+          return q.list();
+        };
 					
-    return (List) getHibernateTemplate().execute(hcb);
+    return getHibernateTemplate().execute(hcb);
 	}
 
 	private List getAllTopicsForSite(final Long areaId)
@@ -627,16 +630,12 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			LOG.debug("getAllTopicsForSite executing");
 		}
 		
-		HibernateCallback hcb = new HibernateCallback() 
-		{
-      public Object doInHibernate(Session session) throws HibernateException, SQLException 
-      {
-        Query q = session.getNamedQuery(QUERY_GET_ALL_TOPICS);
-        q.setParameter("areaId", areaId, Hibernate.LONG);
-        return q.list();
-      }
-    };
-    List topicList = (List) getHibernateTemplate().execute(hcb);
+		HibernateCallback<List> hcb = session -> {
+          Query q = session.getNamedQuery(QUERY_GET_ALL_TOPICS);
+          q.setParameter("areaId", areaId, LongType.INSTANCE);
+          return q.list();
+        };
+    List topicList = getHibernateTemplate().execute(hcb);
     List ids = new ArrayList();
     
     try
@@ -675,15 +674,11 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		
 		if(topicIds != null && topicIds.size() >0)
 		{
-			HibernateCallback hcb1 = new HibernateCallback() 
-			{
-				public Object doInHibernate(Session session) throws HibernateException, SQLException 
-				{
-					Query q = session.getNamedQuery(QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP);
-					return queryWithParameterList(q, "topicIdList", topicIds);
-				}
-			};
-			return (List) getHibernateTemplate().execute(hcb1);
+			HibernateCallback<List> hcb1 = session -> {
+                Query q = session.getNamedQuery(QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP);
+                return queryWithParameterList(q, "topicIdList", topicIds);
+            };
+			return getHibernateTemplate().execute(hcb1);
 		}
 		else
 			return new ArrayList();
@@ -987,4 +982,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	    return queryResultList;
 	}
- }
+
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
+}

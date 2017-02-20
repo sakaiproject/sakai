@@ -15,21 +15,18 @@ import org.sakaiproject.entitybroker.impl.data.TestDataPreload;
 import org.sakaiproject.entitybroker.mocks.data.TestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 /**
  * Testing the entitybroker implementation of the tagging service
  * 
  * @author Aaron Zeckoski (azeckoski@gmail.com)
  */
-@DirtiesContext(classMode=ClassMode.AFTER_EACH_TEST_METHOD)
 @ContextConfiguration(locations={
 		"/database-test.xml",
 		"classpath:org/sakaiproject/entitybroker/spring-jdbc.xml" })
-public class EntityTaggingServiceTest extends AbstractJUnit4SpringContextTests {
+public class EntityTaggingServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
 
    protected EntityTaggingService taggingService;
 

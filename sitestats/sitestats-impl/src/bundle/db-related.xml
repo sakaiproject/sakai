@@ -37,7 +37,7 @@
 					for internal (Sakai) and external DB. -->
     <import resource="hbm-db.xml" />
 	<import resource="internal-db.xml" />
-	<import resource="external-db.xml" />
+	<!-- import resource="external-db.xml" / -->
 	
 	
 </beans>

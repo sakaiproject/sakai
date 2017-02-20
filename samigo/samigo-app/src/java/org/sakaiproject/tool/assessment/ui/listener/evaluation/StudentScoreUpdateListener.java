@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -119,12 +120,12 @@ public class StudentScoreUpdateListener
     AssessmentGradingData adata = null;
     try
     {
-      ArrayList parts = delivery.getPageContents().getPartsContents();
+      List parts = delivery.getPageContents().getPartsContents();
       Iterator iter = parts.iterator();
       boolean updateFlag = false;
       while (iter.hasNext())
       {
-        ArrayList items = ((SectionContentsBean) iter.next()).getItemContents();
+        List items = ((SectionContentsBean) iter.next()).getItemContents();
         Iterator iter2 = items.iterator();
         while (iter2.hasNext())
         {
@@ -300,12 +301,12 @@ public class StudentScoreUpdateListener
   }
 
     public void updateAttachment(DeliveryBean delivery){
-    	ArrayList parts = delivery.getPageContents().getPartsContents();
+    	List parts = delivery.getPageContents().getPartsContents();
     	Iterator iter = parts.iterator();
     	List attachmentList = new ArrayList();
     	while (iter.hasNext())
     	{
-    		ArrayList items = ((SectionContentsBean) iter.next()).getItemContents();
+    		List items = ((SectionContentsBean) iter.next()).getItemContents();
     		Iterator iter2 = items.iterator();
     		while (iter2.hasNext())
     		{
@@ -321,7 +322,7 @@ public class StudentScoreUpdateListener
     					continue;
     				}
     				
-    				HashMap map = getAttachmentIdHash(oldList);
+    				Map map = getAttachmentIdHash(oldList);
     				for (int i=0; i<newList.size(); i++){
     					ItemGradingAttachment itemGradingAttachment = (ItemGradingAttachment) newList.get(i);
     					if (map.get(itemGradingAttachment.getAttachmentId()) != null){
@@ -357,8 +358,8 @@ public class StudentScoreUpdateListener
     	}
     }
 
-    private HashMap getAttachmentIdHash(List list){
-    	HashMap map = new HashMap();
+    private Map getAttachmentIdHash(List list){
+    	Map map = new HashMap();
     	for (int i=0; i<list.size(); i++){
     		ItemGradingAttachment a = (ItemGradingAttachment)list.get(i);
     		map.put(a.getAttachmentId(), a);

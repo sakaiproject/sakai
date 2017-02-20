@@ -146,7 +146,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -684,8 +684,8 @@ public class DiscussionForumTool
 	    	 List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
 	    	 for (Object[] counts: topicMessageCounts) {
 	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    		 decoTopic.setTotalNoMessages((Integer)counts[1]);
-	    		 decoTopic.setUnreadNoMessages((Integer)counts[1]);
+	    		 decoTopic.setTotalNoMessages(((Long) counts[1]).intValue());
+	    		 decoTopic.setUnreadNoMessages(((Long) counts[1]).intValue());
 	    	 }
 
 	    	 // get the total read message count for the current user of non-moderated and add them to the discussion
@@ -697,7 +697,7 @@ public class DiscussionForumTool
 	    	 topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
 	    	 for (Object[] counts: topicMessageCounts) {
 	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
+	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - ((Long) counts[1]).intValue());
 	    	 }
 
 	    	 // get the assignments for use later

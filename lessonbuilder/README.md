@@ -29,6 +29,13 @@ Checklist for adding code to Lessons:
   the page to do that.) Note that layout at the top is slightly
   different when it's the second tool, because there's no way 
   lessons can change the header for the tool.
+* Make sure that the backend code that adds or changes items 
+  does a single hibernate operation: save, update or saveOrUpdate.
+  See LSNBLDR-722 for a full explanation. Old code often created
+  an item and then fixed up fields. That can cause trouble.
+* Code that plays with sequence numbers will need to call setRefreshMode
+  at the beginning. It must be called before any items on the page 
+  have been loaded into the Session.
 
 For new code I encourage doing something that isn't in the original code 
 but should have been:

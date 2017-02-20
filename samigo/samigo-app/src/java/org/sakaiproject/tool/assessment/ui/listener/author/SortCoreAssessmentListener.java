@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -66,7 +67,7 @@ public class SortCoreAssessmentListener
     //   getExternalContext().getRequestParameterMap().get("coreOrderBy");
     //author.setCoreAssessmentOrderBy(orderBy);
 
-    ArrayList assessmentList = new ArrayList();
+    List assessmentList = new ArrayList();
 
       assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
         this.getCoreOrderBy(author), author.isCoreAscending());
@@ -104,7 +105,7 @@ public class SortCoreAssessmentListener
 
     if (coreAscending != null && !coreAscending.trim().equals("")) {
       try {
-        bean.setCoreAscending((Boolean.valueOf(coreAscending)).booleanValue());
+        bean.setCoreAscending(Boolean.valueOf(coreAscending));
       }
       catch (Exception ex) { //skip
         log.warn(ex.getMessage());

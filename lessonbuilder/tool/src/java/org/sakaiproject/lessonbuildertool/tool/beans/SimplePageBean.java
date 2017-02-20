@@ -1189,7 +1189,7 @@ public class SimplePageBean {
 				item.setHtml(html);
 				item.setPrerequisite(this.prerequisite);
 				setItemGroups(item, selectedGroups);
-				saveItem(item);
+				saveOrUpdate(item);
 			} else {
 				rv = "cancel";
 			}

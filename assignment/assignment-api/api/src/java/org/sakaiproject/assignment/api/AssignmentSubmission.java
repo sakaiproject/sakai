@@ -276,12 +276,6 @@ public interface AssignmentSubmission extends Entity
 	* Method to get the status of the review
 	*/
 	public String getReviewStatus();
- 	
-	/**
-	 *  the URL of the content review Icon associated with this submission
-	 * @return
-	 */
-	public String getReviewIconUrl();
 
 	/**
 	 *

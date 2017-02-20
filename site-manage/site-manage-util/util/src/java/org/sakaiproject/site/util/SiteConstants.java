@@ -62,4 +62,8 @@ public class SiteConstants {
 	public final static String SITE_ACTIVE = "pubView";
 
 	public final static String SITE_INACTIVE = "inactive";
+
+	//SAK-32127
+	public final static String SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN = "poh.resources.content.sync.visibility";
+	public final static boolean SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT = false;
 }

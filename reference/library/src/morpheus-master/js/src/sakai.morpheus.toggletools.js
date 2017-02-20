@@ -5,6 +5,8 @@
 function toggleMinimizeNav(){
 
   $PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
+  // Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
+  $PBJQ('#subSites.floating').css({'display': 'none'});
 
   var el = $PBJQ(this);
   var label = $PBJQ('.accessibility-btn-label' , el);

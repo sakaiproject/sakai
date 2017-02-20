@@ -161,6 +161,10 @@
 			}
 		}
 	}
+
+	#assessmentSettingsAction input#assessmentSettingsAction\:selTimeAssess {
+		float: none;
+	}
 	
 	#assessmentSettingsAction input[type="checkbox"]{
 		@media #{$tablet}{
@@ -202,48 +206,26 @@
 
 	.extendedTimeDataTable {
 		margin-bottom: .5em;
+
+		select {
+			max-width: 150px;
+		}
+
+		thead tr th {
+			border-bottom: 1px solid black;
+		}
+
+		tr {
+			border-bottom: 1px solid lightgrey;
+		}
+
+		.extendedTime-user, .extendedTime-group {
+			max-width: 160px;
+		}
+
+		.extendedTime-mins {
+			min-width: 70px;
+		}
 	}
 
-	.extendedTimeDataTable thead tr th {
-		padding-left: .5em;
-		border-bottom: 1px solid black;
-	}
-
-	.extendedTime-user {
-		min-width: 130px;
-	}
-
-	.extendedTime-group {
-		min-width: 130px;
-	}
-
-	.extendedTime-start {
-		min-width: 250px;
-	}
-	.extendedTime-due {
-		min-width: 250px;
-	}
-	.extendedTime-retract {
-		min-width: 250px;
-	}
-	.extendedTime-hours {
-		min-width: 70px;
-	}
-	.extendedTime-mins {
-		min-width: 70px;
-	}
-
-	.extendedTimeDataTable tr {
-		border-bottom: 1px solid lightgrey;
-	}
-
-	.extendedTimeDataTable tr td {
-		padding-left: .25em;
-		padding-right: .25em;
-	}
-
-	.extendedTimeEntryTable tr td {
-		padding-left: .25em;
-		padding-right: .25em;
-	}
 }

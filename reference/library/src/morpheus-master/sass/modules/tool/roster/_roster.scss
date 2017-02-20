@@ -102,6 +102,17 @@
     .roster-groups-selector {
         max-width: 100px !important;
     }
+    
+    .roster-group-cell {
+        display: inline-block;
+        width: 40px !important;
+        max-width: 80px !important;
+        white-space: normal !important;
+
+        .roster-group-link {
+            white-space: nowrap !important;
+        }
+    }
 
     @media only screen and (max-width: 800px) {
         .roster-table-header-group {

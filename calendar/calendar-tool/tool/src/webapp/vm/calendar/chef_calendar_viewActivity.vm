@@ -185,11 +185,15 @@
 					#if ($event.getType()=="Computer Session") $tlang.getString("legend.key9") #end
 					#if ($event.getType()=="Deadline") $tlang.getString("legend.key10") #end
 					#if ($event.getType()=="Exam") $tlang.getString("legend.key11") #end
+					#if ($event.getType()=="Formative Assessment") $tlang.getString("legend.key17") #end
 					#if ($event.getType()=="Meeting")$tlang.getString("legend.key12") #end
 					#if ($event.getType()=="Multidisciplinary Conference") $tlang.getString("legend.key13") #end
 					#if ($event.getType()=="Quiz") $tlang.getString("legend.key14") #end
 					#if ($event.getType()=="Special event") $tlang.getString("legend.key15") #end
+					#if ($event.getType()=="Submission Date") $tlang.getString("legend.key18") #end
+					#if ($event.getType()=="Tutorial") $tlang.getString("legend.key19") #end
 					#if ($event.getType()=="Web Assignment") $tlang.getString("legend.key16") #end
+					#if ($event.getType()=="Workshop") $tlang.getString("legend.key20") #end
 				</td>	
 			</tr>
 			#if($owner_name && $owner_name !="")

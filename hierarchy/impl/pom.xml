@@ -114,9 +114,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>jta</groupId>
+            <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
-            <version>h2.1.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -153,7 +152,6 @@
             <artifactId>commons-lang</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

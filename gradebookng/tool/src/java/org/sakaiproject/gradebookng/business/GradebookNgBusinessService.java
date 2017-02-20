@@ -121,6 +121,8 @@ public class GradebookNgBusinessService {
 	private ServerConfigurationService serverConfigurationService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
+	public static final String ICON_SAKAI = "icon-sakai--";
+
 
 	private Collator collator = Collator.getInstance();
 
@@ -1968,6 +1970,24 @@ public class GradebookNgBusinessService {
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
 		return false;
+	}
+
+	/**
+	 * Helper to determine the icon class to use depending on the assignment external source
+	 * @param assignment
+	 * @return
+	 */
+	public String getIconClass(final Assignment assignment) {
+		final String externalAppName = assignment.getExternalAppName();
+		String iconClass = ICON_SAKAI + "default-tool";
+		if (StringUtils.equals(externalAppName, "Assignments")) {
+			iconClass = ICON_SAKAI + "sakai-assignment-grades";
+		} else if (StringUtils.equals(externalAppName, "Tests & Quizzes")) {
+			iconClass = ICON_SAKAI + "sakai-samigo";
+		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
+			iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
+		}
+		return iconClass;
 	}
 
 	/**

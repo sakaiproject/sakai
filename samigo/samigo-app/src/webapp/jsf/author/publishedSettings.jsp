@@ -57,7 +57,20 @@
       <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
-          $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true, active: 1 });
+          var accordionPanel = 1;
+          if (window.sessionStorage && window.sessionStorage.getItem('samigo_publishedsettings')) {
+              accordionPanel = parseInt(window.sessionStorage.getItem('samigo_publishedsettings'));
+          }
+          $("#jqueryui-accordion").accordion({
+              heightStyle: "content",
+              activate: function(event, ui) {
+                  if (window.sessionStorage) {
+                      window.sessionStorage.setItem('samigo_publishedsettings', $("#jqueryui-accordion").accordion("option", "active"));
+                  }
+              },
+              active: accordionPanel,
+              collapsible: true
+          });
           // This is a sub-accordion inside of the About the Assessment Panel
           $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
           // This is a sub-accordion inside of the Availability and Submission Panel
@@ -99,27 +112,27 @@
               ashidden: { iso8601: 'feedbackDateISO8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-start_date',
+              input: '#assessmentSettingsAction\\:newEntry-start_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{publishedSettings.extendedTimeStartString}"/>',
               ashidden: { iso8601: 'newEntry-start_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-due_date',
+              input: '#assessmentSettingsAction\\:newEntry-due_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{publishedSettings.extendedTimeDueString}"/>',
               ashidden: { iso8601: 'newEntry-due_date-iso8601' }
           });
           localDatePicker({
-              input: '#assessmentSettingsAction\\:extendedTimeTable\\:newEntry-retract_date',
+              input: '#assessmentSettingsAction\\:newEntry-retract_date',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
               allowEmptyDate: true,
-              val: '',
+              val: '<h:outputText value="#{publishedSettings.extendedTimeRetractString}"/>',
               ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
 
@@ -383,10 +396,6 @@
     </div>
   </h:panelGroup>
 
-  <!-- Extended Time -->
-  <%@ include file="inc/publishedExtendedTime.jspf"%>
-
-  
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{publishedSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
@@ -492,6 +501,11 @@
 </div><!-- This is the end of the sub-accordion -->
 
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
+
+<samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}" >
+  <!-- Extended Time -->
+  <%@ include file="inc/publishedExtendedTime.jspf"%>
+</samigo:hideDivision>
 
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading_feedback}" >
 

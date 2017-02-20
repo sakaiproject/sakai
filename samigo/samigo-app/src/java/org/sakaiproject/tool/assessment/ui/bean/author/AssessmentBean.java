@@ -64,9 +64,9 @@ public class AssessmentBean  implements Serializable {
   private String title;
   // ArrayList of SectionContentsBean
   private List<SectionContentsBean> sections = new ArrayList<SectionContentsBean>(); // this contains list of SectionFacde
-  private ArrayList<SelectItem> sectionList = new ArrayList<SelectItem>(); // this contains list of javax.faces.model.SelectItem
-  private ArrayList otherSectionList = new ArrayList(); // contains SectionItem of section except the current section
-  private ArrayList partNumbers = new ArrayList();
+  private List<SelectItem> sectionList = new ArrayList<SelectItem>(); // this contains list of javax.faces.model.SelectItem
+  private List otherSectionList = new ArrayList(); // contains SectionItem of section except the current section
+  private List partNumbers = new ArrayList();
   private int questionSize=0;
   private double totalScore=0;
   private String newQuestionTypeId;
@@ -136,11 +136,11 @@ public class AssessmentBean  implements Serializable {
     return sections;
   }
 
-  public void setSections(ArrayList sections) {
+  public void setSections(List sections) {
     this.sections = sections;
   }
 
-  public ArrayList getPartNumbers() {
+  public List getPartNumbers() {
     return partNumbers;
   }
 
@@ -164,7 +164,7 @@ public class AssessmentBean  implements Serializable {
    
    for(int i=0;i<this.sections.size();i++){
       SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
-      ArrayList items = sectionBean.getItemContents();
+      List items = sectionBean.getItemContents();
 
       int itemsInThisSection =0;
       if (sectionBean.getSectionAuthorType().equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)) {
@@ -265,7 +265,7 @@ public class AssessmentBean  implements Serializable {
     }
   }
 
-  public ArrayList<SelectItem> getSectionList(){
+  public List<SelectItem> getSectionList(){
     return sectionList;
   }
 
@@ -282,11 +282,11 @@ public class AssessmentBean  implements Serializable {
     this.firstSectionId = firstSectionId;
   }
 
-  public ArrayList getOtherSectionList(){
+  public List getOtherSectionList(){
       return otherSectionList;
   }
 
-  public void setOtherSectionList(ArrayList list){
+  public void setOtherSectionList(List list){
       this.otherSectionList = list; // list contains javax.faces.model.SelectItem
   }
 

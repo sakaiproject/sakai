@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -45,6 +46,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
         if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null) {
             return Collections.emptyMap();
@@ -66,6 +68,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 
 	@Override
+	@Transactional
 	public void updateMessageBundleProperty(MessageBundleProperty mbp) {
 		String key = super.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
 		
@@ -75,6 +78,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 	
 	@Override
+	@Transactional
 	public void deleteMessageBundleProperty(MessageBundleProperty mbp) {
 		String key = super.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
 
@@ -84,6 +88,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 
 	@Override
+	@Transactional
 	public void revert(MessageBundleProperty mbp) {
 		String key = super.getIndexKeyName(mbp.getBaseName(), mbp.getModuleName(), mbp.getLocale());
 

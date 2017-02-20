@@ -4,8 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -19,16 +18,17 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Queries for persisting a single attempt/submission and all related updates in a single transaction
  * @author plukasew
  */
+@Slf4j
 public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmitQueriesAPI
 {
-	private static final Log LOG = LogFactory.getLog(AutoSubmitQueries.class);
-	
 	@Override
 	public boolean autoSubmitSingleAssessment(AssessmentGradingData adata, boolean autoSubmit, boolean updateCurrentGrade, PublishedAssessmentFacade publishedAssessment, 
 			PersistenceHelper persistenceHelper, boolean updateGrades, EventLogService eventService, EventLogFacade eventLogFacade,
@@ -41,7 +41,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 		}
 		else
 		{
-			LOG.error("AssessmentGradingData object/id cannot be null");
+			log.error("AssessmentGradingData object/id cannot be null");
 			return false;
 		}
 		
@@ -64,7 +64,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 							success = true;
 						}
 						catch (Exception e) {
-							LOG.error("Error while updating external assessment score during auto submitting assessment grade data id: " + gradingId, e);
+							log.error("Error while updating external assessment score during auto submitting assessment grade data id: " + gradingId, e);
 							retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 						}
 					}
@@ -116,7 +116,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 		}
 		catch (Exception e)
 		{
-			LOG.error("Error while auto submitting assessment grade data id: " + gradingId, e);
+			log.error("Error while auto submitting assessment grade data id: " + gradingId, e);
 			return false;
 		}
 		

@@ -22,13 +22,11 @@
 
 package org.sakaiproject.tool.assessment.services;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
@@ -44,6 +42,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ItemService calls persistent service locator to reach the
@@ -227,10 +227,10 @@ public class ItemService
     }
   }
 
-  public HashMap getItemsByKeyword(String keyword)
+  public Map getItemsByKeyword(String keyword)
   {
     keyword="%" + keyword + "%";
-    HashMap map= null;
+    Map map= null;
       map= PersistenceService.getInstance().getItemFacadeQueries().getItemsByKeyword(keyword);
     return map;
 
@@ -274,7 +274,7 @@ public class ItemService
   }
 
   private Set copyItemTextSet(ItemData cloned, Set itemTextSet) {
-    HashSet h = new HashSet();
+    Set h = new HashSet();
     Iterator k = itemTextSet.iterator();
     while (k.hasNext()) {
       ItemText itemText = (ItemText) k.next();
@@ -290,7 +290,7 @@ public class ItemService
   }
 
   private Set copyAnswerSet(ItemText newItemText, Set answerSet) {
-    HashSet h = new HashSet();
+    Set h = new HashSet();
     Iterator l = answerSet.iterator();
     while (l.hasNext()) {
       Answer answer = (Answer) l.next();
@@ -309,7 +309,7 @@ public class ItemService
   }
 
   private Set copyAnswerFeedbackSet(Answer newAnswer, Set answerFeedbackSet) {
-    HashSet h = new HashSet();
+    Set h = new HashSet();
     Iterator m = answerFeedbackSet.iterator();
     while (m.hasNext()) {
       AnswerFeedback answerFeedback = (AnswerFeedback) m.next();
@@ -321,7 +321,7 @@ public class ItemService
   }
 
   private Set copyItemMetaDataSet(ItemData cloned, Set itemMetaDataSet) {
-    HashSet h = new HashSet();
+    Set h = new HashSet();
     Iterator n = itemMetaDataSet.iterator();
     while (n.hasNext()) {
       ItemMetaData itemMetaData = (ItemMetaData) n.next();
@@ -333,7 +333,7 @@ public class ItemService
   }
 
   private Set copyItemFeedbackSet(ItemData cloned, Set itemFeedbackSet) {
-    HashSet h = new HashSet();
+    Set h = new HashSet();
     Iterator o = itemFeedbackSet.iterator();
     while (o.hasNext()) {
       ItemFeedback itemFeedback = (ItemFeedback) o.next();
@@ -346,7 +346,7 @@ public class ItemService
 
   private Set copyItemAttachmentSet(ItemData cloned, Set itemAttachmentSet) {
     AssessmentService service = new AssessmentService();
-    HashSet h = new HashSet();
+    Set h = new HashSet();
     Iterator n = itemAttachmentSet.iterator();
     while (n.hasNext()) {
       ItemAttachmentIfc itemAttachment = (ItemAttachmentIfc) n.next();
@@ -366,7 +366,7 @@ public class ItemService
   
   private Set copyItemAttachmentSetItemText(ItemText itemText, Set itemAttachmentSet) {
 	AssessmentService service = new AssessmentService();
-	HashSet h = new HashSet();
+	Set h = new HashSet();
 	Iterator n = itemAttachmentSet.iterator();
 	while (n.hasNext()) {
 	  ItemTextAttachmentIfc ItemTextAttachment = (ItemTextAttachmentIfc) n.next();

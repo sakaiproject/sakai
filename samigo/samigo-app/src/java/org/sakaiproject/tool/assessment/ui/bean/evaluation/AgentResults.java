@@ -87,7 +87,7 @@ public class AgentResults
   private String gradedBy;
   private Date gradedDate;
   private Set itemGradingSet;
-  private ArrayList itemGradingArrayList;
+  private List itemGradingArrayList;
   private String rationale="";
   private boolean retakeAllowed;
   private boolean isAutoSubmitted;
@@ -371,11 +371,11 @@ public class AgentResults
   }
 
   // added by daisy to support to display answers to file upload question
-  public ArrayList getItemGradingArrayList() {
+  public List getItemGradingArrayList() {
     return itemGradingArrayList;
   }
 
-  public void setItemGradingArrayList(ArrayList itemGradingArrayList) {
+  public void setItemGradingArrayList(List itemGradingArrayList) {
     this.itemGradingArrayList = itemGradingArrayList;
   }
 

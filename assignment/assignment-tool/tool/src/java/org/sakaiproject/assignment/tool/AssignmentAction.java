@@ -6621,7 +6621,6 @@ public class AssignmentAction extends PagedResourceActionII
 						// following involves content, not grading, so always do on resubmit, not just if graded
 
 							// clean the ContentReview attributes
-							sEdit.setReviewIconUrl(null);
 							sEdit.setReviewScore(-2); // the default is -2 (e.g., for a new submission)
 							sEdit.setReviewStatus(null);
 
@@ -16041,7 +16040,9 @@ public class AssignmentAction extends PagedResourceActionII
 						zipHasGradeFile = true;
 						
 							// read grades.cvs from zip
-							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)));
+						
+							String csvSep = assignmentService.getCsvSeparator();
+							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)), csvSep.charAt(0));
 
 							List <String[]> lines = reader.readAll();
 
@@ -16953,10 +16954,6 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	private ContentReviewService contentReviewService;
-	public String getReportURL(Long score) {
-		getContentReviewService();
-		return contentReviewService.getIconUrlforScore(score);
-	}
 	
 	private void getContentReviewService() {
 		if (contentReviewService == null)

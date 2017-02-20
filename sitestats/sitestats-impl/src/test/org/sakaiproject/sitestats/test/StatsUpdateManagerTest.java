@@ -64,13 +64,13 @@ import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @FixMethodOrder(NAME_ASCENDING)
 @ContextConfiguration(locations={
 		"/hbm-db.xml",
 		"/hibernate-test.xml"})
-public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests { 
+public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
 	private StatsUpdateManager			M_sum;

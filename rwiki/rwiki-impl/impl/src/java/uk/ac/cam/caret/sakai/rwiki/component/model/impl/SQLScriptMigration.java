@@ -24,30 +24,25 @@ package uk.ac.cam.caret.sakai.rwiki.component.model.impl;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-
-import org.apache.commons.io.IOUtils;
+import org.sakaiproject.db.cover.SqlService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.db.cover.SqlService;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.DataMigrationAgent;
 
 // FIXME: Component
 
-public class SQLScriptMigration implements DataMigrationAgent
+public class SQLScriptMigration extends HibernateDaoSupport implements DataMigrationAgent
 {
 	private static Logger log = LoggerFactory.getLogger(SQLScriptMigration.class);
 
@@ -56,8 +51,6 @@ public class SQLScriptMigration implements DataMigrationAgent
 	private String to;
 
 	private String scriptPattern;
-
-	private SessionFactory sessionFactory;
 
 	public String migrate(String current, String target, final boolean newdb) throws Exception
 	{
@@ -85,7 +78,7 @@ public class SQLScriptMigration implements DataMigrationAgent
 		}
 		InputStreamReader stream = null;
 		BufferedReader br = null;
-		
+
 		try {
 			stream = new InputStreamReader(inStream); // validated as closing
 			br = new BufferedReader(stream); // validated as closing
@@ -113,98 +106,52 @@ public class SQLScriptMigration implements DataMigrationAgent
 			}
 			final String[] sql = (String[]) lines.toArray(new String[lines.size()]);
 
-			HibernateTemplate hibernateTemplate = new HibernateTemplate(
-					sessionFactory);
-			hibernateTemplate.setFlushMode(HibernateTemplate.FLUSH_NEVER);
-			hibernateTemplate.execute(new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-				throws HibernateException, SQLException
-				{
-					Connection con = session.connection();
-					executeSchemaScript(con, sql, newdb);
-					return null;
-				}
-			});
+			getHibernateTemplate().execute(session -> {
+				FlushMode flushMode = session.getFlushMode();
+				// flush after every query
+				session.setFlushMode(FlushMode.ALWAYS);
+                executeSchemaScript(session, sql, newdb);
+                // set back to the saved FlushMode
+                session.setFlushMode(flushMode);
+                return null;
+            });
 			return to;
 		}
 		finally {
             IOUtils.closeQuietly(stream);
             IOUtils.closeQuietly(br);
 		}
-		
+
 	}
 
 	/**
 	 * borrowed from LocalSessionFactoryBean in spring
-	 * 
-	 * @param con
+	 *
+	 * @param session
 	 * @param sql
+	 * @param newdb
 	 * @throws SQLException
 	 */
-	protected void executeSchemaScript(Connection con, String[] sql,boolean newdb)
-			throws SQLException
-	{
-		if (sql != null && sql.length > 0)
-		{
-			boolean oldAutoCommit = con.getAutoCommit();
-			if (!oldAutoCommit)
-			{
-				con.setAutoCommit(true);
-			}
-			try
-			{
-				Statement stmt = con.createStatement(); // validated as closing
-				try
-				{
-					for (int i = 0; i < sql.length; i++)
-					{
-						if (sql[i].startsWith("message"))
-						{
-							log.info("Data Migration " + sql[i]);
-						}
-						else
-						{
-							log.debug("Executing data migration statement: "
-									+ sql[i]);
-							try
-							{
-								long start = System.currentTimeMillis();
-								int l = stmt.executeUpdate(sql[i]);
-								log.debug("   Done " + l + " rows in "
-										+ (System.currentTimeMillis() - start)
-										+ " ms");
-							}
-							catch (SQLException ex)
-							{
-								if ( newdb ) 
-								{
-									log
-										.debug("Unsuccessful data migration statement: "
-												+ sql[i]);
-									log.debug("Cause: " + ex.getMessage());
-								}
-								else 
-								{
-									log
-										.warn("Unsuccessful data migration statement: "
-												+ sql[i]);
-									log.debug("Cause: " + ex.getMessage());
-								}
-							}
+	private void executeSchemaScript(Session session, String[] sql, boolean newdb) {
+		if (sql != null && sql.length > 0) {
+			for (int i = 0; i < sql.length; i++) {
+				if (sql[i].startsWith("message")) {
+					log.info("Data Migration {}", sql[i]);
+				} else {
+					log.debug("Executing data migration statement: {}", sql[i]);
+					try {
+						long start = System.currentTimeMillis();
+						int l = session.createSQLQuery(sql[i]).executeUpdate();
+						log.debug("   Done {} rows in {} ms", l, (System.currentTimeMillis() - start));
+					} catch (HibernateException ex) {
+						if (newdb) {
+							log.warn("Unsuccessful data migration statement: {}", sql[i]);
+							log.debug("Cause: " + ex.getMessage());
+						} else {
+							log.warn("Unsuccessful data migration statement: {}", sql[i]);
+							log.debug("Cause: " + ex.getMessage());
 						}
 					}
-				}
-				finally
-				{
-					JdbcUtils.closeStatement(stmt);
-				}
-			}
-			finally
-			{
-				if (!oldAutoCommit)
-				{
-					con.setAutoCommit(false);
 				}
 			}
 		}
@@ -225,23 +172,6 @@ public class SQLScriptMigration implements DataMigrationAgent
 	public void setFrom(String from)
 	{
 		this.from = from;
-	}
-
-	/**
-	 * @return Returns the sessionFactory.
-	 */
-	public SessionFactory getSessionFactory()
-	{
-		return sessionFactory;
-	}
-
-	/**
-	 * @param sessionFactory
-	 *        The sessionFactory to set.
-	 */
-	public void setSessionFactory(SessionFactory sessionFactory)
-	{
-		this.sessionFactory = sessionFactory;
 	}
 
 	/**
