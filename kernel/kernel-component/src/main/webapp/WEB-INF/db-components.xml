@@ -427,63 +427,41 @@
             parent="javax.sql.BaseDataSource">
     </bean>
 
-	<!-- Base Hibernate SessionFactory -->
-	<bean
-			id="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
-			abstract="true"
-			class="org.sakaiproject.springframework.orm.hibernate.impl.ClassicLocalSessionFactoryBeanHibernate31">
+    <!--  The "Global" Hibernate Session Factory -->
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
+		  class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean"
+		  init-method="init">
 
-		<property name="dataSource">
-			<ref bean="javax.sql.LazyDataSource" />
-		</property>
+		<property name="dataSource" ref="javax.sql.LazyDataSource" />
 
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
-				<prop key="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</prop>
 				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
-				<prop key="hibernate.query.substitutions">
-					true 1, false 0, yes 'Y', no 'N'
-				</prop>
+				<prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
 				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
 				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.SingletonEhCacheRegionFactory</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
 			</props>
 		</property>
-		<!--  update the database schema when starting -->
-		<property name="schemaUpdate">
-			<value>${auto.ddl}</value>
-		</property>
-	</bean>
-
-    <!--  The "Global" Hibernate Session Factory -->
-	<bean
-			id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
-			parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
-			class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean">
 	</bean>
 
 	<!--  The "Global" Transaction Manager -->
-	<bean
-			id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
-			class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		</property>
-          <property name="dataSource" ref="javax.sql.LazyDataSource" />
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
+		  class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="dataSource" ref="javax.sql.LazyDataSource" />
 	</bean>
 
   <!-- hibernate cache config in kernel/api/src/main/java/org/sakaiproject/memory/api/ehcache.xml -->
 
     <!-- enables JMX on hibernate -->
-	<bean id="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase.jmxAgent" 
-  			class="org.sakaiproject.springframework.orm.hibernate.HibernateJMXAgent"
-  			init-method="init" >
-  	
-		<property name="sessionFactory">
-			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-		</property>
-	</bean>
-	
+	<!-- bean id="org.sakaiproject.springframework.orm.hibernate.SessionFactory.jmxAgent"
+		  class="org.sakaiproject.springframework.orm.hibernate.HibernateJMXAgent"
+		  init-method="init">
 
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean -->
 </beans>

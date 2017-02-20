@@ -44,7 +44,7 @@ public class EditablePanelAdvancedOptionsText extends Panel{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				target.appendJavascript("document.getElementById('" + inheritedSpanId + "').style.display='';");
+				target.appendJavaScript("document.getElementById('" + inheritedSpanId + "').style.display='';");
 			}
 		};
 		
@@ -54,7 +54,7 @@ public class EditablePanelAdvancedOptionsText extends Panel{
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				target.appendJavascript("document.getElementById('" + inheritedSpanId + "').style.display='none';");
+				target.appendJavaScript("document.getElementById('" + inheritedSpanId + "').style.display='none';");
 			}
 		};
 		inheritedSpan.add(closeInheritedSpanLink);

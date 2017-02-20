@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -78,12 +79,12 @@ public class TemplateListener extends TemplateBaseListener
     	templateIndex.setAutomaticSubmissionEnabled(true);
     }
     
-    ArrayList templates = new ArrayList();
+    List<TemplateBean> templates = new ArrayList();
     try
     {
 	FacesContext.getCurrentInstance().
 	getExternalContext().getSessionMap().put("template", new TemplateBean());
-	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
+	List<AssessmentTemplateFacade> list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
         Iterator iter = list.iterator();
         while (iter.hasNext())
         {

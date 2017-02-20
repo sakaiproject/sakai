@@ -22,17 +22,54 @@
 package org.sakaiproject.chat2.model;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class ChatChannel implements Entity {
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Entity
+@Table(name = "CHAT2_CHANNEL")
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@NamedQueries({
+        @NamedQuery(name = "findChannelsInContext", query = "from ChatChannel c WHERE c.context = :context order by c.title"),
+        @NamedQuery(name = "findDefaultChannelsInContext", query = "from ChatChannel c WHERE c.context = :context and c.placement = :placement and c.placementDefaultChannel = true order by c.title")
+})
+
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
+@Getter
+@Setter
+@ToString
+public class ChatChannel implements org.sakaiproject.entity.api.Entity {
    
    /** Message filter names */
    public static final String FILTER_BY_NUMBER = "SelectMessagesByNumber";
@@ -41,26 +78,61 @@ public class ChatChannel implements Entity {
    public static final String FILTER_ALL = "SelectAllMessages";
    public static final String FILTER_NONE = "SelectNoneMessages";
 
+   @Id
+   @Column(name = "CHANNEL_ID", length = 36)
+   @GeneratedValue(generator = "uuid")
+   @GenericGenerator(name = "uuid", strategy = "uuid2")
    private String id;
+
+   @Column(name = "PLACEMENT_ID", length = 99)
    private String placement;
+
+   @Column(name = "CONTEXT", length = 99, nullable = false)
+   @OrderColumn(name = "CHAT_CHANNEL_CONTEXT_I")
    private String context;
+
+   @Column(name = "CREATION_DATE")
+   @Temporal(TemporalType.TIMESTAMP)
    private Date creationDate;
+
+   @Column(length = 64)
    private String title;
+
+   @Column()
    private String description;
+
+   @Column(length = 25)
    private String filterType = FILTER_ALL;
+
+   @Column
    private int filterParam = 3;
+
+   @Column(nullable = false)
    private int timeParam = 3;
+
+   @Column(nullable = false)
    private int numberParam = 10;
+
+   @Column(nullable = false)
    private boolean placementDefaultChannel = false;
+
+   @Column(nullable = false)
    private boolean enableUserOverride = true;
-   private Set<ChatMessage> messages = new HashSet<ChatMessage>();
+
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "chatChannel")
+   @BatchSize(size = 50)
+   private Set<ChatMessage> messages;
+
+   @Column(length = 99)
    private String migratedChannelId;
+
+   @Column(name = "START_DATE")
+   @Temporal(TemporalType.TIMESTAMP)
    private Date startDate;
+
+   @Column(name = "END_DATE")
+   @Temporal(TemporalType.TIMESTAMP)
    private Date endDate;
-
-
-   public ChatChannel() {
-   }
 
    /**
     * Set up a new ChatChannel with the set defaults
@@ -74,79 +146,6 @@ public class ChatChannel implements Entity {
       this.enableUserOverride = defaults.isEnableUserOverride();
    }
    
-   public String getContext() {
-      return context;
-   }
-   public void setContext(String context) {
-      this.context = context;
-   }
-   public Date getCreationDate() {
-      return creationDate;
-   }
-   public void setCreationDate(Date creationDate) {
-      this.creationDate = creationDate;
-   }
-   public String getId() {
-      return id;
-   }
-   public void setId(String id) {
-      this.id = id;
-   }
-   public String getTitle() {
-      return title;
-   }
-   public void setTitle(String title) {
-      this.title = title;
-   }
-   public String getDescription() {
-      return description;
-   }
-   public void setDescription(String description) {
-      this.description = description;
-   }
-   public Set<ChatMessage> getMessages() {
-      return messages;
-   }
-   public void setMessages(Set<ChatMessage> messages) {
-      this.messages = messages;
-   }
-   public String getFilterType() {
-      return filterType;
-   }
-   public void setFilterType(String filterType) {
-      this.filterType = filterType;
-   }
-   public int getFilterParam() {
-      return filterParam;
-   }
-   public void setFilterParam(int filterParam) {
-      this.filterParam = filterParam;
-   }
-   public boolean isPlacementDefaultChannel() {
-      return placementDefaultChannel;
-   }
-   public void setPlacementDefaultChannel(boolean placementDefaultChannel) {
-      this.placementDefaultChannel = placementDefaultChannel;
-   }   
-   public boolean isEnableUserOverride() {
-      return enableUserOverride;
-   }
-   public void setEnableUserOverride(boolean enableUserOverride) {
-      this.enableUserOverride = enableUserOverride;
-   }
-   public Date getStartDate() {
-       return startDate;
-   }
-   public void setStartDate(Date startDate) {
-       this.startDate = startDate;
-   }
-   public Date getEndDate() {
-       return endDate;
-   }
-   public void setEndDate(Date endDate) {
-       this.endDate = endDate;
-   }
-
    /**
     * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
     * 
@@ -223,7 +222,7 @@ public class ChatChannel implements Entity {
     * @see org.sakaiproject.entity.api.Entity#getReference()
     */
    public String getReference() {
-      return ChatManager.REFERENCE_ROOT + Entity.SEPARATOR + ChatManager.REF_TYPE_CHANNEL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
+      return ChatManager.REFERENCE_ROOT + org.sakaiproject.entity.api.Entity.SEPARATOR + ChatManager.REF_TYPE_CHANNEL + org.sakaiproject.entity.api.Entity.SEPARATOR + context + org.sakaiproject.entity.api.Entity.SEPARATOR + id;
 
    }
 
@@ -247,42 +246,4 @@ public class ChatChannel implements Entity {
    public String getUrl(String rootProperty) {
       return getUrl();
    }
-
-   public String getMigratedChannelId() {
-      return migratedChannelId;
-   }
-
-   public void setMigratedChannelId(String migratedChannelId) {
-      this.migratedChannelId = migratedChannelId;
-   }
-
-/**
- * @return the placement
- */
-public String getPlacement() {
-	return placement;
-}
-
-/**
- * @param placement the placement to set
- */
-public void setPlacement(String placement) {
-	this.placement = placement;
-}
-
-public int getNumberParam() {
-	return numberParam;
-}
-
-public void setNumberParam(int numberParam) {
-	this.numberParam = numberParam;
-}
-
-public int getTimeParam() {
-	return timeParam;
-}
-
-public void setTimeParam(int timeParam) {
-	this.timeParam = timeParam;
-}
 }

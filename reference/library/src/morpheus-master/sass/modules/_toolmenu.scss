@@ -74,7 +74,46 @@ body.is-logged-out{
 					}
 				}
 			}
+			// Properties for portal.showSubsitesAsFlyout=true
+			&.floating {
+				ul {
+					li {
+						a.is-invisible {
+							.#{$namespace}toolsNav__menuitem--title {
+								display: block;
+							}
+							color: #AAAAAA;
+							font-style: italic;
+							position: relative;
+							&:hover {
+								background: $primary-color;
+								.#{$namespace}toolsNav__menuitem--title {
+									position: relative;
+									float: none;
+									margin: 0;
+									padding: 0;
+									border-left: none;
+									line-height: initial;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
+	}
+}
+
+// One cannot use @extend within a media query so this has been pulled out from
+// the showSubsitesAsFlyouts properties above.  This may change with a Sass upgrade.
+#subSites.floating a.#{$namespace}toolsNav__menuitem--link.is-invisible {
+	&:after {
+		@extend .fa-lg;
+		@extend .fa;
+		content: '\f070';
+		position: absolute;
+		top: 4px;
+		right: 4px;
 	}
 }
 
@@ -165,8 +204,7 @@ body.is-logged-out{
 
 #subSites{
 	background: darken( $tool-menu-background-color, 10% );
-	ul{
-		list-style: none;
+	ul{  
 		padding: 0 0 0 0;
 	}
 	@media #{$phone}{
@@ -175,12 +213,8 @@ body.is-logged-out{
 }
 
 nav#subSites{
-	width: #{$tool-menu-width };
 	position: relative;
 	z-index: 9999;
-	@media #{$desktop}{
-		min-width: 7em;
-	}
 	&.floating{
 		min-width: #{$tool-menu-width * 2 };
 		max-width: #{$tool-menu-width * 2 };
@@ -205,6 +239,9 @@ nav#subSites{
 			border-right-color: darken( $tool-menu-background-color, 10% );
 			border-width: 7px;
 			margin-top: -7px;
+		}
+		ul li a .#{$namespace}toolsNav__menuitem--icon {
+			overflow: hidden;
 		}
 	}
 }
@@ -294,11 +331,10 @@ nav#subSites{
 						vertical-align: middle;
 					} @else {
 						display: block;
-						max-width: 100%;
 						width: 100%;
 					}
 					text-overflow: ellipsis;
-					white-space: pre-wrap;
+					white-space: pre;
 					overflow: hidden;
 				}
 				&.is-invisible {

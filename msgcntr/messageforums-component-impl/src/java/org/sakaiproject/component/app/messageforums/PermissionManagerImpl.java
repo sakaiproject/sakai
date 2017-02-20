@@ -20,14 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.type.BooleanType;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -51,8 +46,10 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class PermissionManagerImpl extends HibernateDaoSupport implements PermissionManager {
 
@@ -470,46 +467,40 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         if (area == null) {
             return null;
         }
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
-                q.setParameter("roleId", roleId, Hibernate.STRING);
-                q.setParameter("areaId", area.getId().toString(), Hibernate.STRING);
-                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
-                return q.uniqueResult();
-            }
+        HibernateCallback<ControlPermissions> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_CP_BY_ROLE);
+            q.setParameter("roleId", roleId, StringType.INSTANCE);
+            q.setParameter("areaId", area.getId().toString(), StringType.INSTANCE);
+            q.setParameter("defaultValue", defaultValue, BooleanType.INSTANCE);
+            return (ControlPermissions) q.uniqueResult();
         };
-        return (ControlPermissions) getHibernateTemplate().execute(hcb);
+        return getHibernateTemplate().execute(hcb);
     }
 
     private ControlPermissions getControlPermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
         LOG.debug("getAreaControlPermissionByRole executing for current user: " + getCurrentUser());
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                String queryString = "forumId".equals(key) ? QUERY_CP_BY_FORUM : QUERY_CP_BY_TOPIC;                
-                Query q = session.getNamedQuery(queryString);
-                q.setParameter("roleId", roleId, Hibernate.STRING);
-                q.setParameter(key, value, Hibernate.STRING);
-                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
-                return q.uniqueResult();
-            }
+        HibernateCallback<ControlPermissions> hcb = session -> {
+            String queryString = "forumId".equals(key) ? QUERY_CP_BY_FORUM : QUERY_CP_BY_TOPIC;
+            Query q = session.getNamedQuery(queryString);
+            q.setParameter("roleId", roleId, StringType.INSTANCE);
+            q.setParameter(key, value, StringType.INSTANCE);
+            q.setParameter("defaultValue", defaultValue, BooleanType.INSTANCE);
+            return (ControlPermissions) q.uniqueResult();
         };
-        return (ControlPermissions) getHibernateTemplate().execute(hcb);
+        return getHibernateTemplate().execute(hcb);
     }
     
     private MessagePermissions getMessagePermissionByKeyValue(final String roleId, final String key, final String value, final boolean defaultValue) {
         LOG.debug("getAreaMessagePermissionByRole executing for current user: " + getCurrentUser());
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                String queryString = "forumId".equals(key) ? QUERY_MP_BY_FORUM : QUERY_MP_BY_TOPIC;                
-                Query q = session.getNamedQuery(queryString);
-                q.setParameter("roleId", roleId, Hibernate.STRING);
-                q.setParameter(key, value, Hibernate.STRING);
-                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
-                return q.uniqueResult();
-            }
+        HibernateCallback<MessagePermissions> hcb = session -> {
+            String queryString = "forumId".equals(key) ? QUERY_MP_BY_FORUM : QUERY_MP_BY_TOPIC;
+            Query q = session.getNamedQuery(queryString);
+            q.setParameter("roleId", roleId, StringType.INSTANCE);
+            q.setParameter(key, value, StringType.INSTANCE);
+            q.setParameter("defaultValue", defaultValue, BooleanType.INSTANCE);
+            return (MessagePermissions) q.uniqueResult();
         };
-        return (MessagePermissions) getHibernateTemplate().execute(hcb);
+        return getHibernateTemplate().execute(hcb);
     }
        
     
@@ -935,16 +926,14 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
         if (area == null) {
             return null;
         }
-        HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.getNamedQuery(QUERY_MP_BY_ROLE);
-                q.setParameter("roleId", roleId, Hibernate.STRING);
-                q.setParameter("areaId", area.getId().toString(), Hibernate.STRING);
-                q.setParameter("defaultValue", Boolean.valueOf(defaultValue), Hibernate.BOOLEAN);
-                return q.uniqueResult();
-            }
+        HibernateCallback<MessagePermissions> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_MP_BY_ROLE);
+            q.setParameter("roleId", roleId, StringType.INSTANCE);
+            q.setParameter("areaId", area.getId().toString(), StringType.INSTANCE);
+            q.setParameter("defaultValue", Boolean.valueOf(defaultValue), BooleanType.INSTANCE);
+            return (MessagePermissions) q.uniqueResult();
         };
-        return (MessagePermissions) getHibernateTemplate().execute(hcb);
+        return getHibernateTemplate().execute(hcb);
     }
     
     

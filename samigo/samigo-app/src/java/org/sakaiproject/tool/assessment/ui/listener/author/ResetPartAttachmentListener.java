@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -80,7 +81,7 @@ public class ResetPartAttachmentListener
     }
   }
 
-  private void resetSectionAttachment(AssessmentService assessmentService, HashMap resourceHash, List attachmentList){
+  private void resetSectionAttachment(AssessmentService assessmentService, Map resourceHash, List attachmentList){
 
 	  // 1. we need to make sure that attachment removed/added by file picker 
 	  //    will be restored/remove when user cancels the entire modification

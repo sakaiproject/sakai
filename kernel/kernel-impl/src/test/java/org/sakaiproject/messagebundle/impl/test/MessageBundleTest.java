@@ -30,7 +30,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
+import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -48,8 +50,9 @@ import org.springframework.util.Assert;
 @ContextConfiguration(locations={"/spring-hibernate.xml"})
 @FixMethodOrder(NAME_ASCENDING)
 public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextTests {
-	
-    private static MessageBundleServiceImpl messageBundleService;
+
+    @Autowired
+    private MessageBundleService messageBundleService;
 
     static ResourceBundle resourceBundleEN;
     static ResourceBundle resourceBundleFr;
@@ -67,10 +70,6 @@ public class MessageBundleTest extends AbstractTransactionalJUnit4SpringContextT
 
         baseName = "basename";
         moduleName = "modulename";
-
-        messageBundleService =  new MessageBundleServiceImpl();
-        messageBundleService.setScheduleSaves(false);
-        messageBundleService.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
 
         Assert.notNull(messageBundleService);
         resourceBundleEN = ResourceBundle.getBundle("org/sakaiproject/messagebundle/impl/test/bundle", localeEn);

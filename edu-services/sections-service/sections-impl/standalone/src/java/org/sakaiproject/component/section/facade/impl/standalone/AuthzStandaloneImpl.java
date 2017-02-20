@@ -20,19 +20,14 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.facade.impl.standalone;
 
-import java.sql.SQLException;
-
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.section.api.facade.manager.Authz;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A standalone, hibernate-based implementation of the Authz facade.
@@ -40,18 +35,16 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class AuthzStandaloneImpl extends HibernateDaoSupport implements Authz {
-	private static final Logger log = LoggerFactory.getLogger(AuthzStandaloneImpl.class);
 
 	private Role getSiteRole(final String userUid, final String siteContext) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query q = session.getNamedQuery("loadSiteParticipation");
-				q.setParameter("userUid", userUid);
-				q.setParameter("siteContext", siteContext);
-				return q.uniqueResult();
-			}
-		};
+		HibernateCallback hc = session -> {
+            Query q = session.getNamedQuery("loadSiteParticipation");
+            q.setParameter("userUid", userUid);
+            q.setParameter("siteContext", siteContext);
+            return q.uniqueResult();
+        };
 		Object result = getHibernateTemplate().execute(hc);
 		if(result == null) {
 			if(log.isDebugEnabled()) log.debug(userUid + " is not a member of the course at site context " + siteContext);

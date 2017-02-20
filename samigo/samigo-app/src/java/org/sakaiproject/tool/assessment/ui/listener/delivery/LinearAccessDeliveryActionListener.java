@@ -26,6 +26,8 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.faces.context.FacesContext;
@@ -134,7 +136,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       AssessmentGradingData ag = null;
       
       // this returns a HashMap with (publishedItemId, itemGrading)
-      HashMap itemGradingHash = service.getLastItemGradingData(id, agent); 
+      Map itemGradingHash = service.getLastItemGradingData(id, agent);
       
       boolean isFirstTimeBegin = false;
       if (itemGradingHash!=null && itemGradingHash.size()>0){
@@ -250,7 +252,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       log.debug("after partIndex = " + delivery.getPartIndex());
       log.debug("after questionIndex = " + delivery.getQuestionIndex());
 
-      HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
+      Map publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 
       if(itemGradingHash != null) {
           delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash,delivery, publishedAnswerHash));
@@ -284,8 +286,8 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
 	  }
 	  else {
 		  // For backward compatible
-		  ArrayList alist = gradingService.getLastItemGradingDataPosition(assessmentGradingData.getAssessmentGradingId(), assessmentGradingData.getAgentId());
-		  int partIndex = ((Integer)alist.get(0)).intValue();
+		  List<Integer> alist = gradingService.getLastItemGradingDataPosition(assessmentGradingData.getAssessmentGradingId(), assessmentGradingData.getAgentId());
+		  int partIndex = alist.get(0);
 		  if (partIndex == 0) {
 			  delivery.setPartIndex(0);
 		  }

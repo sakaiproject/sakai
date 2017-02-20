@@ -361,8 +361,8 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	@Override
 	public List<Person> getPersons(List<User> users) {
-		List<Person> list = new ArrayList<Person>();
-		for(User u:users){
+		List<Person> list = new ArrayList();
+		for (User u : users) {
 			list.add(getPerson(u));
 		}
 		return list;

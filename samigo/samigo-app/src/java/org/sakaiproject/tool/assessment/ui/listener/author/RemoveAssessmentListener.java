@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -78,8 +79,8 @@ public class RemoveAssessmentListener implements ActionListener
                        "author");
     //int pageSize = 10;
     //int pageNumber = 1;
-    ArrayList assessmentList = author.getAssessments();
-    ArrayList l = new ArrayList();
+    List assessmentList = author.getAssessments();
+    List l = new ArrayList();
     for (int i=0; i<assessmentList.size();i++){
       AssessmentFacade a = (AssessmentFacade) assessmentList.get(i);
       if (!(assessmentId).equals(a.getAssessmentBaseId().toString()))

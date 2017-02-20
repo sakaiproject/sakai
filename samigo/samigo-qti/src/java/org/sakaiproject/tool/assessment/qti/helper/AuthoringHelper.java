@@ -503,7 +503,7 @@ public class AuthoringHelper
 	  return createImportedAssessment(document, unzipLocation, false, null);
   }
   
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus, ArrayList failedMatchingQuestions)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus, List failedMatchingQuestions)
   {
     return createImportedAssessment(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null);
   }
@@ -552,7 +552,7 @@ public class AuthoringHelper
 	  return AgentFacade.getAgentString();
   }
 
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, ArrayList failedMatchingQuestions, String siteId)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, List failedMatchingQuestions, String siteId)
   {
 	AssessmentFacade assessment = null;
 

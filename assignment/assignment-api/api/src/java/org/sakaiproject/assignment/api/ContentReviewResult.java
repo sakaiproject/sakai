@@ -30,9 +30,9 @@ public class ContentReviewResult
 	private String reviewStatus;
 
 	/**
-	 * The URL of the content review icon associated with this item
+	 * The css class of the content review icon associated with this item
 	 */
-	private String reviewIconURL;
+	private String reviewIconCssClass;
 
 	/**
 	 * An error string, if any, return from the review service
@@ -114,19 +114,19 @@ public class ContentReviewResult
 	}
 
 	/**
-	 * Getter for the URL of the content review icon associated with this item
+	 * Getter for the css class of the content review icon associated with this item
 	 */
-	public String getReviewIconURL()
+	public String getReviewIconCssClass() 
 	{
-		return reviewIconURL;
+		return reviewIconCssClass;
 	}
 
 	/**
-	 * Setter for the URL of the content review icon associated with this item
+	 * Setter for the css class of the content review icon associated with this item
 	 */
-	public void setReviewIconURL(String reviewIconURL)
+	public void setReviewIconCssClass(String reviewIconCssClass) 
 	{
-		this.reviewIconURL = reviewIconURL;
+		this.reviewIconCssClass = reviewIconCssClass;
 	}
 
 	/**

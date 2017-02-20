@@ -1744,6 +1744,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
 
+			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
+			rcontext.put("useBullhornAlerts", useBullhornAlerts);
+			if (useBullhornAlerts) {
+				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 10000);
+				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
+			}
+
 			// SAK-25931 - Do not remove this from session here - removal is done by /direct
 	                Session s = SessionManager.getCurrentSession();
 			String userWarning = (String) s.getAttribute("userWarning");

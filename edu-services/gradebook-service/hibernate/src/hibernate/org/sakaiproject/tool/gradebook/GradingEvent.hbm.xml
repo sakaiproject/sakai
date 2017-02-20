@@ -1,8 +1,9 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
-	default-lazy="false">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none"
+				   package="org.sakaiproject.tool.gradebook"
+				   default-lazy="false">
+
 	<class name="org.sakaiproject.tool.gradebook.GradingEvent" table="GB_GRADING_EVENT_T">
 
 		<id name="id" column="ID" type="long">

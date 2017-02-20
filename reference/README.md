@@ -30,7 +30,7 @@ More commands are listed here:  *[https://github.com/sakaiproject/sakai/blob/mas
 
     2. $background-color : This is used to set the background color for the portal.
 
-    3. $toolMenuColor : This variable is used for Tool Menu Background color .
+    3. $tool-menu-color : This variable is used for Tool Menu Background color .
 
     4. $text-color : This is used as the color for all text displayed in the portlets, tool and site menu's etc.
 

@@ -10,23 +10,21 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.link.DownloadLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class ExportPanel extends Panel {
+public class ExportPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,6 +34,8 @@ public class ExportPanel extends Panel {
 	private static final String IGNORE_COLUMN_PREFIX = "#";
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
 	private static final String COURSE_GRADE_OVERRIDE_COLUMN_PREFIX = "$";
+	private static final String CUSTOM_EXPORT_COLUMN_PREFIX = "# ";
+	private static final String COLUMN_COLUMN_PREFIX = "* ";
 
 	enum ExportFormat {
 		CSV

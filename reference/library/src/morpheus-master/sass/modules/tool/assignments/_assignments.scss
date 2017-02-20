@@ -114,4 +114,53 @@
 			padding: 0.5em 0 0.5em 2.5em;
 		}
 	}
+
+	.contentReviewIcon {
+		@extend .fa, .fa-flag;
+	}
+
+	.contentReviewIconWarn {
+		@extend .fa, .fa-exclamation-triangle;
+		color: #FFC107;
+	}
+
+	.contentReviewIconPending {
+		@extend .fa, .fa-hourglass-half;
+		color: #2196F3;
+	}
+
+	.contentReviewIconNoService {
+		@extend .fa, .fa-cog;
+		color: #212121;
+	}
+
+	.contentReviewIconThreshold-1 {
+		@extend .contentReviewIcon;
+		color: #F44336;
+	}
+
+	.contentReviewIconThreshold-2 {
+		@extend .contentReviewIcon;
+		color: #FF9800;
+	}
+
+	.contentReviewIconThreshold-3 {
+		@extend .contentReviewIcon;
+		color: #FFD600;
+	}
+
+	.contentReviewIconThreshold-4 {
+		@extend .contentReviewIcon;
+		color: #4CAF50;
+	}
+
+	.contentReviewIconThreshold-5 {
+		@extend .contentReviewIcon;
+		color: #2196F3;
+	}
+
+	.contentReviewIconThreshold-6 {
+		@extend .contentReviewIcon;
+		color: #9E9E9E;
+	}
 }

@@ -24,6 +24,7 @@ package org.sakaiproject.assignment.impl;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -85,6 +86,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -187,6 +189,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected AuthzGroupService authzGroupService;
 	public void setAuthzGroupService (AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+	
+	private CandidateDetailProvider candidateDetailProvider;
+	public void setCandidateDetailProvider(CandidateDetailProvider candidateDetailProvider) {
+		this.candidateDetailProvider = candidateDetailProvider;
 	}
 
 	private GradeSheetExporter gradeSheetExporter;
@@ -2793,6 +2800,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			subject = rb.getString("noti.subject.content");
 		else if ("releasegrade".equals(submissionOrReleaseGrade))
 			subject = rb.getString("noti.releasegrade.subject.content");
+		else if("additionalnotes".equals(submissionOrReleaseGrade))
+			subject = rb.getString("assignment.additional.notes.export.title");
 		else
 			subject = rb.getString("noti.releaseresubmission.subject.content");
 		return "Subject: " + subject ;
@@ -3287,7 +3296,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				try {
 					edit = this.editSubmission(sub.getReference());
 					edit.setReviewScore(report.getReviewScore());
-					edit.setReviewIconUrl(report.getIconUrl());
 					edit.setSubmitterId(sub.getSubmitterId());
                     edit.setReviewError(report.getLastError());
 					this.commitEdit(edit);
@@ -5067,7 +5075,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator(siteService));
 					}
 					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(),
-							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted);
+							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted, a.getContext());
 	
 					if (exceptionMessage.length() > 0)
 					{
@@ -5111,7 +5119,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
 
 			SpreadsheetExporter.Type type = SpreadsheetExporter.Type.valueOf(gradeFileFormat.toUpperCase());
-			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString);
+			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString, getCsvSeparator());
 
 	        String submittedText = "";
 	        if (!submissions.hasNext())
@@ -5322,9 +5330,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	    }
 	}
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders,String gradeFileFormat, boolean includeNotSubmitted)
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders,String gradeFileFormat, boolean includeNotSubmitted, String siteId)
 	{
-	    ZipOutputStream out = null;
+		ZipOutputStream out = null;
+
+		boolean isAdditionalNotesEnabled = false;
+		Site st = null;
+		try{
+			st = siteService.getSite(siteId);
+			isAdditionalNotesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
+		} catch(IdUnusedException e){
+			M_log.warn("zipSubmissions: Could not find site " + siteId + " - isAdditionalNotesEnabled set to false");
+		}
 
 		try {
 			out = new ZipOutputStream(outputStream);
@@ -5333,7 +5350,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
 
 			SpreadsheetExporter.Type type = SpreadsheetExporter.Type.valueOf(gradeFileFormat.toUpperCase());
-			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString);
+			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString, getCsvSeparator());
 
 			String submittedText = "";
 			if (!submissions.hasNext())
@@ -5341,9 +5358,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				exceptionMessage.append("There is no submission yet. ");
 			}
 			
-			sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
-					rb.getString("grades.firstname"),rb.getString("grades.grade"),
-					rb.getString("grades.submissionTime"),rb.getString("grades.late"));
+			if(isAdditionalNotesEnabled) {
+				sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
+						rb.getString("grades.firstname"),rb.getString("grades.grade"),
+						rb.getString("grades.submissionTime"),rb.getString("grades.late"),rb.getString("gen.notes"));
+			} else {
+				sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
+						rb.getString("grades.firstname"),rb.getString("grades.grade"),
+						rb.getString("grades.submissionTime"),rb.getString("grades.late"));
+			}
 
 			// allow add assignment members
 			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -5352,12 +5375,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String submittersName = "";
 			String caughtException = null;
 			String caughtStackTrace = null;
+			String submittersAdditionalNotesHtml = "";
+
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
 				boolean isAnon = assignmentUsesAnonymousGrading( s );
 				//SAK-29314 added a new value where it's by default submitted but is marked when the user submits
-				if ((s.getSubmitted() && s.isUserSubmission()) || includeNotSubmitted)
+				if ((s.getSubmitted() && s.isUserSubmission())|| includeNotSubmitted)
 				{
 					// get the submission user id and see if the user is still in site
 					String userId = s.getSubmitterId();
@@ -5398,19 +5423,39 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 								String fullAnonId = s.getAnonymousSubmissionId();
 								String anonTitle = rb.getString("grading.anonymous.title");
+								
+								String[] params = new String[7];
+								if(isAdditionalNotesEnabled  && candidateDetailProvider != null) {
+									List<String> notes = candidateDetailProvider.getAdditionalNotes(submitters[i], st).orElse(new ArrayList<String>());
+									
+									if(!notes.isEmpty()){
+										params = new String[notes.size() + 7];
+										System.arraycopy(notes.toArray(new String[notes.size()]), 0, params, 7, notes.size());
+									}
+								}
 
 								// SAK-17606
 								if (!isAnon)
 								{
-									sheet.addRow(submitters[i].getDisplayId(), submitters[i].getEid(),
-											submitters[i].getLastName(), submitters[i].getFirstName(),
-											s.getGradeDisplay(), s.getTimeSubmittedString(), latenessStatus);
+									params[0] = submitters[i].getDisplayId();
+									params[1] = submitters[i].getEid();
+									params[2] = submitters[i].getLastName();
+									params[3] = submitters[i].getFirstName();
+									params[4] = s.getGradeDisplay();
+									params[5] = s.getTimeSubmittedString();
+									params[6] = latenessStatus;
 								}
 								else
 								{
-									sheet.addRow(fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay(),
-											s.getTimeSubmittedString(), latenessStatus);
+									params[0] = fullAnonId;
+									params[1] = fullAnonId;
+									params[2] = anonTitle;
+									params[3] = anonTitle;
+									params[4] = s.getGradeDisplay();
+									params[5] = s.getTimeSubmittedString();
+									params[6] = latenessStatus;
 								}
+								sheet.addRow(params);
 							}
 							
 							if (StringUtils.trimToNull(submittersString) != null)
@@ -5541,7 +5586,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									out.closeEntry();
 								}
 							} // if
+
+							if(isAdditionalNotesEnabled && candidateDetailProvider != null){
+								List<String> notes = candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>());
+								if(!notes.isEmpty()){
+									String noteList = "<ul>";
+									for(String note : notes){
+										noteList += "<li>"+StringEscapeUtils.escapeHtml(note)+"</li>";
+									}
+									noteList += "</ul>";
+									submittersAdditionalNotesHtml += "<tr><td style='padding-right:10px;padding-left:10px'>" + submittersString +"</td><td style='padding-right:10px'>"+ noteList + "</td></tr>";
+								}
+							}
 						}
+
 					}
 					catch (Exception e)
 					{
@@ -5563,6 +5621,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades."+ sheet.getFileExtension());
 					out.putNextEntry(gradesCSVEntry);
 					sheet.write(out);
+					out.closeEntry();
+				}
+
+				if(isAdditionalNotesEnabled){
+					ZipEntry additionalEntry = new ZipEntry(root + rb.getString("assignment.additional.notes.file.title") + ".html");
+					out.putNextEntry(additionalEntry);
+
+					String htmlString = htmlPreamble("additionalnotes");
+					htmlString += "<h1>"+rb.getString("assignment.additional.notes.export.title")+"</h1>";
+					htmlString += "<div>"+rb.getString("assignment.additional.notes.export.header")+"</div><br/>";
+					htmlString += "<table border=\"1\"  style=\"border-collapse:collapse;\"><tr><th>"+rb.getString("gen.student")+"</th><th>"+rb.getString("gen.notes")+"</th>"+submittersAdditionalNotesHtml+"</table>";
+					htmlString += "<br/><div>"+rb.getString("assignment.additional.notes.export.footer")+"</div>";
+					htmlString += htmlEnd();
+					M_log.debug("Additional information html: " + htmlString);
+
+					byte[] wes = htmlString.getBytes();
+					out.write(wes);
+					additionalEntry.setSize(wes.length);
 					out.closeEntry();
 				}
 			}
@@ -10216,8 +10292,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected String m_reviewReport;
 		// The status of the review service
 		protected String m_reviewStatus;
-		
-		protected String m_reviewIconUrl;
 
         protected String m_reviewError;
 		
@@ -10656,12 +10730,37 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 		}
 
+		private String getReviewIconCssClass(ContentResource cr, int reviewScore) {
+			if (cr == null) {
+				M_log.debug("{} getReviewIconCssClass(ContentResource, int) called with cr == null", this.getId());
+				return null;
+			}
+			try {
+				String contentId = cr.getId();
+				//This should use getLocalizedReviewErrorMesage(contentId)
+				//to get a i18n message of the error
+				Long status = contentReviewService.getReviewStatus(contentId);
+				String reviewReport = getReviewReport(cr);
+				String iconCssClass = null;
 
-		public String getReviewIconUrl() {
-			if (m_reviewIconUrl == null )
-				m_reviewIconUrl = contentReviewService.getIconUrlforScore(Long.valueOf(this.getReviewScore()));
-				
-			return m_reviewIconUrl;
+				if (!"Error".equals(reviewReport)) {
+					iconCssClass = contentReviewService.getIconCssClassforScore(reviewScore);
+				} else {
+					iconCssClass = "contentReviewIconWarn";
+				}
+
+				// TODO: we can remove this null check if we use yoda statements below
+				if (status != null) {
+					if (ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewConstants.CONTENT_REVIEW_NOT_SUBMITTED_CODE.equals(status)) {
+						iconCssClass = "contentReviewIconPending";
+					}
+				}
+
+				return iconCssClass;
+			} catch (Exception e) {
+				M_log.warn("{}:getReviewIconCssClass(ContentResource, int) {}", this, e.getMessage());
+				return null;
+			}
 		}
 
 		/**
@@ -10685,8 +10784,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				reviewResult.setReviewScore(reviewScore);
 				reviewResult.setReviewReport(getReviewReport(cr));
 				//skip review status, it's unused
-				String iconUrl = contentReviewService.getIconUrlforScore(Long.valueOf(reviewScore));
-				reviewResult.setReviewIconURL(iconUrl);
+				reviewResult.setReviewIconCssClass(getReviewIconCssClass(cr, reviewScore));
 				reviewResult.setReviewError(getReviewError(cr));
 
 				if ("true".equals(cr.getProperties().getProperty(PROP_INLINE_SUBMISSION)))
@@ -11058,12 +11156,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 							m_submittedText = formattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
 							m_feedbackComment = formattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
-							m_feedbackText = formattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
-
-							// SAK-17606
-							m_anonymousSubmissionId = m_id.substring(27)+" (" + rb.getString("grading.anonymous.title")  + ")";
+							m_feedbackText = formattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");							
 
 							m_submitterId = attributes.getValue("submitterid");
+							
+							// SAK-17606
+							m_anonymousSubmissionId = getAnonymousSubmissionId();
 
 							m_submissionLog = new ArrayList();
 							m_grades = new ArrayList();
@@ -12159,9 +12257,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 * @return
 		 */
 		public String getAnonymousSubmissionId() {
-				String anonTitle = rb.getString("grading.anonymous.title") ;
-				return this.getId().substring(27) + " (" + anonTitle + ")";
-		}
+			String id = this.getId().substring(27);
+			try {
+				Site site = siteService.getSite( this.getAssignment().getContext() );
+				if(candidateDetailProvider != null && candidateDetailProvider.useInstitutionalAnonymousId(site)) {
+					id = candidateDetailProvider.getCandidateID(userDirectoryService.getUser(this.getSubmitterId()), site).orElse(this.getId().substring(27));
+				}
+			} catch(IdUnusedException e){
+				M_log.warn("Site not found " + this.getAssignment().getContext(), e);
+			} catch(UserNotDefinedException e){
+				// This is expected as users may get deleted.
+				M_log.debug("User not found " + this.getSubmitterId(), e);
+			}
+			return id + " (" + rb.getString("grading.anonymous.title") + ")";
+	}
 
 		/**
 		 * SAK-29314 - Determines whether this submission was submitted by a user or by the system
@@ -12721,11 +12830,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		public void setReviewScore(int score) {
 			this.m_reviewScore = score;
-			
-		}
-
-		public void setReviewIconUrl(String url) {
-			this.m_reviewIconUrl = url;
 			
 		}
 
@@ -14037,5 +14141,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		return "";
 	}
+	
+	public String getCsvSeparator() {
+		String defaultSeparator  = ",";
+		//If the decimal separator is a comma
+		if (",".equals(FormattedText.getDecimalSeparator())) {
+			defaultSeparator = ";";
+		}
+
+		return m_serverConfigurationService.getString("csv.separator", defaultSeparator);
+	}
+	
 } // BaseAssignmentService
 

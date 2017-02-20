@@ -185,13 +185,13 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			
 			int totalForumMessages = 0;
 			for(Object[] topicTotal : topicTotals) {
-				totalForumMessages += (Integer) topicTotal[1];
+				totalForumMessages += ((Long) topicTotal[1]).intValue();
 			}
 			sparseForum.setTotalMessages(totalForumMessages);
 			
 			int totalForumReadMessages = 0;
 			for(Object[] topicReadTotal : topicReadTotals) {
-				totalForumReadMessages += (Integer) topicReadTotal[1];
+				totalForumReadMessages += ((Long) topicReadTotal[1]).intValue();
 			}
 			sparseForum.setReadMessages(totalForumReadMessages);
 		
@@ -231,13 +231,13 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 			
 			int totalForumMessages = 0;
 			for(Object[] topicTotal : topicTotals) {
-				totalForumMessages += (Integer) topicTotal[1];
+				totalForumMessages += ((Long) topicTotal[1]).intValue();
 			}
 			sparseForum.setTotalMessages(totalForumMessages);
 				
 			int totalForumReadMessages = 0;
 			for(Object[] topicReadTotal : topicReadTotals) {
-				totalForumReadMessages += (Integer) topicReadTotal[1];
+				totalForumReadMessages += ((Long) topicReadTotal[1]).intValue();
 			}
 			sparseForum.setReadMessages(totalForumReadMessages);
 			
@@ -255,12 +255,12 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 				SparsestTopic sparseTopic = new SparsestTopic(fatTopic);
 				for(Object[] topicTotal : topicTotals) {
 					if(topicTotal[0].equals(sparseTopic.getId())) {
-						sparseTopic.setTotalMessages((Integer)topicTotal[1]);
+						sparseTopic.setTotalMessages(((Long)topicTotal[1]).intValue());
 					}
 				}
 				for(Object[] topicReadTotal : topicReadTotals) {
 					if(topicReadTotal[0].equals(sparseTopic.getId())) {
-						sparseTopic.setReadMessages((Integer)topicReadTotal[1]);
+						sparseTopic.setReadMessages(((Long)topicReadTotal[1]).intValue());
 					}
 				}
 				
@@ -305,14 +305,14 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		
 		List<Object[]> totalCounts = forumManager.getMessageCountsForMainPage(topicIds);
 		if(totalCounts.size() > 0) {
-			sparseTopic.setTotalMessages((Integer) totalCounts.get(0)[1]);
+			sparseTopic.setTotalMessages(((Long) totalCounts.get(0)[1]).intValue());
 		} else {
 			sparseTopic.setTotalMessages(0);
 		}
 		
 		List<Object[]> readCounts = forumManager.getReadMessageCountsForMainPage(topicIds);
 		if(readCounts.size() > 0) {
-			sparseTopic.setReadMessages((Integer) readCounts.get(0)[1]);
+			sparseTopic.setReadMessages(((Long) readCounts.get(0)[1]).intValue());
 		} else {
 			sparseTopic.setReadMessages(0);
 		}

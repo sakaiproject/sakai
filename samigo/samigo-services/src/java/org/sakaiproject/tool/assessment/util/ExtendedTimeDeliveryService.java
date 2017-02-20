@@ -85,7 +85,7 @@ public class ExtendedTimeDeliveryService {
 		ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
 		List<ExtendedTime> extendedTimes = extendedTimeFacade.getEntriesForPub(pubData);
 		List<String> groups = getGroups(extendedTimes);
-		String group = isUserInGroups(groups);
+		String group = isUserInGroups(groups, agentId);
 
 		ExtendedTime extendedTime = extendedTimeFacade.getEntryForPubAndUser(pubData, agentId);
 		ExtendedTime groupExtendedTime = null;
@@ -143,11 +143,11 @@ public class ExtendedTimeDeliveryService {
 		return publishedAssessment.getTimeLimit() != null;
 	}
 
-	private String isUserInGroups(List<String> groups) {
+	private String isUserInGroups(List<String> groups, String agentId) {
 		String returnString = "";
 		if(groups != null && !groups.isEmpty()) {
 			for(String group : groups) {
-				if(isUserInGroup(group)) {
+				if(isUserInGroup(group, agentId)) {
 					returnString = group;
 				}
 			}
@@ -156,12 +156,12 @@ public class ExtendedTimeDeliveryService {
 		return returnString;
 	}
 
-	private boolean isUserInGroup(String groupId) {
+	private boolean isUserInGroup(String groupId, String agentId) {
 		String realmId = "/site/" + siteId + "/group/" + groupId;
 		boolean isMember = false;
 		try {
 			AuthzGroup group = authzGroupService.getAuthzGroup(realmId);
-			if (group.getUserRole(AgentFacade.getAgentString()) != null)
+			if (group.getUserRole(agentId) != null)
 				isMember = true;
 		} catch (Exception e) {
 			return false; // this isn't a group

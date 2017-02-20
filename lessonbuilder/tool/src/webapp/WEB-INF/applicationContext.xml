@@ -6,7 +6,7 @@
    <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
         we are adding our HBM files to the Sakai session factory instead of creating
         our own copy of it -->
-  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.lessonbuildertool"
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.lessonbuildertool"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
     <property name="mappingResources">
       <list>
@@ -100,6 +100,9 @@ simplePageBean.isMultimedia,
 simplePageBean.isWebsite,
 simplePageBean.itemId,
 simplePageBean.maxPoints,
+simplePageBean.missingCommentsSetZero,
+simplePageBean.missingAnswersSetZero,
+simplePageBean.missingStudentSetZero,
 simplePageBean.mimetype,
 simplePageBean.mmUrl,
 simplePageBean.multimediaDisplayType,

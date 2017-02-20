@@ -12,15 +12,12 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -43,16 +40,13 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class AssignmentColumnHeaderPanel extends Panel {
+public class AssignmentColumnHeaderPanel extends BasePanel {
 
 	public static final String ICON_SAKAI = "icon-sakai--";
 	private static final long serialVersionUID = 1L;
 
 	private final IModel<Assignment> modelData;
 	private final GradingType gradingType;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	private GradebookNgBusinessService businessService;
 
 	public AssignmentColumnHeaderPanel(final String id, final Model<Assignment> modelData, final GradingType gradingType) {
 		super(id);
@@ -69,7 +63,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		final Assignment assignment = this.modelData.getObject();
 
 		// get user's role
-		final GbRole role = this.businessService.getUserRole();
+		final GbRole role = getUserRole();
 
 		// do they have permission to edit this assignment?
 		final boolean canEditAssignment = canUserEditAssignment(role, assignment);
@@ -143,16 +137,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			externalAppFlag.add(new AttributeModifier("data-content",
 					gradebookPage.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel",
 							null, new Object[] { assignment.getExternalAppName() }).getString())));
-			String iconClass = ICON_SAKAI + "default-tool";
-			if ("Assignments".equals(assignment.getExternalAppName())) {
-				iconClass = ICON_SAKAI + "sakai-assignment-grades";
-			} else if ("Tests & Quizzes".equals(assignment.getExternalAppName())) {
-				iconClass = ICON_SAKAI + "sakai-samigo";
-			} else if ("Lesson Builder".equals(assignment.getExternalAppName())) {
-				iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
-			}
-			externalAppFlag
-					.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
+			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag " + this.businessService.getIconClass(assignment)));
 		}
 		add(externalAppFlag);
 

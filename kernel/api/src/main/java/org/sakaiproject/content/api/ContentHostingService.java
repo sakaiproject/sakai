@@ -1940,6 +1940,35 @@ public interface ContentHostingService extends EntityProducer
 		throws PermissionException, IdUnusedException, IdUsedException, 
 				IdLengthException, IdInvalidException, TypeException;
 
+	/**
+	 * This method with the limit parameter should be used if you want to create a unique collection id.
+	 * Because the Resources tool allows renaming folders, the end-user can become confused when folder
+	 * creation is denied because the resourceId was already taken.
+	 * 
+	 * @param collectionId
+	 * @param name
+	 * @param limit
+	 *            number of attempts to find a unique resourceId for the collection via incrementing
+	 * @return
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception TypeException
+	 *            if the collectionId is not in the form to identify a collection.
+	 * @exception IdUnusedException
+	 *            if the collectionId does not identify an existing collection.
+	 * @exception IdUnusedException
+	 *            if the collection id for the proposed name already exists in this collection.
+	 * @exception IdLengthException
+	 *            if the new collection id exceeds the maximum number of characters for a valid collection id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception IdUniquenessException
+	 *            if a unique id for the collection cannot be found despite using an incrementor
+	 */
+	public ContentCollectionEdit addCollection(String collectionId, String name, int limit)
+		throws PermissionException, IdUnusedException, IdUsedException,
+				IdLengthException, IdInvalidException, TypeException, IdUniquenessException;
+
    /**
     * gets the quota for a site collection or for a user's my workspace collection
     *

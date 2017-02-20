@@ -6,32 +6,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-public class EventLogFacadeQueries extends HibernateDaoSupport
-implements EventLogFacadeQueriesAPI {
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger log = LoggerFactory.getLogger(EventLogFacadeQueries.class);
-
+@Slf4j
+public class EventLogFacadeQueries extends HibernateDaoSupport implements EventLogFacadeQueriesAPI {
 
 	public void saveOrUpdateEventLog(EventLogFacade eventLog){
 		EventLogData data = (EventLogData)  eventLog.getData();
 
-		int retryCount = PersistenceService.getInstance().getRetryCount()
-		.intValue();
+		int retryCount = PersistenceService.getInstance().getRetryCount();
 		while (retryCount > 0) {
 			try {
 				getHibernateTemplate().saveOrUpdate(data);
@@ -47,25 +41,21 @@ implements EventLogFacadeQueriesAPI {
 	}
 	
 	public List<EventLogData> getEventLogData(final Long assessmentGradingId) {
-		String query = "select eld from EventLogData as eld"
-			+ " where eld.processId = ?" 
-			+ " order by eld.id desc";
 
-		final String hql = query;
-		final HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session)
-			throws HibernateException, SQLException {
-				Query q = session.createQuery(hql);				
-				q.setLong(0, assessmentGradingId.longValue());
-				
-				return q.list();
-			};
-		};
-		List list = getHibernateTemplate().executeFind(hcb);
+		final HibernateCallback<List<EventLogData>> hcb = session -> {
+			Query q = session.createQuery(
+					"select eld from EventLogData as eld"
+							+ " where eld.processId = :id"
+							+ " order by eld.id desc");
+			q.setLong("id", assessmentGradingId);
+
+            return q.list();
+        };
+		List<EventLogData> list = getHibernateTemplate().execute(hcb);
+
 		ArrayList<EventLogData> eventLogList = new ArrayList<EventLogData>();
 		Map<String, User> userMap = new HashMap<String, User>();
-		for(int i = 0; i < list.size(); i++) {
-			EventLogData e =(EventLogData) list.get(i);
+		for(EventLogData e : list) {
 			e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
 			eventLogList.add(e);
 		}		
@@ -74,26 +64,22 @@ implements EventLogFacadeQueriesAPI {
 	}
 
 	public List<EventLogData> getDataBySiteId(final String siteId) {
-		String query = "select eld from EventLogData as eld"
-			+ " where eld.siteId = ?"
-			+ " order by eld.assessmentId asc, eld.userEid asc";
 
-		final String hql = query;
-		final HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session)
-			throws HibernateException, SQLException {
-				Query q = session.createQuery(hql);
-				q.setString(0, siteId);
+		final HibernateCallback<List<EventLogData>> hcb = session -> {
+            Query q = session.createQuery(
+                    "select eld from EventLogData as eld"
+                            + " where eld.siteId = :site"
+                            + " order by eld.assessmentId asc, eld.userEid asc"
+            );
+            q.setString("site", siteId);
 
-				return q.list();
-			};
-		};
-		List list = (ArrayList) getHibernateTemplate().executeFind(hcb);
+            return q.list();
+        };
+		List<EventLogData> list = getHibernateTemplate().execute(hcb);
 		
 		ArrayList<EventLogData> eventLogDataList = new ArrayList<EventLogData>();
 		Map<String, User> userMap = new HashMap<String, User>();
-		for(int i = 0; i < list.size(); i++) {
-			EventLogData e =(EventLogData) list.get(i);
+		for(EventLogData e : list) {
 			e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
 			eventLogDataList.add(e);
 		}		
@@ -102,40 +88,35 @@ implements EventLogFacadeQueriesAPI {
 	}
 	
 	public List<EventLogData> getEventLogData(final String siteId, final Long assessmentId, final String userFilter) {
-	   String query = "select eld from EventLogData as eld where eld.siteId = ?";
-	   
+	   String query = "select eld from EventLogData as eld where eld.siteId = :site";
+
 	   if (assessmentId > -1) {
-	      query += " and eld.assessmentId = ?";
+	      query += " and eld.assessmentId = :id";
 	   }
 	   
 	   query += " order by eld.assessmentId asc, eld.userEid asc";
 
       final String hql = query;
-      final HibernateCallback hcb = new HibernateCallback() {
-         public Object doInHibernate(Session session)
-         throws HibernateException, SQLException {
-            Query q = session.createQuery(hql);
-            q.setString(0, siteId);
-            if (assessmentId > -1) {
-               q.setLong(1, assessmentId);
-            }
+      final HibernateCallback<List<EventLogData>> hcb = session -> {
+         Query q = session.createQuery(hql);
+         q.setString("site", siteId);
+         if (assessmentId > -1) {
+            q.setLong("id", assessmentId);
+         }
 
-            return q.list();
-         };
+         return q.list();
       };
-      List list = (ArrayList) getHibernateTemplate().executeFind(hcb);
+      List<EventLogData> list = getHibernateTemplate().execute(hcb);
       
       List<EventLogData> eventLogDataList = new ArrayList<EventLogData>();
       Map<String, User> userMap = new HashMap<String, User>();
-      for(int i = 0; i < list.size(); i++) {
-         EventLogData e =(EventLogData) list.get(i);
+      for(EventLogData e : list) {
          e.setUserDisplay(getUserDisplay(e.getUserEid(), userMap));
      
          if (userFilter == null || "".equals(userFilter) || (userFilter != null && !"".equals(userFilter) && e.getUserDisplay().toLowerCase().contains(userFilter.toLowerCase()))) {
             eventLogDataList.add(e);
          }
-         
-      }     
+      }
 
       return eventLogDataList;
 	}
@@ -165,21 +146,18 @@ implements EventLogFacadeQueriesAPI {
 	}
 	
    public List<Object[]> getTitlesFromEventLogBySite(final String siteId) {
-	   String query = "select distinct eld.assessmentId, eld.title from EventLogData as eld"
-		         + " where eld.siteId = ?"
-		         + " order by lower(eld.title) asc";
 
-      final String hql = query;
-      final HibernateCallback hcb = new HibernateCallback() {
-         public Object doInHibernate(Session session)
-         throws HibernateException, SQLException {
-            Query q = session.createQuery(hql);
-            q.setString(0, siteId);
+      final HibernateCallback<List<Object[]>> hcb = session -> {
+         Query q = session.createQuery(
+                 "select distinct eld.assessmentId, eld.title from EventLogData as eld"
+                         + " where eld.siteId = :site"
+                         + " order by lower(eld.title) asc"
+         );
+         q.setString("site", siteId);
 
-            return q.list();
-         };
+         return q.list();
       };
-      List<Object[]> list = (ArrayList<Object[]>) getHibernateTemplate().executeFind(hcb);
+      List<Object[]> list = getHibernateTemplate().execute(hcb);
       return list;
    }
 }

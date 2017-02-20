@@ -26,15 +26,15 @@ package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,15 +44,12 @@ import java.util.Set;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -62,6 +59,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.struts.upload.FormFile;
 import org.osid.shared.SharedException;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -72,6 +70,7 @@ import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
@@ -80,21 +79,21 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
-import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -116,8 +115,8 @@ public class QuestionPoolBean implements Serializable
   private QuestionPoolDataBean currentPool;
   private QuestionPoolDataBean parentPool;
 
-  private ArrayList currentItemIds;
-  private ArrayList currentItems;
+  private List currentItemIds;
+  private List currentItems;
 
   private boolean allPoolsSelected;
   private boolean allItemsSelected;
@@ -138,7 +137,7 @@ public class QuestionPoolBean implements Serializable
   private int htmlIdLevel; // pass this to javascript:collapseAll()
   private String questionType; // the question type to add
   private int parentPoolSize= 0; // the question type to add
-  private ArrayList allItems;
+  private List allItems;
 
   // for search Question
   private String[] searchByTypes = {  }; // for multibox
@@ -164,8 +163,8 @@ public class QuestionPoolBean implements Serializable
   private String sortQuestionProperty = "text";
   private boolean sortQuestionAscending = true;
   
-  private ArrayList addedPools;
-  private ArrayList addedQuestions;
+  private List addedPools;
+  private List addedQuestions;
   
   private ItemFacade itemToPreview;
   private List<ItemContentsBean> itemsBean;
@@ -204,7 +203,7 @@ public class QuestionPoolBean implements Serializable
   //SAM-3049
   private boolean notCurrentPool;
   private String displayNameNotCPool;
-  
+
   private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
   /**
    * Creates a new QuestionPoolBean object.
@@ -254,7 +253,7 @@ public class QuestionPoolBean implements Serializable
       return subQpDataModel;
   }
 
-  public void sortSubqpoolsByProperty(ArrayList sortedList, String sortProperty, boolean sortAscending)
+  public void sortSubqpoolsByProperty(List sortedList, String sortProperty, boolean sortAscending)
   {
         BeanSort sort = new BeanSort(sortedList, sortProperty);
 
@@ -323,7 +322,7 @@ public class QuestionPoolBean implements Serializable
 	  }
   }
 
-  public void sortQpoolsByProperty(ArrayList sortedList, String sortProperty, boolean sortAscending)
+  public void sortQpoolsByProperty(List sortedList, String sortProperty, boolean sortAscending)
   {
 	  BeanSort sort = new BeanSort(sortedList, sortProperty);
 
@@ -346,7 +345,7 @@ public class QuestionPoolBean implements Serializable
 			  sort.toStringSort();
 		  }
 
-		  sortedList = (ArrayList)sort.sort();
+		  sortedList = (List)sort.sort();
 
 	  }
 	  if (!sortAscending)
@@ -355,13 +354,13 @@ public class QuestionPoolBean implements Serializable
 	  }
   }
 
-  public void setAllItems(ArrayList list) {
+  public void setAllItems(List list) {
       allItems = list;
 
   }
 
 
-  public ArrayList getAllItems()
+  public List getAllItems()
   {
       return allItems;
   }
@@ -451,8 +450,8 @@ public class QuestionPoolBean implements Serializable
   return poolListSelectItems;
 
 }
-  
-  
+
+
   public boolean isNotCurrentPool() {
 	  return notCurrentPool;
   }
@@ -460,7 +459,7 @@ public class QuestionPoolBean implements Serializable
   public void setNotCurrentPool(boolean notCurrentPool) {
 	  this.notCurrentPool = notCurrentPool;
   }
-  
+
   public String getDisplayNameNotCPool() {
 	  return displayNameNotCPool;
   }
@@ -710,19 +709,19 @@ public class QuestionPoolBean implements Serializable
 		sourcePart = s;
 	}
 
-	public ArrayList getCurrentItemIds() {
+	public List getCurrentItemIds() {
 		return currentItemIds;
 	}
 
-	public void setCurrentItemIds(ArrayList pstr) {
+	public void setCurrentItemIds(List pstr) {
 		currentItemIds = pstr;
 	}
 
-	public ArrayList getCurrentItems() {
+	public List getCurrentItems() {
 		return currentItems;
 	}
 
-	public void setCurrentItems(ArrayList param) {
+	public void setCurrentItems(List param) {
 		currentItems = param;
 	}
 
@@ -1279,7 +1278,7 @@ public String getAddOrEdit()
 		String sourceId = "";
 		String destId = "";
 		sourceId = this.getCurrentPool().getId().toString();
-		ArrayList sourceItemIds = this.getCurrentItemIds();
+		List sourceItemIds = this.getCurrentItemIds();
 		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
 
 		destId = ContextUtil.lookupParam("movePool:selectedRadioBtn");
@@ -1322,7 +1321,7 @@ public String getAddOrEdit()
 	public String startCopyFromAssessment() {
 		// find the first pool, and set it up
 		QuestionPoolService delegate = new QuestionPoolService();
-		ArrayList pools = delegate.getBasicInfoOfAllPools(AgentFacade
+		List pools = delegate.getBasicInfoOfAllPools(AgentFacade
 				.getAgentString());
 		Iterator iter = pools.iterator();
 
@@ -1401,9 +1400,9 @@ public String getAddOrEdit()
 
 		// Long sourceId = new Long(0);
 		String destId = "";
-		ArrayList sourceItems = this.getCurrentItems();
+		List sourceItems = this.getCurrentItems();
 
-		ArrayList destpools = ContextUtil.paramArrayValueLike("checkboxes");
+		List destpools = ContextUtil.paramArrayValueLike("checkboxes");
 		// sourceId = this.getCurrentPool().getId();
 		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
 		Iterator iter = destpools.iterator();
@@ -1454,7 +1453,7 @@ public String getAddOrEdit()
 
 		Set itemSet = section.getItemSet();
 
-		ArrayList destpools = ContextUtil.paramArrayValueLike("checkboxes");
+		List destpools = ContextUtil.paramArrayValueLike("checkboxes");
 		// sourceId = this.getCurrentPool().getId();
 
 		Iterator iter = destpools.iterator();
@@ -1544,11 +1543,11 @@ public String getAddOrEdit()
 	String itemId= ContextUtil.lookupParam("itemid");
 	ItemService delegate = new ItemService();
 	ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-	ArrayList itemIds = new ArrayList();
+	List itemIds = new ArrayList();
 	itemIds.add(itemId);
 	setCurrentItemIds(itemIds);
 	 
-	ArrayList itemFacades = new ArrayList();
+	List itemFacades = new ArrayList();
 	itemFacades.add(itemfacade);
 	setCurrentItems(itemFacades);
 	setActionType("item");
@@ -1557,9 +1556,9 @@ public String getAddOrEdit()
   public void getCheckedQuestions() {
 		// String itemId= ContextUtil.lookupParam("itemid");
 
-		ArrayList destItems = ContextUtil.paramArrayValueLike("removeCheckbox");
-		ArrayList itemIds = new ArrayList();
-		ArrayList itemFacades = new ArrayList();
+		List destItems = ContextUtil.paramArrayValueLike("removeCheckbox");
+		List itemIds = new ArrayList();
+		List itemFacades = new ArrayList();
 
 		ItemService delegate = new ItemService();
 		Iterator iter = destItems.iterator();
@@ -1666,7 +1665,7 @@ public String getAddOrEdit()
       String destId= "";
       boolean isUnique=true;
 
-	ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
+	List destpools= ContextUtil.paramArrayValueLike("checkboxes");
  	sourceId = this.getCurrentPool().getId();
         String currentName=this.getCurrentPool().getDisplayName();
     String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
@@ -1861,7 +1860,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	this.setDeletePoolSource("poollist");
       String poolId= "";
 
-        ArrayList destpools= ContextUtil.paramArrayValueLike("removeCheckbox");
+        List destpools= ContextUtil.paramArrayValueLike("removeCheckbox");
 
     	List qpools = new ArrayList();
         Iterator iter = destpools.iterator();
@@ -1951,11 +1950,11 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String editPool(){
-	if(notCurrentPool){	
+	if(notCurrentPool){
 		notCurrentPool = false;
 		displayNameNotCPool = "";
 	}
-	  
+
  	startEditPool();
     this.setAddOrEdit("edit");
     setSubQpDataModelByLevel();
@@ -1977,7 +1976,7 @@ String poolId = ContextUtil.lookupParam("qpid");
    try{
 	QuestionPoolDataBean pool = new QuestionPoolDataBean();
 	int htmlIdLevel = 0;
-	ArrayList allparentPools = new ArrayList();
+	List allparentPools = new ArrayList();
 
           if(qpid != null)
           {
@@ -1995,9 +1994,8 @@ String poolId = ContextUtil.lookupParam("qpid");
           tree.setCurrentId(thepool.getQuestionPoolId());
 
           Long ppoolid = thepool.getParentPoolId();
-
-	 pool.setParentPools(allparentPools);
-	 pool.setParentPoolsArray(allparentPools);
+          pool.setParentPools(allparentPools);
+          pool.setParentPoolsArray(allparentPools);
           while(! ppoolid.toString().equals("0"))
           {
             QuestionPoolFacade ppool =
@@ -2144,13 +2142,13 @@ String poolId = ContextUtil.lookupParam("qpid");
     return isSelf || isDescendant;
   }
 
-  private HashMap buildHash(Collection objects){
-    HashMap map = new HashMap();
+  private Map buildHash(Collection objects){
+    Map map = new HashMap();
     Iterator iter = objects.iterator();
     while(iter.hasNext()){
       QuestionPoolDataIfc pool = (QuestionPoolDataIfc) iter.next();
       Long parentPoolId = pool.getParentPoolId();
-      ArrayList poolList = (ArrayList)map.get(parentPoolId);
+      List poolList = (ArrayList)map.get(parentPoolId);
       if (poolList == null){
         poolList = new ArrayList();
         map.put(parentPoolId, poolList);
@@ -2160,27 +2158,27 @@ String poolId = ContextUtil.lookupParam("qpid");
     return map;
   }
 
-  public ArrayList sortPoolByLevel(Long level, Collection objects, String sortProperty, boolean sortAscending){
-    HashMap map = buildHash(objects);
+  public List sortPoolByLevel(Long level, Collection objects, String sortProperty, boolean sortAscending){
+    Map map = buildHash(objects);
  
     for (Iterator it = map.entrySet().iterator(); it.hasNext();) {
     	Map.Entry entry = (Map.Entry) it.next();
-    	ArrayList poolList = (ArrayList) entry.getValue();
+    	List poolList = (ArrayList) entry.getValue();
     	sortQpoolsByProperty(poolList, sortProperty, sortAscending);
     }
     // poolList in each level has been sorted, now we would put them in the right order
-    ArrayList sortedList = new ArrayList();
-    ArrayList firstLevelPoolList = (ArrayList) map.get(level);
+    List sortedList = new ArrayList();
+    List firstLevelPoolList = (ArrayList) map.get(level);
     if (firstLevelPoolList != null)
       addPoolByLevel(sortedList, map, firstLevelPoolList);
     return sortedList;
   }
 
-  private void addPoolByLevel(ArrayList sortedList, HashMap map, ArrayList poolList){
+  private void addPoolByLevel(List sortedList, Map map, List poolList){
     for (int i=0; i<poolList.size();i++){
       QuestionPoolDataIfc pool = (QuestionPoolDataIfc) poolList.get(i); 
       sortedList.add(pool);
-      ArrayList nextLevelPoolList = (ArrayList) map.get(pool.getQuestionPoolId());
+      List nextLevelPoolList = (List) map.get(pool.getQuestionPoolId());
       if (nextLevelPoolList !=null)
         addPoolByLevel(sortedList, map, nextLevelPoolList);
     }
@@ -2205,7 +2203,7 @@ String poolId = ContextUtil.lookupParam("qpid");
    *
    * @return DOCUMENTATION PENDING
    */
-  public ArrayList getAddedPools()
+  public List getAddedPools()
   {
     return addedPools;
   }
@@ -2216,7 +2214,7 @@ String poolId = ContextUtil.lookupParam("qpid");
    *
    * @param pPool DOCUMENTATION PENDING
    */
-  public void setAddedPools(ArrayList addedPools)
+  public void setAddedPools(List addedPools)
   {
     this.addedPools = addedPools;
   }
@@ -2226,7 +2224,7 @@ String poolId = ContextUtil.lookupParam("qpid");
    *
    * @return DOCUMENTATION PENDING
    */
-  public ArrayList getAddedQuestions()
+  public List getAddedQuestions()
   {
     return addedQuestions;
   }
@@ -2237,7 +2235,7 @@ String poolId = ContextUtil.lookupParam("qpid");
    *
    * @param pPool DOCUMENTATION PENDING
    */
-  public void setAddedQuestions(ArrayList addedQuestions)
+  public void setAddedQuestions(List addedQuestions)
   {
     this.addedQuestions = addedQuestions;
   }
@@ -2266,7 +2264,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		Collection objects = tree.getSortedObjects();
 
 		if (objects != null) {
-			ArrayList sortedList = sortPoolByLevel(poolId, objects,
+			List sortedList = sortPoolByLevel(poolId, objects,
 					getSortProperty(), getSortAscending());
 			ListDataModel model = new ListDataModel((List) sortedList);
 			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
@@ -2291,7 +2289,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   		// construct the sortedList, pools need to be sorted one level at a time
   		// so the hierachical structure can be maintained. Here, we start from root = 0,
   		if (objects != null) {
-  			ArrayList sortedList = sortPoolByLevel(new Long("0"), objects,
+  			List sortedList = sortPoolByLevel(new Long("0"), objects,
   					sortProperty, sortAscending);
   			ListDataModel model = new ListDataModel((List) sortedList);
   			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
@@ -2311,10 +2309,10 @@ String poolId = ContextUtil.lookupParam("qpid");
   	}
   	
   	public void setSubQpDataModelByLevel() {
-		ArrayList subpools = (ArrayList) tree.getSortedObjects(getCurrentPool()
+		List subpools = (List) tree.getSortedObjects(getCurrentPool()
 				.getId());
 		if (subpools != null) {
-			ArrayList sortedList = sortPoolByLevel(getCurrentPool().getId(),
+			List sortedList = sortPoolByLevel(getCurrentPool().getId(),
 					subpools, getSortSubPoolProperty(),
 					getSortSubPoolAscending());
 
@@ -2330,19 +2328,19 @@ String poolId = ContextUtil.lookupParam("qpid");
 		String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
 		if(qpid!=null) {
 			Long qpidL = new Long(qpid);
-			
+
 	        QuestionPoolService delegate = new QuestionPoolService();
 	        QuestionPoolFacade thepool = delegate.getPool(qpidL, AgentFacade.getAgentString());
-	        
+
 	        if(qpidL.compareTo(getCurrentPool().getId())!=0){
 	        	notCurrentPool = true;
 	        	displayNameNotCPool = thepool.getDisplayName();
 			}
 
-			List<ItemFacade> listAllItems = new ArrayList(thepool.getQuestions());
-			
+			List<ItemFacade> listAllItems = new ArrayList<>(thepool.getQuestions());
+
 			// Creating the itemContentsBean
-			ArrayList<ItemContentsBean> list = new ArrayList<>();
+			List<ItemContentsBean> list = new ArrayList<>();
 			int number=0;
 			for (ItemDataIfc item : listAllItems) {
 				ItemContentsBean itemBean = new ItemContentsBean(item);
@@ -2350,14 +2348,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 				list.add(itemBean);
 			}
 			setItemsBean(list);
-			  		
+
 			return "previewPool";
 		}
 		else {
 			return "";
 		}
 	}
-  	
+
   	public List<ItemContentsBean> getItemsBean() {
   		return this.itemsBean;
   	}
@@ -2376,7 +2374,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   		return owner;
   	}
   	
-  	
+
 	public String exportPool() {
 		String poolId= ContextUtil.lookupParam("poolId");
 		log.debug("exporting as Excel: poolid = {}", poolId);
@@ -2403,15 +2401,15 @@ String poolId = ContextUtil.lookupParam("qpid");
 		List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
 
 		// Now insert the header line
-		ArrayList<Object> headerList = new ArrayList<>();
+		List<Object> headerList = new ArrayList<>();
 		headerList.add(ExportResponsesBean.HEADER_MARKER);
 		
-		headerList.addAll((ArrayList) exportResponsesDataList.get(1));
+		headerList.addAll((List) exportResponsesDataList.get(1));
 		
 		list.add(0,headerList);
 		
 		// gopalrc - Jan 2008 - New Sheet Marker
-		ArrayList<Object> newSheetList = new ArrayList<>();
+		List<Object> newSheetList = new ArrayList<>();
 		newSheetList.add(ExportResponsesBean.NEW_SHEET_MARKER);
 		newSheetList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","responses"));
 		list.add(0, newSheetList);
@@ -2644,7 +2642,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		headerList.add(feedbackString.concat(" C"));
 		headerList.add(responseString.concat(" D"));
 		headerList.add(feedbackString.concat(" D"));
-		headerList.add(keyString);	  
+		headerList.add(keyString);
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedbackCorrect"));
 		headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","q_feedbackIncorrect"));
 
@@ -2756,7 +2754,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 				}
 				
 				// Key
-				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) && 
+				if (!TypeIfc.MULTIPLE_CHOICE_SURVEY.equals(item.getData().getTypeId()) &&
 					!TypeIfc.MATRIX_CHOICES_SURVEY.equals(item.getData().getTypeId())) {
 					key.append(item.getAnswerKey());
 				}
@@ -2877,14 +2875,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 			}
 			else if (TypeIfc.CALCULATED_QUESTION.equals(item.getData().getTypeId())) {
 				// key
-				
+
 				// Feedback
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getCorrectItemFeedback())) {
 					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getCorrectItemFeedback()));
 				}
 				feedbackList.add(contentBuffer.toString());
-				
+
 				contentBuffer.setLength(0);
 				if (StringUtils.isNotEmpty(item.getData().getInCorrectItemFeedback())) {
 					contentBuffer.append(FormattedText.convertFormattedTextToPlaintext(item.getData().getInCorrectItemFeedback()));
@@ -2893,9 +2891,9 @@ String poolId = ContextUtil.lookupParam("qpid");
 			}
 			else if (TypeIfc.EXTENDED_MATCHING_ITEMS.equals(item.getData().getTypeId())) {
 				//TODO:
-				
+
 			}
-			
+
 			// Responses && Feedback
 			for (int i=0; i<maxAnswers; i++) {
 				if (answerList.size() > i) {
@@ -3100,7 +3098,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   		// Construct the sortedList, pools need to be sorted one level at a time
   		// so the hierachical structure can be maintained. Here, we start from root = 0,
   		if (objects != null) {
-  			ArrayList<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
+  			List<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
   					getSortTransferPoolProperty(), getSortTransferPoolAscending());
   			ListDataModel model = new ListDataModel((List<QuestionPoolDataIfc>) sortedList);
   			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
@@ -3115,7 +3113,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		// Construct the sortedList, pools need to be sorted one level at a time
 		// so the hierachical structure can be maintained. Here, we start from root = 0,
 		if (objects != null) {
-			ArrayList<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
+			List<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
 					"title", true);
 			ListDataModel model = new ListDataModel((List<QuestionPoolDataIfc>) sortedList);
 			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,

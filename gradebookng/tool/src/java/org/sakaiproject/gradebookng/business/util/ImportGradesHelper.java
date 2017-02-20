@@ -54,7 +54,7 @@ public class ImportGradesHelper {
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([^\\*\\[\\]\\*]+\\[[0-9]+(\\.[0-9][0-9]?)?\\])");
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* .*)");
-	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\[\\]\\*]+)");
+	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\#\\$\\[\\]\\*]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 	final static Pattern COURSE_GRADE_OVERRIDE_PATTERN = Pattern.compile("(\\$.+)");
@@ -437,21 +437,24 @@ public class ImportGradesHelper {
 					importedComment = importedCell.getComment();
 				}
 
-				// handle grade items
-				// checks imported vs existing data
-				if(column.isGradeItem()) {
 
-					String existingScore = null;
-					if(assignment != null){
-						final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
+				//get existing data
+				String existingScore = null;
+				String existingComment = null;
+				if(assignment != null){
+					final AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
 
-						if (assignmentStudentGradeInfo != null) {
-							final GbGradeInfo existingGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(row.getStudentEid());
-							if (existingGradeInfo != null) {
-								existingScore = existingGradeInfo.getGrade();
-							}
+					if (assignmentStudentGradeInfo != null) {
+						final GbGradeInfo existingGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(row.getStudentEid());
+						if (existingGradeInfo != null) {
+							existingScore = existingGradeInfo.getGrade();
+							existingComment = existingGradeInfo.getGradeComment();
 						}
 					}
+				}
+
+				// handle grade items
+				if(column.isGradeItem()) {
 
 					importedScore = StringUtils.removeEnd(importedScore, ".0");
 					existingScore = StringUtils.removeEnd(existingScore, ".0");
@@ -465,10 +468,9 @@ public class ImportGradesHelper {
 				}
 
 				// handle comments
-				// note that we are unable to fetch the existing comments so we just check if new data exists and statuses
 				if (column.isComment()) {
 
-					log.debug("Comparing data, importedComment: " + importedComment);
+					log.debug("Comparing data, importedComment: " + importedComment + ", existingComment: " + existingComment);
 
 					if(StringUtils.isBlank(importedComment)) {
 						status = Status.SKIP;
@@ -476,9 +478,11 @@ public class ImportGradesHelper {
 					}
 					// has a value, could be NEW or an UPDATE. Preserve NEW if we already had it
 					if(status != Status.NEW) {
-						status = Status.UPDATE;
+						if(StringUtils.isNotBlank(importedComment) && !StringUtils.equals(importedComment, existingComment)){
+							status = Status.UPDATE;
+							break;
+						}
 					}
-					break;
 				}
 			}
 		}
@@ -539,18 +543,15 @@ public class ImportGradesHelper {
 				column = new ImportedColumn();
 				column.setType(ImportedColumn.Type.USER_ID);
 			} else if(i == USER_NAME_POS) {
-				//if second column is NOT user name this will cause weird things to happen. There should be validation around this
 				column = new ImportedColumn();
 				column.setType(ImportedColumn.Type.USER_NAME);
 			} else {
 				column = parseHeaderToColumn(trim(line[i]));
 			}
 
-			log.debug("type[i]: " + column.getType());
-
 			// check for duplicates
 			if(mapping.values().contains(column)) {
-				throw new GbImportExportDuplicateColumnException("Duplicate column header: " + column.getColumnTitle() + ", " + column.getType());
+				throw new GbImportExportDuplicateColumnException("Duplicate column header: " + column.getColumnTitle());
 			}
 
 			mapping.put(i, column);
@@ -609,24 +610,15 @@ public class ImportGradesHelper {
 			return column;
 		}
 
-		final Matcher m3 = STANDARD_HEADER_PATTERN.matcher(headerValue);
+		final Matcher m3 = IGNORE_PATTERN.matcher(headerValue);
 		if (m3.matches()) {
-
-			column.setColumnTitle(headerValue);
-			column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);
-
-			return column;
-		}
-
-		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
-		if (m4.matches()) {
 			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
 			column.setType(ImportedColumn.Type.IGNORE);
 			return column;
 		}
 
-		final Matcher m5 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
-		if (m5.matches()) {
+		final Matcher m4 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
+		if (m4.matches()) {
 
 			// extract title
 			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
@@ -638,7 +630,15 @@ public class ImportGradesHelper {
 			return column;
 		}
 
-		log.debug("headerType: " + column.getType());
+		final Matcher m5 = STANDARD_HEADER_PATTERN.matcher(headerValue);
+		if (m5.matches()) {
+
+			column.setColumnTitle(headerValue);
+			column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);
+
+			return column;
+		}
+
 
 		// if we got here, couldn't parse the column header, throw an error
 		throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
@@ -676,4 +676,5 @@ public class ImportGradesHelper {
 	private static String trim(final String s) {
 		return StringUtils.trimToNull(s);
 	}
+
 }

@@ -307,13 +307,9 @@ $(document).ready(function(){
 									<div>
 										#set ($props = $reviewResult.getContentResource().Properties)
 										<span class="reportIcon">
-										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-										#else
-											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-											</a>
-										#end
+											#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+											<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+											#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 										</span>
 										#if ($reviewResult.isInline())
 											$tlang.getString("submission.inline")
@@ -481,6 +477,23 @@ $(document).ready(function(){
 		#else
 				<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
+
+		#set($notes = [])
+		#set($notes = $notesMap.get($submitter.id))
+		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $notes.size() > 0)
+			#set($notesstr = "")
+			#foreach($note in $!notes)
+				#if($!note) #set($notesstr = "$notesstr<li>$note</li>") #end
+			#end
+			#if($notesstr) 
+				#set($notesstr = "<ul>$notesstr</ul>")
+			#else 
+				#set($notesstr = "---")
+			#end
+			<div class="instruction">
+				$tlang.getFormattedMessage("assignment.additional.notes.students.explanation", $notesstr)
+			</div>
+		#end
 
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)

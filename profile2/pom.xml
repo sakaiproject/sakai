@@ -19,7 +19,7 @@
 	<inceptionYear>2008</inceptionYear>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<wicket.version>6.25.0</wicket.version>
+		<wicket.version>6.26.0</wicket.version>
 	</properties>
 	<modules>
 		<module>api</module>
@@ -81,7 +81,7 @@
 			<dependency>
 				<groupId>org.twitter4j</groupId>
 				<artifactId>twitter4j-core</artifactId>
-				<version>3.0.5</version>
+				<version>4.0.6</version>
 			</dependency>
 			<dependency>
 				<groupId>org.wicketstuff</groupId>
@@ -100,18 +100,4 @@
 		<system>JIRA</system>
 		<url>http://jira.sakaiproject.org/browse/SAK</url>
 	</issueManagement>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.3</version>
-				<configuration>
-				  <source>1.7</source>
-				  <target>1.7</target>
-				</configuration>
-		  	</plugin>
-		</plugins>
-	</build>
 </project>

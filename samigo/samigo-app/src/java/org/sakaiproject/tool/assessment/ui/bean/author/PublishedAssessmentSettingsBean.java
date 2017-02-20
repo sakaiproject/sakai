@@ -1013,7 +1013,8 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     }
 
     try {
-      dateString = tu.getDisplayDateTime(displayFormat, date);
+      // Do not manipulate the date based on the client browser timezone.
+      dateString = tu.getDisplayDateTime(displayFormat, date, false);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1608,7 +1609,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
   public String getExtendedTimeStartString() {
-    return getDisplayFormatFromDate(this.extendedTime.getStartDate());
+    return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getStartDate());
   }
 
   public void setExtendedTimeStartString(String exTimeStartString) {
@@ -1619,7 +1620,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
   public String getExtendedTimeDueString() {
-    return getDisplayFormatFromDate(this.extendedTime.getDueDate());
+    return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getDueDate());
   }
 
   public void setExtendedTimeDueString(String exTimeDueString) {
@@ -1630,7 +1631,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
   public String getExtendedTimeRetractString() {
-    return getDisplayFormatFromDate(this.extendedTime.getRetractDate());
+    return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getRetractDate());
   }
 
   public void setExtendedTimeRetractString(String exTimeRetractString) {

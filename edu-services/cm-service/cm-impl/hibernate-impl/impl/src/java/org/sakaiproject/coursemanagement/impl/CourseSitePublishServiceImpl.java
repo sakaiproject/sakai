@@ -15,33 +15,29 @@
  */
 package org.sakaiproject.coursemanagement.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseSitePublishService;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This class is an implementation of the auto site publish service interface.
  */
+@Slf4j
 public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements CourseSitePublishService {
-   // logger
-   private final transient Logger logger = LoggerFactory.getLogger(getClass());
-
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day
 
@@ -55,7 +51,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
     * called by the spring framework.
     */
    public void destroy() {
-      logger.debug("destroy()");
+      log.debug("destroy()");
 
       // no code necessary
    }
@@ -64,7 +60,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
     * called by the spring framework after this class has been instantiated, this method registers the permissions necessary to invoke the course site removal service.
     */
    public void init() {
-      logger.debug("init()");
+      log.debug("init()");
 
       // register permissions with sakai
       functionManager.registerFunction(PERMISSION_COURSE_SITE_PUBLISH);
@@ -177,7 +173,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
     */
    public int publishCourseSites(int numDaysBeforeTermStarts) {
 
-      logger.info("publishCourseSites(" + numDaysBeforeTermStarts + " days before the term starts)");
+      log.info("publishCourseSites(" + numDaysBeforeTermStarts + " days before the term starts)");
 
       Date today             = new Date();
       Date publishDate       = null;
@@ -211,10 +207,10 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
                      if (!"set".equals(siteProperty)) {
                         // check permissions
                         if (!checkPermission(PERMISSION_COURSE_SITE_PUBLISH, site.getId())) {
-                           logger.error("You do not have permission to publish the " + site.getTitle() + " (" + site.getId() + ").");
+                           log.error("You do not have permission to publish the " + site.getTitle() + " (" + site.getId() + ").");
                         } else {
                            // publish the course site
-                           logger.debug("publishing course site " + site.getTitle() + " (" + site.getId() + ").");
+                           log.debug("publishing course site " + site.getTitle() + " (" + site.getId() + ").");
                            siteProperties.addProperty(SITE_PROPERTY_COURSE_SITE_PUBLISHED, "set");
                            site.setPublished(true);
                            siteService.save(site);
@@ -226,7 +222,7 @@ public class CourseSitePublishServiceImpl extends HibernateDaoSupport implements
             }
          }
       } catch (Exception ex) {
-         logger.error(ex.getMessage(), ex);
+         log.error(ex.getMessage(), ex);
       }
       return numSitesPublished;
    }

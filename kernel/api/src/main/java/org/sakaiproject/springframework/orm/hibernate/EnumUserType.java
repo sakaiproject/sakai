@@ -22,6 +22,7 @@
 package org.sakaiproject.springframework.orm.hibernate;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -61,13 +62,10 @@ public class EnumUserType<E extends Enum<E>> implements UserType
         return myClass;
     }
 
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
-        throws HibernateException, SQLException
-    {
-        String
-            name = resultSet.getString(names[0]);
-        E
-            result = null;
+    @Override
+    public Object nullSafeGet(ResultSet resultSet, String[] strings, SessionImplementor sessionImplementor, Object o) throws HibernateException, SQLException {
+        String name = resultSet.getString(strings[0]);
+        E result = null;
 
         if (!resultSet.wasNull())
         {
@@ -77,16 +75,12 @@ public class EnumUserType<E extends Enum<E>> implements UserType
         return result;
     }
 
-    public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index)
-        throws HibernateException, SQLException
-    {
-        if (null == value)
-        {
-            preparedStatement.setNull(index, Types.VARCHAR);
-        }
-        else
-        {
-            preparedStatement.setString(index, ((Enum)value).name());
+    @Override
+    public void nullSafeSet(PreparedStatement preparedStatement, Object o, int i, SessionImplementor sessionImplementor) throws HibernateException, SQLException {
+        if (null == o) {
+            preparedStatement.setNull(i, Types.VARCHAR);
+        } else {
+            preparedStatement.setString(i, ((Enum)o).name());
         }
     }
 

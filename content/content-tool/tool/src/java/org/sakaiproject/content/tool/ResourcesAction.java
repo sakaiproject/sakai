@@ -1130,7 +1130,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			try
 			{
-				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, Validator.escapeResourceName(name));
+				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, Validator.escapeResourceName(name), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 				Object obj = fp.getRevisedListItem();
@@ -1172,7 +1172,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				// TODO Auto-generated catch block
 				logger.warn("IdInvalidException " + collectionId + name, e);
 			}
-			catch (IdUsedException e)
+			catch (IdUsedException|IdUniquenessException e)
 			{
 				String[] args = { name };
 				addAlert(state, trb.getFormattedMessage("alert.exists", args));
@@ -10487,7 +10487,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						break;
 					}
 				}
-				else if(contentService.allowUpdateResource(showId))
+				else if(contentService.allowGetResource(showId))
 				{
 					entity = contentService.getResource(showId);
 					currentEntitySize = ((ContentResource)entity).getContentLength();
@@ -10509,12 +10509,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 
 				ListItem item = new ListItem(entity);
-				if(item.isCollection() && contentService.allowUpdateCollection(showId))
+				if(item.isCollection() && contentService.allowGetCollection(showId))
 				{
 					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
 					zipDownloadItems.add(item);
 				}
-				else if(!item.isCollection() && contentService.allowUpdateResource(showId))
+				else if(!item.isCollection() && contentService.allowGetResource(showId))
 				{
 					zipDownloadItems.add(item);
 				}

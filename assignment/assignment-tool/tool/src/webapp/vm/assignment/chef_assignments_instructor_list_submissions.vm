@@ -32,6 +32,18 @@
 	var escapeList = [ 'toggleModel' ];
 </script>
 
+<script type="text/javascript">
+function printView(url) {
+    var i = url.indexOf("/site/");
+    if (i < 0)
+	return url;
+    var j = url.indexOf("/tool/");
+    if (j < 0)
+	return url;
+    return url.substring(0, i) + url.substring(j);
+}
+</script>
+
 #set ($submissionType = $assignmentContent.getTypeOfSubmission())
 
 <div class="portletBody container-fluid">
@@ -396,6 +408,12 @@
 						</div> <!-- allowResubmissionPanelContent -->
 			</div>
 			#end
+			
+			#if ($!isAdditionalNotesEnabled && !$assignment.isGroup())
+				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignment.Reference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
+			#end
+			
+			
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.getPeerAssessmentPeriod().toStringLocalFull())</div>
 			#end
@@ -425,6 +443,11 @@
 							#end 
 						</a>
 					</th>
+					#if($!isAdditionalNotesEnabled && !$assignment.isGroup())
+					<th id="notes">
+						$tlang.getString("gen.notes")
+					</th>
+					#end
 					<th id="submitted">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitTime")'; return false;"  title="$tlang.getString("listsub.sorbysub")">
 							$tlang.getString("gen.subm4")
@@ -625,6 +648,17 @@
 								#end
 								#end
 							</td>
+							#if($!isAdditionalNotesEnabled && !$assignment.isGroup())
+							<td headers="notes">
+								#set($notes = [])
+								#set($notes = $notesMap.get($siteUser.id))
+								<ul>
+								#foreach($note in $notes)
+									#if($!note) <li>$!note</li> #end
+								#end
+								</ul>
+							</td>
+							#end
 							<td headers="submitted">
 									#if ($!submission)
 										#if($!submitTime)$submitTime.toStringLocalFull()#end
@@ -708,13 +742,9 @@
 										<div>
 											#set ($props = $reviewResult.getContentResource().Properties)
 											<span class="reportIcon">
-											#if ($reviewResult.getReviewReport().equals("Error"))
-												<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-											#else
-												<a href="$reviewResult.getReviewReport()" target="_blank">
-													<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-												</a>
-											#end
+												#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+												<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+												#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 											</span>
 											#if ($reviewResult.isInline())
 												$tlang.getString("submission.inline")

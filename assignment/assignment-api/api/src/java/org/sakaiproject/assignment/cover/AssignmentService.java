@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
@@ -883,5 +884,13 @@ public class AssignmentService {
 			return false;
 
 		return service.hasBeenSubmitted(param0);
+	}
+	
+	public static String getCsvSeparator() {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getCsvSeparator();
 	}
 }

@@ -272,7 +272,7 @@ class PASystemImpl implements PASystem {
     }
 
     private String getTimezoneCheckFooter(Handlebars handlebars, Map<String, Object> context) {
-        if (ServerConfigurationService.getBoolean("pasystem.timezone-check", false)) {
+        if (ServerConfigurationService.getBoolean("pasystem.timezone-check", true)) {
 
             try {
                 Template template = handlebars.compile("templates/timezone_footer");

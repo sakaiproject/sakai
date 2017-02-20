@@ -904,6 +904,9 @@ a.peer-eval-stats {
     margin-left: 2em;
     font-size: 110%;
 }
+.missingStudentTitle {
+    margin-left: 23px;
+}
 .studentContentTable {
         margin-top:10px;
 	border: none;
@@ -919,7 +922,9 @@ a.peer-eval-stats {
 .studentContentTable .studentLink{
     padding-left:8px;
 }
-
+.studentContentTable .missingStudent {
+    padding-left:43px;
+}
 
 .duecol {
 	padding-left: 2em !important
@@ -1076,7 +1081,7 @@ img {
  color:#000;
  font-weight: normal;
 }
-.forumSummaryList{
+.forumSummaryList, .announcementSummaryList{
  list-style: none;
  padding: 0 15px;
  font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
@@ -1151,7 +1156,7 @@ img {
 .question-multiplechoice-answer, .question-shortanswer-answer {
 	width: 250px;
 }
-input[type="submit"].question-submit,.linkCell .addStudentContent {
+input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="submit"].setStudentZero {
    margin: inherit;
    margin-top:15px;
    border:1px solid #999;
@@ -1172,7 +1177,7 @@ input[type="submit"].question-submit,.linkCell .addStudentContent {
  -moz-border-radius: 3px;
  background-image:none;
  border-radius: 3px;
- border:solid black 1px;
+ border:solid #999 1px;
  text-decoration:none;
  margin-top:0px;
 }
@@ -1641,7 +1646,7 @@ font-size: 12px;
   margin-bottom:0px;
 }
 
-.forumSummaryItem{
+.forumSummaryItem, .announcementSummaryItem{
  margin-bottom: 10px;
 }
 
@@ -1952,7 +1957,7 @@ nav.Mrphs-container--toolTitleNav {
         z-index: 100001 !important;
 }
 /* menu off user icon, site menu in narrow, site menu in  wide mode */
-.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal {
+.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal, #toolMenuWrap {
         z-index: 100002 !important;
 	position:relative;
 }

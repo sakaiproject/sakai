@@ -48,8 +48,8 @@ import org.sakaiproject.coursemanagement.api.exception.IdExistsException;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.coursemanagement.impl.facade.Authentication;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Manipulates course and enrollment data stored in sakai's local hibernate tables.
@@ -638,19 +638,17 @@ public class CourseManagementAdministrationHibernateImpl extends
 	 * @throws IdNotFoundException
 	 */
 	private Object getObjectByEid(final String eid, final String className) throws IdNotFoundException {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				StringBuilder hql = new StringBuilder();
-				hql.append("from ").append(className).append(" as obj where obj.eid=:eid");
-				Query q = session.createQuery(hql.toString());
-				q.setParameter("eid", eid);
-				Object result = q.uniqueResult();
-				if(result == null) {
-					throw new IdNotFoundException(eid, className);
-				}
-				return result;
-			}
-		};
+		HibernateCallback hc = session -> {
+            StringBuilder hql = new StringBuilder();
+            hql.append("from ").append(className).append(" as obj where obj.eid=:eid");
+            Query q = session.createQuery(hql.toString());
+            q.setParameter("eid", eid);
+            Object result = q.uniqueResult();
+            if(result == null) {
+                throw new IdNotFoundException(eid, className);
+            }
+            return result;
+        };
 		return getHibernateTemplate().execute(hc);
 	}
 	
@@ -667,41 +665,37 @@ public class CourseManagementAdministrationHibernateImpl extends
 		// that hibernate understands.
 		final String className = Hibernate.getClass(container).getName();
 
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				StringBuilder sb = new StringBuilder("select mbr from MembershipCmImpl as mbr, ");
-					sb.append(className);
-					sb.append(" as container where mbr.memberContainer=container ");
-					sb.append("and container.eid=:eid");
-				Query q = session.createQuery(sb.toString());
-				q.setParameter("eid", container.getEid());
-				return q.list();
-			}
-		};
-		return new HashSet<Membership>((List<Membership>) getHibernateTemplate().executeFind(hc));
+		HibernateCallback<List<Membership>> hc = session -> {
+            StringBuilder sb = new StringBuilder("select mbr from MembershipCmImpl as mbr, ");
+                sb.append(className);
+                sb.append(" as container where mbr.memberContainer=container ");
+                sb.append("and container.eid=:eid");
+            Query q = session.createQuery(sb.toString());
+            q.setParameter("eid", container.getEid());
+            return q.list();
+        };
+		return new HashSet<Membership>(getHibernateTemplate().execute(hc));
 	}
 
 	public void setCurrentAcademicSessions(final List<String> academicSessionEids) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				List<AcademicSessionCmImpl> academicSessions = session.createQuery(
-					"from AcademicSessionCmImpl")
-					.list();
-				for (AcademicSessionCmImpl academicSession : academicSessions) {
-					if (academicSessionEids.contains(academicSession.getEid())) {
-						if (!academicSession.isCurrent()) {
-							academicSession.setCurrent(true);
-						}
-					} else {
-						if (academicSession.isCurrent()) {
-							academicSession.setCurrent(false);
-						}						
-					}
-				}
-				return null;
-			}
-		};
-		getHibernateTemplate().executeFind(hc);
+		HibernateCallback hc = session -> {
+            List<AcademicSessionCmImpl> academicSessions = session.createQuery(
+                "from AcademicSessionCmImpl")
+                .list();
+            for (AcademicSessionCmImpl academicSession : academicSessions) {
+                if (academicSessionEids.contains(academicSession.getEid())) {
+                    if (!academicSession.isCurrent()) {
+                        academicSession.setCurrent(true);
+                    }
+                } else {
+                    if (academicSession.isCurrent()) {
+                        academicSession.setCurrent(false);
+                    }
+                }
+            }
+            return null;
+        };
+		getHibernateTemplate().execute(hc);
 		
 	}
 

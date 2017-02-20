@@ -552,7 +552,7 @@ public class MessageForumSynopticBean {
 		Iterator countIter = counts.iterator(); 
 
 		Object [] aCount = (Object []) countIter.next();
-		int forumCount = ((Integer) aCount[3]).intValue();
+		int forumCount = ((Long) aCount[3]).intValue();
 		Long currentTopicId = (Long) aCount[1];
 		String currentContextId = (String) aCount[0];
 		String oldContextId;
@@ -568,7 +568,7 @@ public class MessageForumSynopticBean {
 				if (currentTopicId.longValue() != ((Long) anotherCount[1]) &&
 						currentUserMemberships.contains((String) anotherCount[2]) )
 				{
-					forumCount += ((Integer) anotherCount[3]).intValue();
+					forumCount += ((Long) anotherCount[3]).intValue();
 					
 					currentTopicId = (Long) anotherCount[1];
 				}
@@ -582,7 +582,7 @@ public class MessageForumSynopticBean {
 				results.add(finalCount);
 
 				// set up for new site
-				forumCount = ((Integer) anotherCount[3]).intValue();
+				forumCount = ((Long) anotherCount[3]).intValue();
 				currentTopicId = (Long) anotherCount[1];
 				oldContextId = currentContextId;
 				currentContextId = (String) anotherCount[0];
@@ -720,7 +720,7 @@ public class MessageForumSynopticBean {
 	
 		for (Object [] nonMIReadCount: nonMIReadCounts)
 		{
-			nonMIReadCountsMap.put((String) nonMIReadCount[0], (Integer) nonMIReadCount[1]); 
+			nonMIReadCountsMap.put((String) nonMIReadCount[0], ((Long) nonMIReadCount[1]).intValue());
 		}
 	
 		// Loop through all elements of nonMICounts and 
@@ -731,7 +731,7 @@ public class MessageForumSynopticBean {
 				if (nonMIReadCount != null)
 			{
 				// Need to subtract int values, not Integer
-				nonMIcount[1] = Integer.valueOf(((Integer) nonMIcount[1]).intValue() - nonMIReadCount.intValue());
+				nonMIcount[1] = ((Long) nonMIcount[1]).intValue() - nonMIReadCount;
 			}
 		}
 		
@@ -1341,8 +1341,7 @@ public class MessageForumSynopticBean {
 			if (pos != -1) {
 				final Object [] dfReadMessageCountForASite = (Object []) readMessages.get(pos);
 				
-				siteDFInfo[1] = Integer.valueOf(((Integer) dfMessageCountForASite[2]).intValue()
-												- ((Integer) dfReadMessageCountForASite[2]).intValue());
+				siteDFInfo[1] = ((Long) dfMessageCountForASite[2]).intValue() - ((Long) dfReadMessageCountForASite[2]).intValue();
 				
 				// done with it, remove from list
 				readMessages.remove(pos);
@@ -1350,7 +1349,7 @@ public class MessageForumSynopticBean {
 			} 
 			else {
 				// No messages read for this site so message count = unread message count
-				siteDFInfo[1] = (Integer) dfMessageCountForASite[2];
+				siteDFInfo[1] = ((Long) dfMessageCountForASite[2]).intValue();
 			}
 
 			unreadDFMessageCounts.add(siteDFInfo);

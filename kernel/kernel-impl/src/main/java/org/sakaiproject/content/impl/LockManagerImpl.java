@@ -25,13 +25,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.conditions.impl.BooleanExpression;
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate3.HibernateSystemException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateObjectRetrievalFailureException;
+import org.springframework.orm.hibernate4.HibernateSystemException;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 {
@@ -73,7 +74,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		try
 		{
 			
-			return (Lock) safePopList(getHibernateTemplate().findByNamedQuery("getLock", new Object[] { assetId, qualifierId }));
+			return (Lock) safePopList(getHibernateTemplate().findByNamedQueryAndNamedParam("getLocks", new String[] {"asset", "qualifier"}, new Object[] { assetId, qualifierId }));
 		}
 		catch (HibernateSystemException | HibernateObjectRetrievalFailureException e)
 		{
@@ -127,7 +128,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		try
 		{
 			
-			locks = (List<Lock>) getHibernateTemplate().findByNamedQuery("activeByAsset", assetId);
+			locks = (List<Lock>) getHibernateTemplate().findByNamedQueryAndNamedParam("getActiveAssets", "asset", assetId);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
 		{
@@ -172,7 +173,7 @@ public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 		logger.debug("getLocks({})", qualifier);
 		try
 		{
-			locks = (List<Lock>) getHibernateTemplate().findByNamedQuery("activeByQualifier", qualifier);
+			locks = (List<Lock>) getHibernateTemplate().findByNamedQueryAndNamedParam("getActiveQualifierLocks", "qualifier", qualifier);
 		}
 		catch (HibernateObjectRetrievalFailureException e)
 		{

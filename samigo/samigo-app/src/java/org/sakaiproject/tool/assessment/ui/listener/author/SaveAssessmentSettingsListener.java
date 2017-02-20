@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -254,7 +255,7 @@ public class SaveAssessmentSettingsListener
     s.save(assessmentSettings, false);
 
     // reset the core listing in case assessment title changes
-    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
+    List<AssessmentFacade> assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
     		author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     Iterator iter = assessmentList.iterator();
 	while (iter.hasNext()) {

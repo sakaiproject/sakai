@@ -99,7 +99,7 @@
             <artifactId>dom4j</artifactId>
         </dependency>
         <dependency>
-            <groupId>jta</groupId>
+            <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
         </dependency>
         <dependency>

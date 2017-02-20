@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -309,7 +310,7 @@ public class SavePartListener
     
      QuestionPoolService qpservice = new QuestionPoolService();
 
-     ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
+     List itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
      int itemcount = itemlist.size();
      String itemcountString=" "+Integer.toString(itemcount);
 
@@ -375,7 +376,7 @@ public class SavePartListener
     private void updateAttachment(List oldList, List newList, SectionDataIfc section){
     if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
     List list = new ArrayList();
-    HashMap map = getAttachmentIdHash(oldList);
+    Map map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
       SectionAttachmentIfc a = (SectionAttachmentIfc)newList.get(i);
       if (map.get(a.getAttachmentId())!=null){
@@ -407,8 +408,8 @@ public class SavePartListener
     }
   }
 
-  private HashMap getAttachmentIdHash(List list){
-    HashMap map = new HashMap();
+  private Map getAttachmentIdHash(List list){
+    Map map = new HashMap();
     for (int i=0; i<list.size(); i++){
       SectionAttachmentIfc a = (SectionAttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);

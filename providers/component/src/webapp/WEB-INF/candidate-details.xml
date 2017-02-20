@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+    
+    <bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
+      class="org.sakaiproject.user.detail.ValueEncryptionUtilities" init-method="init">
+      <property name="key">
+        <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getString">
+          <constructor-arg value="ValueEncryptionUtilities.key" />
+          <constructor-arg value="none" />
+        </bean>
+      </property>
+    </bean>
+
+    <bean id="org.sakaiproject.user.api.CandidateDetailProvider"
+          class="org.sakaiproject.user.detail.ChainedDetailProvider">
+        <property name="providers">
+            <util:list>
+                <bean class="org.sakaiproject.user.detail.MappingDetailProvider">
+                    <constructor-arg>
+                        <bean class="org.sakaiproject.user.detail.CandidateDetailProviderImpl" init-method="init">
+                            <property name="siteService"
+                                      ref="org.sakaiproject.site.api.SiteService"/>
+                            <property name="serverConfigurationService"
+                                      ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                            <property name="toolManager"
+                                      ref="org.sakaiproject.tool.api.ToolManager"/>
+                            <property name="valueEncryptionUtilities"
+                                      ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
+                        </bean>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <util:map>
+                        </util:map>
+                    </constructor-arg>
+                </bean>
+                <bean class="org.sakaiproject.user.detail.FallbackDetailProvider" init-method="init">
+                    <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+                    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+                </bean>
+            </util:list>
+        </property>
+    </bean>
+
+</beans>

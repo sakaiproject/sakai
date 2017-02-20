@@ -78,7 +78,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
   public boolean importItems(QuestionPoolBean qpoolbean){
     try {
-      ArrayList destItems = ContextUtil.paramArrayValueLike("importCheckbox");
+      ArrayList<String> destItems = ContextUtil.paramArrayValueLike("importCheckbox");
       if (destItems.size() > 0) {
       AssessmentService assessdelegate = new AssessmentService();
       ItemService delegate = new ItemService();
@@ -90,26 +90,19 @@ public class ImportQuestionsToAuthoring implements ActionListener
       ItemFacade itemfacade = null;
       boolean newSectionCreated = false;
 
-        // SAM-2395 - sort based on question text
+      	destItems.sort(Comparator.naturalOrder());
       	// SAM-2437 - use an arrayList instead of treeset to allow duplicated title questions
-	      ArrayList<ItemFacade> sortedQuestions = new ArrayList<ItemFacade>();
+	    ArrayList<ItemFacade> sortedQuestions = new ArrayList<ItemFacade>();
 
         // SAM-2395 - copy the questions into a sorted list
         for (Object itemID : destItems) {
           ItemFacade poolItemFacade = delegate.getItem(Long.valueOf((String) itemID), AgentFacade.getAgentString());
           ItemData clonedItem = delegate.cloneItem( poolItemFacade.getData() );
-        clonedItem.setItemId(Long.valueOf(0));
-        clonedItem.setItemIdString("0");
-        itemfacade = new ItemFacade(clonedItem);
+          clonedItem.setItemId(Long.valueOf(0));
+          clonedItem.setItemIdString("0");
+          itemfacade = new ItemFacade(clonedItem);
           sortedQuestions.add(itemfacade);
         }
-
-        Collections.sort(sortedQuestions, new Comparator<ItemFacade>() {
-	        @Override
-	        public int compare(ItemFacade obj1, ItemFacade obj2) {
-	            return obj1.getText().compareTo(obj2.getText());
-	        }
-	    });
 
         // SAM-2395 - iterate over the sorted list
         Iterator iter = sortedQuestions.iterator();

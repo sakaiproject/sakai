@@ -113,10 +113,10 @@ public class DeliveryBean
   private String assessmentId;
   private String assessmentTitle;
   private boolean honorPledge;
-  private ArrayList markedForReview;
-  private ArrayList blankItems;
-  private ArrayList markedForReviewIdents;
-  private ArrayList blankItemIdents;
+  private List markedForReview;
+  private List blankItems;
+  private List markedForReviewIdents;
+  private List blankItemIdents;
   private boolean reviewMarked;
   private boolean reviewAll;
   private boolean reviewBlank;
@@ -185,7 +185,7 @@ public class DeliveryBean
   private String password;
   private int numberRetake;
   private int actualNumberRetake;
-  private HashMap itemContentsMap;
+  private Map itemContentsMap;
   
   // For paging
   private int partIndex;
@@ -384,7 +384,7 @@ public class DeliveryBean
    *
    * @return
    */
-  public ArrayList getMarkedForReview()
+  public List getMarkedForReview()
   {
     return markedForReview;
   }
@@ -394,7 +394,7 @@ public class DeliveryBean
    *
    * @param markedForReview
    */
-  public void setMarkedForReview(ArrayList markedForReview)
+  public void setMarkedForReview(List markedForReview)
   {
     this.markedForReview = markedForReview;
   }
@@ -478,7 +478,7 @@ public class DeliveryBean
 
 	    try {
 	      TimeUtil tu = new TimeUtil();
-	      beginTimeString = tu.getDisplayDateTime(dayDisplayFormat, beginTime);
+	      beginTimeString = tu.getDisplayDateTime(dayDisplayFormat, beginTime, true);
 	    }
 	    catch (Exception ex) {
 	      // we will leave it as an empty string
@@ -686,7 +686,7 @@ public class DeliveryBean
    *
    * @return
    */
-  public ArrayList getBlankItems()
+  public List getBlankItems()
   {
     return this.blankItems;
   }
@@ -696,7 +696,7 @@ public class DeliveryBean
    *
    * @param blankItems
    */
-  public void setBlankItems(ArrayList blankItems)
+  public void setBlankItems(List blankItems)
   {
     this.blankItems = blankItems;
   }
@@ -726,7 +726,7 @@ public class DeliveryBean
    *
    * @return
    */
-  public ArrayList getMarkedForReviewIdents()
+  public List getMarkedForReviewIdents()
   {
     return markedForReviewIdents;
   }
@@ -736,7 +736,7 @@ public class DeliveryBean
    *
    * @param markedForReviewIdents
    */
-  public void setMarkedForReviewIdents(ArrayList markedForReviewIdents)
+  public void setMarkedForReviewIdents(List markedForReviewIdents)
   {
     this.markedForReviewIdents = markedForReviewIdents;
   }
@@ -746,7 +746,7 @@ public class DeliveryBean
    *
    * @return
    */
-  public ArrayList getBlankItemIdents()
+  public List getBlankItemIdents()
   {
     return blankItemIdents;
   }
@@ -756,7 +756,7 @@ public class DeliveryBean
    *
    * @param blankItemIdents
    */
-  public void setBlankItemIdents(ArrayList blankItemIdents)
+  public void setBlankItemIdents(List blankItemIdents)
   {
     this.blankItemIdents = blankItemIdents;
   }
@@ -1089,7 +1089,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, dueDate);
+      dateString = tu.getDisplayDateTime(displayFormat, dueDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1107,7 +1107,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(dayDisplayFormat, dueDate);
+      dateString = tu.getDisplayDateTime(dayDisplayFormat, dueDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1133,7 +1133,7 @@ public class DeliveryBean
 
 	    try {
 	      TimeUtil tu = new TimeUtil();
-	      adjustedTimedAssesmentDueDateString = tu.getDisplayDateTime(dayDisplayFormat, adjustedTimedAssesmentDueDate);
+	      adjustedTimedAssesmentDueDateString = tu.getDisplayDateTime(dayDisplayFormat, adjustedTimedAssesmentDueDate, true);
 	    }
 	    catch (Exception ex) {
 	      // we will leave it as an empty string
@@ -1160,7 +1160,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(dayDisplayFormat, retractDate);
+      dateString = tu.getDisplayDateTime(dayDisplayFormat, retractDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1320,7 +1320,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, submissionDate);
+      dateString = tu.getDisplayDateTime(displayFormat, submissionDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -2416,7 +2416,7 @@ public class DeliveryBean
     
     GradingService gradingService = new GradingService();
     //PublishedAssessmentService publishedService = new PublishedAssessmentService();
-    HashMap itemHash = getPublishedItemHash();
+    Map itemHash = getPublishedItemHash();
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 
@@ -2666,7 +2666,7 @@ public class DeliveryBean
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate);
+      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate, true);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -2862,7 +2862,7 @@ public class DeliveryBean
   }
 
   public void attachToItemContentBean(ItemGradingData itemGradingData, String questionId){
-    ArrayList list = new ArrayList();
+    List list = new ArrayList();
     list.add(itemGradingData);
     //find out sectionId from questionId
     log.debug("**** attachToItemContentBean, questionId="+questionId);
@@ -2878,7 +2878,7 @@ public class DeliveryBean
     SectionContentsBean partSelected = null;
 
     //get all partContents
-    ArrayList parts = getPageContents().getPartsContents();
+    List parts = getPageContents().getPartsContents();
     for (int i=0; i<parts.size(); i++){
       SectionContentsBean part = (SectionContentsBean)parts.get(i);
       log.debug("**** question's sectionId"+sectionId);
@@ -2889,7 +2889,7 @@ public class DeliveryBean
       }
     }
     //locate the itemContentBean - the hard way, sigh...
-    ArrayList items = new ArrayList();
+    List items = new ArrayList();
     if (partSelected!=null)
       items = partSelected.getItemContents();
     for (int j=0; j<items.size(); j++){
@@ -3093,8 +3093,8 @@ public class DeliveryBean
     this.timeStamp=timeStamp;
   }
 
-  private HashMap publishedItemHash = new HashMap();
-  public HashMap getPublishedItemHash(){
+  private Map publishedItemHash = new HashMap();
+  public Map getPublishedItemHash(){
     if (this.publishedItemHash.isEmpty()){
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       this.publishedItemHash = pubService.preparePublishedItemHash(getPublishedAssessment());
@@ -3102,12 +3102,12 @@ public class DeliveryBean
     return this.publishedItemHash;
   }
 
-  public void setPublishedItemHash(HashMap publishedItemHash){
+  public void setPublishedItemHash(Map publishedItemHash){
     this.publishedItemHash = publishedItemHash;
   }
 
-  private HashMap publishedItemTextHash = new HashMap();
-  public HashMap getPublishedItemTextHash(){
+  private Map publishedItemTextHash = new HashMap();
+  public Map getPublishedItemTextHash(){
     if (this.publishedItemTextHash.isEmpty()){
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       this.publishedItemTextHash = pubService.preparePublishedItemTextHash(getPublishedAssessment());
@@ -3115,12 +3115,12 @@ public class DeliveryBean
     return this.publishedItemTextHash;
   }
 
-  public void setPublishedItemTextHash(HashMap publishedItemTextHash){
+  public void setPublishedItemTextHash(Map publishedItemTextHash){
     this.publishedItemTextHash = publishedItemTextHash;
   }
 
-  private HashMap publishedAnswerHash = new HashMap();
-  public HashMap getPublishedAnswerHash(){
+  private Map publishedAnswerHash = new HashMap();
+  public Map getPublishedAnswerHash(){
     if (this.publishedAnswerHash.isEmpty()){
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       this.publishedAnswerHash = pubService.preparePublishedAnswerHash(getPublishedAssessment());
@@ -3128,13 +3128,13 @@ public class DeliveryBean
     return this.publishedAnswerHash;
   }
 
-   public void setPublishedAnswerHash(HashMap publishedAnswerHash){
+   public void setPublishedAnswerHash(Map publishedAnswerHash){
     this.publishedAnswerHash = publishedAnswerHash;
   }
    
    public boolean getIsMoreThanOneQuestion() {
 	   log.debug("getIsMoreThanOneQuestion() starts");
-	   ArrayList partsContents = this.pageContents.getPartsContents();
+	   List partsContents = this.pageContents.getPartsContents();
 	   if (partsContents.size() == 1) {
 		   String size = ((SectionContentsBean) partsContents.get(0)).getItemContentsSize();
 		   log.debug("ItemContentsSize = " + size);
@@ -3583,7 +3583,7 @@ public class DeliveryBean
 
 		    try {
 		      TimeUtil tu = new TimeUtil();
-		      deadlineString = tu.getDisplayDateTime(dayDisplayFormat, deadline);
+		      deadlineString = tu.getDisplayDateTime(dayDisplayFormat, deadline, true);
 		    }
 		    catch (Exception ex) {
 		      // we will leave it as an empty string
@@ -3710,13 +3710,13 @@ public class DeliveryBean
 		  String radioId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("radioId");
 		  StringBuffer redrawAnchorName = new StringBuffer("p");
 		  String tmpAnchorName = "";
-		  ArrayList parts = this.pageContents.getPartsContents();
+		  List parts = this.pageContents.getPartsContents();
 
 		  for (int i=0; i<parts.size(); i++) {
 			  SectionContentsBean sectionContentsBean = (SectionContentsBean) parts.get(i);
 			  String partSeq = sectionContentsBean.getNumber();
 			  
-			  ArrayList items = sectionContentsBean.getItemContents();
+			  List items = sectionContentsBean.getItemContents();
 			  for (int j=0; j<items.size(); j++) {
 				  ItemContentsBean item = (ItemContentsBean)items.get(j);
 				  
@@ -3749,7 +3749,7 @@ public class DeliveryBean
 						  }
 					  }
 					  
-					  ArrayList itemGradingData = new ArrayList();
+					  List itemGradingData = new ArrayList();
 					  for( ItemGradingData itemgrading : item.getItemGradingDataArray() ){
 						  if (itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
 							  itemGradingData.add(itemgrading);
@@ -3805,12 +3805,12 @@ public class DeliveryBean
 	    this.displayMardForReview = displayMardForReview;
 	  }
 
-	  public HashMap getItemContentsMap()
+	  public Map getItemContentsMap()
 	  {
 	    return this.itemContentsMap;
 	  }
 
-	  public void setItemContentsMap(HashMap itemContentsMap)
+	  public void setItemContentsMap(Map itemContentsMap)
 	  {
 	    this.itemContentsMap = itemContentsMap;
 	  }

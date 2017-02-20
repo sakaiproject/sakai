@@ -302,5 +302,9 @@
 			&.icon-calendar-quiz							{	@extend .fa-star}
 			&.icon-calendar-special-event					{	@extend .fa-certificate}
 			&.icon-calendar-web-assignment					{	@extend .fa-code}
+			&.icon-calendar-formative-assessment			{	@extend .fa-pencil-square-o}
+			&.icon-calendar-submission-date					{	@extend .fa-hourglass-end}
+			&.icon-calendar-tutorial						{	@extend .fa-graduation-cap}
+			&.icon-calendar-workshop						{	@extend .fa-group}
 	}
 }

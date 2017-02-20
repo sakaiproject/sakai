@@ -25,7 +25,6 @@ package org.sakaiproject.tool.gradebook.business.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,9 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -46,73 +42,66 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class GradebookCalculationImpl extends GradebookManagerHibernateImpl implements GradebookManager 
 {
-	private static final Logger log = LoggerFactory.getLogger(GradebookCalculationImpl.class);
-
 	@Override
-	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) 
+	public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids)
 	{
-		HibernateCallback hc = new HibernateCallback() 
-		{
-			public Object doInHibernate(Session session) throws HibernateException 
-			{
-				if(studentUids == null || studentUids.size() == 0) 
-				{
-					if(log.isDebugEnabled()) log.debug("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords(CourseGrade, Collection).");
-					return new ArrayList();
-				}
+		HibernateCallback<List<CourseGradeRecord>> hc = session -> {
+            if(studentUids == null || studentUids.size() == 0)
+            {
+                log.debug("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords(CourseGrade, Collection).");
+                return new ArrayList<>();
+            }
 
-				Long gradebookId = courseGrade.getGradebook().getId();
-				
-				// get all of the AssignmentGradeRecords here to avoid repeated db calls
-                Map<String, List<AssignmentGradeRecord>> studentIdGradeRecordsMap = 
-                    getGradeRecordMapForStudents(session, gradebookId, studentUids);
-                
-                // get all of the counted assignments
-                List<Assignment> countedAssigns = getCountedAssignments(session, gradebookId);
+			Long gradebookId = courseGrade.getGradebook().getId();
 
-				return getPointsEarnedCourseGradeRecords(session, courseGrade, studentUids, 
-				        countedAssigns, studentIdGradeRecordsMap);
-			}
-		};
-		return (List)getHibernateTemplate().execute(hc);
+			// get all of the AssignmentGradeRecords here to avoid repeated db calls
+			Map<String, List<AssignmentGradeRecord>> studentIdGradeRecordsMap =
+					getGradeRecordMapForStudents(gradebookId, studentUids);
+
+			// get all of the counted assignments
+			List<Assignment> countedAssigns = getCountedAssignments(session, gradebookId);
+
+            return getPointsEarnedCourseGradeRecords(session, courseGrade, studentUids,
+                    countedAssigns, studentIdGradeRecordsMap);
+        };
+		return getHibernateTemplate().execute(hc);
 	}
 
 	@Override
-	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap) 
+	public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap)
 	{
-		HibernateCallback hc = new HibernateCallback() 
-		{
-			public Object doInHibernate(Session session) throws HibernateException 
-			{
-				if(studentUids == null || studentUids.size() == 0) 
-				{
-					if(log.isDebugEnabled()) log.debug("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords");
-					return new ArrayList();
-				}
-				
-				// let's make the grade map more manageable here.  it starts out as
-				// Map of studentId --> Map of assignment id --> corresponding AssignmentGradeRecord
-				Map<String, List<AssignmentGradeRecord>> studentIdGradeRecordsMap = new HashMap<String, List<AssignmentGradeRecord>>();
-				if (gradeRecordMap != null) {
-				    for (Iterator stIter = studentUids.iterator(); stIter.hasNext();) {
-				        String studentUid = (String)stIter.next();
-				        Map<Long, AssignmentGradeRecord> studentMap = (Map<Long, AssignmentGradeRecord>)gradeRecordMap.get(studentUid);
-				        if (studentMap != null) {
-				            List<AssignmentGradeRecord> studentGradeRecs = 
-				                new ArrayList<AssignmentGradeRecord>(studentMap.values());
-				            studentIdGradeRecordsMap.put(studentUid, studentGradeRecs);
-				        }
-				    }
-				}
+		HibernateCallback<List<CourseGradeRecord>> hc = session -> {
+            if(studentUids == null || studentUids.size() == 0)
+            {
+                if(log.isDebugEnabled()) log.debug("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords");
+                return new ArrayList<>();
+            }
 
-				return getPointsEarnedCourseGradeRecords(session, courseGrade, studentUids, assignments, studentIdGradeRecordsMap);
-			}
-		};
-		return (List)getHibernateTemplate().execute(hc);
+            // let's make the grade map more manageable here.  it starts out as
+            // Map of studentId --> Map of assignment id --> corresponding AssignmentGradeRecord
+            Map<String, List<AssignmentGradeRecord>> studentIdGradeRecordsMap = new HashMap<String, List<AssignmentGradeRecord>>();
+            if (gradeRecordMap != null) {
+                for (Iterator stIter = studentUids.iterator(); stIter.hasNext();) {
+                    String studentUid = (String)stIter.next();
+                    Map<Long, AssignmentGradeRecord> studentMap = (Map<Long, AssignmentGradeRecord>)gradeRecordMap.get(studentUid);
+                    if (studentMap != null) {
+                        List<AssignmentGradeRecord> studentGradeRecs =
+                            new ArrayList<AssignmentGradeRecord>(studentMap.values());
+                        studentIdGradeRecordsMap.put(studentUid, studentGradeRecs);
+                    }
+                }
+            }
+
+            return getPointsEarnedCourseGradeRecords(session, courseGrade, studentUids, assignments, studentIdGradeRecordsMap);
+        };
+		return getHibernateTemplate().execute(hc);
 	}
 	
 	/**

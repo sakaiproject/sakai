@@ -240,6 +240,20 @@
                 </configuration>
               </execution>
               <execution>
+                  <id>add-test-source</id>
+                  <phase>generate-sources</phase>
+                  <goals>
+                      <goal>add-test-source</goal>
+                  </goals>
+                  <configuration>
+                      <sources>
+                          <source>${src1}/test</source>
+                          <source>${src2}/test</source>
+                          <source>${src3}/test</source>
+                      </sources>
+                  </configuration>
+              </execution>
+              <execution>
                 <id>add-resource</id>
                 <phase>generate-resources</phase>
                 <goals>

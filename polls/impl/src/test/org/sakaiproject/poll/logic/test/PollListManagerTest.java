@@ -39,11 +39,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @ContextConfiguration(locations={
 		"/hibernate-test.xml",
 		"classpath:org/sakaiproject/poll/spring-hibernate.xml" })
-public class PollListManagerTest extends AbstractJUnit4SpringContextTests {
+public class PollListManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	private static Logger log = LoggerFactory.getLogger(PollListManagerTest.class);	
 	

@@ -14,18 +14,18 @@
     </bean>
 
     <!-- create a data source (use the name Sakai uses) -->
-    <bean id="javax.sql.DataSource" 
-            class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
-        <property name="url"><value>${hibernate.connection.url}</value></property>
-        <property name="username"><value>${hibernate.connection.username}</value></property>
-        <property name="password"><value>${hibernate.connection.password}</value></property>
+    <bean id="javax.sql.DataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+        <property name="url" value="${hibernate.connection.url}"/>
+        <property name="username" value="${hibernate.connection.username}"/>
+        <property name="password" value="${hibernate.connection.password}"/>
     </bean>
 
    <!-- create a SessionFactory bean from the data source and point it at our HBMs,
       name it the same as the Sakai global one so we can reuse our other spring files -->
    <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
-      class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+      class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
       <property name="dataSource" ref="javax.sql.DataSource" />
       <property name="mappingResources" ref="hierarchy.hbmMappingList" />
       <property name="hibernateProperties">
@@ -42,7 +42,7 @@
    <!-- Create a transaction manager from the SessionFactory,
       name it the same as the Sakai one so we can reuse our other spring config files -->
    <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
-      class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+      class="org.springframework.orm.hibernate4.HibernateTransactionManager">
       <property name="sessionFactory"
          ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
    </bean>

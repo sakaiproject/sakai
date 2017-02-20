@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -101,8 +102,8 @@ public class TotalScoreUpdateListener
 
   }
 
-  private HashMap prepareAssessmentGradingHash(ArrayList assessmentGradingList){
-    HashMap map = new HashMap();
+  private Map prepareAssessmentGradingHash(List assessmentGradingList){
+    Map map = new HashMap();
     for (int i=0; i<assessmentGradingList.size(); i++){
       AssessmentGradingData a = (AssessmentGradingData)assessmentGradingList.get(i);
       map.put(a.getAssessmentGradingId(), a);
@@ -119,11 +120,11 @@ public class TotalScoreUpdateListener
   public boolean saveTotalScores(TotalScoresBean bean)
   {
 
-      ArrayList assessmentGradingList = bean.getAssessmentGradingList();
-      HashMap map = prepareAssessmentGradingHash(assessmentGradingList);
+      List assessmentGradingList = bean.getAssessmentGradingList();
+      Map map = prepareAssessmentGradingHash(assessmentGradingList);
       Collection agents = bean.getAgents();
       Iterator iter = agents.iterator();
-      ArrayList <AssessmentGradingData> grading = new ArrayList();
+      List <AssessmentGradingData> grading = new ArrayList();
       boolean hasNumberFormatException = false;
       StringBuffer idList = new StringBuffer(" ");
   	  String err = "";
@@ -133,7 +134,7 @@ public class TotalScoreUpdateListener
   	  if(applyToUngraded != null && !"".equals(applyToUngraded)){
   		  try{
   			  Double.valueOf(applyToUngraded).doubleValue();
-  			  ArrayList allAgents = bean.getAllAgentsDirect();
+  			  List allAgents = bean.getAllAgentsDirect();
   			  iter = allAgents.iterator();
   			  while(iter.hasNext()){
   				  AgentResults agentResults = (AgentResults) iter.next();
@@ -163,7 +164,7 @@ public class TotalScoreUpdateListener
   	  else {
   		  err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_user_id");
   	  }
-  	  ArrayList badAdjList = new ArrayList();
+  	  List badAdjList = new ArrayList();
   	  
   	  while (iter.hasNext())
   	  {
@@ -295,7 +296,7 @@ public class TotalScoreUpdateListener
       return true;
   }
 
-  private boolean needUpdate(AgentResults agentResults, HashMap map, StringBuilder newScoreString, TotalScoresBean bean) throws NumberFormatException{
+  private boolean needUpdate(AgentResults agentResults, Map map, StringBuilder newScoreString, TotalScoresBean bean) throws NumberFormatException{
     boolean update = true;
     String newComments = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, agentResults.getComments());
     agentResults.setComments(newComments);
@@ -397,7 +398,7 @@ public class TotalScoreUpdateListener
 	  List<AssessmentGradingAttachment> newList = agentResults.getAssessmentGradingAttachmentList();
 	  if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return false;
 	  List<AssessmentGradingAttachment> attachmentList = new ArrayList<>();
-	  HashMap<Long, AssessmentGradingAttachment> map = getAttachmentIdHash(oldList);
+	  Map<Long, AssessmentGradingAttachment> map = getAttachmentIdHash(oldList);
 	  for (int i=0; i<newList.size(); i++){
 		  AssessmentGradingAttachment assessmentGradingAttachment = (AssessmentGradingAttachment) newList.get(i);
 		  if (map.get(assessmentGradingAttachment.getAttachmentId()) != null){
@@ -432,8 +433,8 @@ public class TotalScoreUpdateListener
 	  return true;
   	}
   	
-  	private HashMap<Long, AssessmentGradingAttachment> getAttachmentIdHash(List<AssessmentGradingAttachment> list){
-	    HashMap<Long, AssessmentGradingAttachment> map = new HashMap<>();
+  	private Map<Long, AssessmentGradingAttachment> getAttachmentIdHash(List<AssessmentGradingAttachment> list){
+	    Map<Long, AssessmentGradingAttachment> map = new HashMap<>();
 	    for (int i=0; i<list.size(); i++){
 	    	AssessmentGradingAttachment a = list.get(i);
 	      map.put(a.getAttachmentId(), a);

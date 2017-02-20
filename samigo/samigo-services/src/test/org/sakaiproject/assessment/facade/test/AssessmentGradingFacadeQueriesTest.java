@@ -25,7 +25,6 @@ package org.sakaiproject.assessment.facade.test;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +32,8 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -40,15 +41,16 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 public class AssessmentGradingFacadeQueriesTest extends AbstractJUnit4SpringContextTests {
 	
 	/** our query object */
-	AssessmentGradingFacadeQueries queries = null;
+	@Autowired
+	@Qualifier("assessmentGradingFacadeQueries")
+	private AssessmentGradingFacadeQueries queries;
+
 	Long savedId = null;
 	Long item1Id = null;
 	Long item2Id = null;
 	
 	@Before
 	public void onSetUpInTransaction() throws Exception {
-		queries = new AssessmentGradingFacadeQueries();
-		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
 		//Set the persistance helper
 		PersistenceHelper persistenceHelper = new PersistenceHelper();
 		persistenceHelper.setDeadlockInterval(3500);

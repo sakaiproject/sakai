@@ -21,11 +21,6 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,14 +29,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
@@ -60,9 +53,11 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.util.api.FormattedText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
@@ -99,14 +94,12 @@ public class QuestionPoolFacadeQueries
 
 
   public List getAllPoolsByAgent(final String agentId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("from QuestionPoolData a  where a.questionPoolId in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId= ?) ");
-	    		q.setString(0, agentId);
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
+	    final HibernateCallback<List> hcb = session -> {
+            Query q = session.createQuery("from QuestionPoolData a  where a.questionPoolId in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId = :agent) ");
+            q.setString("agent", agentId);
+            return q.list();
+        };
+	    List list = getHibernateTemplate().execute(hcb);
 
     return list;
 
@@ -123,14 +116,16 @@ public class QuestionPoolFacadeQueries
    * e.g. if no qpa record exists, then access rule will follow the defaultAccessType set by the pool
    */
   public QuestionPoolIteratorFacade getAllPools(String agentId) {
-    ArrayList qpList = new ArrayList();
+    List qpList = new ArrayList();
 
     // #1.
     // lydial: 9/22/05 we are not really using QuestionPoolAccessData, so filter by ownerid 
     //List poolList = getAllPools(); 
-    List poolList = getHibernateTemplate().find(
-    		"from QuestionPoolData a where a.ownerId= ? ",
-    		new Object[] {agentId}); 
+    HibernateCallback<List<QuestionPoolData>> hcb = session -> session
+            .createQuery("from QuestionPoolData a where a.ownerId = :id")
+            .setString("id", agentId)
+            .list();
+    List<QuestionPoolData> poolList = getHibernateTemplate().execute(hcb);
 /*
     // #2. get all the QuestionPoolAccessData record belonging to the agent
     List questionPoolAccessList = getHibernateTemplate().find(
@@ -151,32 +146,16 @@ public class QuestionPoolFacadeQueries
     try {
     	// counts is a hashmap going from poolid to number of subpools. It is significantly
     	// faster to build this with a single SQL query and then look up data in it.
-    	HashMap counts = new HashMap();
+        Map<Long, Long> counts = getSubPoolSizes(agentId).stream().collect(Collectors.toMap(pool -> pool[0], pool -> pool[1]));
 
-    	// hibernate returns a list of arrays, the arrays being the values
-    	// returned by the query, in this case poolid and count. Both are
-    	// returned as BigInteger. We need Long and Integer.
-    	Iterator i1 = getSubPoolSizes(agentId).iterator();
-    	while (i1.hasNext()) {
-    		Object[]result = (Object [])i1.next();
-    		//counts.put( Long.valueOf(((Integer)result[0]).longValue()), Integer.valueOf(((Integer)result[1]).intValue()));
-    		counts.put((Long) result[0], (Integer)result[1]);
-        	
-    	}    	
-
-    	Iterator j = poolList.iterator();
-    	while (j.hasNext()) {
-    		QuestionPoolData qpp = (QuestionPoolData) j.next();
+        for (QuestionPoolData qpp : poolList) {
     		// I really wish we don't need to populate  the questionpool size & subpool size for JSF
     		// watch this for performance. hope Hibernate is smart enough not to load the entire question
     		// - daisy, 10/04/04
     		// populateQuestionPoolItemDatas(qpp);
     		// lookup number of subpools for this pool in our handy hash table
-    		Integer subPoolSize = (Integer)counts.get( Long.valueOf(qpp.getQuestionPoolId()));
-    		if (subPoolSize == null)
-    			qpp.setSubPoolSize( Integer.valueOf(0));
-    		else
-    			qpp.setSubPoolSize(subPoolSize);
+    		Long subPoolSize = counts.get(qpp.getQuestionPoolId());
+            qpp.setSubPoolSize(subPoolSize == null ? 0L : subPoolSize);
 
     		qpList.add(getQuestionPool(qpp));
     	}
@@ -188,15 +167,10 @@ public class QuestionPoolFacadeQueries
   }
 
   public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId) {
-	  ArrayList qpList = new ArrayList();
-	  HashMap<Long, Integer> counts = new HashMap<Long, Integer>();
-	  
+	  List qpList = new ArrayList();
+
 	  // First get the size of all pools in one query
-	  Iterator i1 = getSubPoolSizes(agentId).iterator();
-	  while (i1.hasNext()) {
-  		Object[]result = (Object [])i1.next();
-  		counts.put((Long) result[0], (Integer)result[1]);
-	  }
+      Map<Long, Long> counts = getSubPoolSizes(agentId).stream().collect(Collectors.toMap(pool -> pool[0], pool -> pool[1]));
 
 	  List poolList = getAllPoolsByAgent(agentId); 
 
@@ -215,18 +189,17 @@ public class QuestionPoolFacadeQueries
 	  return new QuestionPoolIteratorFacade(qpList);
   }
   
-  public ArrayList<QuestionPoolFacade> getBasicInfoOfAllPools(final String agentId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
-	    		                              "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId= ?)");
-	    		q.setString(0, agentId);
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
+  public List<QuestionPoolFacade> getBasicInfoOfAllPools(final String agentId) {
+      final HibernateCallback<List> hcb = session -> {
+          Query q = session.createQuery(
+                  "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
+                          "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId = :agent)");
+          q.setString("agent", agentId);
+          return q.list();
+      };
+      List list = getHibernateTemplate().execute(hcb);
 
-    ArrayList<QuestionPoolFacade> poolList = new ArrayList<QuestionPoolFacade>();
+    List<QuestionPoolFacade> poolList = new ArrayList<QuestionPoolFacade>();
     for (int i = 0; i < list.size(); i++) {
       QuestionPoolData a = (QuestionPoolData) list.get(i);
       QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(), a.getTitle(), a.getParentPoolId());
@@ -248,7 +221,7 @@ public class QuestionPoolFacadeQueries
   private List getAllItemsInThisPoolOnlyAndDetachFromAssessment(final Long questionPoolId) {
   // return items that belong to this pool and this pool only.  These items can not be part of any assessment either.
     List list = getAllItemsInThisPoolOnly(questionPoolId);
-    ArrayList newlist = new ArrayList();
+    List newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
       if (itemdata.getSection()==null ) {
@@ -270,16 +243,14 @@ public class QuestionPoolFacadeQueries
 
   private List getAllItemsInThisPoolOnly(final Long questionPoolId) {
   // return items that belong to this pool and this pool only.  
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
-	    		q.setLong(0, questionPoolId.longValue());
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
+	    final HibernateCallback<List> hcb = session -> {
+            Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id");
+            q.setLong("id", questionPoolId);
+            return q.list();
+        };
+	    List list = getHibernateTemplate().execute(hcb);
 
-    ArrayList newlist = new ArrayList();
+    List newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
       String itemId = itemdata.getItemId().toString();
@@ -295,22 +266,13 @@ public class QuestionPoolFacadeQueries
 
 
   public List getAllItems(final Long questionPoolId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab.itemId");
-	    		q.setLong(0, questionPoolId.longValue());
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
-
-//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
-//                                            new Object[] {questionPoolId}
-//                                            ,
-//                                            new org.hibernate.type.Type[] {Hibernate.
-//                                            LONG});
-    return list;
-
+	    final HibernateCallback<List> hcb = session -> {
+            Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id order by ab.itemId");
+            q.setLong("id", questionPoolId.longValue());
+            return q.list();
+        };
+	    List list = getHibernateTemplate().execute(hcb);
+        return list;
   }
 
   	public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
@@ -321,7 +283,7 @@ public class QuestionPoolFacadeQueries
 	    List list = getAllItems(questionPoolId);
 
 	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: size = {}", list.size());
-	    HashMap hp = new HashMap();
+	    Map hp = new HashMap();
 	    Vector origValueV;
 	    ItemData itemData;
 	    ItemFacade itemFacade;
@@ -345,13 +307,13 @@ public class QuestionPoolFacadeQueries
 	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: origValueV is null");
 	    		origValueV = new Vector();
 	    	}
-	    	origValueV.add( Integer.valueOf(i));
+	    	origValueV.add(i);
 	    	hp.put(text, origValueV);
 	    }
     
 	    Vector v = new Vector(hp.keySet());
 	    Collections.sort(v, String.CASE_INSENSITIVE_ORDER);
-	    ArrayList itemList = new ArrayList();
+	    List itemList = new ArrayList();
     
 	    Iterator it = v.iterator();
 	    Vector orderdValueV;
@@ -366,7 +328,7 @@ public class QuestionPoolFacadeQueries
 		    while (iter.hasNext()) {
 			value =  (Integer)iter.next();
     	 
-			ItemData itemdata = (ItemData) list.get(value.intValue());
+			ItemData itemdata = (ItemData) list.get(value);
 			ItemFacade f = new ItemFacade(itemdata);
 			itemList.add(f);
 		    }
@@ -380,7 +342,7 @@ public class QuestionPoolFacadeQueries
 		    while (iter.hasNext()) {
 	    		value =  (Integer)iter.next();
 	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (value) = {}", value);
-	    		itemFacade = (ItemFacade) facadeVector.get(value.intValue());
+	    		itemFacade = (ItemFacade) facadeVector.get(value);
 	    		itemList.add(itemFacade);
 		    }
 		}
@@ -391,33 +353,24 @@ public class QuestionPoolFacadeQueries
   public List getAllItemFacadesOrderByItemType(final Long questionPoolId,
                                                final String orderBy, final String ascending) {
 	  log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: orderBy=" + orderBy);
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-		    Query q;
-                    if("false".equals(ascending)){
-		         q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
-                        orderBy + " desc");
-		    }
-		    else{
-	    	     	q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
-                        orderBy);
-		    }
-                       
-	    	   q.setLong(0, questionPoolId.longValue());
-	    	   log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: getQueryString() = " + q.getQueryString());
-	    	   return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
+      final HibernateCallback<List> hcb = session -> {
+          Query q;
+          if ("false".equals(ascending)) {
+              q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = :id order by t." +
+                      orderBy + " desc");
+          } else {
+              q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = :id order by t." +
+                      orderBy);
+          }
 
-//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
-//                                            orderBy,
-//                                            new Object[] {questionPoolId}
-//                                            ,
-//                                            new org.hibernate.type.Type[] {Hibernate.
-//                                            LONG});
-	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: size = " + list.size());
-    ArrayList itemList = new ArrayList();
+          q.setLong("id", questionPoolId);
+          log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: getQueryString() = " + q.getQueryString());
+          return q.list();
+      };
+      List list = getHibernateTemplate().execute(hcb);
+
+	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: size = {}", list.size());
+    List itemList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
       ItemFacade f = new ItemFacade(itemdata);
@@ -427,21 +380,14 @@ public class QuestionPoolFacadeQueries
   }
 
   public List getAllItemFacades(final Long questionPoolId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab.itemId");
-	    		q.setLong(0, questionPoolId.longValue());
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
+    final HibernateCallback<List> hcb = session -> {
+        Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = :id order by ab.itemId");
+        q.setLong("id", questionPoolId.longValue());
+        return q.list();
+    };
+    List list = getHibernateTemplate().execute(hcb);
 
-//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
-//                                            new Object[] {questionPoolId}
-//                                            ,
-//                                            new org.hibernate.type.Type[] {Hibernate.
-//                                            LONG});
-    ArrayList itemList = new ArrayList();
+    List itemList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
       ItemFacade f = new ItemFacade(itemdata);
@@ -455,10 +401,9 @@ public class QuestionPoolFacadeQueries
     try {
       Set questionPoolItems = qpp.getQuestionPoolItems();
       if (questionPoolItems != null) {
-
         List itemList = getAllItems(qpp.getQuestionPoolId());
         qpp.setQuestions(itemList);
-        qpp.setSubPoolSize( Integer.valueOf(getSubPoolSize(qpp.getQuestionPoolId())));
+        qpp.setSubPoolSize(getSubPoolSize(qpp.getQuestionPoolId()));
       }
     }
     catch (Exception e) {
@@ -518,22 +463,14 @@ public class QuestionPoolFacadeQueries
 
   public QuestionPoolAccessData getQuestionPoolAccessData(final Long poolId,
       final String agentId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("from QuestionPoolAccessData as qpa where qpa.questionPoolId =? and qpa.agentId=?");
-	    		q.setLong(0, poolId.longValue());
-	    		q.setString(1, agentId);
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
-
-//    List list = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId =? and qpa.agentId=?",
-//                                            new Object[] {poolId, agentId}
-//                                            ,
-//                                            new org.hibernate.type.Type[] {Hibernate.
-//                                            LONG, Hibernate.STRING});
-    return (QuestionPoolAccessData) list.get(0);
+	    final HibernateCallback<List> hcb = session -> {
+            Query q = session.createQuery("from QuestionPoolAccessData as qpa where qpa.questionPoolId = :id and qpa.agentId = :agent");
+            q.setLong("id", poolId);
+            q.setString("agent", agentId);
+            return q.list();
+        };
+	    List list = getHibernateTemplate().execute(hcb);
+        return (QuestionPoolAccessData) list.get(0);
   }
 
   /**
@@ -553,7 +490,7 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
   public void addItemToPool(QuestionPoolItemData qpi) {
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
         getHibernateTemplate().save(qpi);
@@ -583,7 +520,7 @@ public class QuestionPoolFacadeQueries
       // lydial:  getting list of items that only belong to this pool and not linked to any assessments. 
       List itemList = getAllItemsInThisPoolOnlyAndDetachFromAssessment(poolId);
 
-      int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+      int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
       while (retryCount > 0){
         try {
           getHibernateTemplate().deleteAll(itemList); // delete all AssetBeanie
@@ -597,26 +534,23 @@ public class QuestionPoolFacadeQueries
 
 
       // #2. delete question and questionpool map.
-      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
       while (retryCount > 0){
         try {
-          final HibernateCallback hcb = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId= ?");
-              q.setLong(0, poolId.longValue());
-              return q.list();
-    	    };
+          final HibernateCallback<List> hcb = session -> {
+            Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId = :id");
+            q.setLong("id", poolId);
+            return q.list();
           };
-          List list = getHibernateTemplate().executeFind(hcb);
+          List list = getHibernateTemplate().execute(hcb);
 
           // a. delete item and pool association in SAM_ITEMMETADATA_T - this is the primary
           // pool that item is attached to
-          ArrayList<ItemMetaDataIfc> metaList = new ArrayList<>();
+          List<ItemMetaDataIfc> metaList = new ArrayList<>();
           for (int j=0; j<list.size(); j++){
             Long itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
-            String query = "from ItemMetaData as meta where meta.item.itemId=? and meta.label=?";
-            Object [] values = {Long.valueOf(itemId), ItemMetaDataIfc.POOLID};
-    	    List m = getHibernateTemplate().find(query, values);
+            String query = "from ItemMetaData as meta where meta.item.itemId = :id and meta.label = :label";
+    	    List m = getHibernateTemplate().findByNamedParam(query, new String[] {"id", "label"}, new Object[] {itemId, ItemMetaDataIfc.POOLID});
             if (m.size()>0){
               ItemMetaDataIfc meta = (ItemMetaDataIfc)m.get(0);
               meta.setEntry(null);
@@ -630,7 +564,7 @@ public class QuestionPoolFacadeQueries
             retryCount = 0;
           }
           catch (DataAccessException e) {
-            log.warn("problem delete question and questionpool map inside itemMetaData: "+e.getMessage());
+            log.warn("problem delete question and questionpool map inside itemMetaData: {}", e.getMessage());
             retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
           }
 
@@ -653,17 +587,15 @@ public class QuestionPoolFacadeQueries
       // Actually, I don't think we have ever implemented sharing between agents. So we may wnat to
       // clean up this bit of code - daisyf 07/07/06
       // #3a. Delete all shared pool by him sons
-      final HibernateCallback hcb = new HibernateCallback(){
-    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-          Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa, QuestionPoolData as qpp " +
-        		  						"where qpa.questionPoolId = qpp.questionPoolId and (qpp.questionPoolId=? or qpp.parentPoolId=?) ");
-          q.setLong(0, poolId.longValue());
-          q.setLong(1, poolId.longValue());
-          return q.list();
-    	};
+      final HibernateCallback<List> hcb = session -> {
+        Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa, QuestionPoolData as qpp " +
+                "where qpa.questionPoolId = qpp.questionPoolId and (qpp.questionPoolId = :qid or qpp.parentPoolId = :pid) ");
+        q.setLong("qid", poolId);
+        q.setLong("pid", poolId);
+        return q.list();
       };
-      List qpaList = getHibernateTemplate().executeFind(hcb);
-      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+      List qpaList = getHibernateTemplate().execute(hcb);
+      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
       while (retryCount > 0){
         try {
           getHibernateTemplate().deleteAll(qpaList);
@@ -676,15 +608,13 @@ public class QuestionPoolFacadeQueries
       }
 
       // #4. Ready! delete pool now
-      final HibernateCallback hcb2 = new HibernateCallback(){
-    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    		Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.id= ?");
-    		q.setLong(0, poolId.longValue());
-    		return q.list();
-    	};
+      final HibernateCallback<List> hcb2 = session -> {
+          Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.id = :id");
+          q.setLong("id", poolId);
+          return q.list();
       };
-      List qppList = getHibernateTemplate().executeFind(hcb2);
-      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+      List qppList = getHibernateTemplate().execute(hcb2);
+      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
       while (retryCount > 0){
         try {
           getHibernateTemplate().deleteAll(qppList);
@@ -717,7 +647,7 @@ public class QuestionPoolFacadeQueries
       if (destPoolId.equals(QuestionPoolFacade.ROOT_POOL) &&
           !sourcePoolId.equals(QuestionPoolFacade.ROOT_POOL)) {
         sourcePool.setParentPoolId(QuestionPoolFacade.ROOT_POOL);
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
         getHibernateTemplate().update( (QuestionPoolData) sourcePool.getData());
@@ -732,7 +662,7 @@ public class QuestionPoolFacadeQueries
       else {
         QuestionPoolFacade destPool = getPool(destPoolId, agentId);
         sourcePool.setParentPoolId(destPool.getQuestionPoolId());
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
         getHibernateTemplate().update( (QuestionPoolData) sourcePool.getData());
@@ -783,7 +713,7 @@ public class QuestionPoolFacadeQueries
    */
   public void removeItemFromPool(Long itemId, Long poolId) {
     QuestionPoolItemData qpi = new QuestionPoolItemData(poolId, itemId);
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
         getHibernateTemplate().delete(qpi);
@@ -804,7 +734,7 @@ public class QuestionPoolFacadeQueries
    */
   public void moveItemToPool(Long itemId, Long sourceId, Long destId) {
     QuestionPoolItemData qpi = new QuestionPoolItemData(sourceId, itemId);
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
         getHibernateTemplate().delete(qpi);
@@ -816,7 +746,7 @@ public class QuestionPoolFacadeQueries
       }
     }
     QuestionPoolItemData qpi2 = new QuestionPoolItemData(destId, itemId);
-    retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+    retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
         getHibernateTemplate().save(qpi2);
@@ -840,7 +770,7 @@ public class QuestionPoolFacadeQueries
       QuestionPoolData qpp = (QuestionPoolData) pool.getData();
       qpp.setLastModified(new Date());
       qpp.setLastModifiedById(AgentFacade.getAgentString());
-      int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+      int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
       if (qpp.getQuestionPoolId() == null ||
           qpp.getQuestionPoolId().equals(new Long("0"))) { // indicate a new pool
         insert = true;
@@ -860,7 +790,7 @@ public class QuestionPoolFacadeQueries
         // add a QuestionPoolAccessData record for the owner who should have ADMIN access to the pool
         QuestionPoolAccessData qpa = new QuestionPoolAccessData(qpp.
             getQuestionPoolId(), qpp.getOwnerId(), QuestionPoolData.ADMIN);
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
         while (retryCount > 0){
           try {
             getHibernateTemplate().save(qpa);
@@ -879,8 +809,10 @@ public class QuestionPoolFacadeQueries
         if (parentPoolId != 0) {
         	List<QuestionPoolAccessData> listSubpool = new ArrayList();
         	try {
-        		listSubpool = (List<QuestionPoolAccessData>) getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
-        				new Object[] { Long.valueOf(parentPoolId), ownerId});
+        		listSubpool = (List<QuestionPoolAccessData>) getHibernateTemplate()
+                        .findByNamedParam("from QuestionPoolAccessData as qpa where qpa.questionPoolId = :id and qpa.agentId <> :agent",
+                                new String[] {"id", "agent"},
+                                new Object[] { Long.valueOf(parentPoolId), ownerId});
         	} catch (Exception e1) {
         		log.warn("problem finding pool: "+e1.getMessage());
         	}
@@ -889,7 +821,7 @@ public class QuestionPoolFacadeQueries
         		QuestionPoolAccessData(qpp.getQuestionPoolId(),
         				questioPoolData.getAgentId(), QuestionPoolData.READ_COPY);
         		retryCount =
-        			PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
+                        PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
         		while (retryCount > 0){
         			try {
         				getHibernateTemplate().save(qpa);
@@ -921,46 +853,42 @@ public class QuestionPoolFacadeQueries
    */
 
   public List getSubPools(final Long poolId) {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("from QuestionPoolData as qpp where qpp.parentPoolId=?");
-	    		q.setLong(0, poolId.longValue());
-	    		return q.list();
-	    	};
-	    };
-	    return getHibernateTemplate().executeFind(hcb);
+	    final HibernateCallback<List> hcb = session -> {
+            Query q = session.createQuery("from QuestionPoolData as qpp where qpp.parentPoolId = :id");
+            q.setLong("id", poolId.longValue());
+            return q.list();
+        };
+	    return getHibernateTemplate().execute(hcb);
   }
 
-  // get number of subpools for each pool in a single query.
-  // returns a List of arrays. Each array is 0: poolid, 1: count of subpools
-  // both are BigInteger.
-  public List getSubPoolSizes(final String agent) {
-	  final HibernateCallback hcb = new HibernateCallback(){
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select a.questionPoolId, (select count(*) from QuestionPoolData b where b.parentPoolId=a.questionPoolId) " +
-			  		"from QuestionPoolData a where a.ownerId=?");
-			  q.setCacheable(true);
-			  q.setString(0, agent);
-			  return q.list();
-		  };
-	  };
-	  return getHibernateTemplate().executeFind(hcb);
+  @Override
+  public List<Long[]> getSubPoolSizes(final String agent) {
+	  final HibernateCallback<List<Object[]>> hcb = session -> {
+          Query q = session.createQuery("select a.questionPoolId, (select count(*) from QuestionPoolData b where b.parentPoolId=a.questionPoolId) " +
+                  "from QuestionPoolData a where a.ownerId = :id");
+          q.setCacheable(true);
+          q.setString("id", agent);
+          return q.list();
+      };
+	  List<Object[]> objectResult = getHibernateTemplate().execute(hcb);
+	  List<Long[]> longResult = new ArrayList<>(objectResult.size());
+	  for (Object[] array : objectResult) {
+	      longResult.add(new Long[]{((Number) array[0]).longValue(), ((Number) array[1]).longValue()});
+      }
+      return longResult;
   }
 
   //number of subpools for this pool. But consider getSubPoolSizes if you're going to 
   // need this for all the pools.
-  public int getSubPoolSize(final Long poolId) {
-	  final HibernateCallback hcb = new HibernateCallback(){
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select count(qpp) from QuestionPoolData qpp where qpp.parentPoolId=?");
-			  q.setCacheable(true);
-			  q.setLong(0, poolId.longValue());
-			  return q.uniqueResult();
-		  };
-	  };
+  public long getSubPoolSize(final Long poolId) {
+	  final HibernateCallback<Number> hcb = session -> {
+          Query q = session.createQuery("select count(qpp) from QuestionPoolData qpp where qpp.parentPoolId = :id");
+          q.setCacheable(true);
+          q.setLong("id", poolId);
+          return (Number) q.uniqueResult();
+      };
 	  
-	  Integer count = (Integer)getHibernateTemplate().execute(hcb);	    
-	  return count.intValue();
+	  return getHibernateTemplate().execute(hcb).longValue();
   }
 
   /**
@@ -973,7 +901,7 @@ public class QuestionPoolFacadeQueries
   // for lots of pools consider doing getSubPoolSizes, saving the results
   // and then testing.
   public boolean hasSubPools(final Long poolId) {
-	  int poolSize = getSubPoolSize(poolId);
+	  long poolSize = getSubPoolSize(poolId);
 	  if (poolSize >= 0) 
 		  return true;
 	  else
@@ -981,22 +909,17 @@ public class QuestionPoolFacadeQueries
   }
 
   public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId, final String agentId) {
-    final HibernateCallback hcb = new HibernateCallback(){
-    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=? and a.ownerId = ? ");
-    		q.setLong(0, questionPoolId.longValue());
-    		q.setString(1, title);
-    		q.setLong(2, parentPoolId.longValue());
-    		q.setString(3, agentId);
-    		return q.list();
-    	};
+    final HibernateCallback<List> hcb = session -> {
+        Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a " +
+                "where a.questionPoolId != :qid and a.title = :title and a.parentPoolId = :pid and a.ownerId = :agent");
+        q.setLong("qid", questionPoolId);
+        q.setString("title", title);
+        q.setLong("pid", parentPoolId);
+        q.setString("agent", agentId);
+        return q.list();
     };
-    List list = getHibernateTemplate().executeFind(hcb);
+    List list = getHibernateTemplate().execute(hcb);
 
-//     List list = getHibernateTemplate().find(
-//        "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?",
-//        new Object[] {questionPoolId,title,parentPoolId}
-//       , new org.hibernate.type.Type[] {Hibernate.LONG,Hibernate.STRING, Hibernate.LONG});
     boolean isUnique = true;
     if(list.size()>0) {
      // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
@@ -1021,16 +944,14 @@ public class QuestionPoolFacadeQueries
    */
 
   public List<Long> getPoolIdsByAgent(final String agentId) {
-    ArrayList<Long> idList = new ArrayList<Long>();
+    List<Long> idList = new ArrayList<Long>();
 
-    final HibernateCallback hcb = new HibernateCallback(){
-    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    		Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.agentId= ?");
-    		q.setString(0, agentId);
-    		return q.list();
-    	};
+    final HibernateCallback<List> hcb = session -> {
+        Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.agentId = :id");
+        q.setString("id", agentId);
+        return q.list();
     };
-    List qpaList = getHibernateTemplate().executeFind(hcb);
+    List qpaList = getHibernateTemplate().execute(hcb);
 
     try {
       Iterator iter = qpaList.iterator();
@@ -1053,21 +974,15 @@ public class QuestionPoolFacadeQueries
    */
 
   public List getPoolIdsByItem(final String itemId) {
-    ArrayList idList = new ArrayList();
+    List idList = new ArrayList();
     
-    final HibernateCallback hcb = new HibernateCallback(){
-    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    		Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.itemId= ?");
-    		q.setString(0, itemId);
-    		return q.list();
-    	};
+    final HibernateCallback<List> hcb = session -> {
+        Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.itemId = :id");
+        q.setString("id", itemId);
+        return q.list();
     };
-    List qpiList = getHibernateTemplate().executeFind(hcb);
+    List qpiList = getHibernateTemplate().execute(hcb);
 
-//    List qpiList = getHibernateTemplate().find(
-//        "select qpi from QuestionPoolItemData as qpi where qpi.itemId= ?",
-//        new Object[] {itemId}
-//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     try {
       Iterator iter = qpiList.iterator();
       while (iter.hasNext()) {
@@ -1131,7 +1046,7 @@ public class QuestionPoolFacadeQueries
 
       newPool = savePool(newPool);
       Iterator iter = oldPool.getQuestions().iterator();
-      ArrayList itemDataArray = new ArrayList();
+      List itemDataArray = new ArrayList();
       while (iter.hasNext()) {
     	  ItemDataIfc itemData = (ItemDataIfc) iter.next();
     	  ItemFacade itemFacade = copyItemFacade2(itemData);
@@ -1201,8 +1116,8 @@ public class QuestionPoolFacadeQueries
     return questionPoolFacade;
   }
 
-  public HashMap getQuestionPoolItemMap(){
-    HashMap h = new HashMap();
+  public Map getQuestionPoolItemMap(){
+    Map h = new HashMap();
     String query = "from QuestionPoolItemData";
     List l = getHibernateTemplate().find(query);
     for (int i = 0; i < l.size(); i++) {
@@ -1212,8 +1127,8 @@ public class QuestionPoolFacadeQueries
     return h;
   }
 
-  public HashSet prepareQuestions(Long questionPoolId, ArrayList itemDataArray){
-    HashSet set = new HashSet();
+  public Set prepareQuestions(Long questionPoolId, List itemDataArray){
+    Set set = new HashSet();
     Iterator iter = itemDataArray.iterator();
     while (iter.hasNext()){
       ItemDataIfc itemData = (ItemDataIfc) iter.next();
@@ -1324,8 +1239,8 @@ public class QuestionPoolFacadeQueries
       return item;
   }
 
-  private HashSet copyItemText(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
-	    HashSet toItemTextSet = new HashSet();
+  private Set copyItemText(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	    Set toItemTextSet = new HashSet();
 	    Set fromItemTextSet = fromItemData.getItemTextSet();
 	    Iterator itemTextIter = fromItemTextSet.iterator();
 	      while (itemTextIter.hasNext()) {
@@ -1336,7 +1251,7 @@ public class QuestionPoolFacadeQueries
 	    	  toItemText.setText(fromItemText.getText());
                   toItemText.setRequiredOptionsCount(fromItemText.getRequiredOptionsCount());
 	    	  
-	    	  HashSet toAnswerSet = new HashSet();
+	    	  Set toAnswerSet = new HashSet();
 	    	  Set fromAnswerSet = fromItemText.getAnswerSet();
 	    	  Iterator answerIter = fromAnswerSet.iterator();
 	    	  while (answerIter.hasNext()) {
@@ -1346,7 +1261,7 @@ public class QuestionPoolFacadeQueries
 	    				  //fromAnswer.getCorrectOptionLabels(), 
 	    				  null);
 	    		  
-	    		  HashSet toAnswerFeedbackSet = new HashSet();
+	    		  Set toAnswerFeedbackSet = new HashSet();
 	    		  Set fromAnswerFeedbackSet = fromAnswer.getAnswerFeedbackSet();
 	    		  Iterator answerFeedbackIter = fromAnswerFeedbackSet.iterator();
 	    		  while (answerFeedbackIter.hasNext()) {
@@ -1362,8 +1277,8 @@ public class QuestionPoolFacadeQueries
 	      return toItemTextSet;
 }
   
-  private HashSet copyMetaData(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
-	    HashSet toSet = new HashSet();
+  private Set copyMetaData(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	    Set toSet = new HashSet();
 	    Set fromSet = fromItemData.getItemMetaDataSet();
 	    Iterator iter = fromSet.iterator();
 	    while (iter.hasNext()) {
@@ -1380,18 +1295,15 @@ public class QuestionPoolFacadeQueries
 	  return toSet;
   }
   
-  public Integer getCountItemFacades(final Long questionPoolId) {	    
-	  final HibernateCallback hcb = new HibernateCallback(){
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
-			  q.setLong(0, questionPoolId.longValue());
-			  q.setCacheable(true);
-			  return q.uniqueResult();
-		  };
-	  };
+  public Integer getCountItemFacades(final Long questionPoolId) {
+      final HibernateCallback<Number> hcb = session -> {
+          Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId = qpi.itemId and qpi.questionPoolId = :id");
+          q.setLong("id", questionPoolId);
+          q.setCacheable(true);
+          return (Number) q.uniqueResult();
+      };
 	  	    
-	  Integer count = (Integer)getHibernateTemplate().execute(hcb);	    
-	  return count;
+	  return getHibernateTemplate().execute(hcb).intValue();
   }
   
   /**
@@ -1401,26 +1313,23 @@ public class QuestionPoolFacadeQueries
    * This was originally written for SAM-2463 to speed up these counts. 
    * @param agentId Sakai internal user id. Most likely the currently logged in user
    */
-  public HashMap<Long, Integer> getCountItemFacadesForUser(final String agentId) {	    
-	  final HibernateCallback hcb = new HibernateCallback(){
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " + 
-					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? AND qpad.accessTypeId!=? " + 
-					  "group by qpi.questionPoolId");
-			  q.setString(0, agentId);
-			  q.setLong(1, QuestionPoolData.ACCESS_DENIED);
-			  q.setCacheable(true);
-			  return q.list();
-		  };
-	  };
+  public Map<Long, Integer> getCountItemFacadesForUser(final String agentId) {
+	  final HibernateCallback<List<Object[]>> hcb = session -> {
+          Query q = session.createQuery(
+                  "select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " +
+                  "where ab.itemId = qpi.itemId and qpi.questionPoolId = qpd.questionPoolId AND qpd.questionPoolId = qpad.questionPoolId AND qpad.agentId = :agent AND qpad.accessTypeId != :access " +
+                  "group by qpi.questionPoolId");
+          q.setString("agent", agentId);
+          q.setLong("access", QuestionPoolData.ACCESS_DENIED);
+          q.setCacheable(true);
+          return q.list();
+      };
 
-	  HashMap<Long, Integer> counts = new HashMap<Long, Integer>();
-	  List list = getHibernateTemplate().executeFind(hcb);
+	  Map<Long, Integer> counts = new HashMap<>();
+	  List<Object[]> list = getHibernateTemplate().execute(hcb);
 
-	  Iterator i1 = list.iterator();
-	  while (i1.hasNext()) {
-		  Object[]result = (Object [])i1.next();
-		  counts.put((Long) result[0], (Integer)result[1]);
+	  for (Object[] result : list) {
+		  counts.put(((Number) result[0]).longValue(), ((Number) result[1]).intValue());
 	  }
 
 	  return counts;
@@ -1453,16 +1362,14 @@ public class QuestionPoolFacadeQueries
   }
 
   public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId) {
-	  final HibernateCallback hcb = new HibernateCallback(){
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?");
-			  q.setLong(0, questionPoolId.longValue());
-			  return q.list();
-		  };
-	  };
-	  List<QuestionPoolAccessData> qpaList = (List<QuestionPoolAccessData>) getHibernateTemplate().executeFind(hcb);
+	  final HibernateCallback<List<QuestionPoolAccessData>> hcb = session -> {
+          Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId = :id");
+          q.setLong("id", questionPoolId);
+          return q.list();
+      };
+	  List<QuestionPoolAccessData> qpaList = getHibernateTemplate().execute(hcb);
 
-	  List<AgentFacade> agents = new ArrayList();
+	  List<AgentFacade> agents = new ArrayList<>();
 	  for (QuestionPoolAccessData pool : qpaList) {
 		  AgentFacade agent = new AgentFacade(pool.getAgentId());
 		  agents.add(agent);
@@ -1476,15 +1383,12 @@ public class QuestionPoolFacadeQueries
   // **********************************************
   
   public List<QuestionPoolData> getAllPoolsForTransfer(final List<Long> selectedPoolIds) {  
-	  final HibernateCallback hcb = new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("FROM QuestionPoolData a WHERE a.questionPoolId IN (:ids)");
-			  q. setParameterList("ids", selectedPoolIds);
-			  return q.list();
-		  };
-	  };
-	  List list = getHibernateTemplate().executeFind(hcb);
-	  return list;	  
+	  final HibernateCallback<List> hcb = session -> {
+          Query q = session.createQuery("FROM QuestionPoolData a WHERE a.questionPoolId IN (:ids)");
+          q. setParameterList("ids", selectedPoolIds);
+          return q.list();
+      };
+	  return getHibernateTemplate().execute(hcb);
   }
 	
   private String createQueryString(List<Long> poolIds) {
@@ -1545,9 +1449,7 @@ public class QuestionPoolFacadeQueries
 	  
   public void transferPoolsOwnership(String ownerId, final List<Long> transferPoolIds) {
   	  Session session = null;
-  	  Connection conn = null;
-  	  PreparedStatement statement = null;
-  
+
   	  // Get all pools to be transferred
   	  List<QuestionPoolData> transferPoolsData = getAllPoolsForTransfer(transferPoolIds);
   
@@ -1579,54 +1481,27 @@ public class QuestionPoolFacadeQueries
   	  // For updating SAM_QUESTIONPOOL_T, I can use hibernate but it will have many db calls. (I didn't find an efficient way to bulk update.) So used jdbc here again.
   	  try {
   		  session = getSessionFactory().openSession();
-  		  conn = session.connection();
-                  boolean autoCommit = conn.getAutoCommit();
+          session.beginTransaction();
   		  String query = "";
   		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
-  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = ? WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND accesstypeid = 34";
-  			  statement = conn.prepareStatement(query);
-  			  statement.setString(1, ownerId);
-  			  statement.executeUpdate();
-  			  
-  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = ? WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
-			  statement = conn.prepareStatement(query);
-  			  statement.setString(1, ownerId);
-			  statement.executeUpdate();
-                          
-                          if (!autoCommit) {
-                              conn.commit();
-                          }
+  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = :id WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ") AND accesstypeid = 34";
+  			  session.createSQLQuery(query).setString("id", ownerId).executeUpdate();
+
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = :id WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
+			  session.createSQLQuery(query).setString("id", ownerId).executeUpdate();
+              session.flush();
   		  }
   
   		  // if the pool has parent but the parent doesn't transfer, need to remove the child-parent relationship.
   		  if (!"".equals(removeParentPoolString)) {
   			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (" + removeParentPoolString + ")";
-  			  statement = conn.prepareStatement(query);
-  			  statement.executeUpdate();	
-                          
-                          if (!autoCommit) {
-                              conn.commit();
-                          }
+  			  session.createSQLQuery(query).executeUpdate();
+              session.flush();
   		  }
+  		  session.getTransaction().commit();
   	  } catch (Exception ex) {
   		  log.warn(ex.getMessage());
 	  } finally {
-  		  if (statement != null) {
-			  try {
-				  statement.close();
-			  } catch (Exception ex) {
-				  log.warn("Could not close statement", ex);
-			  }
-		  }
-  		  
-  		  if (conn != null) {
-			  try {
-				  conn.close();
-			  } catch (Exception ex) {
-				  log.warn("Could not close conn", ex);
-			  }
-		  }
-  		  
   		  if (session != null) {
   			  try {
   				  session.close();
