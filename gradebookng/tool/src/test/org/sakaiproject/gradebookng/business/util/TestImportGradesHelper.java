@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -94,16 +95,34 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
+	@Test
+	public void when_caseSensitiveDupes_thenImportSucceeds() throws Exception {
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_case_sensitive_dupes.csv");
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_case_sensitive_dupes.csv", mockUserMap());
+		is.close();
+		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test(expected=GbImportExportDuplicateColumnException.class)
+	public void when_exactDupes_thenImportFails() throws Exception {
+		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_exact_dupes.csv");
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_exact_dupes.csv", mockUserMap());
+		is.close();
+		testImport(importedSpreadsheetWrapper);
+	}
+
 	private void testImport(final ImportedSpreadsheetWrapper importedSpreadsheetWrapper) {
 		Assert.assertNotNull(importedSpreadsheetWrapper);
 
 		final List<ImportedRow> rows = importedSpreadsheetWrapper.getRows();
 
+		// check we have 2 student rows
 		Assert.assertNotNull(rows);
 		Assert.assertEquals("unexpected list size", 2, rows.size());
 
-		Assert.assertNotNull(rows.get(0).getCellMap());
-		Assert.assertEquals(2, rows.get(0).getCellMap().size());
+		// can't reliably do these assertions if we have files with differing numbers of columns
+		//Assert.assertNotNull(rows.get(0).getCellMap());
+		//Assert.assertEquals(2, rows.get(0).getCellMap().size());
 
 		final ImportedCell item11 = rows.get(0).getCellMap().get("a1");
 		Assert.assertEquals("comments don't match", "graded", item11.getComment());

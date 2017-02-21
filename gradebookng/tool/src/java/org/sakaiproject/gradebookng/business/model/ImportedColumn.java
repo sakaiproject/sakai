@@ -98,7 +98,9 @@ public class ImportedColumn implements Serializable {
 		if(this.type == Type.IGNORE || other.type == Type.IGNORE){
 			return false;
 		}
-		if(StringUtils.equalsIgnoreCase(this.columnTitle, other.getColumnTitle()) && this.type == other.getType()){
+
+		//we allow columns names to be the same but of different cases (eg "Assignment 1" and "assignment 1" are both valid and unique)
+		if(StringUtils.equals(this.columnTitle, other.getColumnTitle()) && this.type == other.getType()){
 			return true;
 		}
 		return false;
