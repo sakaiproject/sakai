@@ -838,9 +838,9 @@
       </dependency>
       <!-- shared/lib -->
       <dependency>
-        <groupId>castor</groupId>
+        <groupId>org.codehaus.castor</groupId>
         <artifactId>castor</artifactId>
-        <version>1.0</version>
+        <version>1.1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

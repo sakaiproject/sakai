@@ -37,10 +37,6 @@
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>castor</groupId>
-            <artifactId>castor</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
         </dependency>
