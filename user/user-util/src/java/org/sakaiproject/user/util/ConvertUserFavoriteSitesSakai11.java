@@ -66,6 +66,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.sakaiproject.user.api.PreferencesService;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -459,7 +460,7 @@ class ConvertUserFavoriteSitesSakai11 {
 
         private DocumentBuilder documentBuilder;
         private XPath xpath;
-        String prefsPrefix = "/preferences/prefs[@key='sakai:portal:sitenav']";
+        String prefsPrefix = "/preferences/prefs[@key='" + PreferencesService.SITENAV_PREFS_KEY + "']";
 
         public PreferenceMigrator() {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -543,7 +544,7 @@ class ConvertUserFavoriteSitesSakai11 {
             if (existingSiteNav == null) {
                 // Add the top-level sitenav property
                 Element siteNav = doc.createElement("prefs");
-                siteNav.setAttribute("key", "sakai:portal:sitenav");
+                siteNav.setAttribute("key", PreferencesService.SITENAV_PREFS_KEY);
                 doc.getDocumentElement().appendChild(siteNav);
 
                 existingSiteNav = (Node) xpath.evaluate(prefsPrefix, doc, XPathConstants.NODE);

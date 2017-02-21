@@ -54,8 +54,6 @@ public class MessageForumSynopticBeanLite {
 	private int myContentsSize = -1;
 	private HashMap mfPageInSiteMap, sitesMap;
 	private int myDisplayedSites = 0;
-	/** The string that Charon uses for preferences. */
-	private static final String CHARON_PREFS = "sakai:portal:sitenav";
 	private static final String PERFORMANCE_2 = "2";
 	private String performance;
 	private Boolean userRequestSynoptic;
@@ -84,7 +82,7 @@ public class MessageForumSynopticBeanLite {
 			
 			//Grab user's preferences for site order, and remove sites that user has removed
 			Preferences prefs = PreferencesService.getPreferences(getCurrentUser());
-			ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 			List<String> orderedSites = props.getPropertyList("order");
 			
 			List<String> excludedSites = props.getPropertyList("exclude");
