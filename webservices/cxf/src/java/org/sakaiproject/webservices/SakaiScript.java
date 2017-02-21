@@ -639,8 +639,13 @@ public class SakaiScript extends AbstractWebService {
 
             Role r = site.getUserRole(userid);
             Member m = site.getMember(userid);
-            group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
-            siteService.saveGroupMembership(site);
+            try {
+                group.insertMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
+                siteService.saveGroupMembership(site);
+            } catch (IllegalStateException e) {
+                LOG.error(".addMemberToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userid, group.getId());
+                return false;
+            }
             return true;
         } catch (Exception e) {
             LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());

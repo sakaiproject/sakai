@@ -170,7 +170,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				for(Iterator memberIter = members.iterator(); memberIter.hasNext();) {
 					Member member = (Member)memberIter.next();
 					if(member.isProvided()) {
-						group.addMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
+						try {
+							group.insertMember(member.getUserId(), member.getRole().getId(), member.isActive(), false);
+						} catch (IllegalStateException e) {
+							log.error(".update: User with id {} cannot be inserted in group with id {} because the group is locked", member.getUserId(), group.getId());
+							return;
+						}
 					}
 				}
 			}
@@ -876,8 +881,13 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// Add the membership to the framework
 		String role = getSectionTaRole(group);
 		
-		group.addMember(userUid, role, true, false);
-		
+		try {
+			group.insertMember(userUid, role, true, false);
+		} catch (IllegalStateException e) {
+			log.error(".addTaToSection: User with id {} cannot be inserted in group with id {} because the group is locked", userUid, group.getId());
+			return null;
+		}
+
 		try {
 			siteService().saveGroupMembership(group.getContainingSite());
 			postEvent("section.add.ta", sectionUuid);
@@ -914,7 +924,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		if(studentRole == null) {
 			throw new RoleConfigurationException("Can't add a student to a section, since there is no student-flgagged role");
 		}
-		group.addMember(userUid, studentRole, true, false);
+		try {
+			group.insertMember(userUid, studentRole, true, false);
+		} catch (IllegalStateException e) {
+			log.error(".addStudentToSection: User with id {} cannot be inserted in group with id {} because the group is locked", userUid, group.getId());
+			return null;
+		}
 
 		try {
 			siteService().saveGroupMembership(group.getContainingSite());
@@ -968,13 +983,21 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		Set currentUserIds = group.getUsersHasRole(sakaiRoleString);
 		for(Iterator iter = currentUserIds.iterator(); iter.hasNext();) {
 			String userUid = (String)iter.next();
-			group.removeMember(userUid);
+			try {
+				group.deleteMember(userUid);
+			} catch (IllegalStateException e) {
+				log.error(".setSectionMemberships: User with id {} cannot be deleted from group with id {} because the group is locked", userUid, group.getId());
+			}
 		}
 		
 		// Add the new members (sure would be nice to have transactions here!)
 		for(Iterator iter = userUids.iterator(); iter.hasNext();) {
 			String userUid = (String)iter.next();
-			group.addMember(userUid, sakaiRoleString, true, false);
+			try {
+				group.insertMember(userUid, sakaiRoleString, true, false);
+			} catch (IllegalStateException e) {
+				log.error(".setSectionMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userUid, group.getId());
+			}
 		}
 
 		try {
@@ -1009,14 +1032,16 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			ensureInternallyManaged(section.getCourse().getUuid());
 		}
 		
-		group.removeMember(userUid);
 		try {
+			group.deleteMember(userUid);
 			siteService().saveGroupMembership(group.getContainingSite());
 			postEvent("section.student.drop", sectionUuid);
 		} catch (IdUnusedException e) {
 			log.error("unable to find site: ", e);
 		} catch (PermissionException e) {
 			log.error("access denied while attempting to save site: ", e);
+		} catch (IllegalStateException e) {
+			log.error(".dropSectionMembership: User with id {} cannot be deleted from group with id {} because the group is locked", userUid, group.getId());
 		}
 	}
 
@@ -1050,7 +1075,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				// even if the specified user is not a member, resulting in many
 				// unnecessary (and possibly unintended) updates.
 				if (group.getMember(studentUid) != null) {
-					group.removeMember(studentUid);
+					try {
+						group.deleteMember(studentUid);
+					} catch (IllegalStateException e) {
+						log.error(".dropEnrollmentFromCategory: User with id {} cannot be deleted from group with id {} because the group is locked", studentUid, group.getId());
+						return;
+					}
 				}
 			}
 		}
@@ -1389,9 +1419,12 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			if(site == null) {
 				site = group.getContainingSite();
 			}
-			site.removeGroup(group);
+			try {
+				site.deleteGroup(group);
+			} catch (IllegalStateException e) {
+				log.error(".disbandSections: Group with id {} cannot be removed because is locked", group.getId());
+			}
 		}
-		
 
 		try {
 			siteService().save(site);
