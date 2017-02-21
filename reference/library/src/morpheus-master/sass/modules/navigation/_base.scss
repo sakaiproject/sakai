@@ -409,6 +409,20 @@ body.is-logged-out{
 			&:hover, &:active 
 			{
 				box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
+                &:after {
+                    content: 'Change';
+                    //background: $nyu-profile-picture-change-background-color;
+                    //color: $nyu-profile-picture-change-color;
+                    color: #FFFFFF;
+                    position: absolute;
+                    bottom: 0px;
+                    font-size: 10px;
+                    width: 100%;
+                    text-align: center;
+                    padding: 0 0 4px;
+                    //opacity: $nyu-profile-picture-change-opacity;
+                    box-shadow: -1px 0 3px #666;
+                }
 			}
 			@media #{$phone}
 			{
@@ -922,3 +936,49 @@ body.is-logged-out{
 	width: 100%; 
 	z-index: 20;
 }
+
+#cropToolbar {
+    margin-top: 10px;
+    .profile-image-zoom-in {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f00e';
+      }
+    }
+    .profile-image-zoom-out {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f010';
+      }
+    }
+    .profile-image-pan-left {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f060';
+      }
+    }
+    .profile-image-pan-right {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f061';
+      }
+    }
+    .profile-image-pan-up {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f062';
+      }
+    }
+    .profile-image-pan-down {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f063';
+      }
+    }
+    .profile-image-rotate {
+      &:before {
+        font-family: 'FontAwesome';
+        content: '\f01e';
+      }
+    }
+  }
