@@ -569,6 +569,7 @@ body.is-logged-out{
 	display: inline-block;
 	padding-right: 1em;
 	border-right: 1px solid $tool-border-color;
+    white-space: nowrap;
 }
 
 ##{$namespace}academic-bullhorn{

@@ -4,6 +4,20 @@
 
     #if (!${loginTopLogin})
 
+        #if (${userIsLoggedIn})
+            #if (${useBullhornAlerts})
+            <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
+                <a id="Mrphs-academic-bullhorn" href="javascript:void(0);" title="${rloader.sit_academic_bullhorn_title}" aria-haspopup="true">
+                    <span class="icon-sakai--academic-bullhorn"></span>
+                </a>
+                <a id="Mrphs-social-bullhorn" href="javascript:void(0);" title="${rloader.sit_social_bullhorn_title}" aria-haspopup="true">
+                    <span class="icon-sakai--social-bullhorn"></span>
+                </a>
+                <span id="portal-bullhorns-label">${rloader.sit_bullhorns}</span>
+            </div>
+            #end
+        #end
+
         #if ($quickLinks)
             <ul id="quickLinks" class="Mrphs-quickLinksNav">
                 <li class="Mrphs-quickLinksNav__popup" aria-haspopup="true">
@@ -38,12 +52,6 @@
         #end
 
         #if (${userIsLoggedIn})
-        #if (${useBullhornAlerts})
-            <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
-                <a id="Mrphs-academic-bullhorn" href="javascript:void(0);"><span class="icon-sakai--academic-bullhorn"></span></a>
-                <a id="Mrphs-social-bullhorn" href="javascript:void(0);"><span class="icon-sakai--social-bullhorn"></span></a>
-            </div>
-        #end
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
                 <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">
                     <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>

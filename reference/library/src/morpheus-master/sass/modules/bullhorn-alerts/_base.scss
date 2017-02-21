@@ -118,3 +118,11 @@
     font-weight: bold;
     padding: 5px;
 }
+
+#portal-bullhorns-label {
+    @extend .all-sites-label;
+    padding-top: 3px;
+    @media #{$phone} {
+        display: none;
+    }
+}

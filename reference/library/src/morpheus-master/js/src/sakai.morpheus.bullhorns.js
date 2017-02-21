@@ -53,6 +53,7 @@
     $(document).ready(function () {
 
         portal.socialBullhorn.qtip({
+            suppress: false,
             position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.socialBullhorn },
             show: { event: 'click', delay: 0, solo: portal.academicBullhorn },
             style: { classes: 'portal-bullhorns' },
@@ -119,6 +120,7 @@
         });
 
         portal.academicBullhorn.qtip({
+            suppress: false,
             position: { adjust: { scroll: false }, my: 'top right', at: 'bottom left', target: portal.socialBullhorn },
             show: { event: 'click', delay: 0, solo: portal.socialBullhorn },
             style: { classes: 'portal-bullhorns' },
