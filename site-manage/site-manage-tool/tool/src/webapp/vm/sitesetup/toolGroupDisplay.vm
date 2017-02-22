@@ -95,7 +95,7 @@
                                             #end                                            
                                         </li>
                                         ## add multi if required
-                                        #if ($tool.hasMultiples())
+                                        #if ($tool.isMultiple())
                                         	#set($toolMultipleList = $toolGroupMultples.get($toolId)
                                         	#if ($toolMultipleList.size() > 0)
                                             	#parse("/vm/sitesetup/toolGroupMultiples.vm")
