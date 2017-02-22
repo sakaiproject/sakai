@@ -44,7 +44,7 @@ function toggleUserNav(event){
 $PBJQ(".js-toggle-user-nav a#loginUser > .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 $PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop-btn", "#loginLinks").on("click", toggleUserNav);
 
-$PBJQ('.Mrphs-userNav__submenuitem--profilepicture').on("click", function (event) {
+$PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
 
     var $profileLink = $PBJQ(this);
 
