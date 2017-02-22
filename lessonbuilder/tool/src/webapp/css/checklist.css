@@ -120,6 +120,7 @@ label.checklistLabel:hover .checklist-checkbox:checked ~ span.checklist-checkbox
 }
 h3.checklistTitle {
     display: inline-block;
+    margin-top: 0;
 }
 legend.no-border {
     border: none;

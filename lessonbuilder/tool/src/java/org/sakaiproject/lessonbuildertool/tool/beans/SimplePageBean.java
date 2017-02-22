@@ -25,13 +25,17 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.text.SimpleDateFormat;
-import java.text.Format;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.StringUtils;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -65,7 +69,6 @@ import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -89,7 +92,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URI;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -288,7 +290,7 @@ public class SimplePageBean {
 
 	public Map<String, MultipartFile> multipartMap;
 
-	private HashMap<Integer, String> checklistItems = new HashMap<>();
+	private HashMap<Long, String> checklistItems = new HashMap<>();
 	
 	public String rubricSelections;
 	
@@ -1295,32 +1297,41 @@ public class SimplePageBean {
 
 		simplePageToolDao.clearChecklistItems(item);
 
-		for(int i = 0; checklistItems.get(i) != null; i++) {
-			// get data sent from post operation for this answer
-			String data = checklistItems.get(i);
-			// split the data into the actual fields
-			String[] fields = data.split(":", 3);
-			String itemName = StringUtils.trimToEmpty(fields[1]);
-			// Don't save checklist items with a blank name
-			if(!"".equals(itemName)) {
-				Long checklistItemId;
-				if (fields[0].equals("")) {
-					checklistItemId = -1L;
-				} else {
-					checklistItemId = Long.valueOf(fields[0]);
+		final JSONParser jsonParser = new JSONParser();
+
+		for(long i = 0; checklistItems.get(i) != null; i++) {
+			// get data sent from post operation for this checklist item
+			final String data = checklistItems.get(i);
+			try {
+				final JSONObject checklistItem = (JSONObject) jsonParser.parse(data);
+
+				final String itemName = (String) checklistItem.get("text");
+
+				// Don't save checklist items with a blank name
+				if (StringUtils.isNotBlank(itemName)) {
+					Long checklistItemId;
+					if (StringUtils.isBlank((String) checklistItem.get("id"))) {
+						checklistItemId = -1L;
+					} else {
+						checklistItemId = Long.valueOf((String) checklistItem.get("id"));
+					}
+					if (checklistItemId <= 0L) {
+						checklistItemId = ++max;
+					}
+					Long linkedId;
+					if (StringUtils.isBlank((String) checklistItem.get("link"))) {
+						linkedId = -1L;
+					} else {
+						linkedId = Long.valueOf((String) checklistItem.get("link"));
+					}
+					// Remove checklistItemId from list of those to be cleaned up
+					previousIds.remove(checklistItemId);
+					simplePageToolDao.addChecklistItem(item, checklistItemId, itemName, linkedId);
 				}
-				if (checklistItemId <= 0L) {
-					checklistItemId = ++max;
-				}
-				Long linkedId;
-				if(fields[2].equals("")) {
-					linkedId = -1L;
-				} else {
-					linkedId = Long.valueOf(fields[2]);
-				}
-				// Remove checklistItemId from list of those to be cleaned up
-				previousIds.remove(checklistItemId);
-				Long id = simplePageToolDao.addChecklistItem(item, checklistItemId, itemName, linkedId);
+			} catch (ClassCastException e) {
+				log.error("Parser returned a non-JSONObject. ", e);
+			} catch (ParseException e) {
+				log.error("ParseException occurred while trying to save checklist item.", e);
 			}
 		}
 
@@ -1341,19 +1352,22 @@ public class SimplePageBean {
 			return;
 		}
 
-		int separator = data.indexOf(":");
-		String indexString = data.substring(0, separator);
-		Integer index = Integer.valueOf(indexString);
-		data = data.substring(separator+1);
+		final JSONParser parser = new JSONParser();
 
-		if(checklistItems == null) {
-			checklistItems = new HashMap<Integer, String>();
-			log.debug("setAddChecklistItemData: it was null");
+		try {
+			final JSONObject checklistItem = (JSONObject) parser.parse(data);
+			final Long index = (Long) checklistItem.get("index");
+
+			// We store with the index so that we can maintain the order
+			// in which the instructor inputted the checklist items
+			checklistItems.put(index, data);
+
+		} catch (ClassCastException e) {
+			log.error("Parser returned a non-JSONObject. ", e);
+			checklistItems = new HashMap<>();
+		} catch (ParseException e) {
+			checklistItems = new HashMap<>();
 		}
-
-		// We store with the index so that we can maintain the order
-		// in which the instructor inputted the checklist items
-		checklistItems.put(index, data);
 	}
 
 	public String cancel() {

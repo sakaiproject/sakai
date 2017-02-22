@@ -29,6 +29,11 @@
             heightStyle: "content"
         });
 
+        // Hide group header if no group div
+        if ($("#grouplist").length === 0) {
+            $("#groupHeader").hide();
+        }
+
         externalLinkDialog.dialog({
             autoOpen: false,
             width: modalDialogWidth(),
@@ -212,7 +217,7 @@
             var text = $(el).parent().find("." + checklistItemName).val();
             var link = $(el).parent().find("." + checklistItemLink).val();
 
-            $(el).val(index + ":" + id + ":" + text + ":" + link);
+            $(el).val(JSON.stringify({"index": index, "id": id, "text": text, "link": link}));
         });
 
         return true;
