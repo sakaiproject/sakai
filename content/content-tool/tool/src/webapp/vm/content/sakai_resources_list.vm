@@ -400,9 +400,7 @@
 										<span class="$iconDecor">
 										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 									#else
-										<span class="$iconDecor visible-sm-inline visible-xs-inline">
-										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
-										<a class="hidden-sm hidden-xs $iconDecor" href="#"
+										<a href="#"
 											#if($item.isExpanded())
 												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#else
@@ -763,7 +761,7 @@
 					#end ## foreach $root in $other_sites
 	
 				#else
-					<tr class="hidden-xs hidden-sm">
+					<tr>
 						<th colspan="10">
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
