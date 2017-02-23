@@ -11,11 +11,14 @@
     <name>Sakai Polls Implementation Module (polls-impl)</name>
     <groupId>org.sakaiproject.polls</groupId>
     <artifactId>polls-impl</artifactId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <description>
     This project provides the implementation used by the Sakai Poll Tool.
   </description>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>

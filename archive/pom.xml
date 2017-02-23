@@ -14,7 +14,6 @@
   <modules>
     <module>archive-tool/tool</module>
     <module>import-handlers/announcement-handlers</module>
-    <module>import-pack</module>
   </modules>
   <dependencyManagement>
     <dependencies>

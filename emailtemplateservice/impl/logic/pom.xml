@@ -17,10 +17,10 @@
     </organization>
     <inceptionYear>2007</inceptionYear>
     <description>Emailtemplateservice implementation</description>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <properties>
-        <deploy.target />
+        <deploy.target>components</deploy.target>
     </properties>
 
     <dependencies>

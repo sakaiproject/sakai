@@ -12,7 +12,6 @@
   <artifactId>podcasts-base</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>pack</module>
     <module>podcasts</module>
     <module>podcasts-api</module>
     <module>podcasts-app</module>

@@ -15,7 +15,6 @@
   <modules>
     <module>rights-api/api</module>
     <module>rights-impl/impl</module>
-    <module>rights-impl/pack</module>
     <module>rights-tool/tool</module>
   </modules>
 

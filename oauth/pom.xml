@@ -55,9 +55,6 @@
         <module>api</module>
         <module>impl</module>
         <module>dao-hbm</module>
-        <module>dao-memory</module>
-        <module>dao-server-config</module>
-        <module>pack</module>
         <module>tool</module>
     </modules>
 
@@ -90,17 +87,17 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>oauth-dao-hbm</artifactId>
+                <artifactId>oauth-org.sakaiproject.oauth.dao-hbm</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>oauth-dao-server-config</artifactId>
+                <artifactId>oauth-org.sakaiproject.oauth.dao-server-config</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>oauth-dao-memory</artifactId>
+                <artifactId>oauth-org.sakaiproject.oauth.dao-memory</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -24,11 +24,8 @@
         <!-- <module>portal-mercury/mercury</module> --> 
         <module>portal-render-api/api</module>
         <module>portal-render-impl/impl</module>
-        <module>portal-render-impl/pack</module>
         <module>portal-render-engine-impl/impl</module>
-        <module>portal-render-engine-impl/pack</module>
         <module>portal-service-impl/impl</module>
-        <module>portal-service-impl/pack</module>
         <module>portal-shared-deploy</module>
         <module>portal-tool/tool</module>
         <module>portal-util/util</module>

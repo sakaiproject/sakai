@@ -10,9 +10,9 @@
   <name>sakai-rwiki-impl</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-rwiki-impl</artifactId>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <build>
     <resources>

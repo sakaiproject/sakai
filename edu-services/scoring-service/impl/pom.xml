@@ -12,7 +12,10 @@
 
     <artifactId>scoring-service-impl</artifactId>
     <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
     <dependencies>
         <dependency>
             <artifactId>scoring-service-api</artifactId>

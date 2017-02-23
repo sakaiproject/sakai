@@ -38,7 +38,6 @@
     <module>sitestats-bundle</module>
     <module>sitestats-impl</module>
     <module>sitestats-impl-hib</module>
-    <module>sitestats-pack</module>
     <module>sitestats-tool</module>
   </modules>
 

@@ -14,7 +14,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>components</module>
     <module>postem-api</module>
     <module>postem-app</module>
     <module>postem-hbm</module>

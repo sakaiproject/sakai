@@ -25,7 +25,6 @@
         <module>basiclti-api</module>
         <module>basiclti-docs</module>
         <module>basiclti-impl</module>
-        <module>basiclti-pack</module>
         <module>basiclti-portlet</module>
         <module>basiclti-blis</module>
         <module>basiclti-tool</module>

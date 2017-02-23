@@ -11,7 +11,11 @@
     <artifactId>elasticsearch-impl</artifactId>
     <groupId>org.sakaiproject.search.elasticsearch</groupId>
     <name>Sakai search - ElasticSearch impl</name>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <!-- Dependencies -->

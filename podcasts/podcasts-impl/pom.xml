@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2004</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -56,8 +56,4 @@
       <version>0.3.2</version>
     </dependency>
   </dependencies>
-  <build>
-    <resources />
-    <sourceDirectory>impl/src/java</sourceDirectory>
-  </build>
 </project>

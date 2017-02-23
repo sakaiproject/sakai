@@ -16,7 +16,6 @@
   <modules>
     <module>announcement-api/api</module>
     <module>announcement-impl/impl</module>
-    <module>announcement-impl/pack</module>
     <module>announcement-tool/tool</module>
   </modules>
 

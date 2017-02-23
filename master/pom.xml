@@ -1972,6 +1972,9 @@
         <configuration>
           <deployDirectory>${maven.tomcat.home}</deployDirectory>
           <warSourceDirectory>${basedir}/src/webapp</warSourceDirectory>
+          <!-- We don't have to do this, but expanding all the files inside a sakai-component on a deploy is slow
+               so having a JAR of the local files speeds things up. -->
+          <archiveClasses>true</archiveClasses>
         </configuration>
       </plugin>
       <plugin>

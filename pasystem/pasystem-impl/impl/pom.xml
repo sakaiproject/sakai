@@ -8,7 +8,7 @@
   <groupId>org.sakaiproject.pasystem</groupId>
   <artifactId>pasystem-impl</artifactId>
   
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   
   <parent>
     <artifactId>pasystem-base</artifactId>
@@ -18,7 +18,7 @@
   </parent>
 
   <properties>
-    <deploy.target/>
+    <deploy.target>components</deploy.target>
   </properties>
 
 

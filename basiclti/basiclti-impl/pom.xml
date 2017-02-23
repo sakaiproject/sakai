@@ -16,7 +16,11 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2009</inceptionYear>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>
