@@ -389,16 +389,13 @@ ul.favoriteSiteList{
 	.fav-drag-handle{
 		display: inline-block;
 		position: relative;
-		right: -4px;
+		right: 2px;
+		padding: 0 6px;
 		color: $tool-border-color;
 		cursor: move; /* fallback if grab cursor is unsupported */
 		cursor: grab;
 		cursor: -moz-grab;
 		cursor: -webkit-grab;
-
-		@media #{$phone}{
-			display: none;
-		}
 	}
 	.fav-drag-handle:active{
 		cursor: grabbing;

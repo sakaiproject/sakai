@@ -82,6 +82,9 @@
             document.write('\x3Cscript src="${pageWebjarsPath}bootstrap/3.3.6/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}"/>')
+            if (Modernizr.touch) {
+              document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            }
             window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
         } else {
             if (typeof jQuery.migrateWarnings == 'undefined') {
