@@ -1,9 +1,6 @@
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.assignment.api.AssignmentSubmission;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.user.api.User;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

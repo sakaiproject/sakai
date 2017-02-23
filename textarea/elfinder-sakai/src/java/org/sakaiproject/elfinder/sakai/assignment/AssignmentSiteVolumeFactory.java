@@ -3,7 +3,7 @@ package org.sakaiproject.elfinder.sakai.assignment;
 import cn.bluejoe.elfinder.service.FsItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;

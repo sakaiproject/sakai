@@ -1,5 +1,6 @@
 package org.sakaiproject.assignment.api;
 
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 
@@ -62,7 +63,7 @@ public class ContentReviewResult
 	public boolean isInline()
 	{
 		ResourceProperties props = resource.getProperties();
-		return "true".equals(props.getProperty(AssignmentSubmission.PROP_INLINE_SUBMISSION));
+		return "true".equals(props.getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION));
 	}
 
 	/**

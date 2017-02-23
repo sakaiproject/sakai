@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="org.sakaiproject.assignment.api.AssignmentService"
+	<!-- bean id="org.sakaiproject.assignment.api.AssignmentService"
 			class="org.sakaiproject.assignment.impl.DbAssignmentService"
 			init-method="init"
 			destroy-method="destroy">
@@ -27,7 +27,6 @@
  		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
  		<property name="developerHelperService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
-		<!-- This is optional and may be null -->
 		<property name="candidateDetailProvider">
 			<bean class="org.sakaiproject.assignment.impl.OptionalFactoryBean"
 				  name="org.sakaiproject.user.api.CandidateDetailProvider"/>
@@ -44,16 +43,12 @@
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 
- 		<!--use to allow group awareness option in assignments. 
- 			By default this is true.-->
  		<property name="allowGroupAssignments"><value>true</value></property>
  		
- 		<!--use to hide or show the Assignments 'Add to Gradebook' option for group particular assignments.
- 			By default this is false -->
  		<property name="allowGroupAssignmentsInGradebook"><value>true</value></property>
-	</bean>
+	</bean -->
 
-	<bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
+	<!-- bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
@@ -84,7 +79,7 @@
 		<property name="serverConfigurationService">
 			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		</property>
-	</bean>
+	</bean -->
 	
 	<!--  Hibernate persistence -->
 
@@ -92,6 +87,8 @@
 		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="annotatedClasses">
 			<list>
+				<value>org.sakaiproject.assignment.api.model.Assignment</value>
+				<value>org.sakaiproject.assignment.api.model.AssignmentSubmission</value>
 				<value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem</value>
 				<value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess</value>
 				<value>org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem</value>
@@ -104,7 +101,7 @@
 		</property>
 	</bean>
 	
-	<bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
+	<!-- bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -117,9 +114,9 @@
                 <prop key="*">PROPAGATION_REQUIRED</prop>
             </props>
         </property>
-    </bean>
+    </bean -->
 
-    <bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
+    <!-- bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
     	class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
     	init-method="init" destroy-method="destroy">
     	<property name="sessionFactory">
@@ -184,5 +181,5 @@
         </property>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 
-    </bean>  
+    </bean -->
 </beans>

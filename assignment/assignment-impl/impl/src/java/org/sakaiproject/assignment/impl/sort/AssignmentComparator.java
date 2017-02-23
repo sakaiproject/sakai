@@ -1,6 +1,6 @@
 package org.sakaiproject.assignment.impl.sort;
 
-import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.time.api.Time;
 
 import java.util.Comparator;

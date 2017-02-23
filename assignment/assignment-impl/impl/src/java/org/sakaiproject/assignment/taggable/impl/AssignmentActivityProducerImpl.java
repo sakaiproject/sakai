@@ -27,9 +27,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.taggable.api.TaggableActivity;

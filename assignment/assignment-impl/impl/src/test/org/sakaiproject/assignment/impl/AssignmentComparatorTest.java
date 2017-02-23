@@ -23,8 +23,8 @@ package org.sakaiproject.assignment.impl;
 
 import junit.framework.TestCase;
 import org.mockito.Mockito;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserIdComparator;
 import org.sakaiproject.site.api.SiteService;

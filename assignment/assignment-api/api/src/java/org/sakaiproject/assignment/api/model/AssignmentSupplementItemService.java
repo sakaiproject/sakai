@@ -19,9 +19,6 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.util.List;
-import java.util.Set ;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
 
 /**
  * This is the interface for accessing assignment supplement item

@@ -26,8 +26,12 @@ package org.sakaiproject.assignment.api;
  * @author zqian
  *
  */
-public class AssignmentConstants {
-	
+public final class AssignmentConstants {
+
+	private AssignmentConstants() {
+		throw new RuntimeException(this.getClass().getCanonicalName() + " is not to be instantiated");
+	}
+
 	public final static String MODEL_ANSWER_SHOW_TO_STUDENT = "show_to_student";
 	
 	public final static int MODEL_ANSWER_SHOW_TO_STUDENT_BEFORE_STARTS = 1;
@@ -135,5 +139,80 @@ public class AssignmentConstants {
 	public static final String ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP = "nonelec";
 	public static final String ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP = "singleatt";
 	public static final String ASSN_SUBMISSION_TYPE_UNKNOWN_PROP = "submission.type.unknown";
+
+	/** Grade type not set */
+	// public static final int GRADE_TYPE_NOT_SET = -1; change to 0
+
+
+	/** Ungraded grade type string */
+	public static final String UNGRADED_GRADE_TYPE_STRING = "Ungraded";
+
+	/** Letter grade type string */
+	public static final String LETTER_GRADE_TYPE_STRING = "Letter Grade";
+
+	/** Score based grade type string */
+	public static final String SCORE_GRADE_TYPE_STRING = "Points";
+
+	/** Pass/fail grade type string */
+	public static final String PASS_FAIL_GRADE_TYPE_STRING = "Pass/Fail";
+
+	/** Grade type that only requires a check string */
+	public static final String CHECK_GRADE_TYPE_STRING = "Checkmark";
+
+	/** Assignment type not yet set */
+	// public static final int ASSIGNMENT_SUBMISSION_TYPE_NOT_SET = -1; change to 0
+
+	public static final int HONOR_PLEDGE_NOT_SET = -1;
+
+	public static final int HONOR_PLEDGE_NONE = 1;
+
+	public static final int HONOR_PLEDGE_ENGINEERING = 2;
+
+	// the option of email notification setting per assignment about student submissions
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE= "assignment_instructor_notifications_value";
+
+	// no email to instructor
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE = "assignment_instructor_notifications_none";
+
+	// send every email to instructor
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH = "assignment_instructor_notifications_each";
+
+	// send email in digest form
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST = "assignment_instructor_notifications_digest";
+
+	// the option of student email notification setting per assignment about released grades
+	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE = "assignment_releasegrade_notification_value";
+
+	// do NOT send student email notification when the grade is released
+	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE = "assignment_releasegrade_notification_none";
+
+	// send student email notification when the grade is released
+	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH = "assignment_releasegrade_notification_each";
+
+	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE = "assignment_releasereturn_notification_value";
+	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_NONE = "assignment_releasereturn_notification_none";
+	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH = "assignment_releasereturn_notification_each";
+
+	// the option of open date notification to students
+	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION = "assignment_opendate_notification";
+	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION_NONE = "assignment_opendate_notification_none";
+	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION_LOW = "assignment_opendate_notification_low";
+	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH = "assignment_opendate_notification_high";
+
+
+
+
+
+	/** number of times that the submission is allowed to resubmit */
+	public static final String ALLOW_RESUBMIT_NUMBER = "allow_resubmit_number";
+
+	/** submission level of close time*/
+	public static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
+
+	/** submission by different user */
+	public static final String SUBMITTER_USER_ID = "submitted_user_id";
+
+	/** resource property that marks the attachment as being the inline submission (boolean) */
+	public static final String PROP_INLINE_SUBMISSION = "assignment_submission_attachment_is_inline";
 
 }

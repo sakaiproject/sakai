@@ -23,7 +23,7 @@
         <deploy.target>components</deploy.target>
     </properties>
 
-    <dependencies>
+    <!-- dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-courier-api</artifactId>
@@ -36,5 +36,5 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-    </dependencies>
+    </dependencies -->
 </project>
