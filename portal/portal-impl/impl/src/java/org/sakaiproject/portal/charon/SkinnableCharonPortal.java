@@ -1097,6 +1097,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
 		
+		//SAK-32224. Ability to disable the animated tool menu by property
+		rcontext.put("scrollingToolbarEnabled", ServerConfigurationService.getBoolean("portal.scrolling.toolbar.enabled",true));
+		
 		return rcontext;
 	}
 

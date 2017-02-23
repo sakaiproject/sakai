@@ -45,17 +45,19 @@ $PBJQ(document).ready(function(){
 });
 
 function animateToolBar() {
-	var topPad = $(".pasystem-banner-alerts").height();
-	var follow = ($window.height()- (padding + topPad)) > $tools.height();
-	if($("#toolMenuWrap").css('position') !== 'fixed'
-		&& follow && $window.scrollTop() > 0) {
-		$("#toolMenu").stop().animate({
-            top: $window.scrollTop() + topPad
-        });
-	} else {
-		$("#toolMenu").stop().animate({
-			top: 0
-	    });
+	if($("#toolMenuWrap").attr("scrollingToolbarEnabled") != undefined){
+		var topPad = $(".pasystem-banner-alerts").height();
+		var follow = ($window.height()- (padding + topPad)) > $tools.height();
+		if($("#toolMenuWrap").css('position') !== 'fixed'
+			&& follow && $window.scrollTop() > 0) {
+			$("#toolMenu").stop().animate({
+				top: $window.scrollTop() + topPad
+			});
+		} else {
+			$("#toolMenu").stop().animate({
+				top: 0
+			});
+		}
 	}
 }
 
