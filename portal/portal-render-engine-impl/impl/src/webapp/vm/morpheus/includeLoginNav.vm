@@ -13,7 +13,6 @@
                 <a id="Mrphs-social-bullhorn" href="javascript:void(0);" title="${rloader.sit_social_bullhorn_title}" aria-haspopup="true">
                     <span class="icon-sakai--social-bullhorn"></span>
                 </a>
-                <span id="portal-bullhorns-label">${rloader.sit_bullhorns}</span>
             </div>
             #end
         #end
