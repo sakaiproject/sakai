@@ -529,7 +529,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 		AcademicSessionCmImpl as = (AcademicSessionCmImpl)getObjectByEid(eid, AcademicSessionCmImpl.class.getName());
 
 		// Remove the course offerings in this academic session
-		List<CourseOffering> courseOfferings = (List<CourseOffering>) getHibernateTemplate().find("select co from CourseOfferingCmImpl as co where co.academicSession.eid = ?", eid);
+		List<CourseOffering> courseOfferings = (List<CourseOffering>) getHibernateTemplate().findByNamedParam("select co from CourseOfferingCmImpl as co where co.academicSession.eid = :eid", "eid", eid);
 		for(Iterator<CourseOffering> iter = courseOfferings.iterator(); iter.hasNext();) {
 			removeCourseOffering(iter.next().getEid());
 		}

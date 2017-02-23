@@ -92,3 +92,14 @@ Some of the places where I've seen this are:
  - Threads
 
 While Spring does have alternate methods of handling such cases i.e. using Aspectj load-time weaving (mode=aspectj) or cglib proxying (proxy-target-class="true") it would introduce more changes. Typically applications are built from the beginning using a strategy so as to avoid switching in the future and incurring the associated cost. Since it's not something that is not common I was fine with handling these issues programmatically using springs [TransactionTemplate](http://docs.spring.io/spring/docs/current/spring-framework-reference/html/transaction.html#transaction-programmatic).  
+
+###### getHibernateTemplate().find() and ordinal parameters ######
+Do not use Springs HibernateTemplate find() method with parameters as Spring and Hibernate do positional params differently.
+Spring is 0 based where Hibernate starts at 1!
+Switch to using the findByNamedParam() and type methods where you give the parametes names vs positional.
+
+`getHibernateTemplate().find("select co from CourseOfferingCmImpl as co where co.academicSession.eid = ?", eid);`
+
+switch to:
+
+`getHibernateTemplate().findByNamedParam("select co from CourseOfferingCmImpl as co where co.academicSession.eid = :eid", "eid", eid);`
