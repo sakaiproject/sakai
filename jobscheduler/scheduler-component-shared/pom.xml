@@ -46,6 +46,10 @@
             <artifactId>coursemanagement-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>archive-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.emailtemplateservice</groupId>
             <artifactId>emailtemplateservice-api</artifactId>
         </dependency>
@@ -146,6 +150,7 @@
                 <includes>
                     <include>**/*.properties</include>
                     <include>**/*.xml</include>
+                    <include>**/*.zip</include>
                 </includes>
             </testResource>
         </testResources>
