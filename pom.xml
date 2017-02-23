@@ -43,12 +43,11 @@
             </activation>
             <modules>
                 <module>master</module>
+                <module>admin-tools</module>
                 <module>access</module>
-                <module>alias</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
-                <module>authz</module>
                 <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
@@ -81,7 +80,6 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
-                <module>memory</module>
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>oauth</module>
@@ -125,12 +123,10 @@
             <modules>
                 <module>master</module>
                 <module>access</module>
-                <module>alias</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
                 <module>assignment2</module>
-                <module>authz</module>
                 <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
@@ -164,7 +160,6 @@
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
-                <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>
