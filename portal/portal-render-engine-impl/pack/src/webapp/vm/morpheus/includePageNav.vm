@@ -1,6 +1,6 @@
 <!-- START VM includePageNav.vm -->
 
-<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools">
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
 
     #if ($sitePages.siteHTMLInclude)
 

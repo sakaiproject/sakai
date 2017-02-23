@@ -47,18 +47,20 @@ $PBJQ(document).ready(function(){
 });
 
 $PBJQ(window).scroll(function(){
-	var topPad = $(".pasystem-banner-alerts").height();
-	var follow = ($window.height()- (padding + topPad)) > $tools.height() 
-					&& ($window.scrollTop() > padding);
-	if($("#toolMenuWrap").css('position') !== 'fixed'
-		&& follow && $window.scrollTop() > 0) {
-		$("#toolMenu").stop().animate({
-            top: $window.scrollTop() + topPad - padding
-        });
-	} else {
-		$("#toolMenu").stop().animate({
-			top: 0
-	    });
+	if($("#toolMenuWrap").attr("scrollingToolbarEnabled") != undefined){
+		var topPad = $(".pasystem-banner-alerts").height();
+		var follow = ($window.height()- (padding + topPad)) > $tools.height() 
+						&& ($window.scrollTop() > padding);
+		if($("#toolMenuWrap").css('position') !== 'fixed'
+			&& follow && $window.scrollTop() > 0) {
+			$("#toolMenu").stop().animate({
+				top: $window.scrollTop() + topPad - padding
+			});
+		} else {
+			$("#toolMenu").stop().animate({
+				top: 0
+			});
+		}
 	}
 });
 
