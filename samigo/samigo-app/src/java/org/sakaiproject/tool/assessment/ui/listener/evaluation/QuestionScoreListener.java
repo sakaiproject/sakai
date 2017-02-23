@@ -766,7 +766,8 @@ public class QuestionScoreListener implements ActionListener,
 						}
 						else if(!bean.getTypeId().equals("3")){
 							if((gdataAnswer.getIsCorrect() != null && gdataAnswer.getIsCorrect()) || 
-									(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0)){
+								(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0) ||
+								(delegate.isDistractor(gdataAnswer.getItemText())) ){
 								answerText = checkmarkGif + answerText;
 							}else if(gdataAnswer.getIsCorrect() != null && !gdataAnswer.getIsCorrect()){
 								answerText = crossmarkGif + answerText;
