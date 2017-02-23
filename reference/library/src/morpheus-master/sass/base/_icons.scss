@@ -83,6 +83,8 @@
   .icon-sakai--sakai-rsf-evaluation {                       @extend .fa-commenting; }
   .icon-sakai--academic-bullhorn {			                @extend .fa-bullhorn; padding-right: 5px; }
   .icon-sakai--social-bullhorn {                            @extend .fa-users; }
+  .icon-sakai--arrow-right {                                @extend .fa-arrow-circle-right; padding-right: 5px}
+  .icon-sakai--arrow-down {                                @extend .fa-arrow-circle-down; padding-right: 5px}
 
   // other icons
   .icon-sakai--check {                                      @extend .fa-check; }

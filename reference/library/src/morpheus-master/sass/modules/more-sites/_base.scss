@@ -129,16 +129,20 @@ body.active-more-sites{
 		margin: 0.2em;
 	}
 
-
-        #selectSite-navbar{
+    #selectSite-navbar{
 		overflow: hidden;
 		margin: 0;
 		padding: 0;
-        }
+    }
+
 
 	.favorites-term-header {
+        float: left;
 		font-size: 1.8em;
-  		margin: 1.5em 0 0.6em 0;
+        margin: 0px;
+        padding-left: 10px;
+        margin-top: 7px;
+        color: $sites-nav-menu-item-color;
 	}
 }
 
@@ -189,9 +193,6 @@ ul#otherSitesMenu{
 			width: 100%;
 			float: none;
 		}
-		.fav-sites-term:first-child .favorites-term-header{
-			margin-top: 0;
-		}
 	}
 	.moresites-right-col{
 		display: inline-block;
@@ -201,17 +202,31 @@ ul#otherSitesMenu{
 			width: 100%;
 			float: none;
 		}
-		.fav-sites-term:first-child .favorites-term-header{
-			margin-top: 0;
-		}
 	}
+    .fav-sites-term {
+        border: 1px solid darken( $sites-nav-menu-item-background, 30% );
+        background-color: $sites-nav-menu-item-background;
+        @include border-radius( 4px );
+        margin-bottom: 12px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+
+        .moresites-header {
+            overflow: auto !important;
+            cursor: pointer;
+            height: 50px;
+		    white-space: nowrap;
+            font-size: 12px;
+        }
+    }
 }
 
-
-
 ul.otherSitesCategorList{
+    display: none;
 	list-style: none;
-	padding: 0 0 0 0;
+	padding: 10px 0px 3px 0px !important;
+    margin-bottom: 4px !important;
+    background-color: #FFFFFF;
 	li{
 		display: inline-block;
 		border: 1px solid darken( $background-color, 30% );
@@ -248,7 +263,7 @@ ul.otherSitesCategorList{
 		color: $text-color;
 	}
 
-	margin: 1em 1em 0 0;
+	margin: 1em 1em 1em 0;
 
 	#txtSearch{
 		width: 18em;
