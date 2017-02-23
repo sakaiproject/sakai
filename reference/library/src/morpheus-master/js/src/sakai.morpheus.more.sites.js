@@ -525,17 +525,13 @@ $PBJQ(document).ready(function($){
         var favoriteItem = itemsBySiteId[siteid].clone(false);
 
         favoriteItem.addClass('organize-favorite-item').data('site-id', siteid);
-        var dragHandle = $PBJQ('<i class="fa fa-bars fav-drag-handle"></i>');
+        var dragHandle = $PBJQ('<a href="javascript:void(0);" class="fav-drag-handle"><i class="fa fa-bars"></i></a>');
 
         // Hide the tool dropdown
         $PBJQ('.toolMenus', favoriteItem).remove();
 
         // Show a drag handle
         favoriteItem.append(dragHandle);
-
-        // And disable the link to site so we don't accidentally hit it while
-        // dragging
-        $PBJQ(favoriteItem).find('.fav-title a').attr('href', null);
 
         list.append(favoriteItem);
 
@@ -544,6 +540,7 @@ $PBJQ(document).ready(function($){
       });
 
       list.sortable({
+        handle: ".fav-drag-handle",
         stop: function () {
           // Update our ordering based on the new selection
           favoritesList = list.find('.organize-favorite-item').map(function () {
