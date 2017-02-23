@@ -60,8 +60,9 @@ import org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWr
 import org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule;
 import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
 import org.sakaiproject.db.api.SqlService;
+import org.springframework.context.Lifecycle;
 
-public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory
+public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory, Lifecycle
 {
 
   private static final Logger LOG = LoggerFactory.getLogger(SchedulerManagerImpl.class);
@@ -232,11 +233,7 @@ public void init()
       }
 
       //scheduler.addGlobalTriggerListener(globalTriggerListener);
-      if (isStartScheduler()) {
-          scheduler.start();
-      } else {
-          LOG.info("Scheduler Not Started, startScheduler=false");
-      }
+
     }
     catch (Exception e)
     {
@@ -501,14 +498,7 @@ public void init()
    */
   public void destroy()
   {
-    try{
-      if (!scheduler.isShutdown()){
-        scheduler.shutdown();
-      }
-    }
-    catch (Throwable t){
-      LOG.error("An error occurred while stopping the scheduler", t);
-    }
+
   }
 
 
@@ -745,4 +735,39 @@ public void init()
    public void setStartScheduler(boolean startScheduler) {
        this.startScheduler = startScheduler;
    }
+
+    @Override
+    public void start() {
+        if (isStartScheduler()) {
+            try {
+                scheduler.start();
+            } catch (SchedulerException e) {
+                LOG.error("Failed to start the scheduler.", e);
+            }
+        } else {
+            LOG.info("Scheduler Not Started, startScheduler=false");
+        }
+    }
+
+    @Override
+    public void stop() {
+        try{
+            if (!scheduler.isShutdown()){
+                scheduler.shutdown();
+            }
+        }
+        catch (SchedulerException e){
+            LOG.error("Failed to stop the scheduler", e);
+        }
+    }
+
+    @Override
+    public boolean isRunning() {
+        try {
+            return scheduler.isStarted();
+        } catch (SchedulerException e) {
+            LOG.debug("Failed to find if the scheduler is running", e);
+        }
+        return false;
+    }
 }

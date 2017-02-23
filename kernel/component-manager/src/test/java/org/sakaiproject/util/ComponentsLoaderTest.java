@@ -42,7 +42,6 @@ public class ComponentsLoaderTest {
 	@After
 	public void tearDown() throws Exception {
 		builder.tearDown();
-		componentMgr.close();
 	}
 	
 	/**

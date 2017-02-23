@@ -95,6 +95,8 @@ public class SpringCompMgr implements ComponentManager {
 	/** Records that close has been called. */
 	protected boolean m_hasBeenClosed = false;
 
+	protected boolean lateRefresh = false;
+
 	/**
 	 * Initialize.
 	 * 
@@ -122,6 +124,8 @@ public class SpringCompMgr implements ComponentManager {
 	public void init(boolean lateRefresh) {
 		if (m_ac != null)
 			return;
+
+		this.lateRefresh = lateRefresh;
 
 		// Make sure a "sakai.home" system property is set.
 		ensureSakaiHome();
@@ -159,6 +163,7 @@ public class SpringCompMgr implements ComponentManager {
 			try {
 				// get the singletons loaded
 				m_ac.refresh();
+				m_ac.start();
 				m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STARTED));
 			} catch (Exception e) {
 				if (Boolean.valueOf(System.getProperty(SHUTDOWN_ON_ERROR, "false"))) {
@@ -297,6 +302,9 @@ public class SpringCompMgr implements ComponentManager {
 	 */
 	public void close() {
 		m_hasBeenClosed = true;
+		if (!lateRefresh) {
+			m_ac.stop();
+		}
 		if(m_ac.isActive()) {
 			m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STOPPING));
 		}
