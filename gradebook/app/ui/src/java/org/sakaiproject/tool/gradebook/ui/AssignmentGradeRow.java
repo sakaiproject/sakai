@@ -25,12 +25,12 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.List;
 
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class AssignmentGradeRow implements Serializable {
-	private Assignment assignment;
+	private GradebookAssignment assignment;
     private AssignmentGradeRecord gradeRecord;
     private String commentText;
     private Gradebook gradebook;
@@ -44,12 +44,12 @@ public class AssignmentGradeRow implements Serializable {
     private String scoringComponentUrl;
     private String retrieveScoreUrl;
 
-    public AssignmentGradeRow(Assignment assignment, Gradebook gradebook) {
+    public AssignmentGradeRow(GradebookAssignment assignment, Gradebook gradebook) {
     	this.assignment = assignment;
     	this.gradebook = gradebook;
     	commentText = "";
     }
-    public AssignmentGradeRow(Assignment assignment, Gradebook gradebook, boolean userCanGrade) {
+    public AssignmentGradeRow(GradebookAssignment assignment, Gradebook gradebook, boolean userCanGrade) {
     	this.assignment = assignment;
     	this.gradebook = gradebook;
     	commentText = "";
@@ -59,7 +59,7 @@ public class AssignmentGradeRow implements Serializable {
     	this.gradeRecord = gradeRecord;
     }
     // not getAssignment b/c will clash with isAssignment in UI
-    public Assignment getAssociatedAssignment() {
+    public GradebookAssignment getAssociatedAssignment() {
     	return assignment;
     }
     public AssignmentGradeRecord getGradeRecord() {

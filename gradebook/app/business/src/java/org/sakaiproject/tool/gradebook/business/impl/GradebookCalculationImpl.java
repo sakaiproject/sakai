@@ -35,7 +35,7 @@ import java.util.Set;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -66,7 +66,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 					getGradeRecordMapForStudents(gradebookId, studentUids);
 
 			// get all of the counted assignments
-			List<Assignment> countedAssigns = getCountedAssignments(session, gradebookId);
+			List<GradebookAssignment> countedAssigns = getCountedAssignments(session, gradebookId);
 
             return getPointsEarnedCourseGradeRecords(session, courseGrade, studentUids,
                     countedAssigns, studentIdGradeRecordsMap);
@@ -114,7 +114,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	 * associated AssignmentGradeRecords
 	 */
 	private List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(Session session, 
-	        CourseGrade courseGrade, Collection<String> studentUids, Collection<Assignment> assignments, 
+	        CourseGrade courseGrade, Collection<String> studentUids, Collection<GradebookAssignment> assignments,
 	        Map<String, List<AssignmentGradeRecord>> studentIdGradeRecordsMap) {
 
 	    List<CourseGradeRecord> courseGradeRecs = new ArrayList<CourseGradeRecord>();
@@ -131,10 +131,10 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	        Gradebook gradebook = getGradebook(gradebookId);
 	        List cates = getCategories(gradebookId);
 	        
-	        List<Assignment> countedAssigns = new ArrayList<Assignment>();
+	        List<GradebookAssignment> countedAssigns = new ArrayList<GradebookAssignment>();
 	        // let's filter the passed assignments to make sure they are all counted
 	        if (assignments != null) {
-	            for (Assignment assign : assignments) {
+	            for (GradebookAssignment assign : assignments) {
 	                if (assign.isIncludedInCalculations()) {
 	                    countedAssigns.add(assign);
 	                }
@@ -144,15 +144,15 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	        // no need to calculate anything for non-calculating gradebook
 	        if (gbGradeType != GradebookService.GRADE_TYPE_LETTER)
 	        {
-                Map<String, Set<Assignment>> visibleExternals =
+                Map<String, Set<GradebookAssignment>> visibleExternals =
                     getVisibleExternalAssignments(courseGrade.getGradebook(), studentUids, countedAssigns);
 
 	            for(CourseGradeRecord cgr : courseGradeRecs) 
 	            {
                     // Filter out external activities that are not visible to this student, considering them "uncounted"
-                    List<Assignment> studentCountedAssigns = new ArrayList<Assignment>();
+                    List<GradebookAssignment> studentCountedAssigns = new ArrayList<GradebookAssignment>();
                     String studentId = cgr.getStudentId();
-                    for (Assignment a : countedAssigns) {
+                    for (GradebookAssignment a : countedAssigns) {
                         if (!a.isExternallyMaintained() ||
                                 (visibleExternals.containsKey(studentId) && visibleExternals.get(studentId).contains(a)))
                         {
@@ -184,7 +184,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	
 	@Override
 	List getTotalPointsEarnedInternal(final String studentId, final Gradebook gradebook, final List categories,
-	        final List<AssignmentGradeRecord> gradeRecs, List<Assignment> countedAssigns) 
+	        final List<AssignmentGradeRecord> gradeRecs, List<GradebookAssignment> countedAssigns)
 	{
 		int gbGradeType = gradebook.getGrade_type();
 		if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
@@ -215,7 +215,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		{
 			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 			{
-				Assignment go = gradeRec.getAssignment();
+				GradebookAssignment go = gradeRec.getAssignment();
 				if (go.isIncludedInCalculations() && countedAssigns.contains(go))
 				{
 					Double pointsEarned = new Double(gradeRec.getPointsEarned());
@@ -267,7 +267,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 			Iterator assgnsIter = countedAssigns.iterator();
 			while (assgnsIter.hasNext()) 
 			{
-				Assignment asgn = (Assignment)assgnsIter.next();
+				GradebookAssignment asgn = (GradebookAssignment)assgnsIter.next();
 				if(assignmentsTaken.contains(asgn.getId()))
 				{
 					for(int i=0; i<categories.size(); i++)
@@ -314,7 +314,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	}
 
 	@Override
-	public double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns, boolean literalTotal)
+	public double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<GradebookAssignment> countedAssigns, boolean literalTotal)
 	{
 		int gbGradeType = gradebook.getGrade_type();
 		if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
@@ -331,12 +331,12 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		
 		double totalPointsPossible = 0;
 
-        HashSet<Assignment> countedSet = new HashSet<Assignment>(countedAssigns);
+        HashSet<GradebookAssignment> countedSet = new HashSet<GradebookAssignment>(countedAssigns);
 
 		// we need to filter this list to identify only "counted" grade recs
         List<AssignmentGradeRecord> countedGradeRecs = new ArrayList<AssignmentGradeRecord>();
         for (AssignmentGradeRecord gradeRec : studentGradeRecs) {
-            Assignment assign = gradeRec.getAssignment();
+            GradebookAssignment assign = gradeRec.getAssignment();
             boolean extraCredit = assign.isExtraCredit();
             if(gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY && assign.getCategory() != null && assign.getCategory().isExtraCredit())
             	extraCredit = true;
@@ -354,7 +354,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		    if (gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("")) 
 		    {
 		        Double pointsEarned = new Double(gradeRec.getPointsEarned());
-		        Assignment go = gradeRec.getAssignment();
+		        GradebookAssignment go = gradeRec.getAssignment();
 		        if (pointsEarned != null) 
 		        {
 		            if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
@@ -401,7 +401,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 			Iterator assignmentIter = countedAssigns.iterator();
 			while (assignmentIter.hasNext()) 
 			{
-				Assignment asn = (Assignment) assignmentIter.next();
+				GradebookAssignment asn = (GradebookAssignment) assignmentIter.next();
 				if(asn != null)
 				{
 					Double pointsPossible = asn.getPointsPossible();

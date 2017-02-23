@@ -32,10 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-import javax.faces.application.FacesMessage;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
-import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -45,19 +43,18 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 public class AssignmentBean extends GradebookDependentBean implements Serializable {
 	private static final Logger logger = LoggerFactory.getLogger(AssignmentBean.class);
 
 	private Long assignmentId;
-    private Assignment assignment;
+    private GradebookAssignment assignment;
     private List categoriesSelectList;
     private String extraCreditCategories;
     private String assignmentCategory;
@@ -97,7 +94,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			if (assignment == null) {
 				// it is a new assignment
-				assignment = new Assignment();
+				assignment = new GradebookAssignment();
 				assignment.setReleased(true);
 			}
 		}
@@ -168,10 +165,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         }
 }
 
-	private boolean isAssignmentTheOnlyOne(Assignment assignment, Category category){
+	private boolean isAssignmentTheOnlyOne(GradebookAssignment assignment, Category category){
 		if(assignment != null && category != null && category.getAssignmentList() != null){
 			if(category.getAssignmentList().size() == 1)
-				return ((Assignment)category.getAssignmentList().get(0)).getId().equals(assignment.getId());
+				return ((GradebookAssignment)category.getAssignmentList().get(0)).getId().equals(assignment.getId());
 			else if(category.getAssignmentList().size() == 0)
 				return true;
 			else
@@ -248,7 +245,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     }
     
 	private BulkAssignmentDecoratedBean getNewAssignment() {
-		Assignment assignment = new Assignment();
+		GradebookAssignment assignment = new GradebookAssignment();
 		assignment.setReleased(true);
 		if(selectedCategory != null && selectedCategory.isDropScores()) {
 		    assignment.setPointsPossible(selectedCategory.getItemValue());
@@ -258,7 +255,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return bulkAssignmentDecoBean;
 	}
 
-	private String getItemCategoryString(Assignment assignment) {
+	private String getItemCategoryString(GradebookAssignment assignment) {
 		String assignmentCategory;
 		Category assignCategory = assignment.getCategory();
 		if (assignCategory != null) {
@@ -296,7 +293,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			BulkAssignmentDecoratedBean bulkAssignDecoBean = (BulkAssignmentDecoratedBean) assignIter.next();
 			
 			if (bulkAssignDecoBean.getBlnSaveThisItem()) {
-				Assignment bulkAssignment = bulkAssignDecoBean.getAssignment();
+				GradebookAssignment bulkAssignment = bulkAssignDecoBean.getAssignment();
 			
 				// Check for blank entry else check if duplicate within items to be
 				// added or with item currently in gradebook.
@@ -396,7 +393,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				
 				String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
 	            for (Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
-	            	String itemName = ((Assignment) gbItemIter.next()).getName();
+	            	String itemName = ((GradebookAssignment) gbItemIter.next()).getName();
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", 
 									new String[] {itemName}));
 					getGradebookBean().getEventTrackingService().postEvent("gradebook.newItem","/gradebook/"+getGradebookId()+"/"+itemName+"/"+authzLevel);
@@ -424,7 +421,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                 assignment.setPointsPossible(category.getItemValue()); // if category drops scores, point value will come from the category level
             }
 			
-			Assignment originalAssignment = getGradebookManager().getAssignment(assignmentId);
+			GradebookAssignment originalAssignment = getGradebookManager().getAssignment(assignmentId);
 			Double origPointsPossible = originalAssignment.getPointsPossible();
 			Double newPointsPossible = assignment.getPointsPossible();
 			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
@@ -516,7 +513,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 	}
 
-    public Assignment getAssignment() {
+    public GradebookAssignment getAssignment() {
         if (logger.isDebugEnabled()) logger.debug("getAssignment " + assignment);
 		if (assignment == null) {
 			if (assignmentId != null) {
@@ -524,7 +521,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			if (assignment == null) {
 				// it is a new assignment
-				assignment = new Assignment();
+				assignment = new GradebookAssignment();
 				assignment.setReleased(true);
 			}
 		}
@@ -555,7 +552,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     /**
      * getNewBulkItems
      * 
-     * Generates and returns a List of blank Assignment objects.
+     * Generates and returns a List of blank GradebookAssignment objects.
      * Used to support bulk gradebook item creation.
      */
 	public List getNewBulkItems() {
@@ -642,9 +639,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
     			// only include assignments which are not adjustments must not update adjustment item pointsPossible
     			for(Object o : assignments) { 
-    				if(o instanceof Assignment) {
-    					Assignment assignment = (Assignment)o;
-    					if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+    				if(o instanceof GradebookAssignment) {
+    					GradebookAssignment assignment = (GradebookAssignment)o;
+    					if(!GradebookAssignment.item_type_adjustment.equals(assignment.getItemType())) {
     						assignmentsToUpdate.add(assignment);
     					}
     				}

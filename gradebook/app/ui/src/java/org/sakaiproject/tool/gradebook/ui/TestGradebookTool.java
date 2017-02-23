@@ -33,7 +33,7 @@ import javax.faces.event.ActionEvent;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
@@ -53,7 +53,7 @@ public class TestGradebookTool {
      * @return A List of all assignments in the currently selected gradebook
      */
     public List getAssignments() {
-        List gradableObjects = gradebookManager.getAssignmentsAndCourseGradeWithStats(selectedGradebook.getId(), Assignment.DEFAULT_SORT, true);
+        List gradableObjects = gradebookManager.getAssignmentsAndCourseGradeWithStats(selectedGradebook.getId(), GradebookAssignment.DEFAULT_SORT, true);
         return gradableObjects;
     }
 

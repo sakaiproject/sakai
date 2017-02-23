@@ -28,7 +28,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +41,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
@@ -60,19 +60,15 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -104,7 +100,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private boolean hasUnknownAssignments;
     private Long spreadsheetId;
     private Map scores;
-    private Assignment assignment;
+    private GradebookAssignment assignment;
     private Long assignmentId;
     private Integer selectedCommentsColumnId = 0;
     private List categoriesSelectList;
@@ -174,7 +170,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			}
 			if (assignment == null) {
 				// it is a new assignment
-				assignment = new Assignment();
+				assignment = new GradebookAssignment();
 				assignment.setReleased(true);
 			}
 		}
@@ -403,11 +399,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         this.scores = scores;
     }
 
-    public Assignment getAssignment() {
+    public GradebookAssignment getAssignment() {
         return assignment;
     }
 
-    public void setAssignment(Assignment assignment) {
+    public void setAssignment(GradebookAssignment assignment) {
         this.assignment = assignment;
     }
 
@@ -530,9 +526,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     			// only include assignments which are not adjustments must not update adjustment item pointsPossible
     			for(Object o : assignments) { 
-    				if(o instanceof Assignment) {
-    					Assignment assignment = (Assignment)o;
-    					if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+    				if(o instanceof GradebookAssignment) {
+    					GradebookAssignment assignment = (GradebookAssignment)o;
+    					if(!GradebookAssignment.item_type_adjustment.equals(assignment.getItemType())) {
     						assignmentsToUpdate.add(assignment);
     					}
     				}
@@ -1173,7 +1169,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         selectedAssignment = new HashMap();
         try{
-            selectedAssignment.put("Assignment", assignmentHeaders.get(Integer.parseInt(selectedColumn) - 1));
+            selectedAssignment.put("GradebookAssignment", assignmentHeaders.get(Integer.parseInt(selectedColumn) - 1));
         }catch(Exception e){
             if(logger.isDebugEnabled())logger.debug("no assignment selected");
             FacesUtil.addErrorMessage(getLocalizedString("import_preview_assignment_selection_failure"));
@@ -1222,13 +1218,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         spreadsheet.setSelectedAssignment(selectedAssignment);
 
         if(assignment == null) {
-            assignment = new Assignment();
+            assignment = new GradebookAssignment();
             assignment.setReleased(true);
         }
 
         try{
             scores =  spreadsheet.getSelectedAssignment();
-            assignment.setName((String) scores.get("Assignment"));
+            assignment.setName((String) scores.get("GradebookAssignment"));
         }catch(NullPointerException npe){
             if(logger.isDebugEnabled()) logger.debug("scores not set");
         }
@@ -1292,8 +1288,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         	index++;
 
-        	// Get Assignment object from assignment name
-        	Assignment assignment = getAssignmentByName(grAssignments, assignmentName);
+        	// Get GradebookAssignment object from assignment name
+        	GradebookAssignment assignment = getAssignmentByName(grAssignments, assignmentName);
             List gradeRecords = new ArrayList();
 
         	// if assignment == null, need to create a new one plus all the grade records
@@ -1528,7 +1524,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      * Gradebook. Returns empty List if no differences found.
      *
      * @param assignment
-     * 			The Assignment object whose grades need to be checked
+     * 			The GradebookAssignment object whose grades need to be checked
      * @param fromSpreadsheet
      * 			The rows of grades from the imported spreadsheet
      * @param index
@@ -1538,7 +1534,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      * 			List containing AssignmentGradeRecords for those student's grades that
      * 			have changed
      */
-    private List gradeChanges(Assignment assignment, List fromSpreadsheet, int index, LetterGradePercentMapping lgpm) {
+    private List gradeChanges(GradebookAssignment assignment, List fromSpreadsheet, int index, LetterGradePercentMapping lgpm) {
     	List updatedGradeRecords = new ArrayList();
      	List studentUids = new ArrayList();
     	List studentRowsWithUids = new ArrayList();
@@ -1719,11 +1715,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      * @param list The list of gradebook assignments
      * @param name The String to look for
      *
-     * @return Assignment object if found, null otherwise
+     * @return GradebookAssignment object if found, null otherwise
      */
-    private Assignment getAssignmentByName(List assignList, String name) {
+    private GradebookAssignment getAssignmentByName(List assignList, String name) {
     	for (Iterator assignIter = assignList.iterator(); assignIter.hasNext(); ) {
-    		Assignment assignment = (Assignment) assignIter.next();
+    		GradebookAssignment assignment = (GradebookAssignment) assignIter.next();
 
     		if (assignment.getName().trim().equalsIgnoreCase(name.trim())) {
     			// remove for performance
@@ -1762,7 +1758,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         Iterator iter = scores.entrySet().iterator();
         while(iter.hasNext()){
         	Map.Entry entry  = (Map.Entry) iter.next();
-        	if(!entry.getKey().equals("Assignment")) {
+        	if(!entry.getKey().equals("GradebookAssignment")) {
         		if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
         			String points =  (String) entry.getValue();
         			try{
@@ -1818,7 +1814,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             if(selectedCommentsColumnId!=null && selectedCommentsColumnId > 0) comments = createCommentList(assignment);
 
             if(logger.isDebugEnabled())logger.debug("remove title entry form map");
-            scores.remove("Assignment");
+            scores.remove("GradebookAssignment");
             if(logger.isDebugEnabled())logger.debug("iterate through scores and and save assignment grades");
 
             Iterator it = scores.entrySet().iterator();
@@ -1876,7 +1872,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      * @param assignmentTobeCommented
      * @return  List of comment comment objects
      */
-    public List createCommentList(Assignment assignmentTobeCommented){
+    public List createCommentList(GradebookAssignment assignmentTobeCommented){
 
         List comments = new ArrayList();
         Iterator it = studentRows.iterator();

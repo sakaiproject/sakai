@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.sakaiproject.tool.gradebook.CommonGradeRecord;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 
 public interface GbSynchronizer 
 {
@@ -20,7 +20,7 @@ public interface GbSynchronizer
   
   public AssignmentGradeRecord convertIquizRecordToUid(AssignmentGradeRecord iquizRecord, Map persistentRecordMap, boolean isUpdateAll, String graderId);
   
-  public CommonGradeRecord getNeededUpdateIquizRecord(Assignment assignment, AssignmentGradeRecord record);
+  public CommonGradeRecord getNeededUpdateIquizRecord(GradebookAssignment assignment, AssignmentGradeRecord record);
 
   public void updateLegacyGradeRecords(String assignmentName, List legacyUpdates);
 

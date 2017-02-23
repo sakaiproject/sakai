@@ -22,7 +22,7 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -66,7 +66,7 @@ public class PreferencesBean {
 	 */
 	protected void loadPreferences() {
         assignmentSortAscending = true;
-        assignmentSortColumn = Assignment.DEFAULT_SORT;
+        assignmentSortColumn = GradebookAssignment.DEFAULT_SORT;
         
         categorySortAscending = true;
         categorySortColumn = Category.SORT_BY_NAME;
@@ -109,7 +109,7 @@ public class PreferencesBean {
         return defaultMaxDisplayedScoreRows;
     }
 
-	// Assignment sorting (for overview, assignment details, and possibly roster)
+	// GradebookAssignment sorting (for overview, assignment details, and possibly roster)
     public boolean isAssignmentSortAscending() {
         return assignmentSortAscending;
     }
@@ -151,7 +151,7 @@ public class PreferencesBean {
 		this.rosterTableSortColumn = rosterTableSortColumn;
 	}
 
-    // Assignment details table sorting
+    // GradebookAssignment details table sorting
 	public boolean isAssignmentDetailsTableSortAscending() {
 		return assignmentDetailsTableSortAscending;
 	}
@@ -183,7 +183,7 @@ public class PreferencesBean {
         this.courseGradeDetailsTableSortColumn = courseGradeDetailsTableSortColumn;
     }
     
-    // Assignment details table filter by section
+    // GradebookAssignment details table filter by section
     public Integer getAssignmentDetailsTableSectionFilter() {
         return assignmentDetailsTableSelectedSectionFilter;
     }

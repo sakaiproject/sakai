@@ -1,7 +1,7 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.beans;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.ui.helpers.producers.AuthorizationFailedProducer;
@@ -69,7 +69,7 @@ public class AssignmentGradeRecordBean {
 	        }
 
 	        Gradebook gradebook = gradebookManager.getGradebook(this.gradebookId);
-	        Assignment assignment = gradebookManager.getAssignment(this.assignmentId);
+	        GradebookAssignment assignment = gradebookManager.getAssignment(this.assignmentId);
 
 	        if (!gradebookService.isUserAbleToGradeItemForStudent(gradebook.getUid(), this.assignmentId, this.studentId)) {
 	            return AuthorizationFailedProducer.VIEW_ID;

@@ -28,7 +28,7 @@
 
 		<!-- In a table per class hierarchy a subclass cannot have NOT NULL constraints
 		     see https://docs.jboss.org/hibernate/orm/3.6/reference/en-US/html/inheritance.html#inheritance-tableperclass -->
-		<subclass name="org.sakaiproject.tool.gradebook.Assignment" extends="org.sakaiproject.tool.gradebook.GradableObject"  discriminator-value="1">
+		<subclass name="org.sakaiproject.tool.gradebook.GradebookAssignment" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="1">
 			<property name="pointsPossible" column="POINTS_POSSIBLE" type="java.lang.Double" />
 			<property name="dueDate" column="DUE_DATE" type="timestamp" />
 			<property name="notCounted" column="NOT_COUNTED" type="java.lang.Boolean" />

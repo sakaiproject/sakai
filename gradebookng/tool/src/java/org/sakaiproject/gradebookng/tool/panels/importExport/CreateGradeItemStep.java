@@ -65,7 +65,7 @@ public class CreateGradeItemStep extends BasePanel {
 
 				final Assignment newAssignment = (Assignment) getDefaultModel().getObject();
 
-				log.debug("Assignment: " + newAssignment);
+				log.debug("GradebookAssignment: {}", newAssignment);
 
 				boolean validated = true;
 
@@ -158,7 +158,7 @@ public class CreateGradeItemStep extends BasePanel {
 
 	/**
 	 * Checks if an assignment is unique given a list of existing assignments
-	 * 
+	 *
 	 * @param assignments
 	 * @param name
 	 * @return
