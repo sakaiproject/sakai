@@ -8610,16 +8610,18 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								// add current user as the maintainer
 								Member member = currentSite.getMember(userId);
 								if(member != null){
-									siteGroup.addMember(userId, member.getRole().getId(), true, false);
-									SecurityAdvisor yesMan = new SecurityAdvisor() {
-										public SecurityAdvice isAllowed(String userId, String function, String reference) {
-											return SecurityAdvice.ALLOWED;
-										}
-									};
 									try{
+										siteGroup.insertMember(userId, member.getRole().getId(), true, false);
+										SecurityAdvisor yesMan = new SecurityAdvisor() {
+											public SecurityAdvice isAllowed(String userId, String function, String reference) {
+												return SecurityAdvice.ALLOWED;
+											}
+										};
 										SecurityService.pushAdvisor(yesMan);
 										commitSite(currentSite);
-									}catch (Exception e) {
+									} catch (IllegalStateException e) {
+										M_log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {} because the group is locked", userId, siteGroup.getId());
+									} catch (Exception e) {
 										M_log.debug(e.getMessage());
 									}finally{
 										SecurityService.popAdvisor();
@@ -8668,15 +8670,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							// remove current user as the maintainer
 							Member member = currentSite.getMember(userId);
 							if(member != null){
-								siteGroup.removeMember(userId);
-								SecurityAdvisor yesMan = new SecurityAdvisor() {
-									public SecurityAdvice isAllowed(String userId, String function, String reference) {
-										return SecurityAdvice.ALLOWED;
-									}
-								};
 								try{
+									siteGroup.deleteMember(userId);
+									SecurityAdvisor yesMan = new SecurityAdvisor() {
+										public SecurityAdvice isAllowed(String userId, String function, String reference) {
+											return SecurityAdvice.ALLOWED;
+										}
+									};
 									SecurityService.pushAdvisor(yesMan);
 									commitSite(currentSite);
+								}catch (IllegalStateException e) {
+									M_log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
 								}catch (Exception e) {
 									M_log.debug(e.getMessage());
 								}finally{
@@ -9017,7 +9021,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								if ( siteMember  == null)
 								{
 									// user has been removed from the site
-									g.removeMember(gMemberId);
+									try {
+										g.deleteMember(gMemberId);
+									} catch (IllegalStateException e) {
+										M_log.error(".doUpdate_related_group_participants: User with id {} cannot be deleted from group with id {} because the group is locked", gMemberId, g.getId());
+									}
 								}
 								else
 								{
@@ -9035,8 +9043,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 											// in case there is no matching role as that in the site, create such role and add it to the user
 											g.addRole(siteRole.getId(), siteRole);
 										}
-										g.removeMember(gMemberId);
-										g.addMember(gMemberId, siteRole.getId(), siteMember.isActive(), false);
+										try {
+											g.deleteMember(gMemberId);
+											g.insertMember(gMemberId, siteRole.getId(), siteMember.isActive(), false);
+										} catch (IllegalStateException e) {
+											M_log.error(".doUpdate_related_group_participants: User with id {} cannot be deleted from group with id {} because the group is locked", gMemberId, g.getId());
+										}
 										// track the group membership change at individual level
 										if (trackIndividualChange)
 										{
