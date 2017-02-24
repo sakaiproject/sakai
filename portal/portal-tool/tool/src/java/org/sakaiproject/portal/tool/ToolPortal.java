@@ -339,7 +339,7 @@ public class ToolPortal extends HttpServlet
 		req.setAttribute("sakai.html.head", head);
 		req.setAttribute("sakai.html.head.css", headCss);
 		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(CSSUtils.getSkinFromSite(site),ToolUtils.isInlineRequest(req)));
-		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(CSSUtils.getSkinFromSite(site)));
+		req.setAttribute("sakai.html.head.css.skin", ToolUtils.isInlineRequest(req) ? "" : CSSUtils.getCssToolSkinLink(CSSUtils.getSkinFromSite(site)));
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
 	}

@@ -1380,7 +1380,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		retval.setProperty("sakai.html.head.css", headCss);
 		retval.setProperty("sakai.html.head.lang", rloader.getLocale().getLanguage());
 		retval.setProperty("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(skin,ToolUtils.isInlineRequest(req)));
-		retval.setProperty("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(skin));
+		retval.setProperty("sakai.html.head.css.skin", ToolUtils.isInlineRequest(req) ? "" : CSSUtils.getCssToolSkinLink(skin));
 		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;
