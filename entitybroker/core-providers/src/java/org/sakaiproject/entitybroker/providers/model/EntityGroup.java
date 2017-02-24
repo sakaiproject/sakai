@@ -375,6 +375,18 @@ public class EntityGroup implements Group {
         throw new UnsupportedOperationException();
     }
 
+    public void insertMember(String arg0, String arg1, boolean arg2, boolean arg3) throws IllegalStateException {
+        if (group != null) {
+            try {
+                group.insertMember(arg0, arg1, arg2, arg3);
+                return;
+            } catch (IllegalStateException e) {
+                throw e;
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
     public Role addRole(String arg0) throws RoleAlreadyDefinedException {
         if (group != null) {
             return group.addRole(arg0);
@@ -488,10 +500,34 @@ public class EntityGroup implements Group {
         throw new UnsupportedOperationException();
     }
 
+    public void deleteMember(String arg0) throws IllegalStateException {
+        if (group != null) {
+            try {
+                group.deleteMember(arg0);
+                return;
+            } catch (IllegalStateException e) {
+                throw e;
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
     public void removeMembers() {
         if (group != null) {
             group.removeMembers();
             return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void deleteMembers() throws IllegalStateException {
+        if (group != null) {
+            try {
+                group.deleteMembers();
+                return;
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         }
         throw new UnsupportedOperationException();
     }

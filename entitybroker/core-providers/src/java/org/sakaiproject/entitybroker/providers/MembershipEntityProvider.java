@@ -498,8 +498,11 @@ RESTful, ActionsExecutable {
 
                     if (group.getMember(userId) == null && (role != null && role.getId() != null)) {
                         // Every user added via this EB is defined as non-provided
-                        group.addMember(userId, role.getId(), m != null ? m.isActive() : true,
-                                false);
+                        try {
+                            group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
+                        } catch (IllegalStateException e) {
+                            log.error(".getGroupMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                        }
                     }
                 }
             } else if ("update".equals(action)) {
@@ -508,7 +511,11 @@ RESTful, ActionsExecutable {
                             + site.getId() + ") cannot be updated by the current user.");
                 }
                 // replace the current membership with the provided list
-                group.removeMembers();
+                try {
+                    group.deleteMembers();
+                } catch (IllegalStateException e) {
+                    log.error(".getGroupMemberships: Members from group with id {} cannot be deleted because the group is locked", group.getId());
+                }
                 for (String user : userIds) {
                     String userId = userEntityProvider.findAndCheckUserId(null, user.trim());
                     if (userId == null) {
@@ -520,8 +527,12 @@ RESTful, ActionsExecutable {
 
                     if (group.getMember(userId) == null && (role != null && role.getId() != null)) {
                         // Every user added via this EB is defined as non-provided
-                        group.addMember(userId, role.getId(), m != null ? m.isActive() : true,
+                        try {
+                            group.insertMember(userId, role.getId(), m != null ? m.isActive() : true,
                                 false);
+                        } catch (IllegalStateException e) {
+                            log.error(".getGroupMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                        }
                     }
                 }
             } else if ("remove".equals(action)) {
@@ -532,7 +543,11 @@ RESTful, ActionsExecutable {
                         log.warn("Unable to remove user ("+userId+") from group ("+group.getId()+") in site ("+site.getId()+"), could not find user record by id or eid");
                         continue;
                     }
-                    group.removeMember(userId);
+                    try {
+                        group.deleteMember(userId);
+                    } catch (IllegalStateException e) {
+                        log.error(".getGroupMemberships: User with id {} cannot be deleted from group with id {} because the group is locked", userId, group.getId());
+                    }
                 }
             } else {
                 throw new IllegalArgumentException(
@@ -849,8 +864,12 @@ RESTful, ActionsExecutable {
                 }
             } else {
                 // group and site
-                sg.group.addMember(userIds[i], roleId, active, false);
-                saveGroupMembership(sg.site, sg.group);
+                try {
+                    sg.group.insertMember(userIds[i], roleId, active, false);
+                    saveGroupMembership(sg.site, sg.group);
+                } catch (IllegalStateException e) {
+                    log.error(".createEntity: User with id {} cannot be inserted in group with id {} because the group is locked", userIds[i], sg.group.getId());
+                }
             }
             if (i == 0) {
                 EntityMember em = new EntityMember(userIds[0], sg.locationReference, roleId,
@@ -898,8 +917,12 @@ RESTful, ActionsExecutable {
                 saveSiteMembership(sg.site);
             } else {
                 // group and site
-                sg.group.removeMember(userIds[i]);
-                saveGroupMembership(sg.site, sg.group);
+                try {
+                    sg.group.deleteMember(userIds[i]);
+                    saveGroupMembership(sg.site, sg.group);
+                } catch (IllegalStateException e) {
+                    log.error(".deleteEntity: User with id {} cannot be deleted from group with id {} because the group is locked", userIds[i], sg.group.getId());
+                }
             }
         }
         if (userIds.length > 1) {
@@ -1190,7 +1213,11 @@ RESTful, ActionsExecutable {
 
             if (group.getUserRole(userId) == null && role.getId() != null) {
                 // Every user added via this EB is defined as non-provided
-                group.addMember(userId, role.getId(), m != null ? m.isActive() : true, false);
+                try {
+                    group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
+                } catch (IllegalArgumentException e) {
+                    log.error(".addUsersToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                }
             }
         }
     }

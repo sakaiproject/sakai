@@ -1561,7 +1561,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  }
 
 	  for (Group group: delGroups) {
-	      site.removeGroup(group);      
+	      try {
+	        site.deleteGroup(group);
+	      } catch (IllegalStateException e) {
+	        logger.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
+	      }
 	  }
 	  try {
 	      siteService.save(site);

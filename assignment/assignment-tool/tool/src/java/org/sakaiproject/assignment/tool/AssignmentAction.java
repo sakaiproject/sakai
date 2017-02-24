@@ -8190,6 +8190,13 @@ public class AssignmentAction extends PagedResourceActionII
 			// read input data if the mode is not preview mode
 			setNewAssignmentParameters(data, true);
 		}
+
+		boolean isGroupSubmit = "1".equals((String)state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT));
+		if (isGroupSubmit) {
+			if(!siteService.allowUpdateSite(siteId)){
+				addAlert(state, rb.getFormattedMessage("group.editsite.nopermission", new Object[]{}));
+			}
+		}
 		
 		String assignmentId = params.getString("assignmentId");
 		String assignmentContentId = params.getString("assignmentContentId");
@@ -8240,8 +8247,6 @@ public class AssignmentAction extends PagedResourceActionII
 			int submissionType = ((Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)).intValue();
 
 			int gradeType = ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)).intValue();
-
-			boolean isGroupSubmit = "1".equals((String)state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT));
 
 			String gradePoints = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 
@@ -8415,7 +8420,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 				// Locking and unlocking groups   
 				List<String> lockedGroupsReferences = new ArrayList<String>();
-				if (isGroupSubmit && !groups.isEmpty()) {
+				if (post && isGroupSubmit && !groups.isEmpty()) {
 					for (Group group : groups) {
 						String groupAssignmentReference = group.getReference() + "/assignment/" + a.getId();
 
@@ -8433,19 +8438,19 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							catch (IdUnusedException e)
 							{
-								M_log.warn(":doUpdate_options  Cannot find site with id {}", siteId);
+								M_log.warn(".post_save_assignment: Cannot find site with id {}", siteId);
 								addAlert(state, rb.getFormattedMessage("options_cannotFindSite", new Object[]{siteId}));
 							}
 							catch (PermissionException e)
 							{
-								M_log.warn(":doUpdate_options Do not have permission to edit site with id {}", siteId);
+								M_log.warn(".post_save_assignment: Do not have permission to edit site with id {}", siteId);
 								addAlert(state, rb.getFormattedMessage("options_cannotEditSite", new Object[]{siteId}));
 							}
 						}
 					}
 				}
 
-				if (!aOldGroups.isEmpty()) {
+				if (post && !aOldGroups.isEmpty()) {
 					try {
 						Site site = SiteService.getSite(siteId);
 
@@ -8463,12 +8468,12 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						M_log.warn(":doUpdate_options  Cannot find site with id {}", siteId);
+						M_log.warn(".post_save_assignment: Cannot find site with id {}", siteId);
 						addAlert(state, rb.getFormattedMessage("options_cannotFindSite", new Object[]{siteId}));
 					}
 					catch (PermissionException e)
 					{
-						M_log.warn(":doUpdate_options Do not have permission to edit site with id {}", siteId);
+						M_log.warn(".post_save_assignment: Do not have permission to edit site with id {}", siteId);
 						addAlert(state, rb.getFormattedMessage("options_cannotEditSite", new Object[]{siteId}));
 					}
 				}
@@ -10418,6 +10423,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
 		// get the delete assignment ids
 		List ids = (List) state.getAttribute(DELETE_ASSIGNMENT_IDS);
@@ -10426,7 +10432,15 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String assignmentId = (String) ids.get(i);
 			AssignmentEdit aEdit = editAssignment(assignmentId, "doDelete_assignment", state, false);
-			if (aEdit != null)
+
+			boolean isGroupSubmit = aEdit.isGroup();
+			if (isGroupSubmit) {
+				if(!siteService.allowUpdateSite(siteId)){
+					addAlert(state, rb.getFormattedMessage("group.editsite.nopermission", new Object[]{}));
+				}
+			}
+
+			if (aEdit != null && state.getAttribute(STATE_MESSAGE) == null)
 			{
 				ResourcePropertiesEdit pEdit = aEdit.getPropertiesEdit();
 
@@ -10448,7 +10462,6 @@ public class AssignmentAction extends PagedResourceActionII
 				deleteAssignmentObjects(state, aEdit, true);
 
 				Collection<String> groups = aEdit.getGroups();
-				String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
 				try {
 					Site site = SiteService.getSite(siteId);

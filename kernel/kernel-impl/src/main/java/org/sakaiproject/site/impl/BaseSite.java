@@ -1742,6 +1742,21 @@ public class BaseSite implements Site
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void deleteGroup(Group group) throws IllegalStateException
+	{
+		if (group.isLocked()) {
+			throw new IllegalStateException("Error, cannot remove group: " + group.getId() + " because it is locked");
+		}
+		// remove it
+		m_groups.remove(group);
+
+		// track so we can clean up related on commit
+		m_deletedGroups.add(group);
+	}
+
+	/**
 	 * Access (find if needed) the azg from the AuthzGroupService that
 	 * implements my grouping.
 	 * 
