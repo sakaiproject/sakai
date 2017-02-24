@@ -58,6 +58,7 @@ public class HtmlPageFilter implements ContentFilter {
 "<html>\n" +
 "  <head>\n" +
 "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" /> \n" +
+"    <meta name=\"viewport\" content=\"width=device-width\">\n" +
 "    <title>{2}</title>\n" +
 "    <link href=\"{0}/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
 "    <link href=\"{0}/{1}/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
