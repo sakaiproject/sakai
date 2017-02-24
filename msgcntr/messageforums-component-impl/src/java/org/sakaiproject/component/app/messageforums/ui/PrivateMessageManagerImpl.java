@@ -1087,8 +1087,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     		systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
     }
     
-    String bodyString = buildMessageBody(message);
-    
     Area currentArea = null;
     List<PrivateForum> privateForums = null;
     Map<String, PrivateForum> pfMap = null;
@@ -1160,24 +1158,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     			recipientList.add(receiver);                    
     		}      
 
-		if (asEmail)
-		{
-    	//send as 1 action to all recipients
-    	//we need to add som headers
-    	additionalHeaders.add("From: " + systemEmail);
-    	additionalHeaders.add("Subject: " + message.getTitle());
-    	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
-    	}   	
-
-	if(!isEmailForwardDisabled() && forwardingEnabled)
-	{
-		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
-		fAddressesArr = fAddresses.toArray(fAddressesArr);
-		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
-				bodyString, null, null, additionalHeaders);
-    }
-    
-    
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
@@ -1189,6 +1169,27 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     message.setRecipients(recipientList);
 
     savePrivateMessage(message, false);
+
+    String bodyString = buildMessageBody(message);
+
+	if (asEmail)
+	{
+	//send as 1 action to all recipients
+	//we need to add som headers
+	additionalHeaders.add("From: " + systemEmail);
+	additionalHeaders.add("Subject: " + message.getTitle());
+	emailService.sendToUsers(recipients.keySet(), additionalHeaders, bodyString);
+	}   	
+
+	if(!isEmailForwardDisabled() && forwardingEnabled)
+	{
+		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
+		fAddressesArr = fAddresses.toArray(fAddressesArr);
+		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
+				bodyString, null, null, additionalHeaders);
+	}
+
+
   }
     catch (MessagingException e) 
     {
@@ -1289,14 +1290,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 		  LOG.error(e.getMessage(), e);
 	  }
 
-	  String thisPageId = "";
+	  String thisToolId = "";
 	  ToolSession ts = sessionManager.getCurrentToolSession();
 	  if (ts != null)
 	  {
 		  ToolConfiguration tool = SiteService.findTool(ts.getPlacementId());
 		  if (tool != null)
 		  {
-			  thisPageId = tool.getPageId();
+			  thisToolId = tool.getId();
 		  }
 	  }
 
@@ -1308,7 +1309,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
 	  " <a href=\"" +
 	  ServerConfigurationService.getPortalUrl() + 
 	  "/site/" + ToolManager.getCurrentPlacement().getContext() +
-	  "/page/" + thisPageId+
+	  "/tool/" + thisToolId+
+	  (message!=null?"/privateMsg/pvtMsgDirectAccess?current_msg_detail="+message.getId():"")+
 	  "\">";
 
 
