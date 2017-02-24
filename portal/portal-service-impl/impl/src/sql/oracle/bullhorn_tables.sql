@@ -22,6 +22,4 @@ FOR EACH ROW
 BEGIN
       SELECT bullhorn_alerts_seq.NEXTVAL
       INTO   :new.id
-      FROM   dual;
-END;
-/
+      FROM   dual; END;
