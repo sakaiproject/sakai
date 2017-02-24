@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.content</groupId>
     <artifactId>cloud-content</artifactId>
-    <version>11-SNAPSHOT</version><!-- KernelVersion -->
+    <version>11.3</version><!-- KernelVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
 

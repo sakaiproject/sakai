@@ -14,7 +14,7 @@
     <parent>
         <artifactId>entitybroker</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>11-SNAPSHOT</version><!--entitybroker.version-->
+        <version>11.3</version><!--entitybroker.version-->
     </parent>
     <dependencies>
 <!-- internal dependencies -->

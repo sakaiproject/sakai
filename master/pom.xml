@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
-  <version>11-SNAPSHOT</version>
+  <version>11.3</version>
   <url>http://sakaiproject.org</url>
   <organization>
     <name>Sakai Project</name>
@@ -73,7 +73,7 @@
   </scm>
 
   <properties>
-    <sakai.version>11-SNAPSHOT</sakai.version>
+    <sakai.version>11.3</sakai.version>
     <!-- Retain this for backward compatibility -->
     <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
     <kernel.spring.version>${sakai.spring.version}</kernel.spring.version>
