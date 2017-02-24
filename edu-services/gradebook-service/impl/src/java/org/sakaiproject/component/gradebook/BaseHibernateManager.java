@@ -230,7 +230,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		Long count = (Long) session.createCriteria(GradableObject.class)
                 .add(Restrictions.eq("name", assignment.getName()))
                 .add(Restrictions.eq("gradebook", assignment.getGradebook()))
-                .add(Restrictions.eq("id", assignment.getId()))
+                .add(Restrictions.ne("id", assignment.getId()))
                 .add(Restrictions.eq("removed", false))
                 .setProjection(Projections.rowCount())
                 .uniqueResult();
