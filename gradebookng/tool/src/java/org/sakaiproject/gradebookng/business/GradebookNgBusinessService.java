@@ -337,10 +337,10 @@ public class GradebookNgBusinessService {
 					.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds);
 			
 			//FIXME: this is a hack to implement the old style realms checks. The above method only checks the gb_permission_t table and not realms
-			//This "should" be handled already for realms perms, TA shouldn't get this far if they don't have realms permissions to grade section (maybe)
-			//Check permissions, if they are not empty then realms perms exist and they don't filter to category level so allow all.
+			//if categories is empty (no fine grain permissions enabled), Check permissions, if they are not empty then realms perms exist 
+			//and they don't filter to category level so allow all.
 			//This should still allow the gb_permission_t perms to override if the TA is restricted to certain categories
-			if(!this.getPermissionsForUser(user.getId()).isEmpty()){
+			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId()).isEmpty()){
 				viewableCategoryIds = allCategoryIds;
 			}
 
@@ -1687,8 +1687,6 @@ public class GradebookNgBusinessService {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
-		//FIXME:It appears this method only checks the gb_permission_t table for gradebook and not
-		//realms. It should check both, db perms override realms
 		List<PermissionDefinition> permissions = this.gradebookPermissionService
 				.getPermissionsForUser(gradebook.getUid(), userUuid);
 	
