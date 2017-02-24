@@ -23,5 +23,12 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
+		
+		<!-- Section Awareness -->
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

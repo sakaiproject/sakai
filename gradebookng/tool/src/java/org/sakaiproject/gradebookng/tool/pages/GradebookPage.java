@@ -105,6 +105,9 @@ public class GradebookPage extends BasePage {
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
+		// get Gradebook to save additional calls later
+		final Gradebook gradebook = this.businessService.getGradebook();
+		
 		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
@@ -112,13 +115,12 @@ public class GradebookPage extends BasePage {
 				
 		//TAs with no permissions or in a roleswap situation
 		if(this.role == GbRole.TA){
-			
 			//roleswapped?
 			if(this.businessService.isUserRoleSwapped()) {
 				PageParameters params = new PageParameters();
 				params.add("message", getString("ta.roleswapped"));
 				throw new RestartResponseException(AccessDeniedPage.class, params);
-			}
+			}		
 			
 			// no perms
 			permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
@@ -199,9 +201,6 @@ public class GradebookPage extends BasePage {
 			sortBy = SortType.SORT_BY_CATEGORY;
 			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
-
-		// get Gradebook to save additional calls later
-		final Gradebook gradebook = this.businessService.getGradebook();
 
 		// get list of assignments. this allows us to build the columns and then
 		// fetch the grades for each student for each assignment from

@@ -1,5 +1,10 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.math.RoundingMode;
+import java.security.Permission;
+import java.text.Format;
+import java.text.NumberFormat;
+>>>>>>> 6e6a9e6... Issue #783 Issue #843 Change GBNG to recognize realm permissions as well as db permissions
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,6 +30,8 @@ import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
@@ -326,8 +333,16 @@ public class GradebookNgBusinessService {
 			}
 
 			// get a list of category ids the user can actually view
-			final List<Long> viewableCategoryIds = this.gradebookPermissionService
+			List<Long> viewableCategoryIds = this.gradebookPermissionService
 					.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds);
+			
+			//FIXME: this is a hack to implement the old style realms checks. The above method only checks the gb_permission_t table and not realms
+			//This "should" be handled already for realms perms, TA shouldn't get this far if they don't have realms permissions to grade section (maybe)
+			//Check permissions, if they are not empty then realms perms exist and they don't filter to category level so allow all.
+			//This should still allow the gb_permission_t perms to override if the TA is restricted to certain categories
+			if(!this.getPermissionsForUser(user.getId()).isEmpty()){
+				viewableCategoryIds = allCategoryIds;
+			}
 
 			// remove the ones that the user can't view
 			final Iterator<CategoryDefinition> iter = rval.iterator();
@@ -1010,9 +1025,21 @@ public class GradebookNgBusinessService {
 
 			// get the ones the TA can actually view
 			// note that if a group is empty, it will not be included.
-			final List<String> viewableGroupIds = this.gradebookPermissionService
+			List<String> viewableGroupIds = this.gradebookPermissionService
 					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
 
+			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
+			//need to check realms to see if user has privilege to grade any groups. This is already done in 
+			//getPermissionsForUser()
+			if(viewableGroupIds.isEmpty()){
+				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
+				if(!realmsPerms.isEmpty()){
+					for(PermissionDefinition permDef : realmsPerms){
+						viewableGroupIds.add(permDef.getGroupReference());
+					}
+				}
+			}
+			
 			// remove the ones that the user can't view
 			final Iterator<GbGroup> iter = rval.iterator();
 			while (iter.hasNext()) {
@@ -1660,11 +1687,17 @@ public class GradebookNgBusinessService {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
-		final List<PermissionDefinition> permissions = this.gradebookPermissionService
+		//FIXME:It appears this method only checks the gb_permission_t table for gradebook and not
+		//realms. It should check both, db perms override realms
+		List<PermissionDefinition> permissions = this.gradebookPermissionService
 				.getPermissionsForUser(gradebook.getUid(), userUuid);
-		if (permissions == null) {
-			return new ArrayList<>();
+	
+		//if db permissions are null, check realms permissions.
+		if (permissions == null || permissions.isEmpty()) {
+			//This method should return empty arraylist if they have no realms perms
+			permissions = this.gradebookPermissionService.getRealmsPermissionsForUser(userUuid, siteId, Role.TA);
 		}
+		
 		return permissions;
 	}
 

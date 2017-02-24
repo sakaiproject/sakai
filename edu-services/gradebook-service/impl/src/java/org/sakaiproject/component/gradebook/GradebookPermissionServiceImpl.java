@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -28,7 +29,8 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class GradebookPermissionServiceImpl extends BaseHibernateManager implements GradebookPermissionService
 {
-	private SectionAwareness sectionAwareness;
+	private SectionAwareness sectionAwareness;	
+	private GradebookService gradebookService;
 	
 	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList) throws IllegalArgumentException
 	{
@@ -42,7 +44,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		else
 		{
-
+			
 			List<Long> returnCatIds = new ArrayList<Long>();
 			List<Permission> permList = getPermissionsForUserForCategory(gradebookId, userId, categoryIdList);
 			for(Iterator<Permission> iter = permList.iterator(); iter.hasNext();)
@@ -1160,8 +1162,21 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		List groupIds = new ArrayList(sectionIdStudentIdsMap.keySet());
 		List permsForGroupsAnyCategory = getPermissionsForUserForGroup(gradebookId, userId, groupIds);
 		
-		if (permsForGroupsAnyCategory.isEmpty()) {
-			return viewableStudents;
+		//FIXME: based on our realms checks earlier, sections should already be filtered to one that the
+		//User has access to. May need to make sure they have TA role in those sections
+		if (permsForGroupsAnyCategory.isEmpty()){
+			if(!sections.isEmpty()) {
+				Permission perm = new Permission();
+				for(Object obj: sections){
+					CourseSection section = (CourseSection) obj;
+					perm.setFunction(GraderPermission.GRADE.toString());
+					perm.setUserId(userId);
+					perm.setGroupId(section.getUuid());
+					permsForGroupsAnyCategory.add(perm);
+				}
+			}else{
+				return viewableStudents;
+			}
 		}
 		
 		for (Iterator permsIter = permsForGroupsAnyCategory.iterator(); permsIter.hasNext();) {
@@ -1190,6 +1205,59 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		return getViewableStudentsForUser(gradebookId, userId, studentIds, sections);
 		
 	}
+	
+	/**
+	 * Get a list of permissions defined for the given user based on section and role or all sections if allowed. 
+	 * This method checks realms permissions for role/section and is independent of the 
+	 * gb_permissions_t permissions.
+	 * 
+	 * note: If user has the grade privilege, they are given the GraderPermission.VIEW_COURSE_GRADE permission to match
+	 * GB classic functionality. This needs to be reviewed.
+	 *
+	 * @param userUuid
+	 * @param siteId
+	 * @param role user Role
+	 * @return list of {@link org.sakaiproject.service.gradebook.shared.PermissionDefinition PermissionDefinitions} or empty list if none
+	 */	
+	public List<PermissionDefinition> getRealmsPermissionsForUser(String userUuid,String siteId, Role role){
+		
+		List<PermissionDefinition> permissions = new ArrayList<PermissionDefinition>();		
+		
+		if( this.getGradebookService().isUserAllowedToGrade(siteId,userUuid)){
+			//FIXME:giving them view course grade (this needs to be reviewed!!), 
+			//it appears in GB classic, User can view course grades if they have the ability to grade in realms
+			PermissionDefinition permDef = new PermissionDefinition();
+			permDef.setFunction(GraderPermission.VIEW_COURSE_GRADE.toString());
+			permDef.setUserId(userUuid);
+			permissions.add(permDef);
+
+			if(this.getGradebookService().isUserAllowedToGradeAll(siteId,userUuid)){
+				permDef = new PermissionDefinition();
+				permDef.setFunction(GraderPermission.GRADE.toString());
+				permDef.setUserId(userUuid);
+				permissions.add(permDef);
+			}else{
+				//get list of sections belonging to user and set a PermissionDefinition for each one
+				//Didn't find a method that returned gradeable sections for a TA, only for the logged in user.
+				//grabbing list of sections for the site, if User is a member of the section and has privilege to
+				//grade their sections, they are given the grade permission. Seems straight forward??
+				List<CourseSection> sections = this.getSectionAwareness().getSections(siteId);		
+			
+				for(CourseSection section: sections){
+					if(this.getSectionAwareness().isSectionMemberInRole(section.getUuid(), userUuid,role)){
+						//realms have no categories defined for grading, just perms and group id
+						permDef = new PermissionDefinition();
+						permDef.setFunction(GraderPermission.GRADE.toString());
+						permDef.setUserId(userUuid);
+						permDef.setGroupReference(section.getUuid());
+						permissions.add(permDef);
+					}
+				}
+			}
+		}
+		
+		return permissions;
+	}
 
 	public SectionAwareness getSectionAwareness()
 	{
@@ -1199,6 +1267,16 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 	public void setSectionAwareness(SectionAwareness sectionAwareness)
 	{
 		this.sectionAwareness = sectionAwareness;
+	}
+	
+	public GradebookService getGradebookService()
+	{
+		return (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	}
+
+	public void setGradebookService(GradebookService gradebookService)
+	{
+		this.gradebookService = gradebookService;
 	}
 	
 	private Map<String, List<String>> getSectionIdStudentIdsMap(Collection courseSections, Collection studentIds) {

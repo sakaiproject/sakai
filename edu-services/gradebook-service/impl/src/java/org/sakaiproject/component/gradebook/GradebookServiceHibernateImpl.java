@@ -750,7 +750,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public Long addAssignment(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to add an assignment");
+			log.info("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to add an assignment");
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
 
