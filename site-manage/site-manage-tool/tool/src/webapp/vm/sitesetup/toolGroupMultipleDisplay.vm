@@ -121,7 +121,7 @@
                                      #end
                                         </li>
                                      ## add multi if required
-                                     #if ($tool.hasMultiples())
+                                     #if ($tool.isMultiple())
                                         #foreach($key in $toolGroupMultiples.keySet() )
                                            #if ($key==$toolId)
                                               #set($toolMultipleList=$toolGroupMultiples.get($key))
