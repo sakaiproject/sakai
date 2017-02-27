@@ -145,7 +145,7 @@ public class SQLScriptMigration extends HibernateDaoSupport implements DataMigra
 						log.debug("   Done {} rows in {} ms", l, (System.currentTimeMillis() - start));
 					} catch (HibernateException ex) {
 						if (newdb) {
-							log.warn("Unsuccessful data migration statement: {}", sql[i]);
+							log.debug("Unsuccessful data migration statement: {}", sql[i]);
 							log.debug("Cause: " + ex.getMessage());
 						} else {
 							log.warn("Unsuccessful data migration statement: {}", sql[i]);
