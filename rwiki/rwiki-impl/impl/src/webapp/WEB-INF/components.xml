@@ -11,11 +11,7 @@
   + Core Service components
   + -->
   <import resource="coreServiceComponents.xml" />	
-  
-  <!-- +
-  + Data migration
-  + -->
-  <import resource="datamigrationComponents.xml" />
+
   <!-- +
   + Data migration
   + -->
