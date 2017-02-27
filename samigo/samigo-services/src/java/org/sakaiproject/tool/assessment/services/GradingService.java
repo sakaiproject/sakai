@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -352,18 +353,12 @@ public class GradingService
             l.add(a);
         }
         // if scores are not modified but comments are added, include it for update
-        else if (a.getComments()!=null)
-        	{
-            	if (b.getComments()!=null)
-            	{
-                    if (!a.getComments().equals(b.getComments())) {
-                            l.add(a);
-                    }
-            	}
-            	else {
-                    l.add(a);
-            	}
-        	}
+        Optional<String> commentsA = Optional.ofNullable(a.getComments());
+        Optional<String> commentsB = Optional.ofNullable(b.getComments());
+
+        if ( !commentsA.orElse("").equals(commentsB.orElse("")) ){
+        	l.add(a);
+        }
       }
     }
     return l;
