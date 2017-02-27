@@ -40,7 +40,9 @@ import lombok.Setter;
  * Implementation of ProfileWallLogic API for Profile2 wall.
  * 
  * @author d.b.robinson@lancaster.ac.uk
+ * @deprecated The wall functionality will be removed from Sakai for the 13 release.
  */
+@Deprecated
 public class ProfileWallLogicImpl implements ProfileWallLogic {
 	
 	private static final Logger log = LoggerFactory.getLogger(ProfileWallLogic.class);

@@ -513,6 +513,7 @@ public class MyProfile extends BasePage {
 			});
 		}
 		
+		// DEPRECATED: UNLESS THERE IS AN EXPRESSED DESIRE FOR THIS FUNCTIONALITY THE WALL WILL BE REMOVED FOR 13.
 		if (sakaiProxy.isWallEnabledGlobally()) {
 			
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.wall")) {

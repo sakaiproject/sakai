@@ -492,8 +492,11 @@ public interface SakaiProxy {
 	/**
 	 * Is the profile2.wall.enabled flag set in sakai.properties? If not set, defaults to <code>false</code>.
 	 *
+	 * DEPRECATED: UNLESS THERE IS AN EXPRESSED DESIRE FOR THIS FUNCTIONALITY THE WALL WILL BE REMOVED FOR 13.
+	 *
 	 * @return <code>true</code> if the profile2.wall.enabled flag is set, otherwise returns <code>false</code>.
 	 */
+	@Deprecated
 	public boolean isWallEnabledGlobally();
 
 	/**
