@@ -35,7 +35,7 @@ var collapsed = false;
 
 var $window = $PBJQ(window),
 	$tools	= $("#toolMenu"),
-	padding	= $(".Mrphs-siteHierarchy").height() + $(".Mrphs-topHeader").height();
+	padding	= $(".Mrphs-topHeader").height();
 
 $PBJQ(document).ready(function(){
 	if(getCookieVal('sakai_nav_minimized') === 'true') {
@@ -45,13 +45,14 @@ $PBJQ(document).ready(function(){
 });
 
 function animateToolBar() {
+	var offset = $('#toolMenuWrap').offset().top;
 	if($("#toolMenuWrap").attr("scrollingToolbarEnabled") != undefined){
-		var topPad = $(".pasystem-banner-alerts").height();
-		var follow = ($window.height()- (padding + topPad)) > $tools.height();
+		var topPad = padding + $(".pasystem-banner-alerts").height();
+		var follow = ($window.height() - topPad) > $tools.height();
 		if($("#toolMenuWrap").css('position') !== 'fixed'
 			&& follow && $window.scrollTop() > 0) {
 			$("#toolMenu,#subSites").stop().animate({
-				top: $window.scrollTop() + topPad
+				top: Math.max($window.scrollTop() + topPad - offset, 0)
 			});
 		} else {
 			$("#toolMenu,#subSites").stop().animate({

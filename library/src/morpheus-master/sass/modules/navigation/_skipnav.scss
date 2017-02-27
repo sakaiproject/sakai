@@ -29,7 +29,7 @@
 	@media #{$phone}{
 		position: fixed;
 		z-index: 20;
-		top: 3.6em;
+		top: $banner-height;
 		left: 0;
 		background: lighten($tool-menu-color, 15% );
 		width: 100%;

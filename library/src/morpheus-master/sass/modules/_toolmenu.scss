@@ -19,6 +19,7 @@ body.is-logged-out{
 
 		#content, .Mrphs-container--footer {
 			margin: 0 0 0 0;
+
 		}
 
 		#toolMenuWrap{
@@ -26,7 +27,7 @@ body.is-logged-out{
 			min-width: #{ $tool-menu-width-collapsed };
 			width: #{ $tool-menu-width-collapsed };
 		}
-		#toolMenu, #subSites{
+		#toolMenu, #subSites, .floatingToolMenu{
 			.img_site_toolmenu{
 				display: none;
 			}
@@ -35,21 +36,16 @@ body.is-logged-out{
 					a{
 						min-height: 1.7em;
 						text-align: center;
-						@if $tool-menu-icon-on-left {
-							min-height: 3.4em;
-						}
 						&:hover{
 							.#{$namespace}toolsNav__menuitem--title{
 								position: absolute;
 								display: block;
 								float: right;
 								margin: -2.27em 0em 0em $tool-menu-width-collapsed;
-								background: $primary-color;
 								padding: 0.71em;
 								z-index: 50;
 								width: auto;
 								border-radius: 0 5px 5px 0;
-							    min-height: 3.4em;
 								line-height: 100%;
 							}
 						}
@@ -138,8 +134,8 @@ body.is-logged-out{
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
-	@include flex-basis( 7.5em );
-	margin: 0 0 0 0;
+	@include flex-basis( $tool-menu-width );
+	margin: 5px 0 0 0;
 	text-align: center;
 	border-right: 1px solid $tool-border-color;
 	@include transition( left 0.25s linear 0s );
@@ -251,11 +247,13 @@ nav#subSites{
 	}
 }
 
-#toolMenu, #subSites{
+#toolMenu, #subSites, .floatingToolMenu{
 	ul{
 		padding: 0;
 		margin:  0;
 		li{
+			border-bottom: 1px solid $tool-menu-item-separator-color;
+
 			&.#{$namespace}collapseTools
 			{
 				display:flex;
@@ -263,32 +261,47 @@ nav#subSites{
 				justify-content:flex-end; /* right-align the arrows when expanded */
 				height:3em;
 				padding: 0 1em;
-				border-right: 1px solid $tool-menu-background-color;
-				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
 				cursor:pointer;
 				font-size: 1.2em;
-				background-color: $tool-tab-background-color;
+				z-index: 1;
+
+				color: $tool-menu-collapse-text-color;
+				border-top: $tool-menu-collapse-border-top;
+				border-bottom: none;
+				background-color: $tool-menu-collapse-background-color;
+				box-shadow: $tool-menu-collapse-shadow;
+
 				&:hover
 				{
-					background: $tool-menu-hover-background-color;
-					color: $tool-menu-hover-color;
+					color: $tool-menu-collapse-hover-text-color;
+					border-top: $tool-menu-collapse-hover-border-top;
+					background-color: $tool-menu-collapse-hover-background-color;
+					box-shadow: $tool-menu-collapse-hover-shadow;
 				}
 				&.min
 				{
 					justify-content:center; /* center the arrows when collapsed */
-				}
+					color: $tool-menu-collapse-active-text-color;
+					border-top: $tool-menu-collapse-active-border-top;
+					background-color: $tool-menu-collapse-active-background-color;
+					box-shadow: $tool-menu-collapse-active-shadow;
 
+					&:hover{
+						color: $tool-menu-collapse-active-hover-text-color;
+						border-top: $tool-menu-collapse-active-hover-border-top;
+						background-color: $tool-menu-collapse-active-hover-background-color;
+						box-shadow: $tool-menu-collapse-active-hover-shadow;
+					}
+				}
 				i
 				{
 					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
 				}
-
 				@media #{$phone}{
-					display: none;
+					display: none !important;
 				}
 			}
 			@media #{$phone}{
-				margin: -4px -4px 0px 0; //FIX for inline-block extra space.
 				width: calc( 25% - 1px );
 			}
 			.#{$namespace}toolsNav__menuitem--icon{
@@ -309,16 +322,14 @@ nav#subSites{
 				}
 			}
 			a{
-				border-bottom: 1px solid darken( $tool-menu-background-color, 20% );
-				color: $tool-menu-color;
 				display: block;
 				font-family: $header-font-family;
 				font-weight: 400;
 				font-size: 0.9em;
+				position: relative;
 				@if $tool-menu-icon-on-left {
 					text-align: left;
-					padding: 0.5em 0.5em;
-					min-height: 3.4em;
+					padding: 0.7em 0.5em;
 				} @else {
 					text-align: center;
 					padding: 0.5em 0.25em;
@@ -326,9 +337,36 @@ nav#subSites{
 					line-height: 1.25;
 				}
 				text-decoration: none;
+
+				color: $tool-menu-item-text-color;
+				background-color: $tool-menu-item-background-color;
+				font-weight: $tool-menu-item-text-weight;
+
+				.#{$namespace}toolsNav__menuitem--icon{
+					color: $tool-menu-item-icon-color
+				}
+
+				&:before{
+					border-left: $tool-menu-item-border-left;
+					content: '';
+					height: 100%;
+					display: inline-block;
+					position: absolute;
+					top: 0;
+					left: 0;
+				}
+
 				&:hover{
-					background: $tool-menu-hover-background-color;
-					color: $tool-menu-hover-color;
+					color: $tool-menu-item-hover-text-color;
+					background: $tool-menu-item-hover-background-color;
+
+					&:before{
+						border-left: $tool-menu-item-hover-border-left;
+					}
+
+					.#{$namespace}toolsNav__menuitem--icon{
+						color: $tool-menu-item-hover-icon-color;
+					}
 				}
 				@media #{$phone}{
 					@if $tool-menu-icon-on-left {
@@ -363,9 +401,21 @@ nav#subSites{
 					overflow: hidden;
 				}
 				&.is-invisible {
-					color: #AAAAAA;
 					font-style: italic;
 					position: relative;
+
+					color: $tool-menu-item-hidden-text-color;
+					background: $tool-menu-item-hidden-background-color;
+
+					&:before{
+						border-left: $tool-menu-item-hidden-border-left;
+					}
+
+					.#{$namespace}toolsNav__menuitem--icon{
+						color: $tool-menu-item-hidden-icon-color;
+						font-style: italic;
+					}
+
 					&:after {
 						@extend .fa-lg;
 						@extend .fa;
@@ -374,25 +424,52 @@ nav#subSites{
 						top: 4px;
 						right: 4px;
 					}
-					.#{$namespace}toolsNav__menuitem--icon{
-						font-style: italic;
+
+					&:hover{
+						color: $tool-menu-item-hidden-hover-color;
+						background: $tool-menu-item-hidden-hover-background-color;
+
+						&:before{
+							border-left: $tool-menu-item-hidden-hover-border-left;
+						}
+
+						.#{$namespace}toolsNav__menuitem--icon{
+							color: $tool-menu-item-hidden-hover-icon-color;
+						}
 					}
 				}
 			}
 			&.is-current{
-				background: $tool-menu-current-background-color;
 				position: relative;
 				margin-right: -1px;
+
 				a{
-					border-left: 4px solid $tool-menu-current-border-color;
-					color: $tool-menu-current-color;
+					color: $tool-menu-item-selected-text-color;
+					background: $tool-menu-item-selected-background-color;
+
+					&:before{
+						border-left: $tool-menu-item-selected-border-left;
+					}
+
+					.#{$namespace}toolsNav__menuitem--icon{
+						color: $tool-menu-item-selected-icon-color;
+					}
+
 					.#{$namespace}toolsNav__menuitem--title{
 						font-weight: 700;
 					}
+
 					&:hover{
-						border-left: none;
-						background: $tool-menu-hover-background-color;
-						color: $tool-menu-hover-color;
+						color: $tool-menu-item-selected-hover-text-color;
+						background: $tool-menu-item-selected-hover-background-color;
+
+						&:before{
+							border-left: $tool-menu-item-selected-hover-border-left;
+						}
+
+						.#{$namespace}toolsNav__menuitem--icon{
+							color: $tool-menu-item-selected-hover-icon-color;
+						}
 					}
 					@media #{$phone}{
 						@if $tool-menu-icon-on-left {
@@ -410,7 +487,7 @@ nav#subSites{
 				li{
 					border-bottom: 1px solid $tool-sub-menu-border-color;
 					a{
-			  			padding: 0.6em 0 0.6em 0em;
+						padding: 0.6em 0 0.6em 0em;
 						background: $tool-sub-menu-background-color;
 						&:hover{
 							background: $tool-sub-menu-hover-background-color;

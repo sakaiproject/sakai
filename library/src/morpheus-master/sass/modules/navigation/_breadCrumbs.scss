@@ -1,5 +1,6 @@
 .#{$namespace}siteHierarchy{
 	background: $tool-background-color;
+	min-height: $hierarchy-size;
 
 	h1{
 		color: $background-color;
@@ -22,6 +23,10 @@
 
 	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
 	@media #{$nonPhone}{
+		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator{
+			display: none;
+		}
+
 		min-height: initial;
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
@@ -51,6 +56,7 @@
 			font-weight: bold;
 			display: inline-block;
 			margin: 1em 0 0.25em 1.25em;
+			border-bottom: 1px solid transparent;
 
 			&:hover{
 				border-bottom: 1px solid $breadcrumbs-hover-color;
@@ -88,6 +94,7 @@
 		top: 6.3em;
 		width: 100%;
 		z-index: 2;
+		box-shadow: $divider-shadow;
 		@include transition( top 0.25s linear 0s );
 		&.moving{
 			top: -22.2em;
@@ -112,7 +119,7 @@
 		}
 		
 		a.#{$namespace}hierarchy--toolName:hover{
-			border-bottom: 1px solid  $background-color;
+			border-bottom: 1px solid $background-color;
 		}
 		
 		.#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{

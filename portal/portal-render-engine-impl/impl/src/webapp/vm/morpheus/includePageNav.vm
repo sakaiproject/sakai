@@ -19,12 +19,9 @@
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
-				<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav">
+				<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav" style='display: none;'>
 					<i class="fa fa-lg fa-angle-double-left"></i>
 				</li>
-				#if ($viewAsStudentLink)
-					#parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-				#end ## END of IF ($viewAsStudentLink)
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
 	
