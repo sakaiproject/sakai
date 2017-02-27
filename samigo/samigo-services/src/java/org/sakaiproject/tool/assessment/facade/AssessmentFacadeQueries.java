@@ -372,7 +372,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		log.debug("removeAssesment: no. of pub Assessment = {}", count.size());
 		Iterator iter = count.iterator();
-		int i = ((Integer) iter.next()).intValue();
+		int i = ((Long) iter.next()).intValue();
 		if (i < 1) {
 			AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
 
