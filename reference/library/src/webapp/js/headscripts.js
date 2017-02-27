@@ -576,20 +576,8 @@ function loadXMLDoc(url)
 		// and the auto parameter to indicate this is not user activity
 		updateReq.open("GET", url + "&auto=true&unq=" + new Date().getTime() + "-" +  Math.random(), true);
 		updateReq.send(null);
-	}
-
-	// branch for IE/Windows ActiveX version
-	else if (window.ActiveXObject)
-	{
-		updateReq = new ActiveXObject("Microsoft.XMLHTTP");
-		if (updateReq)
-		{
-			updateReq.onreadystatechange = processReqChange;
-			// adjust the url with a unique (time based for sequence, plus random for multi user) value to disable caching
-			// and the auto parameter to indicate this is not user activity
-			updateReq.open("GET", url + "&auto=true&unq=" + new Date().getTime() + "-" +  Math.random(), true);
-			updateReq.send();
-		}
+	} else {
+		console.log('XMLHttpRequest not supported. loadXMLDoc(' + url + ') failed.');
 	}
 }
 
