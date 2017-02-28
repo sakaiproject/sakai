@@ -52,6 +52,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 //import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 //import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -134,9 +135,9 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 					"search.enable", "false")))
 			{
 
-				searchService.registerFunction("lessonbuilder.create");
-				searchService.registerFunction("lessonbuilder.update");
-				searchService.registerFunction("lessonbuilder.delete");
+				searchService.registerFunction(LessonBuilderEvents.CREATE);
+				searchService.registerFunction(LessonBuilderEvents.UPDATE);
+				searchService.registerFunction(LessonBuilderEvents.DELETE);
 				searchIndexBuilder.registerEntityContentProducer(this);
 			}
 		}
@@ -220,12 +221,12 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	public Integer getAction(Event event)
 	{
 		String eventName = event.getEvent();
-		if ("lessonbuilder.create".equals(eventName)
-				|| "lessonbuilder.update".equals(eventName))
+		if (LessonBuilderEvents.CREATE.equals(eventName)
+				|| LessonBuilderEvents.UPDATE.equals(eventName))
 		{
 			return SearchBuilderItem.ACTION_ADD;
 		}
-		if ("lessonbuilder.delete".equals(eventName))
+		if (LessonBuilderEvents.DELETE.equals(eventName))
 		{
 			return SearchBuilderItem.ACTION_DELETE;
 		}

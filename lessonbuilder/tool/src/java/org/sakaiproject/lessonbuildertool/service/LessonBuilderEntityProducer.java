@@ -79,6 +79,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.ToolApi;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -1702,7 +1703,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
     public final static String[] EVENT_KEYS= 
-	new String[] {"lessonbuilder.create", "lessonbuilder.delete", "lessonbuilder.update", "lessonbuilder.read"};
+	new String[] {LessonBuilderEvents.CREATE, LessonBuilderEvents.DELETE, LessonBuilderEvents.UPDATE, LessonBuilderEvents.READ};
 
     /**
      * Return an array of all the event keys which should be tracked for statistics

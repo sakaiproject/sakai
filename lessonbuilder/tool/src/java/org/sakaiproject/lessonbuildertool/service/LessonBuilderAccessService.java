@@ -81,6 +81,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
@@ -590,7 +591,7 @@ public class LessonBuilderAccessService {
 					// https://heidelberg.rutgers.edu/access/citation/content/group/24da8519-08c2-4c8c-baeb-8abdfd6c69d7/New%20Citation%20List
 
 					if (item.getAttribute("multimediaUrl") != null) {
-					    eventTrackingService.post(eventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/item/" + item.getId(), false));
+					    eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.READ, "/lessonbuilder/item/" + item.getId(), false));
 					    res.sendRedirect(item.getAttribute("multimediaUrl"));
 					    return;
 					}

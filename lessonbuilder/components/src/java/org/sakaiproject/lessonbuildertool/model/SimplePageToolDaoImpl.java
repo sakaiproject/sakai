@@ -49,6 +49,7 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageCommentImpl;
@@ -701,13 +702,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 			if (o instanceof SimplePageItem) {
 				SimplePageItem item = (SimplePageItem)o;
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/item/" + item.getId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.CREATE, "/lessonbuilder/item/" + item.getId(), true));
 			} else if (o instanceof SimplePage) {
 				SimplePage page = (SimplePage)o;
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/page/" + page.getPageId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.CREATE, "/lessonbuilder/page/" + page.getPageId(), true));
 			} else if (o instanceof SimplePageComment) {
 				SimplePageComment comment = (SimplePageComment)o;
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/comment/" + comment.getId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.CREATE, "/lessonbuilder/comment/" + comment.getId(), true));
 			}
 
 			if(o instanceof SimplePageItem || o instanceof SimplePage) {
@@ -750,11 +751,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    
 		    if (o instanceof SimplePageItem) {
 			SimplePageItem i = (SimplePageItem)o;
-			String eventType = (i.getId() == 0 ? "lessonbuilder.create" : "lessonbuilder.update");
+			String eventType = (i.getId() == 0 ? LessonBuilderEvents.CREATE : LessonBuilderEvents.UPDATE);
 			EventTrackingService.post(EventTrackingService.newEvent(eventType, "/lessonbuilder/item/" + i.getId(), true));
 		    } else if (o instanceof SimplePage) {
 			SimplePage i = (SimplePage)o;
-			String eventType = (i.getPageId() == 0 ? "lessonbuilder.create" : "lessonbuilder.update");
+			String eventType = (i.getPageId() == 0 ? LessonBuilderEvents.CREATE : LessonBuilderEvents.UPDATE);
 			EventTrackingService.post(EventTrackingService.newEvent(eventType, "/lessonbuilder/page/" + i.getPageId(), true));
 		    } 
 
@@ -803,13 +804,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		if (o instanceof SimplePageItem) {
 		    SimplePageItem i = (SimplePageItem)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/item/" + i.getId(), true));
+		    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.DELETE, "/lessonbuilder/item/" + i.getId(), true));
 		} else if (o instanceof SimplePage) {
 		    SimplePage i = (SimplePage)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/page/" + i.getPageId(), true));
+		    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.DELETE, "/lessonbuilder/page/" + i.getPageId(), true));
 		} else if(o instanceof SimplePageComment) {
 			SimplePageComment i = (SimplePageComment) o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/comment/" + i.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.DELETE, "/lessonbuilder/comment/" + i.getId(), true));
 		}
 
 		try {
@@ -873,13 +874,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		
 		if (o instanceof SimplePageItem) {
 			SimplePageItem item = (SimplePageItem)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/item/" + item.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.UPDATE, "/lessonbuilder/item/" + item.getId(), true));
 		} else if (o instanceof SimplePage) {
 			SimplePage page = (SimplePage)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/page/" + page.getPageId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.UPDATE, "/lessonbuilder/page/" + page.getPageId(), true));
 		} else if (o instanceof SimplePageComment) {
 			SimplePageComment comment = (SimplePageComment)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/comment/" + comment.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.UPDATE, "/lessonbuilder/comment/" + comment.getId(), true));
 		}
 
 		try {

@@ -11,6 +11,7 @@
 %><%@ page import="org.sakaiproject.component.cover.ComponentManager" %><%
 %><%@ page import="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" %><%
 %><%@ page import="org.sakaiproject.event.cover.EventTrackingService" %><%
+%><%@ page import="org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents" %><%
 %><%@ page import="org.sakaiproject.lessonbuildertool.SimplePage" %><%
 %><%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
@@ -97,7 +98,7 @@
 	out.println(StringEscapeUtils.escapeHtml("removePage unable to save site " + e));
     }
 		
-    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + simplePage.getPageId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.REMOVE, "/lessonbuilder/page/" + simplePage.getPageId(), true));
 
    out.println("<script>parent.location.replace(\"/portal/site/" + URLEncoder.encode(site.getId(), "UTF-8") + "\")</script>");
 
