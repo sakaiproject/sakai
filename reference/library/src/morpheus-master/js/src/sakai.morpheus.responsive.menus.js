@@ -6,8 +6,14 @@ function toggleToolsNav(event){
   if (event) {
     event.preventDefault();
   }
+    
   $PBJQ('body').toggleClass('toolsNav--displayed');
-
+  if ($PBJQ('body').hasClass('toolsNav--displayed')) {
+    /* Add the mask to grey out the top headers - re-use code in more.sites.js */
+    createDHTMLMask(toggleToolsNav);
+  }else{
+    removeDHTMLMask();
+  }
 }
 
 $PBJQ(document).ready(function(){
