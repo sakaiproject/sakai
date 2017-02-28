@@ -34,7 +34,6 @@
         <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
     </issueManagement>
 
-
     <profiles>
         <profile>
             <id>all</id>
@@ -78,6 +77,7 @@
                 <module>jsf</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
+                <module>library</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
@@ -93,7 +93,6 @@
                 <module>presence</module>
                 <module>profile2</module>
                 <module>providers</module>
-                <module>reference</module>
                 <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
@@ -117,6 +116,7 @@
                 <module>usermembership</module>
                 <module>velocity</module>
                 <module>web</module>
+                <module>webjars</module>
                 <module>webservices</module>
             </modules>
         </profile>
@@ -161,6 +161,7 @@
                 <module>jsf</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
+                <module>library</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
@@ -176,7 +177,6 @@
                 <module>presence</module>
                 <module>profile2</module>
                 <module>providers</module>
-                <module>reference</module>
                 <module>reports</module>
                 <module>reset-pass</module>
                 <module>rights</module>
@@ -201,6 +201,7 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
+                <module>webjars</module>
                 <module>webservices</module>
                 <module>yaft</module>
             </modules>

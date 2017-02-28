@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>reference-base</artifactId>
-        <groupId>org.sakaiproject</groupId>
+        <artifactId>webjars</artifactId>
+        <groupId>org.sakaiproject.webjars</groupId>
         <version>12-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <packaging>jar</packaging>
