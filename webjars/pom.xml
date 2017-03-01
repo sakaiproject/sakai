@@ -16,13 +16,12 @@
       <!-- Source at https://github.com/w8tcha/CKEditor-WordCount-Plugin -->
       <ckeditor.wordcount.version>4897cb23a9f2ca7fb6b792add4350fb9e2a1722c</ckeditor.wordcount.version>
   </properties>
-  <name>Sakai Library Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>reference-base</artifactId>
+  <name>Sakai WebJars Project</name>
+  <groupId>org.sakaiproject.webjars</groupId>
+  <artifactId>webjars</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>library</module>
-    <module>webjars/ckeditor-autosave</module>
-    <module>webjars/ckeditor-wordcount</module>
+    <module>ckeditor-autosave</module>
+    <module>ckeditor-wordcount</module>
   </modules>
 </project>

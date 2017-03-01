@@ -3,19 +3,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>reference-base</artifactId>
+		<artifactId>master</artifactId>
 		<groupId>org.sakaiproject</groupId>
 		<version>12-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+		<relativePath>../master/pom.xml</relativePath>
 	</parent>
 	<name>Sakai Library</name>
-	<groupId>org.sakaiproject</groupId>
+	<groupId>org.sakaiproject.library</groupId>
 	<artifactId>library</artifactId>
-	<organization>
-		<name>University of Michigan</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2003</inceptionYear>
 	<packaging>war</packaging>
 	<properties>
 		<bootstrap-version>3.3.7</bootstrap-version>
