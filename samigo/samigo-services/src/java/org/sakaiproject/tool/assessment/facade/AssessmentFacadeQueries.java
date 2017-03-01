@@ -781,7 +781,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		List<Number> size = getHibernateTemplate().execute(hcb);
 		if (!size.isEmpty()) {
-			size.get(0).intValue();
+			return size.get(0).intValue();
 		}
 		return 0;
 	}
