@@ -81,7 +81,6 @@ public class ScheduledInvocationTest {
     public void testCreateAndDeleteBySearch() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.getTime()).thenReturn(0L);
-        Mockito.when(dao.get(COMPONENT_ID, CONTEXT)).thenReturn("uuid");
         String uuid = manager.createDelayedInvocation(time, COMPONENT_ID, CONTEXT);
         manager.deleteDelayedInvocation(COMPONENT_ID, CONTEXT);
         DelayedInvocation[] empty = manager.findDelayedInvocations(ALL, ALL);
