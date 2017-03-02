@@ -17,7 +17,7 @@
     <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
     <properties>
-        <deploy.target>common</deploy.target>
+        <deploy.target>shared</deploy.target>
     </properties>
     <dependencies>
         <dependency>
