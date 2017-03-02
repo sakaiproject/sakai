@@ -1,17 +1,30 @@
 package org.sakaiproject.component.app.scheduler.jobs.autoimport;
 
-import org.apache.commons.io.filefilter.DirectoryFileFilter;
-import org.quartz.*;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Attempts to download a file that lists all the site archives to import automatically.
@@ -19,6 +32,8 @@ import java.util.List;
 public class GetArchivesJob implements Job {
 
     private final Logger log = LoggerFactory.getLogger(GetArchivesJob.class);
+
+    private final Pattern uuidRegex = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
     private ServerConfigurationService serverConfigurationService;
 
@@ -44,6 +59,7 @@ public class GetArchivesJob implements Job {
 
         log.info("Attempting to import archives listed in: "+ source);
         try {
+
             URL url = new URL(source);
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", "Sakai Content Importer");
@@ -56,35 +72,12 @@ public class GetArchivesJob implements Job {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (!line.isEmpty() && !line.startsWith("#")) {
-                        importArchive(line);
+                        String file = downloadArchive(line);
+                        if (file != null) {
+                            String siteId = extractSiteId(line);
+                            scheduleImport(file, siteId);
+                        }
                     }
-                }
-            }
-
-
-            String sakaiHome = serverConfigurationService.getSakaiHomePath();
-            String archiveHome = sakaiHome + "archive";
-
-            // Find all the folders and load them.
-            File archiveDirectory = new File(archiveHome);
-            File[] files = archiveDirectory.listFiles((FileFilter) DirectoryFileFilter.DIRECTORY);
-            if (files == null) {
-                return;
-            }
-            for (File dir: files) {
-                String dirName = dir.getName();
-                JobDataMap jobData = new JobDataMap();
-                jobData.put("folder", dirName);
-                JobDetail jobDetail = JobBuilder.newJob(ImportJob.class)
-                        .withIdentity("Import Job")
-                        .setJobData(jobData)
-                        .build();
-                Scheduler scheduler = schedulerManager.getScheduler();
-                try {
-                    scheduler.addJob(jobDetail, true, true);
-                    scheduler.triggerJob(jobDetail.getKey());
-                } catch (SchedulerException e) {
-                    log.warn("Problem adding job to scheduler to import "+ dirName, e);
                 }
             }
 
@@ -93,31 +86,61 @@ public class GetArchivesJob implements Job {
         }
     }
 
-    private void importArchive(String archive) {
-        String sakaiHome = serverConfigurationService.getSakaiHomePath();
-        String archiveHome = sakaiHome + "archive";
-
-        if (archive == null || archive.trim().length() == 0) {
-            log.warn("Empty archive setting.");
-            return;
+    private String extractSiteId(String line) {
+        Matcher matcher = uuidRegex.matcher(line);
+        if (matcher.find()) {
+            return matcher.group();
         }
-        log.info("Attempting to import: "+ archive);
+        return null;
+
+    }
+
+    private void scheduleImport(String file, String siteId) {
+        JobDataMap jobData = new JobDataMap();
+        jobData.put("zip", file);
+        if (siteId != null) {
+            jobData.put("siteId", siteId);
+        }
+
+        JobDetail jobDetail = JobBuilder.newJob(ImportJob.class)
+                .withIdentity("Import Job")
+                .setJobData(jobData)
+                .build();
+        Scheduler scheduler = schedulerManager.getScheduler();
         try {
-            URL url = new URL(archive);
+            scheduler.addJob(jobDetail, true, true);
+            scheduler.triggerJob(jobDetail.getKey());
+        } catch (SchedulerException e) {
+            log.warn("Problem adding job to scheduler to import "+ file, e);
+        }
+    }
+
+    private String downloadArchive(String archiveUrl) {
+
+        if (archiveUrl == null || archiveUrl.trim().length() == 0) {
+            log.warn("Empty archive setting.");
+            return null;
+        }
+        log.info("Attempting to import: "+ archiveUrl);
+        try {
+            URL url = new URL(archiveUrl);
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", "Sakai Content Importer");
             connection.setConnectTimeout(30000);
             connection.setReadTimeout(30000);
             // Now make the connection.
             connection.connect();
-            try (InputStream inputStream = connection.getInputStream()) {
-                List<ZipError> errors = ZipUtils.expandZip(inputStream, archiveHome);
-                for (ZipError error : errors) {
-                    log.info(error.toString());
-                }
+
+            Path out = Files.createTempFile("archive", ".zip");
+
+            try (InputStream in = connection.getInputStream()) {
+                Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
             }
+            return out.toString();
+
         } catch (IOException ioe) {
-            log.warn("Problem with "+ archive+ " "+ ioe.getMessage());
+            log.warn("Problem with "+ archiveUrl+ " "+ ioe.getMessage());
         }
+        return null;
     }
 }
