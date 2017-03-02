@@ -10,39 +10,28 @@
 	    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
 		<meta name="viewport" content="width=device-width"/>
 	</head>
-	<body>
-		
+    <body class="portalBody Mrphs-portalBody">
+
 		<!-- choice.vm -->
-		<table id="login-choice" class="login">
-			<tr>
-    			<th id="login-choice-header" colspan="2">${choiceRequired}</th>
-    		</tr>
-    		<tr>
-    			<td class="form" id="login-choice-container">
-					<p>
-						<a href="${containerLoginUrl}">
-    						#if("$containerLoginChoiceIcon" != "")
-    							<img src="${containerLoginChoiceIcon}" alt="${containerLoginChoiceText}" />
-    						#end
-    						${containerLoginChoiceText}
-    					</a>
-					</p>
-					
-				</td>
-				
-				<td class="form" id="login-choice-xlogin">
-					<p>
-						<a href="${xloginUrl}">
-    						#if("$xloginChoiceIcon" != "")
-    							<img src="${xloginChoiceIcon}" alt="${xloginChoiceText}" />
-    						#end
-    						${xloginChoiceText}
-						</a>
-					</p>
-					
-				</td>
-    		</tr>
-		</table>
+		<div id="Mrphs-choice">
+			<h1>${loginRequired}</h1>
+			<aside class="logo"></aside>
+			<p class="msg">${choiceRequired}</p>
+			<fieldset>
+				<a class="link" href="${containerLoginUrl}" title="${loginTitle}">
+					#if("$containerLoginChoiceIcon" != "")
+						<img src="${containerLoginChoiceIcon}" alt="${containerLoginChoiceText}" />
+					#end
+					${containerLoginChoiceText}
+				</a>
+				<a class="link" href="${xloginUrl}" title="${loginTitle2}">
+					#if("$xloginChoiceIcon" != "")
+						<img src="${xloginChoiceIcon}" alt="${xloginChoiceText}" />
+					#end
+					${xloginChoiceText}
+				</a>
+			</fieldset>
+		</div>
 		<!-- end choice.vm -->
 				
 	</body>
