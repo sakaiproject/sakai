@@ -47,7 +47,6 @@ public class WrappedContentResourceTest {
 	@Test
 	public void testWrapping() throws Exception {
 		// Check the header and footer get correctly appended.
-		when(resource.getContent()).thenReturn("body".getBytes());
 		when(resource.streamContent()).then(new Answer<Object>() {
 			@Override
 			public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

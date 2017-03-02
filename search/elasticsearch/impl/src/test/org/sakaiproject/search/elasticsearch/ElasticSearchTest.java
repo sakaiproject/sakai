@@ -7,8 +7,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
-
-
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -17,7 +15,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.InvalidSearchQueryException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
-import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 import org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
@@ -28,7 +25,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import java.util.*;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -134,8 +130,6 @@ public class ElasticSearchTest {
             resources.put(name, resource1);
             events.add(newEvent);
             when(newEvent.getResource()).thenReturn(resource1.getName());
-            when(newEvent.getContext()).thenReturn(siteId);
-            when(entityContentProducer.matches(name)).thenReturn(true);
             when(entityContentProducer.matches(newEvent)).thenReturn(true);
             when(entityContentProducer.getSiteId(name)).thenReturn(resource1.getSiteId());
             when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
@@ -167,8 +161,6 @@ public class ElasticSearchTest {
         when(serverConfigurationService.getConfigData().getItems()).thenReturn(new ArrayList());
         when(serverConfigurationService.getServerId()).thenReturn("server1");
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
-        when(serverConfigurationService.getString("elasticsearch.index.number_of_shards")).thenReturn("1");
-        when(serverConfigurationService.getString("elasticsearch.index.number_of_replicas")).thenReturn("0");
 
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
         when(notificationService.addTransientNotification()).thenReturn(notificationEdit);
@@ -303,10 +295,8 @@ public class ElasticSearchTest {
         Resource resource = new Resource(null, "xyz", "resource_with_no_content");
 
         when(event.getResource()).thenReturn(resource.getName());
-        when(entityContentProducer.matches("resource_with_no_content")).thenReturn(false);
         List resourceList = new ArrayList();
         resourceList.add(resource);
-        when(entityContentProducer.getSiteContentIterator("xyz")).thenReturn(resourceList.iterator());
 
         elasticSearchIndexBuilder.addResource(notification, event);
 
@@ -480,7 +470,6 @@ public class ElasticSearchTest {
         when(newEvent.getResource()).thenReturn(resource.getName());
         events.add(newEvent);
         when(entityContentProducer.matches(newEvent)).thenReturn(true);
-        when(entityContentProducer.matches(resourceName)).thenReturn(true);
 
         when(entityContentProducer.getSiteId(resourceName)).thenReturn(siteId);
         when(entityContentProducer.getAction(newEvent)).thenReturn(SearchBuilderItem.ACTION_ADD);
