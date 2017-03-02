@@ -161,15 +161,15 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     public void update(Observable o, final Object arg) {
 
         if (arg instanceof Event) {
-            new Thread(() -> {
-                Event e = (Event) arg;
-                String event = e.getEvent();
-                String ref = e.getResource();
-                String[] pathParts = ref.split("/");
-                String from = e.getUserId();
-                long at = e.getEventTime().getTime();
-                try {
-                    if (HANDLED_EVENTS.contains(event)) {
+            Event e = (Event) arg;
+            String event = e.getEvent();
+            if (HANDLED_EVENTS.contains(event)) {
+                new Thread(() -> {
+                    String ref = e.getResource();
+                    String[] pathParts = ref.split("/");
+                    String from = e.getUserId();
+                    long at = e.getEventTime().getTime();
+                    try {
                         if (ProfileConstants.EVENT_STATUS_UPDATE.equals(event)) {
                             // Get all the posters friends
                             List<User> connections = profileConnectionsLogic.getConnectedUsersForUserInsecurely(from);
@@ -312,11 +312,11 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 lock(sa);
                             }
                         }
+                    } catch (Exception ex) {
+                        log.error("Caught exception whilst handling events", ex);
                     }
-                } catch (Exception ex) {
-                    log.error("Caught exception whilst handling events", ex);
-                }
-            }).start();
+                }).start();
+            }
         }
     }
 
