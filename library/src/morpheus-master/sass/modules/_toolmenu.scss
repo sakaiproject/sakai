@@ -35,6 +35,9 @@ body.is-logged-out{
 					a{
 						min-height: 1.7em;
 						text-align: center;
+						@if $tool-menu-icon-on-left {
+							min-height: 3.4em;
+						}
 						&:hover{
 							.#{$namespace}toolsNav__menuitem--title{
 								position: absolute;
@@ -294,8 +297,8 @@ nav#subSites{
 					height: 100%;
 					padding: 0 0.5em 0 0.2em;
 					@media #{$phone}{
-						width: initial;
-						padding: 0 0.5em;
+						width: 10%;
+						padding: 0.4em 0.5em;
 					}
 				} @else {
 					margin: 0 0.25em 0 0;
@@ -314,6 +317,7 @@ nav#subSites{
 				@if $tool-menu-icon-on-left {
 					text-align: left;
 					padding: 0.5em 0.5em;
+					min-height: 3.4em;
 				} @else {
 					text-align: center;
 					padding: 0.5em 0.25em;
@@ -331,6 +335,7 @@ nav#subSites{
 						font-size: 0.9em;
 						font-weight: 700;
 						padding: 3px 0;
+						min-height: 3em;
 					}
 					@else {
 						border-width: 1px;
