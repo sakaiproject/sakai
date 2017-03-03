@@ -107,7 +107,7 @@
 				  	<!-- use dropdown list to select from coursemanagement service provided options -->
 					  <input type=hidden name="cmLevelChanged" id="cmLevelChanged" value="false" />
 					  <input type=hidden name="cmChangedLevel" id="cmChangedLevel" value="-1" />
-					  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
+					  #if ($i == 0 || ($cmLevelSelections && $i < $cmLevelSelections.size() + 1))
 						  <select name="$fieldName" id="id-$fieldName" 
 						  	#if ($i == $maxSelectionDepth) 
 						  		onchange="blur();document.findCourseForm.submit();" multiple 
@@ -118,8 +118,8 @@
 					  	  <select name="$fieldName" disabled="true" id="id$fieldName" >
 					  #end
 					  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
-						#if ($i < $cmLevelOptions.size())
-						    #if ($i < $cmLevelSelections.size())
+						#if ($cmLevelOptions && $i < $cmLevelOptions.size())
+						    #if ($cmLevelSelections && $i < $cmLevelSelections.size())
 								#set ($selectedItem = $cmLevelSelections.get($i))
 						    #end
 	                        #foreach ($coursething in $cmLevelOptions.get($i))
