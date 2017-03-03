@@ -160,9 +160,9 @@ public class ArchiveService2Impl implements ArchiveService
 	@Override
 	public String mergeFromZip(String zipFilePath, String siteId, String creatorId) {
 		try {
-			String fileName = m_siteZipper.unzipArchive(zipFilePath, m_unzipPath);
+			String folderName = m_siteZipper.unzipArchive(zipFilePath, m_unzipPath);
 			//not a lot we can do with the return value here since it always returns a string. would need a reimplementation/wrapper method to return a better value (boolean or some status)
-			return m_siteMerger.merge(fileName, siteId, creatorId, m_storagePath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
+			return m_siteMerger.merge(folderName, siteId, creatorId, m_unzipPath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
 		} catch (IOException e) {
 			M_log.error("Error merging from zip: " + e.getClass() + ":" + e.getMessage());
 			return "Error merging from zip: " + e.getClass() + ":" + e.getMessage();
