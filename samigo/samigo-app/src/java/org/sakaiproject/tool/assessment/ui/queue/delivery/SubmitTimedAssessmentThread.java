@@ -97,8 +97,13 @@ public class SubmitTimedAssessmentThread extends TimerTask
             // set these two scores to 0 instaed of null
     	    if (ag.getFinalScore() == null) ag.setFinalScore(Double.valueOf("0"));
     	    if (ag.getTotalAutoScore() == null) ag.setTotalAutoScore(Double.valueOf("0"));
-    	    service.completeItemGradingData(ag);
-            service.saveOrUpdateAssessmentGrading(ag);
+            try {
+    	      service.completeItemGradingData(ag);
+              service.saveOrUpdateAssessmentGrading(ag);
+            } catch (Exception ex) {
+              log.error("Gradebook Service threw exception. Removing grading data from timer queue", ex);
+              removeTimedAGList.add(timedAG);
+            }
           EventLogService eventService = new EventLogService();
           EventLogFacade eventLogFacade = new EventLogFacade();
 
@@ -135,7 +140,12 @@ public class SubmitTimedAssessmentThread extends TimerTask
             notiValues.put( "confirmationNumber", confirmationNumber );
 
             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
-            notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
+            try {
+              notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
+            } catch (Exception ex) {
+              log.error("Gradebook Service threw exception. Removing grading data from timer queue", ex);
+              removeTimedAGList.add(timedAG);
+            }
             log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
             log.info("Submitted timed assessment assessmentId=" + eventLogData.getAssessmentId() + " userEid=" + eventLogData.getUserEid() + " siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId());
           }
