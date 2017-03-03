@@ -105,10 +105,10 @@
     <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>4.2.7.RELEASE</sakai.spring.version>
-    <sakai.spring.security.version>3.2.9.RELEASE</sakai.spring.security.version>
+    <sakai.spring.version>4.3.6.RELEASE</sakai.spring.version>
+    <sakai.spring.security.version>3.2.10.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
+    <sakai.spring.test.version>4.3.6.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.14</sakai.tika.version>
     <sakai.tomcat.version>8.0.41</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
@@ -1692,7 +1692,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.11</version>
+        <version>4.12</version>
         <scope>test</scope>
       </dependency>
       <dependency>
