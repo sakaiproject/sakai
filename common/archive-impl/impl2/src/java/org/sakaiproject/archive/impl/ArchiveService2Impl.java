@@ -18,7 +18,9 @@
 
 package org.sakaiproject.archive.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -128,6 +130,13 @@ public class ArchiveService2Impl implements ArchiveService
         }
 		
 		M_log.info("init(): storage path: " + m_storagePath + ", unzip path: " + m_unzipPath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
+		if (!new File(m_storagePath).isDirectory()) {
+			M_log.warn("Failed to find directory {} please create or configure {}.", m_storagePath, "archive.storage.path");
+		}
+		if (!new File(m_unzipPath).isDirectory()) {
+			M_log.warn("Failed to find directory {} please create or configure {}.", m_unzipPath, "archive.unzip.path");
+		}
+
 	}
 
 	public void destroy() {
