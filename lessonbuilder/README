@@ -884,11 +884,16 @@ Lessonbuilder reports several events:
 lessonbuilder.read - whenever a page is read. It sets modified if the
 page is complete, otherwise access.
 
-lessonbuilder.create - creating a page or item
-
-lessonbuilder.update - updating a page or item
-
-lessonbuilder.delete - deleting a page or item
+lessonbuilder.page.create - creating a page
+lessonbuilder.page.read - reading a page
+lessonbuilder.page.update - updating a page
+lessonbuilder.page.delete - deleting a page
+lessonbuilder.item.create - creating a item
+lessonbuilder.item.read - reading a item
+lessonbuilder.item.update - updating a item
+lessonbuilder.comment.create - creating a comment
+lessonbuilder.comment.update - updating a comment
+lessonbuilder.comment.delete - deleting a comment
 
 /DIRECT
 

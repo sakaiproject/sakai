@@ -1703,7 +1703,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
     public final static String[] EVENT_KEYS= 
-	new String[] {LessonBuilderEvents.CREATE, LessonBuilderEvents.DELETE, LessonBuilderEvents.UPDATE, LessonBuilderEvents.READ};
+	new String[] {LessonBuilderEvents.PAGE_CREATE,
+                    LessonBuilderEvents.PAGE_READ,
+                    LessonBuilderEvents.PAGE_UPDATE,
+                    LessonBuilderEvents.PAGE_DELETE,
+                    LessonBuilderEvents.ITEM_CREATE,
+                    LessonBuilderEvents.ITEM_READ,
+                    LessonBuilderEvents.ITEM_UPDATE,
+                    LessonBuilderEvents.ITEM_DELETE,
+                    LessonBuilderEvents.COMMENT_CREATE,
+                    LessonBuilderEvents.COMMENT_UPDATE,
+                    LessonBuilderEvents.COMMENT_DELETE};
 
     /**
      * Return an array of all the event keys which should be tracked for statistics
