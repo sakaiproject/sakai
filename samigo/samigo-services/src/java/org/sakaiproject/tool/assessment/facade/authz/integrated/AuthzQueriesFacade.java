@@ -237,7 +237,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
    */
   public void removeAuthorizationByQualifierAndFunction(String qualifierId, String functionId) {
 	    String query="select a from AuthorizationData a where a.qualifierId = :id and a.functionId = :fid";
-	    List l = getHibernateTemplate().find(query, new String[] {"id", "fid"}, new String[] {qualifierId, functionId});
+	    List l = getHibernateTemplate().findByNamedParam(query, new String[] {"id", "fid"}, new String[] {qualifierId, functionId});
 	    getHibernateTemplate().deleteAll(l);
   }
   
@@ -249,7 +249,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
    */
   public void removeAuthorizationByAgentQualifierAndFunction(String agentId, String qualifierId, String functionId) {
 	    String query="select a from AuthorizationData a where a.qualifierId = :id and a.agentIdString = :agent and a.functionId = :fid";
-	    List l = getHibernateTemplate().find(query, new String[] {"id", "agent", "fid"},new String[] {qualifierId, agentId, functionId});
+	    List l = getHibernateTemplate().findByNamedParam(query, new String[] {"id", "agent", "fid"},new String[] {qualifierId, agentId, functionId});
 	    if (l != null && l.size() > 0) {
 	    	getHibernateTemplate().deleteAll(l);
 	    }
@@ -272,7 +272,7 @@ public class AuthzQueriesFacade extends HibernateDaoSupport implements AuthzQuer
   public List getAuthorizationByAgentAndFunction(String agentId, String functionId) {
     String query = "select a from AuthorizationData a where a.agentIdString = :agent and a.functionId = :fid";
     //System.out.println("query="+query);
-    return getHibernateTemplate().find(query, new String[] {"agent", "fid"}, new String[] {agentId, functionId});
+    return getHibernateTemplate().findByNamedParam(query, new String[] {"agent", "fid"}, new String[] {agentId, functionId});
   }
 
   public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {

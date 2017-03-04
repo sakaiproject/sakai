@@ -13,7 +13,10 @@
   <description>
     This project creates the impl used by the Sakai Usermembership Tool
   </description>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>

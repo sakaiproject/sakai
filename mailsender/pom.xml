@@ -22,7 +22,6 @@
   <modules>
     <module>api</module>
     <module>impl</module>
-    <module>pack</module>
     <module>tool</module>
   </modules>
 
@@ -92,13 +91,6 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>mailsender-impl</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <!-- TESTING -->
-      <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-core</artifactId>
-        <version>1.8.5</version>
-        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

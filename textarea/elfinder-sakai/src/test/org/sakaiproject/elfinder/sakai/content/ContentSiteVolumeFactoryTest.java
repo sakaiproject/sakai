@@ -47,8 +47,6 @@ public class ContentSiteVolumeFactoryTest {
 
         Mockito.when(contentHostingService.getSiteCollection("siteId")).thenReturn("/group/siteId");
         Mockito.when(contentHostingService.getContainingCollectionId("/group/siteId/example")).thenReturn("/group/siteId");
-        Mockito.when(contentHostingService.getContainingCollectionId("/group/siteId")).thenReturn("/group");
-        Mockito.when(contentHostingService.getContainingCollectionId("/group")).thenReturn("");
         Mockito.when(service.getSiteVolume("siteId")).thenReturn(siteVolume);
         Mockito.when(siteVolume.getRoot()).thenReturn(siteItem);
 
@@ -69,8 +67,6 @@ public class ContentSiteVolumeFactoryTest {
     public void testParentCrossSite() {
 
         Mockito.when(contentHostingService.getSiteCollection("siteId")).thenReturn("/group/siteId");
-        Mockito.when(contentHostingService.getContainingCollectionId("/group/otherId/example")).thenReturn("/group/otherId");
-        Mockito.when(contentHostingService.getContainingCollectionId("/group/otherId")).thenReturn("/group");
         Mockito.when(service.getSiteVolume("siteId")).thenReturn(siteVolume);
         Mockito.when(siteVolume.getRoot()).thenReturn(siteItem);
 

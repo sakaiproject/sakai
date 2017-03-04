@@ -12,10 +12,10 @@
     <name>message-search-adapters-impl</name>
     <groupId>org.sakaiproject.message</groupId>
     <artifactId>message-search-adapters-impl</artifactId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <properties>
-        <deploy.target />
+        <deploy.target>components</deploy.target>
         <maven.test.jvmargs />
     </properties>
 

@@ -857,7 +857,7 @@ public class SiteHandler extends WorksiteHandler
 			if (loggedIn) 
 			{
 				Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+				ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 				try 
 				{
 					tabDisplayLabel = (int) props.getLongProperty("tab:label");

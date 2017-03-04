@@ -1,0 +1,207 @@
+<!-- START VM includePageNav.vm -->
+
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
+
+    #if ($sitePages.siteHTMLInclude)
+
+        <div id="siteHTMLInclude" class="Mrphs-siteHTMLInclude">
+            $sitePages.siteHTMLInclude
+        </div>
+
+    #end ## END of IF ($sitePages.siteHTMLInclude)
+
+    <h1 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h1>
+    <!--Added this check in to make sure that we just don't have an empty img element in the page. -->
+	#if(${sitePages.pageNavIconUrl} != "")
+        <img src="${sitePages.pageNavIconUrl}" alt="" class="img_site_toolmenu">
+	#end
+
+    <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
+        <ul>
+        	<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav">
+        		<i class="fa fa-lg fa-angle-double-left"></i>
+        	</li>
+        	#if ($viewAsStudentLink)
+        	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+        	#end ## END of IF ($viewAsStudentLink)
+		#set( $categoryMap = {})
+		#set( $categoryList = [])
+
+		## create a map of tools and categories ,if tool does not belong to category display them now.
+
+	    #foreach( $page in $sitePages.pageNavTools )
+  		#if (${page.pageProps.get("sitePage.pageCategory")})
+			#if (!$categoryMap.get(${page.pageProps.get("sitePage.pageCategory")}))
+				#set ( $success = $categoryList.add($page.pageProps.get("sitePage.pageCategory")))
+			#end	
+			#set($dummy = $categoryMap.put($page.pageProps.get("sitePage.pageCategory"), $page.pageProps.get("sitePage.pageCategory").replace(" ","_")))
+		#else
+		        #if (${page.current})
+		        	#set( $breadToolName  = $page.pageTitle )
+
+		            <li class="Mrphs-toolsNav__menuitem is-current">
+		                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
+		                    <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
+		                    <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+		                </a>
+		            </li>
+
+		        #else
+
+		            #if (${page.toolpopup})
+
+		                <li>
+		                    <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}?sakai.popup=yes" title="${page.description}" onclick="window.open('${page.toolpopupurl}');">
+		                        <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+		                        <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+		                    </a>
+		                </li>
+
+		            #else
+
+		                #if (${page.ispopup})
+
+		                    <li>
+		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="javascript:;" title="${page.pageTitle} - ${page.pageTitle}" onclick="window.open( '${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )">
+		                            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+		                            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+		                        </a>
+		                    </li>
+
+		                #else
+
+		                    <li>
+		                        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}" title="${page.pageTitle} - ${page.description}">
+		                            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+		                            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+		                        </a>
+		                    </li>
+
+		                #end ## END of IF (${page.ispopup})
+
+		            #end ## END of IF (${page.toolpopup})
+
+		        #end ## END of IF (${page.current})
+		#end ## END of Else 
+
+            #end ## END of FOREACH( $page in $sitePages.pageNavTools )
+
+	## Start rendering the categories and tools in that category. 
+
+	#foreach($key in $categoryList )
+		<li ><a href="#"class="Mrphs-toolsNav__category" >$key</a><ul class="Mrphs-toolsNav__subnav">
+		#foreach( $page in $sitePages.pageNavTools )
+			#if (${page.pageProps.get("sitePage.pageCategory")}==$key)
+				#if (${page.current})
+
+				    <li class="Mrphs-toolsNav__menuitem is-current">
+				        <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
+				            <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
+				            <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+				        </a>
+				    </li>
+
+				#else
+
+				    #if (${page.toolpopup})
+
+				        <li>
+				            <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}?sakai.popup=yes" title="${page.description}" onclick="window.open('${page.toolpopupurl}');">
+				                <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+				                <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+				            </a>
+				        </li>
+
+				    #else
+
+				        #if (${page.ispopup})
+
+				            <li>
+				                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open( '${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768' )">
+				                    <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"> </span>
+				                    <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+				                </a>
+				            </li>
+
+				        #else
+
+				            <li>
+				                <a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageRefUrl}" title="${page.description}">
+				                    <span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+				                    <span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
+				                </a>
+				            </li>
+
+				        #end ## END of IF (${page.ispopup})
+
+				    #end ## END of IF (${page.toolpopup})
+
+				#end ## END of IF (${page.current})
+
+			#end ## End if key matched category 
+		#end ## End for each page
+		</ul>
+		</li>
+	#end ## End for each key 
+
+            #if ( $subSites && $showSubsitesAsFlyout )
+
+                <li class="Mrphs-toolsNav__menuitem--subsite">
+                    <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai--subsites-list"> </span>
+                        <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsites}</span>
+                    </a>
+                </li>
+
+            #end ## END of if ( $subSites && $showSubsitesAsFlyout )
+
+            #if (${sitePages.pageNavShowHelp})
+
+                <li class="Mrphs-toolsNav__menuitem--help">
+                    <a class="Mrphs-toolsNav__menuitem--link" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" onclick="openWindow('${sitePages.pageNavHelpUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false" title="${rloader.sit_help}">
+                        <span  class="Mrphs-toolsNav__menuitem--icon ${sitePages.helpMenuClass}"> </span>
+                        <span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_help}</span>
+                        <span class="skip">${rloader.site_newwindow}</span>
+                    </a>
+                </li>
+
+            #end ## END of IF (${sitePages.pageNavShowHelp})
+
+            #if (${sitePages.pageNavCanAddMoreTools})
+
+                <li>
+                    <a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
+                        <span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
+                    </a>
+                </li>
+
+            #end ## END of IF (${sitePages.pageNavCanAddMoreTools})
+
+        </ul>
+    </nav>
+
+    #if ( $subSites )
+
+        <nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
+                <ul role="menu">
+
+                    #foreach ( $site in $subSites )
+
+                        <li>
+                            <a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
+                                <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.subsiteClass}"></span>
+                                <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</span>
+                            </a>
+                        </li>
+
+                    #end ## END of FOREACH ( $site in $subSites )
+
+                </ul>
+        </nav>
+
+    #end ## END of IF ( $subSites )
+
+</div>
+
+<!-- END VM includePageNav.vm -->

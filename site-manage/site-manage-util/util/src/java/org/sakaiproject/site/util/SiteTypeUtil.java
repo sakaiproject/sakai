@@ -2,16 +2,15 @@ package org.sakaiproject.site.util;
 
 import java.util.List;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.site.api.SiteService;
 
 public class SiteTypeUtil {
 	
-	private static org.sakaiproject.site.api.SiteService siteService = (org.sakaiproject.site.api.SiteService) ComponentManager
-	.get("org.sakaiproject.site.api.SiteService");
+	private static SiteService siteService = ComponentManager.get(SiteService.class);
 	
-	private static org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager
-	.get("org.sakaiproject.component.api.ServerConfigurationService");
+	private static ServerConfigurationService serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 	
     /**
      * get all site type strings associated with course site type

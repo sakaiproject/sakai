@@ -890,7 +890,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 					else if (key.endsWith("sitenav"))
 					{
 						// matches Charon portal's value
-						key = "sakai:portal:sitenav";
+						key = SITENAV_PREFS_KEY;
 					}
 					else if (key.endsWith("ResourceLoader"))
 					{

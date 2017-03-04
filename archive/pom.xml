@@ -12,9 +12,7 @@
   <artifactId>archive-base</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>archive-tool/tool</module>
     <module>import-handlers/announcement-handlers</module>
-    <module>import-pack</module>
   </modules>
   <dependencyManagement>
     <dependencies>

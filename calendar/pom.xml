@@ -19,7 +19,6 @@
         <module>calendar-bundles</module>
         <module>calendar-hbm</module>
         <module>calendar-impl/impl</module>
-        <module>calendar-impl/pack</module>
         <module>calendar-summary-tool/tool</module>
         <module>calendar-tool/tool</module>
         <module>calendar-util/util</module>

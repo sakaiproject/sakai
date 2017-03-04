@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- +
+  + Core data access components
+  + -->
+  <import resource="coreDaoComponents.xml" />
+  <!-- +
+  + Core Service components
+  + -->
+  <import resource="coreServiceComponents.xml" />	
+
+  <!-- +
+  + Data migration
+  + -->
+  <import resource="messagingComponents.xml" />
+ 
+  <!-- +
+  + Search Support
+  + --> 
+  <import resource="rwikiAdapterComponents.xml" />
+  
+ 
+
+  <!-- extend the  sakai base session factory -->
+  <!--
+  class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
+  -->
+ <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.rwiki"
+    class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+    <property name="mappingResources">
+      <list>
+	<value>uk/ac/cam/caret/sakai/rwiki/model/RWiki.hbm.xml</value>
+	<value>uk/ac/cam/caret/sakai/rwiki/message/model/message.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+</beans>

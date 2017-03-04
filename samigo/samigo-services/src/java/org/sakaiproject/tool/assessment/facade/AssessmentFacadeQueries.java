@@ -372,7 +372,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 
 		log.debug("removeAssesment: no. of pub Assessment = {}", count.size());
 		Iterator iter = count.iterator();
-		int i = ((Integer) iter.next()).intValue();
+		int i = ((Long) iter.next()).intValue();
 		if (i < 1) {
 			AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
 
@@ -774,16 +774,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 	}
 
 	public int getQuestionSize(final Long assessmentId) {
-		HibernateCallback<List<Number>> hcb = session -> session
+		HibernateCallback<Number> hcb = session -> (Number) session
 				.createQuery("select count(i) from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId = :id")
 				.setLong("id", assessmentId)
-				.list();
-
-		List<Number> size = getHibernateTemplate().execute(hcb);
-		if (!size.isEmpty()) {
-			size.get(0).intValue();
-		}
-		return 0;
+				.uniqueResult();
+		return getHibernateTemplate().execute(hcb).intValue();
 	}
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment) {

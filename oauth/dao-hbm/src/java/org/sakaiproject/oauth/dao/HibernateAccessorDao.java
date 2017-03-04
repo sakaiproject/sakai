@@ -39,16 +39,12 @@ public class HibernateAccessorDao extends HibernateDaoSupport implements Accesso
 
     @Override
     public List<Accessor> getByUser(String userId) {
-        return (List<Accessor>) getHibernateTemplate().find(
-                "FROM Accessor a WHERE a.userId = ?",
-                new Object[]{userId});
+        return (List<Accessor>) getHibernateTemplate().findByNamedParam("FROM Accessor a WHERE a.userId = :userid", "userid", userId);
     }
 
     @Override
     public Collection<Accessor> getByConsumer(String consumerId) {
-        return (List<Accessor>) getHibernateTemplate().find(
-                "FROM Accessor a WHERE a.consumerId = ?",
-                new Object[]{consumerId});
+        return (List<Accessor>) getHibernateTemplate().findByNamedParam("FROM Accessor a WHERE a.consumerId = :consumerid", "consumerid", consumerId);
     }
 
     @Override

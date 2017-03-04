@@ -27,12 +27,10 @@
     <module>api</module>
     <module>component-manager</module>
     <module>kernel-private</module>
-    <module>kernel-component</module>
     <module>kernel-common</module>
     <module>kernel-impl</module>
     <module>kernel-util</module>
     <module>kernel-storage-util</module>
-    <module>deploy</module>
   </modules>
 
   <profiles>
@@ -48,45 +46,6 @@
       </modules>
     </profile>
   </profiles>
-
-  <dependencyManagement>
-    <dependencies>
-      <!-- centralize the versions for hazelcast -->
-      <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast</artifactId>
-        <version>3.2.3</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast-client</artifactId>
-        <version>3.2.3</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- centralize the versions for distributed ehcache -->
-      <dependency>
-        <groupId>org.terracotta</groupId>
-        <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-        <version>5.9.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-terracotta</artifactId>
-        <version>${sakai.ehcache.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- Java 8 Maven Artifact -->
-      <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>2.5.1</version>
-        <scope>compile</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
 
   <issueManagement>
     <system>jira</system>

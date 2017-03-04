@@ -424,6 +424,15 @@ public class BaseGroup implements Group, Identifiable
 		getAzg().addMember(userId, roleId, active, provided);
 	}
 
+	public void insertMember(String userId, String roleId, boolean active, boolean provided) throws IllegalStateException
+	{
+		if(this.isLocked()) {
+			throw new IllegalStateException("Error, cannot add " + userId + " with role " + roleId + " into a locked group");
+		}
+		m_azgChanged = true;
+		getAzg().addMember(userId, roleId, active, provided);
+	}
+
 	public Role addRole(String id) throws RoleAlreadyDefinedException
 	{
 		m_azgChanged = true;
@@ -547,11 +556,29 @@ public class BaseGroup implements Group, Identifiable
 		getAzg().removeMember(userId);
 	}
 
+	public void deleteMember(String userId) throws IllegalStateException
+	{
+		if(this.isLocked()) {
+			throw new IllegalStateException("Error, can not remove a member from a locked group");
+		}
+		m_azgChanged = true;
+		getAzg().removeMember(userId);
+	}
+
 	public void removeMembers()
 	{
 		if(this.isLocked()) {
 			M_log.error("Error, can not remove members from a locked group");
 			return;
+		}
+		m_azgChanged = true;
+		getAzg().removeMembers();
+	}
+
+	public void deleteMembers() throws IllegalStateException
+	{
+		if(this.isLocked()) {
+			throw new IllegalStateException("Error, can not remove members from a locked group");
 		}
 		m_azgChanged = true;
 		getAzg().removeMembers();
@@ -588,11 +615,11 @@ public class BaseGroup implements Group, Identifiable
 		return changed;
 	}
 
-	public void lockGroup(Entity entity){
+	public void lockGroup(Entity entity) {
 		lockGroup(entity.getReference());
 	}
 
-	public void lockGroup(String lock){
+	public void lockGroup(String lock) {
 		if(StringUtils.isBlank(lock)) {
 			M_log.warn("lockGroup: null or empty lock");
 			return;
@@ -607,11 +634,11 @@ public class BaseGroup implements Group, Identifiable
 		this.getProperties().addProperty(GROUP_PROP_LOCKED_BY, prop);
 	}
 
-	public void unlockGroup(Entity entity){
+	public void unlockGroup(Entity entity) {
 		unlockGroup(entity.getReference());
 	}
 
-	public void unlockGroup(String lock){
+	public void unlockGroup(String lock) {
 		if(StringUtils.isBlank(lock)) {
 			M_log.warn("unlockGroup: null or empty lock");
 			return;
@@ -623,15 +650,15 @@ public class BaseGroup implements Group, Identifiable
 		}
 	}
 
-	public void unlockGroup(){
+	public void unlockGroup() {
 		this.getProperties().removeProperty(GROUP_PROP_LOCKED_BY);
 	}
 
-	public boolean isLocked(){
+	public boolean isLocked() {
 		return (StringUtils.isNotBlank(this.getProperties().getProperty(GROUP_PROP_LOCKED_BY)));
 	}
 
-	public boolean isLocked(String lock){
+	public boolean isLocked(String lock) {
 		String prop = this.getProperties().getProperty(GROUP_PROP_LOCKED_BY);
 		if (StringUtils.contains(prop, lock)) {
 			return true;

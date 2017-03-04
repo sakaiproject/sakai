@@ -5,13 +5,16 @@
 	<groupId>org.sakaiproject.profile2</groupId>
 	<artifactId>profile2-impl</artifactId>
 
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
 	
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
 	    <version>12-SNAPSHOT</version>
 	</parent>
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
   	
   	<dependencies>
 		<dependency>

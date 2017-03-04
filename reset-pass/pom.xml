@@ -17,7 +17,6 @@
     <module>reset-pass</module>
     <module>account-validator-api</module>
     <module>account-validator-impl</module>
-    <module>account-validator-pack</module>
     <module>account-validator-tool</module>
   </modules>
 

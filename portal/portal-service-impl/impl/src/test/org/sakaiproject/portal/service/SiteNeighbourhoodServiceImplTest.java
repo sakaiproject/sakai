@@ -60,7 +60,7 @@ public class SiteNeighbourhoodServiceImplTest extends TestCase {
 		Preferences preferences = mock(Preferences.class);
 		ResourceProperties siteNavProps = mock(ResourceProperties.class);
 		when(siteNavProps.getPropertyList("order")).thenReturn(orderList );
-		when(preferences.getProperties("sakai:portal:sitenav")).thenReturn(siteNavProps);
+		when(preferences.getProperties(PreferencesService.SITENAV_PREFS_KEY)).thenReturn(siteNavProps);
 		when(preferenceService.getPreferences("admin")).thenReturn(preferences);
 		siteNeighbourhoodService.setPreferencesService(preferenceService);
 		HttpServletRequest req = mock(HttpServletRequest.class);

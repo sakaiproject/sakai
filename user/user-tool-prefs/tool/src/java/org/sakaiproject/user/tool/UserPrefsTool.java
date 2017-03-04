@@ -76,9 +76,6 @@ public class UserPrefsTool
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
 
-	/** The string that Charon uses for preferences. */
-	private static final String CHARON_PREFS = "sakai:portal:sitenav";
-
 	/** The string to get whether privacy status should be visible */
 	private static final String ENABLE_PRIVACY_STATUS = "enable.privacy.status";
 
@@ -1440,7 +1437,7 @@ public class UserPrefsTool
 	        return prefTabLabel;
 
 	    Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-	    ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+	    ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 	    prefTabLabel = props.getProperty(TAB_LABEL_PREF);
 
 	    if ( prefTabLabel == null )
@@ -2190,7 +2187,7 @@ public class UserPrefsTool
 		setUserEditingOn();
 		if (m_edit != null) {
 			// Remove existing property
-			ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
+			ResourcePropertiesEdit props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
 
 			List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
 
@@ -2207,7 +2204,7 @@ public class UserPrefsTool
 
 			// Set favorites and hidden sites
 			setUserEditingOn();
-			props = m_edit.getPropertiesEdit(CHARON_PREFS);
+			props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
 
 			// Any site now hidden should also be removed from favorites
 			for (String siteId : hiddenSitesInput.split(",")) {
@@ -2643,7 +2640,7 @@ public class UserPrefsTool
 
 	public String getHiddenSites() {
 		Preferences prefs = m_preferencesService.getPreferences(getUserId());
-		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+		ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 		List currentHiddenSites = props.getPropertyList(EXCLUDE_SITE_LISTS);
 
 		StringBuilder result = new StringBuilder();
