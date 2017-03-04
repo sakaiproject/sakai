@@ -80,12 +80,7 @@
 				<version>4.0</version>
 				<scope>compile</scope>
 			</dependency>
-		<!-- 	<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
-				<version>2.4</version>
-				<scope>provided</scope>
-			</dependency> -->
+
 			
 			<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
 			<dependency>
