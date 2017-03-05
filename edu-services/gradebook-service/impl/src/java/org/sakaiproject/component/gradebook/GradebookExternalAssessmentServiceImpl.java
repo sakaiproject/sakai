@@ -58,7 +58,6 @@ import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateTemplate;
@@ -67,17 +66,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager implements GradebookExternalAssessmentService {
-
-    private GradebookService gradebookService;
-    private EventTrackingService eventTrackingService;
-	
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
-    }
-
-    public void setGradebookService(GradebookService gradebookService) {
-        this.gradebookService = gradebookService;
-    }
 
     public GradebookService getGradebookService() {
         return (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
@@ -103,7 +91,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     /* (non-Javadoc)
      * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#registerExternalAssignmentProvider(org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider)
      */
-    public void registerExternalAssignmentProvider(ExternalAssignmentProvider provider) {
+	@Override
+	public void registerExternalAssignmentProvider(ExternalAssignmentProvider provider) {
         if (provider == null) {
             throw new IllegalArgumentException("provider cannot be null");
         } else {
@@ -129,7 +118,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     /* (non-Javadoc)
      * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#unregisterExternalAssignmentProvider(java.lang.String)
      */
-    public void unregisterExternalAssignmentProvider(String providerAppKey) {
+    @Override
+	public void unregisterExternalAssignmentProvider(String providerAppKey) {
         if (providerAppKey == null || "".equals(providerAppKey)) {
             throw new IllegalArgumentException("providerAppKey must be set");
         } else if (getExternalAssignmentProviders().containsKey(providerAppKey)) {
@@ -160,6 +150,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
      */
     public static final String UPDATE_SAME_SCORE_PROP = "gradebook.externalAssessments.updateSameScore";
 
+	@Override
 	public synchronized void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 			final String title, final double points, final Date dueDate, final String externalServiceDescription)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, GradebookNotFoundException {
@@ -223,7 +214,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	/**
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, java.util.Date)
      */
-    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
+	@Override
+	public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
                                          final String title, final double points, final Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
         final Assignment asn = getExternalAssignment(gradebookUid, externalId);
 
@@ -248,8 +240,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
         }
 
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
+		HibernateCallback<?> hc = new HibernateCallback<Object>() {
+            @Override
+			public Object doInHibernate(Session session) throws HibernateException {
                 asn.setExternalInstructorLink(externalUrl);
                 asn.setExternalStudentLink(externalUrl);
                 asn.setName(title);
@@ -260,7 +253,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
                 session.update(asn);
                 log.info("External assessment updated in gradebookUid={}, externalId={} by userUid={}", gradebookUid, externalId, getUserUid());
                 return null;
-
             }
         };
         getHibernateTemplate().execute(hc);
@@ -269,6 +261,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	/**
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#removeExternalAssessment(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public void removeExternalAssessment(final String gradebookUid,
             final String externalId) throws GradebookNotFoundException, AssessmentNotFoundException {
         // Get the external assignment
@@ -282,7 +275,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         // for the details.
         HibernateTemplate hibTempl = getHibernateTemplate();
 
-        hibTempl.execute((HibernateCallback<Void>) session -> {
+        hibTempl.execute((HibernateCallback<?>) session -> {
             int numDeleted = session.createQuery("delete GradingEvent where gradableObject=:go").setParameter("go", asn).executeUpdate();
             log.debug("Deleted {} records from gb_grading_event_t", numDeleted);
 
@@ -314,7 +307,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     }
 
 	
-    public void updateExternalAssessmentComments(final String gradebookUid, final String externalId,
+    @Override
+	public void updateExternalAssessmentComments(final String gradebookUid, final String externalId,
                                                  final Map<String, String> studentUidsToComments) throws GradebookNotFoundException, AssessmentNotFoundException {
 
     	final Assignment asn = getExternalAssignment(gradebookUid, externalId);
@@ -327,7 +321,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     	}
 
    	    getHibernateTemplate().execute(session -> {
-            List<AssignmentGradeRecord> existingScores = session.createCriteria(AssignmentGradeRecord.class)
+            @SuppressWarnings("unchecked")
+			List<AssignmentGradeRecord> existingScores = session.createCriteria(AssignmentGradeRecord.class)
                     .add(Restrictions.eq("gradableObject", asn))
                     .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
                     .list();
@@ -359,6 +354,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         });
     }
 
+	@Override
 	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId,
                                                final Map<String, Double> studentUidsToScores) throws GradebookNotFoundException, AssessmentNotFoundException {
 
@@ -374,7 +370,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         final String graderId = getUserUid();
 
         getHibernateTemplate().execute(session -> {
-            List<AssignmentGradeRecord> existingScores = session.createCriteria(AssignmentGradeRecord.class)
+            @SuppressWarnings("unchecked")
+			List<AssignmentGradeRecord> existingScores = session.createCriteria(AssignmentGradeRecord.class)
                     .add(Restrictions.eq("gradableObject", assignment))
                     .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
                     .list();
@@ -422,6 +419,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	    });
 	}
 
+	@Override
 	public void updateExternalAssessmentScoresString(final String gradebookUid, final String externalId,
                                                      final Map<String, String> studentUidsToScores) throws GradebookNotFoundException, AssessmentNotFoundException {
 
@@ -437,7 +435,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		final String graderId = getUserUid();
 
         getHibernateTemplate().execute(session -> {
-            List<AssignmentGradeRecord> existingScores = session.createCriteria(AssignmentGradeRecord.class)
+       
+			@SuppressWarnings("unchecked")
+			List<AssignmentGradeRecord> existingScores = session.createCriteria(AssignmentGradeRecord.class)
                     .add(Restrictions.eq("gradableObject", assignment))
                     .add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
                     .list();
@@ -492,15 +492,17 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         });
 	}
 
+	@Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
-        Assignment assignment = (Assignment)getHibernateTemplate().execute((HibernateCallback) session -> getAssignmentWithoutStats(gradebookUid, assignmentName));
+        Assignment assignment = (Assignment)getHibernateTemplate().execute((HibernateCallback<?>) session -> getAssignmentWithoutStats(gradebookUid, assignmentName));
         return (assignment != null);
     }
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#isExternalAssignmentDefined(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public boolean isExternalAssignmentDefined(String gradebookUid, String externalId) throws GradebookNotFoundException {
         // SAK-19668
         Assignment assignment = getExternalAssignment(gradebookUid, externalId);
@@ -510,6 +512,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#isExternalAssignmentGrouped(java.lang.String, java.lang.String)
 	 */
+	@Override
 	public boolean isExternalAssignmentGrouped(String gradebookUid, String externalId)
 		throws GradebookNotFoundException
 	{
@@ -519,22 +522,25 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		// and none manage it, return false since grouping is the outlier case and all items
 		// showed for all users until the 2.9 release.
 		boolean result = false;
+		boolean providerResponded = false;
 		if (assignment == null) {
             result = false;
             log.info("No assignment found for external assignment check: gradebookUid="+gradebookUid+", externalId="+externalId);
 		} else {
 	        for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
 	            if (provider.isAssignmentDefined(externalId)) {
-	                result = provider.isAssignmentGrouped(externalId);
+	            	providerResponded = true;
+	                result = result || provider.isAssignmentGrouped(externalId);
 	            }
 	        }
 		}
-		return result;
+		return result || !providerResponded;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#isExternalAssignmentVisible(java.lang.String, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public boolean isExternalAssignmentVisible(String gradebookUid, String externalId, String userId)
 		throws GradebookNotFoundException
 	{
@@ -560,10 +566,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		return result || !providerResponded;
 	}
 
+	@Override
 	public Map<String, String> getExternalAssignmentsForCurrentUser(String gradebookUid)
 		throws GradebookNotFoundException
 	{
-		final Gradebook gradebook = getGradebook(gradebookUid);
 
 		Map<String, String> visibleAssignments = new HashMap<String, String>();
 		Set<String> providedAssignments = getProvidedExternalAssignments(gradebookUid);
@@ -603,6 +609,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			} else if (providerMethods.containsKey(provider)) {
 				Method m = providerMethods.get(provider);
 				try {
+					@SuppressWarnings("unchecked")
 					List<String> reflectedAssignments = (List<String>) m.invoke(provider, gradebookUid);
 					allAssignments.addAll(reflectedAssignments);
 				} catch (Exception e) {
@@ -613,10 +620,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		return allAssignments;
 	}
 
+	@Override
 	public Map<String, List<String>> getVisibleExternalAssignments(String gradebookUid, Collection<String> studentIds)
 		throws GradebookNotFoundException
 	{
-		final Gradebook gradebook = getGradebook(gradebookUid);
 
 		Set<String> providedAssignments = getProvidedExternalAssignments(gradebookUid);
 
@@ -627,7 +634,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 		for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
 			//SAK-24407 - Some tools modify this set so we can't pass it. I considered making it an unmodifableCollection but that would require changing a number of tools
-			Set studentIdsCopy = new HashSet(studentIds);
+			Set<String> studentIdsCopy = new HashSet<>(studentIds);
 			Map<String, List<String>> externals = provider.getAllExternalAssignments(gradebookUid, (studentIdsCopy));
 			for (String studentId : externals.keySet()) {
 				if (visible.containsKey(studentId)) {
@@ -657,6 +664,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		return visibleList;
 	}
 
+	@Override
 	public void setExternalAssessmentToGradebookAssignment(final String gradebookUid, final String externalId) {
         final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
         if (assignment == null) {
@@ -667,7 +675,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         assignment.setExternalInstructorLink(null);
         assignment.setExternalStudentLink(null);
         assignment.setExternallyMaintained(false);
-		getHibernateTemplate().execute((HibernateCallback) session -> {
+		getHibernateTemplate().execute((HibernateCallback<?>) session -> {
 			session.update(assignment);
 			log.info("Externally-managed assignment {} moved to Gradebook management in gradebookUid={} by userUid={}", externalId, gradebookUid, getUserUid());
 			return null;
@@ -677,6 +685,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	/**
 	 * Wrapper created when category was added for assignments tool
 	 */
+	@Override
 	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points, 
 			final Date dueDate, final String externalServiceDescription, final Boolean ungraded) 
 			throws GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
@@ -684,6 +693,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, ungraded, null);
 	}
 	
+	@Override
 	public synchronized void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points,
 		final Date dueDate, final String externalServiceDescription, final Boolean ungraded, final Long categoryId) 
 		throws GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
@@ -761,6 +771,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		log.info("External assessment added to gradebookUid={}, externalId={} by userUid={} from externalApp={}", gradebookUid, externalId, getUserUid(), externalServiceDescription);
 	}
 
+	@Override
 	public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points, final Date dueDate, final Boolean ungraded) 
 	throws GradebookNotFoundException, AssessmentNotFoundException, ConflictingAssignmentNameException, AssignmentHasIllegalPointsException
 	{
@@ -788,7 +799,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
     }
 
-    HibernateCallback hc = session -> {
+    HibernateCallback<?> hc = session -> {
         asn.setExternalInstructorLink(externalUrl);
         asn.setExternalStudentLink(externalUrl);
         asn.setName(title);
@@ -809,6 +820,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	}
 
 	
+	@Override
 	public void updateExternalAssessmentComment(final String gradebookUid, final String externalId, final String studentUid, final String comment) 
 	throws GradebookNotFoundException, AssessmentNotFoundException {
 		final Assignment asn = getExternalAssignment(gradebookUid, externalId);
@@ -819,7 +831,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 		log.debug("BEGIN: Update 1 score for gradebookUid={}, external assessment={} from {}", gradebookUid, externalId, asn.getExternalAppName());
 
-		HibernateCallback hc = session -> {
+		HibernateCallback<?> hc = session -> {
             // Try to reduce data contention by only updating when the
             // score has actually changed or property has been set forcing a db update every time.
             boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
@@ -841,6 +853,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		log.debug("External assessment comment updated in gradebookUid={}, externalId={} by userUid={}, new score={}", gradebookUid, externalId, getUserUid(), comment);
 	}
 	
+	@Override
 	public void updateExternalAssessmentScore(final String gradebookUid, final String externalId, final String studentUid, final String points) 
 	throws GradebookNotFoundException, AssessmentNotFoundException
 	{
@@ -852,7 +865,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 		log.debug("BEGIN: Update 1 score for gradebookUid={}, external assessment={} from {}", gradebookUid, externalId, asn.getExternalAppName());
 
-		HibernateCallback hc = session -> {
+		HibernateCallback<?> hc = session -> {
 			Date now = new Date();
 
 			AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid);
@@ -905,12 +918,13 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	
 	/**
 	 *
-	 * @param doubleAsString
+	 * @param s the string we want to convert to a double
 	 * @return a locale-aware Double value representation of the given String
 	 * @throws ParseException
 	 */
-	private Double convertStringToDouble(String doubleAsString) {
+	private Double convertStringToDouble(final String s) {
 	    Double scoreAsDouble = null;
+	    String doubleAsString = s;
 	    if (doubleAsString != null && !"".equals(doubleAsString)) {
 	        try {
 				// check if grade uses a comma as separator because of number format and change to a comma y the external app sends a point as separator
@@ -933,6 +947,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	    return NumberFormat.getInstance(new ResourceLoader().getLocale());
 	}
 	
+	@Override
 	public Long getExternalAssessmentCategoryId(String gradebookUId, String externalId) {
 		Long categoryId = null;
 		final Assignment assignment = getExternalAssignment(gradebookUId, externalId);
