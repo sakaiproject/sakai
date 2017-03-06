@@ -21,10 +21,10 @@ $more-sites-single-column: "only screen and (max-width : #{$break-more-sites-sin
 /* Typography*/
 
 //Google family Fonts URL
-$font-family-url: "//fonts.googleapis.com/css?family=Noto Sans:400,700" !default;
+$font-family-url: "//fonts.googleapis.com/css?family=Open Sans:400,500,700" !default;
 
 //Typography variables
-$font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
+$font-family: "Open Sans", sans-serif !default;
 $default-font-size: 14px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $header-font-family: $font-family;
@@ -168,5 +168,11 @@ $tool-menu-icon-on-left: true !default;
 /* Footer */
 $footer-background: transparent !default;
 $footer-color: $background-color-secondary !default;
+
+/* From NYU 11 Skin */
+$divider-shadow: 0 1px 5px rgba(0,0,0,.3) !default;
+$overview-portlet-border-color: $tool-border-color !default;
+$overview-portlet-shadow: 1px 1px 5px rgba(0,0,0,0.2) !default;
+$overview-portlet-title-background-color: $tool-tab-background-color !default;
 
 @import url(#{$font-family-url});

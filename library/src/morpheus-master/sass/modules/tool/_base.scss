@@ -1,4 +1,23 @@
 .#{$namespace}multipleTools{
+	.#{$namespace}container {
+		border: 1px solid $overview-portlet-border-color;
+		box-shadow: $overview-portlet-shadow;
+		margin-bottom: 20px;
+
+		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
+			border-top: none;
+			border-left: none;
+			border-right: none;
+			box-shadow: none;
+			margin: 0 !important;
+		}
+
+		.#{$namespace}container--toolTitleNav {
+			background-color: $overview-portlet-title-background-color;
+			border-bottom: 1px solid $overview-portlet-border-color;
+  	}
+  }
+
 	.#{$namespace}toolTitleNav{
 		.#{$namespace}toolTitleNav__title{
 			display: inline-block;
@@ -6,7 +25,7 @@
 			font-size: 0.85em;
 			font-weight: 400;
 			letter-spacing: 1.2px;
-			margin: 0px;
+			margin: 0;
 			position: relative;
 			text-transform: uppercase;
 			width: calc(100% - 90px);
@@ -22,8 +41,8 @@
 }
 
 .#{$namespace}toolTitleNav{
-	margin: 1em 0 0 0;
-	padding: 0.5em;
+	margin: 0;
+	padding: 0.6em;
 	position: relative;
 	.#{$namespace}toolTitleNav__title{
 		display: none;
@@ -64,11 +83,10 @@
 		}
 	}
 	.#{$namespace}toolTitleNav__button_container{
-		float: right;
 		display: block;
-		position: relative;
-		margin: 0px 0 -20px 0;
-		top: 9px;
+		position: absolute;
+		top: 0.4em;
+		right: 0.4em;
 		z-index: 1;
 		@media #{$tablet}{
 			left: 0.35em;
@@ -81,10 +99,11 @@
 	.#{$namespace}toolTitleNav__link{
 		color: $tool-nav-link-color;
 		border: 1px solid #e0e0e0;
+		border-radius: 3px;
 		background: $tool-tab-background-color;
 		margin-right: 0.25em;
-		padding: 5px 8px;
-		text-decoration :none;
+		padding: 0.4em 0.8em 0.45em 0.8em;
+		text-decoration: none;
 		vertical-align: 0%;
 		&:hover{
 			background: $tool-background-color;
@@ -118,14 +137,14 @@
 		&--edit{
 			@extend .fa;
 			@extend .fa-pencil;
-			//@extend .fa-lg;	
+			//@extend .fa-lg;
 			/*position: absolute;
 			right: #{$icon-size * 3};*/
 		}
 		&--reset{
 			@extend .fa;
 			@extend .fa-share;
-			//@extend .fa-lg;	
+			//@extend .fa-lg;
 			display: none;
 			font-size: 0.9em;
 			float: left;

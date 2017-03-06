@@ -4,6 +4,7 @@
 	border-bottom: 1px solid $tool-border-color;
 	padding: 0 170px 0 1em;
 	//max-width: calc(100% - 170px);
+	font-size: 0;
 	@media #{$phone}{
 		padding: 0.3em 0.7em;
 		//max-width: 100%;
@@ -15,7 +16,8 @@
 	}
 	li{
 		display: inline-block;
-		margin: 0 0 0 0;
+		font-size: $default-font-size;
+		margin: 0 0 0 -1px;
 		span{
 			display: inline;
 			a{
@@ -25,21 +27,30 @@
 				border-right: 1px solid $tool-border-color;
 				color: $tool-nav-link-color;
 				display: block;
-				font-size: 0.8em;
-				margin: 2px 0.25em 0 0;
-				letter-spacing: 1.2px;
-				padding: 6px 10px;
+				margin: 0;
+				padding: 0 10px;
+				line-height: 2.5em;
+				height: 2.5em;
 				text-decoration: none;
-				text-transform: uppercase;
 				@media #{$phone}{
 					@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
 				}
-				
-				&:hover
-				{
+
+				&:hover{
 					color: $swapped-view-text-color;
 					text-decoration: none;
-				}
+					position: relative;
+
+					&:before{
+						border-top: 4px solid $swapped-view-text-color;
+						content: "";
+						display: block;
+						position: absolute;
+						left: -1px;
+						right: -1px;
+						top: -1px;
+					}
+			  }
 			}
 			&.current{
 				background: $tool-background-color;
@@ -71,12 +82,12 @@
 			}
 		}
 		a{
-			
+
 			&.current{
 			}
 		}
 		.searchField{
-			
+
 		}
 	}
 }
@@ -108,7 +119,7 @@
 		legend{
 			display: none;
 		}
-		
+
 		fieldset{
 			display:inline-block;
 		}
