@@ -468,3 +468,6 @@ a.draft{
 	right: 30%;
 	width: auto !important;
 }
+.editable-pre-wrapped{
+white-space: normal; /* Added to remove extra lines */
+}
