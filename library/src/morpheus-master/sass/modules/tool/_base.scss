@@ -21,18 +21,13 @@
 	.#{$namespace}toolTitleNav{
 		.#{$namespace}toolTitleNav__title{
 			display: inline-block;
-			color: rgba(21,21,21,0.5);
-			font-size: 0.85em;
+			font-size: 0.9em;
 			font-weight: 400;
-			letter-spacing: 1.2px;
 			margin: 0;
 			position: relative;
-			text-transform: uppercase;
 			width: calc(100% - 90px);
 			z-index: 21;
 			a{
-				color: rgba(21,21,21,0.5);
-				font-weight: 400;
 				margin-right: 0.25em;
 			}
 		}
