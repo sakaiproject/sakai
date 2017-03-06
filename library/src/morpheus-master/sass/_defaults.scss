@@ -45,10 +45,10 @@ $text-color:				 #212121 !default;
 $portal-background-color: $background-color !default;
 
 $tool-background-color:		 $background-color !default;
-$tool-menu-background-color:			 #EBEBEB !default;
+$tool-menu-background-color:			 #FAFAFA !default;
 $tool-menu-color: 			 #424242 !default;
 $tool-tab-background-color: 			 #F8F8F8 !default;
-$tool-border-color:			 #E0E0E0 !default;
+$tool-border-color:			 #F0F0F0 !default;
 $tool-tab-active-background-color: 			 $background-color !default;
 $tool-tab-active-border-color: 	 $background-color !default;
 $tool-menu-hover-color: $tool-background-color !default;
@@ -166,7 +166,7 @@ $icon-size: 20px !default;
 $tool-menu-icon-on-left: true !default;
 
 /* Footer */
-$footer-background: $tool-menu-background-color !default;
+$footer-background-color: $tool-menu-background-color !default;
 $footer-border-color: $tool-border-color !default;
 $footer-color: $background-color-secondary !default;
 

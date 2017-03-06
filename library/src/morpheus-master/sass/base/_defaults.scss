@@ -1,14 +1,13 @@
 @import "base/compass";
 
 body{
-	background:  $footer-background;
+	background-color:  $footer-background-color;
 	color: 		 $text-color;
 	font-family: $font-family;
 	font-size: 	 $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
 	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
 	&.#{$namespace}portalBody{
-		background:  $portal-background-color;
 		@media #{$phone}{
 			background: linear-gradient( to bottom, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) fixed;
 			background-size: auto 100%;
