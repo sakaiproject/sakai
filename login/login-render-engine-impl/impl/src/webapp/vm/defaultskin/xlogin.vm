@@ -11,7 +11,10 @@
     	<form id="Mrphs-xlogin" method="post" action="${action}" #if (${notify}) class="with-errors" #end>
             <h1>${loginRequired}</h1>
             <aside class="logo"></aside>
-        	#if (${notify})
+            #if (${xloginChoice})
+                <div class="xloginMessage">${xloginChoice}&nbsp;<a href="${loginContainerUrl}">${containerText}</a></div>
+            #end
+            #if (${notify})
         		<div class="alertMessage" role="alert">${notify}</div>
         	#end
     		<fieldset>	
