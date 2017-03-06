@@ -450,6 +450,10 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		String uiService = serverConfigurationService.getString("ui.service", "Sakai");
 		String passwordResetUrl = getPasswordResetUrl();
 
+		String xloginChoice = serverConfigurationService.getString("xlogin.choice", null);
+		String containerText = serverConfigurationService.getString("login.text.title", "Container Login");
+		String loginContainerUrl = serverConfigurationService.getString("login.container.url");
+
 		String eidWording = rb.getString("userid");
 		String pwWording = rb.getString("log.pass");
 		String loginRequired = rb.getString("log.logreq");
@@ -470,6 +474,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("cancelWording", cancelWording);
 		rcontext.put("passwordResetUrl", passwordResetUrl);
 		rcontext.put("passwordResetWording", passwordResetWording);
+		rcontext.put("xloginChoice", xloginChoice);
+		rcontext.put("containerText", containerText);
+		rcontext.put("loginContainerUrl", loginContainerUrl);
 
 		String eid = StringEscapeUtils.escapeHtml(request.getParameter("eid"));
 		String pw = StringEscapeUtils.escapeHtml(request.getParameter("pw"));
