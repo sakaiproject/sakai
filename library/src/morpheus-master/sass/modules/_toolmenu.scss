@@ -141,6 +141,7 @@ body.is-logged-out{
 	@include flex-basis( 7.5em );
 	margin: 0 0 0 0;
 	text-align: center;
+	border-right: 1px solid $tool-border-color;
 	@include transition( left 0.25s linear 0s );
 
 	@media #{$phone}{
@@ -380,9 +381,10 @@ nav#subSites{
 			}
 			&.is-current{
 				background: $tool-menu-current-background-color;
+				position: relative;
+				margin-right: -1px;
 				a{
 					border-left: 4px solid $tool-menu-current-border-color;
-					border-bottom: 1px solid $tool-menu-current-border-color;
 					color: $tool-menu-current-color;
 					.#{$namespace}toolsNav__menuitem--title{
 						font-weight: 700;
