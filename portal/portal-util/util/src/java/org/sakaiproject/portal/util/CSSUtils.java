@@ -21,7 +21,6 @@
 
 package org.sakaiproject.portal.util;
 
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -211,7 +210,13 @@ public class CSSUtils
 
 	}
 	
-	public static String getCssToolSkinLink(String skin) {
+	public static String getCssToolSkinLink(String skin, boolean isInlineRequest) {
+
+		if (isInlineRequest)
+		{
+			return "";
+		}
+
 		String headCssToolSkin = "<link href=\"" 
 				+ getCssToolSkinCDN(skin)
 				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"screen, tty, tv, handheld, projection\" />\n";
@@ -229,7 +234,7 @@ public class CSSUtils
 		String headCss = getCssToolBaseLink(skin,isInlineRequest);
 		if (!isInlineRequest)
 		{
-			headCss += getCssToolSkinLink(skin);
+			headCss += getCssToolSkinLink(skin, isInlineRequest);
 		}
 		return headCss;
 	}
