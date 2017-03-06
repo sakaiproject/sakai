@@ -14,6 +14,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 import java.text.DateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +55,11 @@ public class LTIReportingJob implements Job {
 
         String toolTitle = (String) tool.get("title");
 
-        // SELECT * FROM lti_content where tool_id = ? created_at > date_sub(now(),  interval ???? second) ;
-        String search = String.format("tool_id = %d AND created_at > date_sub(now(), interval %d second)",
-            toolId, period / 1000);
+        DateFormat sqlDf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
+        Instant instant = Instant.now().minus(period, ChronoUnit.MILLIS);
+        String fromDate = sqlDf.format(Date.from(instant));
+
+        String search = "tool_id:"+ "#exact#"+ toolId+ "#&#"+ "created_at:"+ "#date#>"+ fromDate ;
         List<Map<String, Object>> contents = ltiService.getContentsDao(search, null, 0, 0, null);
         DateFormat df = DateFormat.getDateTimeInstance( DateFormat.SHORT, DateFormat.SHORT, rb.getLocale());
 

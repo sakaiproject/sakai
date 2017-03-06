@@ -114,6 +114,19 @@ public class TestFoormJUnit {
 
     }
 
+	@Test
+	public void testSearchCheckSql() {
+		Foorm foorm = new Foorm();
+		// There was a problem with a NPE being thrown when there weren't any colons in the search
+		assertEquals(null, foorm.searchCheck("COLUMN = 'value'", "table", new String[]{}));
+	}
+
+	@Test
+	public void testSearchCheckSingle() {
+		Foorm foorm = new Foorm();
+		assertEquals("table.FIELD:VALUE", foorm.searchCheck("FIELD:VALUE", "table", new String[]{"FIELD"}));
+	}
+
     /* These tests focus on integer parsing */
 
     @Test
