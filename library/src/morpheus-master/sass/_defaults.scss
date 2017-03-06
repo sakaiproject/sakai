@@ -146,8 +146,8 @@ $sites-nav-submenu-item-selected-color:     $sites-nav-menu-item-selected-color 
 $sites-nav-submenu-item-selected-border:    none !default;
 
 /* Tool Menu */
-$tool-menu-width: 7.5em !default;
-$tool-menu-width-collapsed: $tool-menu-width / 2 !default;
+$tool-menu-width: 14.2em !default;
+$tool-menu-width-collapsed: 3.75em !default;
 
 /* Navigation Hierarchy */
 $hierarchy-size: 3.5em !default;
@@ -163,7 +163,7 @@ $logo-width: 50px !default;
 /* Tool icons */
 $skin-with-icons: true !default;
 $icon-size: 20px !default;
-$tool-menu-icon-on-left: false !default;
+$tool-menu-icon-on-left: true !default;
 
 /* Footer */
 $footer-background: transparent !default;

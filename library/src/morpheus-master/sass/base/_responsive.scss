@@ -49,14 +49,35 @@ body{
 			}
 			#toolMenu, #subSites{
 				overflow: auto;
+				@if $tool-menu-icon-on-left {
+					background-color: $tool-background-color;
+				}
 				ul{
 					list-style: none;
-					padding: 0 0 0 0;
+					@if $tool-menu-icon-on-left {
+						padding: 0.3em 0;
+					}
+					@else {
+						padding: 0 0 0 0;
+					}
 					li{
-						border-left: 2px solid darken( $tool-menu-background-color, 10% );
-						display: inline-block;
-						margin: -4px -4px 0px 0; //FIX for inline-block extra space.
-						width: calc( 25% - 1px );
+						@if $tool-menu-icon-on-left {
+							display: block;
+							border: 1px solid $tool-border-color;
+							@include border-radius(4px);
+							background: darken($background-color, 5%);
+							width: 95%;
+							white-space: nowrap;
+							overflow: hidden;
+							margin: 4.2px auto;
+							padding: 4.2px 7px;
+						}
+						@else {
+							border-left: 2px solid darken( $tool-menu-background-color, 10% );
+							display: inline-block;
+							margin: -4px -4px 0px 0; //FIX for inline-block extra space.
+							width: calc( 25% - 1px );
+						}
 						&.#{$namespace}collapseTools{
 							display: none;
 						}

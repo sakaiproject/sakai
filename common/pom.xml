@@ -26,6 +26,7 @@
     <module>archive-api</module>
     <module>archive-impl/impl2</module>
     <module>import-impl</module>
+    <module>import-pack</module>
     <module>import-handlers/content-handlers</module>
     <module>import-util</module>
     <module>import-parsers/common-cartridge</module>
