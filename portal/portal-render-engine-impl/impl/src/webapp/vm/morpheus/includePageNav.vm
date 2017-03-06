@@ -18,9 +18,6 @@
 
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
         <ul>
-        	<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav">
-        		<i class="fa fa-lg fa-angle-double-left"></i>
-        	</li>
         	#if ($viewAsStudentLink)
         	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
         	#end ## END of IF ($viewAsStudentLink)
@@ -178,6 +175,9 @@
 
             #end ## END of IF (${sitePages.pageNavCanAddMoreTools})
 
+        	<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav">
+        		<i class="fa fa-lg fa-angle-double-left"></i>
+        	</li>
         </ul>
     </nav>
 
