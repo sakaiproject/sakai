@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.assignment.api.AssignmentService"
+          class="org.sakaiproject.assignment.impl.AssignmentServiceImpl"
+          init-method="init"
+          destroy-method="destroy">
+        <property name="allowGroupAssignments" value="true"/>
+        <property name="allowGroupAssignmentsInGradebook" value="true"/>
+        <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
+        <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
+        <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="candidateDetailProvider">
+            <bean class="org.sakaiproject.assignment.impl.OptionalFactoryBean"/>
+        </property>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+        <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
+        <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+        <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
+        <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
+</beans>

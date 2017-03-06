@@ -7,13 +7,14 @@ import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.hibernate.HibernateCrudRepository;
+import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.stereotype.Repository;
 
 /**
  * Created by enietzel on 2/22/17.
  */
 @Repository
-public class AssignmentRepositoryImpl extends HibernateCrudRepository<Assignment, String> implements AssignmentRepository {
+public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assignment, String> implements AssignmentRepository {
 
     @Override
     public Assignment findAssignment(String id) {
