@@ -1238,7 +1238,11 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 * @return a list of SignupSite objects.
 	 */
 	public List<SignupSite> getPublishedSignupSites() {
-		return getMeetingWrapper().getMeeting().getSignupSites();
+		SignupMeetingWrapper signupMeetingWrapper = getMeetingWrapper();
+		if (signupMeetingWrapper!=null){
+			return getMeetingWrapper().getMeeting().getSignupSites();
+		}
+		return null;
 	}
 
 	/* proxy method */
