@@ -166,7 +166,8 @@ $icon-size: 20px !default;
 $tool-menu-icon-on-left: true !default;
 
 /* Footer */
-$footer-background: transparent !default;
+$footer-background: $tool-menu-background-color !default;
+$footer-border-color: $tool-border-color !default;
 $footer-color: $background-color-secondary !default;
 
 /* From NYU 11 Skin */

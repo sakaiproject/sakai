@@ -63,6 +63,7 @@
 
 .#{$namespace}mainContent{
   background: $main-content-background;
+	padding-top: 0.5em;
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
@@ -75,6 +76,7 @@
 
 .#{$namespace}container--footer{
 	background: $footer-background;
+	border-top: 1px solid $footer-border-color;
 }
 
 .#{$namespace}footer{
