@@ -227,7 +227,7 @@
   
  
     <div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
-        <img id='img' src='<h:outputText value="#{itemauthor.currentItem.imageMapSrc}" />' style='visibility:hidden' />
+        <img id='img' src='<h:outputText value="#{itemauthor.currentItem.imageMapSrc}" />' />
     </div>
 
     <!-- Match FEEDBACK -->
