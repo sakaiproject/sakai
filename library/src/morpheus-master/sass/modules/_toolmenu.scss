@@ -43,13 +43,13 @@ body.is-logged-out{
 								position: absolute;
 								display: block;
 								float: right;
-								margin: -2.1em 0em 0em 3.2em;
+								margin: -2.27em 0em 0em $tool-menu-width-collapsed;
 								background: $primary-color;
 								padding: 0.71em;
-								border-left: 3px solid $primary-color-shadow;
-								z-index: 10;
+								z-index: 50;
 								width: auto;
-								border-radius: 0 15px 15px 0;
+								border-radius: 0 5px 5px 0;
+							    min-height: 3.4em;
 								line-height: 100%;
 							}
 						}
@@ -388,6 +388,7 @@ nav#subSites{
 						font-weight: 700;
 					}
 					&:hover{
+						border-left: none;
 						background: $tool-menu-hover-background-color;
 						color: $tool-menu-hover-color;
 					}
