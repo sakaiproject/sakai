@@ -872,7 +872,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			
 			// add description
 			el = doc.createElement("description");
-			String desc = (site.getDescription()!=null)?site.getDescription():site.getTitle();
+			String desc = (site.getShortDescription()!=null)?site.getShortDescription():site.getTitle();
 			el.appendChild(doc.createTextNode(desc));
 			channel.appendChild(el);
 			
