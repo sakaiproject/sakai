@@ -21,6 +21,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.jdom.Document;
@@ -41,6 +44,7 @@ import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.samigo.api.SamigoETSProvider;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -145,6 +149,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
              * assessmentGradingID
              * submissionDate
              * confirmationNumber
+             * releaseToGroups
              */
             replacementValues.put("siteName"            , pubAssFac.getOwnerSite());
             replacementValues.put("siteID"              , siteID);
@@ -155,6 +160,10 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             replacementValues.put("assessmentGradingID" , notificationValues.get("assessmentGradingID").toString());
             replacementValues.put("submissionDate"      , notificationValues.get("submissionDate").toString());
             replacementValues.put("confirmationNumber"  , notificationValues.get("confirmationNumber").toString());
+            
+            if (notificationValues.get("releaseToGroups") != null){
+            	replacementValues.put("releaseToGroups", notificationValues.get("releaseToGroups").toString());
+            }            
 
             notifyStudent(user, priStr, assessmentSubmittedType, replacementValues);
             notifyInstructor(siteID, pubAssFac.getInstructorNotification(), assessmentSubmittedType, user, replacementValues);
@@ -174,8 +183,14 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
 
         try{
             Site            site                    = siteService.getSite(siteID);
-            AuthzGroup      azGroup                 = authzGroupService.getAuthzGroup("/site/" + siteID);
-            Set<String>     siteUsersHasRole        = site.getUsersHasRole(azGroup.getMaintainRole());
+            Set<String>     siteUsersHasRole;
+            
+            if (replacementValues.get("releaseToGroups") != null){
+            	siteUsersHasRole = extractInstructorsFromGroups(site,replacementValues.get("releaseToGroups") );
+            }else{
+            	AuthzGroup azGroup = authzGroupService.getAuthzGroup("/site/" + siteID);
+            	siteUsersHasRole = site.getUsersHasRole(azGroup.getMaintainRole());
+            }
 
             for(String userString : siteUsersHasRole){
                 try{
@@ -217,6 +232,23 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
                 emailService.sendToUsers(immediateUsers, headers, message);
             }
         }
+    }
+    
+    private Set<String> extractInstructorsFromGroups(Site site,String allGroups){
+    	
+    	Set<String> usersWithRole = new HashSet<String>();
+    	
+    	List<String> groups = Stream.of(allGroups)
+				.map(s -> s.split(";")).flatMap(Arrays::stream)
+				.collect(Collectors.toList());
+    	
+    	for (String groupId : groups){
+    		Group group = site.getGroup(groupId);
+    		Set <String> groupUsersWithRole = group.getUsersHasRole(group.getMaintainRole());
+    		usersWithRole.addAll(groupUsersWithRole);
+    	}
+    	
+    	return usersWithRole;
     }
 
     private void notifyStudent(User user, String priStr, int assessmentSubmittedType, Map<String, String> replacementValues){
