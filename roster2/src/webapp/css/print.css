@@ -45,7 +45,6 @@
     padding: 5px 0px 5px 5px;
 }
 
-
 .roster-mobile-label {
     display: none;
     font-weight: bold;
@@ -55,6 +54,18 @@
     font-size: 0.9em;
 }
 
-.roster-picture {
-    width: 50px;
+#roster-pictures-only-label {
+    display: none;
+}
+
+#roster-role-totals {
+    display: none;
+}
+
+#roster-members-total {
+    display: none;
+}
+
+#profileImageUpload {
+    display: none;
 }
