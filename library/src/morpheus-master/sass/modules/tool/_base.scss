@@ -5,9 +5,9 @@
 		margin-bottom: 20px;
 
 		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
-			border-top: none;
-			border-left: none;
-			border-right: none;
+			border-top: 0;
+			border-left: 0;
+			border-right: 0;
 			box-shadow: none;
 			margin: 0 !important;
 		}
@@ -26,13 +26,11 @@
 			margin: 0;
 			position: relative;
 			width: calc(100% - 90px);
-			z-index: 21;
 			a{
 				margin-right: 0.25em;
 			}
 		}
 	}
-
 }
 
 .#{$namespace}toolTitleNav{
@@ -57,12 +55,12 @@
 				display:    block;
 				background: #FFF;
 				width: 250px;
-  				margin: 10px 0 0 -250px;
-  				z-index: 2;
-				box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+				margin: 10px 0 0 -250px;
+				z-index: 2;
+				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 				label{
 					font-size: $default-font-size;
-					margin: 5px 0 0px 5px;
+					margin: 5px 0 0 5px;
 					vertical-align: middle;
 				}
 				textarea{
@@ -72,23 +70,19 @@
 					width: 98%;
 				}
 				@media #{$phone}{
-					margin: -1px 0 0px -214px;
+					margin: -1px 0 0 -214px;
 				}
 			}
 		}
 	}
 	.#{$namespace}toolTitleNav__button_container{
 		display: block;
-		position: absolute;
-		top: 0.4em;
-		right: 0.4em;
-		z-index: 1;
+		position: relative;
+		float: right;
+		top: -4px;
+		right: -11px;
 		@media #{$tablet}{
-			left: 0.35em;
-			font-size: 1.5em;
-			margin: 0px 0 0px 0;
-			top: -4px;
-			z-index: 1;
+			font-size: 1.2em;
 		}
 	}
 	.#{$namespace}toolTitleNav__link{
