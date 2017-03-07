@@ -7,7 +7,7 @@ import static net.bytebuddy.matcher.ElementMatchers.isAbstract;
 
 /**
  * Simple utility method to stub out a class. This means we don't bind against all the huge interfaces
- * and the tests are much clearer as it shows them methods they use.
+ * and the tests are much clearer as it shows the methods they use/need.
  */
 public class StubUtils {
 
