@@ -18,22 +18,19 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import org.mockito.Mockito;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
-import org.w3c.dom.Document;
 
-public class FakeToolManager implements ToolManager {
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+public abstract class FakeToolManager implements ToolManager {
 
 	Set<Tool> tools = new HashSet<Tool>();
 	Placement currentPlacement;
@@ -43,33 +40,33 @@ public class FakeToolManager implements ToolManager {
 	FakeTool sitestats;
 
 	public FakeToolManager() {
-		dropbox = new FakeTool();
+		dropbox = Mockito.spy(FakeTool.class);
 		dropbox.setId(StatsManager.DROPBOX_TOOLID);
 		dropbox.setTitle("DropBox");
 		tools.add(dropbox);
-		resources = new FakeTool();
+		resources = Mockito.spy(FakeTool.class);
 		resources.setId(StatsManager.RESOURCES_TOOLID);
 		resources.setTitle("Resources");
 		tools.add(resources);
-		chat = new FakeTool();
+		chat = Mockito.spy(FakeTool.class);
 		chat.setId(FakeData.TOOL_CHAT);
 		chat.setTitle("Chat");
 		tools.add(chat);
-		sitestats = new FakeTool();
+		sitestats = Mockito.spy(FakeTool.class);
 		sitestats.setId(StatsManager.SITESTATS_TOOLID);
 		sitestats.setTitle("SiteStats");
 		tools.add(sitestats);
 		
 		//setDefaultPlacementContext();
-		currentPlacement = new FakePlacement(resources, null);
+		currentPlacement = Mockito.spy(FakePlacement.class).set(resources, null);
 	}
 	
 	public void setDefaultPlacementContext(String siteId) {
-		currentPlacement = new FakePlacement(resources, siteId);
+		currentPlacement = Mockito.mock(FakePlacement.class).set(resources, siteId);
 	}
 	
 	public void setDefaultPlacementContext() {
-		currentPlacement = new FakePlacement(resources, FakeData.SITE_A_ID);
+		currentPlacement = Mockito.mock(FakePlacement.class).set(resources, FakeData.SITE_A_ID);
 	}
 	
 	public Placement getDefaultPlacementContext() {
@@ -109,37 +106,6 @@ public class FakeToolManager implements ToolManager {
 		}
 		return null;
 	}
-
-	public void register(Tool tool) {
-	}
-
-	public void register(Document toolXml) {
-	}
-
-	public void register(File toolXmlFile) {
-	}
-
-	public void register(InputStream toolXmlStream) {
-	}
-
-	public void setResourceBundle(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
-	public boolean isVisible(Site arg0, ToolConfiguration arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public String getLocalizedToolProperty(String toolId, String key) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
     public boolean isHidden(Placement placement) {
         return false;
     }
