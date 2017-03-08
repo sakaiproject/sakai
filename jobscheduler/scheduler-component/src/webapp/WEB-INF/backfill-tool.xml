@@ -3,23 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- Job to backfill tool into a site -->
-    <bean id="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob">
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillToolJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-          init-method="init">
-        <property name="beanId">
-            <value>org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob</value>
-        </property>
-        <property name="jobName">
-            <value>Backfill tool into sites</value>
-        </property>
+    <bean id="org.sakaiproject.api.app.scheduler.BackFillToolJob"
+          class="org.sakaiproject.component.app.scheduler.ConfigurableAutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"/>
+        <constructor-arg value="Backfill tools to sites"/>
         <property name="resourceBundleBase"
                   value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.Messages"/>
         <property name="configurableJobProperties">
@@ -55,9 +42,6 @@
                     <property name="defaultValue" value="true"/>
                 </bean>
             </set>
-        </property>
-        <property name="schedulerManager">
-            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         </property>
     </bean>
 </beans>

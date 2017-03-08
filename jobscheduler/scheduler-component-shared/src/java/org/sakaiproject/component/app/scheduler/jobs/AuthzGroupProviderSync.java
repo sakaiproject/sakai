@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
+import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.UnableToInterruptJobException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -27,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @author Matthew Buckett
  */
 @DisallowConcurrentExecution
-public class AuthzGroupProviderSync implements Job {
+public class AuthzGroupProviderSync implements InterruptableJob {
 
 	private final Logger log = LoggerFactory.getLogger(AuthzGroupProviderSync.class);
 	
@@ -35,6 +36,8 @@ public class AuthzGroupProviderSync implements Job {
 	private long refreshAge = 3600000;
 	
 	private int batchSize = 200;
+
+	private boolean run = true;
 	
 	private SessionManager sessionManager;
 	private AuthzGroupService authzGroupService;
@@ -48,7 +51,7 @@ public class AuthzGroupProviderSync implements Job {
 		try {
 			groupsTotal = authzGroupService.countAuthzGroups(null);
 			Iterator<AuthzGroup> groupsIt = getAuthzGroups();
-			while (groupsIt.hasNext()) {
+			while (groupsIt.hasNext() && run) {
 				AuthzGroup group = groupsIt.next();
 				groupsProcessed++;
 				if (group.getProviderGroupId() != null && group.getProviderGroupId().length() > 0) {
@@ -84,7 +87,8 @@ public class AuthzGroupProviderSync implements Job {
 					" Processed: "+ groupsProcessed+
 					" Updated: "+ groupsUpdated+
 					" No Provider: "+ groupsNoProvider+
-					" Too New: "+ groupsTooNew
+					" Too New: "+ groupsTooNew+
+					((run)?" finished.":" stopped early.")
 					);
 			session.invalidate();
 		}
@@ -153,5 +157,10 @@ public class AuthzGroupProviderSync implements Job {
 	@Autowired
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	@Override
+	public void interrupt() throws UnableToInterruptJobException {
+		run = false;
 	}
 }

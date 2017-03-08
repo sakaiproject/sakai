@@ -1,10 +1,8 @@
 package org.sakaiproject.component.app.scheduler.jobs.backfilltool;
 
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -15,13 +13,15 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.springframework.beans.factory.annotation.*;
 
+import javax.inject.*;
 import java.util.List;
 
 /**
  * This job walks sites in the system and adds a tool to them.
  */
-public class BackFillToolJob implements Job {
+public class BackFillToolJob implements InterruptableJob {
 
     private final Logger log = LoggerFactory.getLogger(BackFillToolJob.class);
 
@@ -31,14 +31,19 @@ public class BackFillToolJob implements Job {
 
     private ToolManager toolManager;
 
+    private boolean run = true;
+
+    @Autowired
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
 
+    @Autowired
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 
+    @Autowired
     public void setToolManager(ToolManager toolManager) {
         this.toolManager = toolManager;
     }
@@ -104,6 +109,9 @@ public class BackFillToolJob implements Job {
 
         int updated = 0, examined = 0, special = 0, user = 0;
         for (String siteId : siteIds) {
+            if (!run) {
+                break;
+            }
             Site site;
             // Skip special
             if (siteService.isSpecialSite(siteId)) {
@@ -135,7 +143,7 @@ public class BackFillToolJob implements Job {
                 updated++;
             }
         }
-        log.info(String.format("Complete: Examined %d, Updated %d, Special %d, User %d",
+        log.info(String.format("%s: Examined %d, Updated %d, Special %d, User %d", (run)?"Completed":"Stopped early",
                 examined, updated, special, user));
     }
 
@@ -167,5 +175,10 @@ public class BackFillToolJob implements Job {
         }
         return false;
 
+    }
+
+    @Override
+    public void interrupt() throws UnableToInterruptJobException {
+        run = false;
     }
 }

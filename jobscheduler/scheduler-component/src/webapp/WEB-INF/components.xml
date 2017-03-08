@@ -274,23 +274,10 @@
 		</property>
 	</bean>
 
-    <!-- Job to backfill roles into a site from a template -->
-    <bean id="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob">
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="authzService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillRoleJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-          init-method="init">
-        <property name="beanId">
-            <value>org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob</value>
-        </property>
-        <property name="jobName">
-            <value>Backfill roles from templates</value>
-        </property>
+    <bean id="org.sakaiproject.api.app.scheduler.BackFillRoleJob"
+          class="org.sakaiproject.component.app.scheduler.ConfigurableAutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"/>
+        <constructor-arg value="Backfill roles from templates"/>
         <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.Messages"/>
         <property name="configurableJobProperties">
             <set>
@@ -318,11 +305,7 @@
                     <property name="descriptionResourceKey" value="role.description"/>
                     <property name="defaultValue" value=""/>
                 </bean>
-
             </set>
-        </property>
-        <property name="schedulerManager">
-            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
         </property>
     </bean>
 
@@ -404,6 +387,8 @@
                     <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
                     <constructor-arg value="Sync the provided groups in authz"/>
                 </bean>
+                <ref bean="org.sakaiproject.api.app.scheduler.BackFillRoleJob"/>
+                <ref bean="org.sakaiproject.api.app.scheduler.BackFillToolJob"/>
             </list>
         </property>
     </bean>
