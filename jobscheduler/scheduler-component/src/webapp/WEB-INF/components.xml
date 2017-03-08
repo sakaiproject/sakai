@@ -236,32 +236,6 @@
         </property>
     </bean>
 
-    <!-- Job for syncing authz provided groups this iterates over all the authz groups
-         with a provider ID set and updates them. -->
-    <bean id="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"
-          class="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync">
-        <property name="authzGroupService">
-            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
-        </property>
-        <property name="sessionManager">
-            <ref bean="org.sakaiproject.tool.api.SessionManager"/>
-        </property>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AuthzGroupProviderSync"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-          init-method="init">
-        <property name="beanId">
-            <value>org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync</value>
-        </property>
-        <property name="jobName">
-            <value>Sync the provided groups in authz</value>
-        </property>
-        <property name="schedulerManager">
-            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-        </property>
-    </bean>
-
 	   <!-- this is the helper that will register the above bean with the job scheduler -->
 	   <!--
 	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
@@ -420,10 +394,17 @@
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         </property>
         <property name="jobBeans">
-            <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
-                <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
-                <constructor-arg value="Scheduled Invocation Validation"/>
-            </bean>
+            <list>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg
+                            value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
+                    <constructor-arg value="Scheduled Invocation Validation"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
+                    <constructor-arg value="Sync the provided groups in authz"/>
+                </bean>
+            </list>
         </property>
     </bean>
 
