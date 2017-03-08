@@ -1668,32 +1668,26 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
   public void deleteExtendedTime() {
-    this.extendedTimes.remove(this.transitoryExtendedTime);
-    this.transitoryExtendedTime = null;
+      this.extendedTimes.remove(this.transitoryExtendedTime);
+      this.transitoryExtendedTime = null;
   }
 
   public void editExtendedTime() {
     this.editingExtendedTime = true;
     this.extendedTime = new ExtendedTime(this.transitoryExtendedTime);
-    this.transitoryExtendedTime = null;
+    //Remove from the list but keep transitory available for cancel
+    this.extendedTimes.remove(this.transitoryExtendedTime);
   }
 
   public void saveEditedExtendedTime() {
-    this.editingExtendedTime = false;
-    Integer oldIndex = null;
-    // is there a more efficient way?
-    for(ExtendedTime entry : extendedTimes) {
-      if(entry.getId().equals(this.extendedTime.getId())) {
-        oldIndex = this.extendedTimes.indexOf(entry);
-        break;
-      }
-    }
-    this.extendedTimes.set(oldIndex, this.extendedTime);
-    resetExtendedTime();
+    //Re-add after editing
+    addExtendedTime();
   }
 
   public void cancelEdit() {
-    resetExtendedTime();
+    //Reset the time back again
+    this.extendedTime = this.transitoryExtendedTime;
+    addExtendedTime();
   }
 
   public boolean getEditingExtendedTime() {
