@@ -754,6 +754,8 @@ body.is-logged-out{
 				a{
 					background: $sites-nav-menu-item-selected-background;
 					color: $sites-nav-menu-item-selected-color;
+				}
+				a.link-container {
 					border: $sites-nav-menu-item-selected-border;
 				}
 				ul{
