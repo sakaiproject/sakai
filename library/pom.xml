@@ -307,7 +307,7 @@
 					<plugin>
 					   <groupId>com.github.warmuuh</groupId>
 					   <artifactId>libsass-maven-plugin</artifactId>
-					   <version>0.2.5-libsass_3.3.6</version>
+					   <version>0.2.6-libsass_3.4.0</version>
 					   <executions>
 					       <execution>
 					           <phase>process-resources</phase>
