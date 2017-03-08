@@ -50,7 +50,7 @@ public class AssignmentActivityImpl implements TaggableActivity {
 	}
 
 	public String getDescription() {
-		return assignment.getContent().getInstructions();
+		return assignment.getInstructions();
 	}
 
 	public Object getObject() {

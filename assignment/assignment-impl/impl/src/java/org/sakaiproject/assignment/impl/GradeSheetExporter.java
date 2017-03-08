@@ -1,11 +1,29 @@
 package org.sakaiproject.assignment.impl;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.impl.sort.AssignmentComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
@@ -21,49 +39,23 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.NumberFormat;
-import java.util.*;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Exporter for the assignments grades spreadsheet. This encapsulates all the Apache POI code.
  */
+@Slf4j
 public class GradeSheetExporter {
 
-    public final Logger log = LoggerFactory.getLogger(GradeSheetExporter.class);
+    @Setter private AssignmentService assignmentService;
+    @Setter private CandidateDetailProvider candidateDetailProvider;
+    @Setter private SiteService siteService;
+    @Setter private TimeService timeService;
+    @Setter private UserDirectoryService userDirectoryService;
 
-    /** the resource bundle */
     private ResourceLoader rb = new ResourceLoader("assignment");
-
-    private AssignmentService assignmentService;
-    private SiteService siteService;
-    private TimeService timeService;
-    private UserDirectoryService userDirectoryService;
-    private CandidateDetailProvider candidateDetailProvider;
-
-    public void setAssignmentService(AssignmentService assignmentService) {
-        this.assignmentService = assignmentService;
-    }
-
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public void setTimeService(TimeService timeService) {
-        this.timeService = timeService;
-    }
-
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
-    public void setCandidateDetailProvider(CandidateDetailProvider candidateDetailProvider) {
-        this.candidateDetailProvider = candidateDetailProvider;
-    }
 
     /**
      * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
@@ -74,10 +66,9 @@ public class GradeSheetExporter {
      * @throws IdUnusedException   if there is no object with this id.
      * @throws PermissionException if the current user is not allowed to access this.
      */
-    public boolean getGradesSpreadsheet(final OutputStream out, final String ref)
-            throws IdUnusedException, PermissionException {
+    public boolean getGradesSpreadsheet(final OutputStream out, final String ref) throws IdUnusedException, PermissionException {
         boolean retVal = false;
-        String typeGradesString = AssignmentService.REF_TYPE_GRADES + Entity.SEPARATOR;
+        String typeGradesString = AssignmentServiceConstants.REF_TYPE_GRADES + Entity.SEPARATOR;
         String[] parts = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length()).split(Entity.SEPARATOR);
         String idSite = (parts.length > 1) ? parts[1] : parts[0];
         String context = (parts.length > 1) ? siteService.siteGroupReference(idSite, parts[3]) : siteService.siteReference(idSite);
@@ -99,7 +90,7 @@ public class GradeSheetExporter {
         boolean allowGradeAny = false;
         List<Assignment> assignmentsList = assignmentService.getListAssignmentsForContext(idSite);
         for (Assignment assignment : assignmentsList) {
-            if (assignmentService.allowGradeSubmission(assignment.getReference())) {
+            if (assignmentService.allowGradeSubmission(new AssignmentEntity(assignment).getReference())) {
                 allowGradeAny = true;
                 break;
             }
@@ -130,8 +121,7 @@ public class GradeSheetExporter {
 
             // download time
             row = sheet.createRow(rowNum++);
-            row.createCell(0).setCellValue(
-                    rb.getString("download.spreadsheet.date") + timeService.newTime().toStringLocalFull());
+            row.createCell(0).setCellValue(rb.getString("download.spreadsheet.date") + timeService.newTime().toStringLocalFull());
 
             // empty line
             row = sheet.createRow(rowNum++);
@@ -187,11 +177,11 @@ public class GradeSheetExporter {
                 {
                     Assignment a = assignments.next();
 
-                    int assignmentType = a.getContent().getTypeOfGrade();
+                    Assignment.GradeType assignmentType = a.getTypeOfGrade();
 
 
                     // for column header, check allow grade permission based on each assignment
-                    if (!a.getDraft() && assignmentService.allowGradeSubmission(a.getReference())) {
+                    if (!a.getDraft() && assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference())) {
                         // put in assignment title as the column header
                         rowNum = headerRowNumber;
                         row = sheet.getRow(rowNum++);
@@ -205,13 +195,10 @@ public class GradeSheetExporter {
                             AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
 
 
-                            if (a.isGroup()) {
+                            if (a.getIsGroup()) {
 
-                                User[] _users = submission.getSubmitters();
-                                for (int i = 0; _users != null && i < _users.length; i++) {
-
-                                    String userId = _users[i].getId();
-
+                                String[] users = submission.getSubmitters().toArray(new String[]{});
+                                for (String userId : users) {
                                     Submitter submitter = submitterMap.get(userId);
 
                                     if (submitter != null) {
@@ -230,16 +217,16 @@ public class GradeSheetExporter {
 
                                         if (submission.getGraded() && submission.getGrade() != null) {
                                             // graded and released
-                                            if (assignmentType == Assignment.SCORE_GRADE_TYPE) {
+                                            if (assignmentType == Assignment.GradeType.SCORE_GRADE_TYPE) {
                                                 try {
                                                     // numeric cell type?
-                                                    String grade = (StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) ?
+                                                    String grade = (StringUtils.trimToNull(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) ?
                                                             submission.getGradeForUserInGradeBook(userId) != null ?
                                                                     submission.getGradeForUserInGradeBook(userId) : submission.getGradeForUser(userId) : submission.getGradeForUser(userId);
                                                     if (grade == null) {
-                                                        grade = submission.getGradeDisplay();
+                                                        grade = submission.getGrade();
                                                     }
-                                                    int factor = submission.getAssignment().getContent().getFactor();
+                                                    int factor = submission.getAssignment().getScaleFactor();
                                                     int dec = (int) Math.log10(factor);
 
                                                     //We get float number no matter the locale it was managed with.
@@ -253,7 +240,7 @@ public class GradeSheetExporter {
                                                     }
                                                     objects.set(index, new FloatCell(format, f));
                                                 } catch (Exception e) {
-                                                    objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGradeDisplay() :
+                                                    objects.set(index, submission.getGradeForUser(userId) == null ? submission.getGrade() :
                                                             submission.getGradeForUser(userId));
 
 
@@ -277,7 +264,7 @@ public class GradeSheetExporter {
                                     continue;
                                 }
                                 // Get the user ID for this result
-                                if(assignmentService.assignmentUsesAnonymousGrading(a)) {
+                                if (assignmentService.assignmentUsesAnonymousGrading(a)) {
                                     submitter = new Submitter(submission.getAnonymousSubmissionId(), submitter);
                                 }
 
@@ -317,7 +304,7 @@ public class GradeSheetExporter {
                                         } else {
                                             objects.set(index, submission.getGradeDisplay());
                                         }
-                                    } else if (submission.getSubmitted() && submission.getTimeSubmitted() != null) {
+                                    } else if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                                         objects.set(index, rb.getString("gen.nograd"));
                                     }
                                 } // if
@@ -342,7 +329,7 @@ public class GradeSheetExporter {
 
 
                 // The map is already sorted and so we just iterate over it and output rows.
-                for (Iterator<Map.Entry<Submitter, List<Object>>> resultsIt = results.entrySet().iterator(); resultsIt.hasNext();) {
+                for (Iterator<Map.Entry<Submitter, List<Object>>> resultsIt = results.entrySet().iterator(); resultsIt.hasNext(); ) {
                     Map.Entry<Submitter, List<Object>> entry = resultsIt.next();
                     HSSFRow sheetRow = sheet.createRow(rowNum++);
                     Submitter submitter = entry.getKey();
@@ -355,9 +342,9 @@ public class GradeSheetExporter {
                         sheetRow.createCell(column++).setCellValue(submitter.sortName);
                         sheetRow.createCell(column++).setCellValue(submitter.id);
                     }
-                    for(Object rowValue: rowValues) {
+                    for (Object rowValue : rowValues) {
                         if (rowValue instanceof FloatCell) {
-                            FloatCell floatValue = (FloatCell)rowValue;
+                            FloatCell floatValue = (FloatCell) rowValue;
                             cell = sheetRow.createCell(column++, Cell.CELL_TYPE_NUMERIC);
                             cell.setCellValue(floatValue.value);
                             style = wb.createCellStyle();
@@ -375,7 +362,7 @@ public class GradeSheetExporter {
                         final int startColumn = column;
                         submitter.notes.ifPresent(notes -> {
                             int col = startColumn;
-                            for (String note: notes) {
+                            for (String note : notes) {
                                 Cell noteCell = sheetRow.createCell(col++, Cell.CELL_TYPE_STRING);
                                 noteCell.setCellValue(note);
                             }
@@ -390,7 +377,7 @@ public class GradeSheetExporter {
                 wb.write(out);
                 return true;
             } catch (IOException e) {
-               log.warn("Failed to write out spreadsheet:" + e.getMessage());
+                log.warn("Failed to write out spreadsheet:" + e.getMessage());
             }
 
 
@@ -414,7 +401,7 @@ public class GradeSheetExporter {
 
     /**
      * This holds details about the submitter for when we're writing out the spreadsheet.
-      */
+     */
     private class Submitter implements Comparable<Submitter> {
         // Create Anonymous one.
         public Submitter(String id, Submitter original) {
@@ -422,6 +409,7 @@ public class GradeSheetExporter {
             this.id = id;
             this.notes = original.notes;
         }
+
         // Create normal one
         public Submitter(String id, String sortName) {
             this.anonymous = false;
@@ -472,7 +460,6 @@ public class GradeSheetExporter {
             this.notes = notes;
         }
     }
-
 
 
 }

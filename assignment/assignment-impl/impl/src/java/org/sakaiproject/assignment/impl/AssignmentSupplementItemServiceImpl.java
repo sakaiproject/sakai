@@ -486,7 +486,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					{
 						return true;
 					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseTime().before(timeService.newTime())))
+					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_ACCEPT_UTIL && (a.getCloseDate().before(new Date())))
 					{
 						return true;
 					}

@@ -1,6 +1,7 @@
 package org.sakaiproject.assignment.impl;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -9,10 +10,13 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -39,6 +43,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
@@ -49,11 +54,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +68,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private AnnouncementService announcementService;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
+    @Setter private AssignmentRepository assignmentRepository;
     @Setter private AuthzGroupService authzGroupService;
     @Setter private CalendarService calendarService;
     @Setter private CandidateDetailProvider candidateDetailProvider;
@@ -192,7 +193,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public Collection getGroupsAllowGradeAssignment(String context, String assignmentReference) {
-        return null;
+        return getGroupsAllowFunction(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, context, null);
     }
 
     @Override
@@ -207,7 +208,16 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public boolean allowAddAssignmentContent(String context) {
-        return false;
+        String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "c" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+        log.debug("Allow assignment with resource string = {}", resourceString);
+
+        // check security (throws if not permitted)
+        if (unlockCheck(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT, resourceString)) {
+            return true;
+        }
+
+        // if not, see if the user has any groups to which adds are allowed
+        return (!getGroupsAllowAddAssignment(context).isEmpty());
     }
 
     @Override
@@ -277,7 +287,24 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public Assignment addAssignment(String context) throws PermissionException {
-        return null;
+        log.debug("Start Add Assignment");
+
+        // security check
+        if (!allowAddAssignmentContent(context)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT, null);
+        }
+
+        Assignment assignment = new Assignment();
+        assignment.setContext(context);
+        assignment = assignmentRepository.save(assignment);
+
+        log.debug("Created new assignment {}", assignment.getId());
+
+        // event for tracking
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_CONTENT, assignment.getId(), true));
+        log.debug("End Add Assignment");
+
+        return assignment;
     }
 
     @Override
@@ -539,4 +566,90 @@ public class AssignmentServiceImpl implements AssignmentService {
     public String getCsvSeparator() {
         return null;
     }
+
+    @Override
+    public String getXmlAssignment(Assignment assignment) {
+        return assignmentRepository.toXML(assignment);
+    }
+
+    private String getAccessPoint(boolean relative) {
+        return (relative ? "" : serverConfigurationService.getAccessUrl()) + AssignmentServiceConstants.REFERENCE_ROOT;
+    }
+
+    private boolean unlockCheck(String lock, String resource) {
+        return securityService.unlock(lock, resource);
+    }
+
+    private Collection<Group> getGroupsAllowFunction(String function, String context, String userId) {
+        Collection<Group> rv = new ArrayList<>();
+        try {
+            // get the site groups
+            Site site = siteService.getSite(context);
+            Collection<Group> groups = site.getGroups();
+
+            if (securityService.isSuperUser()) {
+                // for super user, return all groups
+                return groups;
+            } else if (userId == null) {
+                // for current session user
+                userId = sessionManager.getCurrentSessionUserId();
+            }
+
+            // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
+            if (securityService.unlock(userId, AssignmentServiceConstants.SECURE_ALL_GROUPS, siteService.siteReference(context))
+                    && unlockCheck(function, siteService.siteReference(context))) {
+                return groups;
+            }
+
+            // otherwise, check the groups for function
+            // get a list of the group refs, which are authzGroup ids
+            Collection<String> groupRefs = new ArrayList<>();
+            for (Group group : groups) {
+                groupRefs.add(group.getReference());
+            }
+
+            // ask the authzGroup service to filter them down based on function
+            groupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId, function, groupRefs);
+
+            // pick the Group objects from the site's groups to return, those that are in the groupRefs list
+            for (Group group : groups) {
+                if (groupRefs.contains(group.getReference())) {
+                    rv.add(group);
+                }
+            }
+        } catch (IdUnusedException e) {
+            log.debug("IdUnused : {} : {}", context, e.getMessage());
+        }
+
+        return rv;
+    }
+
+    public String getGradeForUserInGradeBook(String userId) {
+        String rv = null;
+        if (userId == null) {
+            userId = m_submitterId;
+        }
+        Assignment m = getAssignment();
+        String gAssignmentName = StringUtils.trimToEmpty(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+        String gradebookUid = m.getContext();
+        org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = m_gradebookService.getAssignment(gradebookUid, gAssignmentName);
+        if (gradebookAssignment != null) {
+            final GradeDefinition def = m_gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, gradebookAssignment.getId(), userId);
+            String gString = def.getGrade();
+            try {
+                if (gString != null) {
+                    String decSeparator = FormattedText.getDecimalSeparator();
+                    rv = StringUtils.replace(gString, (",".equals(decSeparator) ? "." : ","), decSeparator);
+                    NumberFormat nbFormat = FormattedText.getNumberFormat((int) Math.log10(m.getContent().getFactor()), (int) Math.log10(m.getContent().getFactor()), false);
+                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                    Double dblGrade = dcformat.parse(rv).doubleValue();
+                    rv = nbFormat.format(dblGrade);
+                }
+            } catch (Exception e) {
+                M_log.warn(" BaseAssignmentSubmission getGradeFromGradeBook  " + e.getMessage());
+            }
+        }
+        return rv;
+    }
+
 }

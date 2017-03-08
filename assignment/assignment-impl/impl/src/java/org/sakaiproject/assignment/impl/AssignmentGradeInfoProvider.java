@@ -27,27 +27,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
-public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
+import lombok.extern.slf4j.Slf4j;
 
-    private Logger log = LoggerFactory.getLogger(AssignmentGradeInfoProvider.class);
+@Slf4j
+public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, ExternalAssignmentProviderCompat {
 
     // Sakai Service Beans
     private AssignmentService assignmentService;
@@ -83,13 +82,13 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
             aref = entityManager.newReference(assignmentReference);
             try {
                 securityService.pushAdvisor(
-                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(), 
-                            assignmentService.SECURE_ACCESS_ASSIGNMENT,
-                            assignmentReference));
+                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+                                AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT,
+                                assignmentReference));
                 securityService.pushAdvisor(
-                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(), 
-                            assignmentService.SECURE_ALL_GROUPS,
-                            siteService.siteReference(aref.getContext())));
+                        new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(),
+                                AssignmentServiceConstants.SECURE_ALL_GROUPS,
+                                siteService.siteReference(aref.getContext())));
                 assignment = assignmentService.getAssignment(assignmentReference);
             } catch (IdUnusedException e) {
                 log.info("Unexpected IdUnusedException after finding assignment with ID: " + id);
@@ -113,7 +112,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
     }
 
     public boolean isAssignmentGrouped(String id) {
-        return Assignment.AssignmentAccess.GROUPED.equals(getAssignment(id).getAccess());
+        return Assignment.Access.GROUPED.equals(getAssignment(id).getAccess());
     }
 
     public boolean isAssignmentVisible(String id, String userId) {
@@ -124,22 +123,20 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         Assignment a = getAssignment(id);
         if (a == null) {
             visible = false;
-        }
-        else if (Assignment.AssignmentAccess.GROUPED.equals(a.getAccess())) {
-            ArrayList<String> azgList = new ArrayList<String>( (Collection<String>) a.getGroups());
+        } else if (Assignment.Access.GROUPED.equals(a.getAccess())) {
+            ArrayList<String> azgList = new ArrayList<String>((Collection<String>) a.getGroups());
             List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(azgList, userId);
             visible = (matched.size() > 0);
-        }
-        else {
-            visible = securityService.unlock(userId, AssignmentService.SECURE_ACCESS_ASSIGNMENT, a.getReference());
+        } else {
+            visible = securityService.unlock(userId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, a.getReference());
         }
         return visible;
     }
 
     public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
         List<String> externalIds = new ArrayList<String>();
-        List assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
-        for (Assignment a : (List<Assignment>) assignments) {
+        List<Assignment> assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
+        for (Assignment a : assignments) {
             externalIds.add(a.getReference());
         }
         return externalIds;
@@ -153,13 +150,9 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         // the AssignmentService interface.
 
         List<String> externalIds = new ArrayList<String>();
-        if (assignmentService instanceof BaseAssignmentService) {
-            List assignments = ((BaseAssignmentService) assignmentService).getUnfilteredAssignments(gradebookUid);
-            for (Assignment a : (List<Assignment>) assignments) {
-                externalIds.add(a.getReference());
-            }
-        } else {
-            externalIds = getExternalAssignmentsForCurrentUser(gradebookUid);
+        List<Assignment> assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
+        for (Assignment a : assignments) {
+            externalIds.add(a.getReference());
         }
         return externalIds;
     }

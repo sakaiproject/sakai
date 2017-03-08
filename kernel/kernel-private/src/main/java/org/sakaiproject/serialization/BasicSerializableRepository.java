@@ -16,8 +16,9 @@ import lombok.extern.slf4j.Slf4j;
  * Created by enietzel on 3/3/17.
  */
 @Slf4j
-public abstract class BasicSerializableRepository<T, ID extends Serializable> extends HibernateCrudRepository<T, ID> {
+public abstract class BasicSerializableRepository<T, ID extends Serializable> extends HibernateCrudRepository<T, ID> implements SerializableRepository<T, ID> {
 
+    @Override
     public String toJSON(T t) {
         String json = "";
         if (t != null) {
@@ -32,12 +33,13 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
         return json;
     }
 
-    public T fromJSON(String text) {
+    @Override
+    public T fromJSON(String json) {
         T obj = null;
-        if (StringUtils.isNotBlank(text)) {
+        if (StringUtils.isNotBlank(json)) {
             ObjectMapper mapper = new ObjectMapper();
             try {
-                obj = mapper.readValue(text, getDomainClass());
+                obj = mapper.readValue(json, getDomainClass());
             } catch (IOException e) {
                 log.warn("Could not deserialize json", e);
                 obj = null;
@@ -46,6 +48,7 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
         return obj;
     }
 
+    @Override
     public String toXML(T t) {
         String xml = "";
         if (t != null) {
@@ -60,12 +63,13 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
         return xml;
     }
 
-    public T fromXML(String text) {
+    @Override
+    public T fromXML(String xml) {
         T obj = null;
-        if (StringUtils.isNotBlank(text)) {
+        if (StringUtils.isNotBlank(xml)) {
             XmlMapper mapper = new XmlMapper();
             try {
-                obj = mapper.readValue(text, getDomainClass());
+                obj = mapper.readValue(xml, getDomainClass());
             } catch (IOException e) {
                 log.warn("Could not deserialize xml", e);
                 obj = null;

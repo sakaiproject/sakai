@@ -99,7 +99,7 @@ public class Assignment {
 
     @Column(name = "CLOSE_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-	private Date closeDAte;
+	private Date closeDate;
 
     @Column(name = "DROP_DEAD_DATE")
     @Temporal(TemporalType.TIMESTAMP)

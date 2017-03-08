@@ -197,7 +197,7 @@ public interface AssignmentService extends EntityProducer {
      *                            a reference to an assignment
      * @return the List (User) of users who can addSubmission() for this assignment.
      */
-    public List allowAddSubmissionUsers(String assignmentReference);
+    public List<User> allowAddSubmissionUsers(String assignmentReference);
 
     /* Get the List of Users who can grade submission for this assignment.
     *
@@ -526,7 +526,7 @@ public interface AssignmentService extends EntityProducer {
      *                   the Assignment who's submissions you would like.
      * @return List over all the submissions for an Assignment.
      */
-    public List getSubmissions(Assignment assignment);
+    public List<AssignmentSubmission> getSubmissions(Assignment assignment);
 
     /**
      * Return a sorted list of users representing a group.
@@ -728,4 +728,6 @@ public interface AssignmentService extends EntityProducer {
      * @return
      */
     public String getCsvSeparator();
+
+    String getXmlAssignment(Assignment assignment);
 }

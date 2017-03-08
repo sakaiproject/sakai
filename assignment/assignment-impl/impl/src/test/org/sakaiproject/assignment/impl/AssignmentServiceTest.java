@@ -32,13 +32,11 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.util.StringUtil;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -81,10 +79,10 @@ public class AssignmentServiceTest {
     public void AssignmentServiceIsValid() {
         Assert.assertNotNull(assignmentService);
     }
-	
-	public void tearDown() throws Exception {
-		log.debug("Tearing down an AuthzIntegrationTest test");
-		
+
+    public void tearDown() throws Exception {
+        log.debug("Tearing down an AuthzIntegrationTest test");
+
 		/*// Remove the assignment, submission objects created for testing
 		for (int i = 0; i < submissionList.size(); i++)
 		{
@@ -100,125 +98,12 @@ public class AssignmentServiceTest {
 		{
 			UserDirectoryService.removeUser(UserDirectoryService.editUser("test_user" + userIndex));
 		}*/
-		
-		// remove the attachment resouce object created for testing
-		//ContentHostingService.removeResource(ContentHostingService.editResource(attachmentId));
-		//ContentHostingService.removeCollection(ContentHostingService.editCollection(ContentHostingService.getResource(attachmentId).getContainingCollection().getId()));
 
-	}
+        // remove the attachment resouce object created for testing
+        //ContentHostingService.removeResource(ContentHostingService.editResource(attachmentId));
+        //ContentHostingService.removeCollection(ContentHostingService.editCollection(ContentHostingService.getResource(attachmentId).getContainingCollection().getId()));
 
-	protected void zipWithFlushing(boolean flushing)
-	{
-		String assignmentTitle = "Test Assignment Title";
-		
-		try
-		{
-			ZipOutputStream out = new ZipOutputStream(new ByteArrayOutputStream());
-
-			// create the folder structor - named after the assignment's title
-			String root = assignmentTitle + Entity.SEPARATOR;
-
-			// submission text of size 2KB
-			String submittedText = generateBigTestString(2);
-
-			// Create the ZIP file
-			String submittersName = "";
-			for (int count =0; count < userNumber; count++)
-			{
-				submittersName = root;
-				String submittersString = "test user " + count;
-					
-				if (StringUtils.trimToNull(submittersString) != null)
-				{
-					submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
-
-					try
-					{
-						submittersName = submittersName.concat("/");
-						// create the folder structure - named after the submitter's name
-						// create the text file only when a text submission is allowed
-						String entryName = submittersName + submittersString + "_submissionText.html";
-						ZipEntry textEntry = new ZipEntry(entryName);
-						out.putNextEntry(textEntry);
-						out.write(submittedText.getBytes());
-						out.closeEntry();
-
-						// create the attachment file(s)
-						// buffered stream input
-						InputStream content = new ByteArrayInputStream(bigAttachmentContentString.getBytes());
-						byte data[] = new byte[1024 * 10];
-						BufferedInputStream bContent = new BufferedInputStream(content, data.length);
-						
-						ZipEntry attachmentEntry = new ZipEntry(submittersName + "Test Attachment");
-						out.putNextEntry(attachmentEntry);
-						int bCount = -1;
-						while ((bCount = bContent.read(data, 0, data.length)) != -1) 
-						{
-							out.write(data, 0, bCount);
-						}
-						out.closeEntry();
-						content.close();
-
-						// flush or not
-						if (flushing)
-						{
-							out.flush();
-						}
-					}
-					catch (IOException e)
-					{
-						log.debug(this
-										+ ": --IOException: Problem in creating the attachment file: submittersName="
-										+ submittersName + " attachment reference=" + attachmentReference);
-					}
-				}
-			}	// for
-			
-			// clean up
-			out.finish();
-			out.close();
-		}
-		catch (IOException e)
-		{
-			log.debug(this + ": --IOException unable to create the zip file for assignment "
-					+ assignmentTitle);
-		}
-	}
-	
-	/**
-	 * 
-	 * test the zip routine without/with flushing for 5 times
-	 *
-	 */
-	public void testZipSubmissionsWithoutFlushing() 
-	{
-		if( testZipFunction ) {	
-		System.out.println("student number = " + userNumber);
-		System.out.println("attachment size = " + attachmentSize + "KB");
-		System.gc();
-		
-		for (int index = 1; index <= testNumber; index++)
-		{
-			Random ran = new Random();
-			boolean flushing = ran.nextBoolean();
-			
-			Runtime r = Runtime.getRuntime();
-			System.out.println("with flushing = " + flushing);
-			long mBefore = r.freeMemory();
-			long tBefore = System.currentTimeMillis();
-			
-			zipWithFlushing(flushing);
-			long mAfter = r.freeMemory();
-			long tAfter = System.currentTimeMillis();
-			System.out.println("free memory before invoke " + mBefore + " after " + mAfter);
-			System.out.println("minute time used " + (tAfter-tBefore)/(1000.0*60.0));
-			System.out.println("percent  " + (mBefore-mAfter)* 100/(mBefore*1.0));
-			System.out.println("*************");
-			// gc
-			System.gc();
-		}
-		}
-	}
+    }
 
 //    protected void zipWithFlushing(boolean flushing) {
 //        String assignmentTitle = "Test Assignment Title";
@@ -238,8 +123,8 @@ public class AssignmentServiceTest {
 //                submittersName = root;
 //                String submittersString = "test user " + count;
 //
-//                if (StringUtil.trimToNull(submittersString) != null) {
-//                    submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
+//                if (StringUtils.trimToNull(submittersString) != null) {
+//                    submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
 //
 //                    try {
 //                        submittersName = submittersName.concat("/");
@@ -286,10 +171,10 @@ public class AssignmentServiceTest {
 //                    + assignmentTitle);
 //        }
 //    }
-//
-//    /**
-//     * test the zip routine without/with flushing for 5 times
-//     */
+
+    /**
+     * test the zip routine without/with flushing for 5 times
+     */
 //    public void testZipSubmissionsWithoutFlushing() {
 //        if (testZipFunction) {
 //            System.out.println("student number = " + userNumber);
@@ -317,6 +202,7 @@ public class AssignmentServiceTest {
 //            }
 //        }
 //    }
+
 //
 //    private String generateBigTestString(int sizeKB) {
 //        // auto generate string with size specified

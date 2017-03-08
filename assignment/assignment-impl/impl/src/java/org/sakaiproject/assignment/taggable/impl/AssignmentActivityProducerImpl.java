@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -75,13 +76,13 @@ public class AssignmentActivityProducerImpl implements
 
 	public boolean allowRemoveTags(TaggableActivity activity) {
 		return securityService.unlock(
-				AssignmentService.SECURE_REMOVE_ASSIGNMENT, activity
+				AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, activity
 						.getReference());
 	}
 
 	public boolean allowRemoveTags(TaggableItem item) {
 		return securityService.unlock(
-				AssignmentService.SECURE_REMOVE_ASSIGNMENT_SUBMISSION,
+				AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION,
 				parseSubmissionRef(item.getReference()));
 	}
 
@@ -91,7 +92,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public boolean checkReference(String ref) {
-		return ref.startsWith(AssignmentService.REFERENCE_ROOT);
+		return ref.startsWith(AssignmentServiceConstants.REFERENCE_ROOT);
 	}
 
 	public List<TaggableActivity> getActivities(String context,
@@ -171,7 +172,7 @@ public class AssignmentActivityProducerImpl implements
 			AssignmentSubmission submission = assignmentService.getSubmission(
 					assignment.getReference(), userDirectoryService
 							.getUser(userId));
-			if (submission != null && submission.getSubmitted() && submission.getTimeSubmitted() != null) {
+			if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
 				TaggableItem item = new AssignmentItemImpl(this, submission, userId,
 						activity);
 				returned.add(item);
@@ -196,7 +197,7 @@ public class AssignmentActivityProducerImpl implements
 			for (Iterator<AssignmentSubmission> i = assignmentService
 					.getSubmissions(assignment).iterator(); i.hasNext();) {
 				AssignmentSubmission submission = i.next();
-				if (submission != null && submission.getSubmitted() && submission.getTimeSubmitted() != null) {
+				if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
 					for (Object submitterId : submission.getSubmitterIds()) {
 						items.add(new AssignmentItemImpl(this, submission,
 								(String) submitterId, activity));
@@ -208,7 +209,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public String getItemPermissionOverride() {
-		return AssignmentService.SECURE_ACCESS_ASSIGNMENT;
+		return AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
 	}
 
 	public String getName() {
