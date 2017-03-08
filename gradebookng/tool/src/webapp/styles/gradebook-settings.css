@@ -45,8 +45,14 @@
   color: #999;
 }
 
+/* reset the padding and add to link instead, to make whole div clickable. See #3756 */
+.panel-heading {
+    padding:0 !important;
+}
+
 .panel-heading > .panel-title > a {
-    display: block;
+    display: inline-block;
     height: 100%;
     width: 100%;
+    padding: 10px 15px;
 }
