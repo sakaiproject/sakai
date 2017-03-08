@@ -25,18 +25,17 @@
                 ## Header
                 <div class="Mrphs-topHeader">
                     #parse("/vm/morpheus/snippets/header-snippet.vm")
-                    #if (${tabsSites})
-                        ## tabs
-                        #parse("/vm/morpheus/includeTabs.vm")
-
-                    #end ## END of IF (${tabsSites})
                     #parse("/vm/morpheus/includeLoginNav.vm")
                 </div>
-                
+
+                #if (${tabsSites})
+                    ## tabs
+                    #parse("/vm/morpheus/includeTabs.vm")
+                #end ## END of IF (${tabsSites})
+
             </div>
 
             #parse("/vm/morpheus/moresites.vm")
-
             #parse("/vm/morpheus/includePageWithNav.vm")
 
         </div> <!-- end Mrphs-portalWrapper -->
