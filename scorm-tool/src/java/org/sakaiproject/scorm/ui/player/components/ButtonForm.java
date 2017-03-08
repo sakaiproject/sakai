@@ -26,11 +26,11 @@ import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 public class ButtonForm extends Form {
 	private static final long serialVersionUID = 1L;
 
-	private static final String STARTBTN_ROOT_SRC = "/sakai-scorm-tool/images/startBtn";
-	private static final String PREVBTN_ROOT_SRC = "/sakai-scorm-tool/images/prevBtn";
-	private static final String NEXTBTN_ROOT_SRC = "/sakai-scorm-tool/images/nextBtn";
-	private static final String QUITBTN_ROOT_SRC = "/sakai-scorm-tool/images/quitBtn";
-	private static final String SUSPENDBTN_ROOT_SRC = "/sakai-scorm-tool/images/suspendBtn";
+	private static final String STARTBTN_ROOT_SRC = "/scorm-tool/images/startBtn";
+	private static final String PREVBTN_ROOT_SRC = "/scorm-tool/images/prevBtn";
+	private static final String NEXTBTN_ROOT_SRC = "/scorm-tool/images/nextBtn";
+	private static final String QUITBTN_ROOT_SRC = "/scorm-tool/images/quitBtn";
+	private static final String SUSPENDBTN_ROOT_SRC = "/scorm-tool/images/suspendBtn";
 
 	private ActivityAjaxButton prevButton;
 	private ActivityAjaxButton nextButton;
