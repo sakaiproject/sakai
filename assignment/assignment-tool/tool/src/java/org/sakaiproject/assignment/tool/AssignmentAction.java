@@ -17873,25 +17873,29 @@ public class AssignmentAction extends PagedResourceActionII
 
 		try {
 			Site st = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-			Map<String, List<String>> notesMap = new HashMap<String, List<String>>();
-			if(o instanceof List) {
-				List l = (List)o;
-				for(Object obj : l){
-					User u = null;
-					if(obj instanceof SubmitterSubmission) {
-						u = ((SubmitterSubmission)obj).getUser();
-					}
-					if(u != null) {
-						if(notesMap.get(u.getId()) == null) {
-							notesMap.put(u.getId(), candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>()));
+			boolean notesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
+			context.put("isAdditionalNotesEnabled", notesEnabled);
+			Map<String, List<String>> notesMap = new HashMap<>();
+			if (notesEnabled) {
+				if (o instanceof List) {
+					List l = (List) o;
+					for (Object obj : l) {
+						User u = null;
+						if (obj instanceof SubmitterSubmission) {
+							u = ((SubmitterSubmission) obj).getUser();
+						}
+						if (u != null) {
+							if (notesMap.get(u.getId()) == null) {
+								List<String> notes = candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<>());
+								notesMap.put(u.getId(), notes);
+							}
 						}
 					}
+				} else if (o instanceof User) {
+					User u = (User) o;
+					notesMap.put(u.getId(), candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<>()));
 				}
-			} else if(o instanceof User) {
-				User u = (User)o;
-				notesMap.put(u.getId(), candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>()));
 			}
-			context.put("isAdditionalNotesEnabled", candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st));
 			context.put("notesMap", notesMap);
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":addAdditionalNotesToContext: Site not found!" + iue.getMessage());
