@@ -654,6 +654,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String instr_uploads = rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax });
 		context.put("instr_uploads", instr_uploads);
 
+		String uploadWarning = rb.getFormattedMessage("label.overwrite.warning");
+		context.put("label_overwrite_warning",uploadWarning);
 		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", new String[]{ uploadMax });
 		context.put("instr_dnd_uploads", instr_dnd_uploads);
 
@@ -2025,6 +2027,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		String uploadFileName=null;
 		String collectionName=null;
+		String resourceId = null;
+		String overwrite = request.getParameter("overwrite");
 		
 		String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
 
@@ -2074,8 +2078,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 				if (collection!=null)
 				{
-					logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
-					resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					//get the resourceId by using collectionName and uploadFileName
+					resourceId = collectionName +"/"+ uploadFileName;
+					try{
+						//check if resource in collection exists
+						ContentHostingService.getResource(resourceId);
+						//if user has chosen to overwrite existing resource save the new copy
+						if(overwrite != null && overwrite.equals("true")){
+							resource = ContentHostingService.editResource(resourceId);
+						}
+						//if no overwrite then create a new resource in the collection
+						else{
+							resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						}
+					}
+					//if this is a new resource add to the collection.
+					catch(IdUnusedException idUnusedException) {
+						logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
+						resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					}
 				}
 				else
 				{
@@ -2084,9 +2105,24 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					//So I disable this method call, though it can be enabled again if desired.
 					
 					//String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
-					
-					logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
-					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					resourceId = resourceGroup + uploadFileName;
+					try{
+						//check if resource exists
+						ContentHostingService.getResource(resourceId);
+						//if it does and overwrite is true save the latest copy
+						if(overwrite != null && overwrite.equals("true")){
+							resource = ContentHostingService.editResource(resourceId);
+						}
+						// if no overwrite then simply create a new resource
+						else{
+							resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						}
+					}
+					// if new resource then save
+					catch(IdUnusedException idUnusedException) {
+						logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
+						resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					}
 				}
 
 				if (resource != null)
