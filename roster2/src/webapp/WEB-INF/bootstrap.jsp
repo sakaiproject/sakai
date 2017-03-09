@@ -24,7 +24,6 @@
       lang="${language}">
     <head>
         <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
-        <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/sakai-roster2-tool/css/roster.css" />
         <link rel="stylesheet" media="print" type="text/css" href="/sakai-roster2-tool/css/print.css" />
         <link rel="stylesheet" media="screen, tty, tv, handheld, projection" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
 
@@ -55,7 +54,7 @@
     <body>
 
         <!-- wrap tool in portletBody div for PDA portal compatibility -->
-        <div class="portletBody container-fluid">
+        <div id="Mrphs-sakai-roster" class="portletBody container-fluid">
 
         <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
 
@@ -85,6 +84,7 @@
 <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript" src="/library/webjars/jquery-i18n-properties/1.2.2/jquery.i18n.properties.min.js"></script>
 <script type="text/javascript" src="/library/webjars/jquery-migrate/1.4.0/jquery-migrate.min.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.waitforimages.min.js"></script>
 <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/lib/handlebars.runtime-v2.0.0.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/templates.js"></script>

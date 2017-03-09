@@ -482,12 +482,11 @@ public class SitePageEditHandler {
             ToolConfiguration toolConfiguration = tools.get(0);
             String functions = toolConfiguration.getConfig().getProperty(TOOL_CFG_FUNCTIONS);
             if (functions != null && functions.length() > 0) {
-                List<String> permissions = Arrays.asList(StringUtils.split(functions, ','));
-                return permissions;
+                return new ArrayList<>(Arrays.asList(StringUtils.split(functions, ',')));
             }
         }
         // Don't use Collections.EMPTY_LIST as it needs to be mutable.
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
  
     /**
@@ -598,11 +597,8 @@ public class SitePageEditHandler {
             if (!(permissions.isEmpty())) {
                 // We never change SITE_UPD at all.
                 permissions.remove(SITE_UPD);
-                if (permissions.indexOf(SITE_VISIT) > 0) {
-                	permissions.remove(SITE_VISIT);
-                }
+                permissions.remove(SITE_VISIT);
                 Set<Role> roles = getRolesWithout(authzGroup, SITE_UPD);
-
 
                 for (Role role : roles) {
                     if (enabled) {
@@ -614,13 +610,9 @@ public class SitePageEditHandler {
                 // Need to save the authz as saving the site doesn't save the authzgroup (when changing permissions)
                 authzGroupService.save(authzGroup);
             }
-        } catch (GroupNotDefinedException e) {
-            throw new SakaiException(e);
-        } catch (AuthzPermissionException e) {
+        } catch (GroupNotDefinedException | AuthzPermissionException e) {
             throw new SakaiException(e);
         }
-
-
 
         return true;
     }

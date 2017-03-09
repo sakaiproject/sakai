@@ -13,7 +13,7 @@
   }
 </style>
 
-<script type="text/javascript" src="/sakai-content-tool/js/content.js">
+#javascript("/sakai-content-tool/js/content.js")
 <!-- // -->
 </script>
 
@@ -26,8 +26,9 @@
     }    
 </script>
 
-<script src="/sakai-content-tool/js/jstree/dist/jstree.min.js"></script>
-<link rel="stylesheet" href="/sakai-content-tool/js/jstree/dist/themes/default/style.min.css" />
+#javascript("/sakai-content-tool/js/jstree/dist/jstree.min.js")
+#css("/sakai-content-tool/js/jstree/dist/themes/default/style.min.css")
+<div id="dialog-copyright"></div>
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
@@ -796,11 +797,47 @@
 		#if($counter.getValue("selectall") > 0)
 			document.getElementById("selectall").disabled = false;
 		#end
-		function openCopyrightWindow(theURL,winName,winSettings) 
-		{ 
-		  window.open(theURL,winName,winSettings);
-		  return false;
-		}
+
+		jQuery(function() {
+			jQuery("#dialog-copyright").dialog({
+				resizable: false,
+				autoOpen: false,
+				height:300,
+				width:600,
+				modal: true
+			});
+		});
+
+		function openCopyrightWindow(url,winName,winSettings) {
+			//Idea from http://stackoverflow.com/q/16086162/3708872
+			jQuery.ajax({
+				type: "GET",
+				url: url,
+				dataType: "html",
+				success: function(response, status, request) {
+					var disp = request.getResponseHeader('Content-Disposition');
+					//Might just want to do attachments, but for now put everything in a new window
+					if (disp) {
+						var form = jQuery('<form method="GET" action="' + url + '" target="_blank">');
+						jQuery('body').append(form);
+						form.submit();
+					} 
+					else {
+						jQuery.get(url, function(data, textStatus, jqXHR){
+							jQuery('#dialog-copyright').html(data);
+							jQuery('#dialog-copyright').dialog('open');
+						}, "html");
+					}
+
+					return false;
+				},
+			error: function (xhr, ajaxOptions, thrownError) {
+				window.console && console.log("Error from GET request"+thrownError);
+				
+			}
+			});
+		};
+
 		function toggleSelectAll(caller, elementName)
 		{
 			var newValue = caller.checked;

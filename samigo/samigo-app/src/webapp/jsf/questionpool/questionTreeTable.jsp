@@ -95,6 +95,17 @@
      <h:outputText rendered="#{question.typeId== 16}" value="#{authorMessages.image_map_question}"/><!-- // IMAGEMAP_QUESTION -->
 
     </h:column>
+    
+    <h:column>
+      <f:facet name="header">
+        <h:panelGroup>
+          <h:outputText value="#{questionPoolMessages.last_mod}" />
+        </h:panelGroup>
+      </f:facet>
+       <h:outputText value="#{question.lastModifiedDate}">
+           <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+       </h:outputText>
+    </h:column>    
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">

@@ -61,7 +61,7 @@
 			draggable: false,
 			buttons: [ { text: button_ok, click: function() { $( this ).dialog( "close" ); } } ],
 			open: function (event,ui) {
-				$(".ui-dialog-title").append("<span class='skip'>" + five_minutes_left + "</span>");
+				$(".ui-dialog-title").append("<span class='sr-only'>" + five_minutes_left + "</span>");
 			}
 		});
 		
@@ -76,21 +76,7 @@
 				$(".ui-dialog-titlebar", $(this).parent()).hide(); 
 				$(this).css("background", "#EEEEEE");
 			}
-		});		
-		
-		$('#time-due-warning').dialog({
-			autoOpen: false,
-			width: 330,
-			modal: true,
-			resizable: false,
-			draggable: false,
-			closeOnEscape: false,
-	        open: function (event,ui) { 
-	        	$(".ui-dialog-titlebar", $(this).parent()).hide(); 
-				$(this).css("background", "#EEEEEE");
-				$(".ui-dialog-title").append("<span class='skip'>" + time_due_warning + "</span>");
-			}
-		});		
+		});	
 	});
 
 	function checkIfHonorPledgeIsChecked() {
@@ -114,7 +100,19 @@
 	}
 	
 	function showTimeDueWarning() {
-		$('#time-due-warning').dialog('open');
+		$('#time-due-warning').dialog({
+			autoOpen: false,
+			width: 330,
+			modal: true,
+			resizable: false,
+			draggable: false,
+			closeOnEscape: false,
+	        open: function (event,ui) { 
+	        	$(".ui-dialog-titlebar", $(this).parent()).hide(); 
+				$(this).css("background", "#EEEEEE");
+				$(".ui-dialog-title").append("<span class='sr-only'>" + time_due_warning + "</span>");
+			}
+		});	
 		return false;
 	}
 	
@@ -126,7 +124,7 @@
 			width: 250,
 			open: function (event,ui) { 
 				$(this).css("background", "#EEEEEE");
-				$(".ui-dialog-title").append("<span class='skip'>" + time_30_warning + "</span>");
+				$(".ui-dialog-title").append("<span class='sr-only'>" + time_30_warning + "</span>");
 			}
 		});
 	}

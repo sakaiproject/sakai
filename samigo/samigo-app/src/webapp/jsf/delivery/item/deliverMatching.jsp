@@ -40,11 +40,11 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:panelGroup id="image"
         rendered="#{matching.isCorrect || matching.isDistractor}"
-        styleClass="icon-sakai-check feedBackCheck" >
+        styleClass="icon-sakai--check feedBackCheck" >
       </h:panelGroup>
       <h:panelGroup id="ximage"
         rendered="#{!matching.isCorrect && !matching.isDistractor}"
-        styleClass="icon-sakai-delete feedBackCross" >
+        styleClass="icon-sakai--delete feedBackCross" >
       </h:panelGroup>
       <h:graphicImage id="image2"
         width="16" height="16"

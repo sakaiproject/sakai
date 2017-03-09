@@ -2648,28 +2648,12 @@ public class ListItem
      */
     public boolean isPossible(Group group)
     {
-    	boolean isPossible = false;
+    	if (group == null || group.getContainingSite() == null) return false;
     	
-    	Collection<Group> groupsToCheck = this.possibleGroups;
-    	if(AccessMode.GROUPED == this.inheritedAccessMode)
-    	{
-    		groupsToCheck = this.inheritedGroups;
-    	}
+    	String userId = UserDirectoryService.getCurrentUser().getId();
+    	if (group.getContainingSite().isAllowed(userId, ContentHostingService.AUTH_RESOURCE_ALL_GROUPS)) return true;
     	
-    	for(Group gr : groupsToCheck)
-    	{
-    		if(gr == null)
-    		{
-    			// ignore
-    		}
-    		else if(gr.getId().equals(group.getId()))
-    		{
-    			isPossible = true;
-    			break;
-    		}
-    	}
-    	
-    	return isPossible;
+    	return group.isAllowed(userId, SiteService.SITE_VISIT);
     }
     
 	/**

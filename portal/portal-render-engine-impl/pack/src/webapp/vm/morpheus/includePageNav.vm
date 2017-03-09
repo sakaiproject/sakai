@@ -1,6 +1,6 @@
 <!-- START VM includePageNav.vm -->
 
-<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools">
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools" #if($scrollingToolbarEnabled) scrollingToolbarEnabled #end>
 
     #if ($sitePages.siteHTMLInclude)
 
@@ -148,7 +148,7 @@
 
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
-                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai-subsites-list"> </span>
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai--subsites-list"> </span>
                         <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsites}</span>
                     </a>
                 </li>
@@ -171,7 +171,7 @@
 
                 <li>
                     <a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
-                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai-add-tool"></span>
+                        <span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
                         <span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
                     </a>
                 </li>

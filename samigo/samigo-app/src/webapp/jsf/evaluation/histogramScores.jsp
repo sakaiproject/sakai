@@ -158,7 +158,7 @@ $Id$
         <strong><h:outputText value="#{evaluationMessages.tot}" /></strong>
       </div>
       <div class="table-reponsive">
-        <h:dataTable styleClass="table" value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
+        <h:dataTable styleClass="table table-condensed" value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
           <h:column>
             <f:facet name="header">
               <h:outputText escape="false" value="#{evaluationMessages.num_points}" /> 
@@ -181,7 +181,7 @@ $Id$
       </div>
     </h:panelGroup>
 
-    <h:panelGrid columns="2" styleClass="table table-striped">
+    <h:panelGrid columns="2" styleClass="table table-condensed table-striped">
       <h:outputLabel value="#{evaluationMessages.sub_view}"/>
       <h:outputLabel value="#{histogramScores.numResponses}" />
 
@@ -265,7 +265,7 @@ $Id$
     </h:outputLabel>
 </h:panelGroup>
 
-  <h:dataTable styleClass="table table-striped" value="#{histogramScores.partInfo}" var="item">
+  <h:dataTable styleClass="table table-condensed table-striped" value="#{histogramScores.partInfo}" var="item">
     <h:column>
       <h:panelGroup>
         <h3 class="part-title">
@@ -278,13 +278,11 @@ $Id$
             </strong>
           </div>
 
-        <h:dataTable styleClass="table panel-body" value="#{item.histogramBars}" var="bar">
+        <h:dataTable styleClass="table table-condensed panel-body" value="#{item.histogramBars}" var="bar">
           <h:column>
-            <h:panelGrid styleClass="table table-striped" columns="1">
+            <h:panelGrid styleClass="table table-borderless table-condensed" columns="1">
               <h:panelGroup rendered="#{item.questionType !='13'}">
-                <h4>
-                  <h:outputText value="#{bar.title}" escape="false" rendered="#{bar.title ne ''}"/>
-                </h4>
+	      <h:outputText value="<h4> #{bar.title} </h4>" escape="false" rendered="#{not empty bar.title}"/>
                 <div class="progress">
                   <h:outputText rendered="#{bar.isCorrect}" value="<div class=\"progress-bar progress-bar-success\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
                   <h:outputText rendered="#{!bar.isCorrect}" value="<div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"#{bar.columnHeight}\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: #{bar.columnHeight}%;\">" escape="false" />
@@ -296,11 +294,16 @@ $Id$
                 </div>
             </h:panelGroup>
             <h:panelGroup styleClass="answer-bar-label" layout="block">
-              <strong>
+              <f:verbatim rendered="#{bar.isCorrect}">
+                <span class="fa fa-check" style="color: green" aria-hidden="true"></span>
+                <strong>
+              </f:verbatim>
                 <h:outputText value="#{bar.label}" escape="false" >
                   <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
                 </h:outputText>
-              </strong>
+              <f:verbatim rendered="#{bar.isCorrect}">
+                </strong>
+              </f:verbatim>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{item.questionType == '13' }">
@@ -319,7 +322,7 @@ $Id$
 
         <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching 14=emi -->
 
-        <h:panelGrid styleClass="table table-striped" columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
+        <h:panelGrid styleClass="table table-condensed table-striped" columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
 
           <h:outputLabel value="#{evaluationMessages.responses}" />
           <h:outputText id="responses" value="#{item.numResponses}" />
@@ -336,7 +339,7 @@ $Id$
           <h:outputLabel for="responses1" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
          </h:panelGrid>
-        <h:panelGrid styleClass="table table-striped" columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '12' or item.questionType == '14' or item.questionType == '15' or item.questionType == '16'}" columnClasses="alignLeft,aligntRight">
+        <h:panelGrid styleClass="table table-condensed table-striped" columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '12' or item.questionType == '14' or item.questionType == '15' or item.questionType == '16'}" columnClasses="alignLeft,aligntRight">
              <h:outputLabel for="responses2" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses2" value="#{item.numResponses}" />
           <h:outputLabel for="percentCorrect" value="#{evaluationMessages.percentCorrect}" />

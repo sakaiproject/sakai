@@ -695,12 +695,12 @@ public class BaseSite implements Site
 				.setLazy(((BaseResourceProperties) pOther).isLazy());
 
 		// deep copy the pages, but avoid triggering fetching by passing false to getPages
-		m_pages = new ResourceVector();
-		for (Iterator iPages = other.getPages(false).iterator(); iPages.hasNext();)
-		{
-			BaseSitePage page = (BaseSitePage) iPages.next();
-			m_pages.add(new BaseSitePage(siteService,page, this, exact));
+		List<BaseSitePage> otherPages = new ArrayList<BaseSitePage>(other.getPages(false));
+		List<BaseSitePage> copiedPages = new ArrayList<BaseSitePage>(otherPages.size());
+		for (BaseSitePage page : otherPages) {
+		    copiedPages.add(new BaseSitePage(siteService, page, this, exact));
 		}
+		m_pages = new ResourceVector(copiedPages);
 		m_pagesLazy = other.m_pagesLazy;
 
 		// deep copy the groups, but avoid triggering fetching by passing false to getGroups
@@ -1730,6 +1730,10 @@ public class BaseSite implements Site
 	 */
 	public void removeGroup(Group group)
 	{
+		if(group.isLocked()) {
+			M_log.error("Error, cannot remove a locked group");
+			return;
+		}
 		// remove it
 		m_groups.remove(group);
 

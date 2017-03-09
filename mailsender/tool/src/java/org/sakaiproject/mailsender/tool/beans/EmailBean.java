@@ -218,7 +218,7 @@ public class EmailBean
 						MultipartFile mf = entry.getValue();
 						// Although JavaDoc says it may contain path, Commons implementation always just
 						// returns the filename without the path.
-		                String filename = mf.getOriginalFilename();
+		                String filename = Web.escapeHtml(mf.getOriginalFilename());
 		                try
 		                {
 		                    File f = File.createTempFile(filename, null);
@@ -323,12 +323,12 @@ public class EmailBean
 				{
 					attachment_info.append("<br/>");
 					attachment_info.append("Attachment #").append(i).append(": ").append(
-							file.getOriginalFilename()).append("(").append(file.getSize()).append(" Bytes)");
+							Web.escapeHtml(file.getOriginalFilename())).append("(").append(file.getSize()).append(" Bytes)");
 					i++;
 				}
 			}
 			String emailarchive = "/mailarchive/channel/" + siteId + "/main";
-			String content = emailEntry.getContent() + attachment_info.toString();
+			String content = Web.cleanHtml(emailEntry.getContent()) + attachment_info.toString();
 			externalLogic.addToArchive(config, emailarchive, fromString, subject, content, attachments);
 		}
 	}

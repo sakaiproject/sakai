@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim></div></f:verbatim>
 
 <h:panelGroup rendered="#{question.attemptsRemaining == null || question.attemptsRemaining > 0}">
-  <h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}"  onclick="javascript:window.open('../author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}&questionNumber=#{question.number}&questionTotal=#{part.questions}','AudioRecordingApplet','width=950,height=700,scrollbars=no, resizable=no');" >
+  <h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}"  onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}&questionNumber=#{question.number}&questionTotal=#{part.questions}','AudioRecordingApplet','width=950,height=700,scrollbars=no, resizable=no');" >
 	<h:outputText value=" #{assessmentSettingsMessages.record_your_answer}"/>
   </h:outputLink>
 </h:panelGroup>
@@ -89,7 +89,7 @@ should be included in file importing DeliveryMessages
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('../author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
 		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>

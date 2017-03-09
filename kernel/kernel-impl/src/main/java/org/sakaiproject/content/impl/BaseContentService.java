@@ -14302,7 +14302,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		//unsupported, use macro name as is.
 		return macroName;
 	}
-    
+
+		/*
+		*  Return a direct link to the asset so we can bypass streaming the asset in the JVM
+		*/
+		public URI getDirectLinkToAsset(ContentResource resource) {
+			return m_storage.getDirectLink(resource);
+		}
+
     /**
      * Implementation of HardDeleteAware to allow content to be fully purged
      */

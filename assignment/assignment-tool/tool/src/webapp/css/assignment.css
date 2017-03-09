@@ -166,17 +166,17 @@ a.toggleAnchor > h4 {
 }
 
 /* SAK-26349 */
-.groupsContainer h4 {
+.groupsContainer strong {
     font-weight: normal;
     cursor: pointer;
     padding-left: 1em !important;
 }
 
-.groupsContainer h4.expand {
+.groupsContainer .expand {
     background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
 }
 
-.groupsContainer h4.collapse {
+.groupsContainer .collapse {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 

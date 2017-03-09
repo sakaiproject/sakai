@@ -172,9 +172,23 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         autosave_delay: 300,
         //autosave_messageType can be "no" or "notification"
         autosave_messageType : "statusbar", 
+
+        //wordcount Plugin see https://github.com/w8tcha/CKEditor-WordCount-Plugin for more config options
+        //This value should match the one in antisamy (kernel/kernel-impl/src/main/resources/antisamy/low-security-policy.xml)
+        wordcount : {
+            "maxCharCount" : 1000000,
+            //Previous behavior
+            "countSpacesAsCharsHTML" : true,
+            "countHTML" : true,
+            "showParagraphs" : false,
+            "showWordCount" : true,
+            "showCharCount" : true,
+        },
+
         //SAK-29598 - Add more templates to CK Editor
         templates_files: [basePath+"templates/default.js"],
-        templates: 'customtemplates'
+        templates: 'customtemplates',
+        templates_replaceContent: false
     };
 
     if (config != null && config.baseFloatZIndex) {
@@ -192,12 +206,12 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('widget',basePath+'widget/', 'plugin.js');
             CKEDITOR.plugins.addExternal('iframedialog',basePath+'iframedialog/', 'plugin.js');
             CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js');
             CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
             CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js');
             //Autosave has a dependency on notification
             CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/4897cb23a9f2ca7fb6b792add4350fb9e2a1722c/', 'plugin.js');
             CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js');
             /*
@@ -243,9 +257,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
                   result = onShow.call(this);
               }
-              var pos = findPos(e.editor.container.$);
-              //SAK-29830 - On some pages it was moving too far down the pages, on others it was still moving too far. This fix is intended to cut that significantly.
-              this.move(this.getPosition().x, pos[1]*0.25);
               return result;
           }
 

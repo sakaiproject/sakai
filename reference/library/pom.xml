@@ -57,6 +57,12 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.webjars</groupId>
+			<artifactId>ckeditor-wordcount</artifactId>
+			<version>${ckeditor.wordcount.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
 			<version>4.2.0</version>

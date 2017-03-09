@@ -1,6 +1,6 @@
 <!-- sakai_properties.vm -->
 <script type="text/javascript">includeLatestJQuery('sakai_properties');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
 #if($item && !$model)#set($model = $item)#end
 #if(!$item && $model)#set($item = $model)#end
@@ -602,7 +602,7 @@
 				</th>
 				<td>
 					<div class="form-group">
-						<a class="textPanelFooter" href="#" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
+						<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
 						|
 						<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>

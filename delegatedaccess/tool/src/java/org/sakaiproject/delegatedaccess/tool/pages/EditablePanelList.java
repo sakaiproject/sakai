@@ -33,6 +33,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -257,6 +258,54 @@ public class EditablePanelList  extends Panel
 			}
 		}
 		editableSpan.add(editToolsInstructions);
+
+		CheckBox toggleAllPublicCheckbox = new CheckBox("toggleAllPublicCheckboxes", Model.of(Boolean.FALSE));
+		toggleAllPublicCheckbox.setVisible(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType);
+		toggleAllPublicCheckbox.add(new AjaxFormComponentUpdatingBehavior("onClick")
+			{
+				protected void onUpdate(AjaxRequestTarget target){
+				Boolean checked = Strings.isTrue(getFormComponent().getValue());
+
+					List<ListOptionSerialized[]> options = listView.getModelObject();
+
+					for (ListOptionSerialized[] option : options) {
+						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
+								nodeModel.setPublicToolRestricted(option[1].getId(), checked);
+							}
+						if (checked) {
+								if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+										nodeModel.setAuthToolRestricted(option[0].getId(), false);
+									}
+							}
+					}
+
+					target.addComponent(editableSpan);
+				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
+			}
+		});
+		editableSpan.add(toggleAllPublicCheckbox);
+		CheckBox toggleAllAuthCheckboxes = new CheckBox("toggleAllAuthCheckboxes", Model.of(Boolean.FALSE));
+		toggleAllAuthCheckboxes.setVisible(true);
+		toggleAllAuthCheckboxes.add(new AjaxFormComponentUpdatingBehavior("onClick")
+			{
+				protected void onUpdate(AjaxRequestTarget target){
+				Boolean checked = Strings.isTrue(getFormComponent().getValue());
+
+					List<ListOptionSerialized[]> options = listView.getModelObject();
+
+					for (ListOptionSerialized[] option : options) {
+						if (!nodeModel.isPublicToolRestricted(option[1].getId())) {
+								if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+										nodeModel.setAuthToolRestricted(option[0].getId(), checked);
+									}
+							}
+					}
+
+					target.addComponent(editableSpan);
+				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
+			}
+		});
+		editableSpan.add(toggleAllAuthCheckboxes);
 
 	}
 

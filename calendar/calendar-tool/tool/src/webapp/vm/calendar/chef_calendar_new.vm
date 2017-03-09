@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_new.vm,v 1.7 2005/06/14 20:13:13 suiyy.umich.edu Exp $
 <script>includeLatestJQuery('chef_calendar_new.vm');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 <script type="text/javascript">
 <!-- For debugger safety -->
 if(!window.console) {

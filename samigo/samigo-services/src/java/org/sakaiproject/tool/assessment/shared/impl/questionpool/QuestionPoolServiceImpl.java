@@ -228,22 +228,6 @@ public class QuestionPoolServiceImpl
   }
 
   /**
-   * Get all items sorted by orderby
-   */
-    public List getAllItemsSorted(Long poolId, String orderBy, String ascending)
-  {
-    try
-    {
-      QuestionPoolService service = new QuestionPoolService();
-      return service.getAllItemsSorted(poolId, orderBy, ascending);
-    }
-    catch (Exception ex)
-    {
-      throw new QuestionPoolServiceException(ex);
-    }
-  }
-
-  /**
    * Get all scores for a published assessment from the back end.
    */
   public List getAllItems(Long poolId)

@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -2187,7 +2188,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   private void getMatrixSurveyScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
 		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
-	  HashMap texts = new HashMap();
+	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	
+	  Map<Long, ItemTextIfc> texts = new LinkedHashMap<>();
 	  HashMap rows = new HashMap();
 	  HashMap answers = new HashMap();
 	  HashMap numStudentRespondedMap = new HashMap();
@@ -2270,6 +2273,8 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 			  answerTextList.add(ansStr);
 		  }
 	  }
+	Collections.sort(answerTextList);
+	
 	  
 	  //create the HistogramBarBean
 	  ArrayList<HistogramBarBean> histogramBarList = new ArrayList<HistogramBarBean>();
@@ -2322,10 +2327,13 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 					  }
 				  }
 			  }
-			  if (count > 1)
-				  barBean.setNumStudentsText(count + " responses");
-			  else
-				  barBean.setNumStudentsText(count + " response");
+			  
+			if (count > 1) {
+				barBean.setNumStudentsText(count + " " + rb.getString("responses"));
+			}
+			else {
+				barBean.setNumStudentsText(count + " " + rb.getString("response"));
+			}
 
 			  //2. get the answer text
 			  barBean.setItemText((String)answerTextList.get(i));
@@ -2422,7 +2430,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     // depending on data's instanceof 
 
     Iterator iter = scoreList.iterator();
-    ArrayList doubles = new ArrayList();
+    ArrayList<Double> doubles = new ArrayList();
     while (iter.hasNext())
     {
       Object data = iter.next();
@@ -2448,14 +2456,16 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 
     if (doubles.isEmpty())
       doubles.add(new Double(0.0));
-    Object[] array = doubles.toArray();
-    Arrays.sort(array);
 
-    double[] scores = new double[array.length];
-    for (int i=0; i<array.length; i++)
-{
-      scores[i] = Double.valueOf(castingNum((Double)array[i],2)).doubleValue();
-}
+    doubles.sort(Comparator.naturalOrder());
+
+    double[] scores = new double[doubles.size()];
+    int i = 0;
+    for (Double d : doubles) {
+        BigDecimal bd = new BigDecimal(d);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        scores[i++] = bd.doubleValue();
+    }
 
     HashMap statMap = new HashMap();
 
