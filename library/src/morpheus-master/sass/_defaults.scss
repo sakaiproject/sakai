@@ -165,6 +165,11 @@ $skin-with-icons: true !default;
 $icon-size: 20px !default;
 $tool-menu-icon-on-left: true !default;
 
+// Overview page column widths. Total to add
+// up to 96% as the columns have a margin.
+$col1of2-width: 64% !default;
+$col2of2-width: 32% !default;
+
 /* Footer */
 $footer-background: transparent !default;
 $footer-color: $background-color-secondary !default;
