@@ -16,8 +16,6 @@
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Empty defaults -->
-		<ckeditor-plugins></ckeditor-plugins>
-		<ckeditor-toolbar-full></ckeditor-toolbar-full>
 		<ckeditor-extra-plugins></ckeditor-extra-plugins>
 	</properties>
 	<dependencies>
@@ -373,17 +371,15 @@
 			</build>
 		</profile>
 		<profile>
-			<id>ckeditor-a11ychecker</id>
+			<!-- These plugins can't be part of the standard build -->
+			<id>ckeditor-extras</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>ckeditor-extras</name>
+				</property>
 			</activation>
 			<properties>
-				<ckeditor-plugins>
-					// Accessibility checker has a dependency on balloonpanel
-					CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/4.6.2/', 'plugin.js');
-					CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/1.1.0/', 'plugin.js');
-				</ckeditor-plugins>
-				<ckeditor-toolbar-full> ,['A11ychecker'] </ckeditor-toolbar-full>
 				<ckeditor-extra-plugins>,a11ychecker</ckeditor-extra-plugins>
 			</properties>
 			<dependencies>

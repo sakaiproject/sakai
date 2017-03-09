@@ -27,9 +27,12 @@
           </modules>
       </profile>
       <profile>
-          <id>ckeditor-a11ychecker</id>
+          <id>ckeditor-extras</id>
           <activation>
               <activeByDefault>false</activeByDefault>
+              <property>
+                  <name>ckeditor-extras</name>
+              </property>
           </activation>
           <modules>
               <module>ckeditor-balloonpanel</module>

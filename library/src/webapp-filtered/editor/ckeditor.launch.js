@@ -162,7 +162,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
             ['Maximize', 'ShowBlocks']
-            ${ckeditor-toolbar-full}
+            ,['A11ychecker']
         ],
         toolbar: 'Full',
         resize_dir: 'both',
@@ -216,7 +216,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/4897cb23a9f2ca7fb6b792add4350fb9e2a1722c/', 'plugin.js');
             CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js');
-            ${ckeditor-plugins}
+            // Accessibility checker has a dependency on balloonpanel
+            CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/4.6.2/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/1.1.0/', 'plugin.js');
             /*
                To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
                and to extraPlugins. This also needs extra stylesheets.
