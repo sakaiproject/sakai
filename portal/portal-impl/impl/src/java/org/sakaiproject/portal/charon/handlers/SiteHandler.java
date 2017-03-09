@@ -127,6 +127,8 @@ public class SiteHandler extends WorksiteHandler
 	// This is Sakai 11 only so please do not back-port or merge this default value
 	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.melete";
 
+	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
+
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
@@ -641,6 +643,10 @@ public class SiteHandler extends WorksiteHandler
 	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, String siteId)
 	{
+		if (session.getUserId() != null) {
+			refreshAutoFavorites(session);
+		}
+
 		if (rcontext.uses(INCLUDE_SITE_NAV))
 		{
 
@@ -683,6 +689,29 @@ public class SiteHandler extends WorksiteHandler
 			catch (Exception any)
 			{
 			}
+		}
+	}
+
+	final static String AUTO_FAVORITES_LAST_REFRESHED_TIME = "autoFavoritesLastRefreshedTime";
+
+	private void refreshAutoFavorites(Session session) {
+		Long lastRefreshTime = (Long)session.getAttribute(AUTO_FAVORITES_LAST_REFRESHED_TIME);
+
+		if (lastRefreshTime == null) {
+			lastRefreshTime = Long.valueOf(0);
+		}
+
+		long now = System.currentTimeMillis();
+
+		if ((now - lastRefreshTime) > AUTO_FAVORITES_REFRESH_INTERVAL_MS) {
+			// Fetch the list of favorites, which will in turn populate the auto favorites.
+			try {
+				new FavoritesHandler().userFavorites(session.getUserId());
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
+
+			session.setAttribute(AUTO_FAVORITES_LAST_REFRESHED_TIME, now);
 		}
 	}
 

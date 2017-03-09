@@ -9,8 +9,9 @@ body.active-more-sites{
 
 #selectSiteModal{
 	position: fixed;
-    z-index: 10000;
+	z-index: 10000;
 	overflow:visible;
+	outline: none;
 	@include transition( left 0.4s linear 0s );
 	&.dhtml_more_tabs{
 		background: $tool-menu-background-color;
@@ -80,6 +81,7 @@ body.active-more-sites{
 	.tab-box{
 		border: 1px solid $tool-border-color;
 		padding: 5px 5px 5px 1em;
+		height: 100%;
 
                 background-color: $tool-background-color;
 	}
@@ -240,19 +242,23 @@ ul.otherSitesCategorList{
 		margin-bottom: 1em;
 	}
 
-	@media #{$desktop}{
-		text-align: right;
-	}
-
 	label{
 		color: $text-color;
 	}
 
-	margin: 1em 1em 0 0;
+	margin: 1em 1em 1em 0;
 
 	#txtSearch{
 		width: 18em;
 		min-height: 2em;
+
+		padding: 0 5px 0 5px;
+		border-radius: 50px !important;
+		border: 1px solid #e5e5e5;
+	}
+
+	#txtSearch:focus {
+		outline: none;
 	}
 
         .other-site-search-clear{
@@ -263,8 +269,8 @@ ul.otherSitesCategorList{
 
 	.other-site-search-clear:before{
 		position: absolute;
-		top: -3px;
-		right: 8px;
+		top: -5px;
+		right: 14px;
 		content: '\f057';
 		font-family: 'FontAwesome';
 		color: #ccc;
@@ -405,7 +411,52 @@ ul.favoriteSiteList{
 	.site-favorite-btn{
 		padding-right: 0.5em;
 	}
+
+	.site-favorite-is-past-max {
+		opacity: 0.5;
+	}
 }
+
+
+li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
+	font-weight: bold;
+	color: #de8e07;
+}
+
+/* If we've hit max favorites, show a warning icon */
+.favoriteCountAndWarning {
+	&.maxFavoritesReached {
+		#favoriteMaxWarningIndicator {
+			display: inline;
+		}
+	}
+	&:not(.maxFavoritesReached) {
+		#favoriteMaxWarningIndicator {
+			display: none;
+		}
+	}
+}
+
+/* Selector length arms race! */
+#selectSiteModal #selectSite .tab-pane .organizeFavoritesList li.favorites-max-marker {
+	font-family: $header-font-family;
+	width: 95%;
+	border: 0;
+	background: transparent !important;
+	border-top: rgb(229, 229, 229) 2px dashed;
+	padding-left: 12px !important;
+	&:hover {
+		border-top: rgb(229, 229, 229) 2px dashed;
+		background: transparent !important;
+	}
+
+	.warning-icon {
+		color: #de8e07;
+		padding-right: 8px;
+	}
+
+}
+
 
 #organizeFavoritesPurgatoryList{
 	.fav-drag-handle{
@@ -443,6 +494,19 @@ ul.favoriteSiteList{
 	display: inline-block;
 	position: relative;
 	top: 2px;
+}
+
+.favorites-select-all-none {
+    margin-left: 10px;
+    margin-right: 6px;
+
+    .site-favorite-icon {
+        font-size: 80%;
+    }
+}
+
+.favorites-help-text {
+    margin-top: 1em;
 }
 
 .site-favorite-icon.site-favorite:hover{
@@ -485,4 +549,64 @@ ul.favoriteSiteList{
 	@media #{$phone}{
 		display: none;
 	}
+}
+
+#organize-favorites-pane {
+	float: left;
+	width: 70%;
+	border-right: solid 1px #ababab;
+}
+
+#favorite-settings-pane {
+	float: left;
+	width: 28%;
+	padding-left: 1em;
+
+	/* Switch generator CSS from https://proto.io/freebies/onoff/ */
+	.onoffswitch {
+		position: relative; width: 66px;
+		-webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+	}
+	.onoffswitch-checkbox {
+		display: none;
+	}
+	.onoffswitch-label {
+		display: block; overflow: hidden; cursor: pointer;
+		border: 2px solid #999999; border-radius: 20px;
+	}
+	.onoffswitch-inner {
+		display: block; width: 200%; margin-left: -100%;
+		transition: margin 0.3s ease-in 0s;
+	}
+	.onoffswitch-inner:before, .onoffswitch-inner:after {
+		display: block; float: left; width: 50%; height: 23px; padding: 0; line-height: 23px;
+		font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+		box-sizing: border-box;
+	}
+	.onoffswitch-inner:before {
+		content: "ON";
+		padding-left: 10px;
+		background-color: #4ACC5F; color: #FFFFFF;
+	}
+	.onoffswitch-inner:after {
+		content: "OFF";
+		padding-right: 10px;
+		background-color: #EEEEEE; color: #999999;
+		text-align: right;
+	}
+	.onoffswitch-switch {
+		display: block; width: 16px; margin: 3.5px;
+		background: #FFFFFF;
+		position: absolute; top: 0; bottom: 0;
+		right: 39px;
+		border: 2px solid #999999; border-radius: 20px;
+		transition: all 0.3s ease-in 0s; 
+	}
+	.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+		margin-left: 0;
+	}
+	.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+		right: 0px;
+	}
+	/* End switch generator CSS from https://proto.io/freebies/onoff/ */
 }
