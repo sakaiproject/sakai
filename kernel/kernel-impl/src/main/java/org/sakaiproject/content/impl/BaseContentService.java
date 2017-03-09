@@ -9211,7 +9211,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		extType.put("id", id);
 		if (type == null) type = "";
 		extType.put("type", type);
-		String extension = Validator.getFileExtension(id);
+		
+		// SAK-32264 note - this will not catch the case where the last segment ends up being the site id and the site id has '.' chars
+		String[] idSegments;
+		String idLastSegment = id;
+		if (id != null) {
+			idSegments = id.split("/");
+			idLastSegment = idSegments.length > 0 ? idSegments[idSegments.length - 1]:id;
+		}
+		String extension = Validator.getFileExtension(idLastSegment);
 
 		if (extension.length() != 0)
 		{
