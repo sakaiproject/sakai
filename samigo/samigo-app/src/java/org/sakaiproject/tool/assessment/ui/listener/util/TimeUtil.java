@@ -112,6 +112,9 @@ public class TimeUtil
    * In Sweden, I expect a date like 2015-02-15 16:00
    */
   public String getIsoDateWithLocalTime(Date dateToConvert) {
+      if (dateToConvert == null) {
+          return null;
+      }
       DateTime dt = new DateTime(dateToConvert);
       DateTimeFormatter fmt = ISODateTimeFormat.yearMonthDay();
       DateTimeFormatter localFmt = fmt.withLocale(new ResourceLoader().getLocale());
@@ -128,6 +131,9 @@ public class TimeUtil
   }
 
   public String getDateTimeWithTimezoneConversion(Date dateToConvert) {
+      if (dateToConvert == null) {
+          return null;
+      }
       DateTime dt = new DateTime(dateToConvert);
       DateTimeFormatter fmt = ISODateTimeFormat.yearMonthDay();
       DateTimeFormatter fmtTime = ISODateTimeFormat.hourMinuteSecond();

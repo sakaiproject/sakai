@@ -1771,6 +1771,7 @@ public class AssessmentSettingsBean
   		}
     	}
     	else {
+    		this.extendedTime.syncDates();
     		this.extendedTimes.add(this.extendedTime);
     		resetExtendedTime();
     	}
