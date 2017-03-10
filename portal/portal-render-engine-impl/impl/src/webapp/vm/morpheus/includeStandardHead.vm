@@ -42,6 +42,7 @@
                         "enabled": $!{neoChatVideo}
                     }
                 },
+                "i18n": {},
                 "loggedIn": $!{loggedIn},
                 "portalPath": "$!{portalPath}",
                 "loggedOutUrl": "$!{loggedOutUrl}",
