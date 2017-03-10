@@ -3,13 +3,16 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
@@ -58,6 +61,18 @@
             <set>
             </set>
         </property>
+        <property name="migration">
+            <util:map>
+                <!-- The spring bean to class name mappings, key and value can be different -->
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"
+                    value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
+                       value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"/>
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"
+                       value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"/>
+            </util:map>
+        </property>
+
         <property name="qrtzPropFile" value="quartz.properties"/>
         <property name="qrtzPropFileSakai" value="sakai.quartz.properties"/>
         <property name="globalTriggerListener">

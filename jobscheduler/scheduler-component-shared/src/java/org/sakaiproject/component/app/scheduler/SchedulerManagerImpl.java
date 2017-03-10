@@ -100,7 +100,11 @@ public class SchedulerManagerImpl implements SchedulerManager, SchedulerFactory,
   private LinkedList<SpringInitialJobSchedule>
       initialJobSchedule = null;
 
-public void init()
+
+  // Map from a spring bean ID to a job class.
+  private HashMap<String,Class<? extends Job>> migration;
+
+  public void init()
   {
     try
     {
@@ -202,9 +206,25 @@ public void init()
           if (bean != null && !bean.isEmpty()) {
             Job job = (Job) ComponentManager.get(bean);
             if (job == null) {
-              LOG.warn("scheduler cannot load class for persistent job:" + key);
-              scheduler.deleteJob(key);
-              LOG.warn("deleted persistent job:" + key);
+                // See if we should be migrating this job.
+                Class<? extends Job> newClass = migration.get(bean);
+                if (newClass != null) {
+                    JobDataMap jobDataMap = detail.getJobDataMap();
+                    jobDataMap.remove(JobBeanWrapper.SPRING_BEAN_NAME);
+                    JobDetail newJob = JobBuilder.newJob(newClass)
+                            .setJobData(jobDataMap)
+                            .requestRecovery(detail.requestsRecovery())
+                            .storeDurably(detail.isDurable())
+                            .withDescription(detail.getDescription())
+                            .withIdentity(key).build();
+                    // Update the existing job by replacing it with the same identity.
+                    scheduler.addJob(newJob, true);
+                    LOG.info("Migrated job of {} to {}", detail.getJobClass(), newClass);
+                } else {
+                    LOG.warn("scheduler cannot load class for persistent job:" + key);
+                    scheduler.deleteJob(key);
+                    LOG.warn("deleted persistent job:" + key);
+                }
             }
           }
         }
@@ -726,6 +746,10 @@ public void init()
 
     public void setJobFactory(JobFactory jobFactory) {
         this.jobFactory = jobFactory;
+    }
+
+    public void setMigration(HashMap<String, Class<? extends Job>> migration) {
+        this.migration = migration;
     }
 
     public boolean isStartScheduler() {
