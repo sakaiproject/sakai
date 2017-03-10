@@ -165,6 +165,9 @@ $skin-with-icons: true !default;
 $icon-size: 20px !default;
 $tool-menu-icon-on-left: true !default;
 
+/* Icon Overrides */
+//$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
+
 /* Footer */
 $footer-background: transparent !default;
 $footer-color: $background-color-secondary !default;
