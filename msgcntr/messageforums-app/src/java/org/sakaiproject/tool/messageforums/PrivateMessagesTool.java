@@ -3888,7 +3888,7 @@ private   int   getNum(char letter,   String   a)
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
-      return MESSAGE_SETTING_PG;
+      return null;
     }
     else
     {
@@ -3904,7 +3904,7 @@ private   int   getNum(char letter,   String   a)
           // if this happens, there is likely something wrong in the UI that needs to be fixed
           LOG.warn("Non-numeric option for sending email to recipient email address on Message screen. This may indicate a UI problem.");
           setErrorMessage(getResourceBundleString("pvt_send_to_email_invalid"));
-          return MESSAGE_SETTING_PG;
+          return null;
       }
       
       
