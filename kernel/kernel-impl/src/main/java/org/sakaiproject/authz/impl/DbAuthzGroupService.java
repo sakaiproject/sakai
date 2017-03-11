@@ -63,7 +63,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	/** Our log (commons). */
 	private static Logger M_log = LoggerFactory.getLogger(DbAuthzGroupService.class);
 	/** All the event functions we know exist on the db. */
-	protected Collection m_functionCache = new HashSet();
+	protected Collection<Object> m_functionCache = new HashSet<>();
 	/** All the event role names we know exist on the db. */
 	protected Collection m_roleNameCache = new HashSet();
 	/** Table name for realms. */
@@ -236,12 +236,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// pre-cache role and function names
 			cacheRoleNames();
 			cacheFunctionNames();
-			m_realmRoleGRCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
+			m_realmRoleGRCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
 			M_log.info("init(): table: " + m_realmTableName + " external locks: " + m_useExternalLocks);
 
-			authzUserGroupIdsCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
+			authzUserGroupIdsCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
 
-            maintainRolesCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
+            maintainRolesCache = m_memoryService.getCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
             //get the set of maintain roles and cache them on startup
             getMaintainRoles();
 
