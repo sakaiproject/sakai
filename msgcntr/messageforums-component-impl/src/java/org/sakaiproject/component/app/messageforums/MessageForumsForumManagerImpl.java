@@ -1550,11 +1550,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 			}      
 
 			HibernateCallback<Number> hcb = session -> (Number) session
-                    .getNamedQuery("findNumRoleWithPermissionInTopic")
-                    .setLong("id", topicId)
-                    .setString("roleName", roleName)
-                    .setString("permissionLevelName", permissionName)
-                    .uniqueResult();
+				.getNamedQuery("findNumRoleWithPermissionInTopic")
+				.setLong("id", topicId)
+				.setString("roleName", roleName)
+				.setString("permissionLevelName", permissionName)
+				.uniqueResult();
 
 			Number countRows = getHibernateTemplate().execute(hcb);
 			return countRows.intValue() > 0;
