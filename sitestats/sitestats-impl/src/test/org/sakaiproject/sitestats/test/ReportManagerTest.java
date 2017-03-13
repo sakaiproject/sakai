@@ -169,6 +169,9 @@ public class ReportManagerTest extends AbstractTransactionalJUnit4SpringContextT
 		((ReportManagerImpl)M_rm).setResourceLoader(msgs);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
+		// This is needed to make the tests deterministic, otherwise on occasion the collect thread will run
+		// and break the tests.
+		M_sum.setCollectThreadEnabled(false);
 	}
 
 	// ---- SAMPLE DATA ----
