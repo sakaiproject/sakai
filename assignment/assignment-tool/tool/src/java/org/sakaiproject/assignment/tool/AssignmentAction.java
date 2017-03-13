@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 import java.util.zip.*;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -12209,7 +12209,7 @@ public class AssignmentAction extends PagedResourceActionII
 					    User[] _users = submission.getSubmitters();
 					    HashMap<String,String> scaledValues = new HashMap<String,String>();
 					    for (int i=0; _users != null && i < _users.length; i++) {
-					        String ug = StringUtil.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId()));
+					        String ug = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId()));
 					        if ("null".equals(ug)) ug = null;
 					        if (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) {
 					                hasChange = valueDiffFromStateAttribute(state, ug, submission.getGradeForUser(_users[i].getId()));

@@ -25,7 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
@@ -4475,8 +4475,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	@SuppressWarnings("deprecation")
 	public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
 	    Collection<Group> rv = new ArrayList<Group>();
-	    allOrOneGroup = StringUtil.trimToNull(allOrOneGroup);
-	    searchString = StringUtil.trimToNull(searchString);
+	    allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
+	    searchString = StringUtils.trimToNull(searchString);
 	    boolean bSearchFilterOnly = "true".equalsIgnoreCase(searchFilterOnly);
 	    try
 	    {
@@ -5182,9 +5182,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						sheet.addRow(gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
 								s.getGradeDisplay(), s.getTimeSubmittedString(), latenessStatus);
 
-	                    if (StringUtil.trimToNull(submitterString) != null)
+	                    if (StringUtils.trimToNull(submitterString) != null)
 	                    {
-	                        submittersName = submittersName.concat(StringUtil.trimToNull(submitterString));
+	                        submittersName = submittersName.concat(StringUtils.trimToNull(submitterString));
 	                        submittedText = s.getSubmittedText();
 
 	                        submittersName = submittersName.concat("/");

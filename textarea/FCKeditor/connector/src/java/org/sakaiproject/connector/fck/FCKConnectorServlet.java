@@ -53,6 +53,7 @@ import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -76,7 +77,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
@@ -1093,7 +1093,7 @@ public class FCKConnectorServlet extends HttpServlet {
      private String getAltReferenceRoot (String id)  {
           String altRoot = null;
           try {
-               altRoot = StringUtil.trimToNull(contentHostingService.getProperties(id)
+               altRoot = StringUtils.trimToNull(contentHostingService.getProperties(id)
                     .getProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE));
           }
           catch (Exception e) {

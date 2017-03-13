@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -482,7 +483,7 @@ public class SearchBeanImpl implements SearchBean
 	protected String[] extractSiteIdsFromProperties(Properties props) {
 	//	Properties props = extractPropertiesFromTool();
 		
-		String targetSiteId = StringUtil.trimToNull(props.getProperty(SEARCH_SITE_IDS));
+		String targetSiteId = StringUtils.trimToNull(props.getProperty(SEARCH_SITE_IDS));
 		if (targetSiteId == null) return new String[] {""};
 		String[] searchSiteIds = StringUtil.split(targetSiteId, ",");
 		for(int i = 0;i<searchSiteIds.length;i++){
