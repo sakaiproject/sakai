@@ -27,7 +27,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 
 	private static Logger log = LoggerFactory.getLogger(ActivityServiceImpl.class);
 	
-	private Cache userActivityCache = null;
+	private Cache<String, Long> userActivityCache = null;
 	private final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
 		
 	/**
