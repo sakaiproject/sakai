@@ -183,14 +183,23 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					                   String.valueOf(i.getSequence()));
 
 				if (i.getType() == 5) {
-				    String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
-				    if (text.length() > 100)
-					text = text.substring(0,100);
-				    UIOutput.make(row, "text-snippet", text);
+				    if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
+					    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
+				    }
+				    else {
+					    String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
+					    if (text.length() > 100)
+						    text = text.substring(0, 100);
+					    UIOutput.make(row, "text-snippet", text);
+				    }
 				} else if (SimplePageItem.ANNOUNCEMENTS == i.getType()) {
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.announcements-snippet"));
 				} else if (SimplePageItem.FORUM_SUMMARY == i.getType()) {
 					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forums-snippet"));
+				} else if (SimplePageItem.TWITTER == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.twitter-snippet"));
+				} else if (SimplePageItem.CALENDAR == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.calendar-snippet"));
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
 				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video"));
