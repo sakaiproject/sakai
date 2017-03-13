@@ -28,34 +28,12 @@
 		</developer>
 	</developers>
 
-	<licenses>
-        <license>
-            <name>Educational Community License, Version 2.0</name>
-            <url>http://www.opensource.org/licenses/ecl2.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://jira.sakaiproject.org/jira/browse/TINYURL</url>
-    </issueManagement>
-    
     <modules>
         <module>api</module>
         <module>impl</module>
         <module>tool</module>
     </modules>
 
-    
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/shortenedurl/${project.version}</url>
-        </site>
-    </distributionManagement>
-    
 	<dependencyManagement>
 		<dependencies>
 			

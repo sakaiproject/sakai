@@ -21,13 +21,6 @@
         <url>http://www.sakaiproject.org/sakai-foundation</url>
     </organization>
     <inceptionYear>2009</inceptionYear>
-    <licenses>
-        <license>
-            <name>ECL-2.0</name>
-            <url>http://opensource.org/licenses/ECL-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <developers>
         <developer>

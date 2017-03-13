@@ -59,23 +59,6 @@
     </profile>
   </profiles>
 
-  <!-- Source code repository location -->
-
-  <!-- Distribution Management -->
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url>
-    </site>
-  </distributionManagement>
-
-  <!-- JIRA -->
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
-  </issueManagement>
-
   <!-- Project related dependencies -->
   <dependencyManagement>
     <dependencies>

@@ -25,7 +25,7 @@
   </developers>
   <issueManagement>
     <system>jira</system>
-    <url>http://bugs.sakaiproject.org/jira/browse/SAK</url>
+    <url>http://jira.sakaiproject.org/browse/SAK</url>
   </issueManagement>
   <ciManagement>
     <system>continuum</system>

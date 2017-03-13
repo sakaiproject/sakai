@@ -30,11 +30,6 @@
         <module>pack-src</module>
     </modules>
     
-    <issueManagement>
-        <system>jira</system>
-        <url>http://jira.sakaiproject.org/browse/SAK</url>
-    </issueManagement>
-
     <prerequisites>
         <maven>${maven.prereq.version}</maven>
     </prerequisites>
