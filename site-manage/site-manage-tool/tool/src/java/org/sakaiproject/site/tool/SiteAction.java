@@ -3660,8 +3660,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			int cmLevelSize = 0;
 
-			if (cms == null || !courseManagementIsImplemented()
-					|| cmLevels == null || cmLevels.size() < 1) {
+			if (cms == null || !courseManagementIsImplemented() || cmLevels == null || cmLevels.size() < 1) {
 				// TODO: redirect to manual entry: case #37
 			} else {
 				cmLevelSize = cmLevels.size();
@@ -15046,9 +15045,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			if ("continue".equals(option)) 
 			{
-				String uniqname = StringUtils.trimToNull(params
-						.getString("uniqname"));
+				String uniqname = StringUtils.trimToNull(params.getString("uniqname"));
 				state.setAttribute(STATE_SITE_QUEST_UNIQNAME, uniqname);
+
+				SiteInfo siteInfo = state.getAttribute(STATE_SITE_INFO) != null? (SiteInfo) state.getAttribute(STATE_SITE_INFO):new SiteInfo();
+				if (params.getString("additional") != null) {
+					siteInfo.additional = params.getString("additional");
+				}
+				state.setAttribute(STATE_SITE_INFO, siteInfo);
 
 				if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
 						&& !((Boolean) state
