@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.SortedSet;
 
 import org.hibernate.Query;
 import org.hibernate.collection.internal.PersistentSet;
@@ -58,6 +60,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumIm
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
@@ -271,7 +274,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       };
 
     Topic tempTopic = null;
-    Set resultSet = new HashSet();      
+    SortedSet resultSet = new TreeSet(new TopicBySortIndexAscAndCreatedDateDesc());
     List temp = (ArrayList) getHibernateTemplate().execute(hcb);
     for (Iterator i = temp.iterator(); i.hasNext();)
     {
