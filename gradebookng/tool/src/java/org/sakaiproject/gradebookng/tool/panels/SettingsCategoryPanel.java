@@ -418,8 +418,12 @@ public class SettingsCategoryPanel extends BasePanel {
 						if(value == null) {
 							value = 0;
 							categoryDropHighest.setModelValue(new String[]{"0"});
-							target.add(categoryDropHighest);
 						}
+
+						//remove tooltips and recalc
+						removeDropKeepDisabledToolTip(categoryDropHighest);
+						removeDropKeepDisabledToolTip(categoryDropLowest);
+						removeDropKeepDisabledToolTip(categoryKeepHighest);
 
 						categoryKeepHighest.setEnabled(true);
 						if(value.intValue() > 0) {
@@ -427,12 +431,15 @@ public class SettingsCategoryPanel extends BasePanel {
 							categoryKeepHighest.setEnabled(false);
 							addDropKeepDisabledToolTip(categoryKeepHighest);
 						}
-
+						target.add(categoryDropHighest);
+						target.add(categoryDropLowest);
 						target.add(categoryKeepHighest);
 					}
 				});
 				categoryDropHighest.setEnabled(dropKeepEnabled && categoryDropHighestEnabled);
-
+				if(!categoryDropHighest.isEnabled()) {
+					addDropKeepDisabledToolTip(categoryDropHighest);
+				}
 				item.add(categoryDropHighest);
 
 				// drop lowest config
@@ -450,13 +457,16 @@ public class SettingsCategoryPanel extends BasePanel {
 						if(value1 == null) {
 							value1 = 0;
 							categoryDropLowest.setModelValue(new String[]{"0"});
-							target.add(categoryDropLowest);
 						}
 						if(value2 == null) {
 							value2 = 0;
 							categoryDropHighest.setModelValue(new String[]{"0"});
-							target.add(categoryDropHighest);
 						}
+
+						//remove tooltips and recalc
+						removeDropKeepDisabledToolTip(categoryDropHighest);
+						removeDropKeepDisabledToolTip(categoryDropLowest);
+						removeDropKeepDisabledToolTip(categoryKeepHighest);
 
 						categoryKeepHighest.setEnabled(true);
 						if(value1.intValue() > 0 || value2.intValue() > 0) {
@@ -464,10 +474,15 @@ public class SettingsCategoryPanel extends BasePanel {
 							categoryKeepHighest.setEnabled(false);
 							addDropKeepDisabledToolTip(categoryKeepHighest);
 						}
+						target.add(categoryDropHighest);
+						target.add(categoryDropLowest);
 						target.add(categoryKeepHighest);
 					}
 				});
 				categoryDropLowest.setEnabled(dropKeepEnabled && categoryDropLowestEnabled);
+				if(!categoryDropLowest.isEnabled()) {
+					addDropKeepDisabledToolTip(categoryDropLowest);
+				}
 				item.add(categoryDropLowest);
 
 				// keep highest config
@@ -483,24 +498,34 @@ public class SettingsCategoryPanel extends BasePanel {
 						if(value == null) {
 							value = 0;
 							categoryKeepHighest.setModelValue(new String[]{"0"});
-							target.add(categoryKeepHighest);
 						}
+
+						//remove tooltips and recalc
+						removeDropKeepDisabledToolTip(categoryDropHighest);
+						removeDropKeepDisabledToolTip(categoryDropLowest);
+						removeDropKeepDisabledToolTip(categoryKeepHighest);
 
 						categoryDropHighest.setEnabled(true);
 						categoryDropLowest.setEnabled(true);
 						if(value.intValue() > 0) {
+
 							categoryDropHighest.setModelValue(new String[]{"0"});
 							categoryDropHighest.setEnabled(false);
 							addDropKeepDisabledToolTip(categoryDropHighest);
+
 							categoryDropLowest.setModelValue(new String[]{"0"});
 							categoryDropLowest.setEnabled(false);
 							addDropKeepDisabledToolTip(categoryDropLowest);
 						}
 						target.add(categoryDropHighest);
 						target.add(categoryDropLowest);
+						target.add(categoryKeepHighest);
 					}
 				});
 				categoryKeepHighest.setEnabled(dropKeepEnabled && categoryKeepHighestEnabled);
+				if(!categoryKeepHighest.isEnabled()) {
+					addDropKeepDisabledToolTip(categoryKeepHighest);
+				}
 				item.add(categoryKeepHighest);
 
 				// remove button
@@ -749,5 +774,15 @@ public class SettingsCategoryPanel extends BasePanel {
 	 */
 	private void addDropKeepDisabledToolTip(final Component textfield) {
 		textfield.add(AttributeModifier.replace("title", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
+		textfield.add(AttributeModifier.replace("aria-label", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
+	}
+
+	/**
+	 * Helper to remove the tooltip from above
+	 * @param textfield
+	 */
+	private void removeDropKeepDisabledToolTip(final Component textfield) {
+		textfield.add(AttributeModifier.remove("title"));
+		textfield.add(AttributeModifier.remove("aria-label"));
 	}
 }
