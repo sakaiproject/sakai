@@ -87,7 +87,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected final String M_curUserKey = getClass().getName() + ".currentUser";
 
 	/** A cache of users */
-	protected Cache m_callCache = null;
+	protected Cache<String, UserEdit> m_callCache = null;
 	
 	/** Optional service to provide site-specific aliases for a user's display ID and display name. */
 	protected ContextualUserDisplayService m_contextualUserDisplayService = null;
@@ -144,7 +144,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	        }
 	        // Try getting the default impl via ComponentManager
 	        if ( m_passwordPolicyProvider == null ) {
-	            m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get(PasswordPolicyProvider.class);
+	            m_passwordPolicyProvider = ComponentManager.get(PasswordPolicyProvider.class);
 	        }
 	        // If all else failed, manually instantiate default implementation
 	        if ( m_passwordPolicyProvider == null ) {
@@ -235,7 +235,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		while(locksIterator.hasNext()) {
 
-			if(securityService().unlock((String) locksIterator.next(), resource))
+			if(securityService().unlock(locksIterator.next(), resource))
 					return true;
 
 		}
@@ -331,7 +331,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		StringBuilder  locksFailedSb = new StringBuilder();
 		while (locksIterator.hasNext()) {
 
-			String lock = (String) locksIterator.next();
+			String lock = locksIterator.next();
 
 			if (unlockCheck(lock, resource))
 			{
@@ -576,7 +576,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// Check for optional contextual user display service.
 			if (m_contextualUserDisplayService == null)
 			{
-				m_contextualUserDisplayService = (ContextualUserDisplayService) ComponentManager.get(ContextualUserDisplayService.class);
+				m_contextualUserDisplayService = ComponentManager.get(ContextualUserDisplayService.class);
 			}
 			
 			// Fallback to the default password service.
@@ -852,7 +852,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		Set<String> searchIds = new HashSet<String>();
 		for (Iterator<String> idIter = ids.iterator(); idIter.hasNext(); )
 		{
-			String id = (String)idIter.next();
+			String id = idIter.next();
 			id = cleanEid(id);
 			if (id != null) searchIds.add(id);
 		}
@@ -1895,12 +1895,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public Collection getEntityAuthzGroups(Reference ref, String userId)
+	public Collection<String> getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
 		if (!APPLICATION_ID.equals(ref.getType())) return null;
 
-		Collection rv = new Vector();
+		Collection<String> rv = new Vector<String>();
 
 		// for user access: user and template realms
 		try
@@ -2282,7 +2282,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		/**
 		 * @inheritDoc
 		 */
-		public Element toXml(Document doc, Stack stack)
+		public Element toXml(Document doc, Stack<Element> stack)
 		{
 			Element user = doc.createElement("user");
 
@@ -2292,7 +2292,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 			else
 			{
-				((Element) stack.peek()).appendChild(user);
+				stack.peek().appendChild(user);
 			}
 
 			stack.push(user);

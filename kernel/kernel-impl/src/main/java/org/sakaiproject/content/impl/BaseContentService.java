@@ -9211,7 +9211,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		extType.put("id", id);
 		if (type == null) type = "";
 		extType.put("type", type);
-		String extension = Validator.getFileExtension(id);
+		
+		String[] idSegments;
+		idSegments = id.split("/");
+		String filename = idSegments.length > 0 ? idSegments[idSegments.length - 1]:id;
+		String extension = Validator.getFileExtension(filename);
 
 		if (extension.length() != 0)
 		{

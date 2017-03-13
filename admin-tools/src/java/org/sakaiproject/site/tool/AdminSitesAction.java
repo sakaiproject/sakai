@@ -34,6 +34,7 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -78,7 +79,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 /**
@@ -125,9 +125,9 @@ public class AdminSitesAction extends PagedResourceActionII
 	protected List readResourcesPage(SessionState state, int first, int last)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
-		String siteId = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH_SITE_ID));
-		String userId = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH_USER_ID));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String siteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH_SITE_ID));
+		String userId = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH_USER_ID));
 
 		// Boolean userOnly = (Boolean) state.getAttribute(STATE_SEARCH_USER);
 
@@ -180,9 +180,9 @@ public class AdminSitesAction extends PagedResourceActionII
 	protected int sizeResources(SessionState state)
 	{
 		// search?
-		String search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
-		String siteId = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH_SITE_ID));
-		String userId = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH_USER_ID));
+		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
+		String siteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH_SITE_ID));
+		String userId = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH_USER_ID));
 
 		// search for non-user sites, using the criteria
 		if (siteId != null)
@@ -1097,7 +1097,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		Site site = (Site) state.getAttribute("site");
 		if (site != null)
 		{
-			String url_alias = StringUtil.trimToNull(data.getParameters().getString("url_alias"));
+			String url_alias = StringUtils.trimToNull(data.getParameters().getString("url_alias"));
 			// set an alias for the site
 			if(url_alias!=null)
 			{
@@ -1366,18 +1366,18 @@ public class AdminSitesAction extends PagedResourceActionII
 	private boolean readSiteForm(RunData data, SessionState state)
 	{
 		// read the form
-		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
-		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
-		String type = StringUtil.trimToNull(data.getParameters().getString("type"));
-		String shortDescription = StringUtil.trimToNull(data.getParameters().getString("shortDescription"));
-		String description = StringUtil.trimToNull(data.getParameters().getString("description"));
+		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
+		String title = StringUtils.trimToNull(data.getParameters().getString("title"));
+		String type = StringUtils.trimToNull(data.getParameters().getString("type"));
+		String shortDescription = StringUtils.trimToNull(data.getParameters().getString("shortDescription"));
+		String description = StringUtils.trimToNull(data.getParameters().getString("description"));
 		boolean joinable = data.getParameters().getBoolean("joinable");
-		String joinerRole = StringUtil.trimToNull(data.getParameters().getString("joinerRole"));
-		String icon = StringUtil.trimToNull(data.getParameters().getString("icon"));
-		String info = StringUtil.trimToNull(data.getParameters().getString("info"));
+		String joinerRole = StringUtils.trimToNull(data.getParameters().getString("joinerRole"));
+		String icon = StringUtils.trimToNull(data.getParameters().getString("icon"));
+		String info = StringUtils.trimToNull(data.getParameters().getString("info"));
 		boolean published = data.getParameters().getBoolean("published");
 		boolean softlyDeleted = data.getParameters().getBoolean("softlyDeleted");
-		String skin = StringUtil.trimToNull(data.getParameters().getString("skin"));
+		String skin = StringUtils.trimToNull(data.getParameters().getString("skin"));
 		boolean pubView = data.getParameters().getBoolean("pubView");
 		boolean customOrder = data.getParameters().getBoolean("customOrder");
 
@@ -1958,7 +1958,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		SitePage page = (SitePage) state.getAttribute("page");
 
 		// read the form
-		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
+		String title = StringUtils.trimToNull(data.getParameters().getString("title"));
 		page.setTitle(title);
 
 		try
@@ -2029,7 +2029,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		for (Iterator i = props.getPropertyNames(); i.hasNext();)
 		{
 			String name = (String) i.next();
-			String formValue = StringUtil.trimToNull(data.getParameters().getString("param_" + name));
+			String formValue = StringUtils.trimToNull(data.getParameters().getString("param_" + name));
 			
 			// update the properties or remove
 			if (formValue != null)
@@ -2043,10 +2043,10 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		
 		// see if there's a new one
-		String formName = StringUtil.trimToNull(data.getParameters().getString("new_name"));
+		String formName = StringUtils.trimToNull(data.getParameters().getString("new_name"));
 		if (formName != null)
 		{
-			String formValue = StringUtil.trimToNull(data.getParameters().getString("new_value"));
+			String formValue = StringUtils.trimToNull(data.getParameters().getString("new_value"));
 			if (formValue != null)
 			{
 				props.addProperty(formName, formValue);
@@ -2071,7 +2071,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		for (Iterator i = props.getPropertyNames(); i.hasNext();)
 		{
 			String name = (String) i.next();
-			String formValue = StringUtil.trimToNull(data.getParameters().getString("param_" + name));
+			String formValue = StringUtils.trimToNull(data.getParameters().getString("param_" + name));
 			
 			// update the properties or remove
 			if (formValue != null)
@@ -2085,10 +2085,10 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 		
 		// see if there's a new one
-		String formName = StringUtil.trimToNull(data.getParameters().getString("new_name"));
+		String formName = StringUtils.trimToNull(data.getParameters().getString("new_name"));
 		if (formName != null)
 		{
-			String formValue = StringUtil.trimToNull(data.getParameters().getString("new_value"));
+			String formValue = StringUtils.trimToNull(data.getParameters().getString("new_value"));
 			if (formValue != null)
 			{
 				props.addProperty(formName, formValue);
@@ -2115,7 +2115,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			for (Enumeration iParams = tool.getPlacementConfig().propertyNames(); iParams.hasMoreElements();)
 			{
 				String paramName = (String) iParams.nextElement();
-				String formValue = StringUtil.trimToNull(data.getParameters().getString("param_" + paramName));
+				String formValue = StringUtils.trimToNull(data.getParameters().getString("param_" + paramName));
 				
 				// update the properties or remove
 				if (formValue != null)
@@ -2129,10 +2129,10 @@ public class AdminSitesAction extends PagedResourceActionII
 			}
 		}
 		// see if there's a new one
-		String formName = StringUtil.trimToNull(data.getParameters().getString("new_name"));
+		String formName = StringUtils.trimToNull(data.getParameters().getString("new_name"));
 		if (formName != null)
 		{
-			String formValue = StringUtil.trimToNull(data.getParameters().getString("new_value"));
+			String formValue = StringUtils.trimToNull(data.getParameters().getString("new_value"));
 			if (formValue != null)
 			{
 				tool.getPlacementConfig().setProperty(formName, formValue);
@@ -2154,10 +2154,10 @@ public class AdminSitesAction extends PagedResourceActionII
 		Group group = (Group) state.getAttribute("group");
 
 		// read the form
-		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
+		String title = StringUtils.trimToNull(data.getParameters().getString("title"));
 		group.setTitle(title);
 
-		String description = StringUtil.trimToNull(data.getParameters().getString("description"));
+		String description = StringUtils.trimToNull(data.getParameters().getString("description"));
 		group.setDescription(description);
 
 		if (title == null)
@@ -2429,7 +2429,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.removeAttribute(STATE_SEARCH_USER_ID);
 
 		// read the search form field into the state object
-		String search = StringUtil.trimToNull(runData.getParameters().getString(FORM_SEARCH_SITEID));
+		String search = StringUtils.trimToNull(runData.getParameters().getString(FORM_SEARCH_SITEID));
 
 		// set the flag to go to the prev page on the next list
 		if (search != null)
@@ -2454,7 +2454,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.removeAttribute(STATE_SEARCH_USER_ID);
 
 		// read the search form field into the state object
-		String search = StringUtil.trimToNull(runData.getParameters().getString(FORM_SEARCH_USERID));
+		String search = StringUtils.trimToNull(runData.getParameters().getString(FORM_SEARCH_USERID));
 
 		// set the flag to go to the prev page on the next list
 		if (search != null)
@@ -2500,11 +2500,11 @@ public class AdminSitesAction extends PagedResourceActionII
 		ToolConfiguration tool = (ToolConfiguration) state.getAttribute("tool");
 
 		// read the form
-		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
+		String title = StringUtils.trimToNull(data.getParameters().getString("title"));
 		tool.setTitle(title);
 
 		// read the layout hints
-		String hints = StringUtil.trimToNull(data.getParameters().getString("layoutHints"));
+		String hints = StringUtils.trimToNull(data.getParameters().getString("layoutHints"));
 		if (hints != null)
 		{
 			// strip all whitespace
@@ -2523,7 +2523,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				String value = data.getParameters().getString(formName);
 				if (value != null)
 				{
-					value = StringUtil.trimToNull(value);
+					value = StringUtils.trimToNull(value);
 
 					// if we have a value
 					if (value != null)
@@ -2662,9 +2662,9 @@ public class AdminSitesAction extends PagedResourceActionII
 			addAlert(state, rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 			M_log.warn(this + ".updateSiteInfo: " + rb.getFormattedMessage("sitedipag.alias.isinval", new Object[]{alias}));
 		} 
-		else if (StringUtil.trimToNull(alias) != null && StringUtil.trimToNull(siteReference) != null) 
+		else if (StringUtils.trimToNull(alias) != null && StringUtils.trimToNull(siteReference) != null) 
 		{
-			String currentAlias = StringUtil.trimToNull(getSiteAlias(siteReference));
+			String currentAlias = StringUtils.trimToNull(getSiteAlias(siteReference));
 
 			if (currentAlias == null || !currentAlias.equals(alias))
 			{

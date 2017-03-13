@@ -23,7 +23,7 @@
   <!-- Project versions -->
   <properties>
     <commons-betwixt.version>0.8</commons-betwixt.version>
-    <easymock.version>3.2</easymock.version>
+    <easymock.version>3.4</easymock.version>
     <h2.version>1.1.111</h2.version>
     <mysql.version>5.1.25</mysql.version>
     <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
@@ -58,23 +58,6 @@
       </modules>
     </profile>
   </profiles>
-
-  <!-- Source code repository location -->
-
-  <!-- Distribution Management -->
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url>
-    </site>
-  </distributionManagement>
-
-  <!-- JIRA -->
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
-  </issueManagement>
 
   <!-- Project related dependencies -->
   <dependencyManagement>

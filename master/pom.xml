@@ -25,7 +25,7 @@
   </developers>
   <issueManagement>
     <system>jira</system>
-    <url>http://bugs.sakaiproject.org/jira/browse/SAK</url>
+    <url>http://jira.sakaiproject.org/browse/SAK</url>
   </issueManagement>
   <ciManagement>
     <system>continuum</system>
@@ -1748,7 +1748,7 @@
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.5.1</version>
+        <version>2.6.0</version>
         <scope>provided</scope>
       </dependency>
       <dependency>

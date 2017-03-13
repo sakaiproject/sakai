@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
@@ -111,8 +112,8 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		expect(M_ss.getSite("non_existent_site")).andThrow(new IdUnusedException("non_existent_site")).anyTimes();
 		
 		// My Workspace - user sites
-		FakeSite userSiteA = new FakeSite("~"+FakeData.USER_A_ID);
-		FakeSite userSiteB = new FakeSite("~"+FakeData.USER_B_ID);
+		FakeSite userSiteA = Mockito.spy(FakeSite.class).set("~"+FakeData.USER_A_ID);
+		FakeSite userSiteB = Mockito.spy(FakeSite.class).set("~"+FakeData.USER_B_ID);
 		expect(M_ss.getSiteUserId(FakeData.USER_A_ID)).andStubReturn("~"+FakeData.USER_A_ID);
 		expect(M_ss.getSiteUserId(FakeData.USER_B_ID)).andStubReturn("~"+FakeData.USER_B_ID);
 		expect(M_ss.getSiteUserId("no_user")).andStubReturn(null);
@@ -120,7 +121,7 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		expect(M_ss.getSite("~"+FakeData.USER_B_ID)).andStubReturn(userSiteB);
 		
 		// Site A has tools {SiteStats, Chat}, has {user-a,user-b}, created 1 month ago
-		Site siteA = new FakeSite(FakeData.SITE_A_ID,
+		Site siteA = Mockito.spy(FakeSite.class).set(FakeData.SITE_A_ID,
 				Arrays.asList(StatsManager.SITESTATS_TOOLID, FakeData.TOOL_CHAT, StatsManager.RESOURCES_TOOLID)
 			);
 		((FakeSite)siteA).setUsers(new HashSet<String>(Arrays.asList(FakeData.USER_A_ID,FakeData.USER_B_ID)));
@@ -130,7 +131,7 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		expect(M_ss.isSpecialSite(FakeData.SITE_A_ID)).andStubReturn(false);
 		
 		// Site B has tools {TOOL_CHAT}, has {user-a}, created 2 months ago
-		FakeSite siteB = new FakeSite(FakeData.SITE_B_ID, FakeData.TOOL_CHAT);
+		FakeSite siteB = Mockito.spy(FakeSite.class).set(FakeData.SITE_B_ID, FakeData.TOOL_CHAT);
 		((FakeSite)siteB).setUsers(new HashSet<String>(Arrays.asList(FakeData.USER_A_ID)));
 		((FakeSite)siteB).setMembers(new HashSet<String>(Arrays.asList(FakeData.USER_A_ID)));
 		expect(M_ss.getSite(FakeData.SITE_B_ID)).andStubReturn(siteB);
@@ -139,7 +140,7 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 
 		if(enableLargeMembershipTest) {
 			// Site C has tools {SiteStats, Chat}, has 2002 users (user-1..user-2002), created 1 month ago
-			Site siteC = new FakeSite(FakeData.SITE_C_ID,
+			Site siteC = Mockito.spy(FakeSite.class).set(FakeData.SITE_C_ID,
 					Arrays.asList(StatsManager.SITESTATS_TOOLID, FakeData.TOOL_CHAT, StatsManager.RESOURCES_TOOLID)
 				);
 			List<String> siteCUsersList = new ArrayList<String>();
@@ -184,7 +185,10 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
-		
+		// This is needed to make the tests deterministic, otherwise on occasion the collect thread will run
+		// and break the tests.
+		M_sum.setCollectThreadEnabled(false);
+
 		M_ers.setStatsManager(M_sm);
 	}
 

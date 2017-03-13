@@ -942,6 +942,7 @@ public interface LTIService {
 	public static final String ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_OR = "\\#\\|\\#";
 	public static final String LTI_SEARCH_TOKEN_NULL = "#null#";
 	public static final String LTI_SEARCH_TOKEN_DATE = "#date#";
+	public static final String LTI_SEARCH_TOKEN_EXACT = "#exact#";
 	public static final String LTI_SEARCH_INTERNAL_DATE_FORMAT = "dd/MM/yyyy H:mm:ss";
 	public static final String LTI_SITE_ATTRIBUTION_PROPERTY_KEY = "basiclti.tool.site.attribution.key";
 	public static final String LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT = "Department";

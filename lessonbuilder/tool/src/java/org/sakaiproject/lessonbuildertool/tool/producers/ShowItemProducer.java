@@ -386,7 +386,12 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));
 		return;
 	    }
-
+	    if(item != null && item.getType() == SimplePageItem.FORUM_SUMMARY) {
+		// get messageId, topicId and forumId from the parameters for the source url
+		source = myUrl()+ "/portal/tool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID)
+			+ "/discussionForum/message/dfViewThreadDirect.jsf?&messageId=" + params.getMessageId()
+			+ "&topicId=" + params.getTopicId() + "&forumId=" + params.getForumId();
+	    }
 	    if (source.startsWith("CREATE/")) {
 		if (source.startsWith("CREATE/ASSIGN/")) {
 		    List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);

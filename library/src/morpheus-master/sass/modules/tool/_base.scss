@@ -1,29 +1,41 @@
 .#{$namespace}multipleTools{
+	.#{$namespace}container {
+		border: 1px solid $overview-portlet-border-color;
+		box-shadow: $overview-portlet-shadow;
+		margin-bottom: 20px;
+
+		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
+			border-top: 0;
+			border-left: 0;
+			border-right: 0;
+			box-shadow: none;
+			margin: 0 !important;
+		}
+
+		.#{$namespace}container--toolTitleNav {
+			background-color: $overview-portlet-title-background-color;
+			border-bottom: 1px solid $overview-portlet-border-color;
+  	}
+  }
+
 	.#{$namespace}toolTitleNav{
 		.#{$namespace}toolTitleNav__title{
 			display: inline-block;
-			color: rgba(21,21,21,0.5);
-			font-size: 0.85em;
+			font-size: 0.9em;
 			font-weight: 400;
-			letter-spacing: 1.2px;
-			margin: 0px;
+			margin: 0;
 			position: relative;
-			text-transform: uppercase;
 			width: calc(100% - 90px);
-			z-index: 21;
 			a{
-				color: rgba(21,21,21,0.5);
-				font-weight: 400;
 				margin-right: 0.25em;
 			}
 		}
 	}
-
 }
 
 .#{$namespace}toolTitleNav{
-	margin: 1em 0 0 0;
-	padding: 0.5em;
+	margin: 0;
+	padding: 0.6em;
 	position: relative;
 	.#{$namespace}toolTitleNav__title{
 		display: none;
@@ -43,12 +55,12 @@
 				display:    block;
 				background: #FFF;
 				width: 250px;
-  				margin: 10px 0 0 -250px;
-  				z-index: 2;
-				box-shadow: 0 0 5px 0 rgba(0,0,0,0.5);
+				margin: 10px 0 0 -250px;
+				z-index: 2;
+				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
 				label{
 					font-size: $default-font-size;
-					margin: 5px 0 0px 5px;
+					margin: 5px 0 0 5px;
 					vertical-align: middle;
 				}
 				textarea{
@@ -58,33 +70,29 @@
 					width: 98%;
 				}
 				@media #{$phone}{
-					margin: -1px 0 0px -214px;
+					margin: -1px 0 0 -214px;
 				}
 			}
 		}
 	}
 	.#{$namespace}toolTitleNav__button_container{
-		float: right;
 		display: block;
 		position: relative;
-		margin: 0px 0 -20px 0;
-		top: 9px;
-		z-index: 1;
+		float: right;
+		top: -4px;
+		right: -11px;
 		@media #{$tablet}{
-			left: 0.35em;
-			font-size: 1.5em;
-			margin: 0px 0 0px 0;
-			top: -4px;
-			z-index: 1;
+			font-size: 1.2em;
 		}
 	}
 	.#{$namespace}toolTitleNav__link{
 		color: $tool-nav-link-color;
 		border: 1px solid #e0e0e0;
+		border-radius: 3px;
 		background: $tool-tab-background-color;
 		margin-right: 0.25em;
-		padding: 5px 8px;
-		text-decoration :none;
+		padding: 0.4em 0.8em 0.45em 0.8em;
+		text-decoration: none;
 		vertical-align: 0%;
 		&:hover{
 			background: $tool-background-color;
@@ -118,14 +126,14 @@
 		&--edit{
 			@extend .fa;
 			@extend .fa-pencil;
-			//@extend .fa-lg;	
+			//@extend .fa-lg;
 			/*position: absolute;
 			right: #{$icon-size * 3};*/
 		}
 		&--reset{
 			@extend .fa;
 			@extend .fa-share;
-			//@extend .fa-lg;	
+			//@extend .fa-lg;
 			display: none;
 			font-size: 0.9em;
 			float: left;
@@ -171,7 +179,7 @@
 	text-align: right;
 	line-height: 2em;
 	clear: both;
-	margin: 1em 0em 0.5em 0;
+	margin: 1em 0 0.5em 0;
 	white-space: nowrap;
 	a{
 		white-space: nowrap;
@@ -192,4 +200,20 @@
 
 .alertMessage{
 	@extend .bs-callout-danger;
+}
+
+@media #{$tablet} {
+  #content {
+    padding-top: 1em;
+  }
+
+  .#{$namespace}pageColumns--single {
+    margin: 0 !important;
+  }
+
+  .#{$namespace}multipleTools {
+    .#{$namespace}container {
+      margin: 0 7px 10px !important;
+    }
+  }
 }

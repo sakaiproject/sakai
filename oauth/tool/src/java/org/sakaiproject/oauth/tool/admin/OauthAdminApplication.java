@@ -13,8 +13,7 @@ public class OauthAdminApplication extends WebApplication {
     @Override
     protected void init() {
         // Configure for Spring injection
-        addComponentInstantiationListener(new SpringComponentInjector(this));
-        // getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+        getComponentInstantiationListeners().add(new SpringComponentInjector(this));
     }
 
     @Override

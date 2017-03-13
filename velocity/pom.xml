@@ -19,13 +19,4 @@
         <module>tool-api</module>
         <module>util</module>
     </modules>
-    
-    
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/velocity/${project.version}</url>
-        </site>
-    </distributionManagement>
 </project>

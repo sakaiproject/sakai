@@ -55,7 +55,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	private static Logger M_log = LoggerFactory.getLogger(SakaiSecurity.class);
 
 	/** A cache of calls to the service and the results. */
-	protected Cache m_callCache = null;
+	protected Cache<String, Boolean> m_callCache = null;
 
 	/** ThreadLocalManager key for our SecurityAdvisor Stack. */
 	protected final static String ADVISOR_STACK = "SakaiSecurity.advisor.stack";
@@ -173,12 +173,12 @@ public abstract class SakaiSecurity implements SecurityService, Observer
      * Cache for holding the super user check cached results
      * Only used in the new caching system
      */
-    Cache m_superCache;
+    Cache<String, Boolean> m_superCache;
     /**
      * Cache for holding the content authz check cached results
      * Only used in the new caching system
      */
-    Cache m_contentCache;
+    Cache<String, Boolean> m_contentCache;
 
     /**
      * KNL-1230
@@ -191,12 +191,12 @@ public abstract class SakaiSecurity implements SecurityService, Observer
         Boolean result = null;
         if (m_callCache != null) {
             if (isSuper) {
-                result = (Boolean) m_superCache.get(key);
+                result = m_superCache.get(key);
             } else {
                 if (key.contains("@/content")) {
-                    result = (Boolean) m_contentCache.get(key);
+                    result = m_contentCache.get(key);
                 } else {
-                    result = (Boolean) m_callCache.get(key);
+                    result = m_callCache.get(key);
                 }
             }
             // see note below about forced cache expiration
@@ -526,7 +526,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
     void logCacheState(String operator) {
         if (cacheDebug) {
             String name = m_callCache.getName();
-            net.sf.ehcache.Ehcache ehcache = (Ehcache) m_callCache.unwrap(Ehcache.class); // DEBUGGING ONLY
+            net.sf.ehcache.Ehcache ehcache = m_callCache.unwrap(Ehcache.class); // DEBUGGING ONLY
             StringBuilder entriesSB = new StringBuilder();
             List keys = ehcache.getKeysWithExpiryCheck(); // only current keys
             entriesSB.append("   * keys(").append(keys.size()).append("):").append(new ArrayList<Object>(keys)).append("\n");
@@ -863,7 +863,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		// a Stack grows to the right - process from top to bottom
 		for (int i = advisors.size() - 1; i >= 0; i--)
 		{
-			SecurityAdvisor advisor = (SecurityAdvisor) advisors.elementAt(i);
+			SecurityAdvisor advisor = advisors.elementAt(i);
 
 			SecurityAdvisor.SecurityAdvice advice = advisor.isAllowed(userId, function, reference);
 			if (advice != SecurityAdvisor.SecurityAdvice.PASS)
@@ -898,14 +898,14 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		{
 			if (advisor == null) 
 			{
-				rv = (SecurityAdvisor) advisors.pop();
+				rv = advisors.pop();
 			}
 			else
 			{
 				SecurityAdvisor sa = advisors.firstElement();
 				if (advisor.equals(sa))
 				{
-					rv = (SecurityAdvisor) advisors.pop();
+					rv = advisors.pop();
 				}
 			}
 		}
