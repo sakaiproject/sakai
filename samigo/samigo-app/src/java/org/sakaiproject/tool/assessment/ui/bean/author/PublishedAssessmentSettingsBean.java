@@ -1662,6 +1662,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		}
   	}
   	else {
+		this.extendedTime.syncDates();
   		this.extendedTimes.add(this.extendedTime);
   		resetExtendedTime();
   	}

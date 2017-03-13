@@ -22,6 +22,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+
 
 import java.io.Serializable;
 import java.util.Date;
@@ -70,6 +72,33 @@ public class ExtendedTime implements Serializable {
             return null;
         }
         return pubAssessment.getPublishedAssessmentId();
+    }
+
+    /**
+     * Sync the dates up to the dates in AssessmentAccessControlIfc
+     */
+    public void syncDates() {
+        AssessmentAccessControlIfc ac = null;
+        if (assessment != null) {
+            ac = assessment.getAssessmentAccessControl();
+        }
+        else if (pubAssessment != null) {
+            ac = pubAssessment.getAssessmentAccessControl();
+        }
+
+        if (ac == null) {
+            return;
+        }
+
+        if (this.getDueDate() == null) {
+            this.setDueDate(ac.getDueDate());
+        }
+        if (this.getStartDate() == null) {
+            this.setStartDate(ac.getStartDate());
+        }
+        if (this.getRetractDate() == null && ac.getLateHandling() == AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION) {
+            this.setRetractDate(ac.getRetractDate());
+        }
     }
 
     @Override
