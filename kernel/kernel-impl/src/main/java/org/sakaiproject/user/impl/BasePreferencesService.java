@@ -803,7 +803,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			ResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
 			m_properties = props;
 
-			m_props = new Hashtable<String, ResourcePropertiesEdit>();
+			m_props = new Hashtable<>();
 
 			// if the id is not null (a new user, rather than a reconstruction)
 			// and not the anon (id == "") user,
@@ -833,7 +833,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			// setup for properties
 			m_properties = new BaseResourcePropertiesEdit();
 
-			m_props = new Hashtable<String, ResourcePropertiesEdit>();
+			m_props = new Hashtable<>();
 
 			m_id = el.getAttribute("id");
 
@@ -938,7 +938,7 @@ public abstract class BasePreferencesService implements PreferencesService, Sing
 			m_properties.addAll(prefs.getProperties());
 
 			// %%% is this deep enough? -ggolden
-			m_props = new Hashtable<String, ResourcePropertiesEdit>();
+			m_props = new Hashtable<>();
 			m_props.putAll(((BasePreferences) prefs).m_props);
 		}
 
