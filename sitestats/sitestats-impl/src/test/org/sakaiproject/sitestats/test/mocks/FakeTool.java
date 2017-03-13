@@ -23,7 +23,7 @@ import java.util.Set;
 
 import org.sakaiproject.tool.api.Tool;
 
-public class FakeTool implements Tool {
+public abstract class FakeTool implements Tool {
 	String id;
 	String home;
 	String title;

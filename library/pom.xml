@@ -273,18 +273,9 @@
 					<plugin>
 						<groupId>net.alchim31.maven</groupId>
 						<artifactId>yuicompressor-maven-plugin</artifactId>
-						<version>1.1</version>
+						<version>1.5.1</version>
 						<executions>
 							<execution>
-								<id>aggregate-js</id>
-								<phase>generate-resources</phase>
-								<goals>
-									<goal>compress</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>compress-js</id>
-								<phase>process-resources</phase>
 								<goals>
 									<goal>compress</goal>
 								</goals>
@@ -293,22 +284,22 @@
 						<configuration>
 							<force>true</force>
 							<nosuffix>true</nosuffix>
-							<sourceDirectory>${project.build.directory}/js/</sourceDirectory>
-							<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/js/</outputDirectory>
+							<sourceDirectory>${basedir}/src/${sakai.skin.source}/js/</sourceDirectory>
+							<outputDirectory>${project.build.directory}/js/</outputDirectory>
 							<aggregations>
 								<aggregation>
-									<output>${project.build.directory}/js/morpheus.scripts.min.js</output>
-									<inputDir>${basedir}/src/${sakai.skin.source}/js/src/</inputDir>
+									<inputDir>${project.build.directory}/js/src/</inputDir>
 									<includes>
 										<include>**/*.js</include>
 									</includes>
+									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.scripts.min.js</output>
 								</aggregation>
 								<aggregation>
-									<output>${project.build.directory}/js/morpheus.plugins.min.js</output>
-									<inputDir>${basedir}/src/${sakai.skin.source}/js/plugins/</inputDir>
+									<inputDir>${project.build.directory}/js/plugins/</inputDir>
 									<includes>
 										<include>**/*.js</include>
 									</includes>
+									<output>${project.build.directory}/${project.build.finalName}/skin/${sakai.skin.target}/js/morpheus.plugins.min.js</output>
 								</aggregation>
 							</aggregations>
 						</configuration>
@@ -316,7 +307,7 @@
 					<plugin>
 					   <groupId>com.github.warmuuh</groupId>
 					   <artifactId>libsass-maven-plugin</artifactId>
-					   <version>0.2.5-libsass_3.3.6</version>
+					   <version>0.2.6-libsass_3.4.0</version>
 					   <executions>
 					       <execution>
 					           <phase>process-resources</phase>

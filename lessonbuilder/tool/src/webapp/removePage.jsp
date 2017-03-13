@@ -98,7 +98,7 @@
 	out.println(StringEscapeUtils.escapeHtml("removePage unable to save site " + e));
     }
 		
-    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.REMOVE, "/lessonbuilder/page/" + simplePage.getPageId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_REMOVE, "/lessonbuilder/page/" + simplePage.getPageId(), true));
 
    out.println("<script>parent.location.replace(\"/portal/site/" + URLEncoder.encode(site.getId(), "UTF-8") + "\")</script>");
 

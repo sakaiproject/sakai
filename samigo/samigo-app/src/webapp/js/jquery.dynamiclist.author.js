@@ -8,8 +8,7 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 	
 	this.className = className_;
 	this.anchor = anchor_;
-	
-	//this.row = templateId_.replace('gradingSchemaTemplate','');
+
 	this.row = 0;
 	this.count = 0;
 		
@@ -95,7 +94,6 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 				var id = key.replace('sel_', '');
 				
 				var obj = $('#dlContainer_'+id);
-				//obj.remove();
 				
 				this_.selectionList[key].remove();
 				delete this_.selectionList[key];
@@ -118,8 +116,7 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 	}
 	
 	this.getObject = function(value_, checked_,new_)
-	{	
-		//var clonedObj = $('#'+this.templateId).clone();
+	{
 		var tempClone = document.getElementById(this.templateId).cloneNode(true);
 		var clonedObj = $(tempClone);
 		clonedObj.attr('id', 'dlContainer_'+this.row+this.count);		
@@ -160,20 +157,7 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 	{
 		var newSelection = new selectionAuthor('sel_'+this.row+this.count, this.className, this.anchor);
 		this_.selectionList['sel_'+this.row+this.count] = newSelection;
-		
-		if(this.count==0)
-		{
-			var anchorJObj = $('#'+this.anchor);
-			//look for image and set container width and height	
-			if(anchorJObj.find('img').attr('src') != '')
-			{
-				anchorJObj.css('width', anchorJObj.find('img').width()+'px');
-				anchorJObj.css('height', anchorJObj.find('img').height()+'px');
-				anchorJObj.css('background-image', 'url("' + anchorJObj.find('img').attr('src') + '")');
-				anchorJObj.css('background-repeat', 'no-repeat');
-			}
-		}
-		
+
 		var clonedObj = this.getObject(value_, checked_,new_);
 		$('#'+this.lastId).after(clonedObj);
 		this.lastId = clonedObj.attr('id');		

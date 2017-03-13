@@ -144,6 +144,9 @@ public class SettingsCategoryPanel extends BasePanel {
 		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting",
 				new Model<>(GbCategoryType.WEIGHTED_CATEGORY.getValue()));
 
+		//on load, if course grade displayed and points selected, disable categories and weighting
+		updateCategoriesAndWeightingRadioState();
+
 		categoryType.add(none);
 		categoryType.add(categoriesOnly);
 		categoryType.add(this.categoriesAndWeighting);
@@ -157,10 +160,9 @@ public class SettingsCategoryPanel extends BasePanel {
 
 			@Override
 			public boolean isVisible() {
-				// don't show if 'no categories' OR if course points is set
+				// don't show if 'no categories'
 				final GradebookInformation settings = SettingsCategoryPanel.this.model.getObject().getGradebookInformation();
-				return (GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY
-						|| settings.isCoursePointsDisplayed());
+				return (GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY);
 			}
 
 		};
@@ -270,15 +272,8 @@ public class SettingsCategoryPanel extends BasePanel {
 
 				// if categories and weighting, disable course grade points
 				final AjaxCheckBox points = settingsPage.getSettingsGradeReleasePanel().getPointsCheckBox();
-				// only do this if course grade is released and the points checkbox is visible
-				if (SettingsCategoryPanel.this.model.getObject().getGradebookInformation().isCourseGradeDisplayed()) {
-					if (type == GbCategoryType.WEIGHTED_CATEGORY) {
-						points.setEnabled(false);
-					} else {
-						points.setEnabled(true);
-					}
-					target.add(points);
-				}
+				settingsPage.getSettingsGradeReleasePanel().updatePointsCheckboxState();
+				target.add(points);
 
 				// reinitialize any custom behaviour
 				target.appendJavaScript("sakai.gradebookng.settings.categories = new GradebookCategorySettings($('#settingsCategories'));");
@@ -736,5 +731,26 @@ public class SettingsCategoryPanel extends BasePanel {
 	// to enable inter panel comms
 	Radio<Integer> getCategoriesAndWeightingRadio() {
 		return this.categoriesAndWeighting;
+	}
+
+	// helper to apply the rules for whether the categories and weighting radio should be enabled
+	// runs via data from the model
+	protected void updateCategoriesAndWeightingRadioState() {
+		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
+
+		// if course grade is NOT being displayed, enable categories and weighting
+		if (!settings.isCourseGradeDisplayed()) {
+			this.categoriesAndWeighting.setEnabled(true);
+		} else {
+			this.categoriesAndWeighting.setEnabled(false);
+		}
+
+		// if points selected, disable categories and weighting
+		if (settings.isCourseGradeDisplayed() && settings.isCoursePointsDisplayed()) {
+			this.categoriesAndWeighting.setEnabled(false);
+		} else {
+			this.categoriesAndWeighting.setEnabled(true);
+		}
+
 	}
 }

@@ -417,7 +417,7 @@ sakai.siteTypeSetup = function(){
             }
             else {
                 //show all the controls, unchecked, unlocked, since there are no settings
-                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',false);
+                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',true);
                 $('#copyUsersWrapper').show().find('input').prop('disabled', false).prop('checked',false);
                 $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
                 $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();

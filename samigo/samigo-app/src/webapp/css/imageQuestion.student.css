@@ -56,6 +56,8 @@
 .studentImageContainer{
 	position:relative;	
 	display:inline-block;
+	overflow-x: auto;
+	max-width: 85vw;
 }
 
 .studentImageContainer img{

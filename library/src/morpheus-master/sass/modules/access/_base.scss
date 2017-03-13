@@ -93,6 +93,27 @@
 	}
 }
 
+#Mrphs-choice{
+	@extend #Mrphs-xlogin;
+	.msg{
+		padding: 0.6em;
+		font-size: 1.4em;
+		font-weight: 700;
+		color: $primary-color;
+		text-align: center;
+	}
+
+	.link{
+		width: 48%;
+		display: inline-block;
+		text-align: center;
+	}
+}
+#Mrphs-xlogin .xloginMessage{
+	padding: 0.9em;
+	text-align: center;
+}
+
 #loginPortalMask{
 	background: rgba(0,0,0,0.5);
 	position: fixed;
