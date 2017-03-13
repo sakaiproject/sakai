@@ -19,16 +19,12 @@
  */
 package org.sakaiproject.oauth.dao;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.sakaiproject.oauth.domain.Accessor;
-
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import org.sakaiproject.oauth.domain.Accessor;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class HibernateAccessorDao extends HibernateDaoSupport implements AccessorDao {
     @Override
@@ -43,29 +39,23 @@ public class HibernateAccessorDao extends HibernateDaoSupport implements Accesso
 
     @Override
     public List<Accessor> getByUser(String userId) {
-        return (List<Accessor>) getHibernateTemplate().find(
-                "FROM Accessor a WHERE a.userId = ?",
-                new Object[]{userId});
+        return (List<Accessor>) getHibernateTemplate().findByNamedParam("FROM Accessor a WHERE a.userId = :userid", "userid", userId);
     }
 
     @Override
     public Collection<Accessor> getByConsumer(String consumerId) {
-        return (List<Accessor>) getHibernateTemplate().find(
-                "FROM Accessor a WHERE a.consumerId = ?",
-                new Object[]{consumerId});
+        return (List<Accessor>) getHibernateTemplate().findByNamedParam("FROM Accessor a WHERE a.consumerId = :consumerid", "consumerid", consumerId);
     }
 
     @Override
     public void markExpiredAccessors() {
-        getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                session.createQuery(
-                        "UPDATE Accessor a SET a.status=? WHERE a.expirationDate < ?")
-                        .setParameter(0, Accessor.Status.EXPIRED)
-                        .setDate(1, new Date())
-                        .executeUpdate();
-                return null;
-            }
+        getHibernateTemplate().execute(session -> {
+            session.createQuery(
+                    "UPDATE Accessor a SET a.status=? WHERE a.expirationDate < ?")
+                    .setParameter(0, Accessor.Status.EXPIRED)
+                    .setDate(1, new Date())
+                    .executeUpdate();
+            return null;
         });
     }
 

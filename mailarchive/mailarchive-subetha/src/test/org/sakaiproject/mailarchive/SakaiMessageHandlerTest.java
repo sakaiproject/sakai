@@ -138,7 +138,6 @@ public class SakaiMessageHandlerTest {
     @Test()
     public void testIgnorePostmaster() throws Exception {
         when(aliasService.getTarget("postmaster")).thenThrow(IdUnusedException.class);
-        when(rb.getString("err_addr_unknown")).thenReturn("err_addr_unknown");
         SmartClient client = createClient();
         client.from("sender@example.com");
         client.to("postmaster@sakai.example.com");

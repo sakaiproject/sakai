@@ -21,8 +21,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
-import org.sakaiproject.assignment.impl.BaseAssignmentService;
-import org.sakaiproject.assignment.impl.MySecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -484,10 +482,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		}
 		try {
 			// enable permission to view possible draft assignment
-			securityService.pushAdvisor(new MySecurityAdvisor(sessionManager
-					.getCurrentSessionUserId(),
+			SecurityAdvisor securityAdvisor = createSecurityAdvisor(
+					sessionManager.getCurrentSessionUserId(),
 					AssignmentService.SECURE_ADD_ASSIGNMENT,
-					BaseAssignmentService.getContextReference(context)));
+					assignmentService.assignmentReference(null, context)
+			);
+			securityService.pushAdvisor(securityAdvisor);
 
 			Assignment a = assignmentService.getAssignment(assignmentService
 					.assignmentReference(context, assignmentId));
@@ -595,6 +595,15 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			securityService.popAdvisor();
 		}
 		return assignData;
+	}
+
+	private SecurityAdvisor createSecurityAdvisor(String currentUserId, String requiredFunction, String requiredReference) {
+		return (userId, function, reference) -> currentUserId.equals(userId) &&
+				requiredFunction.equals(function) &&
+				requiredReference.equals(reference)
+				? SecurityAdvisor.SecurityAdvice.ALLOWED
+				: SecurityAdvisor.SecurityAdvice.PASS
+		;
 	}
 
 	@EntityCustomAction(action = "deepLinkWithPermissions", viewKey = EntityView.VIEW_LIST)
@@ -900,11 +909,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
 				if (!"null".equals(submissionId)) {
 					props.put("security.assignment.ref", submissionId);
-					SecurityAdvisor subAdv = new MySecurityAdvisor(
+					SecurityAdvisor subAdv = createSecurityAdvisor(
 							sessionManager.getCurrentSessionUserId(),
 							AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
 							submissionId);
-					SecurityAdvisor subAdv2 = new MySecurityAdvisor(
+					SecurityAdvisor subAdv2 = createSecurityAdvisor(
 							sessionManager.getCurrentSessionUserId(),
 							AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION,
 							assignment.getReference());

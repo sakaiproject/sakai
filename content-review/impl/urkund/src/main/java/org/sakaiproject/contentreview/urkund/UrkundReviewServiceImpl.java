@@ -574,18 +574,15 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 	}
 
 	@Override
-	public String getIconUrlforScore(Long score) {
-		String urlBase = "/library/content-review/score_";
-		String suffix = ".gif";
-
-		if (score.equals(Long.valueOf(0))) {
-			return urlBase + "green" + suffix;
-		} else if (score.compareTo(Long.valueOf(39)) <= 0) {
-			return urlBase + "yellow" + suffix;
-		} else if (score.compareTo(Long.valueOf(54)) <= 0) {
-			return urlBase + "orange" + suffix;
+	public String getIconCssClassforScore(int score) {
+		if (score == 0) {
+			return "contentReviewIconThreshold-4";
+		} else if (score <= 39) {
+			return "contentReviewIconThreshold-3";
+		} else if (score <= 54) {
+			return "contentReviewIconThreshold-2";
 		} else {
-			return urlBase + "red" + suffix;
+			return "contentReviewIconThreshold-1";
 		}
 	}
 

@@ -23,7 +23,7 @@ package org.sakaiproject.id.hbm;
 
 import java.io.Serializable;
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
 import org.sakaiproject.id.cover.IdManager;
@@ -33,8 +33,7 @@ import org.sakaiproject.id.cover.IdManager;
  */
 public class IdGenerator implements IdentifierGenerator
 {
-	public IdGenerator()
-	{
+	public IdGenerator() {
 	}
 
 	public Serializable generate(SessionImplementor arg0, Object arg1) throws HibernateException

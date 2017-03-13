@@ -381,10 +381,20 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	/**
 	 * Remove this group from the groups for this site.
 	 * 
+	 * @deprecated Use deleteGroup() instead.
 	 * @param group
 	 *        The group to remove.
 	 */
 	void removeGroup(Group group);
+
+	/**
+	 * Remove a group from the groups for this site.
+	 * Its functionallity is the same as removeMember but throws IllegalStateException.
+	 * 
+	 * @param group
+	 *        The group to delete.
+	 */
+	void deleteGroup(Group group) throws IllegalStateException;
 
 	/**
 	 * Check if the site has a custom page order

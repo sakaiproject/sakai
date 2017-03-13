@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+	    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	    <link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	    <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
+	    <meta http-equiv="Content-Style-Type" content="text/css" />
+	    <title>${uiService}</title>
+	    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+		<meta name="viewport" content="width=device-width"/>
+	</head>
+    <body class="portalBody Mrphs-portalBody">
+
+		<!-- choice.vm -->
+		<div id="Mrphs-choice">
+			<h1>${loginRequired}</h1>
+			<aside class="logo"></aside>
+			<p class="msg">${choiceRequired}</p>
+			<fieldset>
+				<a class="link" href="${containerLoginUrl}" title="${loginTitle}">
+					#if("$containerLoginChoiceIcon" != "")
+						<img src="${containerLoginChoiceIcon}" alt="${containerLoginChoiceText}" />
+					#end
+					${containerLoginChoiceText}
+				</a>
+				<a class="link" href="${xloginUrl}" title="${loginTitle2}">
+					#if("$xloginChoiceIcon" != "")
+						<img src="${xloginChoiceIcon}" alt="${xloginChoiceText}" />
+					#end
+					${xloginChoiceText}
+				</a>
+			</fieldset>
+		</div>
+		<!-- end choice.vm -->
+				
+	</body>
+</html>

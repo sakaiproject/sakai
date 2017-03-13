@@ -18,7 +18,9 @@
 
 package org.sakaiproject.archive.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -128,6 +130,13 @@ public class ArchiveService2Impl implements ArchiveService
         }
 		
 		M_log.info("init(): storage path: " + m_storagePath + ", unzip path: " + m_unzipPath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
+		if (!new File(m_storagePath).isDirectory()) {
+			M_log.warn("Failed to find directory {} please create or configure {}.", m_storagePath, "archive.storage.path");
+		}
+		if (!new File(m_unzipPath).isDirectory()) {
+			M_log.warn("Failed to find directory {} please create or configure {}.", m_unzipPath, "archive.unzip.path");
+		}
+
 	}
 
 	public void destroy() {
@@ -160,9 +169,9 @@ public class ArchiveService2Impl implements ArchiveService
 	@Override
 	public String mergeFromZip(String zipFilePath, String siteId, String creatorId) {
 		try {
-			String fileName = m_siteZipper.unzipArchive(zipFilePath, m_unzipPath);
+			String folderName = m_siteZipper.unzipArchive(zipFilePath, m_unzipPath);
 			//not a lot we can do with the return value here since it always returns a string. would need a reimplementation/wrapper method to return a better value (boolean or some status)
-			return m_siteMerger.merge(fileName, siteId, creatorId, m_storagePath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
+			return m_siteMerger.merge(folderName, siteId, creatorId, m_unzipPath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
 		} catch (IOException e) {
 			M_log.error("Error merging from zip: " + e.getClass() + ":" + e.getMessage());
 			return "Error merging from zip: " + e.getClass() + ":" + e.getMessage();

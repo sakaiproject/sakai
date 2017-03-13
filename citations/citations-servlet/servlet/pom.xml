@@ -39,24 +39,6 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-citations-impl</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>OKI</groupId>
-          <artifactId>OkiOSID</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.sakaiproject.velocity</groupId>
-          <artifactId>sakai-velocity-tool</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-content-util</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
     </dependency>
     <dependency>

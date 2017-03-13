@@ -224,9 +224,6 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
  
    private static final String UPDATE_PERMISSIONS = "site.upd";
-   
-	/** Used to retrieve non-notification sites for MyWorkspace page */
-	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
 	
 	private final String TAB_EXCLUDED_SITES = "exclude";
 
@@ -4976,7 +4973,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	private List<String> getExcludedSitesFromTabs() {
 	    PreferencesService m_pre_service = (PreferencesService) ComponentManager.get(PreferencesService.class.getName());
 	    final Preferences prefs = m_pre_service.getPreferences(SessionManager.getCurrentSessionUserId());
-	    final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
+	    final ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 	    final List<String> l = props.getPropertyList(TAB_EXCLUDED_SITES);
 	    return l;
 	}

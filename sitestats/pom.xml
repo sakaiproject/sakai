@@ -29,7 +29,7 @@
     <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
     <fop.version>1.0</fop.version>
     <jfreechart.version>1.0.5</jfreechart.version>
-    <sst.wicket.version>6.25.0</sst.wicket.version>
+    <sst.wicket.version>6.26.0</sst.wicket.version>
   </properties>
 
   <!-- Project modules -->
@@ -38,7 +38,6 @@
     <module>sitestats-bundle</module>
     <module>sitestats-impl</module>
     <module>sitestats-impl-hib</module>
-    <module>sitestats-pack</module>
     <module>sitestats-tool</module>
   </modules>
 

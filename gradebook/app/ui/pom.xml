@@ -160,9 +160,8 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <groupId>jta</groupId>
+      <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
-      <version>h2.1.8</version>
     </dependency>
 <!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
 <!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->

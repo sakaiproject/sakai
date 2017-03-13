@@ -58,7 +58,7 @@ public class AutoRun {
     }
 
     public void init() {
-        if (serverConfigurationService.getBoolean(config, false)) {
+        if (config == null || serverConfigurationService.getBoolean(config, false)) {
             log.info("AutoRun running");
             Scheduler scheduler = schedulerManager.getScheduler();
 

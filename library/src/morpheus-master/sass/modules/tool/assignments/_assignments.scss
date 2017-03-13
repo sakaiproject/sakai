@@ -1,0 +1,166 @@
+.#{$namespace}sakai-assignment-grades {
+	#req-new_assignment_grade_points{
+		color: $error-color;
+	    margin: 9px 0 0 -13px;
+		position: absolute;
+	}
+	.assignment-pager {
+		max-width: 350px;
+		text-align: center;
+		.panel-heading {
+			padding: 5px 10px;
+		}
+		input {
+			margin: 0;
+		}
+
+		button{
+			margin: 0;
+		}
+	}
+
+	.form-required{
+		label{
+			&:after{
+				content: "*";
+				color: $error-color;
+				position: relative;
+				top: 3px;
+			}
+		}
+	}
+
+	#gradeOverridePanel{
+		margin-left: 50px;
+		width:100%;
+		background-color: $tool-background-color;		
+		.row-override:nth-child(odd){
+			background: darken($tool-background-color, 5%);
+		}
+		.row-override{
+			padding: 0.5em 0 0.5em;
+		}
+		.shorttext{
+			display: block;
+		}
+		.assignment-checkbox-inline{
+			display: inline-block;
+		}		
+	}
+	
+	#reorder-list-sortingToolBar, #reorder-list{
+		max-width: 1200px;
+	}
+	
+	label.innerRadio{
+		margin-left: 20px;
+	}
+	
+	#sendFeedbackPanel, #allowResubmissionPanel{
+		.discTria{
+			font-weight: bold;
+			background-color: #cef;
+		}
+	}
+	
+	// Styles for navigators in Grading Student Screen
+	.leftColumn{
+		float: left;
+		display: table-cell;
+		width: 40%;
+		
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+	
+	.centreColumn {
+		display: table-cell;
+		width: 20%;
+		text-align: center;
+		
+		#subsOnlyContainer{
+			display: block;
+			text-align: center;
+			margin-top: 0.5em;
+		}
+	}
+	
+	.rightColumn {
+		display: table-cell;
+		width: 40%;
+		text-align: right;
+		
+		.instruction.textPanelFooter{
+			margin-top: 0.5em;
+		}
+	}
+	
+	.leftColumn, .rightColumn, .centreColumn{
+		@media #{$phone}{
+			display:block;
+			width: 100%;
+			text-align:center;
+		}	
+	}
+
+	.table{
+		h5{
+			margin: 0 0 0.5em 0;
+		}
+		.peer-header{
+			font-size: 0.9em;
+			line-height: 1;
+			padding: 0.5em 0 0.5em 2.5em;
+		}
+	}
+
+	.contentReviewIcon {
+		@extend .fa, .fa-flag;
+	}
+
+	.contentReviewIconWarn {
+		@extend .fa, .fa-exclamation-triangle;
+		color: #FFC107;
+	}
+
+	.contentReviewIconPending {
+		@extend .fa, .fa-hourglass-half;
+		color: #2196F3;
+	}
+
+	.contentReviewIconNoService {
+		@extend .fa, .fa-cog;
+		color: #212121;
+	}
+
+	.contentReviewIconThreshold-1 {
+		@extend .contentReviewIcon;
+		color: #F44336;
+	}
+
+	.contentReviewIconThreshold-2 {
+		@extend .contentReviewIcon;
+		color: #FF9800;
+	}
+
+	.contentReviewIconThreshold-3 {
+		@extend .contentReviewIcon;
+		color: #FFD600;
+	}
+
+	.contentReviewIconThreshold-4 {
+		@extend .contentReviewIcon;
+		color: #4CAF50;
+	}
+
+	.contentReviewIconThreshold-5 {
+		@extend .contentReviewIcon;
+		color: #2196F3;
+	}
+
+	.contentReviewIconThreshold-6 {
+		@extend .contentReviewIcon;
+		color: #9E9E9E;
+	}
+}

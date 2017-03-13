@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
     <maven.test.jvmargs />
     <kernel.basedir>${basedir}/..</kernel.basedir>
   </properties>
@@ -38,31 +38,6 @@
           </systemPropertyVariables>
         </configuration>
       </plugin>
-      <!-- does compile time AOP aspect weaving
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>aspectj-maven-plugin</artifactId>
-        <version>1.4</version>
-        <configuration>
-          <complianceLevel>1.6</complianceLevel>
-          <source>1.6</source>
-          <target>1.6</target>
-          <showWeaveInfo>true</showWeaveInfo>
-          <includes>
-            <include>org/sakaiproject/event/impl/BaseLearningResourceStoreService.java</include>
-          </includes>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <goals>
-              <goal>compile</goal>
-              <goal>test-compile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-       -->
     </plugins>
   </build>
   <dependencies>
@@ -271,6 +246,16 @@
       <artifactId>antisamy</artifactId>
       <version>1.5.5</version>
     </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xmlParserAPIs</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <scope>runtime</scope>
+    </dependency>
     <!-- KNL-1253 -->
     <dependency>
       <groupId>org.jsoup</groupId>
@@ -279,20 +264,6 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
-    <!-- for AOP (initially used by LRS to grab events)
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>1.6.11</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjweaver</artifactId>
-      <version>1.6.11</version>
-      <scope>compile</scope>
-    </dependency>
-    -->
     <!-- TESTING -->
     <dependency>
       <groupId>org.subethamail</groupId>
@@ -333,8 +304,7 @@
     </dependency>
    <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.9.5</version>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
    </dependency>
    <dependency>

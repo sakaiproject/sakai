@@ -166,7 +166,7 @@ public class SamigoExport {
     // find topics in site, but organized by forum
     public List<String> getEntitiesInSite(String siteId) {
 
-	ArrayList<PublishedAssessmentFacade> plist = pubService.getBasicInfoOfAllPublishedAssessments2("title", true, siteId);
+	List<PublishedAssessmentFacade> plist = pubService.getBasicInfoOfAllPublishedAssessments2("title", true, siteId);
 
 	List<String> ret = new ArrayList<String>();
 
@@ -187,7 +187,7 @@ public class SamigoExport {
 
     public List<Long> getAllPools() {
 
-	List<QuestionPoolDataIfc>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
+	List<QuestionPoolFacade>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
 
 	List<Long> ret = new ArrayList<Long>();
 
@@ -276,7 +276,7 @@ public class SamigoExport {
 	    }
 	} else {
 	    // older. all pools at once
-	    List<QuestionPoolDataIfc>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
+	    List<QuestionPoolFacade>pools = questionPoolFacadeQueries.getBasicInfoOfAllPools(UserDirectoryService.getCurrentUser().getId());
 
 	    log.info("pools " + pools.size());
 

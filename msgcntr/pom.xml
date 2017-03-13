@@ -16,7 +16,6 @@
   <modules>
     <module>messageforums-api</module>
     <module>messageforums-app</module>
-    <module>messageforums-components</module>
     <module>messageforums-component-impl</module>
     <module>messageforums-hbm</module>
   </modules>

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.CacheMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -48,6 +49,10 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItemImpl;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageCommentImpl;
@@ -56,9 +61,13 @@ import org.sakaiproject.lessonbuildertool.SimplePageGroupImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
-import org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntryImpl;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageProperty;
+import org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswerImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
@@ -67,23 +76,11 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalImpl;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl;
-import org.sakaiproject.lessonbuildertool.SimplePageProperty;
-import org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl;
-import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
-import org.sakaiproject.lessonbuildertool.SimpleChecklistItemImpl;
-import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
-
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.hibernate.HibernateException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -120,13 +117,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // involving old data, for the sequence number. I'm not currently clearing the session cache, because this 
     // method is called before anyone has read any items, so there shouldn't be any old data there.
 	public void setRefreshMode() {
-	    final HibernateCallback hcb = new HibernateCallback(){
-		    public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			session.setCacheMode(org.hibernate.CacheMode.REFRESH);
-			return null;
-		    };
-		};
-            getHibernateTemplate().executeFind(hcb);
+		getSessionFactory().getCurrentSession().setCacheMode(CacheMode.REFRESH);
 	}
 
 	public boolean canEditPage() {
@@ -659,13 +650,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 			if (o instanceof SimplePageItem) {
 				SimplePageItem item = (SimplePageItem)o;
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/item/" + item.getId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE, "/lessonbuilder/item/" + item.getId(), true));
 			} else if (o instanceof SimplePage) {
 				SimplePage page = (SimplePage)o;
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/page/" + page.getPageId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_CREATE, "/lessonbuilder/page/" + page.getPageId(), true));
 			} else if (o instanceof SimplePageComment) {
 				SimplePageComment comment = (SimplePageComment)o;
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/comment/" + comment.getId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.COMMENT_CREATE, "/lessonbuilder/comment/" + comment.getId(), true));
 			}
 
 			if(o instanceof SimplePageItem || o instanceof SimplePage) {
@@ -707,19 +698,25 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    getHibernateTemplate().saveOrUpdate(o);
 		    
 		    if (o instanceof SimplePageItem) {
-			SimplePageItem i = (SimplePageItem)o;
-			String eventType = (i.getId() == 0 ? "lessonbuilder.create" : "lessonbuilder.update");
-			EventTrackingService.post(EventTrackingService.newEvent(eventType, "/lessonbuilder/item/" + i.getId(), true));
+				SimplePageItem i = (SimplePageItem)o;
+				if (i.getId() == 0) {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE, "/lessonbuilder/item/" + i.getId(), true));
+				} else  {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, "/lessonbuilder/item/" + i.getId(), true));
+				}
 		    } else if (o instanceof SimplePage) {
-			SimplePage i = (SimplePage)o;
-			String eventType = (i.getPageId() == 0 ? "lessonbuilder.create" : "lessonbuilder.update");
-			EventTrackingService.post(EventTrackingService.newEvent(eventType, "/lessonbuilder/page/" + i.getPageId(), true));
+				SimplePage i = (SimplePage)o;
+				if (i.getPageId() == 0) {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_CREATE, "/lessonbuilder/page/" + i.getPageId(), true));
+				} else {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_UPDATE, "/lessonbuilder/page/" + i.getPageId(), true));
+				}
 		    } 
 
 		    if(o instanceof SimplePageItem || o instanceof SimplePage) {
 		    	updateStudentPage(o);
 		    }
-		    
+
 		    return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
 		    getCause(e, elist);
@@ -761,13 +758,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		if (o instanceof SimplePageItem) {
 		    SimplePageItem i = (SimplePageItem)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/item/" + i.getId(), true));
+		    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_DELETE, "/lessonbuilder/item/" + i.getId(), true));
 		} else if (o instanceof SimplePage) {
 		    SimplePage i = (SimplePage)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/page/" + i.getPageId(), true));
+		    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_DELETE, "/lessonbuilder/page/" + i.getPageId(), true));
 		} else if(o instanceof SimplePageComment) {
 			SimplePageComment i = (SimplePageComment) o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/comment/" + i.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.COMMENT_DELETE, "/lessonbuilder/comment/" + i.getId(), true));
 		}
 
 		try {
@@ -831,13 +828,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		
 		if (o instanceof SimplePageItem) {
 			SimplePageItem item = (SimplePageItem)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/item/" + item.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, "/lessonbuilder/item/" + item.getId(), true));
 		} else if (o instanceof SimplePage) {
 			SimplePage page = (SimplePage)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/page/" + page.getPageId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_UPDATE, "/lessonbuilder/page/" + page.getPageId(), true));
 		} else if (o instanceof SimplePageComment) {
 			SimplePageComment comment = (SimplePageComment)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/comment/" + comment.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.COMMENT_UPDATE, "/lessonbuilder/comment/" + comment.getId(), true));
 		}
 
 		try {

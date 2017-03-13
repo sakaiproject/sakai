@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -21,6 +22,7 @@ import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
 import org.jgroups.View;
+import org.jgroups.jmx.JmxConfigurator;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -167,22 +169,24 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
             if (channelId != null && !channelId.equals("")) {
-            	// Pick up the config file from sakai home if it exists
-            	File jgroupsConfig = new File(serverConfigurationService.getSakaiHomePath() + File.separator + "jgroups-config.xml");
-            	if (jgroupsConfig.exists()) {
-					logger.debug("Using jgroups config file: {}", jgroupsConfig.getAbsolutePath());
-            		clusterChannel = new JChannel(jgroupsConfig);
-            	} else {
+                // Pick up the config file from sakai home if it exists
+                File jgroupsConfig = new File(serverConfigurationService.getSakaiHomePath() + File.separator + "jgroups-config.xml");
+                JChannel channel;
+                if (jgroupsConfig.exists()) {
+                    logger.debug("Using jgroups config file: {}", jgroupsConfig.getAbsolutePath());
+                    clusterChannel = channel = new JChannel(jgroupsConfig);
+                } else {
                     logger.debug("No jgroups config file. Using jgroup defaults.");
-            		clusterChannel = new JChannel();
-            	}
-            	
-				logger.debug("JGROUPS PROTOCOL: {}", clusterChannel.getProtocolStack().printProtocolSpecAsXML());
+                    clusterChannel = channel = new JChannel();
+                }
+
+                logger.debug("JGROUPS PROTOCOL: {}", clusterChannel.getProtocolStack().printProtocolSpecAsXML());
 
                 clusterChannel.setReceiver(this);
                 clusterChannel.connect(channelId);
                 // We don't want a copy of our JGroups messages sent back to us
                 clusterChannel.setDiscardOwnMessages(true);
+                JmxConfigurator.registerChannel(channel, ManagementFactory.getPlatformMBeanServer(), "DefaultDomain:name=JGroups");
                 clustered = true;
 
                 logger.info("Portal chat is connected on JGroups channel '" + channelId + "'"); 

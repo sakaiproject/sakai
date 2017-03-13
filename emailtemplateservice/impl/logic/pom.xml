@@ -17,10 +17,10 @@
     </organization>
     <inceptionYear>2007</inceptionYear>
     <description>Emailtemplateservice implementation</description>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <properties>
-        <deploy.target />
+        <deploy.target>components</deploy.target>
     </properties>
 
     <dependencies>
@@ -103,20 +103,19 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.20</version>
         </dependency>
-	<dependency>
-	    <groupId>org.simpleframework</groupId>
-	    <artifactId>simple-xml</artifactId>
-	    <version>2.3.5</version>
-	</dependency>
-
-	<dependency>
-		<groupId>commons-lang</groupId>
-		<artifactId>commons-lang</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>jdom</groupId>
-		<artifactId>jdom</artifactId>
-	</dependency>
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+            <version>2.3.5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

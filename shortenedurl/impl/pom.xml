@@ -6,10 +6,10 @@
 	<groupId>org.sakaiproject.shortenedurl</groupId>
 	<artifactId>shortenedurl-impl</artifactId>
 
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
 	
 	<properties>
-      <deploy.target />
+		<deploy.target>components</deploy.target>
    	</properties>
 	
 	<parent>

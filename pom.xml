@@ -34,7 +34,6 @@
         <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
     </issueManagement>
 
-
     <profiles>
         <profile>
             <id>all</id>
@@ -43,12 +42,11 @@
             </activation>
             <modules>
                 <module>master</module>
+                <module>admin-tools</module>
                 <module>access</module>
-                <module>alias</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
-                <module>authz</module>
                 <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
@@ -78,10 +76,10 @@
                 <module>jsf</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
+                <module>library</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
-                <module>memory</module>
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>oauth</module>
@@ -93,9 +91,7 @@
                 <module>presence</module>
                 <module>profile2</module>
                 <module>providers</module>
-                <module>reference</module>
                 <module>reset-pass</module>
-                <module>rights</module>
                 <module>roster2</module>
                 <module>rsf</module>
                 <module>rwiki</module>
@@ -117,6 +113,7 @@
                 <module>usermembership</module>
                 <module>velocity</module>
                 <module>web</module>
+                <module>webjars</module>
                 <module>webservices</module>
             </modules>
         </profile>
@@ -125,12 +122,10 @@
             <modules>
                 <module>master</module>
                 <module>access</module>
-                <module>alias</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
                 <module>assignment2</module>
-                <module>authz</module>
                 <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
@@ -161,10 +156,10 @@
                 <module>jsf</module>
                 <module>kernel</module>
                 <module>lessonbuilder</module>
+                <module>library</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>mailsender</module>
-                <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>
@@ -176,10 +171,8 @@
                 <module>presence</module>
                 <module>profile2</module>
                 <module>providers</module>
-                <module>reference</module>
                 <module>reports</module>
                 <module>reset-pass</module>
-                <module>rights</module>
                 <module>roster2</module>
                 <module>rss</module>
                 <module>rwiki</module>
@@ -201,6 +194,7 @@
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
+                <module>webjars</module>
                 <module>webservices</module>
                 <module>yaft</module>
             </modules>

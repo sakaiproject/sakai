@@ -307,13 +307,9 @@ $(document).ready(function(){
 									<div>
 										#set ($props = $reviewResult.getContentResource().Properties)
 										<span class="reportIcon">
-										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-										#else
-											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-											</a>
-										#end
+											#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+											<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+											#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 										</span>
 										#if ($reviewResult.isInline())
 											$tlang.getString("submission.inline")

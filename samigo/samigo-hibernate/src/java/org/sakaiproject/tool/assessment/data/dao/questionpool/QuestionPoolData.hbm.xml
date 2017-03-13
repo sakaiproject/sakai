@@ -1,9 +1,7 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping
-    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.questionpool">
 
-<hibernate-mapping>
   <class name="org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData" table="SAM_QUESTIONPOOL_T">
     <id name="questionPoolId" column="QUESTIONPOOLID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">
@@ -11,7 +9,7 @@
       </generator>
     </id>
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="string" length="255" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="text" column="DESCRIPTION" not-null="false" />
     <property name="parentPoolId" type="long" column="PARENTPOOLID" not-null="false" />
     <property name="ownerId" type="string" length="255" column="OWNERID" not-null="false" index="SAM_QPOOL_OWNER_I" />
     <property name="organizationName" type="string" length="255" column="ORGANIZATIONNAME" not-null="false" />

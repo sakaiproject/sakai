@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="
+	       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<context:annotation-config/>
+	<tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.privacy"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="annotatedClasses">
+			<list>
+				<value>org.sakaiproject.hbm.privacy.PrivacyRecord</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.privacy.PrivacyManager"
+		  class="org.sakaiproject.component.privacy.PrivacyManagerImpl"
+		  init-method="init"
+		  destroy-method="destroy">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+	</bean>
+</beans>

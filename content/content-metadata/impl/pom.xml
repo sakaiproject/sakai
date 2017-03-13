@@ -13,10 +13,7 @@
   <name>content-metadata-impl</name>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content-metadata-impl</artifactId>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target/>
-  </properties>
+  <packaging>sakai-component</packaging>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>

@@ -60,7 +60,7 @@ public abstract class IntegrationContextFactory
       }
       catch (Exception ex)
       {
-        log.error("Unable to read integration context: " + ex);
+        log.error("Unable to read integration context", ex);
       }
     }
     log.debug("instance="+instance);

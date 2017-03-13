@@ -2,24 +2,35 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/tx
-        http://www.springframework.org/schema/tx/spring-tx.xsd">
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <tx:annotation-driven transaction-manager="txManager"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="jobBeans">
+            <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.autoimport.ImportJob"/>
+                <constructor-arg value="Site Import Job"/>
+            </bean>
+        </property>
+    </bean>
+
+    <context:component-scan base-package="org.sakaiproject.component.app.scheduler.jobs.autoimport"/>
 
     <bean id="org.sakaiproject.jobscheduler.hibernate.AdditionalHibernateMappings"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
-        <property name="mappingResources">
-            <list>
-                <value>org/sakaiproject/scheduler/events/hibernate/TriggerEventHibernateImpl.hbm.xml</value>
-            </list>
-        </property>
-        <property name="additionalClasses">
+        <property name="annotatedClasses">
             <list>
                 <value>org.sakaiproject.scheduler.events.hibernate.ContextMapping</value>
+                <value>org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl</value>
             </list>
         </property>
     </bean>
@@ -31,25 +42,9 @@
           class="org.sakaiproject.component.app.scheduler.AutowiringSpringBeanJobFactory">
     </bean>
 
-
-    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager.wrapped"
+    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
           class="org.sakaiproject.component.app.scheduler.events.hibernate.TriggerEventManagerHibernateImpl">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.events.TriggerEventManager"
-          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-        </property>
-        <property name="target">
-            <ref bean="org.sakaiproject.api.app.scheduler.events.TriggerEventManager.wrapped"/>
-        </property>
-        <property name="transactionAttributes">
-            <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
-            </props>
-        </property>
     </bean>
 
     <bean id="navigableLogListener" class="org.sakaiproject.component.app.scheduler.NavigableEventLogListener"/>
@@ -431,6 +426,34 @@
             </bean>
         </property>
     </bean>
+
+    <!-- This is to automatically import some sites on startup. -->
+    <bean class="org.sakaiproject.component.app.scheduler.AutoRun" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="startup">
+            <list>
+                <ref bean="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"
+            class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"/>
+        <constructor-arg value="Get Archives"/>
+    </bean>
+
+    <bean class="org.sakaiproject.component.app.scheduler.JobBeanWrapperRegistrar" init-method="init">
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="jobBeans">
+            <list>
+            <ref bean="org.sakaiproject.component.app.scheduler.jobs.autoimport.GetArchivesJob"/>
+            </list>
+        </property>
+    </bean>
+
+
 
     <import resource="backfill-tool.xml"/>
     <import resource="cm-components.xml"/>

@@ -22,19 +22,15 @@
 package org.sakaiproject.component.app.postem;
 
 import java.io.Serializable;
-import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Comparator;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.GradebookManager;
@@ -43,9 +39,9 @@ import org.sakaiproject.api.app.postem.data.Template;
 import org.sakaiproject.component.app.postem.data.GradebookImpl;
 import org.sakaiproject.component.app.postem.data.StudentGradesImpl;
 import org.sakaiproject.component.app.postem.data.TemplateImpl;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class GradebookManagerImpl extends HibernateDaoSupport implements
 		GradebookManager, Serializable {
@@ -122,14 +118,10 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 			while (si.hasNext()) {
 				deleteStudentGrades((StudentGrades) si.next());
 			}
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
-
-					session.delete(gradebook);
-					return null;
-				}
-			};
+			HibernateCallback hcb = session -> {
+                session.delete(gradebook);
+                return null;
+            };
 			getHibernateTemplate().execute(hcb);
 
 		}
@@ -138,14 +130,10 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 
 	public void deleteStudentGrades(final StudentGrades student) {
 		if (student != null) {
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
-
-					session.delete(student);
-					return null;
-				}
-			};
+			HibernateCallback hcb = session -> {
+                session.delete(student);
+                return null;
+            };
 			getHibernateTemplate().execute(hcb);
 
 		}
@@ -156,19 +144,15 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (title == null || context == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
+			HibernateCallback hcb = session -> {
+                Criteria crit = session.createCriteria(GradebookImpl.class).add(
+                        Expression.eq(TITLE, title)).add(Expression.eq(CONTEXT, context))
+                        .setFetchMode(STUDENTS, FetchMode.EAGER);
 
-					Criteria crit = session.createCriteria(GradebookImpl.class).add(
-							Expression.eq(TITLE, title)).add(Expression.eq(CONTEXT, context))
-							.setFetchMode(STUDENTS, FetchMode.EAGER);
+                Gradebook gradebook = (Gradebook) crit.uniqueResult();
 
-					Gradebook gradebook = (Gradebook) crit.uniqueResult();
-
-					return gradebook;
-				}
-			};
+                return gradebook;
+            };
 			return (Gradebook) getHibernateTemplate().execute(hcb);
 		}
 
@@ -178,29 +162,25 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (context == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
+			HibernateCallback hcb = session -> {
 
-					Criteria crit = session.createCriteria(GradebookImpl.class).add(
-							Expression.eq(CONTEXT, context));
+                Criteria crit = session.createCriteria(GradebookImpl.class).add(Expression.eq(CONTEXT, context));
 
-					List gbs = crit.list();
-					
-					Comparator gbComparator = determineComparator(sortBy, ascending);
-					
-					SortedSet gradebooks = new TreeSet(gbComparator);
+                List gbs = crit.list();
 
-					Iterator gbIterator = gbs.iterator();
+                Comparator gbComparator = determineComparator(sortBy, ascending);
 
-					while (gbIterator.hasNext()) {
-						gradebooks.add((Gradebook) gbIterator.next());
+                SortedSet gradebooks = new TreeSet(gbComparator);
 
-					}
+                Iterator gbIterator = gbs.iterator();
 
-					return gradebooks;
-				}
-			};
+                while (gbIterator.hasNext()) {
+                    gradebooks.add((Gradebook) gbIterator.next());
+
+                }
+
+                return gradebooks;
+            };
 
 			return (SortedSet) getHibernateTemplate().execute(hcb);
 		}
@@ -210,30 +190,27 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (context == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
+			HibernateCallback hcb = session -> {
 
-					Criteria crit = session.createCriteria(GradebookImpl.class).add(
-							Expression.eq(CONTEXT, context)).add(
-							Expression.eq(RELEASED, new Boolean(true)));
+                Criteria crit = session.createCriteria(GradebookImpl.class).add(
+                        Expression.eq(CONTEXT, context)).add(
+                        Expression.eq(RELEASED, new Boolean(true)));
 
-					List gbs = crit.list();
-					
-					Comparator gbComparator = determineComparator(sortBy, ascending);
-					
-					SortedSet gradebooks = new TreeSet(gbComparator);
+                List gbs = crit.list();
 
-					Iterator gbIterator = gbs.iterator();
+                Comparator gbComparator = determineComparator(sortBy, ascending);
 
-					while (gbIterator.hasNext()) {
-						gradebooks.add((Gradebook) gbIterator.next());
+                SortedSet gradebooks = new TreeSet(gbComparator);
 
-					}
+                Iterator gbIterator = gbs.iterator();
 
-					return gradebooks;
-				}
-			};
+                while (gbIterator.hasNext()) {
+                    gradebooks.add((Gradebook) gbIterator.next());
+
+                }
+
+                return gradebooks;
+            };
 
 			return (SortedSet) getHibernateTemplate().execute(hcb);
 		}
@@ -244,22 +221,19 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 		if (gradebook == null) {
 			throw new IllegalArgumentException("Null Argument");
 		} else {
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException,
-						SQLException {
-					// get syllabi in an eager fetch mode
-					Criteria crit = session.createCriteria(Gradebook.class).add(
-							Expression.eq(ID, gradebook.getId())).setFetchMode(STUDENTS,
-							FetchMode.EAGER);
+			HibernateCallback hcb = session -> {
+                // get syllabi in an eager fetch mode
+                Criteria crit = session.createCriteria(Gradebook.class).add(
+                        Expression.eq(ID, gradebook.getId())).setFetchMode(STUDENTS,
+                        FetchMode.EAGER);
 
-					Gradebook grades = (Gradebook) crit.uniqueResult();
+                Gradebook grades = (Gradebook) crit.uniqueResult();
 
-					if (grades != null) {
-						return grades.getStudents();
-					}
-					return new TreeSet();
-				}
-			};
+                if (grades != null) {
+                    return grades.getStudents();
+                }
+                return new TreeSet();
+            };
 			return (SortedSet) getHibernateTemplate().execute(hcb);
 		}
 	}
@@ -324,20 +298,16 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithStudents");
 	       }
 
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException,
-					SQLException {
+		HibernateCallback hcb = session -> {
 
-				Criteria crit = session.createCriteria(GradebookImpl.class).add(
-						Expression.eq(ID, gradebookId));
+            Criteria crit = session.createCriteria(GradebookImpl.class).add(Expression.eq(ID, gradebookId));
 
-				Gradebook gradebook = (Gradebook)crit.uniqueResult();
-				getHibernateTemplate().initialize(gradebook.getHeadings());
-				getHibernateTemplate().initialize(gradebook.getStudents());
-				
-				return gradebook;	
-			}
-		};
+            Gradebook gradebook = (Gradebook)crit.uniqueResult();
+            getHibernateTemplate().initialize(gradebook.getHeadings());
+            getHibernateTemplate().initialize(gradebook.getStudents());
+
+            return gradebook;
+        };
 
 	      return (Gradebook) getHibernateTemplate().execute(hcb); 
 	
@@ -348,19 +318,15 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	        throw new IllegalArgumentException("Null gradebookId passed to getGradebookByIdWithHeadings");
 	       }
 
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException,
-					SQLException {
+		HibernateCallback hcb = session -> {
 
-				Criteria crit = session.createCriteria(GradebookImpl.class).add(
-						Expression.eq(ID, gradebookId));
+            Criteria crit = session.createCriteria(GradebookImpl.class).add(Expression.eq(ID, gradebookId));
 
-				Gradebook gradebook = (Gradebook)crit.uniqueResult();
-				getHibernateTemplate().initialize(gradebook.getHeadings());
-				
-				return gradebook;	
-			}
-		};
+            Gradebook gradebook = (Gradebook)crit.uniqueResult();
+            getHibernateTemplate().initialize(gradebook.getHeadings());
+
+            return gradebook;
+        };
 
 	      return (Gradebook) getHibernateTemplate().execute(hcb); 
 	
@@ -371,18 +337,15 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	        throw new IllegalArgumentException("Null gradebookId or username passed to getStudentByGBIdAndUsername");
 	       }
 
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException,
-					SQLException {
-				gradebook.setStudents(null);
-				Criteria crit = session.createCriteria(StudentGradesImpl.class).add(
-						Expression.eq("gradebook", gradebook)).add(Expression.eq("username", username).ignoreCase());
+		HibernateCallback hcb = session -> {
+            gradebook.setStudents(null);
+            Criteria crit = session.createCriteria(StudentGradesImpl.class).add(
+                    Expression.eq("gradebook", gradebook)).add(Expression.eq("username", username).ignoreCase());
 
-				StudentGrades student = (StudentGrades)crit.uniqueResult();
-				
-				return student;	
-			}
-		};
+            StudentGrades student = (StudentGrades)crit.uniqueResult();
+
+            return student;
+        };
 
 	      return (StudentGrades) getHibernateTemplate().execute(hcb); 
 	}
@@ -401,16 +364,11 @@ public class GradebookManagerImpl extends HibernateDaoSupport implements
 	        throw new IllegalArgumentException("Null gradebook passed to getUsernamesInGradebook");
 	       }
 
-		HibernateCallback hcb = new HibernateCallback()
-	    {
-	      public Object doInHibernate(Session session) throws HibernateException,
-	          SQLException
-	      {
-	        Query q = session.getNamedQuery("findUsernamesInGradebook");        
-	        q.setParameter("gradebook", gradebook);
-	        return q.list();
-	      }
-	    };
+		HibernateCallback hcb = session -> {
+          Query q = session.getNamedQuery("findUsernamesInGradebook");
+          q.setParameter("gradebook", gradebook);
+          return q.list();
+        };
 	        
 	    return (List) getHibernateTemplate().execute(hcb);  
 	}

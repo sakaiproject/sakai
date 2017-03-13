@@ -29,7 +29,6 @@ public class FavoritesHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "favorites";
 	private static final String SEPARATOR = ";";
-	private static final String PREFS_PROPERTY = "sakai:portal:sitenav";
 	private static final String FAVORITES_PROPERTY = "order";
 
 	public FavoritesHandler()
@@ -84,7 +83,7 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 
 		Preferences prefs = PreferencesService.getPreferences(userId);
-		ResourceProperties props = prefs.getProperties(PREFS_PROPERTY);
+		ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 		List<String> result = (List<String>)props.getPropertyList(FAVORITES_PROPERTY);
 
@@ -101,7 +100,7 @@ public class FavoritesHandler extends BasePortalHandler
 		}
 
 		PreferencesEdit edit = PreferencesService.edit(userId);
-		ResourcePropertiesEdit props = edit.getPropertiesEdit(PREFS_PROPERTY);
+		ResourcePropertiesEdit props = edit.getPropertiesEdit(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 		// Replace all existing values
 		props.removeProperty(FAVORITES_PROPERTY);

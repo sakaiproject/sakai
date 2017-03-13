@@ -20,8 +20,7 @@
 **********************************************************************************/
 package org.sakaiproject.spring;
 
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 
 public class SpringBeanLocator
 {
@@ -31,70 +30,40 @@ public class SpringBeanLocator
   // The job scheduler can run before the webapp has been started and therefore can
   // attempt to get beans out of the tool before the tool has been started up.
   private static Object waitLock = new Object();
-  private static WebApplicationContext waCtx = null;
-  private static ConfigurableApplicationContext caCtx = null;
-  private static boolean inWebContext = false;
-  private static SpringBeanLocator instance = null;
+  private static ApplicationContext context = null;
 
   public static SpringBeanLocator getInstance()
   {
-    //if (instance != null)
-    //{
-    //  return instance;
-    //}
-    //else
-    //{
       return new SpringBeanLocator();
-    //}
   }
 
   /**
    * For integration inside a web context
    * @param context the WebApplicationContext
    */
-  public static void setApplicationContext(WebApplicationContext context)
+  public static void setApplicationContext(ApplicationContext context)
   {
     synchronized(waitLock)
     {
-      SpringBeanLocator.waCtx = context;
-      SpringBeanLocator.inWebContext = true;
-      waitLock.notifyAll();
-    }
-  }
-
-  /**
-   * Support unit testing via a ConfigurableApplicationContext concrete subclass
-   * such as FileSystemXmlApplicationContext
-   * @param ca
-   */
-  public static void setConfigurableApplicationContext(ConfigurableApplicationContext
-                                                ca)
-  {
-    synchronized (waitLock)
-    {
-      SpringBeanLocator.caCtx = ca;
-      SpringBeanLocator.inWebContext = false;
+      SpringBeanLocator.context = context;
       waitLock.notifyAll();
     }
   }
 
   public Object getBean(String name)
   {
-    if (waCtx == null && caCtx == null) {
+    if (context == null) {
       try {
-        waitLock.wait();
+          synchronized (waitLock)
+          {
+            // Will release the lock while we are waiting.
+            waitLock.wait();
+          }
       } catch (InterruptedException e) {
         throw new RuntimeException("Got interrupted waiting for bean to be setup.", e);
       }
     }
-    if (inWebContext)
-    {
-      return waCtx.getBean(name);
-    }
-    else
-    {
-      return caCtx.getBean(name);
-    }
+    return context.getBean(name);
 
   }
 

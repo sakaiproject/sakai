@@ -504,6 +504,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("pageWebjarsPath", getWebjarsPath());
 
 		rcontext.put("choiceRequired", rb.getString("log.choicereq"));
+		rcontext.put("loginRequired", rb.getString("log.logreq"));
+		rcontext.put("loginTitle", serverConfigurationService.getString("login.text.title"));
+		rcontext.put("loginTitle2", serverConfigurationService.getString("xlogin.text.title"));
 
 		rcontext.put("containerLoginChoiceIcon", serverConfigurationService.getString("container.login.choice.icon"));
 		rcontext.put("xloginChoiceIcon", serverConfigurationService.getString("xlogin.choice.icon"));

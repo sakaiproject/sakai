@@ -1,0 +1,488 @@
+body.active-more-sites{
+        overflow: hidden;
+}
+
+#portalMask{
+	background: rgba(0,0,0,0.45);
+	position: fixed;
+}
+
+#selectSiteModal{
+	position: fixed;
+    z-index: 10000;
+	overflow:visible;
+	@include transition( left 0.4s linear 0s );
+	&.dhtml_more_tabs{
+		background: $tool-menu-background-color;
+		display: block;
+		position: fixed;
+		width: 60% ;
+		max-height: 100%;
+		padding: 0 1em 1em 1em;
+		box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
+		@media #{$phone}{
+			width: 100%;
+			height: 100%;
+			top: 3.6em;
+			left: 0;
+			overflow: visible;
+			position: absolute;
+			padding: 0;
+			box-shadow: 0px 0 0px 0px rgba(0,0,0,0);
+			@include transition( left 0.26s linear 0s );
+			&:after {
+				bottom: 100%;
+				left: 75%;
+				border: solid transparent;
+				content: " ";
+				height: 0;
+				width: 0;
+				position: absolute;
+				pointer-events: none;
+				border-color: rgba(255, 255, 255, 0);
+				border-bottom-color: $tool-menu-background-color;
+				border-width: 7px;
+				margin-left: -7px;
+				outline: 0;
+			}
+		}
+	}
+	&.outscreen{
+		left: 110%;
+		max-width: 100%;
+		display: none !important; //Important added by SAK-31260
+		@media #{$phone}{
+			display: none;
+		}
+	}
+	&:after{
+	        bottom: 100%;
+		left: 95%;
+		border: solid transparent;
+		content: " ";
+		height: 0;
+		width: 0;
+		position: absolute;
+		pointer-events: none;
+		border-color: rgba(255, 255, 255, 0);
+		border-bottom-color: $tool-menu-background-color;
+		border-width: 7px;
+		margin-left: -7px;
+		outline: 0;
+	}
+}
+
+#selectSite{
+	.tab-pane{
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+	.tab-box{
+		border: 1px solid $tool-border-color;
+		padding: 5px 5px 5px 1em;
+
+                background-color: $tool-background-color;
+	}
+	
+	.tab-bar{
+		list-style: none;
+		padding: 0 0 0 0;
+	}
+
+	.tab-bar .tab-btn{
+		display: inline-block;
+		padding: 5px 2em 5px 2em;
+		border: 1px solid $tool-border-color;
+		border-bottom:  0;
+		margin: 0;
+		background-color: darken( $tool-background-color, 20% );
+	}
+
+	.tab-bar .tab-btn:hover{
+		cursor: pointer;
+	}
+
+	.tab-bar .tab-btn.active{
+		cursor: default;
+		background-color: $tool-background-color;
+	}
+
+	.tab-bar .tab-btn.tab-disabled{
+		color: lighten( $text-color, 50% );
+	}
+
+	.tab-bar .tab-btn.tab-disabled:hover{
+		cursor:default;
+	}
+
+	.tab-bar{
+		margin: 5px 0 0 0;
+		position: relative;
+		top: 1px;
+		z-index: 2;
+	}
+
+
+	.tab-bar .favorites-tab-label {
+		font-weight: $default-font-weight;
+		font-size: $default-font-size;
+		margin: 0.2em;
+	}
+
+
+        #selectSite-navbar{
+		overflow: hidden;
+		margin: 0;
+		padding: 0;
+        }
+
+	.favorites-term-header {
+		font-size: 1.8em;
+  		margin: 1.5em 0 0.6em 0;
+	}
+}
+
+ul#otherSitesMenu{
+	margin: 0;
+	padding: 0 0 0 0;
+	list-style: none;
+	@media #{$desktop}{
+		margin-top: 0.5em;
+		width: 100%;
+		text-align: right;
+	}
+	@media #{$phone}{
+		margin-left: 5px;
+	}
+	display: inline-block;
+	li:not(.otherSitesMenuClose){
+		display: inline-block;
+		a{
+			@extend .button;
+			@media #{$phone}{
+				padding: 0.3em;
+			}
+		}
+	}
+
+	li.otherSitesMenuClose{
+		display: inline-block;
+		font-size: 1.5em;
+		@media #{$phone}{
+			display: none;
+		}
+	}
+}
+
+
+#otherSitesCategorWrap{
+	width: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+
+	.moresites-left-col{
+ 		display: inline-block;
+		width: 49%;
+		float: left;
+		margin-right: 1%;
+		@media #{$more-sites-single-column}{
+			width: 100%;
+			float: none;
+		}
+		.fav-sites-term:first-child .favorites-term-header{
+			margin-top: 0;
+		}
+	}
+	.moresites-right-col{
+		display: inline-block;
+		width: 49%;
+		float: left;
+		@media #{$more-sites-single-column}{
+			width: 100%;
+			float: none;
+		}
+		.fav-sites-term:first-child .favorites-term-header{
+			margin-top: 0;
+		}
+	}
+}
+
+
+
+ul.otherSitesCategorList{
+	list-style: none;
+	padding: 0 0 0 0;
+	li{
+		display: inline-block;
+		border: 1px solid darken( $background-color, 30% );
+		background: darken( $background-color, 5% );
+		@include border-radius( 4px );
+		margin: 0.3em;
+		padding: 0.1em 0.5em 0.1em 0.5em;
+		a{
+			@extend .userNav_link;
+			font-weight: 700;
+			&.toolMenus{
+				display: inline-block;
+			}
+		}
+		&.is-selected{
+			border: 1px solid darken( $tool-border-color, 30% );
+		}
+	}
+}
+
+#otherSiteSearch{
+	display: block;
+
+	@media #{$more-sites-single-column}{
+		text-align: left;
+		margin-bottom: 1em;
+	}
+
+	@media #{$desktop}{
+		text-align: right;
+	}
+
+	label{
+		color: $text-color;
+	}
+
+	margin: 1em 1em 0 0;
+
+	#txtSearch{
+		width: 18em;
+		min-height: 2em;
+	}
+
+        .other-site-search-clear{
+		position: relative;
+		text-decoration: none;
+		font-family: 'FontAwesome';
+	}
+
+	.other-site-search-clear:before{
+		position: absolute;
+		top: -3px;
+		right: 8px;
+		content: '\f057';
+		font-family: 'FontAwesome';
+		color: #ccc;
+		font-size: 1.2em;
+		line-height: 1.5em;
+		text-align: right;
+	}
+}
+
+.otherSiteToolIcon{
+	padding-right: 0.5em;
+}
+
+ul#otherSiteTools{
+	list-style: none;
+	padding-left: 0;
+	padding-bottom: 5px;
+
+	li{
+		padding: 0 0 5px 5px;
+		font-family: $header-font-family;
+		border: 0;
+		display: block;
+
+		a{
+			color: $text-color;
+			text-decoration: none;
+		}
+
+                .otherSiteToolIcon{
+			display: inline-block;
+                }
+
+                .icon-sakai--see-all-tools{
+			display: none;
+		}
+	}
+}
+
+ul.favoriteSiteList{
+	list-style: none;
+	padding: 0 0 0 0;
+	> li{
+		display: block;
+		border: 1px solid $tool-border-color;
+		@include border-radius( 4px );
+		width: 305px;
+		white-space: nowrap;
+		overflow: hidden;
+		margin: 0.3em;
+		padding: 0.3em 0.5em 0.3em 0.5em;
+	}
+}
+
+	div.fav-title-myworkspace {
+		width: 264px;
+		
+		a {
+		
+			.fa-home {
+				font-size: 1.33333em;
+				padding-right: 6px;
+				
+			}
+			
+			&:hover {
+				text-decoration: none;
+			}
+		}
+		
+	}
+		
+
+.fav-title{
+	width: 240px;
+	overflow: hidden;
+	display: inline-block;
+	vertical-align: middle;
+	a{
+		@extend .userNav_link;
+		font-weight: 700;
+		vertical-align: middle;
+	}
+	&.toolMenus{
+		display: inline-block;
+	}
+}
+
+#organizeFavorites{
+	padding-left: 1em;
+	@media #{$phone}{
+		.heading{
+			display: none;
+		}
+	}
+}
+
+.tab-btn.organizeFavorites{
+	.favorites-desktop{
+		display: inline;
+	}
+	.favorites-mobile{
+		display: none;
+	}
+	.favoriteCount{
+		display: inline-block;
+	}
+
+	@media #{$phone}{
+		.favorites-desktop{
+			display: none;
+		}
+		.favorites-mobile{
+			display: inline;
+		}
+	}
+}
+
+.organizeFavoritesList{
+	list-style: none;
+	padding: 0 0 0 0;
+	.fav-drag-handle{
+		display: inline-block;
+		position: relative;
+		right: 2px;
+		padding: 0 6px;
+		color: $tool-border-color;
+		cursor: move; /* fallback if grab cursor is unsupported */
+		cursor: grab;
+		cursor: -moz-grab;
+		cursor: -webkit-grab;
+	}
+	.fav-drag-handle:active{
+		cursor: grabbing;
+		cursor: -moz-grabbing;
+		cursor: -webkit-grabbing;
+	}
+	.site-favorite-btn{
+		padding-right: 0.5em;
+	}
+}
+
+#organizeFavoritesPurgatoryList{
+	.fav-drag-handle{
+		display: none;
+	}
+	a{
+		color: darken($background-color-secondary, 10%);
+		.fullTitle{
+			color: darken($background-color-secondary, 10%);
+		}
+	}
+}
+
+.site-favorite-icon.site-favorite:before{
+	@extend .fa;
+	@extend .fa-star;
+	color: #F49D08;
+}
+
+.site-favorite-icon.site-nonfavorite:before{
+	@extend .fa;
+	@extend .fa-star-o;
+	color: #CDCDCD;
+}
+
+.site-favorite-icon.site-workspace:before{
+	@extend .fa;
+	@extend .fa-home;
+	color: #000;
+}
+
+
+.site-favorite-icon{
+	font-size: 1.3em;
+	display: inline-block;
+	position: relative;
+	top: 2px;
+}
+
+.site-favorite-icon.site-favorite:hover{
+	text-shadow: -1px 0 #F49D08, 0 1px #F49D08, 1px 0 #F49D08, 0 -1px #F49D08;
+}
+
+.site-favorite-icon.site-nonfavorite:hover:before{
+	color: #999;
+}
+
+
+.moresites-refresh-notification{
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	top: 13px;
+	border: 1px solid $tool-border-color;
+	z-index: 1000;
+	display: inline-block;
+
+	-webkit-transition: background-color 0.2s, color 0.2s;
+	-moz-transition: background-color 0.2s, color 0.2s;
+	-ms-transition: background-color 0.2s, color 0.2s;
+	-o-transition: background-color 0.2s, color 0.2s;
+	transition: background-color 0.2s, color 0.2s;
+
+	background-color: #f7e084;
+	color: #000 !important;
+	text-align: center;
+	padding: 6px 8px;
+	border-radius: 3px;
+	text-decoration: none;
+
+	a
+	{
+		display: inline-block; // to override flex on login links
+		color: $primary-color;
+	}
+
+	@media #{$phone}{
+		display: none;
+	}
+}

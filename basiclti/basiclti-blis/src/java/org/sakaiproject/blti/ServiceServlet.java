@@ -92,8 +92,6 @@ import org.sakaiproject.util.FormattedText;
 import org.tsugi.pox.IMSPOXRequest;
 
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.util.foorm.SakaiFoorm;
-import org.sakaiproject.util.foorm.FoormUtil;
 
 /**
  * Notes:
@@ -122,8 +120,6 @@ public class ServiceServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static Logger M_log = LoggerFactory.getLogger(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
-
-	protected static SakaiFoorm foorm = new SakaiFoorm();
 
 	protected static LTIService ltiService = null;
 
@@ -506,7 +502,7 @@ public class ServiceServlet extends HttpServlet {
 				} else {
 					Map<String,Object> content = null;
 					String contentStr = pitch.getProperty("contentKey");
-					Long contentKey = foorm.getLongKey(contentStr);
+					Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
 					if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
 					if ( content != null ) {
 						if ( "basic-lti-savesetting".equals(lti_message_type) ) {

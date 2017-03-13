@@ -99,6 +99,7 @@ public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventLi
             }
         } else {
             value = (V) element.getObjectValue();
+            ArrayList<String> w = new ArrayList();
         }
         return value;
     } // get

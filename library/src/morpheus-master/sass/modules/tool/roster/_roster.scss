@@ -1,0 +1,145 @@
+##{$namespace}sakai-roster {
+
+    .filterLabel {
+        vertical-align:top;
+        font-weight:bold;
+    }
+
+    .instruction.rosterTitleMessage {
+        display: block;
+    }
+
+    .role {
+        font-weight: bold;
+    }
+
+    .rosterRoleTopLine {
+        padding-top:10px;
+        padding-left:10px;
+    }
+
+    .rosterRoleBottomLine {
+        padding-left:10px;
+    }
+
+    .rosterActionAlignment {
+        vertical-align:top;
+    }
+
+    .rosterActions {
+        margin-top:0.5em;
+    }
+
+    .connection-email {
+        background-image: url(/library/image/silk/email.png);
+    }
+
+
+    #roster_type_selector {
+        margin-left: 10px;
+        margin-top: 1em;
+        margin-bottom: 15px;
+    }
+
+    #roster-loading-image {
+        display: none;
+    }
+
+    .roster-table {
+        display: table;
+
+        .roster-table-header-group {
+            display: table-header-group;
+            font-weight: bold;
+            padding-bottom: 10px;
+        }
+
+        .roster-table-row-group {
+            display: table-row-group;
+        }
+
+        .roster-table-row {
+            display: table-row;
+            margin-bottom: 5px;
+
+            .roster-table-cell {
+                display: table-cell;
+                padding-right: 10px;
+                white-space: nowrap;
+
+                .roster-picture {
+                    width: 80px;
+                    padding: 5px 0px 5px 5px;
+                }
+
+                .roster-mobile-label {
+                    display: none;
+                    font-weight: bold;
+                    padding-right: 10px;
+                }
+            }
+            .roster-last-visit-time-cell {
+                font-size: 0.9em;
+            }
+        }
+        .roster-member:nth-child(odd){
+            background: $tool-tab-background-color;
+        }
+    }
+
+    .roster-picture {
+        width: 50px;
+    }
+
+    #roster_content{
+        margin-top: 1em;
+    }
+
+    #summary{
+        margin-left: 2px;
+    }
+
+    .roster-groups-selector {
+        max-width: 100px !important;
+    }
+    
+    .roster-group-cell {
+        display: inline-block;
+        width: 40px !important;
+        max-width: 80px !important;
+        white-space: normal !important;
+
+        .roster-group-link {
+            white-space: nowrap !important;
+        }
+    }
+
+    @media only screen and (max-width: 800px) {
+        .roster-table-header-group {
+            display: none !important;
+        }
+
+        .roster-mobile-label {
+            display: inline-block !important;
+        }
+
+        .roster-table-row {
+            display: block !important;
+            border: 1px solid #ccc;
+            border-width: 1px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 5px;
+
+            .roster-table-cell {
+                display: block !important;
+
+                .roster-picture {
+                    width: 160px !important;
+                }
+            }
+        }
+    }
+}

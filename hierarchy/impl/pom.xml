@@ -11,7 +11,11 @@
     <name>Sakai Hierarchy Implementation</name>
     <groupId>org.sakaiproject.hierarchy</groupId>
     <artifactId>hierarchy-impl</artifactId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
 
     <profiles>
         <profile>
@@ -114,9 +118,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>jta</groupId>
+            <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
-            <version>h2.1.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -153,7 +156,6 @@
             <artifactId>commons-lang</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -189,7 +191,7 @@
         </plugins>
         <testResources>
             <testResource>
-                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
+                <directory>${basedir}/src/webapp/WEB-INF</directory>
                 <includes>
                     <include>spring-hibernate.xml</include>
                     <include>logic-support.xml</include>

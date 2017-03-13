@@ -67,6 +67,7 @@
 				lblReviewService.className='';
 				reviewSwitchNe2.style.display='none';
 				useReview.disabled=false;
+				lblUseReview.style.display = 'block';
 			#end
 			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'block';
@@ -90,6 +91,7 @@
 				useReview.disabled=true;
 				lblUseReview.className='';
 				reviewSwitchNe1.style.removeProperty('display');
+				lblUseReview.style.display = 'none';
 			#end
 			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'none';
@@ -925,7 +927,7 @@
 							</label>
 						</div>
 						#end
-						
+
 						<!-- Exclude Self Plag -->
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SELF_PLAG)
 						<div class="checkbox">
@@ -939,7 +941,7 @@
 							</label>
 						</div>
 						#end
-						
+
 						<!-- Store Inst Index -->
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX)
 						<div class="checkbox">
@@ -1033,7 +1035,7 @@
 				<div style="display:$!addToGBDisplay">
 				<div class="checkbox indnt2" style="display:$!addToGBDisplay">
 					<div class="radio">
-						## hide the assignment list from Gradebook when clicked					
+						## hide the assignment list from Gradebook when clicked
 						<label for="$!gradebookChoice_no">
 							<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) {$('#gradebookList').fadeOut('slow');$('#categoryList').fadeOut('slow');}" >
 							#if(!$!noAddToGradebookChoice)$tlang.getString("grading.no")#else$tlang.getString("grading.no2")#end
@@ -1084,7 +1086,7 @@
 							     }
 							}" >
 						$tlang.getString("grading.add")</label>
-						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>						
+						<span id="gradebookListWarnAssoc" class="alertMessageInline" style="display:none;border:none">$tlang.getString("grading.associate.warn")</span>
 					</div>
 					#end
 					## if there exists properiate assignment entries in Gradebook
@@ -1452,7 +1454,7 @@
 			</div>
 
 			<div class="form-group row form-required">
-				
+
 				<label for="modelanswer_to" class="col-lg-2 form-control-label">
 					$tlang.getString("modelAnswer.show_to_student.prompt")
 				</label>
@@ -1649,7 +1651,7 @@
 					<label for="allPurposeHide1">
 						<input name="allPurposeHide" id="allPurposeHide1" value="false" #if(!$!value_allPurposeHide)checked="checked"#end type="radio" />
 						$tlang.getString("allPurpose.show")
-					</label>				
+					</label>
 				</div>
 
 				<div class="row col-lg-8 col-sm-8">

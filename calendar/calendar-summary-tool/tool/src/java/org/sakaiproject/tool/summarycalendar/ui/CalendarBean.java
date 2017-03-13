@@ -873,11 +873,15 @@ public class CalendarBean {
 			eventIconMap.put("Computer Session", "<span class=\"icon icon-calendar-computer-session\"></span>");
 			eventIconMap.put("Deadline", "<span class=\"icon icon-calendar-deadline\"></span>");
 			eventIconMap.put("Exam", "<span class=\"icon icon-calendar-exam\"></span>");
+			eventIconMap.put("Formative Assessment", "<span class=\"icon icon-calendar-formative-assessment\"></span>");
 			eventIconMap.put("Meeting", "<span class=\"icon icon-calendar-meeting\"></span>");
 			eventIconMap.put("Multidisciplinary Conference", "<span class=\"icon icon-calendar-multidisciplinary-conference\"></span>");
 			eventIconMap.put("Quiz", "<span class=\"icon icon-calendar-quiz\"></span>");
 			eventIconMap.put("Special event", "<span class=\"icon icon-calendar-special-event\"></span>");
+			eventIconMap.put("Submission Date", "<span class=\"icon icon-calendar-submission-date\"></span>");
+			eventIconMap.put("Tutorial", "<span class=\"icon icon-calendar-tutorial\"></span>");
 			eventIconMap.put("Web Assignment", "<span class=\"icon icon-calendar-web-assignment\"></span>");
+			eventIconMap.put("Workshop", "<span class=\"icon icon-calendar-workshop\"></span>");
 		}
 		return eventIconMap;
 	}

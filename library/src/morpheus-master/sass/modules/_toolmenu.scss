@@ -1,0 +1,443 @@
+//.#{$namespace}
+body.is-logged-out{
+	#toolMenuWrap{
+		//top: 0;
+		@media #{$phone}{
+			//top: $header-size;
+		}
+	}
+	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
+		top: $header-size;
+	}
+}
+
+// Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue 
+// when switching between phone and non-phone sized screens.
+@media #{$nonPhone} {
+	// LHS tool menu collapsed to show icons only and not tool titles.
+	body.#{$namespace}toolMenu-collapsed{
+	
+		#content, .Mrphs-container--footer {
+			margin: 0 0 0 0;
+		}
+	
+		#toolMenuWrap{
+			max-width: #{ $tool-menu-width-collapsed };
+			min-width: #{ $tool-menu-width-collapsed };
+			width: #{ $tool-menu-width-collapsed };
+		}
+		#toolMenu, #subSites{
+			.img_site_toolmenu{
+				display: none;
+			}
+			ul{
+				li{
+					a{
+						min-height: 1.7em;
+						text-align: center;
+						@if $tool-menu-icon-on-left {
+							min-height: 3.4em;
+						}
+						&:hover{
+							.#{$namespace}toolsNav__menuitem--title{
+								position: absolute;
+								display: block;
+								float: right;
+								margin: -2.1em 0em 0em 3.2em;
+								background: $primary-color;
+								padding: 0.71em;
+								border-left: 3px solid $primary-color-shadow;
+								z-index: 10;
+								width: auto;
+								border-radius: 0 15px 15px 0;
+								line-height: 100%;
+							}
+						}
+						&.is-invisible {
+							&:after {
+								display: none;
+							}
+						}
+						span.#{$namespace}toolsNav__menuitem--title{
+							white-space: pre;
+						}
+					}
+					.#{$namespace}toolsNav__menuitem--icon{
+						@if $tool-menu-icon-on-left {
+							margin: 0 0.5em 0 0;
+						}
+					}
+					.#{$namespace}toolsNav__menuitem--title{
+						display: none;
+					}
+					&.#{$namespace}collapseTools{
+						i{
+							@include transform( scaleX(-1) ); /* flip horizontally */
+						}
+					}
+				}
+			}
+			// Properties for portal.showSubsitesAsFlyout=true
+			&.floating {
+				ul {
+					li {
+						a.is-invisible {
+							.#{$namespace}toolsNav__menuitem--title {
+								display: block;
+							}
+							color: #AAAAAA;
+							font-style: italic;
+							position: relative;
+							&:hover {
+								background: $primary-color;
+								.#{$namespace}toolsNav__menuitem--title {
+									position: relative;
+									float: none;
+									margin: 0;
+									padding: 0;
+									border-left: none;
+									line-height: initial;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// One cannot use @extend within a media query so this has been pulled out from
+// the showSubsitesAsFlyouts properties above.  This may change with a Sass upgrade.
+#subSites.floating a.#{$namespace}toolsNav__menuitem--link.is-invisible {
+	&:after {
+		@extend .fa-lg;
+		@extend .fa;
+		content: '\f070';
+		position: absolute;
+		top: 4px;
+		right: 4px;
+	}
+}
+
+#toolMenuWrap .img_site_toolmenu{
+  width: 100%;
+  max-width: $tool-menu-width;
+  height: auto;
+  margin: 0 auto; 
+  @media #{$phone}{
+    display: none;
+  }
+}
+
+#toolMenuWrap{
+	#toolMenu {
+		position: relative;
+	}
+	background: $tool-menu-background-color;
+	display: block;
+	min-width: $tool-menu-width;
+	width: $tool-menu-width;
+	@include flex-basis( 7.5em );
+	margin: 0 0 0 0;
+	text-align: center;
+	@include transition( left 0.25s linear 0s );
+	
+	@media #{$phone}{
+		left: -100%;
+		position: fixed;
+		top: 5.5em;
+		z-index: 9999;
+		padding: 0 0 2em 0;
+		margin: 0 0 0;
+		height: 100%;
+		@if $skin-with-icons {
+			.#{$namespace}toolsNav__menuitem--title{
+				display: none;
+			}	
+		} @else {
+			.#{$namespace}toolsNav__menuitem--title{
+				display: inline-block;
+				width:   #{$icon-size - 5px };
+				height:  $icon-size;
+				letter-spacing: 2em;
+				padding: 0px 0 0 5px;
+				overflow: hidden;
+				@include border-radius( $icon-size );
+				box-shadow:  0 0 5px rgba( $background-color ,0.5);
+			}
+		}
+	}
+	&.openedLinkNav{
+		margin: 0 0 0 0;
+	}
+}
+
+#totoolmenu{
+	@media #{$phone}{
+		display:none !important;
+	}
+}
+
+.#{$namespace}toolsNav__title--current-site{
+	display: none;
+	@media #{$phone}{
+		color: $tool-background-color;
+		background: darken( $primary-color, 10% );
+		display: block;
+		font-size: 1.1em;
+		width: 100%;
+		max-width: 100%;
+		text-align: left;
+		padding: 12px 16px;
+		position: fixed;
+		top: 1.8em;
+		left: 0;
+		z-index: 99;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		box-shadow: inset 0 0 8px rgba( $background-color ,0.15);
+		@include transition( top 0.25s linear 0s );
+		&.moving{
+			top: -3.3em;
+		}
+	}
+}
+
+#subSites{
+	background: darken( $tool-menu-background-color, 10% );
+	ul{  
+		padding: 0 0 0 0;
+	}
+	@media #{$phone}{
+		background: $tool-menu-background-color;
+		padding-top: 4px;
+	}
+}
+
+nav#subSites{
+	position: relative;
+	z-index: 9999;
+	&.floating{
+		min-width: #{$tool-menu-width * 2 };
+		max-width: #{$tool-menu-width * 2 };
+		margin: 3.4em 0 0 7px;
+		transform: translateY(-100%);
+		&.ontop{
+			ul{
+				max-height: 240px;
+				overflow: auto;
+			}
+		}
+		&:after{
+			right: 100%;
+			top: calc(100% - 25px);
+			border: solid transparent;
+			content: " ";
+			height: 0;
+			width: 0;
+			position: absolute;
+			pointer-events: none;
+			border-color: rgba( darken( $tool-menu-background-color, 10% ) , 0);
+			border-right-color: darken( $tool-menu-background-color, 10% );
+			border-width: 7px;
+			margin-top: -7px;
+		}
+		ul li a .#{$namespace}toolsNav__menuitem--icon {
+			overflow: hidden;
+		}
+	}
+}
+
+#toolMenu, #subSites{
+	ul{
+		padding: 0;
+		margin:  0;
+		li{
+			&.#{$namespace}collapseTools
+			{
+				display:flex;
+				align-items:center;
+				justify-content:flex-end; /* right-align the arrows when expanded */
+				height:3em;
+				padding: 0 1em;
+				border-right: 1px solid $tool-menu-background-color;
+				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
+				cursor:pointer;
+				font-size: 1.2em;
+				background-color: $tool-tab-background-color;
+				&:hover
+				{
+					background: $tool-menu-hover-background-color;
+					color: $tool-menu-hover-color;
+				}
+				&.min
+				{
+					justify-content:center; /* center the arrows when collapsed */
+				}
+				
+				i
+				{
+					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
+				}
+				
+				@media #{$phone}{
+					display: none;
+				}
+			}
+			@media #{$phone}{
+				margin: -4px -4px 0px 0; //FIX for inline-block extra space.
+				width: calc( 25% - 1px );
+			}
+			.#{$namespace}toolsNav__menuitem--icon{
+				@if $tool-menu-icon-on-left {
+					display: inline-block;
+					width: 20%;
+					height: 100%;
+					padding: 0 0.5em 0 0.2em;
+					@media #{$phone}{
+						width: 10%;
+						padding: 0.4em 0.5em;
+					}
+				} @else {
+					margin: 0 0.25em 0 0;
+					@media #{$phone}{
+						margin: 0.5em 0;
+					}
+				}
+			}
+			a{
+				border-bottom: 1px solid darken( $tool-menu-background-color, 20% );
+				color: $tool-menu-color;
+				display: block;
+				font-family: $header-font-family;
+				font-weight: 300;
+				font-size: 0.85em;
+				@if $tool-menu-icon-on-left {
+					text-align: left;
+					padding: 0.5em 0.5em;
+					min-height: 3.4em;
+				} @else {
+					text-align: center;
+					padding: 0.5em 0.25em;
+					min-height: 3em;
+					line-height: 1.25;
+				}
+				text-decoration: none;
+				&:hover{
+					background: $tool-menu-hover-background-color;
+					color: $tool-menu-hover-color;
+				}
+				@media #{$phone}{
+					@if $tool-menu-icon-on-left {
+						border: none;
+						font-size: 0.9em;
+						font-weight: 700;
+						padding: 3px 0;
+						min-height: 3em;
+					}
+					@else {
+						border-width: 1px;
+						border-style: solid;
+						border-color: darken( $tool-menu-background-color, 10% );
+						height:  5.5em;
+					}
+					overflow: hidden;
+				}
+				.#{$namespace}toolsNav__menuitem--title{
+					@if $tool-menu-icon-on-left {
+						display: inline-block;
+						width: 75%;
+						vertical-align: middle;
+						@media #{$phone}{
+							width: 90%;
+						}
+					} @else {
+						display: block;
+						width: 100%;
+					}
+					text-overflow: ellipsis;
+					white-space: pre;
+					overflow: hidden;
+				}
+				&.is-invisible {
+					color: #AAAAAA;
+					font-style: italic;
+					position: relative;
+					&:after {
+						@extend .fa-lg;
+						@extend .fa;
+						content: '\f070';
+						position: absolute;
+						top: 4px;
+						right: 4px;
+					}
+					.#{$namespace}toolsNav__menuitem--icon{
+						font-style: italic;
+					}
+				}
+			}
+			&.is-current{
+				background: $tool-menu-current-background-color;
+				a{
+					border-left: 4px solid $tool-menu-current-border-color;
+					border-bottom: 1px solid $tool-menu-current-border-color;
+					color: $tool-menu-current-color;
+					.#{$namespace}toolsNav__menuitem--title{
+						font-weight: 700;
+					}
+					&:hover{
+						background: $tool-menu-hover-background-color;
+						color: $tool-menu-hover-color;
+					}
+					@media #{$phone}{
+						@if $tool-menu-icon-on-left {
+							border: none;
+						}
+						@else {
+							border: 1px solid $tool-menu-current-border-color;
+							border-left: 1px solid $tool-menu-current-border-color;
+						}
+					}
+				}
+			}
+			.#{$namespace}toolsNav__subnav{
+				padding: 0 0 0 0;
+				li{
+					border-bottom: 1px solid $tool-sub-menu-border-color;
+					a{
+			  			padding: 0.6em 0 0.6em 0em;
+						background: $tool-sub-menu-background-color;
+						&:hover{
+							background: $tool-sub-menu-hover-background-color;
+							color: $tool-sub-menu-hover-color;
+						}
+						@media #{$phone}{
+							padding: 0.6em 0.6em;
+						}
+					}
+					&.is-current{
+						a{
+							background: $tool-sub-menu-current-background-color;
+							color: $tool-sub-menu-current-color;
+							.#{$namespace}toolsNav__menuitem--title{
+								font-weight: 700;
+							}
+							&:hover{
+								background: $tool-sub-menu-current-hover-background-color;
+								color: $tool-sub-menu-current-hover-color;
+							}
+						}
+					}
+				}
+			}
+			.#{$namespace}toolsNav__category {
+				background-color: darken( $tool-sub-menu-background-color, 5% );
+				@media #{$phone}{
+					display: none;
+				}
+			}
+		}
+	}
+}

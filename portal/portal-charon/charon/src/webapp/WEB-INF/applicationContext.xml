@@ -8,6 +8,7 @@
 		class="org.sakaiproject.portal.entityprovider.PortalEntityProvider" init-method="init">
 	        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	        <property name="bullhornService" ref="org.sakaiproject.portal.api.BullhornService" />
 	        <property name="profileConnectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 	        <property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 	        <property name="profileLinkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />

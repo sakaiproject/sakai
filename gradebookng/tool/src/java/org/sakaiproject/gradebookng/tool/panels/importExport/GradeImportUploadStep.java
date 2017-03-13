@@ -7,11 +7,13 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.lang.Bytes;
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
@@ -51,6 +53,17 @@ public class GradeImportUploadStep extends BasePanel {
 
 		add(new ExportPanel("export"));
 		add(new UploadForm("form"));
+
+		// if final grade mode enabled, add instructions
+		add(new Label("finalGradeModeInstructions", new ResourceModel("importExport.instructions.finalgrade")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return isFinalGradeModeEnabled();
+			}
+		});
+
 	}
 
 	/*
@@ -171,6 +184,14 @@ public class GradeImportUploadStep extends BasePanel {
                 Collectors.toMap(User::getEid, User::getId));
 
 		return rval;
+	}
+
+	/**
+	 * Helper for checking both parts of the final grade mode setting
+	 * @return
+	 */
+	private boolean isFinalGradeModeEnabled() {
+		return (this.businessService.isFinalGradeModeEnabled() && this.businessService.getGradebookSettings().isFinalGradeMode());
 	}
 
 }

@@ -38,7 +38,7 @@ public class SakaiKernelTestBase {
 	/**
 	 * The configuration path of the components file for the kernel component
 	 */
-	private static String CONFIG = "../kernel-component/src/main/webapp/WEB-INF/components.xml";
+	private static String CONFIG = "../kernel-impl/src/main/webapp/WEB-INF/components.xml";
 
 	/**
 	 * The test component manager container

@@ -47,7 +47,6 @@
 	<modules>
 		<module>api</module>
 		<module>impl</module>
-		<module>pack</module>
 		<module>tool</module>
 	</modules>
 
@@ -118,12 +117,6 @@
 				<artifactId>easymock</artifactId>
 				<version>1.2_Java1.3</version>
 				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>jta</groupId>
-				<artifactId>jta</artifactId>
-				<version>h2.1.8</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.myfaces.tomahawk</groupId>

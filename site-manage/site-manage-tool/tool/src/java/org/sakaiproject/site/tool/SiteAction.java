@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -321,12 +322,12 @@ public class SiteAction extends PagedResourceActionII {
 	/** Name of state attribute for Site Information */
 	private static final String STATE_SITE_INFO = "site.info";
 
-	private static final String STATE_SITE_TYPE = "site-type";
+	static final String STATE_SITE_TYPE = "site-type";
 
 	/** Name of state attribute for possible site types */
 	private static final String STATE_SITE_TYPES = "site_types";
 
-	private static final String STATE_DEFAULT_SITE_TYPE = "default_site_type";
+	static final String STATE_DEFAULT_SITE_TYPE = "default_site_type";
 
 	private static final String STATE_PUBLIC_CHANGEABLE_SITE_TYPES = "changeable_site_types";
 
@@ -6579,19 +6580,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Set multipleToolIdSet = new HashSet();
 		HashMap multipleToolConfiguration = new HashMap<String, HashMap<String, String>>();
 		// get registered tools list
-		Set categories = new HashSet();
-		categories.add(type);
-		categories.add(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
-		Set toolRegistrations = ToolManager.findTools(categories, null);
-		if ((toolRegistrations == null || toolRegistrations.size() == 0)
-			&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
-		{
-			// use default site type and try getting tools again
-			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
-			categories.clear();
-			categories.add(SiteTypeUtil.getTargetSiteType(type)); //UMICH-1035
-			toolRegistrations = ToolManager.findTools(categories, null);
-		}
+		Set<Tool> toolRegistrations = getToolRegistrations(state, type);
 
 		List tools = new Vector();
 		SortedIterator i = new SortedIterator(toolRegistrations.iterator(),
@@ -7740,10 +7729,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 	/**
 	 * toolId might be of form original tool id concatenated with number
-	 * find whether there is an counterpart in the the multipleToolIdSet
-	 * @param state
-	 * @param toolId
-	 * @return
+	 * find whether there is an counterpart in the the multipleToolIdSet.
+	 * Also only returns tools that are considered valid tools for this site type.
+	 *
+	 * @param state The session state to get the site type from.
+	 * @param toolId The tool ID to find.
+	 * @return <code>null</code> if the tool couldn't be found or the matched tool ID.
 	 */
 	private String findOriginalToolId(SessionState state, String toolId) {
 		// treat home tool differently
@@ -7753,11 +7744,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		else
 		{
-			Set toolRegistrationList = ToolManager.findTools(Collections.singleton(state.getAttribute(STATE_SITE_TYPE)), null);
+			Set<Tool>toolRegistrationSet = getToolRegistrations(state, (String) state.getAttribute(STATE_SITE_TYPE));
 			String rv = null;
-			if (toolRegistrationList != null)
+			if (toolRegistrationSet != null)
 			{
-				for (Iterator i=toolRegistrationList.iterator(); rv == null && i.hasNext();)
+				for (Iterator i=toolRegistrationSet.iterator(); rv == null && i.hasNext();)
 				{
 					Tool tool = (Tool) i.next();
 					String tId = tool.getId();
@@ -7768,22 +7759,26 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 	}
 
-	// replace fake tool ids with real ones. Don't duplicate, since several fake tool ids may appear for the same real one
-	// it's far from clear that we need to be using fake tool ids at all. But I don't know the code well enough
-	// to get rid of the fakes completely.
-	// modified to exclude nulls as sakai.assignment is still in the list (as of Nov 2014) and is unresolvable
-	private List<String> originalToolIds(List<String>toolIds, SessionState state) {    
-		Set<String>found = new HashSet<String>();
-		List<String>rv = new ArrayList<String>();
+	/**
+	 * This extracts original tools IDs from compound IDs. The compound tools IDs are used when there
+	 * is more than once copy of a tool on a site. For example lessonbuilder and web content can have
+	 * multiple pages in the site on which they appear. It also filters out any tool IDs that aren't
+	 * considered valid in this site.
+     *
+	 * @param toolIds The list of tool IDs
+	 * @param state The session state.
+	 * @return A filtered list of tool IDs.
+	 */
+	List<String> originalToolIds(List<String>toolIds, SessionState state) {
+		Set<String>rv = new LinkedHashSet<>();
 
 		for (String toolId: toolIds) {
-		    String origToolId = findOriginalToolId(state, toolId);
-		    if (StringUtils.isNotBlank(origToolId) && !found.contains(origToolId)) {
-			    rv.add(origToolId);
-			    found.add(origToolId);
-		    }
+			String origToolId = findOriginalToolId(state, toolId);
+			if (StringUtils.isNotBlank(origToolId)) {
+				rv.add(origToolId);
+			}
 		}
-		return rv;
+		return new ArrayList<>(rv);
 	}
 
 	private String originalToolId(String toolId, String toolRegistrationId) {
@@ -7794,15 +7789,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		else if (toolId.indexOf(toolRegistrationId) != -1 && isMultipleInstancesAllowed(toolRegistrationId))
 		{
-			// the multiple tool id format is of SITE_IDTOOL_IDx, where x is an intger >= 1
 			if (toolId.endsWith(toolRegistrationId))
 			{
-				// get the site id part out
+				// the multiple tool id format is of {page_id}{tool_id}
+				// get the page id part out
 				String uuid = toolId.replaceFirst(toolRegistrationId, "");
 				if (uuid != null && uuid.length() == UUID_LENGTH)
 					rv = toolRegistrationId;
-			} else
+			}
+			else
 			{
+				// the multiple tool id format is of {tool_id}{x}, where x is an intger >= 1
 				String suffix = toolId.substring(toolId.indexOf(toolRegistrationId) + toolRegistrationId.length());
 				try
 				{
@@ -8613,16 +8610,18 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								// add current user as the maintainer
 								Member member = currentSite.getMember(userId);
 								if(member != null){
-									siteGroup.addMember(userId, member.getRole().getId(), true, false);
-									SecurityAdvisor yesMan = new SecurityAdvisor() {
-										public SecurityAdvice isAllowed(String userId, String function, String reference) {
-											return SecurityAdvice.ALLOWED;
-										}
-									};
 									try{
+										siteGroup.insertMember(userId, member.getRole().getId(), true, false);
+										SecurityAdvisor yesMan = new SecurityAdvisor() {
+											public SecurityAdvice isAllowed(String userId, String function, String reference) {
+												return SecurityAdvice.ALLOWED;
+											}
+										};
 										SecurityService.pushAdvisor(yesMan);
 										commitSite(currentSite);
-									}catch (Exception e) {
+									} catch (IllegalStateException e) {
+										M_log.error(".doJoinableSet: User with id {} cannot be inserted in group with id {} because the group is locked", userId, siteGroup.getId());
+									} catch (Exception e) {
 										M_log.debug(e.getMessage());
 									}finally{
 										SecurityService.popAdvisor();
@@ -8671,15 +8670,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							// remove current user as the maintainer
 							Member member = currentSite.getMember(userId);
 							if(member != null){
-								siteGroup.removeMember(userId);
-								SecurityAdvisor yesMan = new SecurityAdvisor() {
-									public SecurityAdvice isAllowed(String userId, String function, String reference) {
-										return SecurityAdvice.ALLOWED;
-									}
-								};
 								try{
+									siteGroup.deleteMember(userId);
+									SecurityAdvisor yesMan = new SecurityAdvisor() {
+										public SecurityAdvice isAllowed(String userId, String function, String reference) {
+											return SecurityAdvice.ALLOWED;
+										}
+									};
 									SecurityService.pushAdvisor(yesMan);
 									commitSite(currentSite);
+								}catch (IllegalStateException e) {
+									M_log.error(".doUnjoinableSet: User with id {} cannot be deleted from group with id {} because the group is locked", userId, siteGroup.getId());
 								}catch (Exception e) {
 									M_log.debug(e.getMessage());
 								}finally{
@@ -9020,7 +9021,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								if ( siteMember  == null)
 								{
 									// user has been removed from the site
-									g.removeMember(gMemberId);
+									try {
+										g.deleteMember(gMemberId);
+									} catch (IllegalStateException e) {
+										M_log.error(".doUpdate_related_group_participants: User with id {} cannot be deleted from group with id {} because the group is locked", gMemberId, g.getId());
+									}
 								}
 								else
 								{
@@ -9038,8 +9043,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 											// in case there is no matching role as that in the site, create such role and add it to the user
 											g.addRole(siteRole.getId(), siteRole);
 										}
-										g.removeMember(gMemberId);
-										g.addMember(gMemberId, siteRole.getId(), siteMember.isActive(), false);
+										try {
+											g.deleteMember(gMemberId);
+											g.insertMember(gMemberId, siteRole.getId(), siteMember.isActive(), false);
+										} catch (IllegalStateException e) {
+											M_log.error(".doUpdate_related_group_participants: User with id {} cannot be deleted from group with id {} because the group is locked", gMemberId, g.getId());
+										}
 										// track the group membership change at individual level
 										if (trackIndividualChange)
 										{
@@ -11278,11 +11287,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		boolean inChosenList;
 		boolean inWSetupPageList;
 
-		Set categories = new HashSet();
-		// UMICH 1035
-		categories.add(siteType);
-		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
-		Set toolRegistrationSet = ToolManager.findTools(categories, null);
+		Set toolRegistrationSet = getToolRegistrations(state, siteType);
 
 		// first looking for any tool for removal
 		Vector removePageIds = new Vector();
@@ -11577,6 +11582,33 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		
 	} // saveFeatures
+
+	/**
+	 * Gets the tools that are allowed in this site, this looks at the tools available for the site type but if
+	 * there aren't any available then it will fallback to the tools available in the default site.
+	 * @param state The session state.
+	 * @param siteType The type of the site to get the list of tools for.
+	 * @return A Set of possible tools.
+	 */
+	Set<Tool> getToolRegistrations(SessionState state, String siteType) {
+		if (siteType == null) {
+			return Collections.emptySet();
+		}
+		Set<String> categories = new HashSet<>();
+		// UMICH 1035
+		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
+		Set toolRegistrationSet = ToolManager.findTools(categories, null);
+		if ((toolRegistrationSet == null || toolRegistrationSet.size() == 0)
+				&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
+		{
+			// use default site type and try getting tools again
+			String type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
+			categories.clear();
+			categories.add(SiteTypeUtil.getTargetSiteType(type));
+			toolRegistrationSet = ToolManager.findTools(categories, null);
+		}
+		return toolRegistrationSet;
+	}
 
 	/**
 	 * refresh site object

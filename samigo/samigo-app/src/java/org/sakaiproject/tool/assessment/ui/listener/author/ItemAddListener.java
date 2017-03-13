@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -156,7 +157,7 @@ public class ItemAddListener
     }
     
     if(iType.equals(TypeFacade.MATCHING.toString())) {   
-            ArrayList l=item.getMatchItemBeanList();
+		List l=item.getMatchItemBeanList();
 	    if (l==null || l.size()==0){
 		String noPairMatching_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
 		context.addMessage(null,new FacesMessage(noPairMatching_err));
@@ -288,7 +289,7 @@ public class ItemAddListener
     }
     if (iType.equals(TypeFacade.IMAGEMAP_QUESTION.toString())) {
  	   
-        ArrayList l=item.getImageMapItemBeanList();
+        List l=item.getImageMapItemBeanList();
    	    if (l==null || l.size()==0){
    		String noPairImageMap_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noImageMapPair_error");
    		context.addMessage(null,new FacesMessage(noPairImageMap_err));
@@ -883,7 +884,7 @@ public class ItemAddListener
         currentPool.setObjectives(contextCurrentPool.getObjectives());
         currentPool.setKeywords(contextCurrentPool.getKeywords());
         
-        ArrayList addedQuestions = qpoolbean.getAddedQuestions();
+        List addedQuestions = qpoolbean.getAddedQuestions();
         if (addedQuestions == null) {
         	addedQuestions = new ArrayList();
         }
@@ -1061,7 +1062,7 @@ public class ItemAddListener
  * @param bean
  * @return
  */
-  private ItemText selectAnswers(MatchItemBean choicebean, ArrayList<MatchItemBean> matchItemBeanList, ItemFacade item, ItemBean bean) {
+  private ItemText selectAnswers(MatchItemBean choicebean, List<MatchItemBean> matchItemBeanList, ItemFacade item, ItemBean bean) {
 	  
 	  // Create a list of valid answers to loop through.  Ignore answers that are distractors
 	  // or are controlled by another MatchItemBean
@@ -1118,10 +1119,9 @@ public class ItemAddListener
 	  return choicetext;
   }
   
-  private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
-		  ItemAuthorBean itemauthor) {
+  private Set prepareTextForMatching(ItemFacade item, ItemBean bean, ItemAuthorBean itemauthor) {
 	  // looping through matchItemBean
-	  ArrayList<MatchItemBean>matchItemBeanList = bean.getMatchItemBeanList();
+	  List<MatchItemBean>matchItemBeanList = bean.getMatchItemBeanList();
 	  HashSet<ItemText> textSet = new HashSet<ItemText>();
 	  
 	  Iterator<MatchItemBean> choiceiter = matchItemBeanList.iterator();
@@ -1577,7 +1577,7 @@ public class ItemAddListener
 	   * @return
 	   */
 	private Set<ItemText> prepareTextForImageMapQuestion(ItemFacade item, ItemBean bean, ItemAuthorBean itemauthor) {
-		ArrayList<ImageMapItemBean>imageMapItemBeanList = bean.getImageMapItemBeanList();
+		List<ImageMapItemBean>imageMapItemBeanList = bean.getImageMapItemBeanList();
 		HashSet<ItemText> textSet = new HashSet<ItemText>();
 
 		for(ImageMapItemBean choicebean : imageMapItemBeanList)
@@ -1795,8 +1795,8 @@ public class ItemAddListener
 		while (iter.hasNext()) {
 			text = (ItemTextIfc) iter.next();
 			text.setText(bean.getItemText());
-			ArrayList newAnswerList = bean.getMultipleChoiceAnswers();
-			HashMap newAnswerMap = new HashMap();
+			List newAnswerList = bean.getMultipleChoiceAnswers();
+			Map newAnswerMap = new HashMap();
 			Iterator newAnswerIter = newAnswerList.iterator();
 			while (newAnswerIter.hasNext()) {
 				AnswerBean answerBean = (AnswerBean) newAnswerIter.next();
@@ -1966,13 +1966,13 @@ public class ItemAddListener
   private void preparePublishedTextForImageMapQuestion(ItemFacade item, ItemBean bean, ItemService delegate) {
 		Set textSet = item.getItemTextSet();
 		Iterator textIter = textSet.iterator();
-		HashMap itemTextMap = new HashMap();
+		Map itemTextMap = new HashMap();
 		while (textIter.hasNext()) {
 			ItemTextIfc itemText = (ItemTextIfc) textIter.next();
 			itemTextMap.put(itemText.getSequence(), itemText);
 		}
 		
-		ArrayList<ImageMapItemBean>imageMapItemBeanList = bean.getImageMapItemBeanList();
+		List<ImageMapItemBean>imageMapItemBeanList = bean.getImageMapItemBeanList();
 		
 		Set answerSet = null;
 		ItemTextIfc choicetext = null;
@@ -1993,7 +1993,7 @@ public class ItemAddListener
 				choicetext = (ItemTextIfc) itemTextMap.get(choiceSequence);
 				choicetext.setText(choicebean.getChoice());
 			}
-			HashMap answerMap = new HashMap();
+			Map answerMap = new HashMap();
 			answerSet = choicetext.getAnswerSet();
 			if (answerSet != null) {
 				Iterator answerIter = answerSet.iterator();
@@ -2093,14 +2093,14 @@ public class ItemAddListener
 			ItemBean bean, ItemService delegate) {
 		Set textSet = item.getItemTextSet();
 		Iterator textIter = textSet.iterator();
-		HashMap itemTextMap = new HashMap();
+		Map itemTextMap = new HashMap();
 		while (textIter.hasNext()) {
 			ItemTextIfc itemText = (ItemTextIfc) textIter.next();
 			itemTextMap.put(itemText.getSequence(), itemText);
 		}
 
 		// looping through matchItemBean
-		ArrayList matchItemBeanList = bean.getMatchItemBeanList();
+		List matchItemBeanList = bean.getMatchItemBeanList();
 		Iterator choiceIter = matchItemBeanList.iterator();
 		
 		Set answerSet = null;
@@ -2124,7 +2124,7 @@ public class ItemAddListener
 				itemText = (ItemTextIfc) itemTextMap.get(choiceSequence);
 				itemText.setText(choiceBean.getChoice());
 			}
-			HashMap answerMap = new HashMap();
+			Map answerMap = new HashMap();
 			answerSet = itemText.getAnswerSet();
 			if (answerSet != null) {
 				Iterator answerIter = answerSet.iterator();
@@ -2614,7 +2614,7 @@ public class ItemAddListener
 	  item.getData().setInstruction(bean.getItemText());
 	  Set textSet = item.getItemTextSet();
 	  Iterator textIter = textSet.iterator();
-	  HashMap itemTextMap = new HashMap();
+	  Map itemTextMap = new HashMap();
 	  while (textIter.hasNext()) {
 			ItemTextIfc itemText = (ItemTextIfc) textIter.next();
 			itemTextMap.put(itemText.getSequence(), itemText);
@@ -2637,7 +2637,7 @@ public class ItemAddListener
 			    publishedItemText = (ItemTextIfc) itemTextMap.get(rowChoiceSequence);
 			    publishedItemText.setText(rowChoices[i]);
 		  }
-		  HashMap answerMap = new HashMap();
+		  Map answerMap = new HashMap();
 		  answerSet = publishedItemText.getAnswerSet();
 		  if (answerSet != null) {
 			    Iterator answerIter = answerSet.iterator();
@@ -2686,10 +2686,10 @@ public class ItemAddListener
 	  }
   }
 
-  private static ArrayList getFIBanswers(String entiretext) {
+  private static List getFIBanswers(String entiretext) {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
 	  String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
-	  ArrayList list = new ArrayList();
+	  List list = new ArrayList();
 	  if (tokens.length==1) {
 		  String[] afteropen= tokens[0].split("\\{");
 		  if (afteropen.length>1) {
@@ -2724,10 +2724,10 @@ public class ItemAddListener
 
   }
 
-  private static ArrayList getFINanswers(String entiretext) throws FinFormatException {
+  private static List getFINanswers(String entiretext) throws FinFormatException {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
 	  String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
-	  ArrayList list = new ArrayList();
+	  List list = new ArrayList();
 	  if (tokens.length==1) {
 		  String[] afteropen= tokens[0].split("\\{");
 		  if (afteropen.length>1) {
@@ -2808,7 +2808,7 @@ public class ItemAddListener
       }
     }
     else {
-      ArrayList corranswersList = ContextUtil.paramArrayValueLike(
+      List corranswersList = ContextUtil.paramArrayValueLike(
           "mccheckboxes");
       Iterator iter = corranswersList.iterator();
       while (iter.hasNext()) {
@@ -2917,7 +2917,7 @@ public class ItemAddListener
   private void updateAttachment(List oldList, List newList, ItemDataIfc item, boolean pendingOrPool){
     if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
     List list = new ArrayList();
-    HashMap map = getAttachmentIdHash(oldList);
+    Map map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
       ItemAttachmentIfc a = (ItemAttachmentIfc)newList.get(i);
       if (map.get(a.getAttachmentId())!=null){
@@ -2965,8 +2965,8 @@ public class ItemAddListener
 	    assessdelegate.saveOrUpdateAttachments(list);
   }
   
-  private HashMap getAttachmentIdHash(List list){
-    HashMap map = new HashMap();
+  private Map getAttachmentIdHash(List list){
+    Map map = new HashMap();
     for (int i=0; i<list.size(); i++){
       AttachmentIfc a = (AttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);

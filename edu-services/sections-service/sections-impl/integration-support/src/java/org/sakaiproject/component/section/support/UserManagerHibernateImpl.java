@@ -20,18 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.support;
 
-import java.sql.SQLException;
-
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
-
+import org.sakaiproject.component.section.UserImpl;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.section.api.coursemanagement.User;
-import org.sakaiproject.component.section.UserImpl;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class UserManagerHibernateImpl extends HibernateDaoSupport implements UserManager {
 	private static Logger log = LoggerFactory.getLogger(UserManagerHibernateImpl.class);
@@ -41,25 +36,21 @@ public class UserManagerHibernateImpl extends HibernateDaoSupport implements Use
 		
 		if(log.isDebugEnabled()) log.debug("Creating a user named " + displayName + " with uid=" + userUid);
 
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				UserImpl user = new UserImpl(displayName, displayId, sortName, userUid);
-				session.save(user);
-				return user;
-			}
-		};
-		return (User)getHibernateTemplate().execute(hc);
+		HibernateCallback<UserImpl> hc = session -> {
+            UserImpl user = new UserImpl(displayName, displayId, sortName, userUid);
+            session.save(user);
+            return user;
+        };
+		return getHibernateTemplate().execute(hc);
 	}
 	
 	public User findUser(final String userUid) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException ,SQLException {
-				Query q = session.getNamedQuery("findUser");
-				q.setParameter("userUid", userUid);
-				return q.uniqueResult();
-			}
-		};
-		return (User)getHibernateTemplate().execute(hc);
+		HibernateCallback<User> hc = session -> {
+            Query q = session.getNamedQuery("findUser");
+            q.setParameter("userUid", userUid);
+            return (User) q.uniqueResult();
+        };
+		return getHibernateTemplate().execute(hc);
 	}
 
 }

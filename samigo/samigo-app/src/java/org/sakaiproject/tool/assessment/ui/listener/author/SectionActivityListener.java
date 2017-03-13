@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
@@ -135,7 +137,7 @@ implements ActionListener, ValueChangeListener
             // Hibernate, so we need to initialize them. Unfortunately the current
             // spring-1.0.2.jar does not support HibernateTemplate.intialize(Object)
             // so we need to do it ourselves
-            HashSet sectionSet = PersistenceService.getInstance().
+            Set sectionSet = PersistenceService.getInstance().
             getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(assessmentData);
             assessmentData.setSectionSet(sectionSet);
 

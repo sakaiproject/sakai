@@ -239,7 +239,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	Session ses = SessionManager.getCurrentSession();
 
-	ArrayList<PublishedAssessmentFacade> plist = pService.getBasicInfoOfAllPublishedAssessments2("title", true, ToolManager.getCurrentPlacement().getContext());
+	List<PublishedAssessmentFacade> plist = pService.getBasicInfoOfAllPublishedAssessments2("title", true, ToolManager.getCurrentPlacement().getContext());
 
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks

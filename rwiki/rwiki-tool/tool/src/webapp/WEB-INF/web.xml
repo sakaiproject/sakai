@@ -44,11 +44,7 @@
 			org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
 	</listener>
 	
-	<listener>
-		<listener-class>uk.ac.cam.caret.sakai.rwiki.tool.ModelMigrationContextListener</listener-class>
-	</listener>
-	
-	<!-- 
+	<!--
 	The Sakai Request Hander 
 	-->
 	<filter>

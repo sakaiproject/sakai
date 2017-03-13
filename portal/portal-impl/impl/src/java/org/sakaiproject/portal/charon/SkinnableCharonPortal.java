@@ -1097,6 +1097,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
 		
+		//SAK-32224. Ability to disable the animated tool menu by property
+		rcontext.put("scrollingToolbarEnabled", ServerConfigurationService.getBoolean("portal.scrolling.toolbar.enabled",true));
+		
 		return rcontext;
 	}
 
@@ -1743,6 +1746,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
+
+			boolean useBullhornAlerts = ServerConfigurationService.getBoolean("portal.bullhorns.enabled", true);
+			rcontext.put("useBullhornAlerts", useBullhornAlerts);
+			if (useBullhornAlerts) {
+				int bullhornAlertInterval = ServerConfigurationService.getInt("portal.bullhorns.poll.interval", 10000);
+				rcontext.put("bullhornsPollInterval", bullhornAlertInterval);
+			}
 
 			// SAK-25931 - Do not remove this from session here - removal is done by /direct
 	                Session s = SessionManager.getCurrentSession();

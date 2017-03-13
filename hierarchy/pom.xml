@@ -36,7 +36,6 @@
             <modules>
                 <module>api</module>
                 <module>impl</module>
-                <module>pack</module>
             </modules>
         </profile>
         <profile>

@@ -308,8 +308,6 @@ public class ExternalLogicImplTest {
 
 	@Test
 	public void emailArchiveIsNotAddedToSite() throws Exception {
-		when(site.getTools("sakai.mailbox")).thenReturn(Collections.EMPTY_SET);
-
 		MailArchiveChannel channel = mock(MailArchiveChannel.class);
 		MailArchiveMessageEdit msg = mock(MailArchiveMessageEdit.class);
 		MailArchiveMessageHeaderEdit header = mock(MailArchiveMessageHeaderEdit.class);
@@ -356,7 +354,7 @@ public class ExternalLogicImplTest {
 
 		when(contentHostingService.newResourceProperties()).thenReturn(attachmentProperties);
 		when(contentHostingService.addAttachmentResource(
-				anyString(), anyString(), anyString(), anyString(), any(InputStream.class), any(ResourceProperties.class)
+				anyString(), anyString(), eq(null), anyString(), any(InputStream.class), any(ResourceProperties.class)
 		)).thenReturn(resource);
 		when(resource.getReference()).thenReturn("attachmentReference");
 

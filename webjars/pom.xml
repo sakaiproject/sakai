@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>12-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <properties>
+      <!-- Either use a tag or a SHA so the version is predictable.
+           If you update this you must also currently update the value inlibrary/src/webapp/editor/ckeditor.launch.js
+           Source at https://github.com/w8tcha/CKEditor-AutoSave-Plugin
+      -->
+      <ckeditor.autosave.version>8541f541d9985cfd0859c7d8eb6be404afe95a2d</ckeditor.autosave.version>
+      <!-- Source at https://github.com/w8tcha/CKEditor-WordCount-Plugin -->
+      <ckeditor.wordcount.version>4897cb23a9f2ca7fb6b792add4350fb9e2a1722c</ckeditor.wordcount.version>
+  </properties>
+  <name>Sakai WebJars Project</name>
+  <groupId>org.sakaiproject.webjars</groupId>
+  <artifactId>webjars</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>ckeditor-autosave</module>
+    <module>ckeditor-wordcount</module>
+  </modules>
+</project>

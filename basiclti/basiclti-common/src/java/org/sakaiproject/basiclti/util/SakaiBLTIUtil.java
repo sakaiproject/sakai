@@ -541,7 +541,9 @@ public class SakaiBLTIUtil {
 		if ( tooltitle == null ) tooltitle = pagetitle;
 
 		if ( pagetitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,pagetitle);
+		else setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,placement.getTitle());
 		if ( tooltitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,tooltitle);
+		else setProperty(props,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,placement.getTitle());
 
 		String releasename = toNull(getCorrectProperty(config,"releasename", placement));
 		String releaseemail = toNull(getCorrectProperty(config,"releaseemail", placement));

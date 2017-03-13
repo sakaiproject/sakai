@@ -62,7 +62,7 @@ public class SamigoToolWebService {
   public Item[] getItemObjArrayByKeyword(String keyword)
   {
     ItemService itemservice = new ItemService();
-    HashMap map= itemservice.getItemsByKeyword(keyword);
+    Map map= itemservice.getItemsByKeyword(keyword);
     Item[] itemArray = new Item[map.size()];
 
     // converting to Object Array for transmitting through Axis SOAP

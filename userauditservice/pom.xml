@@ -24,9 +24,7 @@
 
   <modules>
     <module>api</module>
-    <module>deploy</module>
     <module>impl</module>
-    <module>pack</module>
     <module>tool</module>
     <module>util</module>
   </modules>
@@ -52,12 +50,6 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>userauditservice-impl</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.simpleframework</groupId>
-        <artifactId>simple-xml</artifactId>
-        <version>${sakai.simple-xml.version}</version>
-        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
