@@ -53,11 +53,11 @@ $PBJQ(window).scroll(function(){
 						&& ($window.scrollTop() > padding);
 		if($("#toolMenuWrap").css('position') !== 'fixed'
 			&& follow && $window.scrollTop() > 0) {
-			$("#toolMenu").stop().animate({
+			$("#toolMenu,#subSites").stop().animate({
 				top: $window.scrollTop() + topPad - padding
 			});
 		} else {
-			$("#toolMenu").stop().animate({
+			$("#toolMenu,#subSites").stop().animate({
 				top: 0
 			});
 		}
