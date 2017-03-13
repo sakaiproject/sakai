@@ -64,16 +64,6 @@ public class ToolUtils
 	public static final boolean PORTAL_INLINE_EXPERIMENTAL_DEFAULT = true;
 
 	/**
-	 * Determine if this is an inline request (only use in tool code)
-	 *
-	 * @return True if this is a request where a tool will be inlined.
-	 */
-	public static boolean isInlineRequest()
-	{
-		return (isInlineRequest());
-	}
-
-	/**
 	 * Determine if this is an inline request.
 	 *
 	 * @param <code>req</code>
