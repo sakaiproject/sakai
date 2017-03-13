@@ -74,8 +74,18 @@ public class UrkundAccountConnection {
 	/*
 	 * Utility Methods below
 	 */	
+	//TODO : let the caller fill the UrkundSubmission to avoid extra parameters in this method
 	public UrkundSubmissionData uploadFile(String submitterEmail, String externalId, String filename, byte[] filecontent, String mimeType) {
-		String jsonResponse = UrkundAPIUtil.postDocument(apiURL, submitterEmail, externalId, filename, filecontent, mimeType, receiverAddress, username, password, connTimeout);
+		UrkundSubmission submission = new UrkundSubmission();
+		submission.setFilename(filename);
+		submission.setMimeType(mimeType);
+		submission.setContent(filecontent);
+		submission.setSubmitterEmail(submitterEmail);
+		submission.setSubject(""); // Insert site name?
+		submission.setMessage(""); // Insert assignment title?
+		submission.setAnon(false);
+        
+		String jsonResponse = UrkundAPIUtil.postDocument(apiURL, receiverAddress, externalId, submission, username, password, connTimeout);
 		return getSubmissionData(externalId, jsonResponse);
 	}
 	public List<UrkundSubmissionData> getReports(String externalId) {
