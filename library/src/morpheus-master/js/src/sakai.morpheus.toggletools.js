@@ -50,11 +50,11 @@ function animateToolBar() {
 		var follow = ($window.height()- (padding + topPad)) > $tools.height();
 		if($("#toolMenuWrap").css('position') !== 'fixed'
 			&& follow && $window.scrollTop() > 0) {
-			$("#toolMenu").stop().animate({
+			$("#toolMenu,#subSites").stop().animate({
 				top: $window.scrollTop() + topPad
 			});
 		} else {
-			$("#toolMenu").stop().animate({
+			$("#toolMenu,#subSites").stop().animate({
 				top: 0
 			});
 		}

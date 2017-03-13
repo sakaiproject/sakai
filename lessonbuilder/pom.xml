@@ -256,14 +256,6 @@
     </profiles>
 
 
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url>
-        </site>
-    </distributionManagement>
-
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-central-repo</id>

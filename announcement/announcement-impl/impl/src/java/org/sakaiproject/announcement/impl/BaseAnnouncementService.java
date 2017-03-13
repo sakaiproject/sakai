@@ -46,7 +46,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -1239,7 +1239,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 					
 					// not to import any assignment-generated announcement
-					String assignmentReference = StringUtil.trimToNull(oMessage.getProperties().getProperty(AnnouncementService.ASSIGNMENT_REFERENCE));
+					String assignmentReference = StringUtils.trimToNull(oMessage.getProperties().getProperty(AnnouncementService.ASSIGNMENT_REFERENCE));
 					if (toBeImported && assignmentReference != null)
 					{
 						toBeImported = false;

@@ -16,14 +16,6 @@
     <version>12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <licenses>
-        <license>
-            <name>Educational Community License, Version 2.0</name>
-            <url>http://www.opensource.org/licenses/ECL-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

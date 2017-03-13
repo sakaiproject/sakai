@@ -14,30 +14,12 @@
     <artifactId>polls</artifactId>
     <packaging>pom</packaging>
 
-    <licenses>
-        <license>
-            <name>ECL-2.0</name>
-            <url>http://www.opensource.org/licenses/ecl2.txt</url>
-            <distribution>repo</distribution>
-            <comments>Copyright 2003-2010 Sakai Foundation</comments>
-        </license>
-    </licenses>
-
     <modules>
         <module>api</module>
         <module>impl</module>
         <module>tool</module>
     </modules>
-    
 
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/polls/${project.version}</url>
-        </site>
-    </distributionManagement>
-    
     <dependencyManagement>
         <dependencies>
             <dependency>

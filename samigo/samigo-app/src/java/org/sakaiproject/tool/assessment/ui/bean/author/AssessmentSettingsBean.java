@@ -1771,6 +1771,7 @@ public class AssessmentSettingsBean
   		}
     	}
     	else {
+    		this.extendedTime.syncDates();
     		this.extendedTimes.add(this.extendedTime);
     		resetExtendedTime();
     	}
@@ -1784,18 +1785,19 @@ public class AssessmentSettingsBean
     public void editExtendedTime() {
       this.editingExtendedTime = true;
       this.extendedTime = new ExtendedTime(this.transitoryExtendedTime);
+      //Remove from the list but keep transitory available for cancel
+      this.extendedTimes.remove(this.transitoryExtendedTime);
     }
 
     public void saveEditedExtendedTime() {
-      this.editingExtendedTime = false;
-      Integer oldIndex = extendedTimes.indexOf(this.transitoryExtendedTime);
-      this.extendedTimes.set(oldIndex, this.extendedTime);
-      resetExtendedTime();
-      this.transitoryExtendedTime = null;
+      //Re-add after editing
+      addExtendedTime();
     }
 
     public void cancelEdit() {
-      resetExtendedTime();
+      //Reset the time back again
+      this.extendedTime = this.transitoryExtendedTime;
+      addExtendedTime();
     }
 
     public boolean getEditingExtendedTime() {
@@ -1804,5 +1806,7 @@ public class AssessmentSettingsBean
 
     private void resetExtendedTime() {
         this.extendedTime = new ExtendedTime(this.getAssessment().getData());
+        this.transitoryExtendedTime = null;
+        this.editingExtendedTime = false;
     }
 }

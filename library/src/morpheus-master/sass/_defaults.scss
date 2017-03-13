@@ -21,10 +21,10 @@ $more-sites-single-column: "only screen and (max-width : #{$break-more-sites-sin
 /* Typography*/
 
 //Google family Fonts URL
-$font-family-url: "//fonts.googleapis.com/css?family=Noto Sans:400,700" !default;
+$font-family-url: "//fonts.googleapis.com/css?family=Open Sans:400,500,700" !default;
 
 //Typography variables
-$font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
+$font-family: "Open Sans", sans-serif !default;
 $default-font-size: 14px !default;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $header-font-family: $font-family;
@@ -45,10 +45,10 @@ $text-color:				 #212121 !default;
 $portal-background-color: $background-color !default;
 
 $tool-background-color:		 $background-color !default;
-$tool-menu-background-color:			 #EBEBEB !default;
+$tool-menu-background-color:			 #FAFAFA !default;
 $tool-menu-color: 			 #424242 !default;
 $tool-tab-background-color: 			 #F8F8F8 !default;
-$tool-border-color:			 #E0E0E0 !default;
+$tool-border-color:			 #F0F0F0 !default;
 $tool-tab-active-background-color: 			 $background-color !default;
 $tool-tab-active-border-color: 	 $background-color !default;
 $tool-menu-hover-color: $tool-background-color !default;
@@ -170,8 +170,18 @@ $tool-menu-icon-on-left: true !default;
 $col1of2-width: 64% !default;
 $col2of2-width: 32% !default;
 
+/* Icon Overrides */
+//$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
+
 /* Footer */
-$footer-background: transparent !default;
+$footer-background-color: $tool-menu-background-color !default;
+$footer-border-color: $tool-border-color !default;
 $footer-color: $background-color-secondary !default;
+
+/* From NYU 11 Skin */
+$divider-shadow: 0 1px 5px rgba(0,0,0,.3) !default;
+$overview-portlet-border-color: $tool-border-color !default;
+$overview-portlet-shadow: 1px 1px 5px rgba(0,0,0,0.2) !default;
+$overview-portlet-title-background-color: $tool-tab-background-color !default;
 
 @import url(#{$font-family-url});

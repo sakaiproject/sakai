@@ -28,13 +28,10 @@
 	> .#{$namespace}pagebody{
 		width: 100%;
 	}
-	@media #{$phone}{
-		padding: 12px;
-	}
 }
 
 #content, .#{$namespace}container--footer{
-	margin: 0 0 0 0;
+	margin: 0;
 	width: 100%;
 
 	@media #{$phone}{
@@ -57,10 +54,25 @@
 			width: 100%;
 		}
 	}
+
+	@media #{$nonPhone} {
+		#col1of2, #col2of2{
+			margin: 0 0 0 1%;
+			vertical-align: top;
+	    display: inline-block;
+  		#col1of2 {
+	  		width: 61%;
+		  }
+		  #col2of2{
+		  	width: 35%;
+		  }
+    }
+  }
 }
 
 .#{$namespace}mainContent{
   background: $main-content-background;
+	padding-top: 1em;
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
@@ -72,7 +84,9 @@
 }
 
 .#{$namespace}container--footer{
-	background: $footer-background;
+	background-color: $footer-background-color;
+	border-top: 1px solid $footer-border-color;
+	border-left: 1px solid $footer-border-color;
 }
 
 .#{$namespace}footer{

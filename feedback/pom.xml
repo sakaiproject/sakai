@@ -37,12 +37,6 @@
 		</pluginRepository>
     </pluginRepositories>
 
-	<issueManagement>
-        <system>JIRA</system>
-        <url>https://jira.oucs.ox.ac.uk/jira/browse/WL-3179</url>
-    </issueManagement>
-
-
   	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>

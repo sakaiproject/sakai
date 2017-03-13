@@ -14,7 +14,6 @@
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
-<link type="text/css" href="syllabus/css/syllabus.css" rel="stylesheet" media="screen" />
 <script type="text/javascript">
   var startDateValues = new Array();
   var dateFormat = '<h:outputText value="#{msgs.jqueryDatePickerDateFormat}"/>';

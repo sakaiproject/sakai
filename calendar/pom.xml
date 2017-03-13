@@ -24,15 +24,6 @@
         <module>calendar-util/util</module>
     </modules>
     
-    
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/calendar/${project.version}</url>
-        </site>
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

@@ -185,7 +185,10 @@ public class StatsManagerTest extends AbstractTransactionalJUnit4SpringContextTe
 		((StatsManagerImpl)M_sm).setCountFilesUsingCHS(false);
 		((StatsUpdateManagerImpl)M_sum).setSiteService(M_ss);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
-		
+		// This is needed to make the tests deterministic, otherwise on occasion the collect thread will run
+		// and break the tests.
+		M_sum.setCollectThreadEnabled(false);
+
 		M_ers.setStatsManager(M_sm);
 	}
 

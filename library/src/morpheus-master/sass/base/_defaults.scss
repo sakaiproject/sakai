@@ -1,14 +1,13 @@
 @import "base/compass";
 
 body{
-	background:  $tool-background-color;
 	color: 		 $text-color;
 	font-family: $font-family;
 	font-size: 	 $default-font-size !important; // Bootstrap Tool error
 	font-weight: $default-font-weight;
 	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
 	&.#{$namespace}portalBody{
-		background:  $portal-background-color;
+		background-color:  $footer-background-color;
 		@media #{$phone}{
 			background: linear-gradient( to bottom, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) fixed;
 			background-size: auto 100%;
@@ -43,7 +42,7 @@ a{
 		&.btn-primary{
 			@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
 		}
-		text-decoration:underline;	
+		text-decoration:underline;
 	}
 	&.url{
 		@media #{$phone}{
@@ -97,7 +96,7 @@ h4{
 
 .skip{
 	position: absolute !important;
-	height: 1px; width: 1px; 
+	height: 1px; width: 1px;
 	overflow: hidden;
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
