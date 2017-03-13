@@ -45,6 +45,8 @@ public class SitePageEditHandler {
     public String state;
     public String title = "";
     public boolean update;
+    //This nil is needed for RSF Producers do not remove!
+    public String nil = null;
     
     private final String TOOL_CFG_FUNCTIONS = "functions.require";
     private final String PORTAL_VISIBLE = "sakai-portal:visible";

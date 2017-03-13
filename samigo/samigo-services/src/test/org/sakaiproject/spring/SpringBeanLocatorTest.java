@@ -23,9 +23,12 @@ public class SpringBeanLocatorTest {
         get1.start();
         get2.start();
 
+        // Increase the chances that the other threads will have run
+        Thread.yield();
+
         SpringBeanLocator.setApplicationContext(context);
-        get1.join(1000);
-        get2.join(1000);
+        get1.join(10000);
+        get2.join(10000);
         // Cross thread assertions
         Assert.assertTrue(get1.good);
         Assert.assertTrue(get2.good);

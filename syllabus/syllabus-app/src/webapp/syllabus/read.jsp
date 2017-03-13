@@ -9,7 +9,6 @@
 </jsp:useBean>
 
 	<sakai:view_container title="#{msgs.title_edit}">
-		<sakai:stylesheet path="/syllabus/css/syllabus.css" />
 		<sakai:view_content>
 
 <script>includeLatestJQuery('read.jsp');</script>

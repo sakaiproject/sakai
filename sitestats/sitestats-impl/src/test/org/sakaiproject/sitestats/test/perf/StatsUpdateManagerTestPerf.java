@@ -1,21 +1,5 @@
 package org.sakaiproject.sitestats.test.perf;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-
-import javax.sql.DataSource;
-
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,14 +13,18 @@ import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.impl.CustomEventImpl;
 import org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl;
-import org.sakaiproject.sitestats.test.perf.mock.MockEventRegistryService;
-import org.sakaiproject.sitestats.test.perf.mock.MockEventTrackingService;
-import org.sakaiproject.sitestats.test.perf.mock.MockSiteService;
-import org.sakaiproject.sitestats.test.perf.mock.MockStatsManager;
-import org.sakaiproject.sitestats.test.perf.mock.MockUsageSessionService;
+import org.sakaiproject.sitestats.test.perf.mock.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.sql.Date;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * <p>
@@ -67,12 +55,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * </p>
  * <p>
  * Then load this data in a local database and then configure your database connection in
- * <code>hibernate.properties</code> and run this test.
+ * <code>hibernate.properties</code> and run this test. And comment out the @Sql annotation, this is there so that
+ * the test can be run in normal performance tests so that we check it still works/compiles.
  * </p>
  */
+@Sql("/update-manager-perf.sql")
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration( locations = { "classpath:/hibernate-beans.xml", "classpath:/hbm-db.xml"})
-public class StatsUpdateManegerPerf {
+public class StatsUpdateManagerTestPerf {
 	
 	
 	@Autowired
@@ -91,11 +81,12 @@ public class StatsUpdateManegerPerf {
 	
 	@Before
 	public void setUp() throws SQLException {
-		siteService = new MockSiteService();
-		eventRegistryService = new MockEventRegistryService();
-		statsManager = new MockStatsManager();
-		usageSessionService = new MockUsageSessionService();
-		eventTrackingService = new MockEventTrackingService();
+
+		siteService = StubUtils.stubClass(MockSiteService.class);
+		eventRegistryService = StubUtils.stubClass(MockEventRegistryService.class);
+		statsManager = StubUtils.stubClass(MockStatsManager.class);
+		usageSessionService = StubUtils.stubClass(MockUsageSessionService.class);
+		eventTrackingService = StubUtils.stubClass(EventTrackingService.class);
 		String isolation;
 		switch (dataSource.getConnection().getTransactionIsolation()) {
 			case Connection.TRANSACTION_NONE:
@@ -116,7 +107,7 @@ public class StatsUpdateManegerPerf {
 			default:
 				isolation = "Unknown";
 		}
-		System.out.println("Transation islation is: "+ isolation);
+		System.out.println("Transation isolation is: "+ isolation);
 		// As we can't haven mutlple @RunWith annotations.
 
 		// We're not going to do live look ups
@@ -166,7 +157,10 @@ public class StatsUpdateManegerPerf {
 				"FROM SAKAI_event e "+
 				"LEFT JOIN SAKAI_SESSION s ON e.session_id = s.session_id ORDER BY e.event_date ASC LIMIT 400000",
 				ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-		preparedStatement.setFetchSize(Integer.MIN_VALUE);
+		if ("mysql".equalsIgnoreCase(connection.getMetaData().getDatabaseProductName())) {
+			// So that we dont' store the whole result set in memory
+			preparedStatement.setFetchSize(Integer.MIN_VALUE);
+		}
 		ResultSet resultSet = preparedStatement.executeQuery();
 
 		// How long to wait until we post the events (can't initialize until first run through.)

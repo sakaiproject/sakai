@@ -33,16 +33,11 @@ function selectionAuthor(className, anchor){
 	}
 	
 	function move(){
-		// Calculate the div select rectancle for positive and negative values				
-		/*var TOP = (y1 < y2) ? y1 : y2;
-		var LEFT = (x1 < x2) ? x1 : x2;
-		var WIDTH = (x1 < x2) ? x2 - x1 : x1 - x2;
-		var HEIGHT = (y1 < y2) ? y2 - y1 : y1 - y2;*/
-	
+		// Calculate the div select rectancle for positive and negative values
 		var TOP = parseInt(Math.max(0, (y1 < y2) ? y1 : y2));
 		var LEFT = parseInt(Math.max(0, (x1 < x2) ? x1 : x2));
-		var WIDTH = parseInt((x1 < x2) ? Math.min(anchorJObj.width()-x1, x2-x1) : Math.min(anchorJObj.width()-x2, x1-x2));
-		var HEIGHT = parseInt((y1 < y2) ? Math.min(anchorJObj.height()-y1, y2-y1) : Math.min(anchorJObj.height()-y2, y1-y2));
+		var WIDTH = (x1 < x2) ? x2 - x1 : x1 - x2;
+		var HEIGHT = (y1 < y2) ? y2 - y1 : y1 - y2;
 			
 		// Use CSS to place your select div
 		divJObj.css({
