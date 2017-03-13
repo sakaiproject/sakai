@@ -77,12 +77,12 @@ public class UrkundAPIUtil {
 
 				HttpResponse response = httpClient.execute(httppost);
 				HttpEntity resEntity = response.getEntity();
-	
+
 				if (resEntity != null) {
 					ret = EntityUtils.toString(resEntity);
 					EntityUtils.consume(resEntity);
 				}
-	
+
 			} catch (IOException e) {
 				log.error("ERROR uploading File : ", e);
 			}
