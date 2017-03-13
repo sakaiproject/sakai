@@ -64,14 +64,4 @@
 		</dependencies>
 	</dependencyManagement>	
 	
-	<!--  this is only currently setup for snapshot releases, no stable releases -->
-	<distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/external-calendaring-service/${project.version}</url>
-        </site>
-    </distributionManagement>
-    
-    <build/>
 </project>

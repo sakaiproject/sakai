@@ -28,13 +28,6 @@
 		<module>tool</module>
 		<module>bundle</module>
 	</modules>
-	<distributionManagement>
-		<site>
-			<id>sakai-site</id>
-			<name>Sakai release Site</name>
-			<url>scpexe://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url>
-		</site>
-	</distributionManagement>
 	<dependencyManagement>
 		<dependencies>
 			<!-- internal -->
@@ -95,8 +88,4 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<issueManagement>
-		<system>JIRA</system>
-		<url>http://jira.sakaiproject.org/browse/SAK</url>
-	</issueManagement>
 </project>

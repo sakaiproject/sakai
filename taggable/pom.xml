@@ -20,15 +20,6 @@
         <module>taggable-impl/impl</module>
     </modules>
 
-    
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/taggable/${project.version}</url>
-        </site>
-    </distributionManagement>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

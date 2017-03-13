@@ -19,11 +19,6 @@
         <url>http://sakaiproject.org/</url>
     </organization>
 
-    <issueManagement>
-        <system>jira</system>
-        <url>http://jira.sakaiproject.org/browse/SAK</url>
-    </issueManagement>
-
     <prerequisites>
         <maven>${maven.prereq.version}</maven>
     </prerequisites>

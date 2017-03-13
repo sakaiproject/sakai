@@ -19,13 +19,4 @@
     <module>mergedlist-util/util</module>
   </modules>
 
-
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scp://source.sakaiproject.org/var/www/html/release/site/${project.version}</url>
-    </site>
-  </distributionManagement>
-
 </project>
