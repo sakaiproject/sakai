@@ -19,12 +19,18 @@
  */
 package org.sakaiproject.oauth.tool.pages;
 
-import org.apache.wicket.*;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.Page;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.feedback.IFeedbackMessageFilter;
+import org.apache.wicket.markup.head.CssReferenceHeaderItem;
+import org.apache.wicket.markup.head.CssUrlReferenceHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.JavaScriptUrlReferenceHeaderItem;
+import org.apache.wicket.markup.head.MetaDataHeaderItem;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -33,6 +39,8 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.SiteService;
@@ -59,23 +67,8 @@ public abstract class SakaiPage extends WebPage implements IHeaderContributor {
         init();
     }
 
-    protected SakaiPage(IPageMap pageMap) {
-        super(pageMap);
-        init();
-    }
-
-    protected SakaiPage(IPageMap pageMap, IModel<?> model) {
-        super(pageMap, model);
-        init();
-    }
-
     protected SakaiPage(PageParameters parameters) {
         super(parameters);
-        init();
-    }
-
-    protected SakaiPage(IPageMap pageMap, PageParameters parameters) {
-        super(pageMap, parameters);
         init();
     }
 
@@ -84,9 +77,9 @@ public abstract class SakaiPage extends WebPage implements IHeaderContributor {
             @Override
             protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
                 if (message.getLevel() == FeedbackMessage.INFO)
-                    add(new SimpleAttributeModifier("class", "success"));
+                    add(new AttributeModifier("class", "success"));
                 else
-                    add(new SimpleAttributeModifier("class", "alertMessage"));
+                    add(new AttributeModifier("class", "alertMessage"));
 
                 return super.newMessageDisplayComponent(id, message);
             }
@@ -128,16 +121,16 @@ public abstract class SakaiPage extends WebPage implements IHeaderContributor {
         String toolBaseCSS = skinRepo + "/tool_base.css";
 
         // Sakai additions
-        response.renderJavascriptReference("/library/js/headscripts.js");
-        response.renderCSSReference(toolBaseCSS);
-        response.renderCSSReference(toolCSS);
-        response.renderOnLoadJavascript("\nif (typeof setMainFrameHeight !== 'undefined'){\n"
+        response.render(JavaScriptUrlReferenceHeaderItem.forUrl("/library/js/headscripts.js"));
+        response.render(CssUrlReferenceHeaderItem.forUrl(toolBaseCSS));
+        response.render(CssUrlReferenceHeaderItem.forUrl(toolCSS));
+        response.render(JavaScriptHeaderItem.forScript("\nif (typeof setMainFrameHeight !== 'undefined'){\n"
                 + "setMainFrameHeight( window.name );\n"
-                + "}");
+                + "}", "iframe-resize"));
 
         // Tool additions (at end so we can override if required)
-        response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
-        response.renderCSSReference(new ResourceReference(getClass(), "style.css"));
+        response.render(new MetaDataHeaderItem(MetaDataHeaderItem.META_TAG).addTagAttribute("http-equiv", "Content-Type").addTagAttribute("content", "text/html; charset=UTF-8"));
+        response.render(CssReferenceHeaderItem.forReference(new CssResourceReference(getClass(), "style.css")));
     }
 
     /**
@@ -168,7 +161,7 @@ public abstract class SakaiPage extends WebPage implements IHeaderContributor {
         menu.add(parent);
         link.add(new Label("menuItemText", text).setRenderBodyOnly(true));
         if (title != null)
-            link.add(new AttributeModifier("title", true, title));
+            link.add(new AttributeModifier("title", title));
 
         parent.add(link);
     }
