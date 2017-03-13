@@ -29,20 +29,25 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -134,6 +139,13 @@ public class SubmitTimedAssessmentThread extends TimerTask
                                             + ag.getAgentId() + "-" + ag.getSubmittedDate().toString();
             notiValues.put( "confirmationNumber", confirmationNumber );
 
+            List<String> releaseToGroups = getReleaseToGroups(publishedAssessment);
+            
+            if (releaseToGroups != null){
+                notiValues.put("releaseToGroups",releaseToGroups.stream()
+                                                                .collect(Collectors.joining(";")));
+            }            
+
             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
             notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
             log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
@@ -156,6 +168,23 @@ public class SubmitTimedAssessmentThread extends TimerTask
     }
   }
 
+  private List<String> getReleaseToGroups(PublishedAssessmentFacade publishedAssessment){
+      
+      List<String> releaseToGroups = null;
+      
+      if (publishedAssessment.getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)){
+          releaseToGroups = new ArrayList<>();
+      
+          AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+          List<AuthorizationData> authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_PUBLISHED_ASSESSMENT", publishedAssessment.getPublishedAssessmentId().toString());
+      
+          for (AuthorizationData authorization : authorizations){
+              releaseToGroups.add(authorization.getAgentIdString());          
+          }
+      }
+      return releaseToGroups;
+  }
+  
   private Boolean islate(Long publishedId) {
 	PublishedAssessmentService service = new PublishedAssessmentService();
 	PublishedAssessmentData pub = service.getBasicInfoOfPublishedAssessment(publishedId.toString());

@@ -1391,7 +1391,10 @@ public class Foorm {
 	 */
 	public String getSearchField(String search) {
 		if (search != null) {
-			return search.substring(0, search.indexOf(":"));
+			int endIndex = search.indexOf(":");
+			if (endIndex > 0) {
+				return search.substring(0, endIndex);
+			}
 		}
 		return "";
 	}
@@ -1534,17 +1537,30 @@ public class Foorm {
 					searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_DATE, "");
 					if(StringUtils.isNotEmpty(searchValue)) {
 						try {
+							String operator = "=";
+							// Support more searching on dates.
+							if (searchValue.startsWith("<")) {
+								operator = "<";
+								searchValue = searchValue.substring(1);
+							} else if (searchValue.startsWith(">")) {
+								operator = ">";
+								searchValue = searchValue.substring(1);
+							}
 							DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, rb.getLocale());
 							Date d = df.parse(searchValue);
-							
+
 							DateFormat sql_df = new SimpleDateFormat(LTIService.LTI_SEARCH_INTERNAL_DATE_FORMAT);
 							if ( "oracle".equals(vendor) ) {
-								sb.append(searchField + " = TO_DATE('"+sql_df.format(d)+"', 'DD/MM/YYYY HH24:MI:SS')");
+								sb.append(searchField + " "+operator+ " TO_DATE('"+sql_df.format(d)+"', 'DD/MM/YYYY HH24:MI:SS')");
 							} else if ( "mysql".equals(vendor) ) {
-								sb.append(searchField + " = STR_TO_DATE('"+sql_df.format(d)+"', '%d/%m/%Y %H:%i:%s')");
+								sb.append(searchField + " "+ operator+ " STR_TO_DATE('"+sql_df.format(d)+"', '%d/%m/%Y %H:%i:%s')");
 							}
 						} catch(Exception ignore) {}
 					}
+				} else if (searchValue.startsWith(LTIService.LTI_SEARCH_TOKEN_EXACT)) {
+					searchValue = searchValue.replace(LTIService.LTI_SEARCH_TOKEN_EXACT, "");
+					sb.append(searchField + " = ?");
+					ret.addSearchValue(searchValue);
 				} else {
 					sb.append(searchField + " LIKE ?");
 					searchValue = searchValue.replace(LTIService.ESCAPED_LTI_SEARCH_TOKEN_SEPARATOR_AND, LTIService.LTI_SEARCH_TOKEN_SEPARATOR_AND);

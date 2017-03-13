@@ -308,7 +308,7 @@
                             reportSuccess(value);
                         } else if(key === 'sectionToRemove') {
                             // remove section from page
-                            $(value).parent().remove();
+                            $(value).closest("li[id*='link']").remove();
                         } else if (key === 'secondsBetweenSaveciteRefreshes') {
                             citations_new_resource.secondsBetweenSaveciteRefreshes = value;
                         } else if ($.isArray(value)) {

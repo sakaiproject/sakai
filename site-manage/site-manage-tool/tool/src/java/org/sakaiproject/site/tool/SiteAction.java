@@ -7444,10 +7444,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				for (Iterator iInstructors = authorizerList.iterator(); iInstructors.hasNext();)
 				{
 					String instructorId = (String) iInstructors.next();
-					//If emailAuthorizer is defined to be true  or if requireAuthorizer is set
-					
-					//If emailAuthrozier is true always send email, if it's unset send if requireAuthrozier is set
-					//Otherwise don't send
+					// If emailAuthorizer is defined to be true  or if requireAuthorizer is set
+					// If emailAuthorizer is true always send email, if it's unset send if requireAuthorizer is set
+					// Otherwise don't send
 					if (("".equals(emailAuthorizer) && requireAuthorizer) || "true".equals(emailAuthorizer))
 					{
 						// 1. email to course site authorizer

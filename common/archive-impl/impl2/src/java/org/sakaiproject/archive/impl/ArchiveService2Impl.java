@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +158,7 @@ public class ArchiveService2Impl implements ArchiveService
 	/**
 	* Process a merge for the file, or if it's a directory, for all contained files (one level deep).
 	* @param fileName The site name (for the archive file) to read from.
-	* @param mergeId The id string to use to make ids in the merge consistent and unique.
+	* @param siteId The site ID into which to merge the contents of the archive.
 	* @param creatorId The creator id
 	* If null or blank, the date/time string of the merge is used.
 	*/
@@ -171,7 +172,14 @@ public class ArchiveService2Impl implements ArchiveService
 		try {
 			String folderName = m_siteZipper.unzipArchive(zipFilePath, m_unzipPath);
 			//not a lot we can do with the return value here since it always returns a string. would need a reimplementation/wrapper method to return a better value (boolean or some status)
-			return m_siteMerger.merge(folderName, siteId, creatorId, m_unzipPath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
+			if (folderName == null || folderName.isEmpty()) {
+				return "Failed to find folder in zip archive";
+			}
+			try {
+				return m_siteMerger.merge(folderName, siteId, creatorId, m_unzipPath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
+			} finally {
+				FileUtils.deleteDirectory(new File(m_unzipPath,folderName));
+			}
 		} catch (IOException e) {
 			M_log.error("Error merging from zip: " + e.getClass() + ":" + e.getMessage());
 			return "Error merging from zip: " + e.getClass() + ":" + e.getMessage();
