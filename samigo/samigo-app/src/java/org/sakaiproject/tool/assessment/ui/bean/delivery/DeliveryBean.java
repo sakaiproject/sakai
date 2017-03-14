@@ -2666,10 +2666,14 @@ public class DeliveryBean
     return publishedAssessment;
   }
 
-  public void setPublishedAssessment(PublishedAssessmentFacade
-                                     publishedAssessment)
+  public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment)
   {
-    this.publishedAssessment = publishedAssessment;
+	  this.publishedAssessment = publishedAssessment;
+	  //Setup extendedTimeDeliveryService
+	  if (extendedTimeDeliveryService == null && 
+			  (publishedAssessment != null && publishedAssessment.getPublishedAssessmentId() != null)) {
+		  extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
+	  }
   }
 
   public java.util.Date getFeedbackDate()
@@ -3205,8 +3209,7 @@ public class DeliveryBean
       return "error";
     }
 
-    boolean acceptLateSubmission = AssessmentAccessControlIfc.
-            ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+    boolean acceptLateSubmission = isAcceptLateSubmission();
 
     if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "safeToProceed";
@@ -3217,8 +3220,6 @@ public class DeliveryBean
     if (adata!=null){
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
-    
-    extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
     
     // log.debug("check 0");
     if (isRemoved()){
@@ -3405,6 +3406,16 @@ public class DeliveryBean
         pastDue = false;
     }
     return pastDue;
+  }
+
+  private boolean isAcceptLateSubmission() {
+	  boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+	  //If using extended Time Delivery, the late submission setting is based on retracted
+	  if (extendedTimeDeliveryService.hasExtendedTime()) {
+		  //Accept it if it's not retracted on the extended time entry
+		  acceptLateSubmission = !isRetracted(false);
+	  }
+	  return acceptLateSubmission;
   }
 
   private boolean isRetracted(boolean isSubmitForGrade){
@@ -3618,8 +3629,7 @@ public class DeliveryBean
 	  
 	  public void setDeadline() {
 		  if (this.firstTimeTaking) {
-			  boolean acceptLateSubmission = AssessmentAccessControlIfc.
-					  ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+			  boolean acceptLateSubmission = isAcceptLateSubmission();
 
 			  if (dueDate != null) {
 				  if (!acceptLateSubmission) {
@@ -3659,8 +3669,7 @@ public class DeliveryBean
 
 	  
 	  public String getTimeBeforeDueRetract(String timeLimit) {
-		  boolean acceptLateSubmission = AssessmentAccessControlIfc.
-				  ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+		  boolean acceptLateSubmission = isAcceptLateSubmission();
 		  
 		  String finalTimeLimit = timeLimit;
 		  if (dueDate != null) {
