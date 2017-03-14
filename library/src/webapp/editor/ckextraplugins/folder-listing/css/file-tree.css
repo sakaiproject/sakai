@@ -1,0 +1,285 @@
+ul.jqueryFileTree {
+  font-family: Verdana, sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  padding: 0px;
+  margin: 0px;
+}
+
+ul.jqueryFileTree li {
+  list-style: none;
+  padding: 0px;
+  padding-left: 23px;
+  margin: 0px;
+  background-position: 3px 3px;
+  background-repeat: no-repeat;
+  position: relative;
+}
+ul.jqueryFileTree li:before{
+  content: "\f114";
+  font-family: FontAwesome;
+  float: left;
+}
+
+ul.jqueryFileTree a {
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 3px;
+  overflow: hidden;
+}
+
+ul.jqueryFileTree a:hover {
+  background: #BDF;
+}
+
+/* folder-listing */
+.jqueryFileTree li a .name {
+  display: block;
+  float: left;
+}
+.jqueryFileTree li a .icons {
+  display: block;
+  float: left;
+  overflow: hidden;
+}
+.jqueryFileTree li a .icons span {
+  display: block;
+  float: left;
+  overflow: hidden;
+  height: 16px;
+  width: 16px;
+  padding: 0;
+  border: 0px;
+  margin: 2px;
+  text-align: center;
+  line-height: 16px;
+}
+.jqueryFileTree li a .icons .files {
+  width: auto;
+}
+
+.jqueryFileTree .copyright {
+
+}
+.jqueryFileTree li a .icons .description {
+  display: block;
+  float: left;
+  height: 16px;
+  width: 16px;
+}
+
+.jqueryFileTree li a .icons .description:before{
+  content: "\f129";
+  font-family: FontAwesome;
+}
+
+
+.jqueryFileTree .tooltips div {
+  position: absolute;
+  top: 28px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 3px;
+  border-radius: 3px;
+  z-index: 4;
+}
+
+/* Core Styles */
+.jqueryFileTree li.directory:before{
+  content: "\f114";
+}
+.jqueryFileTree li.expanded:before  {
+  content: "\f115";
+}
+.jqueryFileTree li.file:before {
+  content: "\f016";
+}
+.jqueryFileTree li.wait:before {
+  content: "\f110";
+}
+.jqueryFileTree li.active > a {
+  font-weight: bold !important;
+}
+.jqueryFileTree li.active  {
+  background-color: #ffeca3;
+}
+.jqueryFileTree li.inactive, .jqueryFileTree li.inactive > span  {
+  opacity: 0.5 !important;
+}
+
+/* File Extensions*/
+.jqueryFileTree li.ext_3gp:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_afp:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_afpa:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_asp:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_aspx:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_avi:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_bat:before  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_bmp:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_c:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_cfm:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_cgi:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_com  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_cpp:before {
+ content: "\f1c9";
+}
+.jqueryFileTree li.ext_css:before  {
+  content: "\f13c";
+}
+.jqueryFileTree li.ext_doc:before {
+  content: "\f1c2";
+}
+.jqueryFileTree li.ext_exe {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_gif:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_fla:before  {
+  content: "\f0e7";
+}
+.jqueryFileTree li.ext_h:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_htm:before {
+  content: "\f13b";
+}
+.jqueryFileTree li.ext_html:before {
+  content: "\f13b";
+}
+.jqueryFileTree li.ext_jar  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_jpg:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_jpeg:before  {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_js  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_lasso:before  {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_log:before {
+  content: "\f0f6";
+}
+.jqueryFileTree li.ext_m4p:before {
+  content: "\f001";
+}
+.jqueryFileTree li.ext_mov:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_mp3:before {
+  content: "\f001";
+}
+.jqueryFileTree li.ext_mp4:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_mpg:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_mpeg:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_ogg:before {
+  content: "\f001";
+}
+.jqueryFileTree li.ext_pcx:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_pdf:before {
+  content: "\f1c1";
+}
+.jqueryFileTree li.ext_php  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_png:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_ppt:before {
+  content: "\f1c4";
+}
+.jqueryFileTree li.ext_psd  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_pl  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_py  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_rb  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_rbx  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_rhtml  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_rpm :before {
+  content: "\f17c";
+}
+.jqueryFileTree li.ext_ruby  {
+ content: "\f15c";
+}
+.jqueryFileTree li.ext_sql:before {
+  content: "\f1c0";
+}
+.jqueryFileTree li.ext_swf:before {
+  content: "\f0e7";
+}
+.jqueryFileTree li.ext_tif:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_tiff:before {
+  content: "\f03e";
+}
+.jqueryFileTree li.ext_txt:before {
+  content: "\f0f6";
+}
+.jqueryFileTree li.ext_vb:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_wav:before {
+  content: "\f001";
+}
+.jqueryFileTree li.ext_wmv:before {
+  content: "\f008";
+}
+.jqueryFileTree li.ext_xls:before {
+  content: "\f1c3";
+}
+.jqueryFileTree li.ext_xml:before {
+  content: "\f1c9";
+}
+.jqueryFileTree li.ext_zip:before {
+  content: "\f1c6";
+}
