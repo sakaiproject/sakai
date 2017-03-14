@@ -26,10 +26,6 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-kernel-api</artifactId>
-        </dependency>
         <!-- internal testing -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
