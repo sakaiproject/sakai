@@ -1,0 +1,45 @@
+.#{$namespace}sakai-tagservice{
+
+	.tagservice-body .alert li {
+		list-style: none;
+	}
+	.tag-modal {
+		position: fixed !important;
+		top:10% !important;
+	}
+	.incollection {
+		font-size: smaller;
+		font-style: italic;
+		color:$background-color-secondary;
+	}
+	.tagservice-section {
+		margin: 20px 0 30px;
+	}
+	.tagservice-section-header {
+		overflow: hidden;
+	}
+	.tagservice-section-header h3 {
+		float: left;
+	}
+	.tagservice-table .actions {
+		text-align: right;
+	}
+	.tagservice-body .checkbox {
+		border: none;
+	}
+	.tags-collections-percent-small {
+		width:15%
+	}
+	.tags-collections-percent-big {
+		width:25%
+	}
+	.tags-percent-small {
+		width:15%
+	}
+	.tags-percent-big {
+		width:25%
+	}
+	.tags-percent-total {
+		width:100%
+	}
+}

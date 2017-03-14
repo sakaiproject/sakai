@@ -1,0 +1,51 @@
+<header class="tagservice-section-header">
+    <h3>{{{t this "tagcollection"}}}</h3>
+</header>
+
+<div class="container-fluid">
+<form class="form-horizontal" method="POST" action="{{{actionURL this 'tagcollections' tagcollection.uuid mode}}}">
+  <div class="form-group">
+    <label  class="col-sm-2 control-label" for="name">{{{t this "name"}}}</label>
+    <div class="col-sm-10">
+      <input class="form-control" type="text" name="name" id="name" required value="{{tagcollection.name}}"/>
+    </div>
+  </div>
+    <div class="form-group">
+        <label  class="col-sm-2 control-label" for="description">{{{t this "description"}}}</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" name="description" id="description" value="{{tagcollection.description}}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label  class="col-sm-2 control-label" for="externalSourceName">{{{t this "externalSourceName"}}}</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" name="externalSourceName" id="externalSourceName" value="{{tagcollection.externalSourceName}}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label  class="col-sm-2 control-label" for="externalSourceDescription">{{{t this "externalSourceDescription"}}}</label>
+        <div class="col-sm-10">
+            <input class="form-control" type="text" name="externalSourceDescription" id="externalSourceDescription" value="{{tagcollection.externalSourceDescription}}"/>
+        </div>
+    </div>
+    <div hidden class="form-group">
+        <div class="col-sm-10">
+            <input  type="hidden" name="uuid" id="uuid" value="{{tagcollection.uuid}}"/>
+            <input  type="hidden" name="externalUpdate" id="externalUpdate" value="{{tagcollection.externalUpdate}}"/>
+            <input  type="hidden" name="externalCreation" id="externalCreation" value="{{tagcollection.externalCreation}}"/>
+            <input  type="hidden" name="lastSynchronizationDate" id="lastSynchronizationDate" value="{{tagcollection.lastSynchronizationDate}}"/>
+            <input  type="hidden" name="lastUpdateDateInExternalSystem" id="lastUpdateDateInExternalSystem" value="{{tagcollection.lastUpdateDateInExternalSystem}}"/>
+            <input  type="hidden" name="lastModifiedBy" id="lastModifiedBy" value="{{tagcollection.lastModifiedBy}}"/>
+            <input  type="hidden" name="lastModificationDate" id="lastModificationDate" value="{{tagcollection.lastModificationDate}}"/>
+            <input  type="hidden" name="createdBy" id="createdBy" value="{{tagcollection.createdBy}}"/>
+            <input  type="hidden" name="creationDate" id="creationDate" value="{{tagcollection.creationDate}}"/>
+        </div>
+    </div>
+
+  <div class="col-sm-offset-2 col-sm-10">
+    <input class="btn btn-primary" type="submit" name="save" value="{{{t this "Save Tag Collection"}}}">
+    <input class="btn btn-primary tagservice-cancel-btn" data-target="{{baseURL}}" type="button" name="cancel" value="{{{t this "Cancel"}}}">
+  </div>
+</form>
+</div>
+

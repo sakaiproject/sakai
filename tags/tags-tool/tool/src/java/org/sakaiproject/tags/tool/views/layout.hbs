@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" type="text/css" href="{{{skinRepo}}}/tool_base.css" />
+
+        {{{randomSakaiHeadStuff}}}
+    </head>
+    <body>
+
+        <div class="portletBody tagservice-body">
+            {{#if flash}}
+                {{#each flash}}
+                    <ul class="alert alert-{{@key}}">
+                        {{#each this}}
+                            <li>{{{t null this}}}</li>
+                        {{/each}}
+                    </ul>
+                {{/each}}
+            {{/if}}
+
+            {{#if errors}}
+                <ul class="alert alert-danger">
+                    {{#each errors}}
+                        <li> {{this.field}} - {{{t null this.errorCode}}}</li>
+                    {{/each}}
+                </ul>
+            {{/if}}
+
+            {{{subpage this subpage}}}
+        </div>
+
+	<script>includeLatestJQuery('layout.hbs');</script>
+        <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+        <script type="text/javascript" src="/tags-tool/scripts/tagservice-tool.js"></script>
+    </body>
+</html>
