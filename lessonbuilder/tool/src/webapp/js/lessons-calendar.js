@@ -84,7 +84,7 @@ $(function(){
             //when Full Details is clicked, event in the Calendar tool is shown.
             $("#fullDetails").html("<a href=" + more_info + " target=_top>" + fullDetailsText + "</a>");
             //On event click dialog is opened near the event
-            $("#calendarEventDialog").dialog({ modal: true, title: event.title, width:modalDialogWidth()});
+            $("#calendarEventDialog").dialog({ modal: true, title: event.title, width: 400 });
         }
     });
 });
