@@ -176,13 +176,6 @@
 		<property name="showPageProducer" ref="showPageProducer" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
-
-	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.FolderPickerProducer" >
-		<property name="messageLocator" ref="messageLocator"/>
-		<property name="simplePageBean" ref="simplePageBean" />
-		<property name="localeGetter" ref="requestLocaleProxy" />
-		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
-	</bean>
 	
  	 <bean class="org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer" >
 		<property name="messageLocator" ref="messageLocator"/>

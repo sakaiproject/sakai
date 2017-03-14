@@ -1226,7 +1226,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
-						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL || i.getType() == SimplePageItem.RESOURCE_FOLDER
+						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
 					        || i.getType() == SimplePageItem.CHECKLIST || i.getType() == SimplePageItem.FORUM_SUMMARY
 					        || i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.ANNOUNCEMENTS );
 				// (i.getType() == SimplePageItem.PAGE &&
@@ -1258,7 +1258,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.STUDENT_CONTENT: itemClassName = "studentContentType"; break;
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
-				case SimplePageItem.RESOURCE_FOLDER: itemClassName = "resourceFolderType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
 				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
 				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
@@ -2892,40 +2891,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "forum-summary-td");
 						UILink.make(tableRow, "edit-forum-summary", (String) null, "");
 					}
-				}else if(i.getType() == SimplePageItem.RESOURCE_FOLDER){
-					UIOutput.make(tableRow, "resourceFolderSpan");
-					if (canSeeAll) {
-						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
-						if (itemGroupTitles != null) {
-							itemGroupTitles = "[" + itemGroupTitles + "]";
-						}
-
-						UIOutput.make(tableRow, "resourceFolder-groups-titles", itemGroupTitles);
-					}
-
-					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						//get directory path from item's attribute
-						String dataDirectory = i.getAttribute("dataDirectory") != null ? i.getAttribute("dataDirectory") : "";
-						String[] folderPath = dataDirectory.split("/");
-						String folderName = folderPath[folderPath.length-1];
-						if (dataDirectory.endsWith("//")){
-							folderName = simplePageBean.getCurrentSite().getTitle();
-						}
-						String html = "<p><b>" + folderName + "</b></p><div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
-						UIVerbatim.make(tableRow, "content", html);
-					} else {
-						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
-						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
-					}
-					if (canEditPage) {
-						UIOutput.make(tableRow, "resourceFolder-td");
-						GeneralViewParameters eParams = new GeneralViewParameters();
-						eParams.setSendingPage(currentPage.getPageId());
-						eParams.setItemId(i.getId());
-						eParams.viewID = FolderPickerProducer.VIEW_ID;
-						UIInternalLink.make(tableRow, "edit-resourceFolder", (String)null, eParams);
-					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
 				 	String itemGroupString = null;
 					String itemGroupTitles = null;
@@ -3872,7 +3837,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-		createToolBarLink(FolderPickerProducer.VIEW_ID, tofill, "add-folder", "simplepage.folder", currentPage, "simplepage.addfolder.tooltip").setItemId(null);
 		UIComponent subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
 
