@@ -25,7 +25,9 @@ import org.sakaiproject.profile2.model.WallItemComment;
  * Logic interface for the Profile2 wall.
  * 
  * @author d.b.robinson@lancaster.ac.uk
+ * @deprecated The wall functionality will be removed from Sakai for the 13 release.
  */
+@Deprecated
 public interface ProfileWallLogic {
 	
 	/**
