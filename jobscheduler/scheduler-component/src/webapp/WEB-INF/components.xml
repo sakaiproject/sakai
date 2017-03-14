@@ -3,13 +3,16 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context.xsd">
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
@@ -58,6 +61,18 @@
             <set>
             </set>
         </property>
+        <property name="migration">
+            <util:map>
+                <!-- The spring bean to class name mappings, key and value can be different -->
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"
+                    value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
+                       value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"/>
+                <entry key="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"
+                       value="org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob"/>
+            </util:map>
+        </property>
+
         <property name="qrtzPropFile" value="quartz.properties"/>
         <property name="qrtzPropFileSakai" value="sakai.quartz.properties"/>
         <property name="globalTriggerListener">
@@ -236,32 +251,6 @@
         </property>
     </bean>
 
-    <!-- Job for syncing authz provided groups this iterates over all the authz groups
-         with a provider ID set and updates them. -->
-    <bean id="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"
-          class="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync">
-        <property name="authzGroupService">
-            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
-        </property>
-        <property name="sessionManager">
-            <ref bean="org.sakaiproject.tool.api.SessionManager"/>
-        </property>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AuthzGroupProviderSync"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
-          init-method="init">
-        <property name="beanId">
-            <value>org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync</value>
-        </property>
-        <property name="jobName">
-            <value>Sync the provided groups in authz</value>
-        </property>
-        <property name="schedulerManager">
-            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
-        </property>
-    </bean>
-
 	   <!-- this is the helper that will register the above bean with the job scheduler -->
 	   <!--
 	   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.DatetimeEventJob"
@@ -300,23 +289,10 @@
 		</property>
 	</bean>
 
-    <!-- Job to backfill roles into a site from a template -->
-    <bean id="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob">
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="authzService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-    </bean>
-
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillRoleJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
-          init-method="init">
-        <property name="beanId">
-            <value>org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob</value>
-        </property>
-        <property name="jobName">
-            <value>Backfill roles from templates</value>
-        </property>
+    <bean id="org.sakaiproject.api.app.scheduler.BackFillRoleJob"
+          class="org.sakaiproject.component.app.scheduler.ConfigurableAutowiredJobBeanWrapper">
+        <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"/>
+        <constructor-arg value="Backfill roles from templates"/>
         <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.Messages"/>
         <property name="configurableJobProperties">
             <set>
@@ -344,11 +320,7 @@
                     <property name="descriptionResourceKey" value="role.description"/>
                     <property name="defaultValue" value=""/>
                 </bean>
-
             </set>
-        </property>
-        <property name="schedulerManager">
-            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
         </property>
     </bean>
 
@@ -420,10 +392,19 @@
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         </property>
         <property name="jobBeans">
-            <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
-                <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
-                <constructor-arg value="Scheduled Invocation Validation"/>
-            </bean>
+            <list>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg
+                            value="org.sakaiproject.component.app.scheduler.jobs.ValidateScheduledInvocations"/>
+                    <constructor-arg value="Scheduled Invocation Validation"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.AutowiredJobBeanWrapper">
+                    <constructor-arg value="org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync"/>
+                    <constructor-arg value="Sync the provided groups in authz"/>
+                </bean>
+                <ref bean="org.sakaiproject.api.app.scheduler.BackFillRoleJob"/>
+                <ref bean="org.sakaiproject.api.app.scheduler.BackFillToolJob"/>
+            </list>
         </property>
     </bean>
 
