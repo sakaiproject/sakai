@@ -101,6 +101,11 @@
         </navigation-case>
     
         <navigation-case>
+            <from-outcome>pvtMsgDirectAccess</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgDirectAccess.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
             <from-outcome>pvtMsgOrganize</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgOrganize.jsp</to-view-id>
             <redirect/>
