@@ -348,7 +348,7 @@
         </div>
     </h:panelGroup>
 
-
+    <%@ include file="/jsf/author/item/tags.jsp" %>
 
 
 <p class="act">

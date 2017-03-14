@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -38,9 +38,10 @@ import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
@@ -83,6 +84,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected Boolean scoreDisplayFlag;
   protected Double minScore;
   protected String hint;
+  protected String hash;
   protected Boolean partialCreditFlag;
   protected Boolean hasRationale;
   protected Integer status;
@@ -92,6 +94,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   protected Date lastModifiedDate;
   protected Set itemTextSet;
   protected Set itemMetaDataSet;
+  protected Set itemTagSet;
   protected Set itemFeedbackSet;
   protected TypeFacade itemTypeFacade;
   protected Set itemAttachmentSet;
@@ -148,6 +151,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
     this.itemType = getItemType();
     this.itemTextSet = getItemTextSet();
     this.itemMetaDataSet = getItemMetaDataSet();
+    this.itemTagSet = getItemTagSet();
     this.itemFeedbackSet = getItemFeedbackSet();
     this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
     this.itemAttachmentSet = getItemAttachmentSet();
@@ -503,6 +507,31 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   }
 
   /**
+   * Get Hash for ItemFacade
+   * @return
+   * @throws DataFacadeException
+   */
+  public String getHash() throws DataFacadeException {
+    try {
+      this.data = (ItemDataIfc) item.getData();
+    }
+    catch (AssessmentException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getHash();
+  }
+
+  /**
+   * Set Hash for ItemFacade
+   * @param hash
+   */
+  public void setHash(String hash) {
+    this.hash = hash;
+    this.data.setHash(hash);
+  }
+
+
+  /**
    * Check if item (question) require rationale in answer
    * @return
    * @throws DataFacadeException
@@ -690,6 +719,42 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
   public void setItemMetaDataSet(Set itemMetaDataSet) {
     this.itemMetaDataSet = itemMetaDataSet;
     this.data.setItemMetaDataSet(itemMetaDataSet);
+  }
+
+  public Set getItemTagSet() throws DataFacadeException {
+    try {
+      this.data = (ItemDataIfc) item.getData();
+    }
+    catch (AssessmentException ex) {
+      throw new DataFacadeException(ex.getMessage());
+    }
+    return this.data.getItemTagSet();
+  }
+
+  /**
+   * Set item tag set in ItemFacade and ItemFacade.data
+   * @param itemTagSet
+   */
+  public void setItemTagSet(Set itemTagSet) {
+    this.itemTagSet = itemTagSet;
+    this.data.setItemTagSet(itemTagSet);
+  }
+
+  public void addItemTag(String tagId, String tagLabel, String tagCollectionId, String tagCollectionName) {
+    if (getItemTagSet() == null) {
+      setItemTagSet(new HashSet());
+    }
+    getItemTagSet().add(new ItemTag(this.data, tagId, tagLabel, tagCollectionId, tagCollectionName));
+    this.itemTextSet = getItemTagSet();
+  }
+
+  public void removeItemTagByTagId(String tagId) {
+    final Set itemTagSet = getItemTagSet();
+    if ( itemTagSet == null || itemTagSet.isEmpty() ) {
+      return;
+    }
+    itemTagSet.removeIf(itemTag -> tagId.equals(((ItemTagIfc)itemTag).getTagId()));
+    this.itemTagSet = getItemTagSet();
   }
 
   /**
@@ -1001,17 +1066,29 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
     this.data.setItemAttachmentSet(itemAttachmentSet);
   }
 
-  public List getItemAttachmentList() {
-    ArrayList list = new ArrayList();
-    Set set = getItemAttachmentSet(); 
-    if (set !=null ){
-      Iterator iter = set.iterator();
-      while (iter.hasNext()){
-        ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
-        list.add(a);
-      }
-    }
-    return list;
+  public void addItemAttachment(ItemAttachmentIfc attachment) {
+    getItemAttachmentSet(); // ensures this.data is initialized
+    this.data.addItemAttachment(attachment);
+  }
+
+  public void removeItemAttachment(ItemAttachmentIfc attachment) {
+    getItemAttachmentSet(); // ensures this.data is initialized
+    this.data.removeItemAttachment(attachment);
+  }
+
+  public void removeItemAttachmentById(Long attachmentId) {
+    getItemAttachmentSet(); // ensures this.data is initialized
+    this.data.removeItemAttachmentById(attachmentId);
+  }
+
+  public Map<Long, ItemAttachmentIfc> getItemAttachmentMap() {
+    getItemAttachmentSet(); // ensures this.data is initialized
+    return this.data.getItemAttachmentMap();
+  }
+
+  public List<ItemAttachmentIfc> getItemAttachmentList() {
+    getItemAttachmentSet(); // ensures this.data is initialized
+    return this.data.getItemAttachmentList();
   }
 
   public void addItemAttachmentMetaData(String entry) {
@@ -1207,4 +1284,13 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
 	  this.scoreDisplayFlag = scoreDisplayFlag;
 	  this.data.setScoreDisplayFlag(scoreDisplayFlag);
   }
+
+  public String getTagListToJsonString() {
+    return  this.data.getTagListToJsonString();
+  }
+
+  public void setTagListToJsonString(String tagListToJsonString) {
+    this.data.setTagListToJsonString(tagListToJsonString);
+  }
+
 }

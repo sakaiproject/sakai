@@ -62,3 +62,4 @@ include file for displaying multiple choice single correct survey questions
     <h:outputText id="answerKeyMC"
        value="#{question.answerKey}" escape="false" />
   </h:panelGroup>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>

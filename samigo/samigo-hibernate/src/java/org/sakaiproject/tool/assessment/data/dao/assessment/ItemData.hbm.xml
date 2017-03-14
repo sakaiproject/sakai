@@ -34,6 +34,7 @@
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
+    <property name="hash" type="string" column="HASH" not-null="false" />
 
 <!--
     <property name="typeId">
@@ -56,9 +57,13 @@
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback"/>
     </set>
-    <set name="itemAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment"/>
+    </set>
+    <set name="itemTagSet" table="SAM_ITEMTAG_T" cascade="all-delete-orphan" inverse="true" lazy="false" batch-size="50" >
+        <key column="ITEMID"/>
+        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag" />
     </set>
   </class>
 
@@ -78,7 +83,7 @@
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.Answer"/>
     </set>
-    <set name="itemTextAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
+    <set name="itemTextAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all-delete-orphan" order-by="createdDate asc" inverse="true" lazy="false" batch-size="50">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment"/>
     </set>
@@ -94,6 +99,20 @@
       column="ITEMID" not-null="true" />
     <property name="label" type="string" length="255" column="LABEL" not-null="true" />
     <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
+  </class>
+
+  <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag" table="SAM_ITEMTAG_T">
+    <id name="id" column="ITEMTAGID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native">
+        <param name="sequence">SAM_ITEMTAG_ID_S</param>
+      </generator>
+    </id>
+    <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
+      column="ITEMID" not-null="true" index="SAM_ITEMTAG_ITEMID_I" />
+    <property name="tagId" type="string" length="36" column="TAGID" not-null="true"/>
+    <property name="tagLabel" type="string" length="255" column="TAGLABEL" not-null="true"/>
+    <property name="tagCollectionId" type="string" length="36" column="TAGCOLLECTIONID" not-null="true"/>
+    <property name="tagCollectionName" type="string" length="255" column="TAGCOLLECTIONNAME" not-null="true"/>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback" table="SAM_ITEMFEEDBACK_T">

@@ -37,5 +37,6 @@ should be included in file importing DeliveryMessages
   <h:commandButton value="#{evaluationMessages.browse}" type="button"/>
   <h:outputText value="  " />
   <h:commandButton value="#{evaluationMessages.upload}" type="button"/>
+  <%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
 </h:panelGroup>
 <f:verbatim><br /></f:verbatim>

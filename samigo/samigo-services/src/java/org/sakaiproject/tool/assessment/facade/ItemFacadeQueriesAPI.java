@@ -22,11 +22,13 @@
 
 package org.sakaiproject.tool.assessment.facade;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 
 public interface ItemFacadeQueriesAPI
 {
@@ -36,8 +38,6 @@ public interface ItemFacadeQueriesAPI
   public IdImpl getItemId(Long id);
 
   public IdImpl getItemId(long id);
-
-  public Long add();
 
   public List getQPItems(Long questionPoolId);
 
@@ -60,8 +60,6 @@ public interface ItemFacadeQueriesAPI
 
   public void addItemMetaData(Long itemId, String label, String value);
 
-  public Long facadeAdd() throws DataFacadeException;
-
   public void ifcShow(Long itemId);
 
   public ItemFacade saveItem(ItemFacade item) throws DataFacadeException;
@@ -81,10 +79,29 @@ public interface ItemFacadeQueriesAPI
    * @deprecated use {@link getItem}
    */
   public ItemFacade getItem(Long itemId, String agent);
-  
+
+  public Map<String, ItemFacade> getItemsByHash(String hash);
+
   public Map<String, ItemFacade> getItemsByKeyword(String keyword);
 
   public Long getItemTextId(Long publishedItemId);
   
   public void deleteSet(Set s);
+
+  public void updateItemTagBindingsHavingTag(TagServiceHelper.TagView tagView);
+
+  public void deleteItemTagBindingsHavingTagId(String tagId);
+
+  public void updateItemTagBindingsHavingTagCollection(TagServiceHelper.TagCollectionView tagCollectionView);
+
+  public void deleteItemTagBindingsHavingTagCollectionId(String tagCollectionId);
+
+  public BackfillItemHashResult backfillItemHashes(int batchSize);
+
+  public List<Long> getItemsIdsByHash(String hash);
+
+  public Long getAssessmentId(Long itemId);
+
+  public Boolean itemExists(Long itemId);
+
 }

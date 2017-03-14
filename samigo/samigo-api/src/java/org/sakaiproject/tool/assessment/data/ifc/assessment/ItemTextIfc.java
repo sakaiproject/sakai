@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 public interface ItemTextIfc
     extends Comparable<ItemTextIfc>, java.io.Serializable
@@ -68,6 +69,14 @@ public interface ItemTextIfc
      * @return
      * @since 2.10
      */
+
+  void addItemTextAttachment(ItemTextAttachmentIfc attachment);
+  void addNewItemTextAttachment(ItemTextAttachmentIfc attachment);
+  void removeItemTextAttachmentById(Long attachmentId);
+  void removeItemTextAttachment(ItemTextAttachmentIfc attachment);
+  Map<Long, ItemTextAttachmentIfc> getItemTextAttachmentMap();
+
+
     public boolean isEmiQuestionItemText();
 
     /**

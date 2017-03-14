@@ -32,14 +32,15 @@ import java.util.Set;
 import org.hibernate.Query;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
+import org.hibernate.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.TagServiceHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -47,10 +48,23 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import java.sql.SQLException;
+import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL;
+import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ID_PARAMS_PLACEHOLDER;
+import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.ITEMS_BY_ID_HQL;
+import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL;
+import static org.sakaiproject.tool.assessment.facade.ItemHashUtil.TOTAL_ITEM_COUNT_HQL;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacadeQueriesAPI {
+
+    private ItemHashUtil itemHashUtil;
+
+    public void setItemHashUtil(ItemHashUtil itemHashUtil) {
+        this.itemHashUtil = itemHashUtil;
+    }
 
   public ItemFacadeQueries() {
   }
@@ -64,44 +78,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   public IdImpl getItemId(long id){
     return new IdImpl(id);
   }
-  
-  public Long add() {
-    ItemData item = new ItemData();
-    item.setInstruction("Matching game");
-    item.setTypeId(TypeFacade.MATCHING);
-    item.setScore( Double.valueOf(10));
-    item.setDiscount(Double.valueOf(0));
-    item.setHasRationale(Boolean.FALSE);
-    item.setStatus(  Integer.valueOf(1));
-    item.setCreatedBy("1");
-    item.setCreatedDate(new Date());
-    item.setLastModifiedBy("1");
-    item.setLastModifiedDate(new Date());
 
-    // prepare itemText
-    item.setItemTextSet(prepareText(item));
 
-    // prepare MetaData
-    item.setItemMetaDataSet(prepareMetaData(item));
-    item.addItemMetaData("ITEM_OBJECTIVE", "the objective is to ...");
-
-    // prepare feedback
-    item.setCorrectItemFeedback("well done!");
-    item.setInCorrectItemFeedback("better luck next time!");
-
-    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().save(item);
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem saving item: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
-      }
-    }
-    return item.getItemId();
-  }
 
   public List getQPItems(final Long questionPoolId) {
 	    final HibernateCallback<List<ItemData>> hcb = session -> {
@@ -308,65 +286,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       }
   }
 
-  private Set prepareText(ItemData item) {
-    HashSet textSet = new HashSet();
-    ItemText text1 = new ItemText();
-    text1.setItem(item);
-    text1.setSequence(  Long.valueOf(1));
-    text1.setText("cat has");
-    HashSet answerSet1 = new HashSet();
-    HashSet answerFeedbackSet1 = new HashSet();
-    Answer answer1 = new Answer(text1, "2 legs", Long.valueOf(1), "i",
-    		Boolean.FALSE, null, Double.valueOf(0), Double.valueOf(0), Double.valueOf(0));
-    answerFeedbackSet1.add(new AnswerFeedback(answer1, "incorrect", "sorry"));
-    answer1.setAnswerFeedbackSet(answerFeedbackSet1);
-    answerSet1.add(answer1);
-    answerSet1.add(new Answer(text1, "3 legs", Long.valueOf(2), "ii",
-    		Boolean.FALSE, null, Double.valueOf(0), Double.valueOf(0), Double.valueOf(0)));
-    answerSet1.add(new Answer(text1, "4 legs", Long.valueOf(3), "iii",
-    		Boolean.TRUE, null, Double.valueOf(5), Double.valueOf(0), Double.valueOf(0)));
-    text1.setAnswerSet(answerSet1);
-
-    textSet.add(text1);
-
-    ItemText text2 = new ItemText();
-    text2.setItem(item);
-    text2.setSequence( Long.valueOf(2));
-    text2.setText("chicken has");
-    HashSet answerSet2 = new HashSet();
-    answerSet2.add(new Answer(text2, "2 legs", Long.valueOf(1), "i",
-    		Boolean.TRUE, null, Double.valueOf(5), Double.valueOf(0), Double.valueOf(0)));
-    answerSet2.add(new Answer(text2, "3 legs", Long.valueOf(2), "ii",
-    		Boolean.FALSE, null, Double.valueOf(0), Double.valueOf(0), Double.valueOf(0)));
-    answerSet2.add(new Answer(text2, "4 legs", Long.valueOf(3), "iii",
-    		Boolean.FALSE, null, Double.valueOf(0), Double.valueOf(0), Double.valueOf(0)));
-    text2.setAnswerSet(answerSet2);
-    textSet.add(text2);
-
-    ItemText text3 = new ItemText();
-    text3.setItem(item);
-    text3.setSequence(Long.valueOf(3));
-    text3.setText("baby has");
-    HashSet answerSet3 = new HashSet();
-    answerSet3.add(new Answer(text3, "2 legs", Long.valueOf(1), "i",
-    		Boolean.FALSE, null,  Double.valueOf(0), Double.valueOf(0), Double.valueOf(0)));
-    answerSet3.add(new Answer(text3, "3 legs", Long.valueOf(2), "ii",
-    		Boolean.FALSE, null, Double.valueOf(0), Double.valueOf(0), Double.valueOf(0)));
-    answerSet3.add(new Answer(text3, "4 legs", Long.valueOf(3), "iii",
-    		Boolean.TRUE, null, Double.valueOf(5), Double.valueOf(0), Double.valueOf(0)));
-    text3.setAnswerSet(answerSet3);
-    textSet.add(text3);
-    return textSet;
-  }
-
-  private Set prepareMetaData(ItemData item) {
-    Set set = new HashSet();
-    set.add(new ItemMetaData(item, "qmd_itemtype", "Matching"));
-    set.add(new ItemMetaData(item, "TEXT_FORMAT", "HTML"));
-    set.add(new ItemMetaData(item, "MUTUALLY_EXCLUSIVE", "True"));
-    return set;
-  }
-
   private void printItem(ItemData item) {
     log.debug("**Id = " + item.getItemId());
     log.debug("**score = " + item.getScore());
@@ -376,36 +295,6 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     log.debug("**Objective not lazy = " +
                        item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
   }
-  
-  public Long facadeAdd() throws DataFacadeException {
-    ItemFacade item = new ItemFacade();
-      item.setInstruction("Matching game");
-      item.setTypeId(Long.valueOf(9));
-      item.setScore( Double.valueOf(10));
-      item.setDiscount(Double.valueOf(0));
-      item.setHasRationale(Boolean.FALSE);
-      item.setStatus( Integer.valueOf(1));
-      item.setCreatedBy("1");
-      item.setCreatedDate(new Date());
-      item.setLastModifiedBy("1");
-      item.setLastModifiedDate(new Date());
-
-      // prepare itemText
-      item.setItemTextSet(prepareText((ItemData)item.getData()));
-      item.addItemText("I have",new HashSet());
-
-      // prepare MetaData
-      item.setItemMetaDataSet(prepareMetaData((ItemData)item.getData()));
-      item.addItemMetaData("ITEM_OBJECTIVE", "the objective is to ...");
-
-      // prepare feedback
-      item.setCorrectItemFeedback("well done!");
-      item.setInCorrectItemFeedback("better luck next time!");
-
-      getHibernateTemplate().save(item.getData());
-    return item.getData().getItemId();
-  }
-  
 
   public void ifcShow(Long itemId) {
       ItemDataIfc itemData = (ItemDataIfc) getHibernateTemplate().load(ItemData.class, itemId);
@@ -422,6 +311,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       ItemDataIfc itemdata = (ItemDataIfc) item.getData();
       itemdata.setLastModifiedDate(new Date());
       itemdata.setLastModifiedBy(AgentFacade.getAgentString());
+      itemdata.setHash(itemHashUtil.hashItem(itemdata));
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
     while (retryCount > 0){
       try {
@@ -458,7 +348,26 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     }
  }
 
+    private static final Map<String,String> BACKFILL_HASHES_HQL = new HashMap<String,String>() {{
+        this.put(TOTAL_ITEM_COUNT_HQL, "select count(*) from ItemData");
+        this.put(TOTAL_HASH_BACKFILLABLE_ITEM_COUNT_HQL, "select count(*) from ItemData as item where item.hash is null");
+        this.put(ALL_HASH_BACKFILLABLE_ITEM_IDS_HQL, "select item.id from ItemData as item where item.hash is null");
+        this.put(ITEMS_BY_ID_HQL, "select item from ItemData as item where item.id in (" + ID_PARAMS_PLACEHOLDER + ")");
+    }};
 
+    @Override
+    public BackfillItemHashResult backfillItemHashes(int batchSize) {
+        return itemHashUtil.backfillItemHashes(
+                batchSize,
+                BACKFILL_HASHES_HQL,
+                ItemData.class,
+                i -> {
+                    final String hash = itemHashUtil.hashItemUnchecked(i);
+                    i.setHash(hash);
+                    return i;
+                },
+                getHibernateTemplate());
+    }
 
   private void printIfcItem(ItemDataIfc item) {
     log.debug("**Id = " + item.getItemId());
@@ -496,6 +405,37 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 		  return null;
 	  }
 	  return new ItemFacade(item);
+  }
+
+    public Boolean itemExists(Long itemId) {
+        try {
+            if (getHibernateTemplate().get(ItemData.class, itemId)==null){
+                return false;
+            }else{
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+  public Map<String, ItemFacade> getItemsByHash(String hash) {
+        final HibernateCallback<List<ItemData>> hcb = session -> {
+            Query q = session.createQuery("from ItemData where hash = ? ");
+            q.setString(0, hash);
+            return q.list();
+
+        };
+        List<ItemData> list1 = getHibernateTemplate().execute(hcb);
+
+        Map<String, ItemFacade> itemFacadeMap = new HashMap();
+
+        for (int i = 0; i < list1.size(); i++) {
+            ItemData a = (ItemData) list1.get(i);
+            ItemFacade f = new ItemFacade(a);
+            itemFacadeMap.put(f.getItemIdString(),f);
+        }
+        return itemFacadeMap;
   }
 
 
@@ -593,5 +533,76 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 			}
 		}
 	}
-	  
+
+    @Override
+    public void updateItemTagBindingsHavingTag(TagServiceHelper.TagView tagView) {
+        // TODO when we add item search indexing, this is going to have to change to
+        // first read in all the affected item IDs so we can generate events for each
+        // (similar to what we do in the tag service)
+        getHibernateTemplate().bulkUpdate("update ItemTag it " +
+                        "set it.tagLabel = ?, it.tagCollectionId = ?, it.tagCollectionName = ? " +
+                        "where it.tagId = ?",
+                tagView.tagLabel, tagView.tagCollectionId, tagView.tagCollectionName, tagView.tagId);
+    }
+
+    @Override
+    public void deleteItemTagBindingsHavingTagId(String tagId) {
+        // TODO when we add item search indexing, this is going to have to change to
+        // first read in all the affected item IDs so we can generate events for each
+        // (similar to what we do in the tag service)
+        getHibernateTemplate().bulkUpdate("delete ItemTag it where it.tagId = ?", tagId);
+    }
+
+    @Override
+    public void updateItemTagBindingsHavingTagCollection(TagServiceHelper.TagCollectionView tagCollectionView) {
+        // TODO when we add item search indexing, this is going to have to change to
+        // first read in all the affected item IDs so we can generate events for each
+        // (similar to what we do in the tag service)
+        getHibernateTemplate().bulkUpdate("update ItemTag it " +
+                        "set it.tagCollectionName = ? " +
+                        "where it.tagCollectionId = ?",
+                tagCollectionView.tagCollectionName, tagCollectionView.tagCollectionId);
+    }
+
+    @Override
+    public void deleteItemTagBindingsHavingTagCollectionId(String tagCollectionId) {
+        // TODO when we add item search indexing, this is going to have to change to
+        // first read in all the affected item IDs so we can generate events for each
+        // (similar to what we do in the tag service)
+        getHibernateTemplate().bulkUpdate("delete ItemTag it where it.tagCollectionId = ?", tagCollectionId);
+    }
+
+
+    @Override
+    public List<Long> getItemsIdsByHash(String hash) {
+        final HibernateCallback<List<Long>> hcb = session -> {
+            Query q = session.createQuery("select ab.itemId from ItemData ab where ab.hash = ? ");
+            q.setString(0, hash);
+            return q.list();
+
+        };
+        List<Long> list1 = getHibernateTemplate().execute(hcb);
+        return list1;
+    }
+
+
+
+    @Override
+    public Long getAssessmentId(Long itemId) {
+        final HibernateCallback<List<Long>> hcb = session -> {
+            Query q = session.createQuery("select s.assessment.assessmentBaseId from SectionData s, ItemData i where s.id = i.section AND i.itemId = ?");
+            q.setLong(0, itemId);
+            return q.list();
+
+        };
+        List<Long> list1 = getHibernateTemplate().execute(hcb);
+        if (list1.isEmpty()){
+            return -1L;
+        }else{
+            return (Long) list1.get(0);
+        }
+
+    }
+
+
 }

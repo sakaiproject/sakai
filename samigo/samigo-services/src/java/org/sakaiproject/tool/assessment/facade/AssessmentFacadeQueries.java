@@ -33,6 +33,7 @@ import java.util.Set;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -58,6 +59,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -781,6 +783,14 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return getHibernateTemplate().execute(hcb).intValue();
 	}
 
+	public List getQuestionsIdList(final Long assessmentId) {
+		HibernateCallback<List<Long>> hcb = session -> session
+				.createQuery("select i.itemId from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId=?")
+				.setLong(0, assessmentId.longValue())
+				.list();
+		return getHibernateTemplate().execute(hcb);
+	}
+
 	public void deleteAllSecuredIP(AssessmentIfc assessment) {
 		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
 		while (retryCount > 0) {
@@ -1271,53 +1281,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		return newString;
 	}
 
-	public void removeItemAttachment(Long itemAttachmentId) {
-		ItemAttachment itemAttachment = (ItemAttachment) getHibernateTemplate()
-				.load(ItemAttachment.class, itemAttachmentId);
-		ItemDataIfc item = itemAttachment.getItem();
-		// String resourceId = itemAttachment.getResourceId();
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
-		while (retryCount > 0) {
-			try {
-				if (item != null) { // need to dissociate with item before
-					// deleting in Hibernate 3
-					Set set = item.getItemAttachmentSet();
-					set.remove(itemAttachment);
-					getHibernateTemplate().delete(itemAttachment);
-					retryCount = 0;
-				}
-			} catch (Exception e) {
-				log.warn("problem delete itemAttachment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
-						retryCount);
-			}
-		}
-	}
-
-	public void removeItemTextAttachment(Long itemTextAttachmentId) {
-		ItemTextAttachment itemTextAttachment = (ItemTextAttachment) getHibernateTemplate()
-				.load(ItemTextAttachment.class, itemTextAttachmentId);
-		ItemTextIfc itemText = itemTextAttachment.getItemText();
-		// String resourceId = itemAttachment.getResourceId();
-		int retryCount = PersistenceService.getInstance().getRetryCount();
-		while (retryCount > 0) {
-			try {
-				if (itemText != null) { // need to dissociate with item before
-					// deleting in Hibernate 3
-					Set set = itemText.getItemTextAttachmentSet();
-					set.remove(itemTextAttachment);
-					getHibernateTemplate().delete(itemTextAttachment);
-					retryCount = 0;
-				}
-			} catch (Exception e) {
-				log.warn("problem delete itemAttachment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
-						retryCount);
-			}
-		}
-	}
-	
-	public void updateAssessmentLastModifiedInfo(AssessmentFacade assessment) {
+	public void updateAssessmentLastModifiedInfo(
+			AssessmentFacade assessment) {
 		AssessmentData data = (AssessmentData) assessment.getData();
 		data.setLastModifiedBy(AgentFacade.getAgentString());
 		data.setLastModifiedDate(new Date());
@@ -1638,6 +1603,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				Iterator itemIter = itemSet.iterator();
 				while (itemIter.hasNext()) {
 					ItemData item = (ItemData) itemIter.next();
+					//We use this place to add the saveItem Events used by the search index to index all the new questions
+					EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 					Set itemMetaDataSet = item.getItemMetaDataSet();
 					Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 					while (itemMetaDataIter.hasNext()) {
@@ -1682,6 +1649,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			Iterator itemIter = itemSet.iterator();
 			while (itemIter.hasNext()) {
 				ItemData item = (ItemData) itemIter.next();
+				//We use this place to add the saveItem Events used by the search index to index all the new questions
+				EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 				Set itemMetaDataSet = item.getItemMetaDataSet();
 				Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 				while (itemMetaDataIter.hasNext()) {
@@ -1982,19 +1951,22 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 							.getHasRationale(), item.getStatus(), item
 							.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),
-					null, null, null, // set ItemTextSet, itemMetaDataSet and
+					null, null, null,// set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
-					item.getTriesAllowed(), item.getPartialCreditFlag());
+					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
 					.getItemTextSet(), protocol, toContext);
 			Set newItemMetaDataSet = prepareItemMetaDataSet(newItem, item
 					.getItemMetaDataSet());
+			Set newItemTagSet = prepareItemTagSet(newItem, item
+					.getItemTagSet());
 			Set newItemFeedbackSet = prepareItemFeedbackSet(newItem, item
 					.getItemFeedbackSet());
 			Set newItemAttachmentSet = prepareItemAttachmentSet(newItem, item
 					.getItemAttachmentSet(), protocol, toContext);
 			newItem.setItemTextSet(newItemTextSet);
 			newItem.setItemMetaDataSet(newItemMetaDataSet);
+			newItem.setItemTagSet(newItemTagSet);
 			newItem.setItemFeedbackSet(newItemFeedbackSet);
 			newItem.setItemAttachmentSet(newItemAttachmentSet);
 			newItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
@@ -2043,7 +2015,20 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 		}
 		return h;
 	}
-	
+
+	public Set prepareItemTagSet(ItemData newItem, Set itemTagSet) {
+		HashSet h = new HashSet();
+		Iterator n = itemTagSet.iterator();
+		while (n.hasNext()) {
+			ItemTag itemTag = (ItemTag) n.next();
+			ItemTag newItemTag = new ItemTag(newItem,
+					itemTag.getTagId(), itemTag.getTagLabel(),
+					itemTag.getTagCollectionId(),
+					itemTag.getTagCollectionName());
+			h.add(newItemTag);
+		}
+		return h;
+	}
 
 	public Set prepareItemFeedbackSet(ItemData newItem, Set itemFeedbackSet) {
 		HashSet h = new HashSet();

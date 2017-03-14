@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,6 +139,78 @@ public class ItemText
 	public void setItemTextAttachmentSet(Set<ItemTextAttachmentIfc> itemTextAttachmentSet) {
 		this.itemTextAttachmentSet = itemTextAttachmentSet;
 	}
+
+    public Map<Long, ItemTextAttachmentIfc> getItemTextAttachmentMap() {
+        final Map<Long, ItemTextAttachmentIfc> map = new HashMap<>();
+        if ( this.itemTextAttachmentSet == null || this.itemTextAttachmentSet.isEmpty() ) {
+            return map;
+        }
+        for (ItemTextAttachmentIfc a : this.itemTextAttachmentSet) {
+            map.put(a.getAttachmentId(), a);
+        }
+        return map;
+    }
+
+    public void addItemTextAttachment(ItemTextAttachmentIfc attachment) {
+        if ( attachment == null ) {
+            return;
+        }
+        if ( this.itemTextAttachmentSet == null ) {
+            this.itemTextAttachmentSet = new HashSet<>();
+        }
+        attachment.setItemText(this);
+        this.itemTextAttachmentSet.add(attachment);
+    }
+
+    public void addNewItemTextAttachment(ItemTextAttachmentIfc attachment) {
+        if ( attachment == null ) {
+            return;
+        }
+        if ( this.itemTextAttachmentSet == null ) {
+            this.itemTextAttachmentSet = new HashSet<>();
+        }
+        Long attachmentId = attachment.getAttachmentId();
+        if (attachmentId != null){
+            //We need to recreate the list again because it is deleted with every edition,
+            //so we need to clear the id, and remove the previous attachments
+            //in this way, hibernate will insert the new ones and not try to update.
+            attachment.setAttachmentId(null);
+            removeItemTextAttachmentById(attachmentId);
+        }
+            attachment.setItemText(this);
+            this.itemTextAttachmentSet.add(attachment);
+    }
+
+    public void removeItemTextAttachmentById(Long attachmentId) {
+        if ( attachmentId == null ) {
+            return;
+        }
+        if ( this.itemTextAttachmentSet == null || this.itemTextAttachmentSet.isEmpty() ) {
+            return;
+        }
+        Iterator i = this.itemTextAttachmentSet.iterator();
+        while ( i.hasNext() ) {
+            final ItemTextAttachmentIfc a = (ItemTextAttachmentIfc)i.next();
+            if ( attachmentId.equals(a.getAttachmentId()) ) {
+                i.remove();
+                a.setItemText(null);
+            }
+        }
+    }
+
+    public void removeItemTextAttachment(ItemTextAttachmentIfc attachment) {
+        if ( attachment == null ) {
+            return;
+        }
+        attachment.setItemText(null);
+        if ( this.itemTextAttachmentSet == null || this.itemTextAttachmentSet.isEmpty() ) {
+            return;
+        }
+        this.itemTextAttachmentSet.remove(attachment);
+    }
+
+
+
 
 	  // for EMI - Attachments at Answer Level
 	  public boolean getHasAttachment(){

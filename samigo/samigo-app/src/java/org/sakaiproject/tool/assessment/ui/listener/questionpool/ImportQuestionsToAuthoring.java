@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * <p>Title: Samigo</p>
@@ -144,6 +145,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
           }
 
               delegate.saveItem(itemfacade);
+             EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + itemfacade.getItemId().toString(), true));
           // remove POOLID metadata if any,
               delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
               delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());

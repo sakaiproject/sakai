@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -57,13 +59,17 @@ public class ItemData
   private Set<ItemMetaDataIfc> itemMetaDataSet;
   private Set<ItemFeedbackIfc> itemFeedbackSet;
   private Set<ItemAttachmentIfc> itemAttachmentSet;
+  private Set<ItemTagIfc> itemTagSet;
   private Double minScore;
+  private String hash;
  
   // for EMI question
   private String themeText;
   private String leadInText;
   private Integer answerOptionsRichCount;
   private Integer answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE;
+
+  private String tagListToJsonString;
   
 public ItemData() {}
 
@@ -74,7 +80,7 @@ public ItemData() {}
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
-                  Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet, Boolean partialCreditFlag ) {
+                  Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet, Boolean partialCreditFlag, String hash) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -97,6 +103,8 @@ public ItemData() {}
     this.itemFeedbackSet = itemFeedbackSet;
     this.partialCreditFlag=partialCreditFlag;
     this.minScore = minScore;
+    this.hash = hash;
+
   }
 
   public ItemData(SectionDataIfc section, Integer sequence,
@@ -106,7 +114,7 @@ public ItemData() {}
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
                   Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet,
-                  Integer triesAllowed, Boolean partialCreditFlag) {
+                  Integer triesAllowed, Boolean partialCreditFlag, String hash) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -130,6 +138,7 @@ public ItemData() {}
     this.triesAllowed = triesAllowed;
     this.partialCreditFlag=partialCreditFlag;
     this.minScore = minScore;
+    this.hash = hash;
   }
 
     /*
@@ -403,12 +412,24 @@ public ItemData() {}
     this.itemMetaDataSet = itemMetaDataSet;
   }
 
+  public Set<ItemTagIfc> getItemTagSet() { return itemTagSet; }
+
+  public void setItemTagSet(Set<ItemTagIfc> itemTagSet) { this.itemTagSet = itemTagSet; this.tagListToJsonString = convertTagListToJsonString(itemTagSet);}
+
   public Set<ItemFeedbackIfc> getItemFeedbackSet() {
     return itemFeedbackSet;
   }
 
   public void setItemFeedbackSet(Set<ItemFeedbackIfc> itemFeedbackSet) {
     this.itemFeedbackSet = itemFeedbackSet;
+  }
+
+  public String getHash() {
+    return this.hash;
+  }
+
+  public void setHash(String hash) {
+    this.hash = hash;
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {
@@ -482,6 +503,9 @@ public ItemData() {}
   }
 
   public String getItemFeedback(String typeId) {
+	  if ( this.itemFeedbackSet == null || this.itemFeedbackSet.isEmpty() ) {
+		  return null;
+	  }
 	  for (Iterator<ItemFeedbackIfc> i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
 		  ItemFeedback itemFeedback = (ItemFeedback) i.next();
 		  if (itemFeedback.getTypeId().equals(typeId)) {
@@ -808,15 +832,60 @@ public ItemData() {}
   }
 
   public List<ItemAttachmentIfc> getItemAttachmentList() {
-    ArrayList<ItemAttachmentIfc> list = new ArrayList<ItemAttachmentIfc>();
-    if (itemAttachmentSet !=null ){
-      Iterator<ItemAttachmentIfc> iter = itemAttachmentSet.iterator();
-      while (iter.hasNext()){
-        ItemAttachmentIfc a = iter.next();
-        list.add(a);
+    if ( this.itemAttachmentSet == null || this.itemAttachmentSet.isEmpty() ) {
+      return new ArrayList<>();
+    }
+    return new ArrayList<>(this.itemAttachmentSet);
+  }
+
+  public Map<Long, ItemAttachmentIfc> getItemAttachmentMap() {
+    final Map<Long, ItemAttachmentIfc> map = new HashMap<>();
+    if ( this.itemAttachmentSet == null || this.itemAttachmentSet.isEmpty() ) {
+      return map;
+    }
+    for (ItemAttachmentIfc a : this.itemAttachmentSet) {
+      map.put(a.getAttachmentId(), a);
+    }
+    return map;
+  }
+
+  public void addItemAttachment(ItemAttachmentIfc attachment) {
+    if ( attachment == null ) {
+      return;
+    }
+    if ( this.itemAttachmentSet == null ) {
+      this.itemAttachmentSet = new HashSet<>();
+    }
+    attachment.setItem(this);
+    this.itemAttachmentSet.add(attachment);
+  }
+
+  public void removeItemAttachmentById(Long attachmentId) {
+    if ( attachmentId == null ) {
+      return;
+    }
+    if ( this.itemAttachmentSet == null || this.itemAttachmentSet.isEmpty() ) {
+      return;
+    }
+    Iterator i = this.itemAttachmentSet.iterator();
+    while ( i.hasNext() ) {
+      final ItemAttachmentIfc a = (ItemAttachmentIfc)i.next();
+      if ( attachmentId.equals(a.getAttachmentId()) ) {
+        i.remove();
+        a.setItem(null);
       }
     }
-    return list;
+  }
+
+  public void removeItemAttachment(ItemAttachmentIfc attachment) {
+    if ( attachment == null ) {
+      return;
+    }
+    attachment.setItem(null);
+    if ( this.itemAttachmentSet == null || this.itemAttachmentSet.isEmpty() ) {
+      return;
+    }
+    this.itemAttachmentSet.remove(attachment);
   }
 
   public Boolean getPartialCreditFlag() {
@@ -1074,5 +1143,35 @@ public ItemData() {}
 	  	 
   public void setMinScore(Double minScore) {
         this.minScore = minScore;
+  }
+
+  private String convertTagListToJsonString(Set<ItemTagIfc> itemTagSet) {
+
+    String tagsListToJson = "[";
+    if (itemTagSet != null) {
+      Iterator<ItemTagIfc> i = itemTagSet.iterator();
+      Boolean more = false;
+      while (i.hasNext()) {
+        if (more) {
+          tagsListToJson += ",";
+        }
+        ItemTagIfc tagToShow = (ItemTagIfc) i.next();
+        String tagId = tagToShow.getTagId();
+        String tagLabel = tagToShow.getTagLabel();
+        String tagCollectionName = tagToShow.getTagCollectionName();
+        tagsListToJson += "{\"tagId\":\"" + tagId + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
+        more = true;
+      }
+    }
+    tagsListToJson += "]";
+    return tagsListToJson;
+  }
+
+  public String getTagListToJsonString() {
+    return this.tagListToJsonString;
+  }
+
+  public void setTagListToJsonString(String tagListToJsonString) {
+    this.tagListToJsonString = tagListToJsonString;
   }
 }

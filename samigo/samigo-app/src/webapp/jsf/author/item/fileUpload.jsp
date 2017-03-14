@@ -191,6 +191,8 @@
         </div>
     </h:panelGroup>
 
+    <%@ include file="/jsf/author/item/tags.jsp" %>
+
 <p class="act">
 
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">

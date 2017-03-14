@@ -37,10 +37,12 @@ import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -274,6 +276,19 @@ public class QuestionPoolFacadeQueries
 	    List list = getHibernateTemplate().execute(hcb);
         return list;
   }
+
+    public List getAllItemsIds(final Long questionPoolId) {
+        final HibernateCallback<List> hcb = session -> {
+                Query q = session.createQuery("select qpi.itemId from QuestionPoolItemData qpi where qpi.questionPoolId = ?");
+                q.setLong(0, questionPoolId.longValue());
+                return q.list();
+        };
+        List list = getHibernateTemplate().execute(hcb);
+        return list;
+
+    }
+
+
 
   	public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
 						     final String orderBy, final String ascending) {
@@ -1059,6 +1074,14 @@ public class QuestionPoolFacadeQueries
       newPool.setQuestions(itemDataArray);
       newPool = savePool(newPool);
 
+        //Update the questions index
+        Set<QuestionPoolItemData> qpItems = newPool.getQuestionPoolItems();
+        Iterator<QuestionPoolItemData> qpItemsIterator = qpItems.iterator();
+        while (qpItemsIterator.hasNext()){
+            QuestionPoolItemData qpItem = qpItemsIterator.next();
+            EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + qpItem.getItemId(), true));
+        }
+
       // Get the SubPools of oldPool
       Iterator citer = (tree.getChildList(sourceId)).iterator();
       while (citer.hasNext()) {
@@ -1223,6 +1246,7 @@ public class QuestionPoolFacadeQueries
 
       item.setItemTextSet(copyItemText(item.getData(), itemData));
       item.setItemMetaDataSet(copyMetaData(item.getData(), itemData));
+      item.setItemTagSet(copyTags(item.getData(), itemData));
       item.setItemAttachmentSet(copyAttachment(item.getData(), itemData));
       item.setInstruction(AssessmentService.copyStringAttachment(itemData.getInstruction()));
 
@@ -1284,6 +1308,17 @@ public class QuestionPoolFacadeQueries
 	    while (iter.hasNext()) {
 	    	ItemMetaData itemMetaData = (ItemMetaData) iter.next();
 	    	toSet.add(new ItemMetaData(toItemData, itemMetaData.getLabel(), itemMetaData.getEntry()));
+	    }
+	    return toSet;
+  }
+
+  private HashSet copyTags(ItemDataIfc toItemData, ItemDataIfc fromItemData) {
+	    HashSet toSet = new HashSet();
+	    Set fromSet = fromItemData.getItemTagSet();
+	    Iterator iter = fromSet.iterator();
+	    while (iter.hasNext()) {
+	    	ItemTag itemTag = (ItemTag) iter.next();
+	    	toSet.add(new ItemTag(toItemData, itemTag.getTagId(), itemTag.getTagLabel(), itemTag.getTagCollectionId(), itemTag.getTagCollectionName()));
 	    }
 	    return toSet;
   }

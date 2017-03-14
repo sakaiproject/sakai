@@ -60,9 +60,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.struts.upload.FormFile;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
+import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -167,6 +169,7 @@ public class QuestionPoolBean implements Serializable
   private List addedQuestions;
   
   private ItemFacade itemToPreview;
+  private boolean showTags;
   private List<ItemContentsBean> itemsBean;
 
   private static Logger log = LoggerFactory.getLogger(QuestionPoolBean.class);
@@ -1155,6 +1158,16 @@ public String getAddOrEdit()
     this.addPoolSource= param;
   }
 
+    public boolean getShowTags()
+    {
+        return ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.TRUE);
+    }
+
+    public void setShowTags(boolean showTags)
+    {
+        this.showTags = showTags;
+    }
+
   /**
    * DOCUMENTATION PENDING
    *
@@ -1299,7 +1312,9 @@ public String getAddOrEdit()
 						delegate.moveItemToPool(new Long(sourceItemId),
 								new Long(sourceId), new Long(destId));
 					}
-				}
+                    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
+
+                }
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
@@ -1430,6 +1445,8 @@ public String getAddOrEdit()
 							delegate.addItemToPool(copyItemFacadeId, new Long(
 									destId));
 						}
+                        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + sourceItemId, true));
+
 
 					}
 				} catch (Exception e) {
@@ -1890,11 +1907,19 @@ String poolId = ContextUtil.lookupParam("qpid");
 
         QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
 	Long poolId= pool.getQuestionPoolId();
-
+          Set<QuestionPoolItemData> qpItems = pool.getQuestionPoolItems();
         delegate.deletePool(poolId, AgentFacade.getAgentString(), tree);
 
           //Questionpool has been deleted
           EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.delete", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed poolId=" + poolId, true));
+
+          //Update the question index
+          Iterator<QuestionPoolItemData> qpItemsIterator = qpItems.iterator();
+          while (qpItemsIterator.hasNext()){
+              QuestionPoolItemData qpItem = qpItemsIterator.next();
+              EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.unindexitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, itemId=" + qpItem.getItemId(), true));
+          }
+
 
         }
 	buildTree();

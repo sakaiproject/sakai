@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
@@ -168,9 +169,29 @@ public class Item extends ASIBaseClass
     setFieldentry("ITEM_KEYWORD",
       item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD));
     setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
-    setFieldentry("ATTACHMENT", getAttachment(item));
-    
-    // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
+
+
+      Set<ItemTagIfc> tagIfcSet = item.getItemTagSet();
+      String tagsString = "";
+      Boolean first=true;
+      for (ItemTagIfc tagIfc: tagIfcSet) {
+         if (!first){
+            tagsString += ", ";
+         }
+         tagsString += tagIfc.getTagLabel();
+         if (!(tagIfc.getTagCollectionName().isEmpty())){
+             tagsString += " ("+tagIfc.getTagCollectionName() + ")";
+         }else{
+           tagsString += " (No tag collection)";
+         }
+         first=false;
+      }
+
+    setFieldentry("ITEM_TAGS", tagsString);
+
+      setFieldentry("ATTACHMENT", getAttachment(item));
+
+      // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
     if (item.getDuration()!=null){
     	setFieldentry("TIMEALLOWED",
     			item.getDuration().toString()); 

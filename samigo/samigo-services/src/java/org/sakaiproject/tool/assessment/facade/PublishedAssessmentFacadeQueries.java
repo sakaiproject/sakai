@@ -64,6 +64,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTag;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTag;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -358,17 +360,20 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 							.getLastModifiedBy(), item.getLastModifiedDate(),
 					null, null, null, // set ItemTextSet, itemMetaDataSet and
 					// itemFeedbackSet later
-					item.getTriesAllowed(), item.getPartialCreditFlag());
+					item.getTriesAllowed(), item.getPartialCreditFlag(),item.getHash(),item.getHash());
 			Set publishedItemTextSet = preparePublishedItemTextSet(
 					publishedItem, item.getItemTextSet(), protocol);
 			Set publishedItemMetaDataSet = preparePublishedItemMetaDataSet(
 					publishedItem, item.getItemMetaDataSet());
+			Set publishedItemTagSet = preparePublishedItemTagSet(
+					publishedItem, item.getItemTagSet());
 			Set publishedItemFeedbackSet = preparePublishedItemFeedbackSet(
 					publishedItem, item.getItemFeedbackSet());
 			Set publishedItemAttachmentSet = preparePublishedItemAttachmentSet(
 					publishedItem, item.getItemAttachmentSet(), protocol);
 			publishedItem.setItemTextSet(publishedItemTextSet);
 			publishedItem.setItemMetaDataSet(publishedItemMetaDataSet);
+			publishedItem.setItemTagSet(publishedItemTagSet);
 			publishedItem.setItemFeedbackSet(publishedItemFeedbackSet);
 			publishedItem.setItemAttachmentSet(publishedItemAttachmentSet);
 			publishedItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
@@ -471,6 +476,20 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		}
 		return h;
 	}
+
+    public Set preparePublishedItemTagSet(PublishedItemData publishedItem,
+                                          Set itemTagSet) {
+        HashSet h = new HashSet();
+        Iterator n = itemTagSet.iterator();
+        while (n.hasNext()) {
+            ItemTag itemTag = (ItemTag) n.next();
+            PublishedItemTag publishedItemTag = new PublishedItemTag(publishedItem,
+                    itemTag.getTagId(), itemTag.getTagLabel(),
+                    itemTag.getTagCollectionId(), itemTag.getTagCollectionName());
+            h.add(publishedItemTag);
+        }
+        return h;
+    }
 
 	public Set preparePublishedItemTextAttachmentSet(
 			PublishedItemText publishedItemText, Set itemTextAttachmentSet,
@@ -2166,26 +2185,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update section: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
-			}
-		}
-	}
-
-	public void removeItemAttachment(Long itemAttachmentId) {
-		PublishedItemAttachment itemAttachment = getHibernateTemplate().load(PublishedItemAttachment.class, itemAttachmentId);
-		ItemDataIfc item = itemAttachment.getItem();
-		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount();
-		while (retryCount > 0) {
-			try {
-				if (item != null) { // need to dissociate with item before
-					// deleting in Hibernate 3
-					Set set = item.getItemAttachmentSet();
-					set.remove(itemAttachment);
-					getHibernateTemplate().delete(itemAttachment);
-					retryCount = 0;
-				}
-			} catch (Exception e) {
-				log.warn("problem delete itemAttachment: " + e.getMessage());
 				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 			}
 		}

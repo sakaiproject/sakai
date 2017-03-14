@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -171,6 +172,9 @@ public class ItemContentsBean implements Serializable {
 	
 	private String imageSrc = "";
 
+	private Set<ItemTagIfc> tagsList;
+	private String tagsListToJson;
+
 	public ItemContentsBean() {
 	}
 
@@ -184,9 +188,53 @@ public class ItemContentsBean implements Serializable {
 		} else {
 			setNumber(1);
 		}
+		this.tagsList = itemData.getItemTagSet();
+		this.tagsListToJson = tagListToJsonString(this.tagsList);
 	}
-	
-    public boolean getIsMultipleItems() {
+
+
+
+
+	private String tagListToJsonString(Set<ItemTagIfc> tagsListToConvert){
+
+		String tagsListToJson = "[";
+		if (tagsListToConvert!=null) {
+			Iterator<ItemTagIfc> i = tagsListToConvert.iterator();
+			Boolean more = false;
+			while (i.hasNext()) {
+				if (more) {
+					tagsListToJson += ",";
+				}
+				ItemTagIfc tagToShow = (ItemTagIfc) i.next();
+				String tagId = tagToShow.getTagId();
+				String tagLabel = tagToShow.getTagLabel();
+				String tagCollectionName = tagToShow.getTagCollectionName();
+				tagsListToJson += "{\"tagId\":\"" + tagId + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
+				more = true;
+			}
+		}
+		tagsListToJson += "]";
+		return tagsListToJson;
+	}
+
+
+	public String getTagsListToJson(){
+		return this.tagsListToJson;
+	}
+
+	public void setTagsListToJson(String tagsListToJson)
+	{
+		this.tagsListToJson = tagsListToJson;
+	}
+
+	public Set<ItemTagIfc> getTagsList() {
+		return tagsList;
+	}
+
+	public void setTagsList(Set tagsList){ this.tagsList = tagsList;}
+
+
+	public boolean getIsMultipleItems() {
 		return this.isMultipleItems;
 	}
 

@@ -20,7 +20,7 @@
  **********************************************************************************/
 
 
-package org.sakaiproject.assessment.facade.test;
+package org.sakaiproject.tool.assessment.facade;
 
 import java.util.List;
 import java.util.Set;

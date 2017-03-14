@@ -1,3 +1,13 @@
+package org.sakaiproject.tool.assessment.facade;
+
+import org.hibernate.SessionFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 /**********************************************************************************
  * $URL$
@@ -20,26 +30,15 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.assessment.facade.test;
-
-import org.hibernate.SessionFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-
 @ContextConfiguration(locations={"/spring-hibernate.xml"})
-public class AssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
+public class PublishedAssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
 
 	//our object
-	AssessmentFacadeQueries queries = null;
+	PublishedAssessmentFacadeQueries queries = null;
 
 	@Before
 	public void onSetUpInTransaction() throws Exception {
-		queries = new AssessmentFacadeQueries();
+		queries = new PublishedAssessmentFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
 	}
 
@@ -50,7 +49,7 @@ public class AssesmentFacadeTest  extends AbstractJUnit4SpringContextTests{
 		 * not to escalate an exception
 		 */
 		try {
-			AssessmentFacade item = queries.getAssessment(999999L);
+			PublishedAssessmentData item = queries.loadPublishedAssessment(999999L);
 			Assert.assertNull(item);
 		} catch (Exception e) {
 			Assert.fail("unexpected exception");
