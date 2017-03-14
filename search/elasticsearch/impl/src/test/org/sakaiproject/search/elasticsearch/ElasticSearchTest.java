@@ -19,6 +19,8 @@ import org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+//import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -67,9 +69,12 @@ public class ElasticSearchTest {
     SecurityService securityService;
 
     @Mock
+    ThreadLocalManager threadLocalManager;// = new ThreadLocalComponent();
+
+    @Mock
     NotificationEdit notificationEdit;
 
-    ElasticSearchIndexBuilder elasticSearchIndexBuilder;
+    SiteElasticSearchIndexBuilder elasticSearchIndexBuilder;
 
     @Mock
     Notification notification;
@@ -103,6 +108,8 @@ public class ElasticSearchTest {
     @After
     public void tearDown() {
         elasticSearchService.destroy();
+        elasticSearchIndexBuilder.destroy();
+        threadLocalManager.clear();
     }
 
     public void createTestResources() {
@@ -167,13 +174,21 @@ public class ElasticSearchTest {
         siteIds.add(siteId);
         when(siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)).thenReturn(sites);
         when(siteService.isSpecialSite(siteId)).thenReturn(false);
-        elasticSearchIndexBuilder = new ElasticSearchIndexBuilder();
+        elasticSearchIndexBuilder = new SiteElasticSearchIndexBuilder();
+        elasticSearchIndexBuilder.setName(ElasticSearchIndexBuilder.DEFAULT_INDEX_BUILDER_NAME);
+        elasticSearchIndexBuilder.setIndexName(ElasticSearchIndexBuilder.DEFAULT_INDEX_NAME);
         elasticSearchIndexBuilder.setTestMode(true);
         elasticSearchIndexBuilder.setOnlyIndexSearchToolSites(false);
         elasticSearchIndexBuilder.setExcludeUserSites(false);
         elasticSearchIndexBuilder.setSecurityService(securityService);
         elasticSearchIndexBuilder.setSiteService(siteService);
         elasticSearchIndexBuilder.setServerConfigurationService(serverConfigurationService);
+        elasticSearchIndexBuilder.setEventTrackingService(eventTrackingService);
+        elasticSearchIndexBuilder.setUserDirectoryService(userDirectoryService);
+        elasticSearchIndexBuilder.setSiteService(siteService);
+        elasticSearchIndexBuilder.setFilter(filter);
+        elasticSearchIndexBuilder.setIgnoredSites("!admin,~admin");
+        elasticSearchIndexBuilder.setOnlyIndexSearchToolSites(false);
         elasticSearchIndexBuilder.setDelay(200);
         elasticSearchIndexBuilder.setPeriod(10);
         elasticSearchIndexBuilder.setContentIndexBatchSize(50);
@@ -268,26 +283,22 @@ public class ElasticSearchTest {
                 "}\n" +
                 "\n");
 
-        elasticSearchIndexBuilder.init();
+        filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
 
         elasticSearchService = new ElasticSearchService();
         elasticSearchService.setTriggerFunctions(new ArrayList<String>());
-        elasticSearchService.setEventTrackingService(eventTrackingService);
+
         elasticSearchService.setServerConfigurationService(serverConfigurationService);
         elasticSearchService.setSessionManager(sessionManager);
         elasticSearchService.setUserDirectoryService(userDirectoryService);
         elasticSearchService.setNotificationService(notificationService);
-        elasticSearchService.setSiteService(siteService);
-        elasticSearchService.setIndexBuilder(elasticSearchIndexBuilder);
-        elasticSearchIndexBuilder.setOnlyIndexSearchToolSites(false);
-        filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
-        elasticSearchService.setFilter(filter);
+        elasticSearchService.setThreadLocalManager(threadLocalManager);
         elasticSearchService.setLocalNode(true);
-        elasticSearchIndexBuilder.setIgnoredSites("!admin,~admin");
         elasticSearchService.init();
 
-        elasticSearchIndexBuilder.assureIndex();
         elasticSearchIndexBuilder.registerEntityContentProducer(entityContentProducer);
+        elasticSearchService.registerIndexBuilder(elasticSearchIndexBuilder);
+
     }
 
     @Test

@@ -38,6 +38,18 @@
           <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.search.elasticsearch</groupId>
+            <artifactId>elasticsearch-util</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search.elasticsearch</groupId>
+            <artifactId>elasticsearch-api</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
         </dependency>
@@ -67,6 +79,10 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
