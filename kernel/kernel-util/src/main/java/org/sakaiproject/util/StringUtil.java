@@ -35,7 +35,10 @@ import java.util.Iterator;
 public class StringUtil
 {
 	/**
-	 * Like jdk1.4's String.split...
+	 * @param source
+	 * @param splitter
+	 * @return
+	 * @deprecated use commons-lang3 StringUtils.split
 	 */
 	public static String[] split(String source, String splitter)
 	{
