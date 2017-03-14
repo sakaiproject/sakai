@@ -599,7 +599,6 @@ public class SelectActionListener
     Date retractDate = f.getRetractDate();
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
 
-    
     if (!Integer.valueOf(1).equals(status)) {
     	return false;
     }
