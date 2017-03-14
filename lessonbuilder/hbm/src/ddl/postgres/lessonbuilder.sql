@@ -95,6 +95,7 @@
         gradebookPoints float8,
         owner varchar(36),
         groupOwned bool,
+        owned bool,
         groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)

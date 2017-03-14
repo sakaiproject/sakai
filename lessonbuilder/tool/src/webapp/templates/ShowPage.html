@@ -120,7 +120,7 @@
 				 <img rsf:id="resetimage" src="/library/image/transparent.gif"/>
 			     </a>
 				   <h2>
-				       <span rsf:id="pagetitle"></span><a role="button" class="portlet title-tools title reset" rsf:id="pagetitlelink"><span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span><span rsf:id="pagetitletext"></span></a>
+				       <div id="owner" rsf:id="owner"></div><span rsf:id="pagetitle"></span><a role="button" class="portlet title-tools title reset" rsf:id="pagetitlelink"><span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span><span rsf:id="pagetitletext"></span></a>
 			   </h2>
 		       </div>
 	     <div class="action topaction">
@@ -224,6 +224,8 @@
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 	if (jQuery(".oldPortal").size() === 0) {
 	    var title = jQuery(".title span:last").text();
+	    var owner = jQuery("#owner").text();
+	    var title = title + owner;
 	    if (breadcrumbs.size() > 0) {
 		jQuery(".Mrphs-siteHierarchy").append(jQuery(".breadcrumbs span").slice(1));
 	    }
@@ -416,6 +418,7 @@
                         <div rsf:id="link-div:" class="link-div">
                           <span rsf:id="item-icon" aria-hidden="true" class="fa-item-text"></span>
                           <span rsf:id="link-note" class="offscreen"></span><span class="link-div-head" role="heading" aria-level="3"><a class="itemlink" href="#" rsf:id="link"><span rsf:id="link-text" class="link-text itemtext"></span></a></span>
+                          <span rsf:id="owner-text" class=""></span>
                           <span><span rsf:id="link-fake-note" class="offscreen"></span><span rsf:id="link-fake" class="link-text itemtext fake-disabled" role="heading" aria-level="3"></span></span>
                           <span rsf:id="link-button-span" class="" style="background-color:transparent;border:none">
                             <a href="#" class="usebutton" rsf:id="link-button">
@@ -1550,6 +1553,13 @@
 		      <label for="nodownloads" rsf:id="msg=simplepage.dont-show-downloads"></label>
 		    </p>
 		    <br />
+                    </div>
+                    <p class="instruction" rsf:id="ownerDefaultInstructions"></p>
+                    <div rsf:id="changeOwnerSection">
+                        <label for="changeOwnerDropdown" rsf:id="changeOwnerDropdownLabel"></label>
+                        <select rsf:id="changeOwnerDropdown" id="changeOwnerDropdown" name="changeOwnerDropdown">
+                            <option rsf:id="possOwner:"></option>
+                        </select>
                     </div>
                     <p class="act">
                         <input class="bold" type="submit"  onclick="event.returnValue = checkEditTitleForm(); return checkEditTitleForm();" rsf:id="create-title" />

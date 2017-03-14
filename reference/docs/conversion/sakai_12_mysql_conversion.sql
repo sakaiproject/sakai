@@ -196,6 +196,9 @@ ALTER TABLE pasystem_popup_assign DROP COLUMN user_eid;
 ALTER TABLE pasystem_popup_dismissed DROP COLUMN user_eid;
 ALTER TABLE pasystem_banner_dismissed DROP COLUMN user_eid;
 
+-- LSNBLDR-633 Restrict editing of Lessons pages and subpages to one person
+ALTER TABLE lesson_builder_pages ADD owned bit default false not null;
+-- END LSNBLDR-633
 --
 -- SAK-31840 drop defaults as its now managed in the POJO
 --

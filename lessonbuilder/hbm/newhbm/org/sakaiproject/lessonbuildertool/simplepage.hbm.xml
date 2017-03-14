@@ -25,6 +25,7 @@
 	<property name="group" type="string" column="groupid" length="99" />
 	<property name="cssSheet" type="string" length="250" />
 	<property name="folder" type="string" length="250" />
+	<property name="owned" type="boolean" />
 
    </class>
 </hibernate-mapping>
