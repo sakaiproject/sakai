@@ -170,7 +170,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         pasteFromWordRemoveStyles : false,
         autosave_saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
         //Delay for autosave
-        autosave_delay: 300,
+        autosave_delay: 120,
         //autosave_messageType can be "no" or "notification"
         autosave_messageType : "statusbar", 
 
