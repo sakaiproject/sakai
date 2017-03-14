@@ -1457,6 +1457,33 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  }
   }
   
+  public String getReceivedTopicForMessage(String msgId) {
+	  if (msgId!=null && getPvtAreaEnabled()) {
+		  for (Topic topic : pvtTopics) {
+			  String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
+			  List<Message> topicMessages = prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,PrivateMessageManager.SORT_DESC);
+			  for (Message dMsg : topicMessages) {
+				  if (dMsg.getId().equals(Long.valueOf(msgId))) {
+					  return topic.getUuid();
+				  }
+			  }
+		  }
+	  }
+	  return null;
+  }
+  
+  public String processPvtMsgTopicAndDetail() {
+	  try {
+		  processPvtMsgTopic();
+		  viewChanged = true;
+		  decoratedPvtMsgs = getDecoratedPvtMsgs();
+		  return processPvtMsgDetail();
+	  } catch (Exception ex) {
+		  setErrorMessage(getResourceBundleString("error_direct_access"));
+		  return null;
+	  }
+  }
+  
   public String processPvtMsgTopic()
   {
     LOG.debug("processPvtMsgTopic()");
