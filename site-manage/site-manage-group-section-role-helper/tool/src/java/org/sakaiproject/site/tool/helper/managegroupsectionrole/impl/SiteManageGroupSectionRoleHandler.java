@@ -1543,10 +1543,14 @@ public class SiteManageGroupSectionRoleHandler {
 			Map<String, ImportedGroup> groupMap = new HashMap<>();
 			
 			for(String[] line: lines){
-								
-	            String groupTitle = StringUtils.trim(line[0]);
-	            String userId = StringUtils.trim(line[1]);
-	            
+			    if (line.length < 2) {
+			        continue;
+                }
+	            String groupTitle = StringUtils.trimToNull(line[0]);
+	            String userId = StringUtils.trimToNull(line[1]);
+	            if (groupTitle == null || userId == null) {
+	                continue;
+                }
 	            //if we already have an occurrence of this group, get the group and update the user list within it
 	            if(groupMap.containsKey(groupTitle)){
 	            	ImportedGroup group = groupMap.get(groupTitle);
@@ -1560,50 +1564,51 @@ public class SiteManageGroupSectionRoleHandler {
 			 //extract all of the imported groups from the map
             importedGroups.addAll(groupMap.values());
 			
-		} catch (IOException | ArrayIndexOutOfBoundsException ioe) {
+		} catch (IOException ioe) {
 			M_log.error(ioe.getClass() + " : " + ioe.getMessage());
 			return false;
 		}
 
 		return true;
 	}
+
+	/**
+	 * Attempt to find a user, searches by EID, AID and email.
+	 *
+	 * @param search The search.
+	 * @return A user ID or <code>null</code> if none or multiple were found.
+	 */
+	public String lookupUser(String search) {
+		User user = null;
+		try {
+			user = userDirectoryService.getUserByAid(search);
+		} catch (UserNotDefinedException e) {
+				if (search.contains("@")) {
+					Collection<User> users = userDirectoryService.findUsersByEmail(search);
+					Iterator<User> usersIterator = users.iterator();
+					if (usersIterator.hasNext()) {
+						user = usersIterator.next();
+						if (usersIterator.hasNext()) {
+							// Too many matches
+							user = null;
+						}
+					}
+				}
+
+			}
+		return (user == null)? null : user.getId();
+	}
 	
 	/**
 	 * Helper to check for a valid user in a site, given an eid
-	 * @param eid	eid of user,v eg jsmith26
-	 * @return
+	 * @param userId the user's ID.
+	 * @return <code>true</code> if the user is a member of the site.
 	 */
-	public boolean isValidSiteUser(String eid) {
-		try {
-			User u = userDirectoryService.getUserByEid(eid);
-			if(u != null){
-				
-				Member m = site.getMember(u.getId());
-				if(m != null) {
-					return true;
-				}
-			}
-		} catch (UserNotDefinedException e) {
-			//not a valid user
-			return false;
-		}
-		return false;
+	public boolean isValidSiteUser(String userId) {
+		Member m = site.getMember(userId);
+		return m != null;
 	}
-	
-	/**
-	 * Helper to get a userId given an eid
-	 * @param eid	eid of user,v eg jsmith26
-	 * @return
-	 */
-	public String getUserId(String eid) {
-		try {
-			return userDirectoryService.getUserId(eid);
-		} catch (UserNotDefinedException e) {
-			M_log.error("The eid: " + eid + "is invalid.");
-			return null;
-		}
-	}
-	
+
 	/**
 	 * Does the actual import of the groups into the site.
 	 * @return
@@ -1634,15 +1639,12 @@ public class SiteManageGroupSectionRoleHandler {
 			}
 			
 			//add all of the imported members to the group
-    		for(String eid: importedGroup.getUserIds()){
-    			this.addUserToGroup(eid, group);
+    		for(String userId: importedGroup.getUserIds()){
+    			this.addUserToGroup(userId, group);
     		}
-    		
+
     		try {
-    			siteService.save(site);
-    			// post event about the participant update
-    			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(),true));
-    		
+    			siteService.saveGroupMembership(site);
     		} catch (IdUnusedException | PermissionException e) {
             	M_log.error("processImportedGroups failed for site: " + site.getId(), e);
             	return "error";
@@ -1667,7 +1669,7 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		Set<Member> members= g.getMembers();
 		for(Member m: members) {
-			userIds.add(m.getUserEid());
+			userIds.add(m.getUserId());
 		}
 		return userIds;
 	}
@@ -1675,35 +1677,29 @@ public class SiteManageGroupSectionRoleHandler {
 	
 	/**
 	 * Helper to add a user to a group. Takes care of the role selection.
-	 * @param eid	eid of the user eg jsmith26
+	 * @param id	eid of the user eg jsmith26
 	 * @param g		the group
 	 */
-	private void addUserToGroup(String eid, Group g) {
+	private void addUserToGroup(String id, Group g) {
 		
 		//is this a valid site user?
-		if(!isValidSiteUser(eid)){
-			return;
-		}
-		
-		//get userId
-		String userId = getUserId(eid);
-		if(StringUtils.isBlank(userId)) {
+		if(!isValidSiteUser(id)){
 			return;
 		}
 		
 		//is user already in the group?
-		if(g.getUserRole(userId) != null) {
+		if(g.getUserRole(id) != null) {
 			return;
 		}
 		
 		//add user to group with correct role. This is the same logic as above
-		Role r = site.getUserRole(userId);
-		Member m = site.getMember(userId);
+		Role r = site.getUserRole(id);
+		Member m = site.getMember(id);
 		Role memberRole = m != null ? m.getRole() : null;
 		try {
-			g.insertMember(userId, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
+			g.insertMember(id, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
 		} catch (IllegalStateException e) {
-			M_log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, g.getId());
+			M_log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
 		}
 		
 	}
