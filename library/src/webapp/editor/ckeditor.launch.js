@@ -108,7 +108,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var ckconfig = {
 	//Some defaults for audio recorder
         audiorecorder : {
-            "maxSeconds" : 180,
+            "maxSeconds" : 120,
             "attemptAllowed" : Number.MAX_VALUE,
             "attemptsRemaining": Number.MAX_VALUE
         },
