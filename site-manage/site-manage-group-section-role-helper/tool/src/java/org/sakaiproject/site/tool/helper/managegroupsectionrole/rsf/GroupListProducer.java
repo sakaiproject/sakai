@@ -24,7 +24,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import org.sakaiproject.rsf.util.SakaiURLUtil;
-import org.sakaiproject.util.Validator;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -133,7 +132,7 @@ public class GroupListProducer
 				String groupId = group.getId();
 				UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
 				
-				String groupTitle = Validator.escapeHtml(group.getTitle());
+				String groupTitle = group.getTitle();
 				if (group.isLocked()) {
 					UIOutput groupIcon = UIOutput.make(grouprow, "group-icon");
 					groupIcon.decorate(new UIStyleDecorator("fa-lock"));
