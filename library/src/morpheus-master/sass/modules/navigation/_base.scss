@@ -16,6 +16,8 @@ body.is-logged-out{
 }
 
 .#{$namespace}mainHeader{
+		box-shadow: $divider-shadow;
+		margin-bottom: 4px;
 
 	.#{$namespace}headerLogo{
 		@include display-flex( flex );
@@ -211,7 +213,6 @@ body.is-logged-out{
 	font-size: 1em;
 	height: auto;
 	width: 100%;
-	box-shadow: $divider-shadow;
 	@include display-flex(inline-flex);
 	@include align-items(center);
 	@include justify-content( space-between );
