@@ -176,6 +176,7 @@ simplePageBean.folderPath,
 simplePageBean.newOwner,
 simplePageBean.forumSummaryHeight,
 simplePageBean.forumSummaryDropDown,
+simplePageBean.addCalendar,
 simplePageBean.addForumSummary
 </value>
 </property>

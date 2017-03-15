@@ -30,7 +30,13 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.HashMap;
+import java.util.Enumeration;
 
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
@@ -72,6 +78,7 @@ public class CalendarUtil
 	Date dateOctober = null;
 	Date dateNovember = null;
 	Date dateDecember = null;
+	private Map<String, String> eventIconMap = new HashMap<String, String>();
 
 	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 	
@@ -598,5 +605,27 @@ public class CalendarUtil
 		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
 		return df.print(dt);
 	}
-	
+
+	/**
+	 * get Map for eventType and image
+	 * @param configProps
+	 * @return
+	 */
+	public Map<String, String> getEventImageMap(Properties configProps){
+		if(eventIconMap.size() == 0){
+			//load keys for locale root
+			Map<String, String> eventKeyMap = new HashMap<String, String>();
+			ResourceBundle bundle = ResourceBundle.getBundle("calendar", Locale.ROOT);
+			for(Enumeration e = bundle.getKeys(); e.hasMoreElements();){
+				String bundleKey = (String)e.nextElement();
+				eventKeyMap.put(bundleKey, bundle.getString(bundleKey));
+			}
+			for(int i=1; i<=20; i++){
+				String key = eventKeyMap.get("legend.key" + i);
+				String value = configProps.getProperty("legend.icon" + i);
+				eventIconMap.put(key, value);
+			}
+		}
+		return eventIconMap;
+	}
 }	 // CalendarUtil
