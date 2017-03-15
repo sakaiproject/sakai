@@ -124,7 +124,7 @@ public class GradebookNgBusinessService {
 	public static final String ICON_SAKAI = "icon-sakai--";
 
 
-	private Collator collator = Collator.getInstance();
+	private final Collator collator = Collator.getInstance();
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -1261,9 +1261,9 @@ public class GradebookNgBusinessService {
 	class LastNameComparator implements Comparator<User> {
 		@Override
 		public int compare(final User u1, final User u2) {
-			collator.setStrength(Collator.PRIMARY);
-			return new CompareToBuilder().append(u1.getLastName(), u2.getLastName(), collator)
-					.append(u1.getFirstName(), u2.getFirstName(), collator).toComparison();
+			GradebookNgBusinessService.this.collator.setStrength(Collator.PRIMARY);
+			return new CompareToBuilder().append(u1.getLastName(), u2.getLastName(), GradebookNgBusinessService.this.collator)
+					.append(u1.getFirstName(), u2.getFirstName(), GradebookNgBusinessService.this.collator).toComparison();
 		}
 	}
 
@@ -1274,9 +1274,9 @@ public class GradebookNgBusinessService {
 	class FirstNameComparator implements Comparator<User> {
 		@Override
 		public int compare(final User u1, final User u2) {
-			collator.setStrength(Collator.PRIMARY);
-			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName(), collator)
-					.append(u1.getLastName(), u2.getLastName(), collator).toComparison();
+			GradebookNgBusinessService.this.collator.setStrength(Collator.PRIMARY);
+			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName(), GradebookNgBusinessService.this.collator)
+					.append(u1.getLastName(), u2.getLastName(), GradebookNgBusinessService.this.collator).toComparison();
 		}
 	}
 
@@ -1988,18 +1988,6 @@ public class GradebookNgBusinessService {
 			iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
 		}
 		return iconClass;
-	}
-
-	/**
-	 * Is final grade mode enabled in sakai.properties? To control this set:
-	 * <code>gradebook.enable.finalgrade=true<code> in sakai.properties.
-	 *
-	 * Note that this does not check the actual setting for <em>this</em> gradebook.
-	 *
-	 * @return true or false if enabled or not
-	 */
-	public boolean isFinalGradeModeEnabled() {
-		return this.serverConfigurationService.getBoolean("gradebook.enable.finalgrade", false);
 	}
 
 

@@ -121,9 +121,6 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		final Map<String, ProcessedGradeItem> commentMap = createCommentMap(allItems);
 		final Map<String, ProcessedGradeItem> gradeItemMap = createGradeItemMap(allItems);
 
-		// do we have course grade override to import?
-		final ProcessedGradeItem courseGradeOverride = getCourseGradeOverride(allItems);
-
 		final Form<?> form = new Form("form") {
 			private static final long serialVersionUID = 1L;
 
@@ -148,14 +145,12 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				itemsToProcess.addAll(selectedCommentItems);
 
 				// this has an odd model so we need to have the validation in the onSubmit.
-				// course grade is automatically imported so we can skip the logic check here
-				if (itemsToProcess.size() == 0 && courseGradeOverride == null) {
-					validated = false;
-					error(getString("importExport.selection.noneselected"));
-				}
+				if (itemsToProcess.size() == 0) {
+ 					validated = false;
+ 					error(getString("importExport.selection.noneselected"));
+ 				}
 
-				if (validated) {
-
+				if(validated) {
 					// clear any previous errors
 					final ImportExportPage page = (ImportExportPage) getPage();
 					page.clearFeedback();
@@ -169,13 +164,11 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					log.debug("Items to create: " + itemsToCreate.size());
 					log.debug("Items to update: " + itemsToUpdate.size());
 					log.debug("Items to modify: " + itemsToModify.size());
-					log.debug("Course grade override? " + ((courseGradeOverride != null) ? true : false));
 
 					//set data for next page
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
 					importWizardModel.setItemsToModify(itemsToModify);
-					importWizardModel.setCourseGradeOverride(courseGradeOverride);
 
 					// repaint panel
 					Component newPanel = null;
@@ -191,7 +184,6 @@ public class GradeItemImportSelectionStep extends BasePanel {
 					newPanel.setOutputMarkupId(true);
 					GradeItemImportSelectionStep.this.replaceWith(newPanel);
 				}
-
 			}
 		};
 		add(form);
@@ -336,17 +328,6 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		itemList.setReuseItems(true);
 		form.add(itemList);
 
-		// label to show course grade override will be imported
-		final Label courseGradeOverrideLabel = new Label("courseGradeOverrideFound", new ResourceModel("importExport.selection.coursegradeoverride.found")) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean isVisible() {
-				return courseGradeOverride != null;
-			}
-		};
-		form.add(courseGradeOverrideLabel);
-
 	}
 
 	/**
@@ -416,23 +397,6 @@ public class GradeItemImportSelectionStep extends BasePanel {
 		rval.setType(Type.COMMENT);
 		rval.setStatus(Status.SKIP);
 		return rval;
-	}
-
-	/**
-	 * Get the course grade override item from the list if it is imported.
-	 * Only looks at the first (since there should only be one).
-	 *
-	 * @param items
-	 * @return ProcessedGradeItem or null if not found or not enabled
-	 */
-	private ProcessedGradeItem getCourseGradeOverride(final List<ProcessedGradeItem> items) {
-		if(this.businessService.isFinalGradeModeEnabled() && this.businessService.getGradebookSettings().isFinalGradeMode()) {
-			final List<ProcessedGradeItem> list = filterListByType(items, Type.COURSE_GRADE_OVERRIDE);
-			if(!list.isEmpty()){
-				return list.get(0);
-			}
-		}
-		return null;
 	}
 
 }
