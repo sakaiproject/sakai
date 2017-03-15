@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>master</artifactId>
@@ -94,6 +93,7 @@
                 <module>reset-pass</module>
                 <module>roster2</module>
                 <module>rsf</module>
+                <module>rubrics</module>
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
@@ -176,6 +176,7 @@
                 <module>reset-pass</module>
                 <module>roster2</module>
                 <module>rss</module>
+                <module>rubrics</module>
                 <module>rwiki</module>
                 <module>tags</module>
                 <module>samigo</module>
@@ -201,7 +202,7 @@
                 <module>yaft</module>
             </modules>
         </profile>
-        
+
         <!-- pack profiles for building release artifacts -->
         <profile>
             <id>pack</id>
@@ -231,7 +232,7 @@
                 <module>pack/pack-src</module>
             </modules>
         </profile>
-        
+
     </profiles>
     <reporting>
         <plugins>

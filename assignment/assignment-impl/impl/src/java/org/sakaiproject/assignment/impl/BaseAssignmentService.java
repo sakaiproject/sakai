@@ -250,8 +250,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
-	}
-
+    }
 
 	String newline = "<br />\n";
 	

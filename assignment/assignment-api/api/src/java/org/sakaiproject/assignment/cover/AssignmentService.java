@@ -885,7 +885,7 @@ public class AssignmentService {
 
 		return service.hasBeenSubmitted(param0);
 	}
-	
+
 	public static String getCsvSeparator() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)

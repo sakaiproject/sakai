@@ -45,6 +45,10 @@
             <artifactId>sakai-assignment-bundles</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.rubrics</groupId>
+            <artifactId>rubrics-service-client-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.contentreview</groupId>
             <artifactId>content-review-api</artifactId>
         </dependency>
@@ -71,10 +75,10 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
-		<dependency>
+        <dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-utils</artifactId>
-		</dependency>        
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.message</groupId>
             <artifactId>sakai-message-api</artifactId>
@@ -107,6 +111,16 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${sakai.apache.httpcomponents.httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${sakai.org.json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

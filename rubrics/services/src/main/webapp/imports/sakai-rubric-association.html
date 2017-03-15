@@ -1,0 +1,255 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<!-- Sakai Rubrics Imports -->
+<link rel="import" href="sakai-rubrics-styles.html">
+<link rel="import" href="sakai-rubric-preview.html">
+<link rel="import" href="sakai-rubrics-language.html">
+
+<dom-module id="sakai-rubric-association">
+  <template>
+    <!-- Styling -->
+    <style include="sakai-rubrics-styles"></style>
+
+    <h4><sr-lang key="grading_rubric">Grading Rubric</sr-lang></h4>
+
+    <div class="sakai-rubric-association form">
+
+      <template is="dom-if" if="[[!rubricsAvailable]]">
+        <span class="messageInformation indnt2" style="width: 80%">
+          <sr-lang key="no_rubrics">No rubrics have been created.</sr-lang>  
+        </span>        
+      </template>
+      
+      <template is="dom-if" if="[[rubricsAvailable]]">
+        <div class="radio">
+          <label>
+            <input on-tap="associate" id="rbcs-dontAssociate" name="rbcs-associate" type="radio" value="{{dontAssociateValue}}">{{dontAssociateLabel}}
+          </label>
+        </div>
+
+        <div class="radio">
+          <label>
+            <input on-tap="associate" id="rbcs-associate" name="rbcs-associate" type="radio" value="{{associateValue}}">{{associateLabel}}
+          </label>
+        </div>
+
+        <div class$="rubrics-list [[enabledClass]]">
+
+          <div class="rubrics-selections">
+            <select id="rbcs-rubricslist" on-change="updateStateDetails" name="rbcs-rubricslist" class="form-control">
+              <template id="rubricslist" is="dom-repeat" items="{{rubricslist}}" as="rubric">
+                <option value="[[rubric.id]]">[[rubric.title]]</option>
+              </template>
+            </select>
+
+            <!-- <a href="#">Create a Rubric</a> -->
+            <button on-tap="previewRubric" id="preview-rubric" class$="btn btn-link {{enabledClass}}">
+              <sr-lang key="preview_rubric">Preview Rubric</sr-lang>
+            </button>
+            <!-- <a href="#" on-tap="previewRubric">Preview Rubric</a> -->
+          </div>
+
+          <div class="rubric-options">
+            <template id="config-options" is="dom-repeat" items="{{configurationOptions}}" as="cfg">
+              <div class="checkbox">
+                <label>
+                  <input on-change="updateStateDetails" id="rbcs-config-{{cfg.key}}" name="rbcs-config-{{cfg.key}}" type="checkbox" value="1">{{cfg.label}}
+                </label>
+              </div>            
+            </template>
+          </div>
+        </div>
+        
+      </template>
+
+    </div>
+
+    <input name="rbcs-state-details" id="rbcs-state-details" type="hidden" value="[[stateDetails]]">
+
+    <iron-ajax
+         id="getRubrics"
+         url="/rubrics-service/rest/rubrics"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         on-response="listresponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+
+    <iron-ajax
+         id="getAssociation"
+         url="/rubrics-service/rest/rubric-associations/search/by-tool-item-ids?toolId=[[toolId]]&itemId=[[entityId]]"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         on-response="associationsResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubric-association",
+      properties: {
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        isAssociated: {
+          type: Boolean,
+          value: 0,
+        },
+        entityId: {
+          type: String
+        },
+        toolId: {
+          type: String
+        },
+        stateDetails: {
+          type: String
+        },
+        configurationOptions: {
+          type: Array,
+          value: []
+        }
+      },
+      listeners: {
+        'state-details': 'updateStateDetails'
+      },
+      updateStateDetails: function() {
+        var stateDetails;
+
+        if (this.isAssociated == 1) {
+          var checks = Polymer.dom(this.root).querySelectorAll('[type="checkbox"]');
+          var isChecked = [];
+          for (var i = checks.length - 1; i >= 0; i--) {
+            if (checks[i].checked) {
+              isChecked.push(checks[i].id);
+            }
+          }
+
+          stateDetails = {
+            rubric: this.$$('#rbcs-rubricslist').value,
+            configs: isChecked
+          }
+
+          this.stateDetails = escape(JSON.stringify(stateDetails));
+          // this.test = JSON.parse(unescape(this.stateDetails));
+        } else {
+          this.stateDetails = "";
+        }
+
+      },
+      previewRubric: function(e) {
+        e.preventDefault();
+        if (this.isAssociated) {
+          rubrics.previewRubric(this.$$('select').value);  
+        } else {
+          e.target.blur();
+        }
+        
+      },
+      listresponse: function(request) {
+        this.rubricslist = request.detail.response._embedded.rubrics;
+        if (this.rubricslist.length) {
+          this.rubricsAvailable = true;
+          this.buildOptions();
+          rubrics.initLightbox();
+          
+          setTimeout(function(){
+
+            if (this.stateDetails) {
+              this.handleStateDetails();
+            } else {
+              this.handleAssociated();
+              this.handleOptions();
+            }
+
+            if (this.selectedRubric) {
+              this.$$('option[value="'+this.selectedRubric+'"]').selected = true;
+              this.$$('#rbcs-associate').checked = true;
+              this.enabledClass = "enabled";
+            }
+            this.fire('state-details');
+          }.bind(this));
+        } else {
+          this.rubricsAvailable = false;
+        }
+      },
+      associationsResponse: function(request) {
+        var associations = request.detail.response._embedded['rubric-associations'];
+        this.association = associations.length ? associations[0] : false;
+        if (this.association) {
+          this.isAssociated = 1;
+          this.selectedRubric = this.association.rubricId;
+        } else {
+          this.isAssociated = 0;
+        }
+        this.$.getRubrics.generateRequest();
+      },
+      handleOptions: function() {        
+        this.selectedConfigOptions = this.association.parameters ? this.association.parameters : {};
+  
+        for (var property in this.selectedConfigOptions) {
+          this.$$('#rbcs-config-' + property).checked = true;
+        }
+      },
+      buildOptions: function() {        
+        for (var i = this.attributes.length - 1; i >= 0; i--) {
+          if (this.attributes[i].name.indexOf('config-') !== -1) {
+            this.push('configurationOptions', {
+              key: toCamelCase(this.attributes[i].name.replace('config-','')),
+              label: this.attributes[i].nodeValue
+            })
+          }
+        }
+      },
+      handleAssociated: function() {
+        var optionLabels = this.$$('.rubric-options').querySelectorAll(' label');
+        if (this.isAssociated == 1) {
+          this.enabledClass = "enabled"
+          setTimeout(function(){
+            this.$$('#rbcs-associate').checked = true;
+            this.$$('.' + this.enabledClass + ' select').removeAttribute('disabled', true);
+            for (var i = optionLabels.length - 1; i >= 0; i--) {
+              removeClass(optionLabels[i], 'disabled');
+            }
+            removeAttr(this.$$('.rubric-options').querySelectorAll(' input[type="checkbox"]'), 'disabled');
+          }.bind(this));
+
+        } else {
+          this.enabledClass = "disabled"
+          setTimeout(function(){
+            this.$$('#rbcs-dontAssociate').checked = true;
+            this.$$('.' + this.enabledClass + ' select').setAttribute('disabled', true);
+            for (var i = optionLabels.length - 1; i >= 0; i--) {
+              addClass(optionLabels[i], 'disabled');
+            }
+            addAttr(this.$$('.rubric-options').querySelectorAll(' input[type="checkbox"]'), 'disabled', true);
+          }.bind(this));
+        }
+        this.fire('state-details');
+      },
+      associate: function(e) {
+        this.isAssociated = e.target.value;
+        this.handleAssociated();
+      },
+      handleStateDetails: function() {
+        var stateDetails = JSON.parse(unescape(this.stateDetails));
+        this.isAssociated = true;
+        this.selectedRubric = stateDetails.rubric;
+        setTimeout(function(){
+          for (var i = stateDetails.configs.length - 1; i >= 0; i--) {
+            this.$$('#' + stateDetails.configs[i]).checked = true;
+          }
+          this.handleAssociated();
+        }.bind(this));
+      },
+      ready: function(e) {
+        this.isAssociated = 0;
+        this.$.getAssociation.generateRequest();
+      }
+    });
+  </script>
+</dom-module>

@@ -148,7 +148,6 @@ import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -179,6 +178,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.rubrics.logic.api.RubricsService;
 
 /**
  * <p>
@@ -463,7 +463,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
 	
 	private static final String GRADE_SUBMISSION_SHOW_STUDENT_DETAILS = "grade_showStudentDetails";
-	
+
 	/** ******************* instructor's export assignment ***************************** */
 	private static final String EXPORT_ASSIGNMENT_REF = "export_assignment_ref";
 
@@ -725,7 +725,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String TEMPLATE_INSTRUCTOR_UPLOAD_ALL = "_instructor_uploadAll";
 	/** The student view to edit reviews **/
 	private static final String TEMPLATE_STUDENT_REVIEW_EDIT = "_student_review_edit";
-	
+
 	/** The instructor view to list users details **/
 	private static final String TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS = "_instructor_view_students_details";
 
@@ -830,9 +830,9 @@ public class AssignmentAction extends PagedResourceActionII
 	private SecurityService m_securityService = null;
 
 	private AuthzGroupService authzGroupService = null;
-	
+
 	private CandidateDetailProvider candidateDetailProvider = null;
-	
+
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
 	/******** Model Answer ************/
@@ -939,7 +939,10 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String CONTEXT_GO_NEXT_UNGRADED_ENABLED = "goNextUngradedEnabled";
 	private static final String CONTEXT_GO_PREV_UNGRADED_ENABLED = "goPrevUngradedEnabled";
 	private static final String PARAMS_VIEW_SUBS_ONLY_CHECKBOX = "chkSubsOnly1";
-	
+
+    private static final String RUBRIC_STATE_DETAILS = "rbcs-state-details";
+	private static final String RUBRIC_TOKEN = "rbcs-token";
+
 	private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
 	private AssignmentService assignmentService;
 	private ServerConfigurationService serverConfigurationService;
@@ -952,6 +955,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private AnnouncementService announcementService;
 	private CalendarService calendarService;
 	private ContentTypeImageService contentTypeImageService;
+	private RubricsService rubricsService;
 
 	public AssignmentAction() {
 		super();
@@ -974,6 +978,7 @@ public class AssignmentAction extends PagedResourceActionII
 		calendarService = ComponentManager.get(CalendarService.class);
 		contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
 		m_securityService = ComponentManager.get(SecurityService.class);
+		rubricsService = ComponentManager.get(RubricsService.class);
 	}
 	
 	
@@ -1258,7 +1263,9 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			context.put("assignmentscheck", state.getAttribute(HAS_MULTIPLE_ASSIGNMENTS));
 		}
-		
+
+        context.put(RUBRIC_TOKEN,rubricsService.generateJsonWebToken("sakai.assignment"));
+
 		return template;
 
 	} // buildNormalContext
@@ -1569,7 +1576,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, s);
-			
+
 			addAdditionalNotesToContext(submitter, context, state);
 		}
 
@@ -2450,7 +2457,7 @@ public class AssignmentAction extends PagedResourceActionII
 			M_log.debug("Failed to find if anonymous grading is forced.");
 		}
 		context.put( "forceAnonGrading", forceAnonGrading);
-		
+
 		// is the assignment an new assignment
 		String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
 		if (assignmentId != null)
@@ -3368,15 +3375,15 @@ public class AssignmentAction extends PagedResourceActionII
 			// put the re-submission info into context
 			putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
 			assignment_resubmission_option_into_context(context, state);
-			
+
 			boolean isAdditionalNotesEnabled = false;
 			Site st = null;
 			try{
 				st = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 				isAdditionalNotesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
-				
+
 				context.put("isAdditionalNotesEnabled", isAdditionalNotesEnabled);
-				
+
 				if(isAdditionalNotesEnabled && candidateDetailProvider != null && a != null && !a.isGroup()) {
 					User[] _users = s.getSubmitters();
 					if(_users != null && _users.length == 1) {
@@ -3620,6 +3627,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			context.put("gradingDone", Boolean.TRUE);
 			state.removeAttribute(GRADE_SUBMISSION_DONE);
+			state.removeAttribute(RUBRIC_STATE_DETAILS);
 		}
 		
 		// put the grade confirmation message if applicable
@@ -3627,11 +3635,15 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			context.put("gradingSubmit", Boolean.TRUE);
 			state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
+			state.removeAttribute(RUBRIC_STATE_DETAILS);
 		}
 		
 		// letter grading
 		letterGradeOptionsIntoContext(context);
-		
+
+        //Check if the assignment has a rubric associated or not
+        context.put("hasAssociatedRubric", rubricsService.hasAssociatedRubric("sakai.assignment", a.getId()));
+
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
 
@@ -3815,7 +3827,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (!"POST".equals(rundata.getRequest().getMethod())) {
 			return;
 		}
-		
+
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		// save the instructor input
 		boolean hasChange = saveReviewGradeForm(rundata, state, submit ? "submit" : "save");
@@ -3884,7 +3896,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			if ("back".equals(option))
+            state.removeAttribute(RUBRIC_STATE_DETAILS);
+            if ("back".equals(option))
 			{
 				// SAK-29314 - calculate our position relative to the list so we can return to the correct page
 				state.setAttribute(STATE_GOTO_PAGE, calcPageFromSubmission(state));
@@ -4250,7 +4263,7 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
-			
+
 			addAdditionalNotesToContext(userSubmissions, context, state);
 
 			//find peer assessment grades if exist
@@ -4407,7 +4420,7 @@ public class AssignmentAction extends PagedResourceActionII
 		Site sst = null;
 		try {
 			sst = siteService.getSite(contextString);
-		
+
 			Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
 			for (User u : submitters.keySet())
 			{
@@ -4415,12 +4428,12 @@ public class AssignmentAction extends PagedResourceActionII
 					M_log.debug("Skipping user with no additional notes " + u.getEid());
 					continue;
 				}
-	
+
 				AssignmentSubmission sub = submitters.get(u);
 				SubmitterSubmission us = new SubmitterSubmission(u, sub);
 				returnResources.add(us);
 			}
-	
+
 			String ascending = "true";
 			String sort = "sorted_grade_submission_by_lastname";
 			String anon = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
@@ -4438,16 +4451,16 @@ public class AssignmentAction extends PagedResourceActionII
 				// log exception during sorting for helping debugging
 				M_log.warn(this + ":build_show_students_additional_information_context sort=" + sort + " ascending=" + ascending, e);
 			}
-	
+
 			state.setAttribute(USER_NOTES, returnResources);
 			context.put("userNotes", state.getAttribute(USER_NOTES));
-			
+
 			addAdditionalNotesToContext(returnResources, context, state);
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":build_show_students_additional_information_context: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);
 		}
-		 
+
 
 	} // build_show_students_additional_information_context
 
@@ -5092,7 +5105,7 @@ public class AssignmentAction extends PagedResourceActionII
 		pagingInfoToContext(state, context);
 
 		context.put("assignmentService", assignmentService);
-		
+
 		addAdditionalNotesToContext(submissions, context, state);
 
 		String template = (String) getContext(data).get("template");
@@ -5863,6 +5876,7 @@ public class AssignmentAction extends PagedResourceActionII
 		else {
 			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
 		}
+		state.removeAttribute(RUBRIC_STATE_DETAILS);
 	} // doCancel_grade_submission
 
 	/**
@@ -5891,7 +5905,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// SAK-29314
 		state.removeAttribute(STATE_VIEW_SUBS_ONLY);
-		
+        state.removeAttribute(RUBRIC_STATE_DETAILS);
+
 		resetAllowResubmitParams(state);
 	}
 
@@ -5939,6 +5954,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+		state.removeAttribute(RUBRIC_STATE_DETAILS);
 
 	} // doList_assignments
 
@@ -6297,6 +6313,10 @@ public class AssignmentAction extends PagedResourceActionII
 				//remove grade from gradebook
 				integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "remove", -1);
 			}
+
+            // Persist the rubric evaluation
+			rubricsService.saveRubricEvaluation("sakai.assignment", sEdit.getAssignmentId(),
+                    sEdit.getId(), sEdit.getSubmitterId(), sEdit.getGradedBy(), getRubricConfigurationParameters(data.getParameters()));
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -7235,7 +7255,11 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 		
 		String additionalOptions = params.getString(NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
-		
+
+		//Returns the rubrics state in the case of validation problems in the form
+		String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
+        state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
+
 		boolean groupAssignment = false;
 		if ("group".equals(additionalOptions)) {
 			state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, "1");
@@ -8316,7 +8340,7 @@ public class AssignmentAction extends PagedResourceActionII
 				addAlert(state, rb.getFormattedMessage("group.editsite.nopermission", new Object[]{}));
 			}
 		}
-		
+
 		String assignmentId = params.getString("assignmentId");
 		String assignmentContentId = params.getString("assignmentContentId");
 		
@@ -8541,7 +8565,10 @@ public class AssignmentAction extends PagedResourceActionII
 				commitAssignmentEdit(state, post, ac, a, title, visibleTime, openTime, dueTime, closeTime, enableCloseDate, section, range, groups, isGroupSubmit, 
 						usePeerAssessment,peerPeriodTime, peerAssessmentAnonEval, peerAssessmentStudentViewReviews, peerAssessmentNumReviews, peerAssessmentInstructions);
 
-				// Locking and unlocking groups   
+                //RUBRICS, Save the binding between the assignment and the rubric
+				rubricsService.saveRubricAssociation("sakai.assignment", a.getId(), getRubricConfigurationParameters(params));
+
+				// Locking and unlocking groups
 				List<String> lockedGroupsReferences = new ArrayList<String>();
 				if (post && isGroupSubmit && !groups.isEmpty()) {
 					for (Group group : groups) {
@@ -8922,6 +8949,26 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		return sAttachments;
 	}
+
+	/**
+	 * Get the rubrics params and includes all them in a HashMap to pass them to the rubrics service.
+	 * @param params
+	 * @return
+	 */
+	private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params){
+
+		HashMap<String,String> parametersHash = new HashMap<>();
+		//Get the parameters
+		Iterator it2 = params.getNames();
+		while (it2.hasNext()) {
+            String name = it2.next().toString();
+            if (name.startsWith("rbcs")) {
+                parametersHash.put(name,params.getString(name));
+            }
+        }
+        return parametersHash;
+	}
+
 
 	/**
 	 * 
@@ -12285,6 +12332,15 @@ public class AssignmentAction extends PagedResourceActionII
 					grade = (typeOfGrade == Assignment.SCORE_GRADE_TYPE)?scalePointGrade(state, grade, factor):grade;
 					state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
 				}
+
+				if (state.getAttribute(STATE_MESSAGE) != null)
+				{
+					String rubricStateDetails = params.getString(RUBRIC_STATE_DETAILS);
+					state.setAttribute(RUBRIC_STATE_DETAILS, rubricStateDetails);
+				}else{
+					state.removeAttribute(RUBRIC_STATE_DETAILS);
+				}
+
 			}
 		}
 		else
@@ -12422,7 +12478,11 @@ public class AssignmentAction extends PagedResourceActionII
 		if (candidateDetailProvider == null) {
 			candidateDetailProvider = ComponentManager.get(CandidateDetailProvider.class);
 		}
-		
+
+		if (authzGroupService == null) {
+			authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		}
+
 
 		String siteId = toolManager.getCurrentPlacement().getContext();
 
@@ -12873,6 +12933,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// SAK-17606
 		state.removeAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
+		state.removeAttribute(RUBRIC_STATE_DETAILS);
 	} // resetNewAssignment
 	
 	/**
@@ -12988,7 +13049,8 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE);
 		
 		state.removeAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-		
+
+		state.removeAttribute(RUBRIC_STATE_DETAILS);
 
 	} // resetNewAssignment
 
@@ -16063,7 +16125,7 @@ public class AssignmentAction extends PagedResourceActionII
 						zipHasGradeFile = true;
 						
 							// read grades.cvs from zip
-						
+
 							String csvSep = assignmentService.getCsvSeparator();
 							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)), csvSep.charAt(0));
 
@@ -17878,7 +17940,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 	}
-	
+
 	private void addAdditionalNotesToContext(Object o, Context context, SessionState state){
 
 		try {
@@ -17910,7 +17972,7 @@ public class AssignmentAction extends PagedResourceActionII
 		} catch (IdUnusedException iue) {
 			M_log.warn(this + ":addAdditionalNotesToContext: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);
-		} 
+		}
 	}
 
-}	
+}
