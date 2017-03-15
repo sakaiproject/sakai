@@ -1,5 +1,7 @@
 package org.sakaiproject.search.elasticsearch;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,29 +11,39 @@ import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequest;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
-import org.elasticsearch.action.admin.indices.status.IndexStatus;
-import org.elasticsearch.action.admin.indices.status.IndicesStatusRequest;
-import org.elasticsearch.action.admin.indices.status.IndicesStatusResponse;
-import org.elasticsearch.action.count.CountResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.action.search.ShardSearchFailure;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.collect.Sets;
+import org.elasticsearch.common.lang3.StringUtils;
+import org.elasticsearch.common.lang3.tuple.ImmutablePair;
+import org.elasticsearch.common.lang3.tuple.Pair;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.OrFilterBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.InternalAggregations;
+import org.elasticsearch.search.facet.InternalFacets;
+import org.elasticsearch.search.internal.InternalSearchHit;
+import org.elasticsearch.search.internal.InternalSearchHits;
+import org.elasticsearch.search.internal.InternalSearchResponse;
+import org.elasticsearch.search.suggest.Suggest;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.search.api.*;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.InvalidSearchQueryException;
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.api.SiteSearchIndexBuilder;
+import org.sakaiproject.search.api.TermFrequency;
+import org.sakaiproject.search.elasticsearch.ElasticSearchConstants;
 import org.sakaiproject.search.elasticsearch.filter.SearchItemFilter;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -41,17 +53,20 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder.getFieldFromSearchHit;
 import static org.elasticsearch.common.settings.ImmutableSettings.settingsBuilder;
-import static org.elasticsearch.index.query.FilterBuilders.*;
-import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
-import static org.elasticsearch.index.query.QueryBuilders.*;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
-import static org.elasticsearch.search.facet.FacetBuilders.*;
 
 /**
  * <p>Drop in replacement for sakai's legacy search service which uses {@link <a href="http://elasticsearch.org">elasticsearch</a>}.
@@ -75,22 +90,13 @@ public class ElasticSearchService implements SearchService {
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchService.class);
 
     /* constant config */
-    public static final String CONFIG_PROPERTY_PREFIX = "elasticsearch.";
-    public final static String SAKAI_DOC_TYPE = "sakai_doc";
-    public static final String FACET_NAME = "tag";
+    private static final String PENDING_INDEX_BUILDER_REGISTRATION = ElasticSearchService.class.getName() + ".pendingIndexBuilderRegistration";
+    private static final ElasticSearchIndexBuilder NO_OP_INDEX_BUILDER = new NoOpElasticSearchIndexBuilder();
 
-    /* ElasticSearch handles */
+    /* ElasticSearch handles and configs */
     private Node node;
     private Client client;
 
-    /* injected dependencies */
-    private NotificationEdit notification;
-    private List<String> triggerFunctions;
-    private NotificationService notificationService;
-    private EventTrackingService eventTrackingService;
-    private ServerConfigurationService serverConfigurationService;
-    private ElasticSearchIndexBuilder indexBuilder;
-    private SiteService siteService;
     private boolean localNode = false;
 
     /**
@@ -99,69 +105,22 @@ public class ElasticSearchService implements SearchService {
      */
     private boolean clientNode = false;
 
-    private boolean useSiteFilters = false;
-
-    /**
-     * This property is ignored at the present time it here to preserve backwards capatability.
-     *
-     * TODO We could interpret this to mean whether or not this node will hold data indices
-     * and shards be allocated to it.  So setting this to false for this node to only be a search client.
-     * That would take some rework to assure nodes don't attempt indexing work that will fail.
-     */
-    private boolean searchServer = true;
-    
-    private boolean useFacetting = true;
-    private boolean useSuggestions = true;
-
-    /**
-     * dependency
-     */
+    /* injected dependencies */
+    private List<String> triggerFunctions = Lists.newArrayListWithCapacity(0);
+    private NotificationService notificationService;
+    private ServerConfigurationService serverConfigurationService;
+    private ThreadLocalManager threadLocalManager;
     private UserDirectoryService userDirectoryService;
-
-    /**
-     * dependency
-     */
     private SessionManager sessionManager;
 
-    /* injectable configuration */
-
-    /**
-     * The ES node name for this server. Defaults to the serverId config property
-     */
-    private String nodeName;
-
-    /**
-     * The ES cluster name.  Defaults to the serverName config property
-     */
-    private String clusterName;
-
-    /**
-     * set to true to force an index rebuild at startup time, defaults to false.  This is probably something
-     * you never want to use, other than in development or testing
-     */
-    private boolean rebuildIndexOnStartup = false;
-
-    /**
-     * the ES indexname defaults 'sakai_index'
-     */
-    private String indexName = "sakai_index";
-
-    /**
-     * max number of suggestions to return when looking for suggestions (this populates the autocomplete drop down in the UI)
-     */
-    private int maxNumberOfSuggestions = 10;
-
-    /**
-     *  N most frequent terms
-     */
-    private int facetTermSize = 10;
-
+    /* internal caches and configs */
+    private ConcurrentHashMap<String, ElasticSearchIndexBuilderRegistration> indexBuilders = new ConcurrentHashMap<>();
+    private InternalEventRegistrar eventRegistrar = new InternalEventRegistrar();
+    private Set<String> globalContentFunctions = Sets.newConcurrentHashSet();
     /**
      * used in searchXML() to maintain backwards compatibility
      */
     private String sharedKey = null;
-
-    private SearchItemFilter filter;
 
     /**
      * Register a notification action to listen to events and modify the search
@@ -172,41 +131,27 @@ public class ElasticSearchService implements SearchService {
             log.info("ElasticSearch is not enabled. Set search.enable=true to change that.");
             return;
         }
-
-        log.info("Initializing ElasticSearch...");
-
         initializeElasticSearch();
-
-        log.debug("Register a notification to trigger indexation on new elements");
-
-        // register a transient notification for resources
-        notification = notificationService.addTransientNotification();
-
-        // add all the functions that are registered to trigger search index modification
-        notification.setFunction(SearchService.EVENT_TRIGGER_SEARCH);
-        for (String function : triggerFunctions) {
-            notification.addFunction(function);
-        }
-
-        // set the filter to any site related resource
-        notification.setResourceFilter("/");
-
-        // set the action
-        notification.setAction(new SearchNotificationAction(indexBuilder));
     }
 
-
-
     protected void initializeElasticSearch() {
-        Map properties = new HashMap<String, String>();
+        final Map<String,String> properties = initializeElasticSearchSettingsProperties();
+        this.node = initializeElasticSearchNode(properties);
+        this.client = initializeElasticSearchClient(this.node);
+    }
+
+    protected Map<String,String> initializeElasticSearchSettingsProperties() {
+        final Map<String,String> properties = Maps.newHashMap();
 
         // load anything set into the ServerConfigurationService that starts with "elasticsearch."
         for (ServerConfigurationService.ConfigItem configItem : serverConfigurationService.getConfigData().getItems()) {
-            if (configItem.getName().startsWith(ElasticSearchService.CONFIG_PROPERTY_PREFIX + "index.")){
+            if (configItem.getName().startsWith(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX + "index.")){
                 continue;
             }
-            if (configItem.getName().startsWith(CONFIG_PROPERTY_PREFIX)) {
-                properties.put(configItem.getName().replaceFirst(CONFIG_PROPERTY_PREFIX, ""), configItem.getValue());
+            if (configItem.getName().startsWith(ElasticSearchConstants.CONFIG_PROPERTY_PREFIX)) {
+                properties.put(configItem.getName().replaceFirst(
+                        ElasticSearchConstants.CONFIG_PROPERTY_PREFIX, ""),
+                        configItem.getValue().toString());
             }
         }
 
@@ -221,121 +166,231 @@ public class ElasticSearchService implements SearchService {
             properties.put("script.disable_dynamic", "true");
         }
 
-        // ES calls need these, store these away
-        setNodeName((String) properties.get("node.name"));
-        setClusterName((String) properties.get("cluster.name"));
-
         if (!properties.containsKey("path.data")) {
-            properties.put("path.data", serverConfigurationService.getSakaiHomePath() + "/elasticsearch/" + getNodeName());
+            properties.put("path.data", serverConfigurationService.getSakaiHomePath() + "/elasticsearch/" + properties.get("node.name"));
         }
 
-        log.info("Setting ElasticSearch storage area to: " + properties.get("path.data"));
+        log.info("Setting ElasticSearch storage area to [" + properties.get("path.data") + "]");
 
-        // initialize elasticsearch
+        return properties;
+    }
+
+    protected String getNodeName() {
+        if ( this.node == null ) {
+            return null;
+        }
+        return this.node.settings().get("node.name");
+    }
+
+    protected Node initializeElasticSearchNode(Map<String, String> properties) {
         ImmutableSettings.Builder settings = settingsBuilder().put(properties);
 
-        node = nodeBuilder()
+        return nodeBuilder()
                 .client(clientNode)
                 .settings(settings)
                 .local(localNode).node();
+    }
 
-        client = node.client();
+    protected Client initializeElasticSearchClient(Node node) {
+        return node.client();
+    }
 
-        // initialized indexBuilder with references it needs
-        indexBuilder.setClient(client);
+    public void registerIndexBuilder(ElasticSearchIndexBuilder indexBuilder) {
+        if (!isEnabled()) {
+            log.info("ElasticSearch is not enabled. Skipping registration request from index builder ["
+                    + indexBuilder.getName() + "]. Set search.enable=true to change that.");
+            return;
+        }
 
-        indexBuilder.setIndexName(indexName);
+        String indexBuilderName = null;
+        ElasticSearchIndexBuilderRegistration registration = null;
+        synchronized (this.indexBuilders) {
+            try {
+                indexBuilderName = indexBuilder.getName();
+                if ( this.indexBuilders.containsKey(indexBuilderName) ) {
+                    log.error("Skipping duplicate registration request from index builder ["
+                            + indexBuilder.getName() + "]. Including stack trace for diagnostic purposes",
+                            new RuntimeException("Diagnostic"));
+                    return;
+                } else {
+                    registration = new ElasticSearchIndexBuilderRegistration(indexBuilder);
+                }
 
-        // init index and kick off rebuild if necessary
-        if (rebuildIndexOnStartup) {
-            indexBuilder.rebuildIndex();
-        } else {
-            indexBuilder.assureIndex();
+                // Content providers are registered with index builders outside of the DI framework, so a builder's
+                // providers may not have registered themselves when the builder registers itself with the search
+                // service here. So we let the provider determine when to wire up its events. And that may happen
+                // repeatedly, as provider registrations trickle in.
+                //
+                // Historically, content providers registered their events directly with the search service
+                // (SearchService.registerFunction()) during startup. The global index builder was injected into the
+                // search service via DI and was configured as the listener for all events hitting the search service.
+                // That approach works less well now that we support multiple index builders because not all builders
+                // will be interested in all events. Builders can certainly filter out events they don't care about,
+                // but it is far better to never deliver them in the first place. Rather than require modifications
+                // to all content providers in the wild, though, we allow a mixed model here. Globally
+                // registered "functions" will still broadcast to all builders, but new content providers are
+                // encouraged to scope their events to their index builder. The index builder is then responsible
+                // for keeping its total set of event registrations up to date via the
+                // ElasticSearchIndexBuilderEventRegistrar passed into its initialize() method below.
+                //
+                // The thread local stuff is to work around scenarios where indexBuilder.initialize() calls back
+                // to eventRegistrar.updateEventsFor() immediately such that the index builder registration hasn't been
+                // put into the indexBuilders map. We want to delay the latter until the index builder is fully
+                // initialized, e.g. so we don't return a partially initialized builder to indexBuilderByNameOrDefault()
+                // in a search request.
+                threadLocalManager.set(PENDING_INDEX_BUILDER_REGISTRATION, registration);
+                indexBuilder.initialize(eventRegistrar, client);
+                this.indexBuilders.put(indexBuilderName, registration);
+            } catch ( Exception e ) {
+                log.error("Failed to initialize index builder [" + indexBuilderName + "]", e);
+                indexBuilders.remove(indexBuilderName);
+            } finally {
+                threadLocalManager.set(PENDING_INDEX_BUILDER_REGISTRATION, null);
+            }
         }
     }
 
-    public SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, List<String> references) throws InvalidSearchQueryException {
-        return  search(searchTerms, siteIds, start, end, null, null, references);
-    }
+    private class InternalEventRegistrar implements ElasticSearchIndexBuilderEventRegistrar {
+        @Override
+        public void updateEventsFor(ElasticSearchIndexBuilder indexBuilder) {
+            // Could get fancy with this and only lock on the index builder once retrieved. let's go with
+            // coarse grained locking on the entire collection just to be sure to avoid any subtle double-checked
+            // locking issues.
+            synchronized (ElasticSearchService.this.indexBuilders) {
+                // games w atomicreference just so we can reference registration from lambdas
+                AtomicReference<ElasticSearchIndexBuilderRegistration> registrationHolder =
+                        new AtomicReference<>(indexBuilders.get(indexBuilder.getName()));
+                if ( registrationHolder.get() == null ) {
+                    registrationHolder.set((ElasticSearchIndexBuilderRegistration)threadLocalManager.get(PENDING_INDEX_BUILDER_REGISTRATION));
+                }
+                if ( registrationHolder.get() == null ) {
+                    return;
+                }
+                final ElasticSearchIndexBuilderRegistration registration = registrationHolder.get();
+                if ( registration.notification == null ) {
+                    log.debug("Register a notification to trigger indexation on new elements by index builder ["
+                            + indexBuilder.getName() + "]");
+                    // register a transient notification for resources
+                    final NotificationEdit notification = notificationService.addTransientNotification();
+                    registration.notification = notification;
 
-     public SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
-         if (references == null) {
-             references = new ArrayList();
-         }
-         if (siteIds == null) {
-             siteIds = new ArrayList();
-         }
+                    notification.setResourceFilter(indexBuilder.getEventResourceFilter());
 
-         BoolQueryBuilder query = boolQuery();
+                    // Add all the functions that are registered to trigger search index modification
+                    // triggerFunctions is injected via DI and is effectively read-only after startup,
+                    // so we only set those functions on the notification once, when it is created
+                    triggerFunctions.forEach(s -> registerNoDuplicates(s, registration.notification));
+                    registerNoDuplicates(SearchService.EVENT_TRIGGER_SEARCH, registration.notification);
 
-         if (searchTerms.contains(":")) {
-             String[] termWithType = searchTerms.split(":");
-             String termType = termWithType[0];
-             String termValue = termWithType[1];
-             // little fragile but seems like most providers follow this convention, there isn't a nice way to get the type
-             // without a handle to a reference.
-             query.must(termQuery(SearchService.FIELD_TYPE, "sakai:" + termType));
-             query.must(matchQuery(SearchService.FIELD_CONTENTS, termValue));
-         } else {
-             query.must(matchQuery(SearchService.FIELD_CONTENTS, searchTerms));
-         }
+                    // globalContentFunctions are registered dynamically as legacy content producers are initialized,
+                    // but these registrations are propagated immediately to any registered index builders
+                    // (see handleNewGlobalContentFunction() below), so we only need to register the entire collection
+                    // once here, when the index builder's notification is first built.
+                    globalContentFunctions.forEach(s -> registerNoDuplicates(s, registration.notification));
 
-         if (references.size() > 0){
-             query.must(termsQuery(SearchService.FIELD_REFERENCE, references.toArray(new String[references.size()])));
-         }
+                    // set the action
+                    notification.setAction(new SearchNotificationAction(indexBuilder));
+                }
 
-         SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-                 .setSearchType(SearchType.QUERY_THEN_FETCH)
-                 .setQuery(query)
-                 .setTypes(SAKAI_DOC_TYPE)
-                 .addFields(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID,
-                         SearchService.FIELD_TITLE, SearchService.FIELD_URL, SearchService.FIELD_TYPE, SearchService.FIELD_TOOL)
-                 .setFrom(start).setSize(end - start);
+                indexBuilder.getTriggerFunctions().forEach(s -> registerNoDuplicates((String) s, registration.notification));
+                indexBuilder.getContentFunctions().forEach(s -> registerNoDuplicates((String) s, registration.notification));
+            }
+        }
 
-         if(useFacetting) {
-            searchRequestBuilder.addFacet(termsFacet(FACET_NAME).field("contents.lowercase").size(facetTermSize));
-         }
+        private void handleNewGlobalContentFunction(String function) {
+            log.info("Register " + function + " as a trigger for the search service");
 
-         // if we have sites filter results to include only the sites included
-         if (siteIds.size() > 0) {
-             searchRequestBuilder.setRouting(siteIds.toArray(new String[siteIds.size()]));
+            if (!isEnabled()) {
+                log.debug("ElasticSearch is not enabled. Set search.enable=true to change that.");
+                return;
+            }
 
-             // creating config whether or not to use filter, there are performance and caching differences that
-             // maybe implementation decisions
-             if (useSiteFilters) {
-                 OrFilterBuilder siteFilter = orFilter().add(
-                         termsFilter(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])).execution("bool"));
+            synchronized (ElasticSearchService.this.indexBuilders) {
+                globalContentFunctions.add(function);
+                ElasticSearchService.this.indexBuilders.forEach((k,v) -> registerNoDuplicates(function, v.notification));
+            }
+        }
 
-                 searchRequestBuilder.setPostFilter(siteFilter);
-             } else {
-                 query.must(termsQuery(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])));
-             }
-         }
-
-         log.debug("search request: " + searchRequestBuilder.toString());
-
-         SearchResponse response = searchRequestBuilder.execute().actionGet();
-
-         log.debug("search request took: " + response.getTook().format());
-
-         eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
-                 EVENT_SEARCH_REF + query.toString(), true,
-                 NotificationService.PREF_IMMEDIATE));
-
-         return response;
-
-     }
-
-
-    @Override
-    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
-        SearchResponse response = search(searchTerms, siteIds, searchStart, searchEnd, null, null, new ArrayList<String>());
-        return new ElasticSearchList(searchTerms.toLowerCase(), response, this, indexBuilder, FACET_NAME, filter);
+        private void registerNoDuplicates(String function, NotificationEdit notification) {
+            if ( !(notification.containsFunction(function)) ) {
+                notification.addFunction(function);
+            }
+        }
     }
 
     @Override
     public SearchList search(String searchTerms, List<String> siteIds, int start, int end, String filterName, String sorterName) throws InvalidSearchQueryException {
         return search(searchTerms, siteIds, start, end);
+    }
+
+    @Override
+    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd) throws InvalidSearchQueryException {
+        Pair<SearchResponse, ElasticSearchIndexBuilder> result =
+                search(searchTerms, null, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
+                result.getRight().getFacetName(), result.getRight().getFilter());
+    }
+
+    @Override
+    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName) throws InvalidSearchQueryException {
+        Pair<SearchResponse, ElasticSearchIndexBuilder> result =
+                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>());
+        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
+                result.getRight().getFacetName(), result.getRight().getFilter());
+    }
+
+    @Override
+    public SearchList search(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+        Pair<SearchResponse, ElasticSearchIndexBuilder> result =
+                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+        return new ElasticSearchList(searchTerms.toLowerCase(), result.getLeft(), this, result.getRight(),
+                result.getRight().getFacetName(), result.getRight().getFilter());
+    }
+
+    @Override
+    public SearchResponse searchResponse(String searchTerms, List<String> siteIds, int searchStart, int searchEnd, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+        Pair<SearchResponse, ElasticSearchIndexBuilder> result =
+                search(searchTerms, indexBuilderName, siteIds, searchStart, searchEnd, null, null, new ArrayList<>(),additionalSearchInformation);
+        return result.getLeft();
+    }
+
+    SearchResponse search(String searchTerms, List<String> siteIds, int start, int end, List<String> references,String indexBuilderName) throws InvalidSearchQueryException {
+        return search(searchTerms, indexBuilderName, siteIds, start, end, null, null, references).getLeft();
+    }
+
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references) throws InvalidSearchQueryException {
+        if (references == null) {
+            references = new ArrayList();
+        }
+        if (siteIds == null) {
+            siteIds = new ArrayList();
+        }
+
+        ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end);
+        return new ImmutablePair<>(response, indexBuilder);
+    }
+
+    Pair<SearchResponse, ElasticSearchIndexBuilder> search(String searchTerms, String indexBuilderName, List<String> siteIds, int start, int end, String filterName, String sorterName, List<String> references, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException {
+        if (references == null) {
+            references = new ArrayList();
+        }
+        if (siteIds == null) {
+            siteIds = new ArrayList();
+        }
+
+        ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
+        SearchResponse response = indexBuilder.search(searchTerms, references, siteIds, start, end, additionalSearchInformation);
+        return new ImmutablePair<>(response, indexBuilder);
+    }
+
+    protected ElasticSearchIndexBuilder indexBuilderByNameOrDefault(String indexBuilderName) {
+        if (StringUtils.isEmpty(indexBuilderName) || !(indexBuilders.containsKey(indexBuilderName))) {
+            final ElasticSearchIndexBuilderRegistration registration =
+                    indexBuilders.get(ElasticSearchIndexBuilder.DEFAULT_INDEX_BUILDER_NAME);
+            return registration == null ? NO_OP_INDEX_BUILDER : registration.indexBuilder;
+        }
+        return indexBuilders.get(indexBuilderName).indexBuilder;
     }
 
     public String searchXML(Map parameterMap) {
@@ -493,31 +548,53 @@ public class ElasticSearchService implements SearchService {
 
     @Override
     public void registerFunction(String function) {
-        log.info("Register " + function + " as a trigger for the search service");
-
-        if (!isEnabled()) {
-            log.debug("ElasticSearch is not enabled. Set search.enable=true to change that.");
-            return;
-        }
-
-        notification.addFunction(function);
+        eventRegistrar.handleNewGlobalContentFunction(function);
     }
 
+    @Override
     public void refreshInstance() {
-        indexBuilder.refreshIndex();
+        forEachRegisteredIndexBuilder(i -> i.refreshIndex());
     }
 
+    @Override
+    public void refreshIndex(String indexBuilderName) {
+        log.info("Refresh Index for Index Builder Name="+indexBuilderName);
+        ElasticSearchIndexBuilderRegistration builder =
+            indexBuilders.get(indexBuilderName);
+        if (builder != null) {
+            builder.indexBuilder.refreshIndex();
+        }
+    }
+
+    @Override
     public void rebuildInstance() {
-        indexBuilder.rebuildIndex();
+        forEachRegisteredIndexBuilder(i -> i.rebuildIndex());
+    }
+
+    @Override
+    public void rebuildIndex(String indexBuilderName) {
+        log.info("Rebuild Index Builder Name="+indexBuilderName);
+        ElasticSearchIndexBuilderRegistration builder =
+            indexBuilders.get(indexBuilderName);
+        if (builder != null) {
+            builder.indexBuilder.rebuildIndex();
+        }
     }
 
     public void refreshSite(String currentSiteId) {
-        indexBuilder.refreshIndex(currentSiteId);
+        forEachRegisteredIndexBuilder(i -> {
+            if ( i instanceof SiteSearchIndexBuilder ) {
+                ((SiteSearchIndexBuilder)i).refreshIndex(currentSiteId);
+            }
+        });
     }
 
     public void rebuildSite(String currentSiteId) {
-        indexBuilder.rebuildIndex(currentSiteId);
-
+        forEachRegisteredIndexBuilder(i -> {
+            if ( i instanceof SiteSearchIndexBuilder ) {
+                ((SiteSearchIndexBuilder)i).rebuildIndex(currentSiteId);
+            }
+        });
     }
 
     @Override
@@ -527,45 +604,19 @@ public class ElasticSearchService implements SearchService {
 
     @Override
     public String getStatus() {
-        indexBuilder.assureIndex();
-        IndicesStatusResponse response = client.admin().indices().status(new IndicesStatusRequest(indexName)).actionGet();
-        IndexStatus status = response.getIndices().get(indexName);
-        StringBuffer sb = new StringBuffer();
-
-        long pendingDocs = indexBuilder.getPendingDocuments();
-
-        if (pendingDocs != 0) {
-            sb.append( "active. " + pendingDocs + " pending items in queue. ");
-        } else {
-            sb.append("idle. ");
-        }
-
-        sb.append("Index Size: " + roundTwoDecimals(status.getStoreSize().getGbFrac()) + " GB" +
-                " Refresh Time: " + status.getRefreshStats().getTotalTimeInMillis() + "ms" +
-                " Flush Time: " + status.getFlushStats().getTotalTimeInMillis() + "ms" +
-                " Merge Time: " + status.getMergeStats().getTotalTimeInMillis() + "ms");
-
+        final StringBuilder sb = new StringBuilder();
+        forEachRegisteredIndexBuilder(i -> i.getStatus(sb).append("\n\n"));
         return sb.toString();
     }
 
     @Override
     public int getNDocs() {
-        indexBuilder.assureIndex();
-        CountResponse response = client.prepareCount(indexName)
-                .setQuery(filteredQuery(matchAllQuery(),termFilter(SearchService.FIELD_INDEXED, true)))
-                .execute()
-                .actionGet();
-        return (int) response.getCount();
-    }
-
-    private double roundTwoDecimals(double d) {
-            DecimalFormat twoDForm = new DecimalFormat("#.##");
-        return Double.valueOf(twoDForm.format(d));
+        return indexBuilders.reduceValues(Long.MAX_VALUE, v -> v.indexBuilder.getNDocs(), Integer::sum);
     }
 
     @Override
     public int getPendingDocs() {
-        return (int) indexBuilder.getPendingDocuments();
+        return indexBuilders.reduceValues(Long.MAX_VALUE, v -> v.indexBuilder.getPendingDocuments(), Integer::sum);
     }
 
     @Override
@@ -584,12 +635,73 @@ public class ElasticSearchService implements SearchService {
     }
 
     @Override
-    public SearchStatus getSearchStatus() {
-        final String lastLoad = new Date(indexBuilder.getLastLoad()).toString();
-        final String loadTime = String.valueOf((double) (0.001 * (indexBuilder.getLastLoad())));
-        final String pdocs = String.valueOf(indexBuilder.getPendingDocuments());
-        final String ndocs = String.valueOf(getNDocs());
+    public List<SearchStatus> getSearchStatus() {
+        final List<SearchStatus> indexBuilderStatuses = Lists.newArrayList();
+        forEachRegisteredIndexBuilder(i -> indexBuilderStatuses.add(i.getSearchStatus()));
 
+        final NodesStatsResponse nodesStatsResponse = getNodesStats();
+
+        return indexBuilderStatuses
+                .stream()
+                .map(s -> newSearchStatusWrapper(s, nodesStatsResponse))
+                .collect(Collectors.toList());
+    }
+
+
+    protected SearchStatus newSearchStatusWrapper(SearchStatus toWrap, NodesStatsResponse nodesStatsResponse) {
+        return new SearchStatus() {
+
+            @Override
+            public String getLastLoad() {
+                return toWrap.getLastLoad();
+            }
+
+            @Override
+            public String getLoadTime() {
+                return toWrap.getLoadTime();
+            }
+
+            @Override
+            public String getCurrentWorker() {
+                return getNodeName();
+            }
+
+            @Override
+            public String getCurrentWorkerETC() {
+                return getNodeName();
+            }
+
+            @Override
+            public List getWorkerNodes() {
+                List<Object[]> workers = new ArrayList();
+
+                for (NodeStats nodeStat : nodesStatsResponse.getNodes()) {
+                    workers.add(new Object[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
+                            null, // No way to get a meaningful "start" time per node, so now just set a null Date.
+                            // Historically used an index builder starttime, which was always meaningless in this
+                            // context since it's always going to refer to the local node. And we now have
+                            // multiple index builders, so it's doubly meaningless. Historical comment below
+                            // hints at same problem with the results of 'getStatus()'
+                            //TODO will show same status for each node, need to deal with that
+                            getStatus()});
+
+                }
+                return workers;
+            }
+
+            @Override
+            public String getNDocuments() {
+                return toWrap.getNDocuments();
+            }
+
+            @Override
+            public String getPDocuments() {
+                return toWrap.getPDocuments();
+            }
+        };
+    }
+
+    protected NodesStatsResponse getNodesStats() {
         final NodesInfoResponse nodesInfoResponse = client.admin().cluster().nodesInfo(new NodesInfoRequest()).actionGet();
         final String[] nodes = new String[nodesInfoResponse.getNodes().length];
 
@@ -599,50 +711,12 @@ public class ElasticSearchService implements SearchService {
             nodes[i++] = nodeInfo.getNode().getName();
         }
 
-        final NodesStatsResponse nodesStatsResponse = client.admin().cluster().nodesStats(new NodesStatsRequest(nodes)).actionGet();
-
-        //TODO will show same status for each node, need to deal with that
-
-        return new SearchStatus() {
-            public String getLastLoad() {
-                return lastLoad;
-            }
-
-            public String getLoadTime() {
-                return loadTime;
-            }
-
-            public String getCurrentWorker() {
-                return getNodeName();
-            }
-
-            public String getCurrentWorkerETC() {
-                return getNodeName();
-
-            }
-
-            public List<Object[]> getWorkerNodes() {
-                List<Object[]> workers = new ArrayList();
-
-                for (NodeStats nodeStat : nodesStatsResponse.getNodes()) {
-                    workers.add(new Object[]{nodeStat.getNode().getName() + "(" + nodeStat.getHostname() + ")",
-                            indexBuilder.getStartTime(),
-                            getStatus()});
-
-                }
-                return workers;
-            }
-
-            public String getNDocuments() {
-                return ndocs;
-            }
-
-            public String getPDocuments() {
-                return pdocs;
-            }
-        };
+        return client.admin().cluster().nodesStats(new NodesStatsRequest(nodes)).actionGet();
     }
 
+    protected void forEachRegisteredIndexBuilder(Consumer<ElasticSearchIndexBuilder> consumer) {
+        indexBuilders.forEachValue(Long.MAX_VALUE, v -> v.indexBuilder, consumer);
+    }
 
     @Override
     public boolean removeWorkerLock() {
@@ -673,6 +747,7 @@ public class ElasticSearchService implements SearchService {
         return null;
     }
 
+    @Override
     public String getSearchSuggestion(String searchString) {
         String[] suggestions = getSearchSuggestions(searchString, null, true);
         if (suggestions != null && suggestions.length > 0) {
@@ -686,85 +761,32 @@ public class ElasticSearchService implements SearchService {
         return null;
     }
 
-    /**
-	 * Get all the sites a user has access to.
-	 * @return An array of site IDs.
-	 */
-	protected String[] getAllUsersSites(String currentUser) {
-		List<Site> sites = siteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-				null, null, null, null, null);
-        List<String> siteIds = convertSitesToStringArray(sites);
-		siteIds.add(siteService.getUserSiteId(currentUser));
-		return siteIds.toArray(new String[siteIds.size()]);
-	}
-
-    protected List<String> convertSitesToStringArray(List<Site> sites) {
-        List<String> siteIds = new ArrayList<String>(sites.size());
-        for (Site site: sites) {
-            if (site != null && site.getId() != null) {
-                siteIds.add(site.getId());
-            }
-        }
-        return siteIds;
-    }
-
+    @Override
     public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites) {
-        if (!useSuggestions) {
-            return new String[0];
-        }
-
-        String currentUser = "";
-        User user = userDirectoryService.getCurrentUser();
-		if (user != null)  {
-			currentUser = user.getId();
-        }
-        String[] sites;
-        if (allMySites || currentSite == null) {
-            sites = getAllUsersSites(currentUser);
-        } else {
-            sites = new String[]{currentSite};
-        }
-
-        TermQueryBuilder query = termQuery("title", searchString);
-
-        SearchRequestBuilder searchRequestBuilder = client.prepareSearch(indexName)
-                .setSearchType(SearchType.QUERY_THEN_FETCH)
-                .setQuery(query)
-                .setTypes(SAKAI_DOC_TYPE)
-                .setSize(maxNumberOfSuggestions)
-                .setRouting(sites)
-         //       .addHighlightedField(SearchService.FIELD_TITLE, 255, 0)
-                .addField(SearchService.FIELD_TYPE)
-                .addField(SearchService.FIELD_REFERENCE)
-                //.addField(SearchService.FIELD_ID)
-                .addField(SearchService.FIELD_SITEID)
-                .addField(SearchService.FIELD_TITLE);
-
-        OrFilterBuilder siteFilter = orFilter().add(
-                termsFilter(SearchService.FIELD_SITEID, sites).execution("bool"));
-
-        searchRequestBuilder.setPostFilter(siteFilter);
-
-        log.debug("search request: " + searchRequestBuilder.toString());
-
-        SearchResponse response = searchRequestBuilder.execute().actionGet();
-
-        log.debug("search request took: " + response.getTook().format());
-
-        List<String> suggestions = new ArrayList();
-
-        for (SearchHit hit : response.getHits()) {
-            suggestions.add(getFieldFromSearchHit(SearchService.FIELD_TITLE, hit));
-//            suggestions.add(hit.getHighlightFields().get(SearchService.FIELD_TITLE).getFragments()[0].string());
-        }
-
-        return suggestions.toArray(new String[suggestions.size()]);
+        return getSearchSuggestions(searchString, currentSite, allMySites, null);
     }
 
     @Override
+    public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites, String indexBuilderName) {
+        final ElasticSearchIndexBuilder indexBuilder = indexBuilderByNameOrDefault(indexBuilderName);
+        return indexBuilder.searchSuggestions(searchString, currentSite, allMySites);
+    }
+
+    /**
+     * This property is hard coded to always return true, and is only present to preserve backwards capatability.
+     *
+     * TODO We could interpret this to mean whether or not this node will hold data indices
+     * and shards be allocated to it.  So setting this to false for this node to only be a search client.
+     * That would take some rework to assure nodes don't attempt indexing work that will fail.
+     */
+    @Override
     public boolean isSearchServer() {
         return true;
+    }
+
+    @Override
+    public Set<String> getIndexBuilderNames() {
+        return indexBuilders.keySet();
     }
 
     public void destroy(){
@@ -791,49 +813,20 @@ public class ElasticSearchService implements SearchService {
 
 
     public void setTriggerFunctions(List<String> triggerFunctions) {
-        this.triggerFunctions = triggerFunctions;
+        // other code assumes this field is always non-null
+        if ( triggerFunctions == null ) {
+            this.triggerFunctions.clear();
+        } else {
+            this.triggerFunctions = triggerFunctions;
+        }
     }
 
     public void setNotificationService(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
 
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
-    }
-
-    public void setIndexName(String indexName) {
-        //elasticsearch wants lowers case index names
-        this.indexName = indexName.toLowerCase();
-    }
-
-
-    public void setIndexBuilder(ElasticSearchIndexBuilder indexBuilder) {
-        this.indexBuilder = indexBuilder;
-    }
-
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
-    }
-
-    public void setRebuildIndexOnStartup(boolean rebuildIndexOnStartup) {
-        this.rebuildIndexOnStartup = rebuildIndexOnStartup;
-    }
-
-    public String getNodeName() {
-        return nodeName;
-    }
-
-    public void setNodeName(String nodeName) {
-        this.nodeName = nodeName;
-    }
-
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
     }
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -848,18 +841,6 @@ public class ElasticSearchService implements SearchService {
         this.sharedKey = sharedKey;
     }
 
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    public void setMaxNumberOfSuggestions(int maxNumberOfSuggestions) {
-        this.maxNumberOfSuggestions = maxNumberOfSuggestions;
-    }
-
-    public void setFacetTermSize(int facetTermSize) {
-        this.facetTermSize = facetTermSize;
-    }
-
     public void setLocalNode(boolean localNode) {
         this.localNode = localNode;
     }
@@ -868,31 +849,205 @@ public class ElasticSearchService implements SearchService {
         this.clientNode = clientNode;
     }
 
-    public void setUseSiteFilters(boolean useSiteFilters) {
-        this.useSiteFilters = useSiteFilters;
+    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+        this.threadLocalManager = threadLocalManager;
     }
 
-    public boolean getUseFacetting() {
-        return useFacetting;
+    private static class ElasticSearchIndexBuilderRegistration {
+        public ElasticSearchIndexBuilderRegistration(ElasticSearchIndexBuilder indexBuilder) {
+            this(indexBuilder, null);
+        }
+
+        public ElasticSearchIndexBuilderRegistration(ElasticSearchIndexBuilder indexBuilder, NotificationEdit notification) {
+            this.indexBuilder = indexBuilder;
+            this.notification = notification;
+        }
+
+        public ElasticSearchIndexBuilder indexBuilder;
+        public NotificationEdit notification;
+        public String getName() {
+            return indexBuilder == null ? null : indexBuilder.getName();
+        }
     }
 
-    public void setUseFacetting(boolean useFacetting) {
-        this.useFacetting = useFacetting;
+    private static class NoOpElasticSearchIndexBuilder implements ElasticSearchIndexBuilder {
+
+        @Override
+        public void initialize(ElasticSearchIndexBuilderEventRegistrar eventRegistrar, Client client) {
+            // no-op
+        }
+
+        @Override
+        public Set<String> getTriggerFunctions() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public Set<String> getContentFunctions() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public String getEventResourceFilter() {
+            return "";
+        }
+
+        @Override
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end) {
+            return search(searchTerms,references,siteIds,start,end, new HashMap<String,String>());
+        }
+
+        @Override
+        public SearchResponse search(String searchTerms, List<String> references, List<String> siteIds, int start, int end, Map<String,String> additionalSearchInfromation) {
+            return new SearchResponse(
+                    new InternalSearchResponse(new InternalSearchHits(new InternalSearchHit[0], 0, 0.0f), new InternalFacets(Collections.EMPTY_LIST), new InternalAggregations(Collections.EMPTY_LIST), new Suggest(), false, false),
+                    "no-op",
+                    1,
+                    1,
+                    1,
+                    new ShardSearchFailure[0]
+            );
+        }
+
+        @Override
+        public String[] searchSuggestions(String searchString, String currentSite, boolean allMySites) {
+            return new String[0];
+        }
+
+        @Override
+        public String getFieldFromSearchHit(String fieldReference, SearchHit hit) {
+            return "";
+        }
+
+        @Override
+        public boolean getUseFacetting() {
+            return false;
+        }
+
+        @Override
+        public String getFacetName() {
+            return null;
+        }
+
+        @Override
+        public SearchItemFilter getFilter() {
+            return null;
+        }
+
+        @Override
+        public StringBuilder getStatus(StringBuilder into) {
+            return into;
+        }
+
+        @Override
+        public int getNDocs() {
+            return 0;
+        }
+
+        @Override
+        public SearchStatus getSearchStatus() {
+            return new SearchStatus() {
+                @Override
+                public String getLastLoad() {
+                    return "";
+                }
+
+                @Override
+                public String getLoadTime() {
+                    return "";
+                }
+
+                @Override
+                public String getCurrentWorker() {
+                    return "";
+                }
+
+                @Override
+                public String getCurrentWorkerETC() {
+                    return "";
+                }
+
+                @Override
+                public List getWorkerNodes() {
+                    return Collections.emptyList();
+                }
+
+                @Override
+                public String getNDocuments() {
+                    return "0";
+                }
+
+                @Override
+                public String getPDocuments() {
+                    return "0";
+                }
+            };
+        }
+
+        @Override
+        public String getName() {
+            return "NoOp";
+        }
+
+        @Override
+        public void addResource(Notification notification, Event event) {
+            // no-op
+        }
+
+        @Override
+        public void registerEntityContentProducer(EntityContentProducer ecp) {
+            // no-op
+        }
+
+        @Override
+        public void refreshIndex() {
+            // no-op
+        }
+
+        @Override
+        public void rebuildIndex() {
+            // no-op
+        }
+
+        @Override
+        public boolean isBuildQueueEmpty() {
+            return false;
+        }
+
+        @Override
+        public List<EntityContentProducer> getContentProducers() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void destroy() {
+            // no-op
+        }
+
+        @Override
+        public int getPendingDocuments() {
+            return 0;
+        }
+
+        @Override
+        public List<SearchBuilderItem> getAllSearchItems() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public EntityContentProducer newEntityContentProducer(Event event) {
+            return null;
+        }
+
+        @Override
+        public EntityContentProducer newEntityContentProducer(String ref) {
+            return null;
+        }
+
+        @Override
+        public List<SearchBuilderItem> getGlobalMasterSearchItems() {
+            return Collections.emptyList();
+        }
     }
 
-    public boolean getUseSuggestions() {
-        return useSuggestions;
-    }
-
-    public void setUseSuggestions(boolean useSuggestions) {
-        this.useSuggestions = useSuggestions;
-    }
-
-    public void setFilter(SearchItemFilter filter) {
-        this.filter = filter;
-    }
-
-    public void setSearchServer(boolean searchServer) {
-        this.searchServer = searchServer;
-    }
 }

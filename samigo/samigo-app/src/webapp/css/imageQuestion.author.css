@@ -64,6 +64,11 @@
 	filter: alpha(opacity=99);
 	opacity: 0.99;
 }
+
+.authorImageContainer img{
+	max-width: none;
+}
+
 div[id^=dlContainer] {
 	padding-bottom: 5px;
 }

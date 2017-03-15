@@ -16,7 +16,7 @@ body.is-logged-out{
 }
 
 .#{$namespace}mainHeader{
-	
+
 	.#{$namespace}headerLogo{
 		@include display-flex( flex );
 		@include justify-content( center );
@@ -34,7 +34,7 @@ body.is-logged-out{
 			display:	inline-block;
 		}
 	}
-	
+
 	.#{$namespace}loginUser{
 		@include display-flex( inline-flex );
 		li{
@@ -77,26 +77,26 @@ body.is-logged-out{
 			background: $sites-nav-background;
 		}
 	}
-	
+
 	&.is-fixed {
-		
+
 		position: fixed;
 		top: 0;
 		width: 100%;
 		z-index: 9999;
 		height: 2.8em;
-		
+
 		#topnav {
 			display: none;
 		}
-		
+
 		.#{$namespace}topHeader > * {
 			-webkit-transform: scale(0.75, 0.75); /* Safari */
 		    transform: scale(0.75, 0.75);
 		}
-		
+
 	}
-	
+
 	@media #{$phone}{
 		background: $primary-color;
 		position: fixed;
@@ -192,7 +192,7 @@ body.is-logged-out{
 		display: inline-block;
 		vertical-align: top;
 		padding: 1em 1em 0 1em;
-		
+
 		.#{$namespace}userNav__submenuitem--profilepicture{
 			width: 64px;
 			height: 64px;
@@ -212,16 +212,17 @@ body.is-logged-out{
 	font-size: 1em;
 	height: auto;
 	width: 100%;
+	box-shadow: $divider-shadow;
 	@include display-flex(inline-flex);
 	@include align-items(center);
 	@include justify-content( space-between );
 	@include transition( top 0.25s linear 0s );
-	
+
 	a
 	{
 		@include display-flex( flex );
 		@include align-items( center );
-		
+
 		color: $topNav-text-color;
 	}
 	> * {
@@ -246,7 +247,7 @@ body.is-logged-out{
 		top: 0;
 		font-size: 12px;
 		min-height: $header-size;
-		
+
 		&.moving{
 			top: -4.2em;
 			#mastLogin #loginLinks ul.#{$namespace}userNav__subnav{
@@ -258,7 +259,7 @@ body.is-logged-out{
 }
 
 #mastLogin{
-	
+
 	@media #{$phone}{
 		width: 50%;
 	}
@@ -277,7 +278,7 @@ body.is-logged-out{
 
 
 	#loginForm{
-		
+
 		@include display-flex( flex );
 		@include align-items( center );
 		@include justify-content( flex-end );
@@ -286,7 +287,7 @@ body.is-logged-out{
 			margin: 0 0.5em 0 0;
 			font-weight: normal;
 			text-transform: capitalize;
-						
+
 			@media #{$phone}{
 				display: none;
 			}
@@ -307,7 +308,7 @@ body.is-logged-out{
 			font-size: $default-font-size;
 			color: #333333;
 			position: relative;
-			
+
 			@media #{$phone}
 			{
 				font-size: $default-font-size - 2px;
@@ -322,16 +323,16 @@ body.is-logged-out{
 	#loginUser{
 		@include display-flex( flex );
 		@include align-items( center );
-		
+
 		&.has-avatar:hover .#{$namespace}userNav__submenuitem--profilepicture,
 			&.has-avatar:active .#{$namespace}userNav__submenuitem--profilepicture
 		{
 			box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
 		}
-		
-		&.has-avatar:hover .#{$namespace}userNav__submenuitem--username, 
+
+		&.has-avatar:hover .#{$namespace}userNav__submenuitem--username,
 			&.has-avatar:hover .has-avatar .#{$namespace}userNav__submenuitem--userid
-		&.has-avatar:active .#{$namespace}userNav__submenuitem--username, 
+		&.has-avatar:active .#{$namespace}userNav__submenuitem--username,
 			&.has-avatar:active .has-avatar .#{$namespace}userNav__submenuitem--userid,
 		&.has-avatar .#{$namespace}userNav__submenuitem--username:hover,
 			&.has-avatar .#{$namespace}userNav__submenuitem--username:active
@@ -344,7 +345,7 @@ body.is-logged-out{
 
 	.has-avatar, .no-avatar{
 		position: relative;
-		
+
 		.#{$namespace}userNav__submenuitem--username, .#{$namespace}userNav__submenuitem--userid{
 			display: inline-block;
 			max-width: 100px;
@@ -359,10 +360,10 @@ body.is-logged-out{
 	.no-avatar
 	{
 		text-decoration: none;
-				
+
 		&::after
 		{
-			content: "\f0d7"; /* fa-carrot-down */			
+			content: "\f0d7"; /* fa-carrot-down */
 			margin-top: 2px;
 			margin-left: 0.5em;
 			font-family: FontAwesome;
@@ -380,12 +381,12 @@ body.is-logged-out{
 			text-decoration: none;
 			color: $topNav-text-color;
 		}
-		
+
 		.#{$namespace}userNav__submenuitem--userid
 		{
 			display: none;
-		}		
-		
+		}
+
 		@media #{$phone}
 		{
 			padding: 1em; /* provide a bigger hit area for this link */
@@ -406,7 +407,7 @@ body.is-logged-out{
 			margin: 0 4px 0 0;
 			position: relative;
 
-			&:hover, &:active 
+			&:hover, &:active
 			{
 				box-shadow: 0px 0px 5px 1px rgba(165, 165, 165, 0.95);
 			}
@@ -416,7 +417,7 @@ body.is-logged-out{
 			}
 		}
 		.#{$namespace}userNav__pic-changer{
-			&:hover, &:active 
+			&:hover, &:active
 			{
 				&:after {
 					content: 'Change';
@@ -470,16 +471,16 @@ body.is-logged-out{
 		margin: 0;
 		list-style: none;
 		padding: 0 0 0 1em;
-		
+
 		@media #{$phone}
 		{
 			border: 0 none;
 		}
-		
+
 		.no-avatar ~ ul:after
 		{
 			left: 91.5%;
-			
+
 			@media #{$phone}
 			{
 				margin-top: 3.3em;
@@ -487,7 +488,7 @@ body.is-logged-out{
 				right: 1.65em;
 			}
 		}
-		
+
 		ul{
 			background-color: $tool-tab-background-color;
 			text-align: left;
@@ -515,10 +516,10 @@ body.is-logged-out{
 			li:last-of-type
 			{
 				margin-bottom: 0.5em; /* to match the top of the dropdown */
-			}			
+			}
 			.#{$namespace}userNav__submenuitem-indented{
 				padding-left: 1.5em;
-				
+
 				@media #{$phone}
 				{
 					padding-left: 2em;
@@ -562,7 +563,7 @@ body.is-logged-out{
 			}
 		}
 	}
-	
+
 	.#{$namespace}userNav__submenuitem--userid{
 		font-style: italic;
 	}
@@ -571,7 +572,7 @@ body.is-logged-out{
 /* because #loginLinks appears on the Gateway page when two log-in links are available (e.g. for CAS), the following applies only when you are logged in: */
 .is-maximized #loginLinks
 {
-	border-left: 1px solid $tool-border-color; 
+	border-left: 1px solid $tool-border-color;
 }
 
 .#{$namespace}sitesNav__menu{
@@ -612,12 +613,12 @@ body.is-logged-out{
 	{
 		text-decoration: none;
 		color: $topNav-text-color;
-		
+
 		i
 		{
 			text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
 		}
-		
+
 		span.all-sites-label
 		{
 			text-decoration: underline; /* just underline the text */
@@ -655,7 +656,7 @@ body.is-logged-out{
 			margin: 0 0.5em 0.5em 0;
 			padding: 0;
 			position: relative;
-			
+
 			> .link-container{
 				padding: 0.5em 36px 0.5em 0.5em;
 				border-top: $sites-nav-menu-item-border-top; /* to balance bottom border for vertical centering */
@@ -666,13 +667,13 @@ body.is-logged-out{
 				color: $sites-nav-menu-item-color;
 				text-decoration: none;
 			}
-				
+
 			&:not(.dropdown-is-visible) > a:hover, &:not(.dropdown-is-visible) > a:active /* hover for sites when tool quick-menu isn't open */
 			{
 				box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.1) inset;
 				color: $sites-nav-menu-item-color-hover;
 			}
-			
+
 			span
 			{
 				line-height: 1;
@@ -685,12 +686,12 @@ body.is-logged-out{
 				top: 50%;
 				transform: translate(0%,-50%);
 				text-decoration: none;
-				
+
 				@extend .fa-angle-down;
 				@extend .fa;
 				@extend .fa-lg;
 				@extend .sitesNav__drop;
-				
+
 				&.is-clicked{
 					@include transform( rotate(180deg) );
 					top: 40%;
@@ -713,12 +714,12 @@ body.is-logged-out{
 					margin: 0 0 0 0;
 					padding: 0 0 0 0;
 					min-height: 15px;
-					
+
 					&:hover a, &:active a
 					{
 						text-decoration: underline;
 					}
-					
+
 					a{
 						display: block;
 						padding: 0.5em 0.65em;
@@ -763,7 +764,7 @@ body.is-logged-out{
 				}
 				ul{
 					background: $sites-nav-menu-item-selected-background;
-					
+
 					a:hover, a:active
 					{
 						color: $sites-nav-menu-item-selected-color; /* to override default link hover color */
@@ -806,8 +807,8 @@ body.is-logged-out{
 						background: $sites-nav-submenu-item-background;
 						color: $sites-nav-submenu-item-color;
 						border: $sites-nav-submenu-item-border;
-						
-						&:hover, &:active 
+
+						&:hover, &:active
 						{
 							background: $sites-nav-submenu-item-background-hover;
 							color: $sites-nav-submenu-item-color-hover;
@@ -825,7 +826,7 @@ body.is-logged-out{
 							background: $sites-nav-submenu-item-selected-background;
 							color: $sites-nav-submenu-item-selected-color;
 							border: $sites-nav-submenu-item-selected-border;
-							
+
 							&:hover, &:active
 							{
 								color: $sites-nav-menu-item-selected-color-hover;
@@ -934,9 +935,9 @@ body.is-logged-out{
 }
 
 .user-dropdown-overlay{
-	height: 100%; 
-	position: fixed; 
-	width: 100%; 
+	height: 100%;
+	position: fixed;
+	width: 100%;
 	z-index: 20;
 }
 

@@ -47,9 +47,12 @@ public interface SimplePageItem {
     public static final int BLTI = 12;
     public static final int PEEREVAL = 13;
     public static final int BREAK = 14;
+    public static final int RESOURCE_FOLDER = 20;
     public static final int CHECKLIST = 15;
     public static final int FORUM_SUMMARY = 16;
     public static final int ANNOUNCEMENTS = 17;
+    public static final int TWITTER = 18;
+    public static final int CALENDAR = 19;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";

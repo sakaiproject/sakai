@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+		<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+		<script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
+		<script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/folder-listing.js"></script>
+		<script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/get-available-sites.js"></script>
+		<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+		<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+		<link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css"/>
+		<script type="text/javascript" src="$context/js/folder-picker.js"></script>
+	</head>
+	<body rsf:id="scr=sakai-body">
+		<div class="portletBody" style="height:800px;">
+			<div rsf:id="error-div" class="ui-widget">
+				<div class="messageError below-link-help">
+					<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+					<span rsf:id="error"></span> </p>
+				</div>
+			</div>
+			<form action="#" rsf:id="folder-picker" id="folder-picker">
+				<h2><span rsf:id="title-label"></span><span class="bold" style="margin-left:5px;" rsf:id="page-title"></span></h2>
+				<input type="hidden" rsf:id="csrf"/>
+				<span rsf:id="top-folder" id="top-folder" style="display: none"></span>
+				<input type="hidden" rsf:id="item-id" id="item-id" />
+				<p><span rsf:id="choose-label"></span></p>
+				<input type="hidden" rsf:id="folder-path" id="folder-path" />
+				<input type="hidden" rsf:id="add-before" id="add-before" />
+				<div class="listing"  id="workspace" data-files="true" data-description="true"
+					 data-copyright="true"   data-multifolder="true">
+				</div>
+				<br/>
+				<div id="active-div" style="display:none">
+					<label for="active-folder"><span rsf:id="msg=simplepage.active-folder"></span></label><br />
+					<input type="text" name="active-folder" id="active-folder" readonly="true"/>
+				</div>
+				<div rsf:id="prerequisite-block">
+					<input type="checkbox" id="question-prerequisite" rsf:id="question-prerequisite"/><label rsf:id="msg=simplepage.prerequisites_label" for="question-prerequisite"></label>
+				</div>
+				<p class="act">
+					<input type="submit" class="bold" rsf:id="submit" />
+					<input type="submit" rsf:id="cancel" />
+					<input type="submit" rsf:id="delete" class="deleteButton" />
+				</p>
+			</form>
+		</div>	
+	</body>
+</html>

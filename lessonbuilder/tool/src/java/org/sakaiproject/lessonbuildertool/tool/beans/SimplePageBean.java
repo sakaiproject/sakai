@@ -71,6 +71,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -298,6 +299,8 @@ public class SimplePageBean {
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
+	private String folderPath;
+	private String newOwner;
 	//variables used for announcements widget
 	private String announcementsHeight;
 	private String announcementsDropdown;
@@ -309,7 +312,15 @@ public class SimplePageBean {
 	public void setPeerEval(boolean peerEval) {
 		this.peerEval = peerEval;
 	}
-	
+
+	public String getNewOwner() {
+		return newOwner;
+	}
+
+	public void setNewOwner(String newOwner) {
+		this.newOwner = newOwner;
+	}
+
 	public void setRubricTitle(String rubricTitle) {
 		this.rubricTitle = rubricTitle;
 	}
@@ -373,7 +384,14 @@ public class SimplePageBean {
 		}
 		rubricPeerGrades.add(rubricPeerGrade);
 	}
-    
+	public String getFolderPath() {
+		return folderPath;
+	}
+
+	public void setFolderPath(String folderPath) {
+		this.folderPath = folderPath;
+	}
+
 	// Caches
 
     // The following caches are used only during a single display of the page. I believe they
@@ -1109,7 +1127,7 @@ public class SimplePageBean {
 
 			// figure out how to filter
 			Integer filter = FILTER_DEFAULT;
-			if (getCurrentPage().getOwner() != null) {
+			if (isStudentPage(getCurrentPage())) {
 			    filter = FILTER_DEFAULT; // always filter student content
 			} else {
 			    // this is instructor content.
@@ -1722,6 +1740,10 @@ public class SimplePageBean {
 	 */
         // There's a copy of canEditPage in LessonsAccess for use by services. Keep them in sync
 	public int getEditPrivs() {
+		if (currentPage!=null && currentPage.getOwner()!=null && currentUserId!=null && currentPage.getOwner().equals(currentUserId)){
+			editPrivs = 0;
+			return editPrivs;
+		}
 		if(editPrivs != null) {
 			return editPrivs;
 		}
@@ -1806,17 +1828,17 @@ public class SimplePageBean {
 		    return items;
 
 		items = simplePageToolDao.findItemsOnPage(pageid);
-		
+
 		// This code adds a global comments tool to the bottom of each
 		// student page, but only if there's something else on the page
 		// already and the instructor has enabled the option.
 		//   For some reason these are added to the beginning. In ShowPageProducer
 		// they are moved to the end. Beacuse that reverses the order, put peer first
-		// here in order to get it last. We need to check whether we can't just put 
+		// here in order to get it last. We need to check whether we can't just put
 		// them at the end in the first place.
 		if(items.size() > 0) {
 			SimplePage page = getPage(pageid);
-				if(page.getOwner() != null) {
+				if(isStudentPage(page)) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPage(page.getTopParent());
 				if(student != null && student.getCommentsSection() != null) {
 					SimplePageItem item = simplePageToolDao.findItem(student.getItemId());
@@ -1824,7 +1846,7 @@ public class SimplePageBean {
 						String peerEval=item.getAttributeString();
 						SimplePageItem studItem =  new SimplePageItemImpl();
 						studItem.setSakaiId(page.getTopParent().toString());
-						
+
 						studItem.setAttributeString(peerEval);
 						studItem.setGroupOwned(item.isGroupOwned());
 						studItem.setName("peerEval");
@@ -1840,11 +1862,11 @@ public class SimplePageBean {
 				}
 			}
 		}
-		
+
 		for (SimplePageItem item: items) {
 		    itemCache.put(item.getId(), item);
 		}
-		
+
 		itemsCache.put(pageid, items);
 		return items;
 	}
@@ -2413,7 +2435,7 @@ public class SimplePageBean {
 		
 		SimplePageItem ret = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(getCurrentPageId()));
 		
-		if(ret == null && page.getOwner() != null) {
+		if(ret == null && isStudentPage(page)) {
 			ret = simplePageToolDao.findItemFromStudentPage(page.getPageId());
 		}
 		if (ret == null)
@@ -2651,6 +2673,7 @@ public class SimplePageBean {
 		if (makeNewPage) {
 		    subpage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, parent, topParent);
 		    subpage.setOwner(owner);
+		    subpage.setOwned(owner!=null);
 		    subpage.setGroup(group);
 		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());
@@ -2814,7 +2837,7 @@ public class SimplePageBean {
 		if (page == null)
 		    return "no-such-page";
 
-		if(page.getOwner() == null) {
+		if(!isStudentPage(page)) {
 		    // this code should never be called
 		    return "failure";
 		}else {
@@ -3058,8 +3081,8 @@ public class SimplePageBean {
 		}
 	}
 
-	public void updateCurrentPage() {
-		update(currentPage);
+	public void updateCurrentPage(boolean requiresEditPermission) {
+		update(currentPage, requiresEditPermission);
 	}
 
 	public List<PathEntry> getHierarchy() {
@@ -3467,6 +3490,7 @@ public class SimplePageBean {
 		   // fall through: groups controlled by LB
 	       // for the following items we don't have non-LB items so don't need itemunused
 	       case SimplePageItem.TEXT:
+	       case SimplePageItem.RESOURCE_FOLDER:
 	       case SimplePageItem.CHECKLIST:
 	       case SimplePageItem.PAGE:
 	       case SimplePageItem.COMMENTS:
@@ -3677,8 +3701,9 @@ public class SimplePageBean {
     // the group list, so you need to do i.setGroups().
        public List<String> setItemGroups (SimplePageItem i, String[] groups) {
 	   // can't allow groups on student pages
-	   if (getCurrentPage().getOwner() != null)
+	   if (isStudentPage(getCurrentPage())) {
 	       return null;
+	   }
 	   LessonEntity lessonEntity = null;
 	   switch (i.getType()) {
 	   case SimplePageItem.ASSIGNMENT:
@@ -4093,8 +4118,9 @@ public class SimplePageBean {
 		SimplePageItem pageItem = getCurrentPageItem(null);
 		Site site = getCurrentSite();
 		boolean needRecompute = false;
-		
-		if(page.getOwner() == null && getEditPrivs() == 0) {
+		boolean isOwner = false;
+
+		if(!isStudentPage(page) && getEditPrivs() == 0) {
 			// update gradebook link if necessary
 			Double currentPoints = page.getGradebookPoints();
 			Double newPoints = null;
@@ -4144,6 +4170,30 @@ public class SimplePageBean {
 			    }
 
 			}
+
+			isOwner = currentUserId!=null && page!=null && currentUserId.equals(page.getOwner());
+			if (newOwner==null){
+				page.setOwner(newOwner);
+				page.setOwned(false);
+			}
+			else {
+				Set<String> siteMembers = site.getUsers();
+				boolean ownerIsMember = siteMembers.contains(newOwner);
+				if (ownerIsMember) {
+					page.setOwner(newOwner);
+					page.setOwned(true);
+				}
+				else {
+					User user = null;
+					try {
+						user = UserDirectoryService.getUser(newOwner);
+					} catch (UserNotDefinedException e) {
+						log.warn("Can't find user from owner:" + newOwner);
+					}
+					String displayName = user.getDisplayName();
+					setErrMessage(messageLocator.getMessage("simplepage.not-member").replace("{}", displayName));
+				}
+			}
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
@@ -4184,15 +4234,15 @@ public class SimplePageBean {
 					page.setReleaseDate(releaseDate);
 				else
 					page.setReleaseDate(null);
-				update(page);
-				updateCurrentPage();
+				update(page, !isOwner);
+				updateCurrentPage(!isOwner);
 				placement.setTitle(pageTitle);
 				placement.save();
 				pageVisibilityHelper(site, page.getToolId(), !hidePage);
 				pageItem.setPrerequisite(prerequisite);
 				pageItem.setRequired(required);
 				pageItem.setName(pageTitle);
-				update(pageItem);
+				update(pageItem, !isOwner);
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -4206,7 +4256,7 @@ public class SimplePageBean {
 			    page.setReleaseDate(releaseDate);
 			else
 			    page.setReleaseDate(null);
-			update(page);
+			update(page, !isOwner);
 		}
 		
 		if(pageTitle != null) {
@@ -4216,7 +4266,7 @@ public class SimplePageBean {
 				update(student, false);
 			} else {
 				pageItem.setName(pageTitle);
-				update(pageItem);
+				update(pageItem, !isOwner);
 			}
 			
 			adjustPath("", pageItem.getPageId(), pageItem.getId(), pageTitle);
@@ -4234,7 +4284,7 @@ public class SimplePageBean {
 			page.setCssSheet(dropDown);
 		}
 		
-		update(page);
+		update(page, !isOwner);
 
 		// have to do this after the page itself is updated
 		if (needRecompute)
@@ -4893,7 +4943,7 @@ public class SimplePageBean {
 			return false;
 		    if (itemPage.getReleaseDate() != null && itemPage.getReleaseDate().after(new Date()))
 			return false;
-		} else if (page != null && page.getOwner() != null && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
+		} else if (page != null && isStudentPage(page) && (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.MULTIMEDIA)) {
 
 		    // check for inline types. No resource to check. Since this section is for student page, no groups either
 		    if (item.getType() == SimplePageItem.MULTIMEDIA) {
@@ -5987,8 +6037,9 @@ public class SimplePageBean {
 		    SimplePage p = simplePageToolDao.getPage(i.getPageId());
 		    if (p == null)
 			continue;
-		    if (p.getOwner() != null)  // probably can't happen
-			continue;
+		    if (isStudentPage(p)) { // probably can't happen
+			    continue;
+		    }
 		    if (seen.contains(p.getPageId()))  // already seen this page, we're in a loop
 			continue;
 		    Path path = getPagePath(p, seen);
@@ -6059,7 +6110,7 @@ public class SimplePageBean {
 
 		SecurityAdvisor advisor = null;
 		try {
-			if(getCurrentPage().getOwner() != null) {
+			if(isStudentPage(getCurrentPage())) {
 				advisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
 							return SecurityAdvice.ALLOWED;
@@ -6744,7 +6795,7 @@ public class SimplePageBean {
 		}
 
 		// student page
-		boolean isStudent = (currentPage.getOwner() != null);
+		boolean isStudent = isStudentPage(currentPage);
 
 		// testing whether user can get to the page is complex.
 		// but you can't add a comment to a page you haven't seen,
@@ -6790,7 +6841,7 @@ public class SimplePageBean {
 			}
 		}
 		
-		if(getCurrentPage().getOwner() != null) {
+		if(isStudentPage(getCurrentPage())) {
 			SimpleStudentPage student = simplePageToolDao.findStudentPage(currentPage.getTopParent());
 			student.setLastCommentChange(new Date());
 			update(student, false);
@@ -6910,8 +6961,9 @@ public class SimplePageBean {
 	}
 	
 	public void addStudentContentSection() {
-		if (!canEditPage()) 
+		if (!canEditPage()) {
 		    return;
+		}
 		if (!checkCsrf())
 		    return;
 
@@ -7025,6 +7077,8 @@ public class SimplePageBean {
 			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(), title, curr.getPageId(), null);
 			newPage.setOwner(user.getId());
 			newPage.setGroup(groupId);
+			//this is a student page so set 'owned' as false
+			newPage.setOwned(false);
 			saveItem(newPage, false);
 			
 			// Then attach the lesson_builder_student_pages item.
@@ -7092,7 +7146,7 @@ public class SimplePageBean {
 	}
 
 	private boolean pushAdvisor() {
-		if(getCurrentPage().getOwner() != null) {
+		if(isStudentPage(getCurrentPage())) {
 			securityService.pushAdvisor(new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
 					return SecurityAdvice.ALLOWED;
@@ -8224,7 +8278,7 @@ public class SimplePageBean {
 		
 		// can evaluate if this is a student page and we're in the site
 		// and the page has a rubric
-		if (getCurrentPage().getOwner() == null || !canReadPage()) {		    
+		if (!isStudentPage(getCurrentPage()) || !canReadPage()) {
 		    setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 		    return "permission-failed";
 		}
@@ -8420,7 +8474,7 @@ public class SimplePageBean {
 				}
 			}
 			
-			if(getCurrentPage().getOwner() != null) {
+			if(isStudentPage(getCurrentPage())) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPage(getCurrentPage().getTopParent());
 				student.setLastCommentChange(new Date());
 				update(student, false);
@@ -8494,4 +8548,43 @@ public class SimplePageBean {
 		return status;
 	}
 
+	public boolean isStudentPage(SimplePage page){
+		return page != null && page.getOwner()!=null && !page.isOwned();
+	}
+
+	/**
+	 * Method to add Resources folder into Lessons tool
+	 */
+	public String folderPickerSubmit(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		//Check if user has submitted page without selecting folder?
+		String defaultPath = contentHostingService.getSiteCollection(getCurrentSiteId());
+		folderPath = folderPath.substring(folderPath.indexOf("/", 1));
+		if(folderPath == null ||  folderPath.equals(defaultPath)){
+			return "failure";
+		}
+		String dataDirectory = defaultPath + folderPath;
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.RESOURCE_FOLDER);
+			}
+			item.setAttribute("dataDirectory", dataDirectory);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
 }

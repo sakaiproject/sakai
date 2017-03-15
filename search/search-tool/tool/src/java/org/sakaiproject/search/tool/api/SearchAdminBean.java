@@ -22,6 +22,7 @@
 package org.sakaiproject.search.tool.api;
 
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchStatus;
@@ -121,17 +122,29 @@ public interface SearchAdminBean
 	 */
 	String getSegmentInfo(String rowFormat);
 
+    /**
+     * @return all of the names of the different index builders
+     */
+    Set<String> getIndexBuilderNames();
+
 	/**
-	 * get a list of options for the admin user
-	 * @return
+	 * @return get a list of options for the admin user that only apply
+     * to the default index or to all index builders
 	 */
-	List<AdminOption> getOptons();
+	List<AdminOption> getDefaultOptions();
+
+	/**
+	 * @return get a list of options for the admin user that only apply
+     * to the one index builder at a time (requires selecting which
+     * index builder to use)
+	 */
+	List<AdminOption> getIndexSpecificOptions();
 
 	/**
 	 * get the search status
 	 * @return
 	 */
-	SearchStatus getSearchStatus();
+	List<SearchStatus> getSearchStatus();
 
 	/**
 	 * get a list of master objects 

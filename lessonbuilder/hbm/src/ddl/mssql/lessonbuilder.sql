@@ -95,6 +95,7 @@
         gradebookPoints double precision null,
         owner varchar(36) null,
         groupOwned tinyint null,
+        owned tinyint not null,
         groupid varchar(36) null,
         cssSheet varchar(250) null,
         primary key (pageId)

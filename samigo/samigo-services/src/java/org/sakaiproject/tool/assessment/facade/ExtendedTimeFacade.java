@@ -95,22 +95,13 @@ public class ExtendedTimeFacade {
         return results;
     }
     /**
-     * A Helper method to sync up the extended time date to match the dates in the accessment access control
-     * @param ac
-     * @param et
+     * Sync a List of ExtendedTime Entry to the AssessmentAccessControlIfc
+     * @param et List of Extended Time entries to sync
      */
 
-    private void syncExtendedTimeDates(AssessmentAccessControlIfc ac, List <ExtendedTime> et) {
+    private void syncExtendedTimeDates(List <ExtendedTime> et) {
         for(ExtendedTime e : et) {
-			if (e.getDueDate() == null) {
-				e.setDueDate(ac.getDueDate());
-			}
-			if (e.getStartDate() == null) {
-				e.setStartDate(ac.getStartDate());
-			}
-			if (e.getRetractDate() == null) {
-				e.setRetractDate(ac.getRetractDate());
-			}
+        	e.syncDates();
         }
     }
 
@@ -125,10 +116,10 @@ public class ExtendedTimeFacade {
         List<ExtendedTime> oldExtendedTime;
         if(assFacade == null) {
             oldExtendedTime = extendedTimeQueries.getEntriesForPub(p);
-            syncExtendedTimeDates(p.getAssessmentAccessControl(), newExtendedTime);
+            syncExtendedTimeDates(newExtendedTime);
         } else {
             oldExtendedTime = extendedTimeQueries.getEntriesForAss(assFacade.getData());
-            syncExtendedTimeDates(assFacade.getAssessmentAccessControl(), newExtendedTime);
+            syncExtendedTimeDates(newExtendedTime);
         }
 
         List<ExtendedTime> extraneousInOld = new ArrayList<>();

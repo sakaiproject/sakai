@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.Entity;
 
 import org.sakaiproject.util.StringUtil;
@@ -192,9 +193,9 @@ public class AssignmentServiceTest extends TestCase
 				submittersName = root;
 				String submittersString = "test user " + count;
 					
-				if (StringUtil.trimToNull(submittersString) != null)
+				if (StringUtils.trimToNull(submittersString) != null)
 				{
-					submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
+					submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
 
 					try
 					{

@@ -65,7 +65,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.ArrayUtils;
@@ -9211,7 +9211,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		extType.put("id", id);
 		if (type == null) type = "";
 		extType.put("type", type);
-		String extension = Validator.getFileExtension(id);
+		
+		String[] idSegments;
+		idSegments = id.split("/");
+		String filename = idSegments.length > 0 ? idSegments[idSegments.length - 1]:id;
+		String extension = Validator.getFileExtension(filename);
 
 		if (extension.length() != 0)
 		{

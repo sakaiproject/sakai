@@ -1365,7 +1365,6 @@ div[role="dialog"] {
 }
 
 .right-col {
-  display: inline-block; /* probably no longer needed */
   -webkit-column-break-inside: avoid; /* Chrome, Safari, Opera */
   page-break-inside: avoid; /* Firefox */
   break-inside: avoid; /* standard, IE 10+ */

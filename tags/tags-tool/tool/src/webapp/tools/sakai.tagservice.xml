@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.tagservice"
+          title="Tags Service"
+          description="For managing tags and collections of tags">
+
+        <!--  This tool will be made available to the following site types via Site Info > Edit Tools -->
+        <category name="sakai.admin"/>
+
+        <configuration name="functions.require" value="tagservice.manage"/>
+    </tool>
+</registration>
+

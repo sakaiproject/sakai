@@ -35,7 +35,10 @@ import java.util.Iterator;
 public class StringUtil
 {
 	/**
-	 * Like jdk1.4's String.split...
+	 * @param source
+	 * @param splitter
+	 * @return
+	 * @deprecated use commons-lang3 StringUtils.split
 	 */
 	public static String[] split(String source, String splitter)
 	{
@@ -201,7 +204,7 @@ public class StringUtil
 	 * @param value
 	 *        The string to trim.
 	 * @return value trimmed of blanks, and if nothing left, made null.
-	 * @deprecated use commons-lang StringUtils.trimToNull
+	 * @deprecated use commons-lang3 StringUtils.trimToNull
 	 */
 	public static String trimToNull(String value)
 	{

@@ -21,13 +21,6 @@
         <url>http://www.sakaiproject.org/sakai-foundation</url>
     </organization>
     <inceptionYear>2009</inceptionYear>
-    <licenses>
-        <license>
-            <name>ECL-2.0</name>
-            <url>http://opensource.org/licenses/ECL-2.0</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <developers>
         <developer>
@@ -68,7 +61,7 @@
         <!-- dependencies versions -->
         <oauth.version>20100527</oauth.version>
         <servlet-api.version>2.5</servlet-api.version>
-        <wicket.version>1.4.23</wicket.version>
+        <wicket.version>7.6.0</wicket.version>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
 

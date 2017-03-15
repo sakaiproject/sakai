@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 import java.util.zip.*;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -2674,7 +2674,7 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean defaultStoreInstIndex = serverConfigurationService.getBoolean("contentreview.option.store_inst_index.default", showStoreInstIndex);
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX) == null) ? Boolean.toString(defaultStoreInstIndex) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX));
 		
-		//exclude quoted materials
+		//exclude small matches
 		boolean displayExcludeType = serverConfigurationService.getBoolean("turnitin.option.exclude_smallmatches", true);
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES", displayExcludeType);
 		if(displayExcludeType){
@@ -9768,16 +9768,26 @@ public class AssignmentAction extends PagedResourceActionII
         //Rely on the deprecated "turnitin.option.exclude_quoted" setting if set, otherwise use "contentreview.option.exclude_quoted"
         boolean showExcludeQuoted = serverConfigurationService.getBoolean("turnitin.option.exclude_quoted", serverConfigurationService.getBoolean("contentreview.option.exclude_quoted", Boolean.TRUE));
 		if(showExcludeQuoted){
-			//we don't want to pass parameters if the user didn't get an option to set it
 			opts.put("exclude_quoted", assign.isExcludeQuoted() ? "1" : "0");
+		} else {
+			Boolean defaultExcludeQuoted = serverConfigurationService.getBoolean("contentreview.option.exclude_quoted.default", true);
+			opts.put("exclude_quoted", defaultExcludeQuoted ? "1" : "0");
 		}
+
+		//exclude self plag
 		if(serverConfigurationService.getBoolean("contentreview.option.exclude_self_plag", true)){
-			//we don't want to pass parameters if the user didn't get an option to set it
 			opts.put("exclude_self_plag", assign.isExcludeSelfPlag() ? "1" : "0");
+		} else {
+			Boolean defaultExcludeSelfPlag = serverConfigurationService.getBoolean("contentreview.option.exclude_self_plag.default", true);
+			opts.put("exclude_self_plag", defaultExcludeSelfPlag ? "1" : "0");
 		}
+
+		//Store institutional Index
 		if(serverConfigurationService.getBoolean("contentreview.option.store_inst_index", true)){
-			//we don't want to pass parameters if the user didn't get an option to set it
 			opts.put("store_inst_index", assign.isStoreInstIndex() ? "1" : "0");
+		} else {
+			Boolean defaultStoreInstIndex = serverConfigurationService.getBoolean("contentreview.option.store_inst_index.default", true);
+			opts.put("store_inst_index", defaultStoreInstIndex ? "1" : "0");
 		}
         
         if((assign.getExcludeType() == 1 || assign.getExcludeType() == 2) 
@@ -12199,7 +12209,7 @@ public class AssignmentAction extends PagedResourceActionII
 					    User[] _users = submission.getSubmitters();
 					    HashMap<String,String> scaledValues = new HashMap<String,String>();
 					    for (int i=0; _users != null && i < _users.length; i++) {
-					        String ug = StringUtil.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId()));
+					        String ug = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId()));
 					        if ("null".equals(ug)) ug = null;
 					        if (!hasChange && typeOfGrade != Assignment.UNGRADED_GRADE_TYPE) {
 					                hasChange = valueDiffFromStateAttribute(state, ug, submission.getGradeForUser(_users[i].getId()));

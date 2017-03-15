@@ -20,15 +20,6 @@
     <module>assignment-tool/tool</module>
   </modules>
 
-
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
-    </site>
-  </distributionManagement>
-
   <dependencyManagement>
     <dependencies>
       <dependency>

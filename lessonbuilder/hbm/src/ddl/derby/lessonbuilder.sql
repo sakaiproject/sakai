@@ -95,6 +95,7 @@
         gradebookPoints double,
         owner varchar(36),
         groupOwned smallint,
+        owned smallint,
         groupid varchar(36),
         cssSheet varchar(250),
         primary key (pageId)

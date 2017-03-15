@@ -19,12 +19,13 @@
  */
 package org.sakaiproject.oauth.tool.user.pages;
 
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -50,21 +51,19 @@ public class ListAccessors extends SakaiPage {
     public ListAccessors() {
         String userId = sessionManager.getCurrentSessionUserId();
         Collection<Accessor> accessors = oAuthService.getAccessAccessorForUser(userId);
-        ListView<Accessor> accessorList = new ListView<Accessor>("accessorlist", new ArrayList<Accessor>(accessors)) {
+        ListView<Accessor> accessorList = new ListView<Accessor>("accessorlist", new ArrayList<>(accessors)) {
             @Override
             protected void populateItem(ListItem<Accessor> components) {
                 try {
                     final Consumer consumer = oAuthService.getConsumer(components.getModelObject().getConsumerId());
                     ExternalLink consumerHomepage = new ExternalLink("consumerUrl", consumer.getUrl(),
                             consumer.getName());
-                    consumerHomepage.add(new SimpleAttributeModifier("target", "_blank"));
+                    consumerHomepage.add(new AttributeModifier("target", "_blank"));
                     consumerHomepage.setEnabled(consumer.getUrl() != null && !consumer.getUrl().isEmpty());
                     components.add(consumerHomepage);
                     components.add(new Label("consumerDescription", consumer.getDescription()));
-                    components.add(new Label("creationDate", new StringResourceModel("creation.date", null,
-                            new Object[]{components.getModelObject().getCreationDate()})));
-                    components.add(new Label("expirationDate", new StringResourceModel("expiration.date", null,
-                            new Object[]{components.getModelObject().getExpirationDate()})));
+                    components.add(new Label("creationDate", new StringResourceModel("creation.date", new Model<>(components.getModelObject().getCreationDate()))));
+                    components.add(new Label("expirationDate", new StringResourceModel("expiration.date", new Model<>(components.getModelObject().getExpirationDate()))));
 
                     components.add(new Link<Accessor>("delete", components.getModel()) {
                         @Override

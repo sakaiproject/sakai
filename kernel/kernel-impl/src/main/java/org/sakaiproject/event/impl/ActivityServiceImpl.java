@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.ActivityService;
@@ -27,7 +27,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 
 	private static Logger log = LoggerFactory.getLogger(ActivityServiceImpl.class);
 	
-	private Cache userActivityCache = null;
+	private Cache<String, Long> userActivityCache = null;
 	private final String USER_ACTIVITY_CACHE_NAME = "org.sakaiproject.event.api.ActivityService.userActivityCache";
 		
 	/**

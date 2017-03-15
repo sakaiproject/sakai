@@ -6,9 +6,4 @@
    <import resource="contentAdapterComponents.xml" />
    <import resource="siteAdapterComponents.xml" />
 
-    <bean name="org.sakaiproject.search.api.SearchService"
-          class="org.sakaiproject.search.adapter.SearchServiceAdapter"/>
-
-    <bean name="org.sakaiproject.search.api.SearchIndexBuilder"
-          class="org.sakaiproject.search.adapter.SearchIndexBuilderAdapter"/>
 </beans>
