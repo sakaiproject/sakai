@@ -285,7 +285,7 @@ nav#subSites{
 				i{
 					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
 				}
-				
+
 				@media #{$phone}{
 					display: none;
 				}
