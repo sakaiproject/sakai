@@ -69,6 +69,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -226,6 +227,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static final String DEFAULT_WIDTH = "640px";
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
 	SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	//institution's twitter widget id, should come from properties file
+	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -1244,7 +1247,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL || i.getType() == SimplePageItem.RESOURCE_FOLDER
 					        || i.getType() == SimplePageItem.CHECKLIST || i.getType() == SimplePageItem.FORUM_SUMMARY
 					        || i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.ANNOUNCEMENTS
-					        || i.getType() == SimplePageItem.CALENDAR );
+					        || i.getType() == SimplePageItem.CALENDAR || i.getType() == SimplePageItem.TWITTER );
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -1276,6 +1279,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				case SimplePageItem.RESOURCE_FOLDER: itemClassName = "resourceFolderType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
+				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
 				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
 				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
 				case SimplePageItem.CALENDAR: itemClassName = "calendar"; break;
@@ -3254,7 +3258,46 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 
 					makeSaveChecklistForm(tofill);
-				}  else {
+				}else if(i.getType() == SimplePageItem.TWITTER) {
+					UIOutput.make(tableRow, "twitterSpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
+					if (canSeeAll) {
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "twitter-groups-titles", itemGroupTitles);
+					}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						//Getting variables from attributes of this  twitter page item
+						String tweetLimit = i.getAttribute("numberOfTweets") != null ? i.getAttribute("numberOfTweets") : "5";
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						String username = i.getAttribute("username") != null ? i.getAttribute("username") : "";
+
+						String href  = "https://twitter.com/" + StringUtils.trim(username);
+						String divHeight = "height:" + height + "px;";
+						//Note: widget id used is from uni's twitter account
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"twitter-div\"><a class=\"twitter-timeline\" href= '" +href+ "' data-widget-id='" +ServerConfigurationService.getString(TWITTER_WIDGET_ID)+ "'  data-tweet-limit='" +tweetLimit +"' data-dnt=\"true\" data-screen-name='" +username+"'>Tweets by @'" +username+"'</a></div>";
+						UIVerbatim.make(tableRow, "content", html);
+						UIOutput.make(tableRow, "username", username);
+						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
+						UIOutput.make(tableRow, "twitter-height", height);
+						UIOutput.make(tableRow, "twitterId", String.valueOf(i.getId()));
+					} else {
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "twitter-td");
+						UILink.make(tableRow, "edit-twitter", (String) null, "");
+					}
+				} else {
 					// remaining type must be a block of HTML
 					UIOutput.make(tableRow, "itemSpan");
 
@@ -3402,6 +3445,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createCommentsDialog(tofill);
 		createStudentContentDialog(tofill, currentPage);
 		createQuestionDialog(tofill, currentPage);
+		createTwitterDialog(tofill, currentPage);
 		createForumSummaryDialog(tofill, currentPage);
 		createDeleteItemDialog(tofill, currentPage);
 		createAnnouncementsDialog(tofill, currentPage);
@@ -3769,7 +3813,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return user.getDisplayName();
 	}
 
-    private static void disableLink(UIComponent link, MessageLocator messageLocator) {
+	//Get the twitter widget hashtag and other settings from the user.
+	private void createTwitterDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "add-twitter-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.twitter")));
+		UIForm form = UIForm.make(tofill, "add-twitter-form");
+		makeCsrf(form, "csrf13");
+		UIInput.make(form, "twitterEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "twitter-addBefore", "#{simplePageBean.addBefore}");
+		UIInput.make(form, "twitter-username", "#{simplePageBean.twitterUsername}");
+		UIOutput.make(form, "twitter-username-label", messageLocator.getMessage("simplepage.twitter-username"));
+		UIInput.make(form, "widget-height", "#{simplePageBean.twitterWidgetHeight}");
+		UIOutput.make(form, "height-label", messageLocator.getMessage("simplepage.twitter.height_label"));
+		//Adding default values for tweet number dropdown
+		String[] options = {"5","10","25","50","100","1000"};
+		String[] labels = {"5","10","25","50","100","1000"};
+		UIOutput.make(form, "numberDropdownLabel", messageLocator.getMessage("simplepage.number-dropdown-label"));
+		UISelect.make(form, "numberDropdown", options, labels, "#{simplePageBean.twitterDropDown}","5");
+		UICommand.make(form, "twitter-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addTwitterTimeline}");
+		UICommand.make(form, "twitter-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-twitter-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+	}
+	private static void disableLink(UIComponent link, MessageLocator messageLocator) {
 		link.decorate(new UIFreeAttributeDecorator("onclick", "return false"));
 		link.decorate(new UIDisabledDecorator());
 		link.decorate(new UIStyleDecorator("disabled"));
@@ -4028,6 +4092,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    makeCsrf(form, "csrf26");
 		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
+			//Adding 'Embed twitter timeline' component
+			UIOutput.make(tofill, "twitter-li");
+			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
+			twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
