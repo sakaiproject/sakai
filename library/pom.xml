@@ -16,7 +16,7 @@
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
 		<!-- Empty defaults -->
-		<ckeditor-extra-plugins></ckeditor-extra-plugins>
+		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -380,7 +380,7 @@
 				</property>
 			</activation>
 			<properties>
-				<ckeditor-extra-plugins>,a11ychecker</ckeditor-extra-plugins>
+				<ckeditor-a11y-extra-plugins>,a11ychecker</ckeditor-a11y-extra-plugins>
 			</properties>
 			<dependencies>
 				<dependency>
