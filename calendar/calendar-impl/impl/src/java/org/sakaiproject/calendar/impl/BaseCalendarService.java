@@ -7425,8 +7425,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 		}
 	}
-	
-	protected List<String> getCalendarReferences(String siteId) {
+
+	/**
+	 * JavaDoc can be found org.sakaiproject.calendar.api.CalendarService.
+	 * @param siteId
+	 * @return
+	 */
+	public List<String> getCalendarReferences(String siteId) {
 		// get merged calendars channel refs
 		String initMergeList = null;
 		try {
