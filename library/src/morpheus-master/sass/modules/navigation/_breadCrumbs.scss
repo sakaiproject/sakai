@@ -23,7 +23,6 @@
 	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
 	@media #{$nonPhone}{
 		min-height: initial;
-		padding: 1em 0 1em 1em;
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
 			/* Since we'll start on our own line, don't pad */
@@ -48,9 +47,10 @@
 		a.#{$namespace}hierarchy--toolName{
 			color: $breadcrumbs-tool-color;
 			text-transform: uppercase;
-			font-size: 120%;
+			font-size: 110%;
 			font-weight: bold;
-			margin-left: 0;
+			display: inline-block;
+			margin: 1em 0 0.25em 1.25em;
 
 			&:hover{
 				border-bottom: 1px solid $breadcrumbs-hover-color;

@@ -168,6 +168,10 @@ $footer-background-color: $tool-menu-background-color !default;
 $footer-border-color: $tool-border-color !default;
 $footer-color: $background-color-secondary !default;
 
+// Overview page column widths. Total to add up to 96% as the columns have a margin.
+$col1of2-width: 48% !default;
+$col2of2-width: 48% !default;
+
 /* From NYU 11 Skin */
 $divider-shadow: 0 1px 5px rgba(0,0,0,.3) !default;
 $overview-portlet-border-color: $tool-border-color !default;

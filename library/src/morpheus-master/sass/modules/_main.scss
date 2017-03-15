@@ -43,26 +43,25 @@
 			margin: 0 0 0 1%;
 			vertical-align: top;
 	    display: inline-block;
-  		#col1of2 {
-	  		width: 61%;
-		  }
-		  #col2of2{
-		  	width: 35%;
-		  }
+    }
+		#col1of2 {
+      width: $col1of2-width;
+    }
+    #col2of2 {
+      width: $col2of2-width;
     }
   }
 }
 
 .#{$namespace}mainContent{
   background: $main-content-background;
-	padding-top: 1em;
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
-	margin: 0 1em 1em 1em;
+	margin: 0 1em 1em;
 	clear: both;
 	@media #{$phone}{
-		margin: 0 0 0 0;
+		margin: 0;
 	}
 }
 
