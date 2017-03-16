@@ -21,6 +21,17 @@ public class PasswordServiceTest {
 	}
 
 	@Test
+	public void testGoodPassword() {
+		Assert.assertTrue(pwdService.check("ThisPasswordIsGood",
+			"PBKDF2:5RrskmenJ8ZwPeQvMqCMSw==:ZOF8+Y17j9SQy9yNG0IZ5w=="));
+	}
+
+	@Test
+	public void testEncrpt() {
+		Assert.assertTrue(pwdService.check("password", pwdService.encrypt("password")));
+	}
+
+	@Test
 	public void testEncryptOk() {
 		// Check salting is working.
 		Assert.assertNotSame(pwdService.encrypt("admin"), pwdService.encrypt("admin"));
@@ -32,11 +43,14 @@ public class PasswordServiceTest {
 	}
 
 	@Test
-	public void testMigratedPassword() {
+	public void testOldPassword() {
 		// Test of old password.
 		Assert.assertTrue(pwdService.check("admin", "ISMvKXpXpadDiUoOSoAf"));
 		Assert.assertTrue(pwdService.check("admin", "ISMvKXpXpadDiUoOSoAfww=="));
-		
+	}
+
+	@Test
+	public void testMigratedPasswords(){
 		// Test of migrated passwords
 		Assert.assertTrue(pwdService.check("admin", "MD5-SALT-SHA256:W2vRdA==:8QkvjZDLkqy5RoQUkRfOTG+C2FEhuq4sQyNxP7XKCvg=")); // MD5 admin password migrated.
 		Assert.assertTrue(pwdService.check("admin", "MD5TRUNC-SALT-SHA256:pgO3lQ==:KRWu18xxI1fJPeULNQeBUyL4FN3YMBShtkjf3PW4sSk=")); // MD5 trunc admin password migrated.
@@ -45,10 +59,10 @@ public class PasswordServiceTest {
 	@Test
 	public void testRoundTripMigrated() {
 		// Round trip migration
-		Assert.assertTrue(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.encrypt("ISMvKXpXpadDiUoOSoAfww==")));
-		Assert.assertTrue(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.encrypt("ISMvKXpXpadDiUoOSoAf")));
-		Assert.assertFalse(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.encrypt("Doesn't match.")));
-		Assert.assertFalse(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.encrypt("Not the same")));
+		Assert.assertTrue(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.oldEncrpt("ISMvKXpXpadDiUoOSoAfww==")));
+		Assert.assertTrue(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.oldEncrpt("ISMvKXpXpadDiUoOSoAf")));
+		Assert.assertFalse(pwdService.check("admin", PasswordService.MD5_SALT_SHA256 + pwdService.oldEncrpt("Doesn't match.")));
+		Assert.assertFalse(pwdService.check("admin", PasswordService.MD5TRUNC_SALT_SHA256 + pwdService.oldEncrpt("Not the same")));
 	}
 
 	@Test
