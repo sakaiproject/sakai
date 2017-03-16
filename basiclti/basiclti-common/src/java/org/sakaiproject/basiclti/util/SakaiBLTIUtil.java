@@ -1739,6 +1739,7 @@ public class SakaiBLTIUtil {
 			}
 		} catch (Exception e) {
 			retval = "Grade failure "+e.getMessage()+" siteId="+siteId;
+			M_log.warn("handleGradebook Grade failure in site:" + siteId,e);
 		} finally {
 			sess.invalidate(); // Make sure to leave no traces
 			popAdvisor();
