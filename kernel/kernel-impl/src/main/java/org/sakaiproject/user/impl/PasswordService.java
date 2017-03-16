@@ -38,7 +38,7 @@ import java.util.Random;
 
 /**
  * Service to check that a password matches and to generate encrypted passwords from plaintext.
- * By we use PBKDF2.
+ * By default we use PBKDF2.
  *
  * @author buckett
  */
