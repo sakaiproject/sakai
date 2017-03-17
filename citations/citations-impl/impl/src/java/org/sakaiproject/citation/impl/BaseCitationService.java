@@ -5753,8 +5753,12 @@ public abstract class BaseCitationService implements CitationService
         }
         return citation;
     }
-
-
+    
+    public Citation copyCitation(Citation citation) {
+    	BasicCitation c = new BasicCitation();
+    	c.copy(citation);
+    	return c;
+    }
 
 } // BaseCitationService
 
