@@ -1323,10 +1323,9 @@ public String getAddOrEdit()
 		//Questionpool has been revised
 		EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.questionmoved", "/sam/" +AgentFacade.getCurrentSiteId() + "/sourceId=" + sourceId + " destId=" + destId, true));
 
-
 		setOutComeTree(originId);
 		
-	return getOutcome();
+		return getOutcome();
 	}
 
 	// This is the link in edit assessment to copy all questions to a pool
@@ -1444,9 +1443,7 @@ public String getAddOrEdit()
 							delegate.addItemToPool(copyItemFacadeId, new Long(
 									destId));
 						}
-                        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + sourceItemId, true));
-
-
+						EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + sourceItemId, true));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1454,10 +1451,8 @@ public String getAddOrEdit()
 				}
 			}
 		}
-
-	setOutComeTree(originId);
-	
-	return getOutcome();
+		setOutComeTree(originId);
+		return getOutcome();
 	}
 
   public String copyQuestionsFromPart() {
