@@ -1312,8 +1312,7 @@ public String getAddOrEdit()
 						delegate.moveItemToPool(new Long(sourceItemId),
 								new Long(sourceId), new Long(destId));
 					}
-                    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
-
+					EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
                 }
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1330,7 +1329,7 @@ public String getAddOrEdit()
 	return getOutcome();
 	}
 
-    // This is the link in edit assessment to copy all questions to a pool
+	// This is the link in edit assessment to copy all questions to a pool
 	// in order to use copyPool, we need to set up a valid pool context.
 	// that's what most of this is. The only actual work is setting sourcePart
 	public String startCopyFromAssessment() {
