@@ -1313,7 +1313,7 @@ public String getAddOrEdit()
 								new Long(sourceId), new Long(destId));
 					}
 					EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/moved, itemId=" + sourceItemId, true));
-                }
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
