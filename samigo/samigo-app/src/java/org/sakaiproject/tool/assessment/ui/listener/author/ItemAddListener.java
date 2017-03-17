@@ -136,15 +136,15 @@ public class ItemAddListener
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
 
-	  //To keep the temporal list of tags when validation fails
-	  String[] tagsFromForm = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap().get("tag_selector[]");
-	  if (itemauthorbean.getDeleteTagsAllowed()){
-		  //we update the full list of tags for the input field
-		  itemauthorbean.setTagsListToJson(convertTagSelectOptionsToJson(tagsFromForm));
-	  }else {
-		  //we update the list of tags for the NEW tags input field, but tagsListToJson will maintain the original value
-		  itemauthorbean.setTagsTempListToJson(convertTagSelectOptionsToJson(tagsFromForm));
-	  }
+    // To keep the temporal list of tags when validation fails
+    String[] tagsFromForm = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterValuesMap().get("tag_selector[]");
+    if (itemauthorbean.getDeleteTagsAllowed()) {
+    	//we update the full list of tags for the input field
+    	itemauthorbean.setTagsListToJson(convertTagSelectOptionsToJson(tagsFromForm));
+    } else {
+    	//we update the list of tags for the NEW tags input field, but tagsListToJson will maintain the original value
+    	itemauthorbean.setTagsTempListToJson(convertTagSelectOptionsToJson(tagsFromForm));    
+    }
 
     // SAK-6050
     // if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
