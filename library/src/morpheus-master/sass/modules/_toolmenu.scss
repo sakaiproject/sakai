@@ -256,30 +256,33 @@ nav#subSites{
 		padding: 0;
 		margin:  0;
 		li{
-			&.#{$namespace}collapseTools
-			{
-				display:flex;
+			&.#{$namespace}collapseTools{
+				display: block;
 				align-items:center;
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				width: ($tool-menu-width / 1.2em) + 0em;
 				justify-content:flex-end; /* right-align the arrows when expanded */
-				height:3em;
+				height: 3em;
+				line-height: 3em;
 				padding: 0 1em;
 				border-right: 1px solid $tool-menu-background-color;
 				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
 				cursor:pointer;
 				font-size: 1.2em;
+				text-align: right;
 				background-color: $tool-tab-background-color;
-				&:hover
-				{
+				box-shadow: 0 -1px 3px rgba(0,0,0,0.3);
+				&:hover{
 					background: $tool-menu-hover-background-color;
 					color: $tool-menu-hover-color;
 				}
-				&.min
-				{
+				&.min{
 					justify-content:center; /* center the arrows when collapsed */
 				}
 
-				i
-				{
+				i{
 					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
 				}
 
@@ -385,6 +388,7 @@ nav#subSites{
 				margin-right: -1px;
 				a{
 					border-left: 4px solid $tool-menu-current-border-color;
+					border-bottom: 1px solid $tool-menu-current-border-color;
 					color: $tool-menu-current-color;
 					.#{$namespace}toolsNav__menuitem--title{
 						font-weight: 700;
