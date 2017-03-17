@@ -1,18 +1,15 @@
 .#{$namespace}siteHierarchy{
-	$svg-gradient-shim-threshold: 1 !global;
-	background: linear-gradient( to right, $header-gradient-a, $header-gradient-b, $header-gradient-c, $header-gradient-d);
-	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
-	min-height: $hierarchy-size;
+	background: $tool-background-color;
 
 	h1{
 		color: $background-color;
 		font-weight: 300;
-		margin: 0 0 0 0;
+		margin: 0;
 	}
 	a{
 		color: $breadcrumbs-color;
-		margin: 0 0.5em 0 0.5em;
-		padding: 0em 0em 0.2em 0em;
+		margin: 0 0.5em;
+		padding: 0 0 0.2em;
 		text-decoration: none;
 		&:hover{
 			text-decoration: none;
@@ -26,7 +23,6 @@
 	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
 	@media #{$nonPhone}{
 		min-height: initial;
-		padding: 0.75em 0 0.75em 1em;
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
 			/* Since we'll start on our own line, don't pad */
@@ -53,24 +49,25 @@
 			text-transform: uppercase;
 			font-size: 110%;
 			font-weight: bold;
-			margin-left: 0;
+			display: inline-block;
+			margin: 1em 0 0.25em 1.25em;
+
+			&:hover{
+				border-bottom: 1px solid $breadcrumbs-hover-color;
+
+				.#{$namespace}breadcrumb--icon{
+					display: none;
+				}
+
+				.#{$namespace}breadcrumb--reset-icon{
+					width: 24px;
+					text-align: right;
+					display: inline-block;
+				}
+			}
 
 			.#{$namespace}breadcrumb--reset-icon{
 				display: none;
-			}
-		}
-
-		a.#{$namespace}hierarchy--toolName:hover{
-			border-bottom: 1px solid $breadcrumbs-hover-color;
-
-			.#{$namespace}breadcrumb--icon{
-				display: none;
-			}
-
-			.#{$namespace}breadcrumb--reset-icon{
-				width: 24px;
-				text-align: right;
-				display: inline-block;
 			}
 		}
 
@@ -99,7 +96,7 @@
 			color: $background-color;
 		}
 		a{
-			border-bottom: 0px none;
+			border-bottom: 0 none;
 			color: $background-color;
 			font-size: 0.9em;
 			.#{$namespace}breadcrumb--icon{
@@ -108,7 +105,7 @@
 			}
 			&:hover{
 				color: $background-color;
-			}			
+			}
 		}
 		.#{$namespace}hierarchy--siteName a:hover{
 			text-decoration: underline;

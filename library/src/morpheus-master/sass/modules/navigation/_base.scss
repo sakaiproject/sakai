@@ -16,13 +16,14 @@ body.is-logged-out{
 }
 
 .#{$namespace}mainHeader{
+		box-shadow: $divider-shadow;
+		margin-bottom: 4px;
 
 	.#{$namespace}headerLogo{
 		@include display-flex( flex );
-		@include justify-content( center );
+		@include justify-content( flex-start );
 		overflow: hidden;
 		padding: 0 1em;
-		text-align: center;
 		min-width: $tool-menu-width;
 		@include flex-shrink( 0 );
 		@include transition( width 0.5s linear 0s );
@@ -212,7 +213,6 @@ body.is-logged-out{
 	font-size: 1em;
 	height: auto;
 	width: 100%;
-	box-shadow: $divider-shadow;
 	@include display-flex(inline-flex);
 	@include align-items(center);
 	@include justify-content( space-between );
@@ -646,6 +646,7 @@ body.is-logged-out{
 
 #linkNav{
 	@include display-flex(flex);
+	padding: 0.5em;
 	ul{
 		@include display-flex(flex);
 		@include flex-wrap( wrap );
@@ -659,10 +660,7 @@ body.is-logged-out{
 
 			> .link-container{
 				padding: 0.5em 36px 0.5em 0.5em;
-				border-top: $sites-nav-menu-item-border-top; /* to balance bottom border for vertical centering */
-				border-right: $sites-nav-menu-item-border-right;
-				border-bottom: $sites-nav-menu-item-border-bottom; /* to pre-allocate space for dropdown top border needed for illusion */
-				border-left: $sites-nav-menu-item-border-left;
+				border: $sites-nav-menu-item-border;
 				background: $sites-nav-menu-item-background; /* color */
 				color: $sites-nav-menu-item-color;
 				text-decoration: none;
@@ -670,7 +668,7 @@ body.is-logged-out{
 
 			&:not(.dropdown-is-visible) > a:hover, &:not(.dropdown-is-visible) > a:active /* hover for sites when tool quick-menu isn't open */
 			{
-				box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.1) inset;
+				border: $sites-nav-menu-item-border-hover;
 				color: $sites-nav-menu-item-color-hover;
 			}
 
@@ -757,10 +755,9 @@ body.is-logged-out{
 				a{
 					background: $sites-nav-menu-item-selected-background;
 					color: $sites-nav-menu-item-selected-color;
-					border-top: $sites-nav-menu-item-selected-border-top; /* to balance bottom border for vertical centering */
-					border-right: $sites-nav-menu-item-selected-border-right;
-					border-bottom: $sites-nav-menu-item-selected-border-bottom; /* to pre-allocate space for dropdown top border needed for illusion */
-					border-left: $sites-nav-menu-item-selected-border-left;
+				}
+				a.link-container {
+					border: $sites-nav-menu-item-selected-border;
 				}
 				ul{
 					background: $sites-nav-menu-item-selected-background;

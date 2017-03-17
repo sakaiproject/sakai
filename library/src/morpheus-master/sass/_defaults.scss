@@ -32,9 +32,9 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
 /* Color palette */
 $background-color: 			 #FFFFFF !default;
-$background-color-secondary: #444444 !default;
+$background-color-secondary: #0099cc !default;
 
-$primary-color:    			 #247fa6 !default;
+$primary-color:    			 #005875 !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
 $primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
 $secondary-color:  			 #F00 !default;
@@ -69,7 +69,7 @@ $tool-nav-link-color: #666 !default;
 
 $main-content-background: $background-color !default;
 $top-header-background: $background-color-secondary !default;
-$sites-nav-background: $top-header-background !default;
+$sites-nav-background: $tool-menu-background-color !default;
 
 $breadcrumbs-color:			 $text-color !default;
 $breadcrumbs-tool-color:		 #185878 !default;
@@ -109,30 +109,25 @@ $swapped-view-text-color:	 #414141 !default;
 $swapped-view-sites-nav-background: $swapped-view-primary !default;
 
 /* This is the gradient in the header of the page */
-$header-gradient-a: #b6c3d4 !default;
-$header-gradient-b: #d9cdcd !default;
-$header-gradient-c: #c4ccd7 !default;
-$header-gradient-d: #a6c2df !default;
+$header-gradient-a: #fafafa !default;
+$header-gradient-b: $header-gradient-a !default;
+$header-gradient-c: $header-gradient-a !default;
+$header-gradient-d: $header-gradient-a !default;
 
 /* topNav Main Menu */
-$header-size : 50px !default;
+$header-size: 50px !default;
 $topNav-text-color:                         #fff !default; /* used for links and text in the topNav */
 $topNav-text-alt-color:                     #ccc !default;
 
-$sites-nav-menu-item-background:            #666 !default;
-$sites-nav-menu-item-color:                 #fff !default;
-$sites-nav-menu-item-color-hover:           $sites-nav-menu-item-color !default;
-$sites-nav-menu-item-border-top:            1px solid transparent !default; /* to pre-allocate space for dropdown top border needed for illusion */
-$sites-nav-menu-item-border-right:          none !default;
-$sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
-$sites-nav-menu-item-border-left:           none !default;
+$sites-nav-menu-item-background:            #fff !default;
+$sites-nav-menu-item-color:                 #4c4c4c !default;
+$sites-nav-menu-item-color-hover:           #000 !default;
+$sites-nav-menu-item-border:                1px solid #e5e5e5 !default;
+$sites-nav-menu-item-border-hover:          1px solid #000 !default;
 $sites-nav-menu-item-selected-background:   $primary-color !default;
 $sites-nav-menu-item-selected-color:        #fff !default;
 $sites-nav-menu-item-selected-color-hover:  $sites-nav-menu-item-selected-color !default;
-$sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
-$sites-nav-menu-item-selected-border-right: none !default;
-$sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
-$sites-nav-menu-item-selected-border-left:  none !default;
+$sites-nav-menu-item-selected-border:       $sites-nav-menu-item-border !default; /* to pre-allocate space for dropdown top border needed for illusion */
 $sites-nav-submenu-background:              $sites-nav-menu-item-background !default;
 $sites-nav-submenu-item-background:         $sites-nav-menu-item-background !default;
 $sites-nav-submenu-item-background-hover:   $sites-nav-menu-item-background !default;
@@ -172,6 +167,10 @@ $tool-menu-icon-on-left: true !default;
 $footer-background-color: $tool-menu-background-color !default;
 $footer-border-color: $tool-border-color !default;
 $footer-color: $background-color-secondary !default;
+
+// Overview page column widths. Total to add up to 96% as the columns have a margin.
+$col1of2-width: 48% !default;
+$col2of2-width: 48% !default;
 
 /* From NYU 11 Skin */
 $divider-shadow: 0 1px 5px rgba(0,0,0,.3) !default;
