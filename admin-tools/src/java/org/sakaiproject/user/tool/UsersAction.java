@@ -22,6 +22,7 @@
 package org.sakaiproject.user.tool;
 
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -32,13 +33,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaFactory;
-import net.tanesha.recaptcha.ReCaptchaResponse;
-
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
+import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -63,6 +62,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -74,29 +74,27 @@ import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.tool.PasswordPolicyHelper.TempUser;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.ExternalTrustedEvidence;
+import org.sakaiproject.util.PasswordCheck;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.portal.util.PortalUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
-import java.text.MessageFormat;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.validator.routines.EmailValidator;
-import org.sakaiproject.accountvalidator.logic.ValidationLogic;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.util.PasswordCheck;
+import lombok.extern.slf4j.Slf4j;
+import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaFactory;
+import net.tanesha.recaptcha.ReCaptchaResponse;
 
 /**
  * <p>
@@ -106,6 +104,11 @@ import org.sakaiproject.util.PasswordCheck;
 @Slf4j
 public class UsersAction extends PagedResourceActionII
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static ResourceLoader rb = new ResourceLoader("users");
 		
 	//private static final String XLS_MIME_TYPE="application/vnd.ms-excel";
@@ -386,7 +389,7 @@ public class UsersAction extends PagedResourceActionII
 
 		int totalNumber = 0;
 		Object[] params;
-		ArrayList list = new ArrayList();
+		ArrayList<Integer[]> list = new ArrayList<>();
 		list.add(new Integer[]{Integer.valueOf(5)});
 		list.add(new Integer[]{Integer.valueOf(10)});
 		list.add(new Integer[]{Integer.valueOf(20)});
