@@ -79,12 +79,6 @@ public class GradebookInformation implements Serializable {
 	 */
 	private boolean courseAverageDisplayed;
 	
-	/**
-	 * If the gradebook has the 'final grade mode' enabled
-	 */
-	private boolean finalGradeMode;
-	
-	
 	public String getSelectedGradingScaleUid() {
 		return selectedGradingScaleUid;
 	}
@@ -164,12 +158,6 @@ public class GradebookInformation implements Serializable {
 	}
 	public void setCourseAverageDisplayed(boolean courseAverageDisplayed) {
 		this.courseAverageDisplayed = courseAverageDisplayed;
-	}
-	public boolean isFinalGradeMode() {
-		return finalGradeMode;
-	}
-	public void setFinalGradeMode(boolean finalGradeMode) {
-		this.finalGradeMode = finalGradeMode;
 	}
 	
 	@Override
