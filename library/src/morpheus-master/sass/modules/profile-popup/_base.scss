@@ -1,25 +1,23 @@
 .profile-popup {
     background-color: $tool-tab-background-color;
-    width: 250px;
 
-    .profile-popup-display-name {
-        font-weight: bold;
-        padding-bottom: 5px;
-        font-size: larger;
-    }
-    .profile-popup-email {
-        padding-bottom: 10px;
-        font-weight: bold;
-    }
     .profile-connection-button {
-        background-color: $primary-color;
+        background-color: $button-color-background-color;
+        width: 100%;
+        font-weight: bold;
+        color: $button-color-text-color;
+    }
 
-        .profile-popup-action-label {
-            color: #fff;
-            font-weight: bold;
-            font-family: $font-family;
-            font-size: smaller;
-            padding-left: 5px;
+    .profile-popup-table {
+        display: table;
+        width: 100%;
+        text-align: center;
+        .profile-popup-row {
+            display: table-row;
+            .profile-popup-cell {
+                display: table-cell;
+                padding: 10px;
+            }
         }
     }
 }
