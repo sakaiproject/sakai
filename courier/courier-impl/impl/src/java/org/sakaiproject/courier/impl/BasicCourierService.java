@@ -26,13 +26,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.CourierService;
@@ -40,6 +39,9 @@ import org.sakaiproject.courier.api.Delivery;
 import org.sakaiproject.courier.api.DeliveryProvider;
 import org.sakaiproject.courier.api.Expirable;
 import org.sakaiproject.util.StringUtil;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -52,73 +54,47 @@ import org.sakaiproject.util.StringUtil;
  *		@see CourierService  
  */
 @Deprecated
-public class BasicCourierService implements CourierService
+@Slf4j
+public class BasicCourierService implements CourierService, Runnable
 {
-	/** Our logger. */
-	private static final Logger M_log = LoggerFactory.getLogger(BasicCourierService.class);
-
-        protected static final int nLocks = 100;
+	private static final int nLocks = 100;
 
 	/** Stores a List of Deliveries for each address, keyed by address. */
-	protected Map<String, List<Delivery>> m_addresses =
-	    new ConcurrentHashMap<String, List<Delivery>>(nLocks, 0.75f, nLocks);
+	private Map<String, List<Delivery>> m_addresses = new ConcurrentHashMap<>(nLocks, 0.75f, nLocks);
 
-       /** 
-	** Array of objects for locking. You take the hash MOD the size of the
-	** array to find the element in the array to lock. This allows better
-	** concurrency than a global lock on the hash table. I still use
-	** ConcurrentHashMap because otherwise I worry about two attempts
-	** to add an entry that happen to use the same lock. So I'm 
-	** depending upon ConcurrentHashMap to maintain the soundness of
-	** the data structure. Unfortunately the synchronization in it doesn't
-	** help against situations where I get a value and then test or
-	** modify it. That needs real locks.
-	**/
-
-        protected Object[] locks;
-
-	private List<DeliveryProvider> deliveryProviders = new Vector<DeliveryProvider>();
-	
-	/** Configuration: how often to check for inactive deliveries (seconds).  0 means no checking*/
-	protected int m_checkEvery = 300;
-	
-	/** The maintenance. */
-	protected Maintenance m_maintenance = null;
-	
-	/** Maintenance Timer object */
-	protected Timer m_maintenanceTimer = new Timer(true);
-	
 	/** 
 	 * Configuration: do maintenance cleanup aggressively 
 	 * True indicates that the entire address will be removed from the m_addresses map, false means that only the expired delivery will be removed
-	**/
-	protected boolean m_aggressiveCleanup = false;
+	 */
+	@Setter private boolean m_aggressiveCleanup = false;
+
+	/** Configuration: how often to check for inactive deliveries (seconds).  0 means no checking */
+	@Setter private int m_checkEvery = 300;
 
 	/**
-	 * Configuration: set how often to check for inactive deliveries (seconds).
-	 * 
-	 * @param value
-	 *        The how often to check for inactive deliveries (seconds) value.
+	 * Array of objects for locking. You take the hash MOD the size of the
+	 * array to find the element in the array to lock. This allows better
+	 * concurrency than a global lock on the hash table. I still use
+	 * ConcurrentHashMap because otherwise I worry about two attempts
+	 * to add an entry that happen to use the same lock. So I'm
+	 * depending upon ConcurrentHashMap to maintain the soundness of
+	 * the data structure. Unfortunately the synchronization in it doesn't
+	 * help against situations where I get a value and then test or
+	 * modify it. That needs real locks.
 	 */
-	public void setCheckEvery(int value)
-	{
-		m_checkEvery = value;
-	}
+	private Object[] locks;
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	private List<DeliveryProvider> deliveryProviders = new Vector<>();
 
+	private ScheduledExecutorService scheduler;
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * Final initialization, once all dependencies are set.
-	 */
 	public void init()
 	{
-		M_log.info("init()");
+		log.info("init()");
 		m_addresses.clear();
 		locks = new Object[nLocks];
 		for (int i = 0; i < nLocks; i++)
@@ -128,12 +104,13 @@ public class BasicCourierService implements CourierService
 		m_aggressiveCleanup = ServerConfigurationService.getBoolean("courier.aggressiveCleanup", false);
 		
 		// start the maintenance thread
-		if (m_checkEvery > 0)
-		{
-			m_maintenance = new Maintenance();
-			m_maintenanceTimer.schedule(m_maintenance, 0, (m_checkEvery * 1000) );
-			m_maintenance.start();
-		}
+		scheduler = Executors.newSingleThreadScheduledExecutor();
+		scheduler.scheduleWithFixedDelay(
+				this,
+				0,
+				m_checkEvery, // run every
+				TimeUnit.SECONDS
+		);
 	}
 
 	/**
@@ -141,27 +118,20 @@ public class BasicCourierService implements CourierService
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
+		scheduler.shutdown();
 		m_addresses.clear();
 		locks = null;
-		
-		if (m_maintenance != null)
-		{
-			m_maintenance.stop();
-			m_maintenance = null;
-		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * CourierService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-         protected int slot(String s) {
-	     
-	     int hash = Math.abs(s.hashCode());
-
-	     return hash % nLocks;
-	 }
+	private int slot(String s) {
+		int hash = Math.abs(s.hashCode());
+		return hash % nLocks;
+	}
 
 	/**
 	 * Queue up a delivery for the client window identified in the Delivery 
@@ -173,23 +143,15 @@ public class BasicCourierService implements CourierService
 	 */
 	public void deliver(Delivery delivery)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("deliver(Delivery " + delivery + ")");
+		log.debug("deliver(Delivery {})", delivery);
 
 		final String address = delivery.getAddress();
 
 		synchronized(locks[slot(address)]) {
-
 		    // find the entry in m_addresses
-		    List<Delivery> deliveries = m_addresses.get(address);
+		    List<Delivery> deliveries = m_addresses.computeIfAbsent(address, k -> new ArrayList<>());
 
-		    // create if needed
-		    if (deliveries == null) {
-				deliveries = new ArrayList<Delivery>();
-				m_addresses.put(address, deliveries);
-		    }
-
-		    // if this doesn't exist in the list already, add it
+			// if this doesn't exist in the list already, add it
 		    if (!deliveries.contains(delivery)) {
 		    	deliveries.add(delivery);
 		    }
@@ -207,9 +169,7 @@ public class BasicCourierService implements CourierService
 	 */
 	public void clear(String address, String elementId)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("clear(String " + address + ", String " + elementId
-					+ ")");
+		log.debug("clear(String {}, String {})", address, elementId);
 
 		synchronized(locks[slot(address)]) {
 		    
@@ -220,16 +180,11 @@ public class BasicCourierService implements CourierService
 		    if (deliveries == null) return;
 
 		    // remove any Deliveries with this elementId
-		    for (Iterator<Delivery> it = deliveries.iterator(); it.hasNext();) {
-			Delivery delivery = it.next();
-			if (!StringUtil.different(delivery.getElement(), elementId)) {
-			    it.remove();
-			}
-		    }
+		    deliveries.removeIf(delivery -> !StringUtil.different(delivery.getElement(), elementId));
 
 		    // if none left, remove it from the list
 		    if (deliveries.isEmpty()) {
-			m_addresses.remove(address);
+		        m_addresses.remove(address);
 		    }
 		}
 	}
@@ -242,8 +197,7 @@ public class BasicCourierService implements CourierService
 	 */
 	public void clear(String address)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("clear(String " + address + ")");
+		log.debug("clear(String {})", address);
 
 		synchronized(locks[slot(address)]) {
 		    // remove this portal from m_addresses
@@ -258,11 +212,9 @@ public class BasicCourierService implements CourierService
 	 *        The address of client window.
 	 * @return a List of Delivery objects addressed to this session client window.
 	 */
-	@SuppressWarnings("unchecked")
-	public List getDeliveries(String address)
+	public List<Delivery> getDeliveries(String address)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("getDeliveries(String " + address + ")");
+		log.debug("getDeliveries(String {})", address);
 
 		List<Delivery> deliveries;
 
@@ -271,7 +223,7 @@ public class BasicCourierService implements CourierService
 		    // find the entry in m_addresses
 		    deliveries = m_addresses.get(address);
 		    if (deliveries == null) { // if null, return something
-		    	return Collections.EMPTY_LIST; // this should return null!
+		    	return Collections.emptyList(); // this should return null!
 		    } else {
 		    	m_addresses.remove(address);
 		    }
@@ -283,10 +235,7 @@ public class BasicCourierService implements CourierService
 		// do arbitrary code while holding a lock.
 
 		// "act" all the deliveries
-		for (Delivery delivery : deliveries)
-		    {
-			delivery.act();
-		    }
+		deliveries.forEach(Delivery::act);
 
 		return deliveries;
 	}
@@ -305,8 +254,7 @@ public class BasicCourierService implements CourierService
 	 */
 	public boolean hasDeliveries(String address)
 	{
-		if (M_log.isDebugEnabled())
-			M_log.debug("hasDeliveries(String " + address + ")");
+		log.debug("hasDeliveries(String {})", address);
 
 		List<Delivery> deliveries;
 
@@ -324,115 +272,59 @@ public class BasicCourierService implements CourierService
 	 * @see org.sakaiproject.courier.api.CourierService#getDeliveryProviders()
 	 */
 	public List<DeliveryProvider> getDeliveryProviders() {
-		if(M_log.isDebugEnabled()) {
-			M_log.debug("getDeliveryProviders()");
-		}
+		log.debug("getDeliveryProviders()");
+
 		if(deliveryProviders.isEmpty()) {
 			return null;
 		}
-		return new ArrayList<DeliveryProvider>(deliveryProviders );
+		return new ArrayList<>(deliveryProviders);
 	}
-	
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Maintenance
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	/**
+	 * Run the maintenance thread. Every m_checkEvery seconds, check for expired deliveries.
+	 */
+	@Override
+	public void run() {
+		Thread.currentThread().setName("Sakai.BasicCourierService.Maintenance");
+		// since we might be running while the component manager is still being created and populated, such as at server
+		// startup, wait here for a complete component manager
+		ComponentManager.waitTillConfigured();
 
-	protected class Maintenance extends TimerTask
-	{
-		/** My thread running my timeout checker. */
-		protected Thread m_maintenanceChecker = null;
-
-		/** Signal to the timeout checker to stop. */
-		protected boolean m_maintenanceCheckerStop = false;
-
-		/**
-		 * Construct.
-		 */
-		public Maintenance()
-		{
-			M_log.info("Maintenance()");
-		}
-
-		/**
-		 * Start the maintenance thread.
-		 */
-		public void start()
-		{
-			if (m_maintenanceChecker != null) return;
-
-			m_maintenanceChecker = new Thread("Sakai.BasicCourierService.Maintenance");
-			m_maintenanceCheckerStop = false;
-			m_maintenanceChecker.setDaemon(true);
-			m_maintenanceChecker.start();
-		}
-
-		/**
-		 * Stop the maintenance thread.
-		 */
-		public void stop()
-		{
-			if (m_maintenanceChecker != null)
-			{
-				m_maintenanceCheckerStop = true;
-				m_maintenanceChecker.interrupt();
-				try
-				{
-					// wait for it to die
-					m_maintenanceChecker.join();
-				}
-				catch (InterruptedException ignore)
-				{
-				}
-				m_maintenanceChecker = null;
-			}
-		}
-
-		/**
-		 * Run the maintenance thread. Every m_checkEvery seconds, check for expired deliveries.
-		 */
-		public void run()
-		{
-			// since we might be running while the component manager is still being created and populated, such as at server
-			// startup, wait here for a complete component manager
-			ComponentManager.waitTillConfigured();
-			
-			M_log.debug("Maintenance thread running...");
-			try
-			{
-				long now = System.currentTimeMillis();
-				for (List<Delivery> deliveries : m_addresses.values()) {
-					for (Iterator<Delivery> iter = deliveries.iterator(); iter.hasNext();) {
-						Delivery delivery = iter.next();
-						if (delivery instanceof Expirable) {
-							Expirable expDelivery = (Expirable)delivery;
-							long created = expDelivery.getCreated();
-							int ttl = expDelivery.getTtl();
-							//Don't need to worry about it if ttl is not set.
-							if (ttl > 0) {
-								long sDiff = (now - created) / 1000;
-								// If the time since creation is larger than the ttl, remove it
-								if (sDiff > ttl) {
-									if (m_aggressiveCleanup) {
-										M_log.debug("Removing all (" + deliveries.size() + ") expired deliveries for address: " + delivery.getAddress());
-										clear(delivery.getAddress());
-										break;
-									}  
-									else {
-										M_log.debug("Removing a single expired delivery for address: " + delivery.getAddress());
-										iter.remove();
-									}
+		log.debug("Maintenance thread start...");
+		try {
+			long now = System.currentTimeMillis();
+			for (List<Delivery> deliveries : m_addresses.values()) {
+				for(Iterator<Delivery> iter = deliveries.iterator(); iter.hasNext();) {
+					Delivery delivery = iter.next();
+					if (delivery instanceof Expirable) {
+						String address = delivery.getAddress();
+						Expirable expDelivery = (Expirable) delivery;
+						long created = expDelivery.getCreated();
+						int ttl = expDelivery.getTtl();
+						//Don't need to worry about it if ttl is not set.
+						if (ttl > 0) {
+							long sDiff = (now - created) / 1000;
+							// If the time since creation is larger than the ttl, remove it
+							if (sDiff > ttl) {
+								if (m_aggressiveCleanup) {
+									log.debug("Removing all ({}) expired deliveries for address: {}", deliveries.size(), address);
+									clear(address);
+									break;
+								}
+								else {
+									log.debug("Removing a single expired delivery for address: {}", address);
+									iter.remove();
 								}
 							}
 						}
 					}
 				}
 			}
-			catch (Exception e)
-			{
-				M_log.warn("run(): exception: " + e);
-			}
-    	}
+		}
+		catch (Exception e) {
+			log.warn("run(): exception: {}", e.getMessage(), e);
+		}
+		log.debug("Maintenance thread end...");
 	}
 
 	/*
@@ -440,9 +332,7 @@ public class BasicCourierService implements CourierService
 	 * @see org.sakaiproject.courier.api.CourierService#registerDeliveryProvider(org.sakaiproject.courier.api.DeliveryProvider)
 	 */
 	public void registerDeliveryProvider(DeliveryProvider provider) {
-		if(M_log.isDebugEnabled()) {
-			M_log.debug("registerDeliveryProvider(DeliveryProvider " + provider + ")");
-		}
+		log.debug("registerDeliveryProvider(DeliveryProvider {})", provider);
 		this.deliveryProviders.add(provider);
 	}
 }
