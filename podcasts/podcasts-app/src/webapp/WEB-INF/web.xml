@@ -10,13 +10,6 @@
         <param-value>/WEB-INF/local.xml</param-value>
     </context-param>
     
-   <!-- JSF TAGLIBS -->
-  <jsp-config>
-  <taglib>
-    <taglib-uri>http://www.sakaiproject.org/podcasts</taglib-uri>
-    <taglib-location>/WEB-INF/podcasts.tld</taglib-location>
-  </taglib>
-  </jsp-config>
 <!-- END PODCASTS JSF -->
    
 <!--sakai-->
