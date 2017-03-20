@@ -97,13 +97,12 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	 */
 	@Transactional
 	public void createDelayedInvocation(Instant instant, String componentId, String opaqueContext, String uuid) {
-		try {
-			dao.add(uuid, componentId, opaqueContext);
-		} catch (NonUniqueObjectException nuoe) {
-			// Delete the existing one.
+		String oldUuid = dao.get(componentId, opaqueContext);
+		// Delete the existing one.
+		if (oldUuid != null) {
 			deleteDelayedInvocation(componentId, opaqueContext);
-			dao.add(uuid, componentId, opaqueContext);
 		}
+		dao.add(uuid, componentId, opaqueContext);
 		try {
 			Scheduler scheduler = schedulerFactory.getScheduler();
 			JobKey key = new JobKey(componentId, GROUP_NAME);
@@ -162,11 +161,9 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	public void deleteDelayedInvocation(String componentId, String opaqueContext) {
 		LOG.debug("componentId=" + componentId + ", opaqueContext=" + opaqueContext);
 
-		DelayedInvocation[] delayedInvocations = findDelayedInvocations(componentId, opaqueContext);
-		if (delayedInvocations != null) {
-			for (DelayedInvocation delayedInvocation : delayedInvocations) {
-				deleteDelayedInvocation(delayedInvocation.uuid);
-			}
+		Collection<String> uuids = dao.find(componentId, opaqueContext);
+		for (String uuid: uuids) {
+			deleteDelayedInvocation(uuid);
 		}
 	}
 
@@ -182,8 +179,11 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 			TriggerKey key = new TriggerKey(uuid, GROUP_NAME);
 			try {
 				Trigger trigger = schedulerFactory.getScheduler().getTrigger(key);
-				invocations.add(new DelayedInvocation(trigger.getKey().getName(), trigger.getNextFireTime(), key.getName(), opaqueContext));
-
+				if (trigger == null) {
+					LOG.error("Failed to trigger with key: {}", key);
+				} else {
+					invocations.add(new DelayedInvocation(trigger.getKey().getName(), trigger.getNextFireTime(), key.getName(), opaqueContext));
+				}
 			} catch (SchedulerException e) {
 				LOG.warn("Problem finding delayed invocations.", e);
 				return null;

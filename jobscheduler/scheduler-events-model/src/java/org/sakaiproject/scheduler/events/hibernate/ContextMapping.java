@@ -51,7 +51,6 @@ public class ContextMapping {
 
         ContextMapping that = (ContextMapping) o;
 
-        if (!uuid.equals(that.uuid)) return false;
         if (!contextId.equals(that.contextId)) return false;
         return componentId.equals(that.componentId);
 
@@ -59,9 +58,17 @@ public class ContextMapping {
 
     @Override
     public int hashCode() {
-        int result = uuid.hashCode();
-        result = 31 * result + contextId.hashCode();
+        int result = contextId.hashCode();
         result = 31 * result + componentId.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ContextMapping{" +
+                "uuid='" + uuid + '\'' +
+                ", contextId='" + contextId + '\'' +
+                ", componentId='" + componentId + '\'' +
+                '}';
     }
 }
