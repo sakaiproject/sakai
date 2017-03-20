@@ -104,9 +104,7 @@ import net.tanesha.recaptcha.ReCaptchaResponse;
 @Slf4j
 public class UsersAction extends PagedResourceActionII
 {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 
 	private static ResourceLoader rb = new ResourceLoader("users");
@@ -389,7 +387,7 @@ public class UsersAction extends PagedResourceActionII
 	private String buildListContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", ComponentManager.get(UserDirectoryService.class));
+		context.put("service", userDirectoryService);
 
 		// put all (internal) users into the context
 		context.put("users", prepPage(state));
@@ -467,7 +465,7 @@ public class UsersAction extends PagedResourceActionII
 	private String buildNewContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", ComponentManager.get(UserDirectoryService.class));
+		context.put("service", userDirectoryService);
 
 		// name the html form for user edit fields
 		context.put("form-name", "user-form");
@@ -507,7 +505,7 @@ public class UsersAction extends PagedResourceActionII
 	private String buildCreateContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", ComponentManager.get(UserDirectoryService.class));
+		context.put("service", userDirectoryService);
 
 		String blurb = (String) state.getAttribute(CONFIG_CREATE_BLURB);
 		if (!StringUtils.isEmpty(blurb))
@@ -564,7 +562,7 @@ public class UsersAction extends PagedResourceActionII
 	{
 		
 		// put the service in the context
-		context.put("service", ComponentManager.get(UserDirectoryService.class));
+		context.put("service", userDirectoryService);
 		
 		// name the html form for user edit fields
 		context.put("form-name", "user-form");

@@ -63,9 +63,6 @@ import org.sakaiproject.util.ResourceLoader;
 public class RealmsAction extends PagedResourceActionII
 {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	/** Resource bundle using current language locale */

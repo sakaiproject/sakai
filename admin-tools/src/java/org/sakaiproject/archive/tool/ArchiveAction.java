@@ -69,9 +69,7 @@ import java.util.*;
 public class ArchiveAction
 	extends VelocityPortletPaneledAction
 {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private static final String STATE_MODE = "mode";
 	private static final String BATCH_MODE = "batch";
