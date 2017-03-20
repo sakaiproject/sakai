@@ -79,6 +79,7 @@
     <sakai.commons.lang3.version>3.5</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.3.2</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
+    <sakai.commons-validator.version>1.6</sakai.commons-validator.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
@@ -581,7 +582,7 @@
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
-        <version>1.5.1</version>
+        <version>${sakai.commons-validator.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
