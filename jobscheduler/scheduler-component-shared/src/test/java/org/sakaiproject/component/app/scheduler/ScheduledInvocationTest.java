@@ -105,4 +105,23 @@ public class ScheduledInvocationTest {
         Assert.assertNotEquals(first, second);
     }
 
+    @Test
+    public void testFindMissingTrigger() {
+        // Check that find still work when a trigger can't be found for a delayed invocation
+        // Here we have an entry in the dao, but there won't be a trigger.
+        Mockito.when(dao.find(COMPONENT_ID, CONTEXT)).thenReturn(Collections.singleton("uuid"));
+        DelayedInvocation[] delayedInvocations = manager.findDelayedInvocations(COMPONENT_ID, CONTEXT);
+        Assert.assertTrue(delayedInvocations.length == 0);
+    }
+
+    @Test
+    public void testCreateMissingTrigger() {
+        // Check that creating a delayed invokation still works.
+        // Here we have an entry in the dao, but there won't be a trigger.
+        Mockito.when(dao.find(COMPONENT_ID, CONTEXT)).thenReturn(Collections.singleton("uuid"));
+        Mockito.when(dao.get(COMPONENT_ID, CONTEXT)).thenReturn("uuid");
+        String uuid = manager.createDelayedInvocation(Instant.now(), COMPONENT_ID, CONTEXT);
+        Assert.assertNotNull(uuid);
+    }
+
 }
