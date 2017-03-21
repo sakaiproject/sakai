@@ -15063,8 +15063,16 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					if (index == 0)
 					{
+						int trailingData = point.substring(1).length();
 						// if the point is the first char, add a 0 for the integer part
 						point = "0".concat(point.substring(1));
+						// ensure that the point value has the correct # of decimals
+						// by padding with zeros
+						if(trailingData < dec) {
+							for(int i = trailingData; i < dec; i++) {
+								point = point + "0";
+							}
+						}
 					}
 					else if (index < point.length() - 1)
 					{
