@@ -65,7 +65,6 @@ public class Gradebook implements Serializable {
     private Boolean showRank;
     private Boolean showItemStatistics;
     private Boolean showStatisticsChart;
-    private boolean finalGradeMode;
 
     /**
      * Default no-arg constructor needed for persistence
@@ -383,14 +382,6 @@ public class Gradebook implements Serializable {
 	 */
 	public void setCourseLetterGradeDisplayed(boolean courseLetterGradeDisplayed) {
 		this.courseLetterGradeDisplayed = courseLetterGradeDisplayed;
-	}
-
-	public boolean isFinalGradeMode() {
-		return finalGradeMode;
-	}
-
-	public void setFinalGradeMode(boolean finalGradeMode) {
-		this.finalGradeMode = finalGradeMode;
 	}
 	
 }

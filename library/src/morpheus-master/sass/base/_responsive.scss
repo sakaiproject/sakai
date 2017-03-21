@@ -3,12 +3,19 @@
 body{
 	@media #{$phone}{
 		&.toolsNav--displayed{
+			overflow:hidden;
 			#toolMenuWrap{
 				width: 100%;
 				top: 6.3em;
 				left: 0px;
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
-				height:95%;
+				@if $tool-menu-icon-on-left {
+					background-color: $tool-background-color;
+				}
+				#toolSubsitesContainer{
+					overflow-y:auto;
+					height:100%;
+				}
 				&:after {
 					bottom: 100%;
 					left: 25%;
@@ -48,7 +55,6 @@ body{
 				}
 			}
 			#toolMenu, #subSites{
-				overflow: auto;
 				@if $tool-menu-icon-on-left {
 					background-color: $tool-background-color;
 				}

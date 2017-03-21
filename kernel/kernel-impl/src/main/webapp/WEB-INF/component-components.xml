@@ -17,4 +17,18 @@
 		<property name="sakaiProperties" ref="org.sakaiproject.component.SakaiProperties"/>
 	</bean>
 
+	<bean id="exporter" class="org.springframework.jmx.export.MBeanExporter">
+		<property name="beans">
+			<map>
+				<entry key="bean:name=org.sakaiproject.config.impl.ConfigurationMBean"
+                    value-ref="org.sakaiproject.config.impl.ConfigurationMBean"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.config.impl.ConfigurationMBean" class="org.sakaiproject.config.impl.ConfigurationMBean">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	</bean>
+
+
 </beans>

@@ -39,12 +39,7 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 		/**
 		 * Comments attached to a gradebook item
 		 */
-		COMMENT,
-
-		/**
-		 * If a course grade override is specified
-		 */
-		COURSE_GRADE_OVERRIDE
+		COMMENT
 	}
 
 	public enum Status {

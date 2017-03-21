@@ -53,6 +53,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
@@ -215,6 +216,8 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
+	//Map for event icons
+	private Map<String, String> eventIconMap;
 
 	public CalendarAction() {
 		super();
@@ -2495,6 +2498,7 @@ extends VelocityPortletStateAction
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
 		context.put("config",configProps);
+		context.put("eventIconMap", eventIconMap);
 		context.put("dateFormat", getDateFormatString());
 		context.put("timeFormat", getTimeFormatString());
       
@@ -8086,6 +8090,8 @@ extends VelocityPortletStateAction
 				inConfig = this.getClass().getResourceAsStream("calendar.config");
 				configProps.load(inConfig);
 			}
+			//get map with key as event and value as image, if empty then create one.
+			eventIconMap = new CalendarUtil().getEventImageMap(configProps);
 		}
 		catch ( IOException e )
 		{

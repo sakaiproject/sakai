@@ -57,15 +57,21 @@
  <script type="text/javascript" src="$context/js/jquery.cluetip.min.js"></script>
  <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
  <link rel="stylesheet" href="/library/editor/ckextraplugins/folder-listing/css/file-tree.css" type="text/css"/>
+ <link type="text/css" href="$context/css/fullcalendar.css" rel="stylesheet" />
  <script type="text/javascript" src="$context/js/peer-eval.js"></script>
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/file-tree.js"></script>
  <script type="text/javascript" src="/library/editor/ckextraplugins/folder-listing/js/folder-listing.js"></script>
  <script type="text/javascript" src="$context/js/show-page.js"></script>
+ <script type="text/javascript" src="$context/js/twitter.js"></script>
  <script type="text/javascript" src="$context/js/announcements.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
  <script type="text/javascript" src="$context/js/checklistAjax.js"></script>
  <script type="text/javascript" src="$context/js/forum-summary.js"></script>
+ <script type="text/javascript" src="/library/webjars/momentjs/2.11.1/min/moment.min.js"></script>
+ <script type="text/javascript" src="$context/js/fullcalendar.js"></script>
+ <script type="text/javascript" src="$context/js/lang-all.js"></script>
+ <script type="text/javascript" src="$context/js/lessons-calendar.js"></script>
  <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
 
  <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
@@ -290,11 +296,17 @@
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem button" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
 		  </li>
+		  <li rsf:id="calendar-li">
+		    <a role="menuitem" rsf:id="calendar-link" class="calendar-link add-before-param"><span rsf:id="msg=simplepage.calendarLinkText"></span></a>
+		  </li>
 		  <li rsf:id="quiz-li">
 		    <a role="menuitem button" href="#" rsf:id="add-quiz" class="add-before-param"><span rsf:id="msg.simplepage.quiz"></span></a>
 		  </li>
                   <li rsf:id="forum-li">
                     <a role="menuitem button" class="add-forum-link add-before-param" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
+                  </li>
+                  <li rsf:id="twitter-li">
+                    <a href="#" role="menuitem" rsf:id="add-twitter" class="twitter-link"><span rsf:id="msg=simplepage.twitter"></span></a>
                   </li>
 		  <li rsf:id="announcements-li">
 		    <a role="menuitem" href="#" rsf:id="announcements-link" class="announcements-link"><span rsf:id="msg=simplepage.announcementsLinkText"></span></a>
@@ -475,6 +487,16 @@
                         <div rsf:id="resourceFolder-groups-titles" class="item-group-titles"></div>
                         <div rsf:id="content" class="textbox"></div>
                     </div>
+                    <div rsf:id="twittergroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptwitter-link"><span rsf:id="grouptwitter-icon"></span></a></div></div>
+                    <div rsf:id="twitterSpan" class="right-col">
+                        <div rsf:id="twitter-td" class="edit-col"><div><a href="#" class="usebutton edit-twitter" onclick="return false" rsf:id="edit-twitter"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                        <div rsf:id="twitter-groups-titles" class="item-group-titles"></div>
+                        <div rsf:id="content" class="textbox"></div>
+                        <span style="display:none" rsf:id="twitterId" class="twitter-id"></span>
+                        <span style="display:none" rsf:id="username" class="username"></span>
+                        <span style="display:none" rsf:id="tweetLimit" class="tweetLimit"></span>
+                        <span style="display:none" rsf:id="twitter-height" class="twitterHeight"></span>
+                    </div>
 		    <div class="right-col">
 		      <p rsf:id="notAvailableText" class="messageWarning narrow-instruction"></p>
 		    </div>
@@ -499,6 +521,19 @@
                         <span style="display:none" rsf:id="forum-summary-site-url" class="forum-summary-site-url"></span>
                         <span style="display:none" rsf:id="forum-summary-view-url" class="forum-summary-view-url"></span>
                         <span style="display:none" rsf:id="numberOfConversations" class="numberOfConversations"></span>
+                    </div>
+                    <div rsf:id="calendargroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="groupcalendar-link"><span rsf:id="groupcalendar-icon"></span></a></div></div>
+                    <div rsf:id="calendarSpan" class="right-col">
+                        <div rsf:id="calendar-td" class="edit-col"><div><a href="#" class="usebutton edit-calendar" onclick="return false" rsf:id="edit-calendar"><span aria-hidden="true" class="fa-edit fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-plus fa-edit-icon plus-edit-icon"></span></a></div></div>
+                        <div rsf:id="calendar-groups-titles" class="item-group-titles"></div>
+                        <div rsf:id="content" class="textbox"></div>
+                        <span style="display:none" rsf:id="calendar-item-id" class="calendar-item-id"></span>
+                        <span style="display:none" rsf:id="site-events-url" class="site-events-url"></span>
+                        <span style="display:none" rsf:id="event-tool-url" class="event-tool-url"></span>
+                        <span style="display:none" rsf:id="calendar-indentLevel" class="calendar-indentLevel"></span>
+                        <span style="display:none" rsf:id="calendar-custom-css-class" class="calendar-custom-css-class"></span>
+                        <span style="display:none" rsf:id="calendar-name" class="calendar-name"></span>
+                        <span style="display:none" rsf:id="calendar-description" class="calendar-description"></span>
                     </div>
                     <div rsf:id="grouptext-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptext-link"><span rsf:id="grouptext-icon"></span></a></div></div>
                     <div rsf:id="itemSpan" class="right-col">
@@ -913,7 +948,9 @@
 
 		<div style="display:none;">
 			<p rsf:id="msg=simplepage.announcements-no-message" id="simplepage.announcements-no-message"></p>
+			<p rsf:id="msg=simplepage.calendar-more-info" id="simplepage.calendar-more-info"></p>
             <p rsf:id="msg=simplepage.announcements-header-title" id="simplepage.announcements-header-title"></p>
+            <p rsf:id="msg=simplepage.eventAttachments" id="simplepage.eventAttachments"></p>
 			<p rsf:id="msg=simplepage.add-comment" id="simplepage.add-comment"></p>
 			<p rsf:id="msg=simplepage.edit-comment" id="simplepage.edit-comment"></p>
 			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
@@ -924,6 +961,7 @@
 			<p rsf:id="msg=simplepage.forum-header-title" id="simplepage.forum-header-title"></p>
 			<p rsf:id="msg=simplepage.clickToExpand" id="simplepage.clickToExpand"></p>
 			<p rsf:id="msg=simplepage.clickToCollapse" id="simplepage.clickToCollapse"></p>
+			<p rsf:id="msg=simplepage.twitter-name-notblank" id="simplepage.twitter-name-notblank"></p>
 			<p rsf:id="msg=simplepage.height-error-message" id="simplepage.height-error-message"></p>
 			<p rsf:id="msg=simplepage.status.completed" id="simplepage.status.completed"></p>
 			<p rsf:id="msg=simplepage.announcements-error-message" id="simplepage.announcements-error-message"></p>
@@ -1980,6 +2018,38 @@
                 </form>
             </div>
 			
+			<div id="add-twitter-dialog" rsf:id="add-twitter-dialog">
+				<form action="#" rsf:id="add-twitter-form" method="post" enctype="multipart/form-data" class="controlPanel">
+					<input type="hidden" rsf:id="csrf13" />
+					<input type="hidden" rsf:id="twitterEditId" id="twitterEditId" />
+                    <input type="hidden" rsf:id="twitter-addBefore" id="twitter-addBefore" />
+					<div class="ui-widget" id="twitter-error-container">
+						<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+							<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+							<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="twitter-error"></span></p>
+						</div>
+					</div>
+					<div class="">
+						<p class="required">
+							<label rsf:id="twitter-username-label" class="pageTitle" for="twitter-username"></label>
+							<input style="margin-left: 29px;" type="text" name="twitter-username" rsf:id="twitter-username" id="twitter-username"  size="20" maxlength="99"/>
+						</p>
+						<p class="required">
+							<label rsf:id="height-label" class="pageTitle" for="widget-height"></label>
+							<input style="margin-left: 104px;" type="text" name="widget-height" rsf:id="widget-height" id="widget-height"  maxlength="99" size="20"/>&nbsp;<span id="heightErrmsg"></span>
+						</p>
+						<label for="numberDropdown" rsf:id="numberDropdownLabel"></label>
+						<select style="margin-left: 170px;" rsf:id="numberDropdown" id="numberDropdown" name="numberDropdown">
+							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
+						</select><br/>
+						<p class="act">
+							<input class="bold" onclick="return confirmAddTwitterTimeline()" type="submit" id="twitter-add-item" rsf:id="twitter-add-item" />
+							<input type="submit" rsf:id="twitter-cancel" onclick="closeTwitterDialog(); return false" />
+							<span id="twitter-delete-span" style="display:none"><input type="submit" class="deleteButton" rsf:id="delete-twitter-item" id="delete-twitter-item" /></span><br/>
+						</p>
+					</div>
+				</form>
+			</div>
 			<div id="question-dialog" rsf:id="question-dialog" class="lessonsDialog">
 			  <div class="ui-widget" id="question-error-container">
 			    <div class="messageError">
@@ -2146,7 +2216,26 @@
 		<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
 		<span rsf:id="msg=simplepage.delete_comment_confirm" id="delete-comment-confirm"></span>
 	</div>
-	
+
+	<div id ="calendarEventDialog" style="display:none;">
+		<div id="eventInfo">
+			<label rsf:id="msg=simplepage.startTime" for="startTime"></label>
+			<span id="startTime"></span><br/><br/>
+			<label rsf:id="msg=simplepage.endTime" for="endTime"></label>
+			<span id="endTime"></span><br/><br/>
+			<label rsf:id="msg=simplepage.eventType" for="event-type"></label>
+			<img id="event-type-icon"/><span id="event-type"></span><br/><br/>
+			<label rsf:id="msg=simplepage.description" for="event-description"></label>
+			<span id="event-description"></span><br/><br/>
+			<label rsf:id="msg=simplepage.siteName" for="site-name"></label>
+			<span id="site-name"></span><br/>
+			<span id="eventAttachmentsDiv">
+			<label rsf:id="msg=simplepage.eventAttachments" for="event-attachments"></label>
+			<span id="event-attachments"></span><br/>
+			</span>
+			<br/>
+		</div>
+	</div>
 	<div rsf:id="comments-script">
 		<script type="text/javascript" src="$context/js/periodicalupdater.js"></script>
 		<script type="text/javascript" src="$context/js/comments.js"></script>

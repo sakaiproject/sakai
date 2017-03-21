@@ -57,7 +57,6 @@ public class ImportGradesHelper {
 	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\#\\$\\[\\]\\*]+)");
 	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
-	final static Pattern COURSE_GRADE_OVERRIDE_PATTERN = Pattern.compile("(\\$.+)");
 
 	// list of mimetypes for each category. Must be compatible with the parser
 	private static final String[] XLS_MIME_TYPES = { "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
@@ -247,10 +246,6 @@ public class ImportGradesHelper {
 					cell.setComment(lineVal);
 					row.getCellMap().put(columnTitle, cell);
 					break;
-				case COURSE_GRADE_OVERRIDE:
-					cell.setScore(lineVal);
-					row.getCellMap().put(columnTitle, cell);
-					break;
 				case IGNORE:
 					// do nothing
 					break;
@@ -319,9 +314,6 @@ public class ImportGradesHelper {
 				case COMMENTS:
 					processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
 					commentColumns.add(columnTitle);
-					break;
-				case COURSE_GRADE_OVERRIDE:
-					processedGradeItem.setType(ProcessedGradeItem.Type.COURSE_GRADE_OVERRIDE);
 					break;
 				case GB_ITEM_WITHOUT_POINTS:
 					processedGradeItem.setType(ProcessedGradeItem.Type.GB_ITEM);
@@ -413,10 +405,6 @@ public class ImportGradesHelper {
 			} else if (assignment.getExternalId() != null) {
 				status = Status.EXTERNAL;
 			}
-		}
-
-		if(column.isCourseGradeOverride()) {
-			status = Status.UPDATE;
 		}
 
 		// for grade items, only need to check if we dont already have a status, as grade items are always imported for NEW and MODIFIED items
@@ -617,21 +605,8 @@ public class ImportGradesHelper {
 			return column;
 		}
 
-		final Matcher m4 = COURSE_GRADE_OVERRIDE_PATTERN.matcher(headerValue);
+		final Matcher m4 = STANDARD_HEADER_PATTERN.matcher(headerValue);
 		if (m4.matches()) {
-
-			// extract title
-			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
-
-			if (titleMatcher.find()) {
-				column.setColumnTitle(trim(titleMatcher.group()));
-			}
-			column.setType(ImportedColumn.Type.COURSE_GRADE_OVERRIDE);
-			return column;
-		}
-
-		final Matcher m5 = STANDARD_HEADER_PATTERN.matcher(headerValue);
-		if (m5.matches()) {
 
 			column.setColumnTitle(headerValue);
 			column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);

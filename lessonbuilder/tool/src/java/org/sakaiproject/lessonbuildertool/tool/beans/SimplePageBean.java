@@ -27,6 +27,8 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 import java.text.SimpleDateFormat;
 import java.text.Format;
 import java.math.BigDecimal;
+
+import org.apache.commons.lang.StringUtils;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +150,8 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static final String CALENDAR_TOOL_ID = "sakai.schedule";
+	public static final String TWITTER_WIDGET_DEFAULT_HEIGHT = "300";
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String FORUMS_TOOL_ID = "sakai.forums";
 
@@ -304,7 +308,10 @@ public class SimplePageBean {
 	//variables used for announcements widget
 	private String announcementsHeight;
 	private String announcementsDropdown;
-
+	//variables used for twitter setting used in the widget
+	private String twitterDropDown;
+	private String twitterUsername;
+	private String twitterWidgetHeight;
     // almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
     //        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	SimpleDateFormat isoDateFormat = getIsoDateFormat();
@@ -914,6 +921,9 @@ public class SimplePageBean {
 		    mimetype = mimetype.toLowerCase().trim();
 		this.mimetype = mimetype;
 	}
+	public void setTwitterDropDown(String twitterDropDown) {
+		this.twitterDropDown = twitterDropDown;
+	}
 
 	public String getPageTitle() {
 		return getCurrentPage().getTitle();
@@ -987,6 +997,14 @@ public class SimplePageBean {
 	}
 	public void setAnnouncementsDropdown(String announcementsDropdown) {
 		this.announcementsDropdown = announcementsDropdown;
+	}
+
+	public void setTwitterUsername(String twitterUsername) {
+		this.twitterUsername = twitterUsername;
+	}
+
+	public void setTwitterWidgetHeight(String twitterWidgetHeight) {
+		this.twitterWidgetHeight = twitterWidgetHeight;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -3454,6 +3472,7 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.QUESTION
+		         && i.getType() != SimplePageItem.TWITTER
 			 && i.getType() != SimplePageItem.BREAK
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
@@ -3495,6 +3514,7 @@ public class SimplePageBean {
 	       case SimplePageItem.PAGE:
 	       case SimplePageItem.COMMENTS:
 	       case SimplePageItem.QUESTION:
+	       case SimplePageItem.TWITTER:
 	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
@@ -3727,6 +3747,7 @@ public class SimplePageBean {
 	   case SimplePageItem.PAGE:
 	   case SimplePageItem.BLTI:
 	   case SimplePageItem.COMMENTS:
+	   case SimplePageItem.TWITTER:
 	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
@@ -8522,10 +8543,9 @@ public class SimplePageBean {
 	 * To add latest conversations in a div on Lessons Page
 	 */
 	public String addForumSummary(){
-		if (!itemOk(itemId))
+		if (!itemOk(itemId) || !checkCsrf()) {
 			return "permission-failed";
-		if (!checkCsrf())
-			return "permission-failed";
+		}
 		String status = "success";
 		if (canEditPage()) {
 			SimplePageItem item;
@@ -8578,6 +8598,78 @@ public class SimplePageBean {
 				item = appendItem("", "", SimplePageItem.RESOURCE_FOLDER);
 			}
 			item.setAttribute("dataDirectory", dataDirectory);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
+	/**
+	 * Method to add calendar component in the Lessons Page
+	 * @return
+	 */
+	public String addCalendar(String ab){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		String result = "success";
+		if (canEditPage()) {
+			//set addBefore value which will be used by append item to place calendar item at correct place
+			addBefore = ab;
+			SimplePageItem item;
+			if (itemId != null && itemId != -1) {
+				//existing item, need to update
+				item = findItem(itemId);
+			}else{
+				//new item,add it
+				item = appendItem("", "", SimplePageItem.CALENDAR);
+			}
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+			// Must clear the cache so that the calendar appears on the page as soon as it's added
+			itemsCache.remove(getCurrentPage().getPageId());
+		}
+		else{
+			result = "cancel";
+		}
+		return result;
+	}
+	/**
+	 * To add twitter timeline with given parameters in a Lessons page
+	 */
+	public String addTwitterTimeline(){
+		if (!itemOk(itemId) || !checkCsrf()){
+			return "permission-failed";
+		}
+		//if username is not provided return
+		if(StringUtils.isBlank(twitterUsername)){
+			return "failure";
+		}
+		//Check if height is supplied if not then set to default
+		if(StringUtils.isBlank(twitterWidgetHeight)){
+			twitterWidgetHeight = TWITTER_WIDGET_DEFAULT_HEIGHT;
+		}
+		//if user has added @ symbol with the username, remove it
+		if( twitterUsername.contains("@")){
+			twitterUsername = StringUtils.remove(twitterUsername, "@");
+		}
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.TWITTER);
+			}
+			//setting height , username and number of tweets as attributes for the twitter item.
+			item.setAttribute("height", twitterWidgetHeight);
+			item.setAttribute("username", twitterUsername);
+			item.setAttribute("numberOfTweets", twitterDropDown );
 			item.setPrerequisite(this.prerequisite);
 			setItemGroups(item, selectedGroups);
 			update(item);

@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
+import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -124,7 +125,7 @@ public class GradebookNgBusinessService {
 	public static final String ICON_SAKAI = "icon-sakai--";
 
 
-	private Collator collator = Collator.getInstance();
+	private final Collator collator = Collator.getInstance();
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -683,20 +684,19 @@ public class GradebookNgBusinessService {
 		// this gives us our base list and will be sorted as per our desired
 		// sort method
 		final List<User> students = getUsers(studentUuids);
-		if (settings.getStudentSortOrder() != null || settings.getNameSortOrder() != null) {
+		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
+		if (settings.getStudentSortOrder() != null) {
 
-			if (settings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME) {
-				Collections.sort(students, new FirstNameComparator());
-			} else {
-				Collections.sort(students, new LastNameComparator());
+			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ?
+					new FirstNameComparator() : new LastNameComparator();
+
+			if (SortDirection.DESCENDING == settings.getStudentSortOrder()) {
+
+				comp = Collections.reverseOrder(comp);
 			}
-
-			if (settings.getStudentSortOrder() != null &&
-					settings.getStudentSortOrder().equals(SortDirection.DESCENDING)) {
-
-				Collections.reverse(students);
-			}
+			Collections.sort(students, comp);
 		}
+		stopwatch.timeWithContext("buildGradeMatrix", "sortUsers", stopwatch.getTime());
 
 		// get course grades
 		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
@@ -988,46 +988,42 @@ public class GradebookNgBusinessService {
 
 		// sort the matrix based on the supplied assignment sort order (if any)
 		if (settings.getAssignmentSortOrder() != null) {
-			final AssignmentGradeComparator comparator = new AssignmentGradeComparator();
-			comparator.setAssignmentId(settings.getAssignmentSortOrder().getAssignmentId());
+			Comparator<GbStudentGradeInfo> comparator = new AssignmentGradeComparator(settings.getAssignmentSortOrder().getAssignmentId());
 
 			final SortDirection direction = settings.getAssignmentSortOrder().getDirection();
-
-			// sort
-			Collections.sort(items, comparator);
-
 			// reverse if required
 			if (direction == SortDirection.DESCENDING) {
-				Collections.reverse(items);
+				comparator = Collections.reverseOrder(comparator);
 			}
+			// sort
+			Collections.sort(items, comparator);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
 
 		// sort the matrix based on the supplied category sort order (if any)
 		if (settings.getCategorySortOrder() != null) {
-			final CategorySubtotalComparator comparator = new CategorySubtotalComparator();
-			comparator.setCategoryId(settings.getCategorySortOrder().getCategoryId());
+			Comparator comparator = new CategorySubtotalComparator(settings.getCategorySortOrder().getCategoryId());
 
 			final SortDirection direction = settings.getCategorySortOrder().getDirection();
-
+			// reverse if required
+			if (direction == SortDirection.DESCENDING) {
+				comparator = Collections.reverseOrder(comparator);
+			}
 			// sort
 			Collections.sort(items, comparator);
 
-			// reverse if required
-			if (direction == SortDirection.DESCENDING) {
-				Collections.reverse(items);
-			}
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
 
 		if (settings.getCourseGradeSortOrder() != null) {
-			// sort
-			Collections.sort(items, new CourseGradeComparator(getGradebookSettings()));
 
+			Comparator<GbStudentGradeInfo> comp = new CourseGradeComparator(getGradebookSettings());
 			// reverse if required
 			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
-				Collections.reverse(items);
+				comp = Collections.reverseOrder(comp);
 			}
+			// sort
+			Collections.sort(items, comp);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
@@ -1261,9 +1257,9 @@ public class GradebookNgBusinessService {
 	class LastNameComparator implements Comparator<User> {
 		@Override
 		public int compare(final User u1, final User u2) {
-			collator.setStrength(Collator.PRIMARY);
-			return new CompareToBuilder().append(u1.getLastName(), u2.getLastName(), collator)
-					.append(u1.getFirstName(), u2.getFirstName(), collator).toComparison();
+			GradebookNgBusinessService.this.collator.setStrength(Collator.PRIMARY);
+			return new CompareToBuilder().append(u1.getLastName(), u2.getLastName(), GradebookNgBusinessService.this.collator)
+					.append(u1.getFirstName(), u2.getFirstName(), GradebookNgBusinessService.this.collator).toComparison();
 		}
 	}
 
@@ -1274,9 +1270,9 @@ public class GradebookNgBusinessService {
 	class FirstNameComparator implements Comparator<User> {
 		@Override
 		public int compare(final User u1, final User u2) {
-			collator.setStrength(Collator.PRIMARY);
-			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName(), collator)
-					.append(u1.getLastName(), u2.getLastName(), collator).toComparison();
+			GradebookNgBusinessService.this.collator.setStrength(Collator.PRIMARY);
+			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName(), GradebookNgBusinessService.this.collator)
+					.append(u1.getLastName(), u2.getLastName(), GradebookNgBusinessService.this.collator).toComparison();
 		}
 	}
 
@@ -1990,18 +1986,6 @@ public class GradebookNgBusinessService {
 		return iconClass;
 	}
 
-	/**
-	 * Is final grade mode enabled in sakai.properties? To control this set:
-	 * <code>gradebook.enable.finalgrade=true<code> in sakai.properties.
-	 *
-	 * Note that this does not check the actual setting for <em>this</em> gradebook.
-	 *
-	 * @return true or false if enabled or not
-	 */
-	public boolean isFinalGradeModeEnabled() {
-		return this.serverConfigurationService.getBoolean("gradebook.enable.finalgrade", false);
-	}
-
 
 	/**
 	 * Comparator class for sorting an assignment by the grades.
@@ -2010,10 +1994,10 @@ public class GradebookNgBusinessService {
 	 * has.
 	 *
 	 */
+	@RequiredArgsConstructor
 	class AssignmentGradeComparator implements Comparator<GbStudentGradeInfo> {
 
-		@Setter
-		private long assignmentId;
+		private final long assignmentId;
 
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
@@ -2036,10 +2020,10 @@ public class GradebookNgBusinessService {
 	 * Note that this must have the categoryId set into it so we can extract the appropriate grade entry from the map that each student has.
 	 *
 	 */
+	@RequiredArgsConstructor
 	class CategorySubtotalComparator implements Comparator<GbStudentGradeInfo> {
 
-		@Setter
-		private long categoryId;
+		private final long categoryId;
 
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {

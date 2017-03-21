@@ -30,7 +30,6 @@ public class ExportPanel extends BasePanel {
 
 	private static final String IGNORE_COLUMN_PREFIX = "#";
 	private static final String COMMENTS_COLUMN_PREFIX = "*";
-	private static final String COURSE_GRADE_OVERRIDE_COLUMN_PREFIX = "$";
 
 	enum ExportFormat {
 		CSV
@@ -223,10 +222,6 @@ public class ExportPanel extends BasePanel {
 			}
 			if (isCustomExport && this.includeCourseGrade) {
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
-			}
-			if (isCustomExport && this.includeGradeOverride) {
-				header.add(String.join(" ", COURSE_GRADE_OVERRIDE_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
-
 			}
 			if (isCustomExport && this.includeLastLogDate) {
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));

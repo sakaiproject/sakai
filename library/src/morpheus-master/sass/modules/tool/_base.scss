@@ -1,8 +1,29 @@
+
+.#{$namespace}pageColumns--single {
+	.#{$namespace}toolTitleNav__button_container {
+		top: -30px;
+		right: 0;
+		position: absolute;
+		float: none;
+		left: initial;
+	}
+
+  @media #{$tablet} {
+	  .#{$namespace}pageColumns--single {
+	    margin: 0 !important;
+	  }
+	}
+}
+
 .#{$namespace}multipleTools{
 	.#{$namespace}container {
 		border: 1px solid $overview-portlet-border-color;
 		box-shadow: $overview-portlet-shadow;
 		margin-bottom: 20px;
+
+		@media #{$tablet} {
+		  margin: 0 7px 10px !important;
+		}
 
 		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
 			border-top: 0;
@@ -16,6 +37,18 @@
 			background-color: $overview-portlet-title-background-color;
 			border-bottom: 1px solid $overview-portlet-border-color;
   	}
+  }
+
+	.#{$namespace}toolTitleNav__button_container {
+		display: block;
+		position: relative;
+		float: right;
+		top: -4px;
+		right: -11px;
+		margin-top: -20px;
+		@media #{$tablet}{
+			font-size: 1.2em;
+		}
   }
 
 	.#{$namespace}toolTitleNav{
@@ -75,16 +108,7 @@
 			}
 		}
 	}
-	.#{$namespace}toolTitleNav__button_container{
-		display: block;
-		position: relative;
-		float: right;
-		top: -4px;
-		right: -11px;
-		@media #{$tablet}{
-			font-size: 1.2em;
-		}
-	}
+
 	.#{$namespace}toolTitleNav__link{
 		color: $tool-nav-link-color;
 		border: 1px solid #e0e0e0;
@@ -205,15 +229,5 @@
 @media #{$tablet} {
   #content {
     padding-top: 1em;
-  }
-
-  .#{$namespace}pageColumns--single {
-    margin: 0 !important;
-  }
-
-  .#{$namespace}multipleTools {
-    .#{$namespace}container {
-      margin: 0 7px 10px !important;
-    }
   }
 }
