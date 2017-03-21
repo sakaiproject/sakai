@@ -22,6 +22,7 @@
 package org.sakaiproject.user.tool;
 
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -32,16 +33,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaFactory;
-import net.tanesha.recaptcha.ReCaptchaResponse;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
+import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -57,46 +56,45 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
-import org.sakaiproject.user.cover.AuthenticationManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.tool.PasswordPolicyHelper.TempUser;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.ExternalTrustedEvidence;
+import org.sakaiproject.util.PasswordCheck;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.portal.util.PortalUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
-import java.text.MessageFormat;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.validator.routines.EmailValidator;
-import org.sakaiproject.accountvalidator.logic.ValidationLogic;
-import org.sakaiproject.accountvalidator.model.ValidationAccount;
-import org.sakaiproject.util.PasswordCheck;
+import lombok.extern.slf4j.Slf4j;
+import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaFactory;
+import net.tanesha.recaptcha.ReCaptchaResponse;
 
 /**
  * <p>
@@ -106,6 +104,9 @@ import org.sakaiproject.util.PasswordCheck;
 @Slf4j
 public class UsersAction extends PagedResourceActionII
 {
+
+	private static final long serialVersionUID = 1L;
+
 	private static ResourceLoader rb = new ResourceLoader("users");
 		
 	//private static final String XLS_MIME_TYPE="application/vnd.ms-excel";
@@ -138,28 +139,50 @@ public class UsersAction extends PagedResourceActionII
 
 	private static final String USER_TEMPLATE_PREFIX = "!user.template.";
 
+	/*Kernel api */
 	private AuthzGroupService authzGroupService;
 
+	private UserDirectoryService userDirectoryService;
+	
+	private AuthenticationManager authenticationManager;
+	
+	private SecurityService securityService;
+
+	private UsageSessionService usageSessionService;
+	
+	private ContentHostingService contentHostingService;
+	
+	private SessionManager sessionManager;
+	
+	private ThreadLocalManager threadLocalManager;
+	
 	public UsersAction() {
 		super();
 		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		authenticationManager = ComponentManager.get(AuthenticationManager.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		contentHostingService = ComponentManager.get(ContentHostingService.class);
+		usageSessionService =  ComponentManager.get(UsageSessionService.class);
+		sessionManager =  ComponentManager.get(SessionManager.class);
+		threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
 		this.validationLogic = (ValidationLogic)ComponentManager.get(ValidationLogic.class);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	protected List readResourcesPage(SessionState state, int first, int last)
+	protected List<User> readResourcesPage(SessionState state, int first, int last)
 	{
 		// search?
 		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
 		if (search != null)
 		{
-			return UserDirectoryService.searchUsers(search, first, last);
+			return userDirectoryService.searchUsers(search, first, last);
 		}
 
-		return UserDirectoryService.getUsers(first, last);
+		return userDirectoryService.getUsers(first, last);
 	}
 
 	/**
@@ -172,10 +195,10 @@ public class UsersAction extends PagedResourceActionII
 
 		if (search != null)
 		{
-			return UserDirectoryService.countSearchUsers(search);
+			return userDirectoryService.countSearchUsers(search);
 		}
 
-		return UserDirectoryService.countUsers();
+		return userDirectoryService.countUsers();
 	}
 
 	/**
@@ -270,7 +293,7 @@ public class UsersAction extends PagedResourceActionII
 
 
 		// if not logged in as the super user, we won't do anything
-		if ((!singleUser) && (!createUser) && (!SecurityService.isSuperUser()))
+		if ((!singleUser) && (!createUser) && (!securityService.isSuperUser()))
 		{
 			context.put("tlang",rb);
 			return (String) getContext(rundata).get("template") + "_noaccess";
@@ -282,7 +305,7 @@ public class UsersAction extends PagedResourceActionII
 		if (state.getAttribute("redirect") != null)
 		{
 			state.removeAttribute("redirect");
-			Session s = SessionManager.getCurrentSession();
+			Session s = sessionManager.getCurrentSession();
 			// TODO: Decide if this should be in "getPortalUrl"
 			// I don't think so but could be convinced - /chuck
 			String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
@@ -291,7 +314,7 @@ public class UsersAction extends PagedResourceActionII
 				portalUrl = portalUrl + "/" + controllingPortal;
 			}
  
-			sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
+			sendParentRedirect((HttpServletResponse) threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
 					portalUrl);
 			return template;
 		}
@@ -315,7 +338,7 @@ public class UsersAction extends PagedResourceActionII
 		}
 		else if (singleUser)
 		{
-			String id = SessionManager.getCurrentSessionUserId();
+			String id = sessionManager.getCurrentSessionUserId();
 			state.setAttribute("user-id", id);
 			template = buildViewContext(state, context);
 		}
@@ -364,14 +387,14 @@ public class UsersAction extends PagedResourceActionII
 	private String buildListContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", UserDirectoryService.getInstance());
+		context.put("service", userDirectoryService);
 
 		// put all (internal) users into the context
 		context.put("users", prepPage(state));
 
 		// build the menu
 		Menu bar = new MenuImpl();
-		if (UserDirectoryService.allowAddUser())
+		if (userDirectoryService.allowAddUser())
 		{
 			bar.add(new MenuEntry(rb.getString("useact.newuse"), null, true, MenuItem.CHECKED_NA, "doNew"));
 			bar.add(new MenuEntry(rb.getString("import.user.file"), null, true, MenuItem.CHECKED_NA, "doImport"));
@@ -386,7 +409,7 @@ public class UsersAction extends PagedResourceActionII
 
 		int totalNumber = 0;
 		Object[] params;
-		ArrayList list = new ArrayList();
+		ArrayList<Integer[]> list = new ArrayList<>();
 		list.add(new Integer[]{Integer.valueOf(5)});
 		list.add(new Integer[]{Integer.valueOf(10)});
 		list.add(new Integer[]{Integer.valueOf(20)});
@@ -442,7 +465,7 @@ public class UsersAction extends PagedResourceActionII
 	private String buildNewContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", UserDirectoryService.getInstance());
+		context.put("service", userDirectoryService);
 
 		// name the html form for user edit fields
 		context.put("form-name", "user-form");
@@ -452,7 +475,7 @@ public class UsersAction extends PagedResourceActionII
 
 		context.put("incType", Boolean.valueOf(true));
 
-    context.put("superUser", Boolean.valueOf(SecurityService.isSuperUser()));
+    context.put("superUser", Boolean.valueOf(securityService.isSuperUser()));
 
 		String value = (String) state.getAttribute("valueEid");
 		if (value != null) context.put("valueEid", value);
@@ -482,7 +505,7 @@ public class UsersAction extends PagedResourceActionII
 	private String buildCreateContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", UserDirectoryService.getInstance());
+		context.put("service", userDirectoryService);
 
 		String blurb = (String) state.getAttribute(CONFIG_CREATE_BLURB);
 		if (!StringUtils.isEmpty(blurb))
@@ -539,8 +562,8 @@ public class UsersAction extends PagedResourceActionII
 	{
 		
 		// put the service in the context
-		context.put("service", UserDirectoryService.getInstance());
-
+		context.put("service", userDirectoryService);
+		
 		// name the html form for user edit fields
 		context.put("form-name", "user-form");
 
@@ -549,7 +572,7 @@ public class UsersAction extends PagedResourceActionII
 		context.put("user", user);
 		
 		// is super user/admin user?
-		context.put("superUser", Boolean.valueOf(SecurityService.isSuperUser()));
+		context.put("superUser", Boolean.valueOf(securityService.isSuperUser()));
 
 		// include the password fields?
 		context.put("incPw", state.getAttribute("include-password"));
@@ -562,7 +585,7 @@ public class UsersAction extends PagedResourceActionII
 		// we need the form fields for the remove...
 		boolean menuPopulated = false;
 		Menu bar = new MenuImpl();
-		if ((!singleUser) && (UserDirectoryService.allowRemoveUser(user.getId())))
+		if ((!singleUser) && (userDirectoryService.allowRemoveUser(user.getId())))
 		{
 			bar.add(new MenuEntry(rb.getString("useact.remuse"), null, true, MenuItem.CHECKED_NA, "doRemove", "user-form"));
 			menuPopulated = true;
@@ -610,7 +633,7 @@ public class UsersAction extends PagedResourceActionII
 		// get the user and put in state as "user"
 		try
 		{
-			User user = UserDirectoryService.getUser(id);
+			User user = userDirectoryService.getUser(id);
 			context.put("user", user);
 
 			// name the html form for user edit fields
@@ -621,8 +644,8 @@ public class UsersAction extends PagedResourceActionII
 			// make sure we can do an edit
 			try
 			{
-				UserEdit edit = UserDirectoryService.editUser(id);
-				UserDirectoryService.cancelEdit(edit);
+				UserEdit edit = userDirectoryService.editUser(id);
+				userDirectoryService.cancelEdit(edit);
 				context.put("enableEdit", "true");
 			}
 			catch (UserNotDefinedException e)
@@ -775,14 +798,14 @@ public class UsersAction extends PagedResourceActionII
 					
 					TempUser tempUser = new TempUser(user.getEid(), user.getEmail(), null, null, user.getEid(), user.getPassword(), null);
 					
-					if (!allowEmailDuplicates && UserDirectoryService.checkDuplicatedEmail(tempUser)){
+					if (!allowEmailDuplicates && userDirectoryService.checkDuplicatedEmail(tempUser)){
 						addAlert(state, rb.getString("useact.theuseemail1") + ":" + tempUser.getEmail());
 						
 						//Try to import the rest
 						continue;
 					}
 					
-					User newUser = UserDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), user.getProperties());
+					User newUser = userDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), user.getProperties());
 			
 					
 				}
@@ -832,7 +855,7 @@ public class UsersAction extends PagedResourceActionII
 		// get the user
 		try
 		{
-			UserEdit user = UserDirectoryService.editUser(id);
+			UserEdit user = userDirectoryService.editUser(id);
 			state.setAttribute("user", user);
 			state.setAttribute("mode", "edit");
 
@@ -884,7 +907,7 @@ public class UsersAction extends PagedResourceActionII
 		// get the user
 		try
 		{
-			UserEdit user = UserDirectoryService.editUser(id);
+			UserEdit user = userDirectoryService.editUser(id);
 			state.setAttribute("user", user);
 			state.setAttribute("mode", "edit");
 
@@ -947,7 +970,7 @@ public class UsersAction extends PagedResourceActionII
 			//Check if the email is duplicated
 			boolean allowEmailDuplicates = ServerConfigurationService.getBoolean("user.email.allowduplicates",true);
 			
-			if (!allowEmailDuplicates && UserDirectoryService.checkDuplicatedEmail(edit)){
+			if (!allowEmailDuplicates && userDirectoryService.checkDuplicatedEmail(edit)){
 				addAlert(state, rb.getString("useact.theuseemail1"));
 				return;
 			}
@@ -955,12 +978,12 @@ public class UsersAction extends PagedResourceActionII
 			try
 			{
 				//start this validation only when user has changed the email for the account else skip, also skip for admin user
-				if (!SecurityService.isSuperUser() && StringUtils.trimToNull(valueEmail) != null && StringUtils.trimToNull(oldEmail) != null && !(oldEmail.equals(valueEmail))
+				if (!securityService.isSuperUser() && StringUtils.trimToNull(valueEmail) != null && StringUtils.trimToNull(oldEmail) != null && !(oldEmail.equals(valueEmail))
 						&& EmailValidator.getInstance().isValid(edit.getEid()) && !(StringUtils.equalsIgnoreCase(edit.getEid(), valueEmail))) {
 					validationLogic.createValidationAccount(edit.getId(),valueEmail);
 					addAlert(state,rb.getFormattedMessage("useedi.val.email",new String[]{valueEmail}));
 				}
-				UserDirectoryService.commitEdit(edit);
+				userDirectoryService.commitEdit(edit);
 			}
 			catch (UserAlreadyDefinedException e)
 			{
@@ -1007,8 +1030,8 @@ public class UsersAction extends PagedResourceActionII
 				{
 					// login - use the fact that we just created the account as external evidence
 					Evidence e = new ExternalTrustedEvidence(user.getEid());
-					Authentication a = AuthenticationManager.authenticate(e);
-					if (!UsageSessionService.login(a, (HttpServletRequest) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST)))
+					Authentication a = authenticationManager.authenticate(e);
+					if (!usageSessionService.login(a, (HttpServletRequest) threadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST)))
 					{
 						addAlert(state, rb.getString("useact.tryloginagain"));
 					}
@@ -1046,7 +1069,7 @@ public class UsersAction extends PagedResourceActionII
 				// remove
 				try
 				{
-					UserDirectoryService.removeUser(user);
+					userDirectoryService.removeUser(user);
 				}
 				catch (UserPermissionException e)
 				{
@@ -1055,7 +1078,7 @@ public class UsersAction extends PagedResourceActionII
 			}
 			else
 			{
-				UserDirectoryService.cancelEdit(user);
+				userDirectoryService.cancelEdit(user);
 			}
 		}
 
@@ -1162,10 +1185,10 @@ public class UsersAction extends PagedResourceActionII
 		// remove the user
 		try
 		{
-			UserDirectoryService.removeUser(user);
+			userDirectoryService.removeUser(user);
 
 			// tracking information
-		 	log.info("User {} has been deleted by {}. The internal ID was {}", userEid, UserDirectoryService.getCurrentUser().getEid(), userId);
+		 	log.info("User {} has been deleted by {}. The internal ID was {}", userEid, userDirectoryService.getCurrentUser().getEid(), userId);
 		}
 		catch (UserPermissionException e)
 		{
@@ -1218,7 +1241,7 @@ public class UsersAction extends PagedResourceActionII
 	 * @return true if password is valid or if current user is admin
 	 */
 	private boolean validatePassword(String pw, User user, SessionState state) {
-		if (pw != null && !SecurityService.isSuperUser() && pwHelper.validatePassword(pw, user) == PasswordRating.FAILED) {
+		if (pw != null && !securityService.isSuperUser() && pwHelper.validatePassword(pw, user) == PasswordRating.FAILED) {
 			addAlert(state, rb.getString(MSG_KEY_PASSWORD_WEAK) + " " + rb.getString(MSG_KEY_PW_STRENGTH_INFO));
 			return false;
 		}
@@ -1338,9 +1361,9 @@ public class UsersAction extends PagedResourceActionII
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
 		//if user has not changed the email then skip the 'email exists' verification. Also, skip it when user is admin
-		if(!SecurityService.isSuperUser() && user != null && !(StringUtils.equals(user.getEmail(), email))){
+		if(!securityService.isSuperUser() && user != null && !(StringUtils.equals(user.getEmail(), email))){
 			try {
-				UserDirectoryService.getUserByEid(email);
+				userDirectoryService.getUserByEid(email);
 				addAlert(state,rb.getString("useedi.email.exists"));
 				return false;
 			} catch (UserNotDefinedException e) {
@@ -1456,7 +1479,7 @@ public class UsersAction extends PagedResourceActionII
 			//Check if the email is duplicated
 			boolean allowEmailDuplicates = ServerConfigurationService.getBoolean("user.email.allowduplicates",true);
 			
-			if (!allowEmailDuplicates && UserDirectoryService.checkDuplicatedEmail(tempUser)){
+			if (!allowEmailDuplicates && userDirectoryService.checkDuplicatedEmail(tempUser)){
 					addAlert(state, rb.getString("useact.theuseemail1"));
 					return false;
 			}
@@ -1468,26 +1491,26 @@ public class UsersAction extends PagedResourceActionII
 				// (the added might be "anon", and anon has add but not update permission)
 				
 				//SAK-18209 only an admin user should be able to specify a ID
-				if (!SecurityService.isSuperUser()) {
+				if (!securityService.isSuperUser()) {
 					id = null;
 				}
 				User newUser;
 				if (validateWithAccountValidator)
 				{
 					// the eid is their email address. The password is random
-					newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, PasswordCheck.generatePassword(), type, properties);
+					newUser = userDirectoryService.addUser(id, eid, firstName, lastName, email, PasswordCheck.generatePassword(), type, properties);
 					// Invoke AccountValidator to send an email to the user containing a link to a form on which they can set their name and password
 					ValidationLogic validationLogic = (ValidationLogic) ComponentManager.get(ValidationLogic.class);
 					validationLogic.createValidationAccount(newUser.getId(), ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT);
 				}
 				else
 				{
-					newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, properties);
+					newUser = userDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, properties);
 
-					if (SecurityService.isSuperUser()) {
+					if (securityService.isSuperUser()) {
 						if(disabled == 1){
 							try {
-								UserEdit editUser = UserDirectoryService.editUser(newUser.getId());
+								UserEdit editUser = userDirectoryService.editUser(newUser.getId());
 								editUser.getProperties().addProperty("disabled", "true");
 								newUser = editUser;
 							} catch (UserNotDefinedException e) {
@@ -1530,7 +1553,7 @@ public class UsersAction extends PagedResourceActionII
 				{
 					// add the user in one step so that all you need is add not update permission
 					// (the added might be "anon", and anon has add but not update permission)
-					user = UserDirectoryService.editUser(user.getId());
+					user = userDirectoryService.editUser(user.getId());
 	
 					// put the user in the state
 					state.setAttribute("user", user);
@@ -1556,7 +1579,7 @@ public class UsersAction extends PagedResourceActionII
 
                   // Still needs super user to change super user password
                   // If the current user isn't a super user but is trying to change the password or email of a super user print an error
-			if (!SecurityService.isSuperUser() && SecurityService.isSuperUser(user.getId())) {
+			if (!securityService.isSuperUser() && securityService.isSuperUser(user.getId())) {
 			    addAlert(state, rb.getString("useact.youdonot4"));
 			    return false;
 			}
@@ -1572,7 +1595,7 @@ public class UsersAction extends PagedResourceActionII
 			//add in the updated props
 			user.getPropertiesEdit().addAll(properties);
 			
-			if (SecurityService.isSuperUser()) {
+			if (securityService.isSuperUser()) {
 				if(disabled == 1){
 					user.getProperties().addProperty("disabled", "true");
 				}else{
@@ -1584,7 +1607,7 @@ public class UsersAction extends PagedResourceActionII
 			if (!isProvidedType(user.getType())) {
 			
 				// make sure the old password matches, but don't check for super users
-				if (!SecurityService.isSuperUser()) {
+				if (!securityService.isSuperUser()) {
 					if (!user.checkPassword(pwcur)) {
 						addAlert(state, rb.getString("usecre.curpass"));
 						return false;
@@ -1677,7 +1700,7 @@ public class UsersAction extends PagedResourceActionII
 	public void doAttachments(RunData rundata, Context context) {
 		
 		// use special form of the helper for the admin workspace
-		ToolSession session = SessionManager.getCurrentToolSession();
+		ToolSession session = sessionManager.getCurrentToolSession();
         session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, new Boolean(true).toString());
 		
 		// use the helper
@@ -1858,7 +1881,7 @@ public class UsersAction extends PagedResourceActionII
 	private void processImportedUserFile(SessionState state, Context context, Reference file) {
 		
 		try{
-			ContentResource resource = ContentHostingService.getResource(file.getId());
+			ContentResource resource = contentHostingService.getResource(file.getId());
 			String contentType = resource.getContentType();
 			
 			//check mime type
@@ -2011,7 +2034,7 @@ public class UsersAction extends PagedResourceActionII
 	private boolean isValidatedWithAccountValidator(SessionState state)
 	{
 		boolean isGatewayTool = (boolean) state.getAttribute("create-user");
-		if (isGatewayTool && !SecurityService.isSuperUser())
+		if (isGatewayTool && !securityService.isSuperUser())
 		{
 			return (boolean) state.getAttribute(CONFIG_VALIDATE_THROUGH_EMAIL);
 		}
@@ -2020,7 +2043,7 @@ public class UsersAction extends PagedResourceActionII
 
 	private boolean isEidEditable(SessionState state)
 	{
-		if (SecurityService.isSuperUser())
+		if (securityService.isSuperUser())
 		{
 			return true;
 		}
@@ -2040,10 +2063,10 @@ public class UsersAction extends PagedResourceActionII
      *
      * @return list of user types in the system
      */
-    protected List getUserTypes() {
-        List userTypes = new ArrayList();
-        List groups = authzGroupService.getAuthzGroups(USER_TEMPLATE_PREFIX, null);
-        for (Iterator i = groups.iterator(); i.hasNext();) {
+    protected List<String> getUserTypes() {
+        List<String> userTypes = new ArrayList<>();
+        List<AuthzGroup> groups = authzGroupService.getAuthzGroups(USER_TEMPLATE_PREFIX, null);
+        for (Iterator<AuthzGroup> i = groups.iterator(); i.hasNext();) {
             AuthzGroup group = (AuthzGroup) i.next();
             String type = group.getId().replaceFirst(USER_TEMPLATE_PREFIX, "");
             if (!type.equals("sample")) {

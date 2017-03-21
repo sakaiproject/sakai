@@ -23,7 +23,7 @@ package org.sakaiproject.archive.tool;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ArchiveService;
@@ -69,6 +69,8 @@ import java.util.*;
 public class ArchiveAction
 	extends VelocityPortletPaneledAction
 {
+
+	private static final long serialVersionUID = 1L;
 	private static final String STATE_MODE = "mode";
 	private static final String BATCH_MODE = "batch";
 	private static final String BATCH_ARCHIVE_CONFIRM_MODE = "batch-archive-confirm";
