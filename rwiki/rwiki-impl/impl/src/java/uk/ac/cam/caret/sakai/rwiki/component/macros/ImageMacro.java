@@ -117,10 +117,10 @@ public class ImageMacro extends BaseMacro
 			{
 				link = context.convertLink(link);
 
-				writer.write("<a href=\"" + link + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+				writer.write("<a href=\"" + Encoder.escape(link) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				if (target != null)
 				{
-					writer.write("target=\"" + target + "\""); //$NON-NLS-1$ //$NON-NLS-2$
+					writer.write("target=\"" + Encoder.escape(target) + "\""); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				writer.write(">"); //$NON-NLS-1$
 			}
@@ -138,12 +138,12 @@ public class ImageMacro extends BaseMacro
 
 			imageName = context.convertLink(imageName);
 			writer.write("<img src=\""); //$NON-NLS-1$
-			writer.write(imageName);
+			writer.write(Encoder.escape(imageName));
 			writer.write("\" "); //$NON-NLS-1$
 			if (cssclass != null)
 			{
 				writer.write("class=\""); //$NON-NLS-1$
-				writer.write(cssclass);
+				writer.write(Encoder.escape(cssclass));
 				writer.write("\" "); //$NON-NLS-1$
 			}
 			if (alt != null)
