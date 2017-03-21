@@ -756,7 +756,7 @@
 					#end ## foreach $root in $other_sites
 	
 				#else
-					<tr class="hidden-xs hidden-sm">
+					<tr class="hidden-xs">
 						<th colspan="10">
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
