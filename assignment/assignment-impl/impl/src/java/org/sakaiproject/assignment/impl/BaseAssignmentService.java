@@ -11700,7 +11700,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String gradeGB=this.getGradeForUserInGradeBook(null);
 				if(gradeGB!=null)
 				{
-					rv=gradeGB;
+					if(!gradeGB.equals(""))
+					{
+						rv=gradeGB;
+					}
+					else
+					{
+						rv=null;
+					}
 				}
 			}
 			return rv;
@@ -11834,6 +11841,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						DecimalFormat dcformat = (DecimalFormat) nbFormat;
 						Double dblGrade = dcformat.parse(rv).doubleValue();
 						rv = nbFormat.format(dblGrade);
+					}
+					
+					/*
+					 * SAK-32201 - We need to know if 'userId' is an id of a Group because
+					 * there is'nt a correspondence between the general grade of a group
+					 * in an assignment with Group Submission and any grade from Gradebook so always is null.
+					 */
+					
+					else if(m_gradeReleased)
+					{
+						Site site = siteService.getSite(m.getContext());
+						if (site.getGroup(userId)==null)
+						{
+							rv="";
+						}
 					}
 				}
 				catch (Exception e)
