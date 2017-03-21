@@ -15,6 +15,8 @@
 	<properties>
 		<bootstrap-version>3.3.7</bootstrap-version>
 		<font-awesome-version>4.7.0</font-awesome-version>
+		<!-- Empty defaults -->
+		<ckeditor-a11y-extra-plugins></ckeditor-a11y-extra-plugins>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -61,6 +63,7 @@
 			<version>${ckeditor.wordcount.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>dropzone</artifactId>
@@ -363,8 +366,36 @@
 							</execution>
 						</executions>
 					</plugin>
+
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<!-- These plugins can't be part of the standard build -->
+			<id>ckeditor-extras</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>ckeditor-extras</name>
+				</property>
+			</activation>
+			<properties>
+				<ckeditor-a11y-extra-plugins>,a11ychecker</ckeditor-a11y-extra-plugins>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>org.sakaiproject.webjars</groupId>
+					<artifactId>ckeditor-a11ychecker</artifactId>
+					<version>${ckeditor.a11ychecker.version}</version>
+					<scope>runtime</scope>
+				</dependency>
+				<dependency>
+					<groupId>org.sakaiproject.webjars</groupId>
+					<artifactId>ckeditor-balloonpanel</artifactId>
+					<version>${ckeditor.balloonpanel.version}</version>
+					<scope>runtime</scope>
+				</dependency>
+			</dependencies>
 		</profile>
 	</profiles>
 	<build>
@@ -383,6 +414,18 @@
 						<phase>generate-resources</phase>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>src/webapp-filtered</directory>
+							<filtering>true</filtering>
+						</resource>
+					</webResources>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
