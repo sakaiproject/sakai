@@ -3222,7 +3222,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if(canSeeAll || isAvailable) {
 					    if (!isAvailable)
 						UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
-					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+					    String itemText;
+					    if (ServerConfigurationService.getBoolean("lessonbuilder.personalize.text", false)) {
+						itemText = personalizeText(i.getHtml());
+					    } else {
+						itemText = i.getHtml();
+					    }
+					    UIVerbatim.make(tableRow, "content", (itemText == null ? "" : itemText));
 					} else {
 					    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
 					}
@@ -5312,6 +5318,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
 		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "4");
 		UIOutput.make(peerReviewRows, "peer-eval-sample-text", messageLocator.getMessage("simplepage.peer-eval.sample.4"));
+	}
+
+	private String personalizeText(String itemText) {
+		if (StringUtils.isNotBlank(itemText)) {
+			User currentUser = UserDirectoryService.getCurrentUser();
+			itemText = StringUtils.replace(itemText, "{{firstname}}", currentUser.getFirstName() == null ? "" : currentUser.getFirstName());
+			itemText = StringUtils.replace(itemText, "{{lastname}}", currentUser.getLastName() == null ? "" : currentUser.getLastName());
+			itemText = StringUtils.replace(itemText, "{{fullname}}", currentUser.getDisplayName() == null ? "" : currentUser.getDisplayName());
+		}
+		return itemText;
 	}
 
 }
