@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.sakaiproject.gradebookng.tool.component.JFreeChartImageWithToolTip;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
@@ -169,6 +170,10 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 			}
 		});
+
+		// add the chart
+		settingsGradingSchemaPanel.add(new JFreeChartImageWithToolTip("chart", null, "tooltip", 540, 300));
+
 	}
 
 	/**

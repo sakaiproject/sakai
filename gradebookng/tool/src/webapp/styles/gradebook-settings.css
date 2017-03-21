@@ -56,3 +56,8 @@
     width: 100%;
     padding: 10px 15px;
 }
+
+.gb-schema-chart {
+	margin-left: 4em;
+	margin-top: 2em;
+}
