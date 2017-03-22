@@ -104,6 +104,8 @@ import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.signature.OAuthSignatureMethod;
 
+import org.apache.commons.math3.util.Precision;
+
 /**
  * Some Sakai Utility code for IMS Basic LTI
  * This is mostly code to support the Sakai conventions for 
@@ -1727,11 +1729,7 @@ public class SakaiBLTIUtil {
 				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
-				if ( theGrade < 0.0 || theGrade > 1.0 ) {
-					throw new Exception("Grade out of range");
-				}
-				theGrade = theGrade * assignmentObject.getPoints();
-				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, String.valueOf(theGrade), "External Outcome");
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, getRoundedGrade(theGrade,assignmentObject.getPoints()), "External Outcome");
 				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
 
 
@@ -1748,6 +1746,17 @@ public class SakaiBLTIUtil {
 		}
 
 		return retval;
+	}
+
+	// Returns theGrade * points rounded to 2 digits (as a String)
+	// Used for testing and to avoid precision problems
+	public static String getRoundedGrade(Double theGrade, Double points) throws Exception {
+		if ( theGrade < 0.0 || theGrade > 1.0 ) {
+			throw new Exception("Grade out of range");
+		}
+		theGrade = theGrade * points;
+		theGrade = Precision.round(theGrade,2);
+		return String.valueOf(theGrade);
 	}
 
 	// Extract the necessary properties from a placement
