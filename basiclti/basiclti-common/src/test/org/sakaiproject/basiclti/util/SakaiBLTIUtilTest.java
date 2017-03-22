@@ -50,6 +50,26 @@ public class SakaiBLTIUtilTest {
 		adj = SakaiBLTIUtil.adjustCustom("x=1;y=2;z=3;");
 		assertEquals(adj,"x=1;y=2;z=3;".replace(';','\n'));
 	}
+	@Test
+	public void testStringGrade() {
+		String grade="";
+		try {
+			grade = SakaiBLTIUtil.getRoundedGrade(0.57,100.0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			
+		assertEquals(grade,"57.0");
 
+		try {
+			grade = SakaiBLTIUtil.getRoundedGrade(0.5655,100.0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		assertEquals(grade,"56.55");
+	}
 }
 
