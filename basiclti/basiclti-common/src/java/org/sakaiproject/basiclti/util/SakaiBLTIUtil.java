@@ -1721,7 +1721,9 @@ public class SakaiBLTIUtil {
 				message = "Result read";
 				Map<String, Object> retMap = new TreeMap<String, Object> ();
 				retMap.put("grade",dGrade);
-				retMap.put("comment",commentDef.getCommentText());
+				if (commentDef != null) {
+					retMap.put("comment",commentDef.getCommentText());
+				}
 				retval = retMap;
 			} else if ( isDelete ) {
 				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
