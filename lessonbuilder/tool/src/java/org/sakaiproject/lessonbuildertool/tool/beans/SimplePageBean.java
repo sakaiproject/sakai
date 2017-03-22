@@ -25,7 +25,6 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.text.SimpleDateFormat;
-import java.text.Format;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.StringUtils;
@@ -65,7 +64,6 @@ import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -89,7 +87,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URI;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -6422,7 +6419,7 @@ public class SimplePageBean {
 	}
 
 	public List<Map<String, Object>> getToolsImportItem() {
-		return ltiService.getToolsImportItem();
+		return ltiService.getToolsImportItem(getCurrentSiteId());
 	}
 
 	public void handleImportItem() {
@@ -6439,7 +6436,7 @@ public class SimplePageBean {
                         return;
                 }
 
-                Map<String, Object> tool = ltiService.getTool(toolKey);
+                Map<String, Object> tool = ltiService.getTool(toolKey, getCurrentSiteId());
                 if ( tool == null ) {
 			setErrKey("simplepage.lti-import-error-id", toolId);
                         return;

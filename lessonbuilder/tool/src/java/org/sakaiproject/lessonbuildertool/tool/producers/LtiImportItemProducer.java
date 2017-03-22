@@ -30,21 +30,13 @@ import java.util.Properties;
 
 import java.net.URLEncoder;
 
-import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.tool.cover.SessionManager;
 
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.lti.api.LTIService;
 import org.tsugi.lti2.ContentItem;
 import org.slf4j.Logger;
@@ -53,21 +45,15 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Placement;
 
-import org.sakaiproject.lessonbuildertool.service.BltiEntity;
-
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;										  
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UISelect;
-import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -161,7 +147,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 		}
 
 		// We are not in the pop-up iframe, create a list of  tools registered as importers
-		List<Map<String, Object>> toolsImportItem = ltiService.getToolsImportItem();
+		List<Map<String, Object>> toolsImportItem = ltiService.getToolsImportItem(toolManager.getCurrentPlacement().getContext());
 		if ( toolsImportItem.size() < 1 ) {
 			UIOutput.make(tofill, "error-div");
 			UIBranchContainer er = UIBranchContainer.make(tofill, "errors:");

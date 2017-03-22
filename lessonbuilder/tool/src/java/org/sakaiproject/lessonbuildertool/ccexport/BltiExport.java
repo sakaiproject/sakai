@@ -53,7 +53,7 @@ public class BltiExport {
 	    return ret;
 	List<Map<String,Object>> contents = null;
 	try {
-	    contents = ltiService.getContents(null, null, 0, 0);
+	    contents = ltiService.getContents(null, null, 0, 0, siteId);
 	} catch (Exception e) {
 	    // this should never happen, but we saw it once
 	    return null;
@@ -61,7 +61,7 @@ public class BltiExport {
 		
 	for (Map<String,Object> content : contents) {
 	    Long id = getLong(content.get(LTIService.LTI_ID));
-	    if (id.longValue() != -1L && entityReal(id)) {
+	    if (id.longValue() != -1L && entityReal(id, siteId)) {
 		ret.add("blti/" + id);
 	    }
 	}
@@ -69,14 +69,14 @@ public class BltiExport {
     }
 
     // we saw a weird site where this wasn't true. Admin had changed accessibility of tool
-    public boolean entityReal(Long bkey) {
-	Map content = ltiService.getContent(bkey);
+    public boolean entityReal(Long bkey, String siteId) {
+	Map content = ltiService.getContent(bkey, siteId);
 	if (content == null)
 	    return false;
 	Long toolKey = getLongNull(content.get(LTIService.LTI_TOOL_ID));
 	if (toolKey == null)
 	    return false;
-	Map tool = ltiService.getTool(toolKey);
+	Map tool = ltiService.getTool(toolKey, siteId);
 	if (tool == null)
 	    return false;
 	return true;
@@ -87,13 +87,13 @@ public class BltiExport {
 	String id = bltiRef.substring(i + 1);
 
 	Long bkey = getLong(id);
-	Map content = ltiService.getContent(bkey);
+	Map content = ltiService.getContent(bkey, bean.siteId);
 	if (content == null)
 	    return false;
 	Long toolKey = getLongNull(content.get(LTIService.LTI_TOOL_ID));
 	if (toolKey == null)
 	    return false;
-	Map tool = ltiService.getTool(toolKey);
+	Map tool = ltiService.getTool(toolKey, bean.siteId);
 	if (tool == null)
 	    return false;
 	
