@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -79,7 +78,7 @@ public class GradeStatisticsPanel extends BasePanel {
 
 		final DefaultCategoryDataset data = new DefaultCategoryDataset();
 
-		final SortedMap<String, Integer> counts = new TreeMap();
+		final Map<String, Integer> counts = new TreeMap<>();
 		Integer extraCredits = 0;
 
 		// Start off with a 0-50% range
@@ -307,4 +306,3 @@ public class GradeStatisticsPanel extends BasePanel {
 			(GradingType.POINTS.equals(this.gradingType) && grade > assignment.getPoints());
 	}
 }
-

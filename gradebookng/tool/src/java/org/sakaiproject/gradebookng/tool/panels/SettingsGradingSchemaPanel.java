@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.awt.Color;
 import java.io.Serializable;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,10 +28,21 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberTickUnitSource;
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.data.xy.XYDataset;
 import org.sakaiproject.gradebookng.tool.component.JFreeChartImageWithToolTip;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
@@ -72,7 +86,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		this.currentGradeMappingId = this.configuredGradeMappingId;
 
 		// setup the grading scale schema entries
-		this.model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
+		this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
 
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
@@ -164,7 +178,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				SettingsGradingSchemaPanel.this.currentGradeMappingId = (String) typeChooser.getDefaultModelObject();
 
 				// refresh data
-				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
+				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(getGradingSchemaEntries());
 
 				// repaint
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
@@ -172,8 +186,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		});
 
 		// add the chart
-		settingsGradingSchemaPanel.add(new JFreeChartImageWithToolTip("chart", null, "tooltip", 540, 300));
-
+		final JFreeChart chart = getChartData();
+		settingsGradingSchemaPanel.add(new JFreeChartImageWithToolTip("chart",  Model.of(chart), "tooltip", 540, 300));
 	}
 
 	/**
@@ -216,11 +230,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Helper to setup the applicable grading schema entries, depending on current state
+	 * Helper to determine and return the applicable grading schema entries, depending on current state
 	 *
-	 * @return
+	 * @return the list of {@link GbGradingSchemaEntry} for the currently selected grading schema id
 	 */
-	private List<GbGradingSchemaEntry> setupGradingSchemaEntries() {
+	private List<GbGradingSchemaEntry> getGradingSchemaEntries() {
 
 		// get configured values or defaults
 		// need to retain insertion order
@@ -259,6 +273,90 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	public boolean isExpanded() {
 		return this.expanded;
 	}
+
+	/**
+	 * Build the data for the chart
+	 * @return
+	 */
+	private JFreeChart getChartData() {
+
+		// get course grade data according to currently selected
+		final List<String> studentUuids = this.businessService.getGradeableUsers();
+		final List<CourseGrade> courseGrades = this.businessService.getCourseGrades(studentUuids).values().stream().collect(Collectors.toList());
+
+		// get current grading schema (from model so that it reflects current state)
+		final List<GbGradingSchemaEntry> gradingSchemaEntries = this.model.getObject().getGradingSchemaEntries();
+
+		// TODO recalculate grades as the value of each schema entry is changed.
+		// This requires backend changes to be able to pass a version of the schema to the backend and have it calculate against that data and ensure it doesn't persist anything
+		// So for now the workaround is to click save and see the values change.
+		// Also, course grades must be released - this could further complicate things
+
+		final XYDataset data = new XYDataset();
+		final Map<String, Integer> counts = new TreeMap<>();
+
+		// add all schema entries
+		gradingSchemaEntries.forEach(e -> {
+			counts.put(e.getGrade(), 0);
+		});
+
+		//now add the count of each course grade for those schema entries
+		int totalCounted = 0;
+		for(final CourseGrade g: courseGrades) {
+
+			// course grade may not be released so we have to skip it
+			if(StringUtils.isBlank(g.getMappedGrade())) {
+				continue;
+			}
+
+			counts.put(g.getMappedGrade(), counts.get(g.getMappedGrade()) + 1);
+			totalCounted++;
+		}
+
+		// add to data set
+		counts.keySet().forEach(c -> {
+			data.addValue(counts.get(c), "count", c);
+		});
+
+		final JFreeChart chart = ChartFactory.createBarChart(
+				null, // the chart title
+				getString("label.statistics.chart.xaxis"), // the label for the category axis
+				getString("label.statistics.chart.yaxis"), // the label for the value axis
+				data, // the dataset for the chart
+				PlotOrientation.VERTICAL, // the plot orientation
+				false, // show legend
+				true, // show tooltips
+				false); // show urls
+
+		chart.setBorderVisible(false);
+		chart.setAntiAlias(false);
+
+		final CategoryPlot categoryPlot = chart.getCategoryPlot();
+		final BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
+
+		br.setItemMargin(0);
+		br.setMinimumBarLength(0.05);
+		br.setMaximumBarWidth(0.1);
+		br.setSeriesPaint(0, new Color(51, 122, 183));
+		br.setBarPainter(new StandardBarPainter());
+		br.setShadowPaint(new Color(220, 220, 220));
+		BarRenderer.setDefaultShadowsVisible(true);
+
+		br.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator(getString("label.statistics.chart.tooltip"), NumberFormat.getInstance()));
+
+		categoryPlot.setRenderer(br);
+
+		// show only integers in the count axis
+		categoryPlot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
+		categoryPlot.setBackgroundPaint(Color.white);
+
+		//reverse the x-axis order
+
+		//chart.getXYPlot().getDomainAxis().setInverte‌​d(true);
+
+		return chart;
+	}
+
 }
 
 /**

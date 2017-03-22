@@ -18,7 +18,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
-import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -71,6 +70,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -425,7 +425,7 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = this.getGradebook();
 		if (gradebook != null) {
-			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), this.getGradeableUsers());
+			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
 		}
 		return rval;
 	}
