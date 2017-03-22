@@ -1160,7 +1160,7 @@ public String getAddOrEdit()
 
     public boolean getShowTags()
     {
-        return ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.TRUE);
+        return ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE);
     }
 
     public void setShowTags(boolean showTags)
