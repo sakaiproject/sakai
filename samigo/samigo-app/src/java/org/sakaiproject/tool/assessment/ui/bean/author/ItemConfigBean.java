@@ -315,7 +315,7 @@ private static final String msgResource =
    */
   public boolean isShowSearchQuestion()
   {
-    return ServerConfigurationService.getBoolean("samigo.question.show.showSearchQuestion",showSearchQuestion);
+    return ServerConfigurationService.getBoolean("samigo.question.show.showSearchQuestion",false);
   }
   /**
    * Set whether search question option should be shown.

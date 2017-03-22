@@ -98,7 +98,7 @@ public class SearchQuestionBean   implements Serializable {
         setTextToSearch("");
         setTagToSearch(null);
         setTagToSearchLabel("");
-        setShowTags(serverConfigurationService.getBoolean("samigo.author.usetags",true));
+        setShowTags(serverConfigurationService.getBoolean("samigo.author.usetags",false));
         if (getShowTags()){
             setTagDisabled("");
         }else{
