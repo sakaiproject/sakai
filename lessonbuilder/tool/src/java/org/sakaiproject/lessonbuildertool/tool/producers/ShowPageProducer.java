@@ -4092,10 +4092,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    makeCsrf(form, "csrf26");
 		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
-			//Adding 'Embed twitter timeline' component
-			UIOutput.make(tofill, "twitter-li");
-			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
-			twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
+			boolean showEmbedTwitterLink = ServerConfigurationService.getBoolean("lessonbuilder.show.twitter.link", true);
+			if (showEmbedTwitterLink){
+				//Adding 'Embed twitter timeline' component
+				UIOutput.make(tofill, "twitter-li");
+				UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
+				twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
+			}
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
