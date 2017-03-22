@@ -1152,7 +1152,7 @@ public class ItemAuthorBean
   }
 
   public String getShowTagsStyle() {
-    if (ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.TRUE)){
+    if (ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE)){
       return "";
     }else{
       return "display:none;";
