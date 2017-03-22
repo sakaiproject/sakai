@@ -118,6 +118,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 	private String serviceUrl;
 	private String consumer;
 	private String consumerSecret;
+	private Boolean showPreliminary;
 	
 	private MemoryService memoryService;
 	//Caches requests for instructors so that we don't have to send a request for every student
@@ -133,6 +134,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		userUrlCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.userUrlCache", new SimpleConfiguration<>(10000, CACHE_EXPIRE_URLS_MINS * 60, -1));
 		contentScoreCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.contentScoreCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
 		assignmentTitleCache = memoryService.getCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.assignmentTitleCache");
+		showPreliminary = serverConfigurationService.getBoolean("contentreview.config.show_preliminary_score", true);
 	}
 	
 	public boolean allowResubmission() {
@@ -454,6 +456,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		String context = getSiteIdFromConentId(contentId);
 		Integer score = null;
 		String assignment = getAssignmentId(assignmentRef, isA2);
+		boolean preliminarySkipped = false;
 		if(StringUtils.isNotEmpty(assignment)){
 			if(contentScoreCache.containsKey(assignment)){
 				Object cacheObj = contentScoreCache.get(assignment);
@@ -468,7 +471,12 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 						cal.add(Calendar.MINUTE, CONTENT_SCORE_CACHE_MINS * -1);
 						if(((Date) cacheItem[1]).after(cal.getTime())){
 							//token hasn't expired, use it
-							score = (Integer) cacheItem[0];
+							boolean preliminary = cacheItem.length == 3 ? (boolean) cacheItem[2] : false;
+							if(!showPreliminary && preliminary) {
+								preliminarySkipped = true;
+							}else{
+								score = (Integer) cacheItem[0];
+							}
 						}else{
 							//token is expired, remove it
 							contentScoreCacheObject.remove(userId);
@@ -512,7 +520,11 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 				if(scores != null){
 					for(ReportScoreReponse scoreResponse : scores){
 						if(externalContentId.equals(scoreResponse.getExternalContentId())){
-							score = scoreResponse.getScore();
+							if(!showPreliminary && scoreResponse.getPreliminary()) {
+								preliminarySkipped = true;
+							}else{
+								score = scoreResponse.getScore();
+							}
 						}
 						//only cache the score if it is > 0
 						if(scoreResponse.getScore() != null && scoreResponse.getScore().intValue() >= 0){
@@ -524,7 +536,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 							if(cacheMap == null){
 								cacheMap = new HashMap<String, Object[]>();
 							}
-							cacheMap.put(scoreResponse.getExternalContentId(), new Object[]{scoreResponse.getScore(), new Date()});
+							cacheMap.put(scoreResponse.getExternalContentId(), new Object[]{scoreResponse.getScore(), new Date(), scoreResponse.getPreliminary()});
 							((Map<String, Map<String, Object[]>>) userCacheMap).put(scoreResponse.getUser(), cacheMap);								
 							contentScoreCache.put(scoreResponse.getAssignment(), userCacheMap);
 						}
@@ -551,7 +563,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		if(score == null){
 			//nothing was found, throw exception for this contentId
 			//remove from queue so that we can start again.
-			if(needsRequeue(reviewItem)){
+			if(!preliminarySkipped && needsRequeue(reviewItem)){
 				if(reviewItem.isPresent()){
 					//in order to requeue, we need to delete the old queue:
 					crqs.removeFromQueue(getProviderId(), contentId);
