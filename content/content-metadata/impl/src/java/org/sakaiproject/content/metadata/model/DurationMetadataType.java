@@ -39,6 +39,11 @@ import java.util.Map;
 public class DurationMetadataType extends MetadataType<Duration> {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Allow the velocity context to easily get the Unit enum.
 	 */
 	public Duration.Unit[] getUnits() {

@@ -28,10 +28,18 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
@@ -51,6 +59,10 @@ public class BasicRightsAssignment
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("right");
     
+    /** kernel api **/
+	private static UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+	private static TimeService timeService = ComponentManager.get(TimeService.class);
+	
 	public class RightsChoice
 	{
 		protected String id;
@@ -213,7 +225,7 @@ public class BasicRightsAssignment
 	protected static final String RENDER_AS_CHECKBOX = "checkbox";
 	protected static final String RENDER_AS_CHECKBOXES = "checkboxes";
 	
-	protected String[] user = { UserDirectoryService.getCurrentUser().getDisplayName() };
+	protected String[] user = { userDirectoryService.getCurrentUser().getDisplayName() };
 	
 	/*
 	status.label						= Who owns the rights to this material?
@@ -522,7 +534,7 @@ public class BasicRightsAssignment
 	 */
 	public String getDefaultCopyrightOwner()
 	{
-		String username = UserDirectoryService.getCurrentUser().getDisplayName(); 
+		String username = userDirectoryService.getCurrentUser().getDisplayName(); 
 		return username;
 	}
 	
@@ -532,7 +544,7 @@ public class BasicRightsAssignment
 	 */
 	public String getDefaultCopyrightYear()
 	{
-		int year = TimeService.newTime().breakdownLocal().getYear();
+		int year = timeService.newTime().breakdownLocal().getYear();
 		return Integer.toString(year);
 
 	}

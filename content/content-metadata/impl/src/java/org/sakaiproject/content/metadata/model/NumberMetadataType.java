@@ -34,6 +34,8 @@ import org.sakaiproject.content.metadata.model.MetadataValidator;
  */
 public class NumberMetadataType extends MetadataType<Number>
 {
+
+	private static final long serialVersionUID = 1L;
 	private boolean acceptFloat;
 	private boolean acceptNegative;
 	private Number minimumValue;
