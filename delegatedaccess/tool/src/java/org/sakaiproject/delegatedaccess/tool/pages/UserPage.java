@@ -41,6 +41,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
 import org.apache.wicket.extensions.markup.html.tree.BaseTree;
 import org.apache.wicket.extensions.markup.html.tree.DefaultAbstractTree;
@@ -53,6 +55,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -148,8 +151,7 @@ public class UserPage  extends BaseTreePage{
 					if(nodeModel.isSiteNode()){
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
-							//redirect the user to the site
-							target.appendJavaScript("popupWindow('" + site.getUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
+							getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(site.getUrl()));
 						}
 					}
 				}else{
