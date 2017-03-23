@@ -446,15 +446,6 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
-	public Map<String, Object> getTool(String url) {
-		throw new java.lang.RuntimeException("getTool(String url) not implemented");
-	}
-
-	private boolean getTool(Object urlorkey, Map<String, Object> retval) {
-		throw new java.lang.RuntimeException("getTool(String url) not implemented");
-	}
-
-	@Override
 	public Map<String, Object> getTool(Long key, String siteId) {
 		return getToolDao(key, siteId, isAdmin(siteId));
 	}
