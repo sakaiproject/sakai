@@ -359,7 +359,7 @@ public interface LTIService {
     String getExportUrl(String siteId, String filterId, ExportType exportType);
 
 
-    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteIf);
+    List<Map<String, Object>> getTools(String search, String order, int first, int last, String siteId);
 
     /**
      * Gets a list of the launchable tools in the site
