@@ -230,7 +230,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	String search = null;
 	if (bltiToolId != null)
 	    search = "tool_id=" + bltiToolId;
-	List<Map<String,Object>> contents = ltiService.getContents(search,null,0,0, getSiteId());
+	List<Map<String,Object>> contents = ltiService.getContents(search,null,0,0, bean.getCurrentSiteId());
 	for (Map<String, Object> content : contents ) {
 	    Long id = getLong(content.get(LTIService.LTI_ID));
 	    if ( id == -1 ) continue;
@@ -271,10 +271,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	if ( id == null ) return; // Likely a failure
 	if ( ltiService == null) return;  // not basiclti or old
 	Long key = getLong(id);
-	content = ltiService.getContent(key, getSiteId());
+	content = ltiService.getContent(key, ToolManager.getCurrentPlacement().getContext());
 	if ( content == null ) return;
 	Long toolKey = getLongNull(content.get("tool_id"));
-	if (toolKey != null ) tool = ltiService.getTool(toolKey, getSiteId());
+	if (toolKey != null ) tool = ltiService.getTool(toolKey, ToolManager.getCurrentPlacement().getContext());
     }	
 
     // properties of entities
