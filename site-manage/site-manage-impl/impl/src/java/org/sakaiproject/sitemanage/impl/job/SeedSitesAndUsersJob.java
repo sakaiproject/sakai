@@ -4,8 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -85,8 +88,8 @@ public class SeedSitesAndUsersJob implements Job {
 	private int numberOfEnnrollmentsPerSite = 50;
 	private int numberOfInstructorsPerSite = 1;
 
-	//private long repositorySize = 10485760;      //  10 MB
-	private long repositorySize = 1073741824L;     //   1 GB
+	private long repositorySize = 10485760;        //  10 MB
+	//private long repositorySize = 1073741824L;   //   1 GB
 	//private long repositorySize = 10737418240L;  //  10 GB
 	//private long repositorySize = 21474836480L;  //  20 GB
 	//private long repositorySize = 42949672960L;  //  40 GB
@@ -125,7 +128,7 @@ public class SeedSitesAndUsersJob implements Job {
 		long totalBytes = 0;
 		
 		while (totalBytes < repositorySize) {
-			log.info("seedData, current repository size: " + totalBytes);
+			log.info("current repository size: {}", totalBytes);
 			
 			Site site = getRandomSite();
 			String collectionName = getCollectionName(site);
@@ -136,9 +139,9 @@ public class SeedSitesAndUsersJob implements Job {
 				collection = createCollection(collectionName);
 				contentHostingService.commitCollection((ContentCollectionEdit) collection);
 			} catch (TypeException te) {
-				log.error("seedData, wrong collection type: ", te);
+				log.error("wrong collection type: ", te);
             } catch (PermissionException pe) {
-    			log.error("seedData, collection permission: ", pe);
+    			log.error("collection permission: ", pe);
             }
 			
 			if (collection != null) {
@@ -158,11 +161,11 @@ public class SeedSitesAndUsersJob implements Job {
 					resourceEdit.setContentType("text/plain");
 					contentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);
 				} catch (Exception e) {
-					log.error("seedData, cannot add resource: " + collectionName + fileName + ".txt", e);
+					log.error("cannot add resource: {}{}.txt", collectionName, fileName, e);
 				}
 				totalBytes += rawFile.length;
 			} else {
-				log.error("seedData, could not get collection: " + collectionName);
+				log.error("could not get collection: {}", collectionName);
 				break;
 			}
 		}
@@ -176,7 +179,7 @@ public class SeedSitesAndUsersJob implements Job {
 			}
 	        sb.append("'").append(site.getId()).append("'");
         }
-		
+
 		return new SizeOfResourcesQuery(sb.toString()).run().returnResult();
 	}
 
@@ -192,13 +195,13 @@ public class SeedSitesAndUsersJob implements Job {
 			collectionEdit = contentHostingService.addCollection(collectionName);
 			collectionEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "searchdata");
 		} catch (IdUsedException iue) {
-			log.error("createCollection, existing collection: ", iue);
+			log.error("existing collection: ", iue);
 		} catch (IdInvalidException iie) {
-			log.error("createCollection, invalid collection id: ", iie);
+			log.error("invalid collection id: ", iie);
 		} catch (PermissionException pe) {
-			log.error("createCollection, collection permission: ", pe);
+			log.error("collection permission: ", pe);
 		} catch (InconsistentException ie) {
-			log.error("createCollection, collection inconsistent: ", ie);
+			log.error("collection inconsistent: ", ie);
 		}
 		return collectionEdit;
 	}
@@ -226,14 +229,17 @@ public class SeedSitesAndUsersJob implements Job {
 		site.addPage().addTool("sakai.siteinfo");
 		siteService.save(site);
 		sites.put(site.getId(), site);
-		log.info("createSite, created site: " + site.getId());
+		log.info("created site: {}", site.getId());
 	}
 
 	private void createStudents() {
-		for (long i = 0; i < numberOfStudents; i++) {
+		for (long i = 1; i <= numberOfStudents; i++) {
 			User user = createUser("registered");
 			if (user != null) {
 				students.put(user.getEid(), user);
+			}
+			if (i % 100 == 0) {
+				log.info("created {} random student accounts", i);
 			}
 		}
 	}
@@ -254,27 +260,24 @@ public class SeedSitesAndUsersJob implements Job {
 			try {
 	            user = userDirectoryService.addUser(null, eid, faker.name().firstName(), lastName, eid + "@nowhere.com", faker.letterify("???????"), userType, null);
             } catch (UserIdInvalidException uiue) {
-            	log.error("createUsers, invalid userId: ", uiue);
+            	log.error("invalid userId: ", uiue);
             } catch (UserAlreadyDefinedException uade) {
-            	log.error("createUsers, already exists: ", uade);
+            	log.error("already exists: ", uade);
             	user = createUser(userType);
             } catch (UserPermissionException upe) {
-            	log.error("createUsers, permission: ", upe);
+            	log.error("permission: ", upe);
             }
 			
 		return user;
 	}
 
 	private void createEnrollments() {
-		String[] studentsArray = students.keySet().toArray(new String[] {});
 		for (String siteId : sites.keySet()) {
 			Site site = sites.get(siteId);
-			Set<String> usersInSite = new HashSet<String>(numberOfEnnrollmentsPerSite + numberOfInstructorsPerSite);
-			for (int i = 0; i < numberOfEnnrollmentsPerSite; i++) {
-				String studentEid = getUnAddedUser(usersInSite, studentsArray);
-				User user = students.get(studentEid);
+			Set<String> enrollments = getRandomUsers(students.keySet());
+			for (String enrollment : enrollments) {
+				User user = students.get(enrollment);
 				site.addMember(user.getId(), "Student", true, false);
-				usersInSite.add(studentEid);
 			}
 			for (User instructor : instructors.values()) {
 				site.addMember(instructor.getId(), "Instructor", true, false);
@@ -282,20 +285,22 @@ public class SeedSitesAndUsersJob implements Job {
 			try {
 				siteService.save(site);
 			} catch (IdUnusedException iue) {
-				log.error("createEnrollments, site doesn't exist:", iue);
+				log.error("site doesn't exist:", iue);
 			} catch (PermissionException pe) {
-				log.error("createEnrollments, site save permission:", pe);
+				log.error("site save permission:", pe);
 			}
 		}
 	}
 
-	private String getUnAddedUser(Set<String> usersInSite, String[] userArray) {
-		while (true) {
-			String userId = userArray[randomGenerator.nextInt(userArray.length - 1)];
-			if (!usersInSite.contains(userId)) {
-				return userId;
-			}
+	private Set<String> getRandomUsers(Set<String> pool) {
+		if (pool.size() <= numberOfEnnrollmentsPerSite) {
+			return pool;
 		}
+
+		List<String> randomizedPool = new ArrayList<>(pool);
+		Collections.shuffle(randomizedPool, randomGenerator);
+
+		return new HashSet<>(randomizedPool.subList(0, numberOfEnnrollmentsPerSite));
 	}
 
 	@Override
@@ -323,7 +328,7 @@ public class SeedSitesAndUsersJob implements Job {
 
 			seedData();
 		} catch (Exception e) {
-			log.error("execute, executing Job: ", e);
+			log.error("executing job: ", e);
 		}
 		
 		securityService.popAdvisor(securityAdvisor);
