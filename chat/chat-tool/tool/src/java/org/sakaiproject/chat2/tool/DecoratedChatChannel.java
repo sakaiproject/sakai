@@ -24,7 +24,9 @@ package org.sakaiproject.chat2.tool;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 
 public class DecoratedChatChannel {
@@ -38,6 +40,11 @@ public class DecoratedChatChannel {
    private boolean newChannel = false;
    private Date startDate = null;
    private Date endDate = null;
+   private String startDateString=null;
+   private String endDateString=null;
+   private final String HIDDEN_START_DATE_FIELD = "startDateISO8601";
+   private final String HIDDEN_END_DATE_FIELD = "endDateISO8601";
+   private static final Log log = LogFactory.getLog(DecoratedChatChannel.class);
 
    public DecoratedChatChannel(ChatTool chatTool, ChatChannel chatChannel)
    {
@@ -179,33 +186,68 @@ public class DecoratedChatChannel {
       return chatTool.countChannelMessages(chatChannel);
    }
 
-   public Date getStartDate() {
-       return startDate;
-   }
+	public Date getStartDate() {
+		return startDate;
+	}
 
-   public void setStartDate(Date startDate) {
-       if (startDate != null) {
-           // fix up the date to shift to be beginning or end of the day (drop any time component)
-           startDate = DateUtils.truncate(startDate, Calendar.DATE);
-       }
-       this.startDate = startDate;
-   }
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;		
+	}
 
-   public Date getEndDate() {
-       if (endDate != null) {
-           // fix up the date to drop any time component
-           endDate = DateUtils.truncate(endDate, Calendar.DATE);
-       }
-       return endDate;
-   }
+	public Date getEndDate() {
+		return endDate;
+	}
 
-   public void setEndDate(Date endDate) {
-       if (endDate != null) {
-           // fix up the date to shift to be beginning or end of the day (drop any time component)
-           endDate = DateUtils.truncate(endDate, Calendar.DATE);
-           endDate = DateUtils.addSeconds(endDate, 86398); // just short of a full day in seconds
-       }
-       this.endDate = endDate;
-   }
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+	
+	public void setStartDateString(String startDateString) {
+		this.startDateString = startDateString;
+		if (StringUtils.isEmpty(startDateString)) {
+			this.startDate = null;
+		} else {
+			String hiddenopenDate = JsfUtil.getStringFromParam(HIDDEN_START_DATE_FIELD);
+			Calendar tempDate = JsfUtil.convertISO8601StringToCalendar(hiddenopenDate);
+				
+			if (tempDate != null) {
+				this.startDate = tempDate.getTime();
+			}else{
+				this.startDate = null;
+			}
 
+		}
+	}
+	
+	public String getStartDateString() {
+		if (startDate == null) {
+			return "";
+		} else {
+			return JsfUtil.convertCalendarToISO8601String(startDate);
+		}
+	}
+
+	public void setEndDateString(String endDateString) {
+		this.endDateString = endDateString;
+		if (StringUtils.isEmpty(endDateString)) {
+			this.endDate = null;
+		} else {
+			String hiddenendDate = JsfUtil.getStringFromParam(HIDDEN_END_DATE_FIELD);
+			Calendar tempDate = JsfUtil.convertISO8601StringToCalendar(hiddenendDate);
+			if (tempDate != null) {
+				this.endDate = tempDate.getTime();
+			}else{
+				this.endDate = null;
+			}
+		}
+	}
+	
+	public String getEndDateString() {
+		if (endDate == null) {
+			return "";
+		} else {
+			return JsfUtil.convertCalendarToISO8601String(endDate);
+		}
+	}
+	
 }
