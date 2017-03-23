@@ -2900,7 +2900,7 @@ public class SiteAction extends PagedResourceActionII {
 					 String toolId = entry.getKey();
 					// get the proper html for tool input
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
+					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
 					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
 					for(int k=0; k<contentToolModel.length;k++)
 					{
@@ -3943,7 +3943,7 @@ public class SiteAction extends PagedResourceActionII {
 			SessionState state, Site site, boolean updateToolRegistration) {
 		List<Map<String, Object>> visibleTools, allTools;
 		// get the visible and all (including stealthed) list of lti tools
-		visibleTools = m_ltiService.getTools(null,null,0,0, site.getId());
+		visibleTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
 		if (site == null) {
 			allTools = visibleTools;
 		} else {
@@ -6461,7 +6461,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List<Map<String, Object>> allTools;
 		String siteId = "";
 		if ( site == null )
-			allTools = m_ltiService.getTools(null,null,0,0, site.getId());
+			// We dont' have a site yet so just ask for all the available ones.
+			allTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
 		else
 		{
 			siteId = Objects.toString(site.getId(), "");
