@@ -12,36 +12,66 @@
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 			</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+			<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>			
 			
 		<script TYPE="text/javascript" LANGUAGE="JavaScript">
-			jQuery.noConflict();//this requried by calendar dropdown tomhawk
-			jQuery(document).ready(function() {				
-				replaceCalendarImageIcon();				
-				});
-					
-			var prefix="meeting:userDefinedTS:";
+			var prefix="meeting_userDefinedTS_";
 			
+			function initLocalDatePicker(pos){
+					localDatePicker({
+						input: '#meeting\\:userDefinedTS\\:'+pos+'\\:startTime',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						allowEmptyDate: false,
+						val: $('#meeting\\:userDefinedTS\\:'+pos+'\\:hiddenStartTime').val(),
+						ashidden: {
+								iso8601: pos + 'startTimeISO8601',
+								month: prefix + pos + "_startTime_month",
+								day: prefix + pos + "_startTime_day",
+								year: prefix + pos + "_startTime_year",
+								hour: prefix + pos + "_startTime_hours",
+								minute: prefix + pos + "_startTime_minutes",
+								ampm: prefix + pos + "_startTime_ampm"}
+					});
+
+					localDatePicker({
+						input: '#meeting\\:userDefinedTS\\:'+pos+'\\:endTime',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						allowEmptyDate: false,
+						val: $('#meeting\\:userDefinedTS\\:'+pos+'\\:hiddenEndTime').val(),
+						ashidden: {
+								iso8601: pos + 'endTimeISO8601',
+								month: prefix + pos + "_endTime_month",
+								day: prefix + pos + "_endTime_day",
+								year: prefix + pos + "_endTime_year",
+								hour: prefix + pos + "_endTime_hours",
+								minute: prefix + pos + "_endTime_minutes",
+								ampm: prefix + pos + "_endTime_ampm"}
+					});
+			}
+				
 			function setCustomEndtimeMonthDateYear(pos){
-				var yearTag = document.getElementById(prefix + pos + ":startTime.year");
+				var yearTag = document.getElementById(prefix + pos + "_startTime_year");
 				if(!yearTag)
 					return;
 				
 				var year = yearTag.value;
-				var month = document.getElementById(prefix + pos + ":startTime.month").value;
-				var day = document.getElementById(prefix+ pos + ":startTime.day").value;			
-				var endyear = document.getElementById(prefix + pos + ":endTime.year").value;
-				var endmonth = document.getElementById(prefix + pos + ":endTime.month").value;
-				var endday = document.getElementById(prefix + pos + ":endTime.day").value;
+				var month = document.getElementById(prefix + pos + "_startTime_month").value;
+				var day = document.getElementById(prefix+ pos + "_startTime_day").value;
+				var endyear = document.getElementById(prefix + pos + "_endTime_year").value;
+				var endmonth = document.getElementById(prefix + pos + "_endTime_month").value;
+				var endday = document.getElementById(prefix + pos + "_endTime_day").value;
 						
 				if (endyear > year 
 						||(endyear == year) && ( endmonth > month) 
 						||(endyear == year) && ( endmonth == month)&&( endday >= day) )
 						return;//don't modify
 					
-				document.getElementById(prefix + pos + ":endTime.year").value=year;	
-				document.getElementById(prefix + pos + ":endTime.month").value=month;
-				document.getElementById(prefix + pos + ":endTime.day").value=day;
+				document.getElementById(prefix + pos + "_endTime_year").value=year;	
+				document.getElementById(prefix + pos + "_endTime_month").value=month;
+				document.getElementById(prefix + pos + "_endTime_day").value=day;
 			}
 		
 			var wait=false;
@@ -80,6 +110,10 @@
 				var MIN_ATTENDEES = 1;
 				var MAX_ATTENDEES = 500;
 			    
+				for(i = 0 ; i < 30 ; i++){
+					initLocalDatePicker(i);
+				}
+				
 				/**
 				* check input is only numeric
 				*/
@@ -160,8 +194,8 @@
 									</f:facet>
 						    		<h:panelGrid columns="1">
 							    		<h:panelGroup styleClass="titleText">
-					        				<t:inputDate id="startTime" type="both"  ampm="true" value="#{tsWrapper.timeSlot.startTime}" 
-					        							 style="color:black;" popupCalendar="true" timeZone="#{UserTimeZone.userTimeZoneStr}"/>       						
+											<h:inputText id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
+											<h:inputHidden id="hiddenStartTime" value="#{tsWrapper.timeSlot.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>
@@ -172,8 +206,8 @@
 									</f:facet>
 									<h:panelGrid columns="1">
 										<h:panelGroup styleClass="titleText">
-					        				<t:inputDate id="endTime" type="both"  ampm="true" value="#{tsWrapper.timeSlot.endTime}"
-					        							 style="color:black;" popupCalendar="true" timeZone="#{UserTimeZone.userTimeZoneStr}" />										
+											<h:inputText id="endTime" value="#{tsWrapper.timeSlot.endTimeString}"/>
+											<h:inputHidden id="hiddenEndTime" value="#{tsWrapper.timeSlot.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>
