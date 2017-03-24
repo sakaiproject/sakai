@@ -1559,7 +1559,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	
 	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment. Values are gradebookUid:" + gradebookUid + " assignmentId:" + assignmentId + " studentUid:"+ studentUid);
 		}
 		
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
@@ -1569,7 +1569,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		});
 		
 		if (assignment == null) {
-			throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId);
+			throw new AssessmentNotFoundException("There is no assignmentId " + assignmentId + " for gradebookUid " + gradebookUid);
 		}
 		
 		CommentDefinition commentDefinition = null;
