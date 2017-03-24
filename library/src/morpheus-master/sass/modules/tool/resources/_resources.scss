@@ -41,6 +41,10 @@
 			}
 		}
 
+		td.attach{
+			min-width: 32px;
+		}
+
 		@media #{$phone}{
 			display: block;
 			margin: 3em 0;
