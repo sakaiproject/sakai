@@ -28,11 +28,12 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
    <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
 </h1>
 <%-- NAV BAR --%>
-<p class="navIntraTool">
+  <ul class="navIntraTool actionToolbar" role="menu">
   <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) 
                          && (delivery.actionString=='previewAssessment'
                              || delivery.actionString=='takeAssessment'
                              || delivery.actionString=='takeAssessmentViaUrl')}">
+    <li role="menuitem" class="firstToolBarItem"><span>
 
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
     <h:commandLink title="#{commonMessages.feedback}" action="#{delivery.getOutcome}" 
@@ -52,15 +53,12 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{deliveryMessages.separator} "
-      rendered="#{(delivery.actionString=='previewAssessment'
-                   || delivery.actionString=='takeAssessment'
-                   || delivery.actionString=='takeAssessmentViaUrl')
-                && delivery.navigation ne '1'}"/>
+  </span></li>
   </h:panelGroup >
 
 
 <!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
+  <li role="menuitem"><span>
   <h:commandLink title="#{deliveryMessages.t_tableOfContents}" action="#{delivery.getOutcome}" 
      id="showTOC" onmouseup="saveTime(); serializeImagePoints();"
      rendered="#{(delivery.actionString=='takeAssessment'
@@ -87,7 +85,8 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
     <h:outputText value="#{deliveryMessages.button_return_select}" />
   </h:commandLink>
-</p>
+  </span></li>
+</ul>
 
 <!-- GRADER COMMENT FOR REVIEW ASSESSMENT -->
 <f:verbatim><br /></f:verbatim> 
