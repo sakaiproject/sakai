@@ -40,6 +40,9 @@
                 </script>
 
             #end ## END of IF (!${loginTopLogin})
+
+            <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+
         <!-- END VM login.vm -->
     </body>
 </html>

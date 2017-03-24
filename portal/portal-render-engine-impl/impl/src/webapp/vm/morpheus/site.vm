@@ -187,7 +187,9 @@
         <!--[if lt IE 9]>
         <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
 <![endif]-->
- 
+
+        <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+
         #parse("/vm/morpheus/includeAnalytics.vm")
         #parse("/vm/morpheus/includePASystem.vm")
 
