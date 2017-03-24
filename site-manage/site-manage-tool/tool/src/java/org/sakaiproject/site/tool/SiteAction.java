@@ -15950,7 +15950,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @return
 	 */
 	private boolean isAddMissingToolsOnImportEnabled() {
-		return ServerConfigurationService.getBoolean("site.setup.import.addmissingtools", false);
+		return ServerConfigurationService.getBoolean("site.setup.import.addmissingtools", true);
 	}
 	
 	/**
