@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.charon.site;
 
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -95,11 +96,12 @@ public class CurrentSiteViewImpl implements SiteView
 		try
 		{
 			Site site = siteHelper.getSiteVisit(currentSiteId);
+			List<String> siteProviders = (List<String>) PortalSiteHelperImpl.getProviderIDsForSite(site);
 			siteMap = siteHelper
 					.convertSiteToMap(request, site, prefix, currentSiteId,
 							myWorkspaceSiteId, includeSummary,
 							/* expandSite */true, resetTools, doPages, toolContextPath,
-							loggedIn);
+							loggedIn, siteProviders);
 		}
 		catch (IdUnusedException e)
 		{

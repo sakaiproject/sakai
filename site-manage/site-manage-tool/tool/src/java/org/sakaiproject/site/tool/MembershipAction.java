@@ -243,7 +243,11 @@ public class MembershipAction extends PagedResourceActionII
 		else
 		{
 			// process all the sites the user has access to so can unjoin
-			List unjoinableSites = prepPage(state);
+			List<Site> unjoinableSites = prepPage(state);
+			for (Site site : unjoinableSites)
+			{
+				site.setTitle(SITE_SERV.getUserSpecificSiteTitle(site, userDirectoryService.getCurrentUser().getId()));
+			}
 			pagingInfoToContext(state, context);
 			context.put("unjoinableSites", unjoinableSites);
 			context.put("tlang", RB);
@@ -428,7 +432,11 @@ public class MembershipAction extends PagedResourceActionII
 		}
 		context.put(SEARCH_TERM, state.getAttribute(SEARCH_TERM));
 
-		List openSites = prepPage(state);
+		List<Site> openSites = prepPage(state);
+		for (Site site : openSites)
+		{
+			site.setTitle(SITE_SERV.getUserSpecificSiteTitle(site, userDirectoryService.getCurrentUser().getId()));
+		}
 		context.put("openSites", openSites);
 
 		pagingInfoToContext(state, context);

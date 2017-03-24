@@ -331,6 +331,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Map<String, List<String>> getProviderIDsForRealms(List<String> realmIDs)
+	{
+		return m_storage.getProviderIDsForRealms(realmIDs);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List getAuthzGroups(String criteria, PagingPosition page)
 	{
 		return m_storage.getAuthzGroups(criteria, page);
@@ -1364,6 +1372,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 *        The azGroup to remove.
 		 */
 		void remove(AuthzGroup azGroup);
+
+		/**
+		 * Get all provider IDs for the realms given.
+		 *
+		 * @param realmIDs a List of the realms you want the provider IDs for.
+		 * @return a Map, where the key is the realm ID, and the value is a List of Strings of provider IDs for that realm
+		 */
+		public Map<String, List<String>> getProviderIDsForRealms(List<String> realmIDs);
 
 		/**
 		 * Access a list of AuthzGroups that meet specified criteria, naturally sorted.

@@ -48,11 +48,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.Web;
 
 /**
  * Handles most aspects of the 'My Official Course Enrolments' page in the Membership tool.
@@ -157,7 +154,7 @@ public class EnrolmentsHandler
                             Site site = SITE_SERV.getSite( realmID.replace( SITE_REALM_PREFIX, "" ) );
                             if( site != null && (site.isPublished() || site.isAllowed( currentUserID, PERM_VISIT_UNPUB )) )
                             {
-                                siteWrappers.add( new SiteTitleUrlWrapper( getSiteOrSectionTitle( site ), site.getUrl() ) );
+                                siteWrappers.add( new SiteTitleUrlWrapper( SITE_SERV.getUserSpecificSiteTitle( site, UDS.getCurrentUser().getId()), site.getUrl() ) );
                             }
                         }
                         catch( IdUnusedException ex )
@@ -385,105 +382,6 @@ public class EnrolmentsHandler
         }
 
         return retVal;
-    }
-
-    /**
-     * Get the site or section title for the current user for the current site.
-     * Takes into account 'portal.use.sectionTitle' sakai.property; if set to true,
-     * this method will return the title of the section the current user is enrolled
-     * in for the site (if it can be found). Otherwise, it will return the site
-     * title (default behaviour)
-     *
-     * @param site the site in question
-     * @return the site or section title
-     */
-    private String getSiteOrSectionTitle( Site site )
-    {
-        if( USE_SEC_TITLE )
-        {
-            return determineSiteOrSectionTitle( site, getProviderIDsforSite( site ) );
-        }
-        else
-        {
-            // If the sakai property not set or set to false, use default behaviour
-            return Web.escapeHtml( FormattedText.makeShortenedText( site.getTitle(), null, null, null ) );
-        }
-    }
-
-    /**
-     * Get all provider IDs for the given site.
-     *
-     * @param site the site to retrieve all provider IDs
-     * @return a List of Strings of provider IDs for the given site
-     */
-    private List<String> getProviderIDsforSite( Site site )
-    {
-        List<String> providers = new ArrayList<>();
-        if( site != null )
-        {
-            providers.addAll( AZGS.getProviderIds( site.getReference() ) );
-            Collections.sort( providers );
-        }
-
-        return providers;
-    }
-
-    /**
-     * Given a site, and a list of provider IDs for the site, return the appropriate site or section title.
-     *
-     * Takes into account 'portal.use.sectionTitle' sakai.property; if set to true,
-     * this method will return the title of the section the current user is enrolled
-     * in for the site (if it can be found). Otherwise, it will return the site
-     * title (default behaviour)
-     *
-     * @param site the site in question
-     * @param providerIDs the list of provider IDs for the site
-     * @return the site or section title
-     */
-    private String determineSiteOrSectionTitle( Site site, List<String> providerIDs )
-    {
-        // Short circuit - only continue if sakai.property set to true
-        if( USE_SEC_TITLE )
-        {
-            // Short circuit - only continue if user is not null and user does not have the site.upd permission in the given site
-            User currentUser = UDS.getCurrentUser();
-            if( currentUser != null && !SEC_SERV.unlock( currentUser, PERM_SITE_UPDATE, site.getReference() ) )
-            {
-                // Short circuit - only continue if there are more than one provider ID (cross listed site)
-                if( providerIDs != null && providerIDs.size() > 1 )
-                {
-                    // Get the current user's section membership/role map
-                    Map<String, String> sectionRoles = CMS.findSectionRoles( currentUser.getEid() );
-
-                    // Iterate over the section IDs for the site; find the first matching section ID
-                    for( String sectionID : providerIDs )
-                    {
-                        // If the user is enrolled in the current section of the site AND is a student
-                        String sectionRole = sectionRoles.get( sectionID );
-                        if( CMS_STUDENT_ROLE.equals( sectionRole ) )
-                        {
-                            try
-                            {
-                                // If the section is of the preferred type, use the section title instead of the site title
-                                Section section = CMS.getSection( sectionID );
-                                if( USE_SEC_TITLE_PREFERRED_CAT.equals( section.getCategory() ) )
-                                {
-                                    return Web.escapeHtml( FormattedText.makeShortenedText( section.getTitle(), null, null, null ) );
-                                }
-                            }
-                            catch( IdNotFoundException ex )
-                            {
-                                LOG.warn( "EnrolmentHandler.getSiteOrSectionTitle: section not found " + sectionID, ex );
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // If the section title could not be found, the algorithm hit one of the short circuits,
-        // sakai property not set or set to false, or didn't find section or preferred type; use default behaviour
-        return Web.escapeHtml( FormattedText.makeShortenedText( site.getTitle(), null, null, null ) );
     }
 
     /* Helper Classes */

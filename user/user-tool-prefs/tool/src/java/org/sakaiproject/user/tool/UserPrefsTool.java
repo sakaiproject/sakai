@@ -34,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -2253,7 +2252,7 @@ public class UserPrefsTool
 			
 			try {
 				Site site = SiteService.getSite(siteId);
-				this.siteTitle =site.getTitle();
+				this.siteTitle = getUserSpecificSiteTitle(site);
 			} catch (IdUnusedException e) {
 				LOG.warn("Unable to get Site object for id: " + siteId, e);
 			}
@@ -2308,7 +2307,7 @@ public class UserPrefsTool
 			this.defaultOpen = defaultOpen;
 			
 			for (DecoratedSiteBean dsb : sites) {
-				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), dsb.getSite().getTitle()));
+				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), getUserSpecificSiteTitle(dsb.getSite())));
 			}			
 		}
 		
@@ -2567,6 +2566,7 @@ public class UserPrefsTool
 					termsToSites.put(term, new ArrayList<Site>(1));
 				}
 
+				site.setTitle(getUserSpecificSiteTitle(site));
 				termsToSites.get(term).add(site);
 			}
 
