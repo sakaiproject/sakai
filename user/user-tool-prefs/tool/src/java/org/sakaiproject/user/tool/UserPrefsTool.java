@@ -379,8 +379,8 @@ public class UserPrefsTool
 			for (int i = 0; i < timeZoneArray.length; i++) {
 				String tzt = timeZoneArray[i];
 				if (StringUtils.contains(tzt, '/') && StringUtils.indexOf(tzt, "SystemV/") != 0) {
-					String id = timeZoneArray[i];
-					String name = timeZoneArray[i];
+					String id = tzt;
+					String name = tzt;
 					if (StringUtils.contains(tzt, '_')) {
 						name = StringUtils.replace(tzt, "_", " ");
 					}
