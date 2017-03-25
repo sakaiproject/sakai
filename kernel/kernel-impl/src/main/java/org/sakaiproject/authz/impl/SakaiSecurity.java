@@ -429,11 +429,11 @@ public abstract class SakaiSecurity implements SecurityService, Observer
         Set<Member> members = azg.getMembers();
         if (members != null && !members.isEmpty()) {
             for (String perm : permissions) {
-              HashSet<String> permKeysToInvalidate = new HashSet<String>();
-              for (Member member : members) {
-                if (member != null && member.isActive() && member.getUserId() != null) {
-		    boolean canSwap = (member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP));
-                    if (perm != null) {
+                if (perm != null) {
+                    HashSet<String> permKeysToInvalidate = new HashSet<>();
+                    for (Member member : members) {
+                        if (member != null && member.isActive() && member.getUserId() != null) {
+		            boolean canSwap = (member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP));
                             permKeysToInvalidate.add(makeCacheKey(member.getUserId(), null, perm, azgRef, false));
 			    // Only invalidate swapped roles if the user can swap
 			    // This is an approximation. If a user is swapped and their permission to swap is removed
@@ -444,12 +444,12 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 				    permKeysToInvalidate.add(makeCacheKey(member.getUserId(), invRole, perm, azgRef, false));
 				}
 		            }
-                      }
-                  }
-              }
-              // invalidate all keys (do this as a batch)
-              if (cacheDebug) M_log.info("SScache:changed "+azgRef+":keys="+keysToInvalidate);
-              m_callCache.removeAll(permKeysToInvalidate);
+                        }
+                    }
+                    // invalidate all keys (do this as a batch)
+                    if (cacheDebug) M_log.info("SScache:changed "+azgRef+":keys="+keysToInvalidate);
+                    m_callCache.removeAll(permKeysToInvalidate);
+                }
             }
         }
         if (cacheDebug) logCacheState("cacheRealmPermsChanged("+realmRef+", roles="+roles+", perms="+permissions+")");
