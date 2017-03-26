@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
@@ -33,6 +34,8 @@ import javax.faces.event.ActionListener;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
@@ -65,7 +68,22 @@ public class RemoveAssessmentListener implements ActionListener
 
     final String context = s.getAssessmentSiteId(assessmentId);
     EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.remove", "assessmentId=" + assessmentId, context, true, NotificationService.NOTI_NONE));
-    
+    try{
+      AssessmentFacade assessmentFacade = s.getAssessment(assessmentId);
+
+    Iterator<SectionFacade> sectionFacadeIterator = assessmentFacade.getSectionSet().iterator();
+    while (sectionFacadeIterator.hasNext()){
+      SectionFacade sectionFacade = sectionFacadeIterator.next();
+      Iterator<ItemFacade> itemFacadeIterator = sectionFacade.getItemFacadeSet().iterator();
+      while (itemFacadeIterator.hasNext()){
+        ItemFacade itemFacade = itemFacadeIterator.next();
+        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.unindexitem", "/sam/" + context + "/unindexed, itemId=" + itemFacade.getItemIdString(), true));
+      }
+    }
+    }catch(Exception ex){
+      //The assessment doesn't exist. No-op in this case.
+    }
+
     // This should have been done inside AssessmentFacadeQueries.removeAssessment()
     // but it didn't work there nor inside RemoveAssessmentThread. 
     // Debugging log in Conntent Hosting doesn't show anything.

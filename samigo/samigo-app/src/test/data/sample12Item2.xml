@@ -54,6 +54,15 @@ ITEM_RUBRIC</fieldlabel>
 
 </qtimetadatafield>
 
+    <qtimetadatafield>
+        <fieldlabel>
+            ITEM_TAGS</fieldlabel>
+
+        <fieldentry>
+        </fieldentry>
+
+    </qtimetadatafield>
+
 </qtimetadata>
 
 </itemmetadata>

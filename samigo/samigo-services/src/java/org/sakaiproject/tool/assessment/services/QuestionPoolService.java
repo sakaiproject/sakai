@@ -62,6 +62,18 @@ public class QuestionPoolService
   /**
    * Get all pools from the back end.
    */
+  public List getAllPools()
+  {
+    List results = null;
+      results =
+        (List) PersistenceService.getInstance().
+           getQuestionPoolFacadeQueries().getAllPools();
+    return results;
+  }
+
+  /**
+   * Get all pools from the back end.
+   */
   public QuestionPoolIteratorFacade getAllPools(String agentId)
   {
     QuestionPoolIteratorFacade results = null;
@@ -247,6 +259,23 @@ public class QuestionPoolService
     }
     return results;
   }
+
+  /**
+   * Get all scores for a published assessment from the back end.
+   */
+  public ArrayList getAllItemsIds(Long poolId)
+  {
+    ArrayList results = null;
+    try {
+      results =
+              new ArrayList(PersistenceService.getInstance().
+                      getQuestionPoolFacadeQueries().getAllItemsIds(poolId));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+
 
 
   /**

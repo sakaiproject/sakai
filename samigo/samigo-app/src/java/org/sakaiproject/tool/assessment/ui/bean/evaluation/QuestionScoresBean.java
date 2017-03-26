@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -116,7 +117,9 @@ public class QuestionScoresBean
   private Map agentResultsByItemGradingId;
   private boolean isAnyItemGradingAttachmentListModified;
   private Boolean releasedToGroups = null;
-  
+
+    private String showTagsInEvaluationStyle;
+
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -977,4 +980,16 @@ public void clear(ActionEvent event) {
 	{
 		this.isAnyItemGradingAttachmentListModified = isAnyItemGradingAttachmentListModified;
 	}
+
+    public String getShowTagsInEvaluationStyle() {
+        if (ServerConfigurationService.getBoolean("samigo.evaluation.usetags", Boolean.FALSE)){
+            return "";
+        }else{
+            return "display:none;";
+        }
+    }
+
+    public void setShowTagsInEvaluationStyle(String showTagsInEvaluationStyle) {
+        this.showTagsInEvaluationStyle = showTagsInEvaluationStyle;
+    }
 }

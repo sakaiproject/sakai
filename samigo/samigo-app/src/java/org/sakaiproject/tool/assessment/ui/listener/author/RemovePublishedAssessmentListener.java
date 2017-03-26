@@ -37,7 +37,9 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -92,7 +94,15 @@ public class RemovePublishedAssessmentListener
     	  calendarService.removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarDueDateEventId);
       }
       EventTrackingService.post(EventTrackingService.newEvent("sam.pubAssessment.remove", "siteId=" + AgentFacade.getCurrentSiteId() + ", publisedAssessmentId=" + assessmentId, true));
-          
+      Iterator<PublishedSectionData> sectionDataIterator = assessment.getSectionSet().iterator();
+        while (sectionDataIterator.hasNext()){
+            PublishedSectionData sectionData = sectionDataIterator.next();
+            Iterator<ItemDataIfc> itemDataIfcIterator = sectionData.getItemSet().iterator();
+            while (itemDataIfcIterator.hasNext()){
+                ItemDataIfc itemDataIfc = itemDataIfcIterator.next();
+                EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.unindexitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, publishedItemId=" + itemDataIfc.getItemIdString(), true));
+            }
+        }
       
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
       List publishedAssessmentList = author.getPublishedAssessments();

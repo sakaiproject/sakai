@@ -32,6 +32,10 @@
 				<fieldentry />
 			</qtimetadatafield>
 			<qtimetadatafield>
+				<fieldlabel>ITEM_TAGS</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
 				<fieldlabel>hasRationale</fieldlabel>
 				<fieldentry>false</fieldentry>
 			</qtimetadatafield>

@@ -54,4 +54,4 @@ should be included in file importing DeliveryMessages
 </h:column>
 </h:dataTable>
 
-
+<%@ include file="/jsf/author/preview_item/tags.jsp" %>

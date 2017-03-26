@@ -1299,3 +1299,10 @@ input[type='reset'].linearButton {
 .table-borderless tfoot tr td {
 	border: none !important;
 }
+
+.collection
+{
+	font-size: x-small;
+	color:#444444;
+	font-style: italic;
+}

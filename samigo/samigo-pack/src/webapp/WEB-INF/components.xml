@@ -96,11 +96,14 @@
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-	</bean>
+            <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil" />
+	    </bean>
       </property>
       <property name="transactionAttributes">
         <props>
           <prop key="*">PROPAGATION_REQUIRED</prop>
+          <!-- this method batches internally, so manages own transactions. -->
+          <prop key="backfillItemHashes">PROPAGATION_NEVER</prop>
         </props>
       </property>
     </bean>
@@ -188,13 +191,22 @@
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.PublishedItemFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          <property name="itemHashUtil" ref="org.sakaiproject.tool.assessment.facade.ItemHashUtil" />
 	</bean>
       </property>
       <property name="transactionAttributes">
         <props>
           <prop key="*">PROPAGATION_REQUIRED</prop>
+          <!-- this method batches internally, so manages own transactions. -->
+          <prop key="backfillItemHashes">PROPAGATION_NEVER</prop>
         </props>
       </property>
+    </bean>
+
+    <bean id="org.sakaiproject.tool.assessment.facade.ItemHashUtil"
+          class="org.sakaiproject.tool.assessment.facade.ItemHashUtil">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
     </bean>
 
 
@@ -335,6 +347,41 @@
     <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
   </bean>
 
+    <bean id ="org.sakaiproject.tool.assessment.entity.api.ItemEntityProvider"
+       class="org.sakaiproject.tool.assessment.entity.impl.ItemEntityProviderImpl">
+        <property name="itemFacadeQueries" ref="ItemFacadeQueries" />
+        <property name="questionPoolFacadeQueries" ref="QuestionPoolFacadeQueries" />
+        <property name="assessmentFacadeQueries" ref="AssessmentFacadeQueries" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    </bean>
+
+    <bean id ="org.sakaiproject.tool.assessment.entity.api.PublishedItemEntityProvider"
+          class="org.sakaiproject.tool.assessment.entity.impl.PublishedItemEntityProviderImpl">
+        <property name="publishedItemFacadeQueries" ref="PublishedItemFacadeQueries" />
+        <property name="publishedAssessmentFacadeQueries" ref="PublishedAssessmentFacadeQueries" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    </bean>
+
+    <bean id="org.sakaiproject.samigo.search.ItemContentProducer"
+             class="org.sakaiproject.samigo.search.ItemContentProducer"
+             init-method="init">
+       <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
+       <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+       <property name="searchIndexBuilder"><ref bean="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" /></property>
+    </bean>
+
+    <bean id="org.sakaiproject.samigo.search.PublishedItemContentProducer"
+          class="org.sakaiproject.samigo.search.PublishedItemContentProducer"
+          init-method="init">
+        <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
+        <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+        <property name="searchIndexBuilder"><ref bean="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder" /></property>
+    </bean>
+
+
+
    <!--  Add a job to auto-submit assessments -->
    <bean id="AutoSubmitAssessments" class="org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob" 
    	init-method="init" destroy-method="destroy">
@@ -355,7 +402,59 @@
       <property name="schedulerManager">
          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
       </property>
-   </bean>       	
+   </bean>
+
+    <bean id="BackfillItemHashesJob" class="org.sakaiproject.tool.assessment.services.BackfillItemHashesJob">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackfillItemHashesJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="BackfillItemHashesJob" />
+        <property name="jobName" value="Backfill Samigo Item Hashes Job" />
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        <property name="resourceBundleBase" value="org.sakaiproject.tool.assessment.services.BackfillItemHashesJobMessages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="batch.size"/>
+                    <property name="descriptionResourceKey" value="batch.size.description"/>
+                    <property name="defaultValue" value="100"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="backfill.items"/>
+                    <property name="descriptionResourceKey" value="backfill.items.description"/>
+                    <property name="defaultValue" value="true"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="backfill.published.items"/>
+                    <property name="descriptionResourceKey" value="backfill.published.items.description"/>
+                    <property name="defaultValue" value="true"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="backfill.published.items.baseline.hash"/>
+                    <property name="descriptionResourceKey" value="backfill.published.items.baseline.hash.description"/>
+                    <property name="defaultValue" value="false"/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="notification.email.address"/>
+                    <property name="descriptionResourceKey" value="notification.email.address.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+            </set>
+        </property>
+        <property name="configurableJobPropertyValidator">
+            <bean class="org.sakaiproject.tool.assessment.services.BackfillItemHashesJob.BackfillItemHashesConfigurationValidator" />
+        </property>
+    </bean>
 
     <!-- Email Template Service Setup -->
     <bean id="org.sakaiproject.samigo.api.SamigoETSProvider"
@@ -427,8 +526,20 @@
         </property>
     </bean>
 
-</beans>
-
-
-
+    <bean id="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder"
+          class="org.sakaiproject.samigo.search.QuestionElasticSearchIndexBuilder"
+          destroy-method="destroy">
+        <!-- No internal defaulting on indexName nor name b/c we really cannot have multiple index builders falling
+        back to the same values in either of those fields. But there is such a thing as a historical default at least
+        for indexName, and some functionality is potentially keyed off the default builder name, so we keep those two
+        *values* in code, even though their assignment occurs here in config. -->
+        <property name="indexName" value="questions_index"/>
+        <property name="name" value="questions" />
+        <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="filter"><ref bean="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/></property>
+    </bean>
+ </beans>
 

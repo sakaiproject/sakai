@@ -41,4 +41,5 @@ include file for displaying fill in the blank questions
  </h:dataTable>
  </h:column>
 </h:dataTable>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
 

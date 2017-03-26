@@ -47,10 +47,12 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
 import org.slf4j.Logger;
@@ -130,6 +132,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 				item.setSequence(Integer.valueOf(i + 1));
 				item.setSection(section);
 				section.addItem(itemService.saveItem(item));
+				EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 			}
 			data.setSectionSet(sectionSet);
 			assessment.setData(data);

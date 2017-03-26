@@ -72,3 +72,5 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
 
+<%@ include file="/jsf/author/preview_item/tags.jsp" %>
+
