@@ -586,18 +586,20 @@
 					#if ($content_review_note)
 						$content_review_note
 					#end
-					$tlang.getString("review.submit.papers.repository")
-					<br/>
+
+					<h4>
+						$tlang.getString("review.submit.papers.repository")
+					</h4>
 
 					<div class="radio">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE))
-							<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE"))checked#end/>$tlang.getString("review.submit.papers.repository.none")<br/>
+							<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE"))checked#end/>$tlang.getString("review.submit.papers.repository.none")</label>
 						#end
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD))
-							<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD"))checked#end/>$tlang.getString("review.submit.papers.repository.standard")<br/>
+							<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD"))checked#end/>$tlang.getString("review.submit.papers.repository.standard")</label>
 						#end
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION))
-							<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION"))checked#end/>$tlang.getString("review.submit.papers.repository.institution")<br/>
+							<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION"))checked#end/>$tlang.getString("review.submit.papers.repository.institution")</label>
 						#end
 					</div>
 
@@ -607,17 +609,18 @@
 
 					<div class="radio">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
-							<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")<br/>
+							<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")</label>
 						#end
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE))
-							<input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")<br/>
+							<label><input type="radio" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")</label>
 						#end
 					</div>
 
 					<br/>
 					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED || $show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES)
-						$tlang.getString("review.exclude.matches.header")
-						<br/>
+						<h4>
+							$tlang.getString("review.exclude.matches.header")
+						</h4>
 					#end
 
 					<!-- Exclude Bibliographic materials -->
@@ -683,9 +686,10 @@
 								</div>
 						</div>
 					#end
-					<br/>
-					$tlang.getString("review.originality.check")
-					<br/>
+
+					<h4>
+						$tlang.getString("review.originality.check")
+					</h4>
 					<div class="indnt1">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN)
 						<div class="checkbox">
