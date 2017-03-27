@@ -571,4 +571,18 @@ public class SiteService
 
 		return service.getUserSpecificSiteTitle( site, userID );
 	}
+
+	/**
+	 * Similar to getUserSpecificSiteTitle(Site site, String userId), but consumes the specified siteProviders (for performance savings)
+	 *
+	 * @see getUserspecificSiteTitle(Site site, String userId)
+	 * @param siteProviders the site providers corresponding to the specified site; if null, they will be looked up
+	 */
+	public static String getUserSpecificSiteTitle(Site site, String userId, List<String> siteProviders)
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserSpecificSiteTitle(site, userId, siteProviders);
+	}
 }
