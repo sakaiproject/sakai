@@ -417,6 +417,9 @@ public abstract class SakaiSecurity implements SecurityService, Observer
                 }
             }
         }
+
+        m_callCache.removeAll(keysToInvalidate);
+
         // now handle all the real users
 	// clear both normal and swapped users
 	// start with a set of all roles to which one can swap
@@ -425,29 +428,30 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
         Set<Member> members = azg.getMembers();
         if (members != null && !members.isEmpty()) {
-            for (Member member : members) {
-                if (member != null && member.isActive() && member.getUserId() != null) {
-		    boolean canSwap = (member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP));
-                    for (String perm : permissions) {
-                        if (perm != null) {
-                            keysToInvalidate.add(makeCacheKey(member.getUserId(), null, perm, azgRef, false));
+            for (String perm : permissions) {
+                if (perm != null) {
+                    HashSet<String> permKeysToInvalidate = new HashSet<>();
+                    for (Member member : members) {
+                        if (member != null && member.isActive() && member.getUserId() != null) {
+		            boolean canSwap = member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP);
+                            permKeysToInvalidate.add(makeCacheKey(member.getUserId(), null, perm, azgRef, false));
 			    // Only invalidate swapped roles if the user can swap
 			    // This is an approximation. If a user is swapped and their permission to swap is removed
 			    // or the role they are swapped to has been removed from the site
 			    // we will not invalidate their data. Their info may wait until the expiration time to sync up
 			    if (canSwap) {
 				for (String invRole: svRolesFinal) {
-				    keysToInvalidate.add(makeCacheKey(member.getUserId(), invRole, perm, azgRef, false));
+				    permKeysToInvalidate.add(makeCacheKey(member.getUserId(), invRole, perm, azgRef, false));
 				}
-			    }
+		            }
                         }
                     }
+                    // invalidate all keys (do this as a batch)
+                    if (cacheDebug) M_log.info("SScache:changed "+azgRef+":keys="+keysToInvalidate);
+                    m_callCache.removeAll(permKeysToInvalidate);
                 }
             }
         }
-        // invalidate all keys (do this as a batch)
-        if (cacheDebug) M_log.info("SScache:changed "+azgRef+":keys="+keysToInvalidate);
-        m_callCache.removeAll(keysToInvalidate);
         if (cacheDebug) logCacheState("cacheRealmPermsChanged("+realmRef+", roles="+roles+", perms="+permissions+")");
     }
 
