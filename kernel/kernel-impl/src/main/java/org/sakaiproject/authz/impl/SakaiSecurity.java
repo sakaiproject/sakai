@@ -23,6 +23,8 @@ package org.sakaiproject.authz.impl;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
@@ -112,6 +114,8 @@ public abstract class SakaiSecurity implements SecurityService, Observer
      */
     protected abstract SiteService siteService();
 
+    protected ServerConfigurationService serverConfigurationService;
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -144,29 +148,30 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	 */
 	public void init()
 	{
-		// <= 0 minutes indicates no caching desired
-		if (m_cacheMinutes > 0)
-		{
-            org.sakaiproject.component.api.ServerConfigurationService scs = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
-            cacheDebug = scs.getBoolean("memory.SecurityService.debug", false);
-            if (cacheDebug) {
-                M_log.warn("SecurityService DEBUG logging is enabled... this is very bad for PRODUCTION and should only be used for DEVELOPMENT");
-                cacheDebugDetailed = scs.getBoolean("memory.SecurityService.debugDetails", cacheDebugDetailed);
-            } else {
-                cacheDebugDetailed = false;
-            }
-
-	    String[] externalRoles = scs.getString("studentview.roles","").split(","); // get the roles that can be swapped to 
-	    svRoles = new HashSet<String>();
-	    for (String externalRole: externalRoles) {
-		svRoles.add(externalRole.trim());
-	    }
-
-            m_callCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.cache");
-            m_superCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.superCache");
-            m_contentCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
+		if (serverConfigurationService == null) {
+			serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
 		}
-		eventTrackingService().addObserver(this);
+		// <= 0 minutes indicates no caching desired
+		if (m_cacheMinutes > 0) {
+			cacheDebug = serverConfigurationService.getBoolean("memory.SecurityService.debug", false);
+			if (cacheDebug) {
+				M_log.warn("SecurityService DEBUG logging is enabled... this is very bad for PRODUCTION and should only be used for DEVELOPMENT");
+				cacheDebugDetailed = serverConfigurationService.getBoolean("memory.SecurityService.debugDetails", cacheDebugDetailed);
+			} else {
+				cacheDebugDetailed = false;
+			}
+
+			String[] externalRoles = serverConfigurationService.getString("studentview.roles", "").split(","); // get the roles that can be swapped to
+			svRoles = new HashSet<String>();
+			for (String externalRole : externalRoles) {
+				svRoles.add(externalRole.trim());
+			}
+
+			m_callCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.cache");
+			m_superCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.superCache");
+			m_contentCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
+		}
+        eventTrackingService().addObserver(this);
 	}
 
     /**
