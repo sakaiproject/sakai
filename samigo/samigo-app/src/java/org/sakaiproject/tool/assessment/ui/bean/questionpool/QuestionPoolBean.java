@@ -57,7 +57,6 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.struts.upload.FormFile;
 import org.osid.shared.SharedException;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
@@ -133,7 +132,6 @@ public class QuestionPoolBean implements Serializable
   private String[] destItems = {  }; // items to delete
   private String sourcePart = null; // copy all questions from part
   private String destPool="0"; // for Move Pool Destination
-  private FormFile filename; // for import /export
   private int htmlIdLevel; // pass this to javascript:collapseAll()
   private String questionType; // the question type to add
   private int parentPoolSize= 0; // the question type to add
@@ -1193,26 +1191,6 @@ public String getAddOrEdit()
   public String[] getSelectedPools()
   {
     return selectedPools;
-  }
-
-  /**
-   * DOCUMENTATION PENDING
-   *
-   * @param file DOCUMENTATION PENDING
-   */
-  public void setFilename(FormFile file)
-  {
-    filename = file;
-  }
-
-  /**
-   * DOCUMENTATION PENDING
-   *
-   * @param file DOCUMENTATION PENDING
-   */
-  public FormFile getFilename()
-  {
-    return filename;
   }
 
   /**
