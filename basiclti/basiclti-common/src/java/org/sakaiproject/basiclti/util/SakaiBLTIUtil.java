@@ -814,7 +814,13 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		// LTI 2.0 certification fails these:
+/*              As of 2017-03-25, The LTI 2.0 test has morphed into the LTI 2.1 test in many ways 
+                even though LTI 2.1 is not yet approved.  Bummer that things morph under your feet
+                but the 2017 version is probably better than the 2016 version - but tool folks will 
+                feel a "stinging sensation" as fields vanish when LMS's re-certify the same spec 
+                a while later.
+
+		// As of 2016-02, LTI 2.0 certification fails these: 
 		//    5.8: Send a lis_person_sourcedid
 		//    6.9: Send a lis_course_offering_sourcedid
 		//    6.10: Send a lis_course_section_sourcedid
@@ -830,7 +836,8 @@ public class SakaiBLTIUtil {
 		if ( enabledCapabilities != null && ! checkStrictVersion("02.01.00","02.01.00") ) {
 			addEnabledCapability(enabledCapabilities, LTI2Vars.PERSON_SOURCEDID);
 			addEnabledCapability(enabledCapabilities, LTI2Vars.RESULT_SOURCEDID);
-			addEnabledCapability(enabledCapabilities, LTI2Vars.BASICOUTCOME_SOURCEDID);
+			// It looks like as of 2017-03-25, LTI 2.0 finds this distasteful
+			// addEnabledCapability(enabledCapabilities, LTI2Vars.BASICOUTCOME_SOURCEDID);
 			addEnabledCapability(enabledCapabilities, LTI2Vars.COURSEOFFERING_SOURCEDID);
 			addEnabledCapability(enabledCapabilities, LTI2Vars.COURSESECTION_SOURCEDID);
 
@@ -843,6 +850,7 @@ public class SakaiBLTIUtil {
 			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID);
 			addEnabledCapability(enabledCapabilities, BasicLTIConstants.LIS_COURSE_SECTION_SOURCEDID);
 		}
+*/
 
 		// Start building up the properties
 		Properties ltiProps = new Properties();

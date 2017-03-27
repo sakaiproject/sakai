@@ -447,7 +447,8 @@ public class LTI2Servlet extends HttpServlet {
 		jsonResponse.put(LTI2Constants.TYPE, StandardServices.TOOLPROXY_ID_TYPE);
 		jsonResponse.put(LTI2Constants.JSONLD_ID, getServiceURL(request) + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, getServiceURL(request) + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
+		// Check if this is needed for 2.1
+		// jsonResponse.put(LTI2Constants.CUSTOM_URL, getServiceURL(request) + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);
