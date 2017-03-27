@@ -17203,7 +17203,8 @@ public class AssignmentAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute(STATE_MODE);
 		List attachments;
 
-		if(MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
+		boolean inPeerReviewMode = MODE_STUDENT_REVIEW_EDIT.equals(mode);
+		if(inPeerReviewMode) {
 			// construct the state variable for peer attachment list
 			attachments = state.getAttribute(PEER_ATTACHMENTS) != null? (List) state.getAttribute(PEER_ATTACHMENTS) : EntityManager.newReferenceList();
 		} else {
@@ -17284,7 +17285,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 						// Check if the file is acceptable with the ContentReviewService
 						boolean blockedByCRS = false;
-						if (allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s))
+						if (!inPeerReviewMode && allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s))
 						{
 							String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 							Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
@@ -17320,7 +17321,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 						}
 
-						if(MODE_STUDENT_REVIEW_EDIT.equals(mode)) {
+						if(inPeerReviewMode) {
 							state.setAttribute(PEER_ATTACHMENTS, attachments);
 						} else {
 							state.setAttribute(ATTACHMENTS, attachments);
