@@ -124,7 +124,10 @@
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.jvnet.opendmk</groupId>
+      <artifactId>jmxremote_optional</artifactId>
+    </dependency>
     <!-- For ehcache caching - MUST match version in master POM -->
     <dependency>
       <groupId>net.sf.ehcache</groupId>

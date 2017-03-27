@@ -26,9 +26,25 @@
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.config.impl.ConfigurationMBean" class="org.sakaiproject.config.impl.ConfigurationMBean">
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+	<bean id="org.sakaiproject.config.impl.ConfigurationMBean"
+		  class="org.sakaiproject.config.impl.ConfigurationMBean">
+		<property name="serverConfigurationService"
+				  ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
-
+	<beans profile="jmx">
+		<bean id="serverConnector" class="org.springframework.jmx.support.ConnectorServerFactoryBean">
+			<!-- Pass jmx.service.url=service:jmx:jmxmp://localhost:9999 to change port listeneing on -->
+			<property name="serviceUrl">
+				<bean class="java.lang.System" factory-method="getProperty">
+					<constructor-arg value="jmx.service.url"/>
+					<constructor-arg value="service:jmx:jmxmp://localhost:9875"/>
+				</bean>
+			</property>
+			<property name="environment">
+				<!-- If you pass in jmx.remote.server.address.wildcard=false then it will only listen on localhost -->
+				<bean class="java.lang.System" factory-method="getProperties"/>
+			</property>
+		</bean>
+	</beans>
 </beans>

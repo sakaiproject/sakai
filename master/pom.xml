@@ -1736,6 +1736,12 @@
         <version>${sakai.ehcache.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.jvnet.opendmk</groupId>
+        <artifactId>jmxremote_optional</artifactId>
+        <version>1.0_01-ea</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
