@@ -433,7 +433,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
                     HashSet<String> permKeysToInvalidate = new HashSet<>();
                     for (Member member : members) {
                         if (member != null && member.isActive() && member.getUserId() != null) {
-		            boolean canSwap = (member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP));
+		            boolean canSwap = member.getRole().isAllowed(SiteService.SITE_ROLE_SWAP);
                             permKeysToInvalidate.add(makeCacheKey(member.getUserId(), null, perm, azgRef, false));
 			    // Only invalidate swapped roles if the user can swap
 			    // This is an approximation. If a user is swapped and their permission to swap is removed
