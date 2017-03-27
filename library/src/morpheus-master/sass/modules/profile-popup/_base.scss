@@ -3,21 +3,27 @@
 
     .profile-connection-button {
         background-color: $button-color-background-color;
-        width: 100%;
         font-weight: bold;
         color: $button-color-text-color;
+        display: inline-block;
+        margin: auto;
+        width: 100%;
     }
 
     .profile-popup-table {
-        display: table;
-        width: 100%;
-        text-align: center;
-        .profile-popup-row {
-            display: table-row;
-            .profile-popup-cell {
-                display: table-cell;
-                padding: 10px;
+        border-spacing: 3px;
+        border-collapse: separate;
+
+        .profile-popup-icon-cell {
+            padding-right: 3px;
+            div {
+                margin-bottom: 3px;
+                font-weight: bold;
             }
+        }
+
+        td {
+            text-align: center;
         }
     }
 }

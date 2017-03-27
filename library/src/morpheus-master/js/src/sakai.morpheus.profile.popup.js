@@ -38,7 +38,8 @@ profile.confirmFriendRequest = function (requestorId, friendId) {
         cache: false })
             .done(function (data, textStatus, jqXHR) {
 
-                $PBJQ('#profile-popup-incoming-block-' + friendId).hide();
+                $PBJQ('#profile-popup-accept-block-' + friendId).hide();
+                $PBJQ('#profile-popup-ignore-block-' + friendId).hide();
                 $PBJQ('#profile-popup-connected-block-' + friendId).show();
             });
 
@@ -69,7 +70,8 @@ profile.ignoreFriendRequest = function (removerId, friendId) {
             .done(function (data, textStatus, jqXHR) {
 
                 $PBJQ('#profile-popup-requested-block-' + friendId).hide();
-                $PBJQ('#profile-popup-incoming-block-' + friendId).hide();
+                $PBJQ('#profile-popup-ignore-block-' + friendId).hide();
+                $PBJQ('#profile-popup-accept-block-' + friendId).hide();
                 $PBJQ('#profile-popup-unconnected-block-' + friendId).show();
             });
 
