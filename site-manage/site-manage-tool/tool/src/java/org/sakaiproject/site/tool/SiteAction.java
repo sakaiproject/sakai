@@ -48,6 +48,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.servlet.ServletContext;
