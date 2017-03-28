@@ -302,7 +302,7 @@ public interface SimplePageToolDao {
 
     public Long maxChecklistItem(SimplePageItem checklist);
 
-    public Long addChecklistItem(SimplePageItem checklist, Long id, String name);
+	public Long addChecklistItem(SimplePageItem checklist, Long id, String name, Long linkedId);
 
     public boolean isChecklistItemChecked(long checklistId, long checklistItemId, String userId);
 

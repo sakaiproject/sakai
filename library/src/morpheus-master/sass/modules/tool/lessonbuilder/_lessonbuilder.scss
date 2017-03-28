@@ -20,4 +20,18 @@
 		list-style: none;
 		padding: 0 0 0 0;
 	}
+
+	label.checklistLabel.disabled:hover {
+		color: $swapped-view-text-color;
+		cursor: not-allowed;
+	}
+
+	label.checklistLabel.disabled {
+		color: $swapped-view-text-color;
+	}
+
+	.checklist-blur label.checklistLabel.disabled, .checklist-blur label.checklistLabel.disabled:hover{
+		text-shadow: 0 0 5px rgba(0,0,0,0.5);
+		color: transparent;
+	}
 }

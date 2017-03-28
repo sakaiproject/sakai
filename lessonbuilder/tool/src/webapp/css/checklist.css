@@ -16,19 +16,20 @@
     padding: 0.2em 0.4em 0.2em 1.5em;
     font-size: 1.4em;
 }
-#createdChecklistItems li span {
-    position: absolute;
-    margin-left: -1.3em;
+.handle {
+    margin-left: -1em;
+}
+
+.checklist-icons {
     margin-top: .3em;
 }
 #createdChecklistItems li:hover {
-    cursor: move;
     border-color: #0074D9;
     background-color: #ddd;
 }
 .checklist-item-name {
     line-height: 1.7em;
-    width: 90%;
+    width: 85%;
     max-width: 500px;
 }
 .checklistDescription {
@@ -40,10 +41,17 @@
     width: 90%;
     max-width: 500px;
 }
-.deleteItemLink {
+.actionContainer {
     float: right;
+}
+.deleteItemLink {
     margin-top: -3px;
 }
+
+ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
+    cursor: move;
+}
+
 #addChecklistItemButton { /** Have to use important because tool.css overrides **/
     display: block !important;
 }
@@ -75,12 +83,12 @@ p.edit-group {
     left:-10000px;
     top:auto;
 }
-.checklist-checkbox + span {
+.checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: url("../images/gray_unchecked.png");
     background-position: left center;
     background-repeat: no-repeat;
 }
-.checklist-checkbox:checked + span {
+.checklist-checkbox:checked ~ span.checklist-checkbox-label {
     background-image: url("../images/green_checkmark.png");
     background-position: left center;
     background-repeat: no-repeat;
@@ -88,13 +96,17 @@ p.edit-group {
 .checklist-checkbox-label {
     padding: 0.5em 0.5em 0.5em 22px;
 }
-.checklist-checkbox + span:hover {
+label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label {
+    background-image: none;
+    cursor: not-allowed;
+}
+label.checklistLabel:hover .checklist-checkbox ~ span.checklist-checkbox-label {
     background-image: url("../images/gray_checkmark.png");
     background-position: left center;
     background-repeat: no-repeat;
     cursor: pointer;
 }
-.checklist-checkbox:checked + span:hover {
+label.checklistLabel:hover .checklist-checkbox:checked ~ span.checklist-checkbox, label.checklistLabel:hover .checklist-checkbox:checked ~ span.checklist-checkbox-label {
     background-image: url("../images/green_checkmark.png");
 }
 .checklistLabel {
@@ -108,6 +120,7 @@ p.edit-group {
 }
 h3.checklistTitle {
     display: inline-block;
+    margin-top: 0;
 }
 legend.no-border {
     border: none;
@@ -123,4 +136,49 @@ legend.no-border {
     border-color: #c5c5c5;
     background-color: #ededed;
     color: #212121;
+}
+
+.checklistList {
+    display: inline;
+}
+
+.checklistList-item {
+    display:flex;
+}
+
+.checklistList-radio {
+    margin-right: 4px;
+}
+
+.external-link, .external-unlink {
+    cursor: pointer;
+}
+
+.dialogs {
+    display: none;
+}
+
+
+.checklistLabel.disabled:hover .externally-linked {
+    margin-right: -19px;
+    display: inline-block;
+}
+
+.tooltip-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    padding: .5em;
+    border: 1px solid black;
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.5);
+    width: 20em;
+    height: auto;
+    line-height: normal;
+    font-weight: normal;
+    z-index: 900001;
+    cursor: pointer;
+}
+
+span.externally-linked, label input.checklist-checkbox:checked + span.externally-linked {
+    display: none;
 }
