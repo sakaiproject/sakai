@@ -29,8 +29,19 @@ package org.sakaiproject.exception;
 public class IdLengthException extends SakaiException
 {
 
-	public IdLengthException(String id)
+	private final int limit;
+
+	/**
+	 * @param id The resource for which the length is too long.
+	 * @param limit The limit that was hit.
+	 */
+	public IdLengthException(String id, int limit)
 	{
 		super(id);
+		this.limit = limit;
+	}
+
+	public int getLimit() {
+		return limit;
 	}
 }
