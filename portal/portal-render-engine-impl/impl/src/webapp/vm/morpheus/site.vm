@@ -25,7 +25,6 @@
                 ## Header
                 <div class="Mrphs-topHeader">
                     #parse("/vm/morpheus/snippets/header-snippet.vm")
-                    #parse("/vm/morpheus/includeLoginNav.vm")
                 </div>
 
                 #if (${tabsSites})

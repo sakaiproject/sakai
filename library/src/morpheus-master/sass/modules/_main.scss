@@ -19,6 +19,7 @@
 
 .#{$namespace}portalWrapper {
 	position: relative;
+	background: $main-content-background;
 }
 
 #pageBody{
@@ -54,11 +55,12 @@
 }
 
 .#{$namespace}mainContent{
-  background: $main-content-background;
+	background: $main-content-background;
+	padding-top: 1em;
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
-	margin: 0 1em 1em;
+	margin: 0 1em;
 	clear: both;
 	@media #{$phone}{
 		margin: 0;
@@ -68,7 +70,6 @@
 .#{$namespace}container--footer{
 	background-color: $footer-background-color;
 	border-top: 1px solid $footer-border-color;
-	border-left: 1px solid $footer-border-color;
 }
 
 .#{$namespace}footer{

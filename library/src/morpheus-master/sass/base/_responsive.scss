@@ -6,7 +6,7 @@ body{
 			overflow:hidden;
 			#toolMenuWrap{
 				width: 100%;
-				top: 6.3em;
+				top: 6.7em;
 				left: 0px;
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
 				@if $tool-menu-icon-on-left {
@@ -60,23 +60,18 @@ body{
 				}
 				ul{
 					list-style: none;
-					@if $tool-menu-icon-on-left {
-						padding: 0.3em 0;
-					}
-					@else {
-						padding: 0 0 0 0;
-					}
+					padding:0;
 					li{
 						@if $tool-menu-icon-on-left {
 							display: block;
-							border: 1px solid $tool-border-color;
-							@include border-radius(4px);
-							background: darken($background-color, 5%);
-							width: 95%;
+							border-bottom: 1px solid $tool-menu-item-separator-color;
+							width: 100%;
 							white-space: nowrap;
 							overflow: hidden;
-							margin: 4.2px auto;
-							padding: 4.2px 7px;
+
+							a {
+								padding: 8px 4px;
+							}
 						}
 						@else {
 							border-left: 2px solid darken( $tool-menu-background-color, 10% );
