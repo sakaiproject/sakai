@@ -213,11 +213,6 @@
 	    <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>struts</groupId>
-            <artifactId>struts</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.rsf</groupId>
             <artifactId>sakai-rsf-web-templates</artifactId>
             <version>${project.version}</version>
