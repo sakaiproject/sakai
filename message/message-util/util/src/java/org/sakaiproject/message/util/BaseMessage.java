@@ -1979,7 +1979,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 												}
 												// TODO: reall want a draft? -ggolden
 												// set draft status based upon property setting
-												if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+												if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
 												{
 													String draftAttribute = element4.getAttribute("draft");
 													if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))

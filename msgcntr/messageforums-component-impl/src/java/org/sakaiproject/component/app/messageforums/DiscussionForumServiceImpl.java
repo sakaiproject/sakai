@@ -1361,7 +1361,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	}
 
 	private Boolean getImportAsDraft() {
-		return ServerConfigurationService.getBoolean("msgcntr.forums.import.importAsDraft", true);
+		boolean importAsDraft = ServerConfigurationService.getBoolean("import.importAsDraft", true);
+		return ServerConfigurationService.getBoolean("msgcntr.forums.import.importAsDraft", importAsDraft);
 	}
 
 }

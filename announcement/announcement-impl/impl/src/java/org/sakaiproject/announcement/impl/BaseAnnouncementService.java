@@ -1258,7 +1258,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						nMessageHeader.setDate(oMessageHeader.getDate());
 						nMessageHeader.setMessage_order(oMessageHeader.getMessage_order());
 						// when importing, refer to property to determine draft status
-						if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+						if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
 						{
 							nMessageHeader.setDraft(oMessageHeader.getDraft());
 						}
