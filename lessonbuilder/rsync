@@ -1,3 +1,0 @@
-#!/bin/sh
-
-rsync -vrlD --exclude '.svn' --exclude sakai.simplepagetool.xml --exclude /pom.xml /Volumes/Users/hedrick/trunk/lessonbuilder/ .

@@ -42,34 +42,36 @@
         <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-api</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-util</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-	    <artifactId>${sakai.hibernate.artifactId}</artifactId>
-	    <version>${sakai.hibernate.version}</version>
-	    <scope>provided</scope>
+            <artifactId>hibernate-core</artifactId>
         </dependency>
         <!-- Required for hibernate 3 HQL queries -->
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>2.7.6</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>${sakai.spring.artifactId}</artifactId>
-            <version>${sakai.spring.version}</version> 
-        </dependency>      
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-	    <version>1.1.1</version>
+	        <version>${json.simple.version}</version>
         </dependency>
     </dependencies>
 
@@ -82,49 +84,5 @@
                 </includes>
             </resource>
         </resources>
-	<!-- adds src areas for optional stuff -->
-	<!-- the directories are set up in profiles below -->
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>1.7</version>
-            <executions>
-              <execution>
-                <id>add-source</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>add-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>${src1}/java</source>
-                    <source>${src2}/java</source>
-                    <source>${src3}/java</source>
-                  </sources>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-resource</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>add-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <directory>${src1}/webapp/WEB-INF</directory>
-                      <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
-                    </resource>
-                    <resource>
-                      <directory>${src2}/webapp/WEB-INF</directory>
-                      <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
     </build>
 </project>
