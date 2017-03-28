@@ -352,8 +352,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	/**
 	 * Get all provider IDs for the given site.
 	 *
-	 * @author bjones86 - OWL-1551
-	 *
 	 * @param site the site to retrieve all provider IDs
 	 * @return a List of Strings of provider IDs for the given site
 	 */
@@ -370,7 +368,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	/**
 	 * Get all provider IDs for all sites given.
-	 * @author bjones86 - OWL-1551
 	 *
 	 * @param sites the list of sites to retrieve all provider IDs
 	 * @return a Map, where the key is the realm ID, and the value is a list of provider IDs for that site

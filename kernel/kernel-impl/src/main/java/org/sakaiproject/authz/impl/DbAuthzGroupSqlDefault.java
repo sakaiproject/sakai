@@ -364,7 +364,7 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 
 	public String getSelectRealmsProviderIDsSql(String inClause)
 	{
-		return "SELECT r.realm_id, r.provider_id FROM sakai_realm r WHERE " + inClause;
+		return "SELECT r.realm_id, r.provider_id FROM SAKAI_REALM r WHERE " + inClause;
 	}
 
 	public String getSelectRealmProvider2Sql()
