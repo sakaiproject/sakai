@@ -37,25 +37,54 @@ body.is-logged-out{
 						min-height: 1.7em;
 						text-align: center;
 						&:hover{
+							position: relative;
 							.#{$namespace}toolsNav__menuitem--title{
-								position: absolute;
 								display: block;
-								float: right;
-								margin: -2.27em 0em 0em $tool-menu-width-collapsed;
-								padding: 0.71em;
+								position: absolute;
+								top: -1px;
+								bottom: -1px;
+								left: $tool-menu-width-collapsed;
 								z-index: 50;
 								width: auto;
 								border-radius: 0 5px 5px 0;
-								line-height: 100%;
+								line-height: 40px;
+								background: $tool-menu-item-hover-background-color;
+								border-top: 1px solid $tool-menu-item-separator-color;
+								border-right: 1px solid $tool-menu-item-separator-color;
+								border-bottom: 1px solid $tool-menu-item-separator-color;
+								padding: 0 10px;
 							}
 						}
 						&.is-invisible {
 							&:after {
 								display: none;
 							}
+							&:hover{
+								.#{$namespace}toolsNav__menuitem--title{
+									background: $tool-menu-item-hidden-hover-background-color;
+								}
+							}
 						}
 						span.#{$namespace}toolsNav__menuitem--title{
 							white-space: pre;
+						}
+					}
+					&.is-current{
+						a{
+							&:hover{
+								.#{$namespace}toolsNav__menuitem--title{
+									background: $tool-menu-item-selected-hover-background-color;
+								}
+							}
+						}
+					}
+					&.is-current{
+						a{
+							&:hover{
+								.#{$namespace}toolsNav__menuitem--title{
+									background: $tool-menu-item-selected-hover-background-color;
+								}
+							}
 						}
 					}
 					.#{$namespace}toolsNav__menuitem--icon{
