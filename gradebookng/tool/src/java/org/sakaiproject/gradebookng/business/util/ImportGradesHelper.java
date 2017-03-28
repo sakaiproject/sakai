@@ -53,8 +53,8 @@ public class ImportGradesHelper {
 	// patterns for detecting column headers and their types
 	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([^\\*\\[\\]\\*]+\\[[0-9]+(\\.[0-9][0-9]?)?\\])");
 	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* .*)");
-	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\#\\$\\[\\]\\*]+)");
-	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
+	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([^\\*\\$\\[\\]\\*]+)");
+	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(\\.\\d+)?(?=]$)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
 	// list of mimetypes for each category. Must be compatible with the parser
