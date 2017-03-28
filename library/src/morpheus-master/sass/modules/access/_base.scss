@@ -10,7 +10,7 @@
 	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
 	.logo{
 		background: $top-header-background url($logo) no-repeat center center;
-		background-size: 100px;
+		background-size: $logo-width $logo-height;
 		width: 100%;
 		height: 64px;
 		margin: 0 auto;
