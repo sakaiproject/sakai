@@ -87,6 +87,15 @@ body.is-logged-out{
 							}
 						}
 					}
+                    &:nth-of-type(2){
+						a{
+						    &:hover{
+							    .#{$namespace}toolsNav__menuitem--title{
+								    top: 0;
+                                }
+                            }
+                        }
+                    }
 					.#{$namespace}toolsNav__menuitem--icon{
 						@if $tool-menu-icon-on-left {
 							padding: 0 1em 0 0.2em;
