@@ -22,14 +22,20 @@ function toggleQuickLinksNav(event){
     // Add an invisible overlay to allow clicks to close the dropdown
     var overlay = $PBJQ('<div class="quicklinks-dropdown-overlay" />');
     overlay.on('click', function (e) {toggleQuickLinksNav(e)});
-
     $PBJQ('body').prepend(overlay);
+
+    // Prevent scrolling of the background.
+    $PBJQ('body').css('overflow-y', 'hidden');
 
     // ESC key also closes it
     $PBJQ(document).on('keyup',quickLinksNavEscHandler);
 
+    // Set max height so that scroll bar appears if necessary.
+    $PBJQ('.tab-box').css('max-height', window.innerHeight - $PBJQ('#selectQuickLink').offset().top - 14);
+
   } else {
     $PBJQ('.quicklinks-dropdown-overlay').remove();
+    $PBJQ('body').css('overflow-y', 'visible');
     $PBJQ(document).off('keyup',quickLinksNavEscHandler);
   }
 }
