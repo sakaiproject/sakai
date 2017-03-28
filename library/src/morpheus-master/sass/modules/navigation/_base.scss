@@ -259,6 +259,11 @@ body.is-logged-out{
 					}
 				}
 			}
+			@media #{$phone} {
+				i {
+					display: none;
+				}
+			}
 		}
 	}
 
