@@ -53,6 +53,15 @@
 							<div>
 								<img wicket:id="chart" usemap="#tooltip"></img>
 							</div>
+							
+							<wicket:enclosure child="studentsWithCourseGradeOverrides">
+								<div class="instruction">
+									<p><wicket:message key="settingspage.gradingschema.overrides" /></p>
+									<ul wicket:id="studentsWithCourseGradeOverrides">
+										<li wicket:id="name" />
+									</ul>
+								</div>
+							</wicket:enclosure>
 						</div>
 					</div>
 				</div>

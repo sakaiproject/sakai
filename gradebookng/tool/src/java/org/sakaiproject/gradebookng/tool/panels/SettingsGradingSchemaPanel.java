@@ -1,14 +1,13 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.awt.Color;
-import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -38,12 +37,16 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.data.xy.XYDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.sakaiproject.gradebookng.business.FirstNameComparator;
+import org.sakaiproject.gradebookng.business.LetterGradeComparator;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.JFreeChartImageWithToolTip;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.user.api.User;
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
@@ -65,6 +68,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * This is the currently SELECTED grade mapping, from the dropdown
 	 */
 	String currentGradeMappingId;
+
+	/**
+	 * List of {@link CourseGrade} cached here as it is used by a few components
+	 */
+	Map<String, CourseGrade> courseGradeMap;
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -188,6 +196,22 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// add the chart
 		final JFreeChart chart = getChartData();
 		settingsGradingSchemaPanel.add(new JFreeChartImageWithToolTip("chart",  Model.of(chart), "tooltip", 540, 300));
+
+		//if there are course grade overrides, add the list of students
+		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
+		settingsGradingSchemaPanel.add(new ListView<GbUser>("studentsWithCourseGradeOverrides", getStudentsWithCourseGradeOverrides()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(final ListItem<GbUser> item) {
+		   		item.add(new Label("name", new PropertyModel<String>(item.getModel(), "displayName")));
+			}
+
+			@Override
+			public boolean isVisible() {
+				return !usersWithOverrides.isEmpty();
+			}
+		});
 	}
 
 	/**
@@ -212,7 +236,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	}
 
 	/**
-	 * Sync up the custom list we are using for the list view, back into the GrdebookInformation object
+	 * Sync up the custom list we are using for the list view, back into the GradebookInformation object
 	 */
 	@Override
 	public void updateModel() {
@@ -281,27 +305,26 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	private JFreeChart getChartData() {
 
 		// get course grade data according to currently selected
-		final List<String> studentUuids = this.businessService.getGradeableUsers();
-		final List<CourseGrade> courseGrades = this.businessService.getCourseGrades(studentUuids).values().stream().collect(Collectors.toList());
+		if(this.courseGradeMap == null) {
+			this.courseGradeMap = getCourseGrades();
+		}
+
+		// just need the list
+		final List<CourseGrade> courseGrades = this.courseGradeMap.values().stream().collect(Collectors.toList());
 
 		// get current grading schema (from model so that it reflects current state)
 		final List<GbGradingSchemaEntry> gradingSchemaEntries = this.model.getObject().getGradingSchemaEntries();
 
-		// TODO recalculate grades as the value of each schema entry is changed.
-		// This requires backend changes to be able to pass a version of the schema to the backend and have it calculate against that data and ensure it doesn't persist anything
-		// So for now the workaround is to click save and see the values change.
-		// Also, course grades must be released - this could further complicate things
+		final DefaultCategoryDataset data = new DefaultCategoryDataset();
+		final Map<String, Integer> counts = new LinkedHashMap<>(); // must retain order so graph can be printed correctly
 
-		final XYDataset data = new XYDataset();
-		final Map<String, Integer> counts = new TreeMap<>();
-
-		// add all schema entries
+		// add all schema entries (these will be sorted according to {@link LetterGradeComparator})
 		gradingSchemaEntries.forEach(e -> {
 			counts.put(e.getGrade(), 0);
 		});
 
-		//now add the count of each course grade for those schema entries
-		int totalCounted = 0;
+		// now add the count of each course grade for those schema entries
+		//int totalCounted = 0;
 		for(final CourseGrade g: courseGrades) {
 
 			// course grade may not be released so we have to skip it
@@ -310,18 +333,20 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 
 			counts.put(g.getMappedGrade(), counts.get(g.getMappedGrade()) + 1);
-			totalCounted++;
+			//totalCounted++;
 		}
 
-		// add to data set
-		counts.keySet().forEach(c -> {
+		// build the data with x-axis inverted
+		final ListIterator<String> iter = new ArrayList<>(counts.keySet()).listIterator(counts.size());
+		while(iter.hasPrevious()) {
+			final String c = iter.previous();
 			data.addValue(counts.get(c), "count", c);
-		});
+		}
 
 		final JFreeChart chart = ChartFactory.createBarChart(
 				null, // the chart title
-				getString("label.statistics.chart.xaxis"), // the label for the category axis
-				getString("label.statistics.chart.yaxis"), // the label for the value axis
+				getString("settingspage.gradingschema.chart.xaxis"), // the label for the category (x) axis
+				getString("label.statistics.chart.yaxis"), // the label for the value (y) axis
 				data, // the dataset for the chart
 				PlotOrientation.VERTICAL, // the plot orientation
 				false, // show legend
@@ -331,8 +356,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		chart.setBorderVisible(false);
 		chart.setAntiAlias(false);
 
-		final CategoryPlot categoryPlot = chart.getCategoryPlot();
-		final BarRenderer br = (BarRenderer) categoryPlot.getRenderer();
+		final CategoryPlot plot = chart.getCategoryPlot();
+		final BarRenderer br = (BarRenderer) plot.getRenderer();
 
 		br.setItemMargin(0);
 		br.setMinimumBarLength(0.05);
@@ -344,62 +369,52 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		br.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator(getString("label.statistics.chart.tooltip"), NumberFormat.getInstance()));
 
-		categoryPlot.setRenderer(br);
+		plot.setRenderer(br);
 
 		// show only integers in the count axis
-		categoryPlot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
-		categoryPlot.setBackgroundPaint(Color.white);
-
-		//reverse the x-axis order
-
-		//chart.getXYPlot().getDomainAxis().setInverte‌​d(true);
+		plot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
+		plot.setBackgroundPaint(Color.white);
 
 		return chart;
 	}
 
-}
-
-/**
- * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
- * Copied from GradebookService and made Serializable as we use it in a TreeMap.
- * Also has the fix from SAK-30094.
- * If this changes, be sure to update the other.
- */
-class LetterGradeComparator implements Comparator<String>, Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	@Override
-	public int compare(final String o1, final String o2) {
-		if (o1.toLowerCase().charAt(0) == o2.toLowerCase().charAt(0)) {
-			//only take the first 2 chars, to cater for GradePointsMapping as well
-			final String s1 = StringUtils.trim(StringUtils.left(o1, 2));
-			final String s2 = StringUtils.trim(StringUtils.left(o2, 2));
-
-			if (s1.length() == 2 && s2.length() == 2) {
-				if (s1.charAt(1) == '+') {
-					return -1; // SAK-30094
-				} else {
-					return 1;
-				}
-			}
-			if (s1.length() == 1 && s2.length() == 2) {
-				if (o2.charAt(1) == '+') {
-					return 1; // SAK-30094
-				} else {
-					return -1;
-				}
-			}
-			if (s1.length() == 2 && s2.length() == 1) {
-				if (s1.charAt(1) == '+') {
-					return -1; // SAK-30094
-				} else {
-					return 1;
-				}
-			}
-			return 0;
-		} else {
-			return o1.toLowerCase().compareTo(o2.toLowerCase());
+	/**
+	 * Get a List of {@link GbUser}'s with course grade overrides.
+	 *
+	 * @return
+	 */
+	private List<GbUser> getStudentsWithCourseGradeOverrides() {
+		if(this.courseGradeMap == null) {
+			this.courseGradeMap = getCourseGrades();
 		}
+
+		// get all users with course grade overrides
+		final List<String> userUuids = this.courseGradeMap.entrySet().stream()
+         .filter(c -> StringUtils.isNotBlank(c.getValue().getEnteredGrade()))
+         .map(c -> c.getKey())
+         .collect(Collectors.toList());
+
+		final List<User> users = this.businessService.getUsers(userUuids);
+		Collections.sort(users, new FirstNameComparator());
+
+		final List<GbUser> rval = new ArrayList<>();
+		users.forEach(u -> {
+			rval.add(new GbUser(u));
+		});
+
+		return rval;
 	}
+
+	/**
+	 * Get the map of userId to {@link CourseGrade} for the students in this gradebook
+	 * @return
+	 */
+	private Map<String, CourseGrade> getCourseGrades() {
+		final List<String> studentUuids = this.businessService.getGradeableUsers();
+		final Map<String,CourseGrade> rval = this.businessService.getCourseGrades(studentUuids);
+		return rval;
+	}
+
 }
+
+
