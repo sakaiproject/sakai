@@ -6460,13 +6460,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
             {
 	            addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{name}));
             }
-            catch (IdLengthException e)
-            {
-				addAlert(state, trb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
-	            // TODO Auto-generated catch block
-	            logger.warn("IdLengthException " + e);
-            }
-			
+			catch (IdLengthException e)
+			{
+				addAlert(state, trb.getFormattedMessage("alert.toolong", e.getReference()));
+			}
 		}
 		else if("cancel".equals(user_action))
 		{

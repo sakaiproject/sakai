@@ -48,6 +48,7 @@ import java.io.PrintWriter;
 
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.exception.IdLengthException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
@@ -2161,12 +2162,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		catch (OverQuotaException e) {
 			addAlert(state, rb.getString("alert.over-site-upload-quota"));
-			logger.warn("Drag and drop upload exceeded site quota: " + e, e);
 			return;
 		}
 		catch (ServerOverloadException e) {
 			addAlert(state,contentResourceBundle.getFormattedMessage("dragndrop.overload.error",new Object[]{uploadFileName}));
-			logger.warn("Drag and drop upload overloaded the server: " + e, e);
+			return;
+		}
+		catch (IdLengthException e) {
+			addAlert(state, contentResourceBundle.getFormattedMessage("dragndrop.length.error", e.getReference(), e.getLimit()));
 			return;
 		}
 		catch (Exception e) {
