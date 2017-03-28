@@ -171,19 +171,17 @@ body.is-logged-out{
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
 	@include flex-basis( $tool-menu-width );
-	margin: 5px 0 0 0;
+	padding: 5px 0 0 0;
 	text-align: center;
 	border-right: 1px solid $tool-border-color;
 	@include transition( left 0.25s linear 0s );
 
 	@media #{$phone}{
 		left: -100%;
-		position: fixed;
-		top: 5.5em;
-		z-index: 9999;
-		padding: 0 0 2em 0;
-		margin: 0 0 0;
-		height: 100%;
+		position: absolute;
+		padding: 0;
+		margin: 0;
+
 		@if $skin-with-icons {
 			.#{$namespace}toolsNav__menuitem--title{
 				display: none;

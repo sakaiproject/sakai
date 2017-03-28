@@ -47,7 +47,14 @@
     #foreach( $page in $sitePages.pageNavTools )
         #if ( $index == 0 )
             <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
-                <a href="${page.pageResetUrl}">${siteTitleTruncated}</a>
+                <a href="${page.pageResetUrl}">
+                    #if (${isUserSite})
+                        <i class='fa fa-home'></i>
+                    #end
+                    <span class="Mrphs-hierarchy--siteName-label">
+                        ${siteTitleTruncated}
+                    </span>
+                </a>
             </span>
             <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
         #end

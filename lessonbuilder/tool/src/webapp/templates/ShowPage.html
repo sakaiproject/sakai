@@ -26,7 +26,7 @@
 	 .pageTitle{width:auto !important;}
 
          .Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
-            top:-10px !important;
+            top: 2px !important;
          }
  </style>
  <script type="text/javascript" rsf:id="iframeJavascript">
@@ -243,19 +243,6 @@
 	    jQuery(".Mrphs-toolTitleNav__addRight").before(jQuery(".topaction > a"));
 	    jQuery(".Mrphs-toolTitleNav__button_container > a").addClass("Mrphs-toolTitleNav__link");
 
-	    // the top is position:fixed. The rest of the page is position static, put below the
-	    // fixed by a magic margin. However if the siteHierarchy is large, the magic margin
-	    // has to be adjusted.
-	    function resizeContent() {
-	      if (window.matchMedia("only screen and (max-width: 800px)").matches) {
-		jQuery("#content").css('margin-top',jQuery(".Mrphs-siteHierarchy").height() + 60);
-	      } else {
-		jQuery("#content").css('margin-top','0px');
-	      }
-	    }
-            resizeContent();
-	    jQuery(window).load(resizeContent);
-	    jQuery(window).resize(resizeContent);
          } else {
 	     jQuery(".topaction > a").addClass("button");
          }

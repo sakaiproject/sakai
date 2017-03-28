@@ -11,32 +11,70 @@ function toggleToolsNav(event){
   if ($PBJQ('body').hasClass('toolsNav--displayed')) {
     /* Add the mask to grey out the top headers - re-use code in more.sites.js */
     createDHTMLMask(toggleToolsNav)
-    // Set the height of the tools/subsites menu (depending on the tools nav position and any scrolling)
-    // so that a scroll bar is added to the tools/subsites list if necessary.
-    var toolsViewportPosition = $PBJQ('.js-toggle-tools-nav').offset().top - $(window).scrollTop();
-    if (toolsViewportPosition < 0) {
-      toolsViewportPosition = 0;
-    }
-    $PBJQ('#toolMenuWrap').css('height', $PBJQ(window).height() - toolsViewportPosition);
   }else{
     removeDHTMLMask();
   }
 }
 
 $PBJQ(document).ready(function(){
-  $PBJQ('i.clickable', '#roleSwitch').click( function(){
-    $PBJQ(this).next('select').toggleClass('active');
-  });
+
+
+  function setupRoleSwitcherAsMenu() {
+    function closeTheRoleSwitchToggle() {
+        if ($PBJQ('#roleSwitchDropDown').is('.open')) {
+            $PBJQ('#roleSwitchDropDownToggle').trigger('click');
+        }
+    };
+
+    function handleKeyUp(event) {
+        if (event.keyCode == 27) {
+            closeTheRoleSwitchToggle();
+            return false;
+        }
+        return true;
+    };
+
+    // Setup the initial ARIA attributes
+    $PBJQ('#roleSwitchDropDownToggle').attr('aria-hidden', 'false');
+    $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'true').attr('aria-label', 'submenu');
+
+    $PBJQ('#roleSwitchDropDownToggle').click( function(){
+      $PBJQ('#roleSwitchDropDown').css('right', $(window).width() - 20 - ($('#roleSwitchDropDownToggle').offset().left + $('#roleSwitchDropDownToggle').width()));
+      $PBJQ('#roleSwitchDropDown').toggleClass('open');
+      if ($PBJQ('#roleSwitchDropDown').is('.open')) {
+          $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'false');
+          $PBJQ(document.body).prepend('<div class="user-dropdown-overlay"></div>');
+          $PBJQ('.user-dropdown-overlay').on('click', function() {
+              closeTheRoleSwitchToggle();
+          });
+          $PBJQ(document.body).on('keyup', handleKeyUp);
+          setTimeout(function() {
+              $PBJQ('#roleSwitchDropDown').find('a, :input').focus();
+          });
+      } else {
+         $PBJQ('#roleSwitchDropDown').attr('aria-hidden', 'true');
+         $PBJQ('.user-dropdown-overlay').remove();
+         $PBJQ(document.body).off('keyup', handleKeyUp);
+         $PBJQ('#roleSwitchDropDownToggle').focus();
+      }
+    });
+  };
 
   $PBJQ('#roleSwitchSelect').on("change", function(){
-
-  	if( $PBJQ('option:selected', this ).text() !== '' ){
-  		document.location = $PBJQ('option:selected', this ).val();
-  	}else{
-  		$PBJQ(this)[0].selectedIndex = 0;
-  	}
-
+    if( $PBJQ('option:selected', this ).text() !== '' ){
+      document.location = $PBJQ('option:selected', this ).val();
+    }else{
+      $PBJQ(this)[0].selectedIndex = 0;
+    }
   });
+
+  if($(window).width() < 800) {
+    setupRoleSwitcherAsMenu();
+  } else {
+    // if the menu has not be setup, then don't show the toggle if the
+    // page is resized to the mobile viewport size
+    $PBJQ('#roleSwitch').addClass('menu-not-setup');
+  }
 
 });
 
