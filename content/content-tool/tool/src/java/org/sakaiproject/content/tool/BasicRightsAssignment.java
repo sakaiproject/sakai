@@ -59,7 +59,7 @@ public class BasicRightsAssignment
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("right");
     
-    /** kernel api **/
+	/** kernel api **/
 	private static UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static TimeService timeService = ComponentManager.get(TimeService.class);
 	
