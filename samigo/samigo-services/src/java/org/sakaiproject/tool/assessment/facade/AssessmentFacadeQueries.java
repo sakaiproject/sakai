@@ -1604,7 +1604,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 				while (itemIter.hasNext()) {
 					ItemData item = (ItemData) itemIter.next();
 					//We use this place to add the saveItem Events used by the search index to index all the new questions
-					EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 					Set itemMetaDataSet = item.getItemMetaDataSet();
 					Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 					while (itemMetaDataIter.hasNext()) {
@@ -1650,7 +1650,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements Asse
 			while (itemIter.hasNext()) {
 				ItemData item = (ItemData) itemIter.next();
 				//We use this place to add the saveItem Events used by the search index to index all the new questions
-				EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 				Set itemMetaDataSet = item.getItemMetaDataSet();
 				Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 				while (itemMetaDataIter.hasNext()) {
