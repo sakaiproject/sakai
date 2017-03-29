@@ -26,6 +26,8 @@ public class LTI2Messages {
 
 	public static final String BASIC_LTI_LAUNCH_REQUEST = "basic-lti-launch-request";
 
+	public static final String TOOLPROXY_REGISTRATION_REQUEST = "ToolProxyRegistrationRequest";
+
 	public static final String TOOLPROXY_RE_REGISTRATION_REQUEST = "ToolProxyReregistrationRequest";
 
 	public static final String CONTENT_ITEM_SELECTION_REQUEST = "ContentItemSelectionRequest";

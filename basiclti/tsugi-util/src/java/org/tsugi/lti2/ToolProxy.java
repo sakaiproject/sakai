@@ -437,62 +437,76 @@ public class ToolProxy {
 				String message_type = (String) message.get(LTI2Constants.MESSAGE_TYPE);
 				if ( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST.equals(message_type) || 
 				     LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(message_type) ) {
-					if ( path != null ) {
-						return "A resource_handler cannot have more than one message_type RT="+resource_type_code;
-					}
 					path = (String) message.get(LTI2Constants.PATH);
 					if ( path == null ) {
 						return "A launch message must have a path RT="+resource_type_code;
 					} 
+
+					// Check the URI
+					String thisLaunch = launch_url;
+					thisLaunch = thisLaunch + path;
+					try {
+						URL url = new URL(thisLaunch);
+					} catch ( Exception e ) {
+						return "Bad launch URL="+thisLaunch;
+					}
+
 					parameter = getArray(message,LTI2Constants.PARAMETER);
 					enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+
+					// Passed all the tests...  Lets keep it...
+					Properties theTool = new Properties();
+
+					theTool.put("resource_type", resource_type_code); // Backwards compatibility
+					theTool.put("resource_type_code", resource_type_code);
+					if ( title == null ) title = productTitle;
+					if ( title != null ) theTool.put("title", title);
+					if ( button != null ) theTool.put("button", button);
+					if ( resourceDescription == null ) resourceDescription = productDescription;
+					if ( resourceDescription != null ) theTool.put("description", resourceDescription);
+					if ( parameter != null ) theTool.put(LTI2Constants.PARAMETER, parameter.toString());
+					if ( iconInfo != null ) theTool.put(LTI2Constants.ICON_INFO,iconInfo.toString());
+					theTool.put(LTI2Constants.ENABLED_CAPABILITY, enabled_capability.toString());
+					theTool.put("launch", thisLaunch);
+					if ( secure_base_url != null ) theTool.put("secure_base_url", secure_base_url);
+					if ( default_base_url != null ) theTool.put("default_base_url", default_base_url);
+
+					// Guess the Placement given the message type
+					if ( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST.equals(message_type) ){
+						 theTool.put("pl_launch","1");
+					}
+					if (LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(message_type)) {
+						theTool.put("pl_linkselection","1");
+					}
+
+					// Turn the tool_proxy into a tool_proxy_binding by having a single 
+					// resource_handler that is the one that corresponds to this tool.
+					// and a single message that corresponds to this message
+					ToolProxy local_tool_proxy = new ToolProxy(toolProxy.toString());
+					JSONObject local_tool_profile = local_tool_proxy.getToolProfile();
+					local_tool_profile.remove(LTI2Constants.RESOURCE_HANDLER);
+
+					JSONObject local_resource_handler = (JSONObject) JSONValue.parse(resource_handler.toString());
+					local_resource_handler.remove(LTI2Constants.MESSAGE);
+
+					JSONArray local_messages = new JSONArray();
+					local_messages.add(message);
+					local_resource_handler.put(LTI2Constants.MESSAGE, local_messages);
+
+					JSONArray handlers = new JSONArray ();
+					handlers.add(local_resource_handler);
+					local_tool_profile.put(LTI2Constants.RESOURCE_HANDLER, handlers);
+
+					// With a single resource handler it is now a TPB
+					ToolProxyBinding tool_proxy_binding = new ToolProxyBinding(local_tool_proxy.toString());
+					theTool.put(LTI2Constants.TOOL_PROXY_BINDING, tool_proxy_binding.toString());
+					theTools.add(theTool);
+
 				} else {
 					return "Only "+LTI2Messages.BASIC_LTI_LAUNCH_REQUEST+" and "+LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST+ " are allowed message_types RT="+resource_type_code;
 				}
 			}
 
-			// Ignore everything except launch handlers
-			if ( path == null ) continue;
-
-			// Check the URI
-			String thisLaunch = launch_url;
-			thisLaunch = thisLaunch + path;
-			try {
-				URL url = new URL(thisLaunch);
-			} catch ( Exception e ) {
-				return "Bad launch URL="+thisLaunch;
-			}
-
-			// Passed all the tests...  Lets keep it...
-			Properties theTool = new Properties();
-
-			theTool.put("resource_type", resource_type_code); // Backwards compatibility
-			theTool.put("resource_type_code", resource_type_code);
-			if ( title == null ) title = productTitle;
-			if ( title != null ) theTool.put("title", title);
-			if ( button != null ) theTool.put("button", button);
-			if ( resourceDescription == null ) resourceDescription = productDescription;
-			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
-			if ( parameter != null ) theTool.put(LTI2Constants.PARAMETER, parameter.toString());
-			if ( iconInfo != null ) theTool.put(LTI2Constants.ICON_INFO,iconInfo.toString());
-			theTool.put(LTI2Constants.ENABLED_CAPABILITY, enabled_capability.toString());
-			theTool.put("launch", thisLaunch);
-			if ( secure_base_url != null ) theTool.put("secure_base_url", secure_base_url);
-			if ( default_base_url != null ) theTool.put("default_base_url", default_base_url);
-
-			// Turn the tool_proxy into a tool_proxy_binding by having a single 
-			// resource_handler that is the one that corresponds to this tool.
-                        ToolProxy local_tool_proxy = new ToolProxy(toolProxy.toString());
-			JSONObject local_tool_profile = local_tool_proxy.getToolProfile();
-			local_tool_profile.remove(LTI2Constants.RESOURCE_HANDLER);
-			JSONArray handlers = new JSONArray ();
-			handlers.add(resource_handler);
-			local_tool_profile.put(LTI2Constants.RESOURCE_HANDLER, handlers);
-
-			// With a single resource handler it is now a TPB
-			ToolProxyBinding tool_proxy_binding = new ToolProxyBinding(local_tool_proxy.toString());
-			theTool.put(LTI2Constants.TOOL_PROXY_BINDING, tool_proxy_binding.toString());
-			theTools.add(theTool);
 		}
 		return null;  // All good
 	}

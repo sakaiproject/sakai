@@ -441,7 +441,8 @@ public class LTI2Service extends HttpServlet {
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
+		// TODO: Check if this is needed in LTI 2.1
+		// jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
 		if ( tc_half_shared_secret != null ) jsonResponse.put(LTI2Constants.TC_HALF_SHARED_SECRET, tc_half_shared_secret);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
