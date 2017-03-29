@@ -67,12 +67,12 @@ public final class DateUtil {
 	 * @throws DateTimeParseException 
 	 * 			If not a valid date compared to ISO_ZONED_DATE_TIME format
 	 */
-	public static Date parseISODate(final String inputDate) throws DateTimeParseException  {
+	public static Date parseISODate(final String inputDate) throws DateTimeParseException {
 		Date convertedDate = null;
 
 		try {
 			LocalDateTime ldt = LocalDateTime.parse(inputDate, isoFormatter);
-	    	convertedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+			convertedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 		} catch (DateTimeParseException  e) {
 			throw new DateTimeParseException (e.getMessage(), inputDate, 0);
 		}
@@ -91,12 +91,12 @@ public final class DateUtil {
 	 * @throws ParseException
 	 * 			If not a valid date compared to ISO_ZONED_DATE_TIME format
 	 */
-	public static String format(Date inputDate, String format, Locale locale){
+	public static String format(Date inputDate, String format, Locale locale) {
     	SimpleDateFormat formatter = null;
-    	try{
+    	try {
 			formatter = new SimpleDateFormat(format, locale);
 			return formatter.format(inputDate);
-		}catch(Exception ex){
+		} catch(Exception ex) {
 			formatter = (SimpleDateFormat) DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.US);
 			return formatter.format(inputDate);
 		}
