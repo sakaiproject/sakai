@@ -9643,12 +9643,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        } else if ("".equals(displayName)) {
 	            displayName = filename;
 	        }
-	        InputStream stream;
 	        String SEPARATOR = "/";
 	        String COLLECTION_DROPBOX = "/group-user/";
-	        stream = fileitem.getInputStream();
 	        String contentType = fileitem.getContentType();
-	        byte[] body = fileitem.get();
 	        ContentResourceEdit cr = null;
 	        String extension = "";
 	        String basename = filename.trim();
@@ -9707,31 +9704,36 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 
 	        try {
-	            for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
-	                // A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
-	                String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
-	                cr = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
-	                        Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
+					try (InputStream stream = params.getFileItem("MultipleFolderContent").getInputStream()) {
+						// A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
+						String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
+						cr = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
+								Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 
-	                // Add the actual contents of the file and content type
-	                cr.setContent(body);
-	                cr.setContentType(contentType);
+						// Add the actual contents of the file and content type
+						// We need a new inputstream because our internal FileItem doesn't re-create the
+						// input stream on each call.
+						cr.setContent(stream);
+						cr.setContentType(contentType);
 
-	                // fill up its properties
-	                ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
-	                resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
-	                resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
-	                resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
+						// fill up its properties
+						ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
+						resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
+						resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 
-	                // now to commit the changes
-	                boolean notification = params.getBoolean("notify_dropbox");
-	                int noti = NotificationService.NOTI_NONE;
+						// now to commit the changes
+						boolean notification = params.getBoolean("notify_dropbox");
+						int noti = NotificationService.NOTI_NONE;
 
-	                if (notification) {
-	                    noti = NotificationService.NOTI_REQUIRED;
-	                }
-	                contentHostingService.commitResource(cr, noti);
-	            }
+						if (notification) {
+							noti = NotificationService.NOTI_REQUIRED;
+						}
+						contentHostingService.commitResource(cr, noti);
+					} catch (IOException e) {
+						logger.warn("Failed to close stream.", e);
+					}
+				}
 	        } catch (PermissionException e) {
 	            addAlert(state, trb.getString("alert.perm"));
 	            logger.warn("PermissionException " + e);

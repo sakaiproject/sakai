@@ -232,17 +232,17 @@ public class ParameterParser
 	{
 		// wrap the Apache FileItem in our own homegrown FileItem
 		Object o = m_req.getAttribute(name);
-		if (o != null && o instanceof org.apache.commons.fileupload.FileItem)
+		if (o instanceof org.apache.commons.fileupload.FileItem)
 		{
 			org.apache.commons.fileupload.FileItem item = (org.apache.commons.fileupload.FileItem) o;
-			try
-            {
-	            return new FileItem(Normalizer.normalize(item.getName(), Normalizer.Form.NFC), item.getContentType(), item.getInputStream());
-            }
-            catch (IOException e)
-            {
-            	return new FileItem(Normalizer.normalize(item.getName(), Normalizer.Form.NFC), item.getContentType(), item.get());
-            }
+			try {
+				return new FileItem(
+						Normalizer.normalize(item.getName(), Normalizer.Form.NFC),
+						item.getContentType(), item.getInputStream()
+				);
+			} catch (IOException e) {
+				// Ignore
+			}
 		}
 
 		return null;
