@@ -35,6 +35,8 @@ import org.sakaiproject.content.metadata.model.MetadataValidator;
  */
 public class EnumMetadataType extends MetadataType<String>
 {
+
+	private static final long serialVersionUID = 1L;
 	private Collection<String> allowedValues;
 
 	public Collection<String> getAllowedValues()

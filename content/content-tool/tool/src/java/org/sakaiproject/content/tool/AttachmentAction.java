@@ -37,24 +37,25 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * <p>
@@ -66,6 +67,15 @@ public class AttachmentAction
 	/** Our logger. */
 	private static Logger M_log = LoggerFactory.getLogger(AttachmentAction.class);
 
+	/** kernel api **/
+	private static ContentHostingService contentHostingService = ComponentManager.get(ContentHostingService.class); 
+	private static EntityManager entityManager = ComponentManager.get(EntityManager.class);
+	private static SiteService siteService = ComponentManager.get(SiteService.class);
+	private static ToolManager toolManager = ComponentManager.get(ToolManager.class);
+	
+	 /** ContentTypeImageService **/
+	 private static ContentTypeImageService contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
+	 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("helper");
 
@@ -144,7 +154,7 @@ public class AttachmentAction
 		List attachments = (List) state.getAttribute(STATE_ATTACHMENTS);
 		if (attachments == null)
 		{
-			attachments = EntityManager.newReferenceList();
+			attachments = entityManager.newReferenceList();
 			state.setAttribute(STATE_ATTACHMENTS, attachments);
 		}
 
@@ -206,7 +216,7 @@ public class AttachmentAction
 		context.put("attachments", attachments);
 
 		// make the content type image service available
-		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
+		context.put("contentTypeImageService", contentTypeImageService);
 
 		// the menu
 		buildMenu(portlet, context, rundata, state, true, (attachments.size() > 0));
@@ -232,12 +242,12 @@ public class AttachmentAction
 		String id = (String) state.getAttribute(STATE_BROWSE_COLLECTION_ID);
 		if (id == null)
 		{
-			id = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			id = contentHostingService.getSiteCollection(toolManager.getCurrentPlacement().getContext());
 			state.setAttribute(STATE_BROWSE_COLLECTION_ID, id);
 			state.setAttribute(STATE_HOME_COLLECTION_ID, id);
 		}
 
-		context.put("contentHostingService", ContentHostingService.getInstance());
+		context.put("contentHostingService", contentHostingService);
 
 		String collectionDisplayName = null;
 		List members = null;
@@ -245,22 +255,22 @@ public class AttachmentAction
 		try
 		{
 			// get this collection's display name
-			ContentCollection collection = ContentHostingService.getCollection(id);
+			ContentCollection collection = contentHostingService.getCollection(id);
 			collectionDisplayName = collection.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 
 			// get the full set of member objects
 			members = collection.getMemberResources();
 
 			// sort by display name, ascending
-			Collections.sort(members, ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+			Collections.sort(members, contentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
 		} catch (IdUnusedException e) {
-			collectionDisplayName = SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext());
+			collectionDisplayName = siteService.getSiteDisplay(toolManager.getCurrentPlacement().getContext());
 			members = new Vector();
 		} catch (TypeException e) {
-			collectionDisplayName = SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext());
+			collectionDisplayName = siteService.getSiteDisplay(toolManager.getCurrentPlacement().getContext());
 			members = new Vector();
 		} catch (PermissionException e) {
-			collectionDisplayName = SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext());
+			collectionDisplayName = siteService.getSiteDisplay(toolManager.getCurrentPlacement().getContext());
 			members = new Vector();
 		}
 
@@ -272,7 +282,7 @@ public class AttachmentAction
 		context.put("attachments", state.getAttribute(STATE_ATTACHMENTS));
 
 		// make the content type image service available
-		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
+		context.put("contentTypeImageService", contentTypeImageService);
 
 		// the menu
 		buildMenu(portlet, context, rundata, state, false, false);
@@ -482,18 +492,18 @@ public class AttachmentAction
 			if (url.indexOf("://") == -1) url = "http://" + url;
 
 			// make a set of properties to add for the new resource
-			ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+			ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, url);
 			props.addProperty(ResourceProperties.PROP_DESCRIPTION, url);
 
 			// make an attachment resource for this URL
 			try
 			{
-				ContentResource attachment = ContentHostingService.addAttachmentResource(Validator.escapeResourceName(url), // use the url as the name
+				ContentResource attachment = contentHostingService.addAttachmentResource(Validator.escapeResourceName(url), // use the url as the name
 						ResourceProperties.TYPE_URL, url.getBytes(), props);
 
 				// add a dereferencer for this to the attachments
-				attachments.add(EntityManager.newReference(attachment.getReference()));
+				attachments.add(entityManager.newReference(attachment.getReference()));
 			}
 			catch (Exception any)
 			{
@@ -521,17 +531,17 @@ public class AttachmentAction
 			String resourceId = Validator.escapeResourceName(name);
 
 			// make a set of properties to add for the new resource
-			ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+			ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 			props.addProperty(ResourceProperties.PROP_DESCRIPTION, browserFileName);
 
 			// make an attachment resource for this URL
 			try
 			{
-				ContentResource attachment = ContentHostingService.addAttachmentResource(resourceId, contentType, in, props);
+				ContentResource attachment = contentHostingService.addAttachmentResource(resourceId, contentType, in, props);
 
 				// add a dereferencer for this to the attachments
-				attachments.add(EntityManager.newReference(attachment.getReference()));
+				attachments.add(entityManager.newReference(attachment.getReference()));
 			}
 			catch (Exception any)
 			{
@@ -729,10 +739,10 @@ public class AttachmentAction
 				if (id.equals(state.getAttribute(STATE_HOME_COLLECTION_ID))) return;
 
 				// get the containing collection
-				String containingId = ContentHostingService.getContainingCollectionId(id);
+				String containingId = contentHostingService.getContainingCollectionId(id);
 
 				// make sure the user can read that
-				if (ContentHostingService.allowGetCollection(containingId))
+				if (contentHostingService.allowGetCollection(containingId))
 				{
 					state.setAttribute(STATE_BROWSE_COLLECTION_ID, containingId);
 				}
@@ -751,7 +761,7 @@ public class AttachmentAction
 				String id = data.getParameters().getString("itemId");
 
 				// make sure the user can read that
-				if (ContentHostingService.allowGetCollection(id))
+				if (contentHostingService.allowGetCollection(id))
 				{
 					state.setAttribute(STATE_BROWSE_COLLECTION_ID, id);
 				}
@@ -789,14 +799,14 @@ public class AttachmentAction
 		try
 		{
 			// get the set of member ids
-			ContentCollection collection = ContentHostingService.getCollection(id);
+			ContentCollection collection = contentHostingService.getCollection(id);
 			members = collection.getMembers();
 
 			// for each member
 			for (int i = 0; i < members.size(); i++)
 			{
 				String memberId = (String) members.get(i);
-				String ref = ContentHostingService.getReference(memberId);
+				String ref = contentHostingService.getReference(memberId);
 
 				// if the member id is in the list of ids selected
 				if (ids.contains(memberId))
@@ -804,7 +814,7 @@ public class AttachmentAction
 					// make sure it is in the attachments
 					if (!attachments.contains(ref))
 					{
-						attachments.add(EntityManager.newReference(ref));
+						attachments.add(entityManager.newReference(ref));
 					}
 				}
 				else
