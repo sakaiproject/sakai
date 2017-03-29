@@ -2226,8 +2226,11 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 		var localDTPicker;
 
 		cfg.showOn = (options.icon === 0) ? "focus" : "both";
-		cfg.buttonImage = (options.icon === 0) ? null : "/library/image/silk/calendar.png";
-		cfg.buttonImageOnly = true;
+		//Use an image instead of font-awesome
+		//cfg.buttonImage = (options.icon === 0) ? null : "/library/image/silk/calendar.png";
+		//cfg.buttonImageOnly = true;
+		//Use font-awesome instead of an image
+		cfg.buttonText = (options.icon === 0) ? null : "<i class='fa fa-calendar'></i>";
 
 		cfg.stepMinute = options.stepMinute;
 		cfg.altField = options.altField;

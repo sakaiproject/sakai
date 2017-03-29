@@ -910,6 +910,13 @@ ul.calendarLegend li{
 .ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_microsec:before { content:'.'; display:inline-block; }
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide,
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }
+
+/*jQuery Datepicker button class*/
+.ui-datepicker-trigger{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger:hover{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger i{color:#000;}
+.ui-datepicker-trigger:hover i{color:#000;}
+
 /* css for duplicate site alert*/
 #flashNotif  a.flashNotifClose {
     text-decoration: none;
