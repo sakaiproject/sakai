@@ -34,6 +34,23 @@
         background-image: url(/library/image/silk/email.png);
     }
 
+    .roster-pictureview {
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-width: 1px;
+        @include border-radius(5px);
+        padding: 5px;
+        margin-bottom: 5px;
+        .roster-pictureview-picture {
+            width: 150px;
+            height: 150px;
+            img {
+                width: 150px;
+                max-height: 150px;
+            }
+        }
+    }
+
 
     #roster_type_selector {
         margin-left: 10px;
