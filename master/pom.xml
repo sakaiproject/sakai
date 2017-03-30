@@ -111,7 +111,7 @@
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
-    <sakai.poi.version>3.14</sakai.poi.version>
+    <sakai.poi.version>3.15</sakai.poi.version>
     <sakai.mockito.version>2.2.16</sakai.mockito.version>
     <sakai.powermock.version>1.6.6</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
