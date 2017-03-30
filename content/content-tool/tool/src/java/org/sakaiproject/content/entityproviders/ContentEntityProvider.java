@@ -69,7 +69,6 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	public static final String PREFIX = "resources.";
 	public static final String SYS = "sys.";
 	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + SYS + "type_registry";
-	private static Log log = LogFactory.getLog(ContentEntityProvider.class);
 	private static final String PARAMETER_DEPTH = "depth";
 	private static final String PARAMETER_TIMESTAMP = "timestamp";
 
