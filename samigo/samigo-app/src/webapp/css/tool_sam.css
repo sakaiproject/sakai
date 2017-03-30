@@ -1306,3 +1306,8 @@ input[type='reset'].linearButton {
 	color:#444444;
 	font-style: italic;
 }
+
+.mathjax-warning.alert, .mathjax-warning .alert {
+	margin: 0;
+	padding: 6px 12px;
+}

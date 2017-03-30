@@ -106,7 +106,7 @@
         <h:outputLabel value="#{authorMessages.q_text}" /><br/>
     </div>
     <div>
-        <h:panelGrid columns="1" border="0">
+    <div>
             <h:outputText value="#{authorMessages.defining_answers}<br/>#{authorMessages.note_defining_answers}" escape="false"/>
             <h:outputText value=" " escape="false"/>
             <h:panelGrid columns="2" border="0">
@@ -118,11 +118,14 @@
                 <h:outputText value="#{authorMessages.complex_numbers}<br/>#{authorMessages.complex_numbers_example}" escape="false"/>
             </h:panelGrid >
             <h:outputText value=" " escape="false"/>
-            <h:outputText value="#{authorMessages.accepted_characters}<br/>
-                                 #{authorMessages.note_accepted_fin_1}<br/>
+            <h:outputText value="#{authorMessages.accepted_characters}<br/>" escape="false"/>
+            <div class="mathjax-warning alert alert-warning" style="display: none;">
+                <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
+            </div>
+            <h:outputText value="#{authorMessages.note_accepted_fin_1}<br/>
                                  #{authorMessages.note_accepted_fin_2}<br/>
                                  #{authorMessages.note_accepted_fin_3}" escape="false"/>
-        </h:panelGrid > 
+        </div> 
     </div><br/>
   
     <h:panelGrid>

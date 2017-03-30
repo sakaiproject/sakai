@@ -293,14 +293,11 @@
 				<input type="text" name="siteContactEmail" id="siteContactEmail" size="20" maxlength="99" value="$!form_site_contact_email" />
 			</div>
 		</div>
-        #if ($isMathJaxInstalled)
-        <div>
-            <input type="checkbox" name="allowMathJax" id="allowMathJax" value="true" #if ($isMathJaxAllowedInSite)checked#end/>
-            <label for="allowMathJax">
-                $tlang.getString("sinfo.mathjax.allowForSite")
-            </label>
-        </div>
-        #end
+		#if ($isMathJaxInstalled)
+			#if ($isMathJaxEnabledForSite)
+				<input type="hidden" name="isMathJaxEnabledForSite" id="isMathJaxEnabledForSite" value="on"/>
+			#end
+		#end
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$!continue" />
