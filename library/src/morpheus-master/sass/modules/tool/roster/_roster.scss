@@ -38,9 +38,7 @@
         display: inline-block;
         border: 1px solid #ccc;
         border-width: 1px;
-        -moz-border-radius: 5px;
-        -webkit-border-radius: 5px;
-        border-radius: 5px;
+        @include border-radius(5px);
         padding: 5px;
         margin-bottom: 5px;
         .roster-pictureview-picture {
