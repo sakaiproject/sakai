@@ -24,7 +24,7 @@ import org.sakaiproject.event.api.NotificationService;
  *
  * @author Leonardo Canessa ( lcanessa1 at udayton dot edu )
  */
-public class SamigoConstants {
+public final class SamigoConstants {
     /*
      * Email Templating
      */
@@ -77,7 +77,7 @@ public class SamigoConstants {
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REVISE                   = "sam.pubassessment.revise";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_SAVEITEM                 = "sam.pubassessment.saveitem";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REMOVE                   = "sam.pubAssessment.remove";
-    public static final     String      EVENT_PUBLISHED_ASSESSMENT_UNPUBLISH                = "sam.pubassessment.confirm_edit";
+    public static final     String      EVENT_PUBLISHED_ASSESSMENT_CONFIRM_EDIT                = "sam.pubassessment.confirm_edit";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REPUBLISH                = "sam.pubassessment.republish";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT             = "sam.pubsetting.edit";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM              = "sam.pubassessment.unindexitem";
@@ -138,4 +138,7 @@ public class SamigoConstants {
     public static final     String      SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS  = "samigo.email.autoSubmit.errorNotification.toAddress";
     public static final     String      SAK_PROP_SUPPORT_EMAIL_ADDRESS                      = "mail.support";
     
+    private SamigoConstants() {
+    	throw new AssertionError();
+    }
 }
