@@ -261,7 +261,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		//for datepicker
 		response.render(CssHeaderItem.forUrl("/library/webjars/jquery-ui/1.11.3/jquery-ui.css"));
-		response.render(JavaScriptHeaderItem.forUrl("javascript/delegated-access.js"));
 		response.render(JavaScriptHeaderItem.forUrl("javascript/jquery.asmselect.js"));
 		response.render(CssHeaderItem.forUrl("css/jquery.asmselect.css"));
 	}
