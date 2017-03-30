@@ -158,7 +158,7 @@ public class ParameterParser
 	/**
 	 * Clean the user input string of strange newlines, etc.
 	 * 
-	 * @param value
+	 * @param name
 	 *        The user input string.
 	 * @return value cleaned of string newlines, etc.
 	 */

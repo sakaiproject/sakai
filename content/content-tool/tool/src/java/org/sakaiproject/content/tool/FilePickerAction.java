@@ -917,7 +917,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/**
      * @param filter 
-	 * @param name
+	 * @param items
      * @return
      */
     private List<ListItem> filterList(List<ListItem> items, ContentResourceFilter filter)
@@ -2690,7 +2690,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		/**
-         * @param resource
+         * @param entity
          */
         public AttachItem(ContentEntity entity)
         {
@@ -3253,7 +3253,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/**
 	* Find the resource with this id in the list.
-	* @param messages The list of messages.
+	* @param resources The list of messages.
 	* @param id The message id.
 	* @return The index position in the list of the message with this id, or -1 if not found.
 	*/
@@ -3305,8 +3305,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
     /**
      * @param state
-     * @param homeCollectionId
-     * @param currentCollectionId
      * @return
      */
     public static List getCollectionPath(SessionState state)
@@ -3412,8 +3410,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 	
 	/**
 	 * get/init state attribute STATE_EXPANDED_COLLECTIONS
-	 * @param state The tool session to get the object from or create it in.
-	 * @return An {@link ExpandedCollections} but never <code>null</code>.
+	 * @param session The tool session to get the object from or create it in.
+	 * @return An {@link #STATE_EXPANDED_COLLECTIONS} but never <code>null</code>.
 	 */
 	private static Set<String> getExpandedCollections(ToolSession session) {
 		Set<String> current = (Set<String>) session.getAttribute(STATE_EXPANDED_COLLECTIONS);

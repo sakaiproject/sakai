@@ -2078,8 +2078,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/**
 	 * @param state
-	 * @param homeCollectionId
-	 * @param currentCollectionId
 	 * @return
 	 */
 	public static List getCollectionPath(SessionState state)
@@ -3151,8 +3149,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}	// getListView
 	
 	/**
+     * @param id
 	 * @param inheritedPermissions TODO
-	 * @param context
 	 * @return
 	 */
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
@@ -3608,7 +3606,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	/**
 	 * @param pipe
-	 * @param action
 	 */
 	public static void reviseContent(ResourceToolActionPipe pipe)
 	{
@@ -5854,7 +5851,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	/**
 	 * @param state
-	 * @param deleteIdSet
+	 * @param itemId
 	 */
 	protected void deleteItem(SessionState state, String itemId)
 	{
@@ -5956,7 +5953,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * @param state
 	 * @param deleteIdSet
-	 * @param deleteIds
 	 */
 	protected void deleteItems(SessionState state, Set deleteIdSet)
 	{
@@ -8175,8 +8171,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/**
 	* Find the resource with this id in the list.
-	* @param messages The list of messages.
 	* @param id The message id.
+	* @param resources list of resources.
 	* @return The index position in the list of the message with this id, or -1 if not found.
 	*/
 	protected int findResourceInList(List resources, String id)
@@ -9587,7 +9583,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * Handle a request to upload a file in multiple folders.
 	 * SAK-5350
-	 * @param runData
+	 * @param data
 	 */
 	public void doDropboxMultipleFoldersUpload(RunData data) {
 		
@@ -9941,7 +9937,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * @param state
 	 * @param hideIdSet
-	 * @param hideIds
 	 */
 	protected void hideItems(SessionState state, Set hideIdSet)
 	{
@@ -10464,7 +10459,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	/**
 	 * @param state
-	 * @param showIdSet
+	 * @param zipDownloadIdSet
 	 */
 	protected void zipDownloadItems(SessionState state, Set<String> zipDownloadIdSet)
 	{

@@ -1399,8 +1399,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	/**
 	 * @param params
-	 * @param newFile
-	 * @return
 	 */
 	protected int determineNotificationPriority(ParameterParser params, boolean contextIsDropbox, boolean userIsMaintainer) 
 	{
