@@ -5754,6 +5754,7 @@ public abstract class BaseCitationService implements CitationService
         return citation;
     }
     
+    @Override    
     public Citation copyCitation(Citation citation) {
     	BasicCitation c = new BasicCitation();
     	c.copy(citation);
