@@ -177,15 +177,7 @@ public class SakaiProxy {
 
 		if (fileItems.size() > 0) {
 			for (FileItem fileItem : fileItems) {
-				String name = fileItem.getName();
-
-				if (name.contains("/")) {
-					name = name.substring(name.lastIndexOf("/") + 1);
-                } else if (name.contains("\\")) {
-					name = name.substring(name.lastIndexOf("\\") + 1);
-                }
-
-				attachments.add(new Attachment(new ByteArrayDataSource(fileItem.get(), fileItem.getContentType()), name));
+				attachments.add(new Attachment(new FileItemDataSource(fileItem)));
 			}
 		}
 

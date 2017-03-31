@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums;
 
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -62,6 +63,7 @@ import net.sf.json.JsonConfig;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
@@ -9753,14 +9755,12 @@ public class DiscussionForumTool
             if (newValue == null) {
                 return "";
             }
-            try {
-                FileItem item = (FileItem) event.getNewValue();
-                if (!validateImageSize(item)) {
-                    return null;
-                }
-
+            FileItem item = (FileItem) event.getNewValue();
+            if (!validateImageSize(item)) {
+              return null;
+            }
+            try (InputStream inputStream = item.getInputStream()) {
                 String fileName = item.getName();
-                byte[] fileContents = item.get();
                 ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
                 String tempS = fileName;
 
@@ -9769,14 +9769,16 @@ public class DiscussionForumTool
                     fileName = tempS.substring(lastSlash + 1);
                 }
                 props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
-                ContentResource thisAttach = contentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents,
-                        props);
+                ContentResourceEdit thisAttach = contentHostingService.addAttachmentResource(fileName);
+                thisAttach.setContentType(item.getContentType());
+                thisAttach.setContent(inputStream);
+                thisAttach.getPropertiesEdit().addAll(props);
+                contentHostingService.commitResource(thisAttach);
                 RankImage attachObj = rankManager.createRankImageAttachmentObject(thisAttach.getId(), fileName);
                 attachment = attachObj;
 
             } catch (Exception e) {
-                LOG.error(this + ".processUpload() in DiscussionForumTool " + e);
-                e.printStackTrace();
+                LOG.error(this + ".processUpload() in DiscussionForumTool", e);
             }
             just_created = true;
             return VIEW_RANK;
