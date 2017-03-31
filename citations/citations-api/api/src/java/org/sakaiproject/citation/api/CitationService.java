@@ -192,9 +192,9 @@ public interface CitationService extends EntityProducer
      */
     public void save(Citation citation);
     
-	/**
-     * 
-     * @param citation
+    /**
+     * Creates a duplicate of the citation.
+     * @param citation The citation to copy.
      */
     public Citation copyCitation(Citation citation);
     
