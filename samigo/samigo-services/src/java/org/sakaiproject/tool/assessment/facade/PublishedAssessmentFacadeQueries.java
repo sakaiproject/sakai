@@ -2705,6 +2705,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * @return updatedAssessmentStringData
 	 */
 	private String replaceSiteIdsForString(String assessmentStringData, String toContext) {
+	boolean doReplaceSiteIds = ServerConfigurationService.getBoolean("samigo.publish.update.siteids",true);
+	if (doReplaceSiteIds == false) {
+		return assessmentStringData;
+	}
 		String updatedAssessmentStringData = null;
 		
 		//if contains "..getServerUrl()/access/content/group/" then it's a standard site content file
