@@ -39,13 +39,10 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.datetime.StyleDateConverter;
-import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
 import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOptions;
-import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -93,6 +90,7 @@ import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptionsGr
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
+import org.sakaiproject.sitestats.tool.wicket.util.DateUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.Web;
@@ -130,6 +128,11 @@ public class ReportsEditPage extends BasePage {
 	private static Logger log = LoggerFactory.getLogger(ReportsEditPage.class);
 	
 	private transient Collator		collator		= Collator.getInstance();
+	
+	private static String 			HIDDEN_WHENFROM_ISO8601 = "whenFromISO8601";
+	private static String 			HIDDEN_WHENTO_ISO8601 = "whenToISO8601";
+	private static String 			DATEPICKER_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
 	{
 		try{
 			collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
@@ -197,6 +200,8 @@ public class ReportsEditPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYUISCRIPT));
+		response.render(JavaScriptHeaderItem.forUrl(DATEPICKERSCRIPT));
 		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP + "/script/reports.js"));
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("checkWhatSelection();");
@@ -205,6 +210,8 @@ public class ReportsEditPage extends BasePage {
         onDomReady.append("checkHowSelection();");
         onDomReady.append("checkReportDetails();");
         onDomReady.append("checkHowChartSelection();");
+        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenFrom", DateUtil.format(getReportParams().getWhenFrom(), DATEPICKER_FORMAT, getSession().getLocale())));
+        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenTo", DateUtil.format(getReportParams().getWhenTo(), DATEPICKER_FORMAT, getSession().getLocale())));
 		response.render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
 	}
 	
@@ -263,6 +270,7 @@ public class ReportsEditPage extends BasePage {
 		final Button generateReport = new Button("generateReport") {
 			@Override
 			public void onSubmit() {
+				setISODates();
 				if(validReportParameters()) {
 					if(predefined) {
 						getReportParams().setSiteId(siteId);
@@ -276,6 +284,7 @@ public class ReportsEditPage extends BasePage {
 		final Button saveReport = new Button("saveReport") {
 			@Override
 			public void onSubmit() {
+				setISODates();
 				if(validReportParameters()) {
 					if(getReportDef().getTitle() == null || getReportDef().getTitle().trim().length() == 0) {
 						error((String) new ResourceModel("report_reporttitle_req").getObject());
@@ -546,18 +555,8 @@ public class ReportsEditPage extends BasePage {
 		form.add(when);
 		
 		// custom dates
-		form.add(new DateTimeField("reportParams.whenFrom") {			
-			@Override
-			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
-				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
-			}
-		});
-		form.add(new DateTimeField("reportParams.whenTo") {			
-			@Override
-			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
-				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
-			}
-		});
+		form.add(new TextField<String>("whenFrom", Model.of("")));
+		form.add(new TextField<String>("whenTo", Model.of("")));
 	}
 	
 	
@@ -1363,6 +1362,18 @@ public class ReportsEditPage extends BasePage {
 			
 		}
 		
+	}
+
+	private void setISODates(){
+		String whenFrom = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENFROM_ISO8601).toString("");
+		String whenTo = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENTO_ISO8601).toString("");
+		if(DateUtil.isValidISODate(whenFrom)){
+			getReportParams().setWhenFrom(DateUtil.parseISODate(whenFrom));
+		}
+
+		if(DateUtil.isValidISODate(whenTo)){
+			getReportParams().setWhenTo(DateUtil.parseISODate(whenTo));
+		}
 	}
 }
 
