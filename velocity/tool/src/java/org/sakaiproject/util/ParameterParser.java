@@ -21,6 +21,8 @@
 
 package org.sakaiproject.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.text.Normalizer;
 import java.util.Iterator;
@@ -31,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * ParameterParser is a wrapper over the request that provides compatibility with Sakai 1.5 and before.
  */
+@Slf4j
 public class ParameterParser
 {
 	/** The request. */
@@ -228,20 +231,22 @@ public class ParameterParser
 	 *        The parameter name.
 	 * @return The parameter FileItem value, or null if it's not defined.
 	 */
-	public FileItem getFileItem(String name)
-	{
+	public FileItem getFileItem(String name) {
 		// wrap the Apache FileItem in our own homegrown FileItem
 		Object o = m_req.getAttribute(name);
 		if (o instanceof org.apache.commons.fileupload.FileItem)
 		{
 			org.apache.commons.fileupload.FileItem item = (org.apache.commons.fileupload.FileItem) o;
-			try {
+			try
+			{
 				return new FileItem(
 						Normalizer.normalize(item.getName(), Normalizer.Form.NFC),
 						item.getContentType(), item.getInputStream()
 				);
-			} catch (IOException e) {
-				// Ignore
+			}
+			catch (IOException e)
+			{
+				log.warn("Failed to get InputStream for file upload of {}", name, e);
 			}
 		}
 
