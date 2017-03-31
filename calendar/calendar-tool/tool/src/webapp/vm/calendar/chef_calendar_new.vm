@@ -382,7 +382,8 @@ $(function() {
 					ashidden:{
 						month:"month",
 						day:"day",
-						year:"yearSelect"
+						year:"yearSelect",
+						iso8601: 'newCalendarDateISO8601'
 					}
 				});
 			</script>
