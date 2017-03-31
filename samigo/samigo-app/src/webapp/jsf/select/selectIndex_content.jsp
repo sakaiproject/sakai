@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -107,7 +108,7 @@ sorting actions for table:
 --%>
   <!-- SELECT TABLE -->
   <div class="tier2">
-  <h:dataTable id="selectTable" value="#{select.takeableAssessments}" var="takeable" styleClass="table table-striped" summary="#{selectIndexMessages.sum_availableAssessment}">
+  <h:dataTable id="selectTable" value="#{select.takeableAssessments}" rendered="#{select.isThereAssessmentToTake eq 'true'}" var="takeable" styleClass="table table-striped" summary="#{selectIndexMessages.sum_availableAssessment}">
     <h:column headerClass="assessmentTitleHeader">
       <f:facet name="header">
           <h:outputText  value="#{selectIndexMessages.title} " />
@@ -155,29 +156,30 @@ sorting actions for table:
   </h2>
   <div class="info-text">
 	  <h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
+	  <h:outputText rendered="#{select.isThereAssessmentToReview ne 'true'}" value="#{selectIndexMessages.review_assessment_notAvailable}" />
   </div>
 	  
-<div class="panel panel-default">
-  <div class="panel-heading">
-	   	<h:commandLink
-			id="all"
-			value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 1}" onmouseup="disableLinks(this);submit();">
-			<f:param name="selectSubmissions" value="2" />
-			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-		</h:commandLink>
-    <h:outputText value="&#160; | &#160;" escape="false" />
-		<h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" />
-    <h:outputText value="&#160; | &#160;" escape="false" />
-		<h:commandLink 
+<t:div rendered="#{select.isThereAssessmentToReview eq 'true'}" styleClass="panel panel-default sam-submittedPanel">
+	<t:div rendered="#{select.displayAllAssessments == 2}" styleClass="panel-heading sam-reviewHeaderTabs"> <%-- on the all submissions/score tab --%>
+		<span><h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" /></span>
+		<h:commandLink
 			id="some"
 			value="#{selectIndexMessages.review_assessment_recorded}"
-			rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 2}"
+			rendered="#{select.displayAllAssessments == 2}" styleClass="sam-leftSep"
 			onmouseup="disableLinks(this);submit();">
 			<f:param name="selectSubmissions" value="1" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
-		<h:outputText value="#{selectIndexMessages.review_assessment_recorded}" rendered="#{select.displayAllAssessments == 1}" />
-  </div>
+	</t:div>
+	<t:div rendered="#{select.displayAllAssessments == 1}" styleClass="panel-heading sam-reviewHeaderTabs"> <%-- on the only recorded scores tab --%>
+		<h:commandLink
+			id="all"
+			value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 1}" onmouseup="disableLinks(this);submit();">
+			<f:param name="selectSubmissions" value="2" />
+			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+		</h:commandLink>
+		<span class="sam-leftSep"><h:outputText value="#{selectIndexMessages.review_assessment_recorded}" rendered="#{select.displayAllAssessments == 1}" /></span>
+	</t:div>
 
   <!-- REVIEW TABLE -->
 <%--
@@ -320,7 +322,7 @@ sorting actions for table:
   <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.currently_being_edited}" rendered="#{select.hasAnyAssessmentRetractForEdit}" styleClass="validate"/>
   </h:panelGrid>
 
-  </div></div>
+  </div></t:div>
   </h:form>
 </div>
   <!-- end content -->
