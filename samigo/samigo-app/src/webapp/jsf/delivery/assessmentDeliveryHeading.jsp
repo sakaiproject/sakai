@@ -46,12 +46,8 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     </h:commandLink>
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
-    <h:commandLink title="#{commonMessages.feedback}" action="takeAssessment" onmouseup="saveTime();" 
-       rendered="#{delivery.actionString=='previewAssessment' && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" >
-     <h:outputText value="#{deliveryMessages.show_feedback}" />
-     <f:param name="showfeedbacknow" value="true" />
-     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-    </h:commandLink>
+    <h:outputText value="#{deliveryMessages.show_feedback_preview}" 
+         rendered="#{delivery.actionString=='previewAssessment' && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" />
 
   </span></li>
   </h:panelGroup >
