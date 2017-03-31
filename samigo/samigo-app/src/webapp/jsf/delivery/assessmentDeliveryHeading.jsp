@@ -45,7 +45,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     </h:commandLink>
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
-<!-- SAM-3110 This link never seemed to work so disabled -->
     <h:outputText value="#{deliveryMessages.show_feedback_preview}" 
          rendered="#{delivery.actionString=='previewAssessment' && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" />
 
