@@ -1560,6 +1560,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		return isIndividualDropbox;
 	}
 
+	public boolean isInSiteCollection(String entityId)
+	{
+		return entityId.startsWith(COLLECTION_SITE);
+	}
+
+	public boolean isSiteLevelCollection(String id)
+	{
+		boolean isSiteLevelCollection = (id != null) && isInSiteCollection(id);
+		if(isSiteLevelCollection)
+		{
+			String[] parts = id.split(Entity.SEPARATOR);
+			isSiteLevelCollection = parts.length == 3 ;
+		}
+		return isSiteLevelCollection;
+	}
+
 	public String getSiteLevelDropboxId(String id)
 	{
 		String dropboxId = null;
@@ -2489,6 +2505,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public List<ContentResource> getAllResources(String id)
 	{
 		List<ContentResource> rv = new ArrayList<ContentResource>();
+
+		if (isRootCollection(id))
+		{
+			// There are performance issues with returning every single resources in one collection as well
+			// as issues in Sakai where actions incorrectly happen for the whole of the content service
+			// instead of just those of a site.
+			throw new IllegalArgumentException("Fetching of "+ id+ " is not allowed");
+		}
 
 		// get the collection members
 		try
@@ -9277,7 +9301,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
 		// %%% These constants should be from somewhere else -ggolden
-		if (!((edit.getId().startsWith(COLLECTION_USER)) || (edit.getId().startsWith(COLLECTION_SITE)) || edit.getId().startsWith(COLLECTION_DROPBOX))) return false;
+		if (!((edit.getId().startsWith(COLLECTION_USER)) || isInSiteCollection(edit.getId()) || edit.getId().startsWith(COLLECTION_DROPBOX))) return false;
 
 		// expect null, "user" | "group", user/groupid, rest...
 		String[] parts = StringUtil.split(edit.getId(), Entity.SEPARATOR);
@@ -9393,7 +9417,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
 		// %%% These constants should be from somewhere else -ggolden
-		if (!((edit.getId().startsWith("/user/")) || (edit.getId().startsWith("/group/")))) return;
+		if (!((edit.getId().startsWith("/user/")) || isInSiteCollection(edit.getId()))) return;
 
 		// expect null, "user" | "group", user/groupid, rest...
 		String[] parts = StringUtil.split(edit.getId(), Entity.SEPARATOR);
@@ -9426,7 +9450,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
 		// %%% These constants should be from somewhere else -ggolden
-		if (!((edit.getId().startsWith("/user/")) || (edit.getId().startsWith("/group/")))) return;
+		if (!((edit.getId().startsWith("/user/")) || isInSiteCollection(edit.getId()))) return;
 
 		// expect null, "user" | "group", user/groupid, rest...
 		String[] parts = StringUtil.split(edit.getId(), Entity.SEPARATOR);
@@ -14397,13 +14421,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * 
 		 * Therefore we need to delete the files (1 handled), then get any backed up files and delete them also (2 and 3 handled). Then delete the collection to finalise things.
 		 */
-    	
-    	//get collection for the site
-    	String collectionId = getSiteCollection(siteId);
-		M_log.debug("collectionId: " + collectionId);
-		
-    	
-    	//handle 1
+
+		if (m_siteService.isSpecialSite(siteId)) {
+			M_log.error("hardDelete rejected special site: {}", siteId);
+			return;
+		}
+		// Get collection for the site and check validity
+		String collectionId = getSiteCollection(siteId);
+		if (!isSiteLevelCollection(collectionId)) {
+			M_log.error("hardDelete rejected on non site collection: {}", collectionId);
+			return;
+		}
+		M_log.info("hardDelete proceeding on collectionId: {}", collectionId);
+
+		//handle 1
 		try {
 			List<ContentResource> resources = getAllResources(collectionId);
 	    	for(ContentResource resource: resources) {
@@ -14411,9 +14442,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	    		removeResource(resource.getId());
 	    	}
 		} catch (Exception e) {
-			e.printStackTrace();
-			//ignore and try to proceed
-		} 
+			M_log.warn("Failed to remove content.", e);
+		}
 
     	//handle2
 		//only for 2.10 - comment this out for 2.9 and below
@@ -14424,22 +14454,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	    		removeDeletedResource(deletedResource.getId());
 	    	}
 		} catch (Exception e) {
-			e.printStackTrace();
-			//ignore and try to proceed
-		} 
+			M_log.warn("Failed to remove some content.", e);
+		}
 		
 		//cleanup
 		try {
 			M_log.debug("Removing collection: " + collectionId);
 			removeCollection(collectionId);
-			
 		} catch (Exception e) {
-			e.printStackTrace();
-			//ignore and try to proceed
-		} 
-    	
-    	
+			M_log.warn("Failed to remove collection {}.", collectionId, e);
+		}
     }
+
+
 	private String getDisplayName(User userIn) {
 		User user = (userIn== null)?userDirectoryService.getCurrentUser():userIn ;
 		String displayId = user.getDisplayId();

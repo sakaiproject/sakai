@@ -861,6 +861,10 @@ public class ContentHosting extends AbstractWebService {
 		Site site = null;
 		try {
 			 site = siteService.getSite(siteId);
+			 if (siteService.isSpecialSite(site.getId())) {
+				LOG.warn("siteHideResources: cannot run on a special site: {}", siteId);
+				return "failure";
+			 }
 		} catch (IdUnusedException iue) {
 			LOG.warn("WebService siteHideResources: site " + siteId + " doesn't exist");
 			return "failure";
