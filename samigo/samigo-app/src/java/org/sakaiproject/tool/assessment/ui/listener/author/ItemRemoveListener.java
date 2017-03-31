@@ -12,6 +12,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ItemRemoveListener implements ActionListener
 {
 	private static final Logger log = LoggerFactory.getLogger(ItemModifyListener.class);
-	private static final String PERM_SAM_ASSESSMENT_REVISE = "sam.assessment.revise";
-	private static final String PERM_SAM_ASSESSMENT_ITEM_DELETE = "sam.assessment.item.delete";
-	
+
 	public void processAction(ActionEvent ae) throws AbortProcessingException
 	{		
 		ItemAuthorBean item = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
@@ -78,7 +77,7 @@ public class ItemRemoveListener implements ActionListener
 			}
 		}
 		//An item has been deleted
-		EventTrackingService.post(EventTrackingService.newEvent(PERM_SAM_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
 		AssessmentService assessdelegate = new AssessmentService();
 
 		// reorder item numbers
@@ -101,7 +100,7 @@ public class ItemRemoveListener implements ActionListener
 		assessmentBean.setAssessment(assessment);
 		assessdelegate.updateAssessmentLastModifiedInfo(assessment);
 		//Assessment has been revised
-		EventTrackingService.post(EventTrackingService.newEvent(PERM_SAM_ASSESSMENT_REVISE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId + "from assessmentId=" + assessmentBean.getAssessmentId(), true));
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVISE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId + "from assessmentId=" + assessmentBean.getAssessmentId(), true));
 	}
 
 }

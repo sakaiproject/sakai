@@ -37,6 +37,7 @@ import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.AssessmentAnswer;
 import org.sakaiproject.importer.impl.importables.AssessmentQuestion;
 import org.sakaiproject.importer.impl.importables.QuestionPool;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
