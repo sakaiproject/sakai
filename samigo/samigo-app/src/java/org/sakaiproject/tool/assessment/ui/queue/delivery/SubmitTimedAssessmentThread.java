@@ -125,7 +125,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
             
-            EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_THREAD, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
             Map<String, Object> notiValues = new HashMap<>();
 
@@ -146,7 +146,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
                                                                 .collect(Collectors.joining(";")));
             }            
 
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
             notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
             log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
             log.info("Submitted timed assessment assessmentId=" + eventLogData.getAssessmentId() + " userEid=" + eventLogData.getUserEid() + " siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId());

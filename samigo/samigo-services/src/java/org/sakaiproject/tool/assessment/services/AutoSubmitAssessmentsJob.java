@@ -4,6 +4,7 @@ package org.sakaiproject.tool.assessment.services;
 
 import java.util.Date;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
@@ -78,7 +79,7 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 			whoAmI.append(actualfire.toString());
 		}
 		
-		EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_AUTO_SUBMIT_JOB,
 				safeEventLength(whoAmI.toString()), true));			
 
 		LOG.info("Start Job: " + whoAmI.toString());
@@ -112,7 +113,7 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 		UsageSession session = UsageSessionService.startSession(whoAs, serverName, "AutoSubmitAssessmentsJob");
         if (session == null)
         {
-    		EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job.error", whoAs + " unable to log into " + serverName, true));
+    		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_AUTO_SUBMIT_JOB_ERROR, whoAs + " unable to log into " + serverName, true));
     		return;
         }
 		

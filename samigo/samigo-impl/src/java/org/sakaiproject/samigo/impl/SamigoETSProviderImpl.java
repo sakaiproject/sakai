@@ -89,10 +89,10 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             case SamigoConstants.EVENT_ASSESSMENT_SUBMITTED:
                 handleAssessmentSubmitted(notificationValues, event);
                 break;
-            case SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED:
+            case SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO:
                 handleAssessmentAutoSubmitted(notificationValues, event);
                 break;
-            case SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED:
+            case SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED:
                 handleAssessmentTimedSubmitted(notificationValues, event);
                 break;
         }
