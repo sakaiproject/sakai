@@ -55,8 +55,10 @@ import org.sakaiproject.util.ResourceLoader;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -371,7 +373,6 @@ public class ArchiveAction
 			return;
 		}
 		
-		//String fileName = data.getParameters().getString("import-file");
 		FileItem fi = data.getParameters().getFileItem ("importFile");
 		if (fi == null)
 		{
@@ -380,21 +381,18 @@ public class ArchiveAction
 		else
 		{
 			// get content
-			String content = fi.getString();
-			
-			String[] lines = content.split("\n");
-			for(int i=0; i<lines.length; i++)
-			{
-				String lineContent = (String) lines[i];
-				String[] lineContents = lineContent.split("\t");
-				if (lineContents.length == 2)
-				{
-					fTable.put(lineContents[0], lineContents[1]);
-				}
-				else
-				{
-					addAlert(state, rb.getString("archive.batch.wrongformat"));
-				}
+			try (BufferedReader stringReader = new BufferedReader(new InputStreamReader(fi.getInputStream()))) {
+
+				stringReader.lines().forEach(line -> {
+					String[] lineContents = line.split("\t");
+					if (lineContents.length == 2) {
+						fTable.put(lineContents[0], lineContents[1]);
+					} else {
+						addAlert(state, rb.getString("archive.batch.wrongformat"));
+					}
+				});
+			} catch (IOException e) {
+				log.warn("Failed to close stream.", e);
 			}
 		}
 		

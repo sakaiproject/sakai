@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -145,6 +146,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	private static ToolManager toolManager = ComponentManager.get(ToolManager.class);
 	private static UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
 	private static TimeService timeService = ComponentManager.get(TimeService.class);
+
+
+	/** State attribute for where there is at least one attachment before invoking attachment tool */
+	public static final String STATE_HAS_ATTACHMENT_BEFORE = "attachment.has_attachment_before";
 
 	/** Shared messages */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
@@ -917,7 +922,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/**
      * @param filter 
-	 * @param name
+	 * @param items
      * @return
      */
     private List<ListItem> filterList(List<ListItem> items, ContentResourceFilter filter)
@@ -1235,42 +1240,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		FileItem fileitem = null;
-		try
-		{
-			fileitem = params.getFileItem("upload");
-			
-			// SAK-18148 we still don't have a handle to the file
-			// this might be a myfaces-tomahawk MultipartRequestWrapper implementation
-			// (e.g. GradebookFilePickerServlet on WebSphere, implemented as MultipartRequestWrapper)
-			if (fileitem == null)
-			{
-				// MultipartRequestWrapper.getAttribute(UPLOADED_FILES_ATTRIBUTE) will return the file(s)
-				// note MultipartRequestWrapper may appear as a Sakai wrapped request, in one or more layers
-				HttpServletRequestWrapper requestWrapper = (HttpServletRequestWrapper) data.getRequest();
-				Map fileItems = (Map) requestWrapper.getAttribute(MultipartRequestWrapper.UPLOADED_FILES_ATTRIBUTE);
-				if (fileItems != null && fileItems.size() > 0)
-				{
-					// make Apache FileItem compatible with Sakai FileItem
-					Entry entry = (Entry) fileItems.entrySet().iterator().next();
-					if (entry != null && entry.getValue() instanceof org.apache.commons.fileupload.FileItem)
-					{
-						org.apache.commons.fileupload.FileItem afi = (org.apache.commons.fileupload.FileItem) entry.getValue();
-						try
-			            {
-							fileitem = new FileItem(afi.getName(), afi.getContentType(), afi.getInputStream());
-			            }
-			            catch (IOException e)
-			            {
-			            	fileitem = new FileItem(afi.getName(), afi.getContentType(), afi.get());
-			            }
-					}	
-				}			
-			}
-		}
-		catch(Exception e)
-		{
-			logger.warn("Failed to get file upload: " + e);
-		}
+		fileitem = params.getFileItem("upload");
 		if(fileitem == null)
 		{
 			// "The user submitted a file to upload but it was too big!"
@@ -1654,7 +1624,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		if (original_attachments.size() > 0)
 		{
 			//check -- jim
-			toolSession.setAttribute(AttachmentAction.STATE_HAS_ATTACHMENT_BEFORE, Boolean.TRUE);
+			toolSession.setAttribute(STATE_HAS_ATTACHMENT_BEFORE, Boolean.TRUE);
 		}
 		
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_DONE);
@@ -2690,7 +2660,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 
 		/**
-         * @param resource
+         * @param entity
          */
         public AttachItem(ContentEntity entity)
         {
@@ -3253,7 +3223,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/**
 	* Find the resource with this id in the list.
-	* @param messages The list of messages.
+	* @param resources The list of messages.
 	* @param id The message id.
 	* @return The index position in the list of the message with this id, or -1 if not found.
 	*/
@@ -3305,8 +3275,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
     /**
      * @param state
-     * @param homeCollectionId
-     * @param currentCollectionId
      * @return
      */
     public static List getCollectionPath(SessionState state)
@@ -3412,8 +3380,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 	
 	/**
 	 * get/init state attribute STATE_EXPANDED_COLLECTIONS
-	 * @param state The tool session to get the object from or create it in.
-	 * @return An {@link ExpandedCollections} but never <code>null</code>.
+	 * @param session The tool session to get the object from or create it in.
+	 * @return An {@link #STATE_EXPANDED_COLLECTIONS} but never <code>null</code>.
 	 */
 	private static Set<String> getExpandedCollections(ToolSession session) {
 		Set<String> current = (Set<String>) session.getAttribute(STATE_EXPANDED_COLLECTIONS);
