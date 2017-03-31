@@ -24,7 +24,6 @@
 
 #set($suffix = "${DOT}$i")
 ######################## ================ Optional Properties of Item ================ ########################
-<input type="hidden" name="metadataGroup${suffix}" id="metadataGroup${suffix}" value=""/>
 #if(!$item && $model)#set($item = $model)#end
 #set($multipleMetadataType = [])
 #set($groupMetadataLevel = 0)
@@ -35,9 +34,4 @@
   #set($metadataValue = $!item.metadataValues.get($metadataType.uniqueName))
   #editMetadata($metadataType)
 #end
-<!--
-<script src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js" type="text/javascript"></script>
-<script src="/library/js/jquery/chosen/0.9.7/chosen.jquery.js" type="text/javascript"></script>
-<script type="text/javascript">$(".chzn-select").chosen();</script>
-<link href="/library/js/jquery/chosen/0.9.7/chosen.css" type="text/css" rel="stylesheet"/>
--->
+<input type="hidden" name="metadataGroup${suffix}" id="metadataGroup${suffix}" value=""/>

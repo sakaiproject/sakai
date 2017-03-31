@@ -31,26 +31,6 @@
 	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=700,resizable=yes,toolbar=no,location=no,status=no");
 	  return false;
 	}
-	function hideOptionalProperties(index, metadataGroup)
-	{
-		var shownBar = document.getElementById("metadataShown_" + index + "_" + metadataGroup);
-		var hiddenBar = document.getElementById("metadataHidden_" + index + "_" + metadataGroup);
-		var metadataDiv = document.getElementById("metadataDiv_" + index + "_" + metadataGroup);
-		shownBar.style.display = "none";
-		hiddenBar.style.display = "block";
-		metadataDiv.style.display = "none";
-		resizeFrame('grow');
-	}
-	function showOptionalProperties(index, metadataGroup)
-	{
-		var shownBar = document.getElementById("metadataShown_" + index + "_" + metadataGroup);
-		var hiddenBar = document.getElementById("metadataHidden_" + index + "_" + metadataGroup);
-		var metadataDiv = document.getElementById("metadataDiv_" + index + "_" + metadataGroup);
-		shownBar.style.display = "block";
-		hiddenBar.style.display = "none";
-		metadataDiv.style.display = "block";
-		resizeFrame('grow');
-	}
 	/* Small function that should be run after adding or removing a file item so that we don't display the close link on the last item */
 	function updateCloseLinks()
 	{
@@ -79,14 +59,6 @@
 				else if(link.id.match(/^ezproxyTrigger${DOT}\d+$/))
 				{
 				  link.onclick = handleAddEZProxyPrefix;
-				}
-				else if(link.id.match(/^showMetadata_[\S]+${DOT}\d+$/))
-				{
-					link.onclick = handleShowMetadata;
-				}
-				else if(link.id.match(/^hideMetadata_[\S]+${DOT}\d+$/))
-				{
-					link.onclick = handleHideMetadata;
 				}
 			}
 		}
@@ -182,14 +154,6 @@
 			else if(tag.id && tag.id.match(/^retract_calendar${DOT}\d+$/))
 			{
 				tag.onclick = handleRetractDatePopupRequest;
-			}
-			else if(tag.id && tag.id.match(/^showMetadataImage_[\S]+${DOT}\d+$/))
-			{
-				tag.onclick = handleShowMetadata;
-			}
-			else if(tag.id && tag.id.match(/^hideMetadataImage_[\S]+${DOT}\d+$/))
-			{
-				tag.onclick = handleHideMetadata;
 			}
 		}
 	  return false;
@@ -761,14 +725,6 @@
 				## This depends on the year selection element coming before the corresponding hidden input element
 				var calcount = document.calendarcounter;
 				document.calendars[calcount] = new Array("retract_year${DOT}" + index, "retract_month${DOT}" + index, "retract_day${DOT}" + index, "chef_calendarhiddenfield" + calcount);
-			}
-			else if(root.id.match(/^metadataShown_[\S]+${DOT}\d+$/))
-			{
-				newElement.style.display = "none";
-			}
-			else if(root.id.match(/^metadataHidden_[\S]+${DOT}\d+$/))
-			{
-				newElement.style.display = "block";
 			}
 			else if(root.id.match(/^metadataDiv_[\S]+${DOT}\d+$/))
 			{
@@ -1352,62 +1308,6 @@
 						var index = element.id.substr(dot + 1);
 						selectHideOption(index);
 					}
-				}
-			}
-		}
-	}
-	function handleShowMetadata(evt)
-	{
-		evt = (evt) ? evt : ((event) ? event : null);
-		if(evt)
-		{
-			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
-			if(element)
-			{
-				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
-				if(element.id)
-				{
-					var identifier = element.id.substr("showMetadata".length);
-					if(identifier.match(/^Image/))
-					{
-						identifier = identifier.substr("Image".length);
-					}
-					var metadataShownGraph = document.getElementById("metadataShown" + identifier);
-					var metadataHiddenGraph = document.getElementById("metadataHidden" + identifier);
-					var metadataDiv = document.getElementById("metadataDiv" + identifier);
-					metadataShownGraph.style.display = "block";
-					metadataHiddenGraph.style.display = "none";
-					metadataDiv.style.display = "block";
-					resizeFrame('grow');
-				}
-			}
-		}
-	}
-	function handleHideMetadata(evt)
-	{
-		evt = (evt) ? evt : ((event) ? event : null);
-		if(evt)
-		{
-			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
-			if(element)
-			{
-				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
-				if(element.id)
-				{
-					var identifier = element.id.substr("hideMetadata".length);
-					if(identifier.match(/^Image/))
-					{
-						identifier = identifier.substr("Image".length);
-					}
-					var metadataShownGraph = document.getElementById("metadataShown" + identifier);
-					var metadataHiddenGraph = document.getElementById("metadataHidden" + identifier);
-					var metadataDiv = document.getElementById("metadataDiv" + identifier);
-					metadataShownGraph.style.display = "none";
-					metadataHiddenGraph.style.display = "block";
-					metadataDiv.style.display = "none";
-					resizeFrame('grow');
 				}
 			}
 		}
