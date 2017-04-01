@@ -146,7 +146,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
                                                                 .collect(Collectors.joining(";")));
             }            
 
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
             notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
             log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
             log.info("Submitted timed assessment assessmentId=" + eventLogData.getAssessmentId() + " userEid=" + eventLogData.getUserEid() + " siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId());
