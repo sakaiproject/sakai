@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang.LocaleUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
