@@ -1200,11 +1200,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 
 		    
 		    if(userUuids != null) {
-		    	try {
-		    		group.deleteMembers();
-		    	} catch (IllegalStateException e) {
-		    		log.error(".createGroup: Members from group with id {} cannot be deleted because the group is locked", group.getId());
-		    	}
+		    	group.removeMembers();
 		    			    	
 		    	for(String userUuid: userUuids) {
 		    		group = addUserToGroup(userUuid, group);
@@ -1274,13 +1270,8 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				
 					//remove the differences from group members
 					for (String mem: tmpUsers){
-						try {
-							group.deleteMember(mem);
-						} catch (IllegalStateException e) {
-							log.error(".addUsersToGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mem, group.getId());
-							return false;
-						}
-					}
+						group.removeMember(mem);
+						}			 
 				}
 
 				siteService.save(site);
@@ -1370,18 +1361,16 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		Group group = site.getGroup(groupId);
 		
 		try {
-			group.deleteMember(userId);
+			group.removeMember(userId);
 			siteService.save(site);
 			
 			return true;
 			
-		} catch (IllegalStateException e) {
-			log.error(".removeUserFromGroup: User with id {} cannot be deleted from group with id {} because the group is locked", userId, group.getId());
 		} catch (Exception e) {
-			log.error("removeUserFromGroup failed for user: " + userId + " and group: " + groupId, e);
-		} finally {
-			disableSecurityAdvisor(securityAdvisor);
-		}
+        	log.error("removeUserFromGroup failed for user: " + userId + " and group: " + groupId, e);
+        } finally {
+        	disableSecurityAdvisor(securityAdvisor);
+        }
 		
 		return false;
 	}
@@ -1478,11 +1467,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		//Each user should be marked as non provided
 		//Get role first from site definition. 
 		//However, if the user is inactive, getUserRole would return null; then use member role instead
-		try {
-			group.insertMember(userUuid, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
-		} catch (IllegalStateException e) {
-			log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userUuid, group.getId());
-		}
+		group.addMember(userUuid, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
 		
 		return group;
 	}

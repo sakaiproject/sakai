@@ -366,11 +366,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 Role role = site.getUserRole(userId);
                 Member m = site.getMember(userId);
                 if (group.getUserRole(userId) == null && role != null) {
-                    try {
-                        group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
-                    } catch (IllegalStateException e) {
-                        throw e;
-                    }
+                    group.addMember(userId, role.getId(), m != null ? m.isActive() : true, false);
                 }
             }
 
@@ -423,11 +419,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             }
             group = site.getGroup(groupId);
             checkGroupType(group);
-            try {
-                site.deleteGroup(group);
-            } catch (IllegalStateException e) {
-                throw e;
-            }
+            site.removeGroup(group);
             try {
                 siteService.save(site);
             } catch (IdUnusedException e) {
@@ -1159,13 +1151,9 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
      *            Group to trim
      * @return
      */
-    protected Group trimGroupUsers(Group grp) throws IllegalStateException {
+    protected Group trimGroupUsers(Group grp) {
         Group newGrp = grp;
-        try {
-            newGrp.deleteMembers();
-        } catch (IllegalStateException e) {
-            log.error(".trimGroupUsers: Members from group with id {} cannot be deleted because the group is locked", newGrp.getId());
-        }
+        newGrp.removeMembers();
         return newGrp;
     }
 

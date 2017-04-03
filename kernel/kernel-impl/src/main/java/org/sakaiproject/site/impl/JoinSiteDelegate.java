@@ -339,12 +339,8 @@ public class JoinSiteDelegate
                     	}
                     	
                     	// try adding the user to the group
-                        try {
-                            site.getGroup(joinerGroupId).insertMember(user.getId(), site.getJoinerRole(), true, false);
-                            siteService.saveGroupMembership(site);
-                        } catch (IllegalStateException e) {
-                            log.error(".addJoinerToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", user.getId(), site.getGroup(joinerGroupId).getId());
-                        }
+                        site.getGroup(joinerGroupId).addMember(user.getId(), site.getJoinerRole(), true, false);
+                        siteService.saveGroupMembership(site);
                     }
                     catch(Exception e)
                     {

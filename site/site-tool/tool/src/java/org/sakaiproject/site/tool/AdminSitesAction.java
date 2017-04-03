@@ -1830,11 +1830,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		// if the page was new, remove it
 		if ("true".equals(state.getAttribute("newGroup")))
 		{
-			try {
-				site.deleteGroup(group);
-			} catch (IllegalStateException e) {
-				M_log.error(".doCancel_group: Group with id {} cannot be removed because is locked", group.getId());
-			}
+			site.removeGroup(group);
 		}
 
 		// %%% do we need the old group around for a restore; did we already modify it? - ggolden
@@ -1858,11 +1854,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		Group group = (Group) state.getAttribute("group");
 
 		// remove the page (no confirm)
-		try {
-			site.deleteGroup(group);
-		} catch (IllegalStateException e) {
-			M_log.error(".doRemove_group: Group with id {} cannot be removed because is locked", group.getId());
-		}
+		site.removeGroup(group);
 
 		// done with the page
 		state.removeAttribute("group");

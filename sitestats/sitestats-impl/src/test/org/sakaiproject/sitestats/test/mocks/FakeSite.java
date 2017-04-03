@@ -280,11 +280,6 @@ public class FakeSite implements Site {
 
 	}
 
-	public void deleteGroup(Group arg0) throws IllegalStateException {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void removePage(SitePage arg0) {
 		// TODO Auto-generated method stub
 

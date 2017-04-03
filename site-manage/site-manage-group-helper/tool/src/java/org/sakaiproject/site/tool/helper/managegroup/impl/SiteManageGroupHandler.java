@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.StringJoiner;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -358,12 +357,7 @@ public class SiteManageGroupHandler {
 
 				}
 				if (!found) {
-					try {
-						group.deleteMember(mId);
-					} catch (IllegalStateException e) {
-						M_log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
-						return null;
-					}
+					group.removeMember(mId);
 				}
 			}
 
@@ -380,14 +374,9 @@ public class SiteManageGroupHandler {
                     // non-provided
                     // get role first from site definition.
                     // However, if the user is inactive, getUserRole would return null; then use member role instead
-                    try {
-                        group.insertMember(memberId, r != null ? r.getId()
+                    group.addMember(memberId, r != null ? r.getId()
                                               : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
                                               false);
-                    } catch (IllegalStateException e) {
-                        M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
-                        return null;
-                    }
                 }
             }
 	            
@@ -438,32 +427,15 @@ public class SiteManageGroupHandler {
     {
     	// reset the warning messages
     	resetTargettedMessageList();
-
-    	// Trick to refresh site
-    	site = null;
-    	this.init();
-
+    	
     	if (site != null)
     	{
-            List<String> notDeletedGroupsTitles = new ArrayList<String>();
             for( String groupId : deleteGroupIds )
             {
                 Group g = site.getGroup(groupId);
                 if (g != null) {
-                    try {
-                        site.deleteGroup(g);
-                    } catch (IllegalStateException e) {
-                        notDeletedGroupsTitles.add(g.getTitle());
-                        M_log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
-                    }
+                    site.removeGroup(g);
                 }
-            }
-            if (!notDeletedGroupsTitles.isEmpty()) {
-                StringJoiner groupsTitles = new StringJoiner(", ");
-                for (String groupTitle:notDeletedGroupsTitles) {
-                    groupsTitles.add(groupTitle.toString());
-                }
-                messages.addMessage(new TargettedMessage("deletegroup.notallowed.groups.remove", new Object[]{groupsTitles.toString()}, TargettedMessage.SEVERITY_ERROR));
             }
 			try {
 				siteService.save(site);

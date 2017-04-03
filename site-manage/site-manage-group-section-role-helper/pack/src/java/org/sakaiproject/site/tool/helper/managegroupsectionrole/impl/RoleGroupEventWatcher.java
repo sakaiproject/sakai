@@ -245,11 +245,7 @@ public class RoleGroupEventWatcher implements Observer
 										{
 											if (m.getRole().getId().equals(role))
 											{
-												try {
-													g.deleteMember(m.getUserId());
-												} catch (IllegalStateException e) {
-													log.error(".update: User with id {} cannot be deleted from group with id {} because the group is locked", m.getUserId(), g.getId());
-												}
+												g.removeMember(m.getUserId());
 											}
 										}
 										
@@ -259,11 +255,7 @@ public class RoleGroupEventWatcher implements Observer
 										{
 											for(String userId:roleUserSet)
 											{
-												try {
-													g.insertMember(userId, role.trim(), true, false);
-												} catch (IllegalStateException e) {
-													log.error(".update: User with id {} cannot be inserted in group with id {} because the group is locked", userId, g.getId());
-												}
+												g.addMember(userId, role.trim(), true, false);
 											}
 										}
 									}

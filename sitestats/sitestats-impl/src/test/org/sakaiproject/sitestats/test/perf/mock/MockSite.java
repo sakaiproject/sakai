@@ -553,12 +553,6 @@ public class MockSite implements Site {
 	}
 
 	@Override
-	public void deleteGroup(Group group) throws IllegalStateException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public boolean isCustomPageOrdered() {
 		// TODO Auto-generated method stub
 		return false;
