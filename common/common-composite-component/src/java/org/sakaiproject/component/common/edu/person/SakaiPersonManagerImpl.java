@@ -47,6 +47,7 @@ import org.sakaiproject.api.common.type.TypeManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.common.manager.PersistableHelper;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -335,7 +336,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 			
 				
 			
-			eventTrackingService.post(eventTrackingService.newEvent("profile.update", ref, true));
+			eventTrackingService.post(eventTrackingService.newEvent(PROFILE_UPDATE, ref, true));
 			
 			
 			LOG.debug("User record updated for Id :-" + spi.getAgentUuid());
@@ -362,8 +363,11 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 	}
 
 	private String getReference(SakaiPerson spi) {
-		String ref = "/profile/type/" + spi.getTypeUuid() + "/id/" + spi.getAgentUuid();
-		return ref;
+		StringBuilder sb = new StringBuilder(Entity.SEPARATOR);
+		sb.append("profile").append(Entity.SEPARATOR).append("type").append(Entity.SEPARATOR)
+			.append(spi.getTypeUuid()).append(Entity.SEPARATOR).append("id")
+			.append(Entity.SEPARATOR).append(spi.getAgentUuid());
+		return sb.toString();
 	}
 
 	/**
@@ -600,7 +604,7 @@ public class SakaiPersonManagerImpl extends HibernateDaoSupport implements Sakai
 		
 		LOG.debug("getHibernateTemplate().delete(sakaiPerson);");
 		getHibernateTemplate().delete(sakaiPerson);
-		eventTrackingService.post(eventTrackingService.newEvent("profile.delete", ref, true));
+		eventTrackingService.post(eventTrackingService.newEvent(PROFILE_DELETE, ref, true));
 		
 	}
 
