@@ -1450,17 +1450,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			if (parts.length >= 3)
 			{
 				boolean authDropboxGroupsCheck=true;
-				String ref = null;
-				if (id != null)
-				{
-					ref = getReference(id);
-				}
-				
+				String ref = getReference(id);
+
 				if (parts.length>=4)
 				{
 					//Http servlet access to dropbox resources
 					String userId=parts[3];
-					if ((userId==null) || isDropboxMaintainer() || (!isDropboxOwnerInCurrentUserGroups(ref,userId)))
+					if ((userId==null) || isDropboxMaintainer(parts[2]) || (!isDropboxOwnerInCurrentUserGroups(ref,userId)))
 					{
 						authDropboxGroupsCheck=false;
 					}
@@ -10362,8 +10358,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public boolean isDropboxMaintainer(String siteId)
 	{
-		String dropboxId = null;
-
 		// make sure we are in a worksite, not a workspace
 		if (m_siteService.isUserSite(siteId) || m_siteService.isSpecialSite(siteId))
 		{
