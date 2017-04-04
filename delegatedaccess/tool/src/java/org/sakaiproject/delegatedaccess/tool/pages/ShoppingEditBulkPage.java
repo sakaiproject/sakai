@@ -49,8 +49,8 @@ import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
-import org.sakaiproject.delegatedaccess.utils.DateUtil;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.util.DateFormatterUtil;
 
 public class ShoppingEditBulkPage extends BasePage{
 	
@@ -666,12 +666,12 @@ public class ShoppingEditBulkPage extends BasePage{
 	private void setISODates(){
 		String shoppingVisibilityStart = getRequest().getRequestParameters().getParameterValue(HIDDEN_SHOPPINGVISIBILITYSTART_ISO8601).toString("");
 		String shoppingVisibilityEnd = getRequest().getRequestParameters().getParameterValue(HIDDEN_SHOPPINGVISIBILITYEND_ISO8601).toString("");
-		if(DateUtil.isValidISODate(shoppingVisibilityStart)){
-			startDate = DateUtil.parseISODate(shoppingVisibilityStart);
+		if(DateFormatterUtil.isValidISODate(shoppingVisibilityStart)){
+			startDate = DateFormatterUtil.parseISODate(shoppingVisibilityStart);
 		}
 
-		if(DateUtil.isValidISODate(shoppingVisibilityEnd)){
-			endDate = DateUtil.parseISODate(shoppingVisibilityEnd);
+		if(DateFormatterUtil.isValidISODate(shoppingVisibilityEnd)){
+			endDate = DateFormatterUtil.parseISODate(shoppingVisibilityEnd);
 		}
 	}
 }

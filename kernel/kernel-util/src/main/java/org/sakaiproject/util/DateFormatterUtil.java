@@ -18,36 +18,34 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.delegatedaccess.utils;
+package org.sakaiproject.util;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 
-import org.sakaiproject.time.cover.TimeService;
 /**
  * Performs date validation respecting i18n.<br>
  * <b>Note:</b> This class does not support "hi_IN", "ja_JP_JP" and "th_TH" locales.
  */
-public final class DateUtil {
+public final class DateFormatterUtil {
 
 	private static DateTimeFormatter isoFormatter = DateTimeFormatter.ISO_ZONED_DATE_TIME;
 
-	private DateUtil() {
+	private DateFormatterUtil() {
 	}
 
 	/**
-	 * Performs date validation checking the ISO_ZONED_DATE_TIME format such as '2011-12-03T10:15:30+01:00[Europe/Paris]'.
+	 * Performs date validation checking the ISO_ZONED_DATE_TIME format such as '2017-12-03T10:15:30+01:00[Europe/Paris]'.
 	 *
 	 * @param date
 	 *            The candidate String date.
-	 * @return TRUE - Conforms to a valid input date format string.<br>
+	 * @return TRUE - Conforms to a valid input date format string.
 	 *         FALSE - Does not conform.
 	 */
 	public static boolean isValidISODate(final String date) {
@@ -60,22 +58,22 @@ public final class DateUtil {
 	}
 	
 	/**
-	 * Parse the date string input using the ISO_ZONED_DATE_TIME format such as '2011-12-03T10:15:30+01:00[Europe/Paris]'.
+	 * Parse the date string input using the ISO_ZONED_DATE_TIME format such as '2017-12-03T10:15:30+01:00[Europe/Paris]'.
 	 * 
 	 * @param inputDate
 	 *            The string that needs to be parsed.
 	 * 
-	 * @throws DateTimeParseException 
+	 * @throws Exception 
 	 * 			If not a valid date compared to ISO_ZONED_DATE_TIME format
 	 */
-	public static Date parseISODate(final String inputDate) throws DateTimeParseException  {
+	public static Date parseISODate(final String inputDate) {
 		Date convertedDate = null;
 
 		try {
 			LocalDateTime ldt = LocalDateTime.parse(inputDate, isoFormatter);
-	    	convertedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
-		} catch (DateTimeParseException  e) {
-			throw new DateTimeParseException (e.getMessage(), inputDate, 0);
+			convertedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+		} catch (Exception  e) {
+			e.printStackTrace();
 		}
 
 		return convertedDate;
@@ -90,14 +88,19 @@ public final class DateUtil {
 	 * @param locale
 	 *            The given locale.
 	 * @throws ParseException
-	 * 			If not a valid date compared to ISO_ZONED_DATE_TIME format
+	 * 			If throws a parse exception then returns the SHORT format by default (MM/dd/yyyy hh:mm a)
 	 */
-	public static String format(Date inputDate, String format, Locale locale){
-    	SimpleDateFormat formatter = null;
-    	try{
+	public static String format(Date inputDate, String format, Locale locale) {
+		SimpleDateFormat formatter = null;
+
+		if(inputDate == null){
+			return null;
+		}
+
+		try {
 			formatter = new SimpleDateFormat(format, locale);
 			return formatter.format(inputDate);
-		}catch(Exception ex){
+		} catch(Exception ex) {
 			formatter = (SimpleDateFormat) DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.US);
 			return formatter.format(inputDate);
 		}

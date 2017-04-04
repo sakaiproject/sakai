@@ -76,7 +76,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.podcasts.util.DateUtil;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
@@ -160,7 +160,7 @@ public class podHomeBean {
 			String dispDate = null;
 			
 			if (displayDateRevise == null) {
-				return DateUtil.format(this.getEditDate(), DATEPICKER_EDIT_FORMAT, rb.getLocale());
+				return DateFormatterUtil.format(this.getEditDate(), DATEPICKER_EDIT_FORMAT, rb.getLocale());
 			}
 			else {
 				return displayDateRevise;
@@ -634,7 +634,7 @@ public class podHomeBean {
 		if (! uiHidden || getHasHidden()) {
 			podcastInfo = new DecoratedPodcastBean();
 
-			podcastInfo.setDisplayDate(DateUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
+			podcastInfo.setDisplayDate(DateFormatterUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
 
 			podcastInfo.setEditDate(tempDate);
 
@@ -704,7 +704,7 @@ public class podHomeBean {
 
 			tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 
-			podcastInfo.setPostedDatetime(DateUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
+			podcastInfo.setPostedDatetime(DateFormatterUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
 
 			// get author
 			podcastInfo.setAuthor(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
@@ -1226,7 +1226,7 @@ public class podHomeBean {
 				Date displayDate = null;
 
 				try {
-					displayDate = DateUtil.parseISODate(date);
+					displayDate = DateFormatterUtil.parseISODate(date);
 				} 
 				catch (DateTimeParseException e1) {
 					// Now it's invalid, so set error message and stay on page
@@ -1431,8 +1431,8 @@ public class podHomeBean {
 
 		try {
 			try {
-				if (DateUtil.isValidISODate(editedISODate)) {
-					displayDateRevise = DateUtil.parseISODate(editedISODate);
+				if (DateFormatterUtil.isValidISODate(editedISODate)) {
+					displayDateRevise = DateFormatterUtil.parseISODate(editedISODate);
 				}
 				else {
 					throw new DateTimeParseException("Invalid displayDate stored in selectedPodcast", editedISODate, 0);
@@ -1719,7 +1719,7 @@ public class podHomeBean {
 		else {
 			displayNoDateErrMsg = false;
 
-			if (DateUtil.isValidISODate(date)) {
+			if (DateFormatterUtil.isValidISODate(date)) {
 				displayInvalidDateErrMsg = false;
 			} 
 			else {

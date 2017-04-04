@@ -48,6 +48,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditMeeting;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * <p>
@@ -588,14 +589,14 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
-		if(Utilities.isValidISODate(isoStartTime)){
-			this.signupMeeting.setStartTime(Utilities.parseISODate(isoStartTime));
+		if(DateFormatterUtil.isValidISODate(isoStartTime)){
+			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
 		}
 
 		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
-		if(Utilities.isValidISODate(isoEndTime)){
-			this.signupMeeting.setEndTime(Utilities.parseISODate(isoEndTime));
+		if(DateFormatterUtil.isValidISODate(isoEndTime)){
+			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
 		}
 
 		Date eventEndTime = this.signupMeeting.getEndTime();

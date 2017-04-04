@@ -30,7 +30,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.utils.DateUtil;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * This is the shopping period date field for shopping period admins
@@ -51,10 +51,10 @@ public class EditablePanelDate  extends Panel{
 		super(id);
 
 		if (startDate && nodeModel.getNodeShoppingPeriodStartDate() != null) {
-			dateTextField = DateUtil.format(nodeModel.getNodeShoppingPeriodStartDate(), DATEPICKER_FORMAT, getSession().getLocale());
+			dateTextField = DateFormatterUtil.format(nodeModel.getNodeShoppingPeriodStartDate(), DATEPICKER_FORMAT, getSession().getLocale());
 		}
 		if (!startDate && nodeModel.getShoppingPeriodEndDate() != null) {
-			dateTextField = DateUtil.format(nodeModel.getNodeShoppingPeriodEndDate(), DATEPICKER_FORMAT, getSession().getLocale());
+			dateTextField = DateFormatterUtil.format(nodeModel.getNodeShoppingPeriodEndDate(), DATEPICKER_FORMAT, getSession().getLocale());
 		}
 
 		final TextField date = new TextField<String>("dateTextField", new PropertyModel<String>(this, "dateTextField")){
@@ -82,14 +82,14 @@ public class EditablePanelDate  extends Panel{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)
 			{
-				if (DateUtil.isValidISODate(hiddenDateTextField) && hiddenDateTextField != null){
-					Date hiddenDate = DateUtil.parseISODate(hiddenDateTextField);
+				if (DateFormatterUtil.isValidISODate(hiddenDateTextField) && hiddenDateTextField != null){
+					Date hiddenDate = DateFormatterUtil.parseISODate(hiddenDateTextField);
 					if(startDate){
 						nodeModel.setShoppingPeriodStartDate(hiddenDate);
-						dateTextField = DateUtil.format(hiddenDate, DATEPICKER_FORMAT, getSession().getLocale());
+						dateTextField = DateFormatterUtil.format(hiddenDate, DATEPICKER_FORMAT, getSession().getLocale());
 					}else{
 						nodeModel.setShoppingPeriodEndDate(hiddenDate);
-						dateTextField = DateUtil.format(hiddenDate, DATEPICKER_FORMAT, getSession().getLocale());
+						dateTextField = DateFormatterUtil.format(hiddenDate, DATEPICKER_FORMAT, getSession().getLocale());
 					}
 
 					//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",

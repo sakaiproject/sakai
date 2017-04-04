@@ -22,9 +22,7 @@
 package org.sakaiproject.chat2.tool;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,7 +41,6 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -74,6 +71,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.DirectRefreshDelivery;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -670,7 +668,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String getDatesMessage() {
        String msg = null;
        if (this.currentChannel != null) {
-           DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
            if (this.currentChannel.getStartDate() != null && this.currentChannel.getEndDate() != null) {
                msg = getMessageFromBundle("custom_date_display", 
                        new Object[] {TimeService.newTime(this.currentChannel.getStartDate().getTime()).toStringLocalDate(), 
@@ -804,12 +801,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
            String startISODate = params.get(HIDDEN_START_ISO_DATE);
            String endISODate = params.get(HIDDEN_END_ISO_DATE);
-           if(DateUtil.isValidISODate(startISODate)){
-                channel.setStartDate(DateUtil.parseISODate(startISODate));
+           if(DateFormatterUtil.isValidISODate(startISODate)){
+                channel.setStartDate(DateFormatterUtil.parseISODate(startISODate));
            }
 
-           if(DateUtil.isValidISODate(endISODate)){
-                channel.setEndDate(DateUtil.parseISODate(endISODate));
+           if(DateFormatterUtil.isValidISODate(endISODate)){
+                channel.setEndDate(DateFormatterUtil.parseISODate(endISODate));
            }
 
            if (validateChannel(channel))
