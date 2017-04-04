@@ -252,6 +252,11 @@ $icon-size: 20px !default;
 
 
 
+// Overview page column widths. Total to add
+// up to 96% as the columns have a margin.
+$col1of2-width: 64% !default;
+$col2of2-width: 32% !default;
+
 /* Icon Overrides */
 //$sakai-custom-icons : ( sakai-message-bundle-manager : ( extend : fa-edit ) );
 
