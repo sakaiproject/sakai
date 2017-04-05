@@ -1,7 +1,6 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +21,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -38,6 +36,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -50,6 +49,7 @@ import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.delegatedaccess.utils.DateUtil;
 import org.sakaiproject.site.api.Site;
 
 public class ShoppingEditBulkPage extends BasePage{
@@ -61,14 +61,16 @@ public class ShoppingEditBulkPage extends BasePage{
 	private String deleteSitesInput = "", addSitesInput = "";
 	private AjaxFallbackDefaultDataTable deleteTable, addTable;
 	private TextArea<String> deleteSitesInputField, addSitesInputField;
-	private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 	private Date startDate, endDate;
 	private boolean singleRoleOptions = false;
 	private List<ListOptionSerialized> selectedAnonTools = new ArrayList<ListOptionSerialized>();
 	private List<ListOptionSerialized> selectedAuthTools = new ArrayList<ListOptionSerialized>();
 	private Boolean revokeInstructorOverride = Boolean.FALSE;
 	private Boolean revokePublicOpt = Boolean.FALSE;
-	
+
+	private static String HIDDEN_SHOPPINGVISIBILITYSTART_ISO8601 = "shoppingVisibilityStartISO8601";
+	private static String HIDDEN_SHOPPINGVISIBILITYEND_ISO8601 = "shoppingVisibilityEndISO8601";
+
 	public ShoppingEditBulkPage(){
 		disableLink(shoppingAdminLink);
 		//Form Feedback (Saved/Error)
@@ -251,26 +253,10 @@ public class ShoppingEditBulkPage extends BasePage{
 		form.add(addTable);
 		
 		//Start Date:
-		form.add(new DateTextField("shoppingVisibilityStart", new PropertyModel(this, "startDate"), format.toPattern()){
-			@Override
-			protected void onComponentTag(ComponentTag tag) {
-				super.onComponentTag(tag);
-				tag.append("size", "12", "");
-				tag.append("readonly", "readonly", "");
-				tag.append("class", "datePicker", " ");
-			}
-		});
+		form.add(new TextField<String>("shoppingVisibilityStart", Model.of("")));
 		
 		//End Date:
-		form.add(new DateTextField("shoppingVisibilityEnd", new PropertyModel(this, "endDate"), format.toPattern()){
-			@Override
-			protected void onComponentTag(ComponentTag tag) {
-				super.onComponentTag(tag);
-				tag.append("size", "12", "");
-				tag.append("readonly", "readonly", "");
-				tag.append("class", "datePicker", " ");
-			}
-		});
+		form.add(new TextField<String>("shoppingVisibilityEnd", Model.of("")));
 		//Roles:
 		//create a map of the realms and their roles for the Role column
 		final Map<String, String> roleMap = projectLogic.getRealmRoleDisplay(true);
@@ -349,6 +335,7 @@ public class ShoppingEditBulkPage extends BasePage{
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
 				IModel errorMessage = null;
+				setISODates();
 				//first check that all the settings are set:
 				if(deleteSites.size() == 0 && addSites.size() == 0){
 					//at least one site must be added to the delete or add list
@@ -674,6 +661,18 @@ public class ShoppingEditBulkPage extends BasePage{
 			errorMessage.setObject(new ResourceModel("noSitesInInput").getObject());
 		}
 		return returnList;
+	}
+
+	private void setISODates(){
+		String shoppingVisibilityStart = getRequest().getRequestParameters().getParameterValue(HIDDEN_SHOPPINGVISIBILITYSTART_ISO8601).toString("");
+		String shoppingVisibilityEnd = getRequest().getRequestParameters().getParameterValue(HIDDEN_SHOPPINGVISIBILITYEND_ISO8601).toString("");
+		if(DateUtil.isValidISODate(shoppingVisibilityStart)){
+			startDate = DateUtil.parseISODate(shoppingVisibilityStart);
+		}
+
+		if(DateUtil.isValidISODate(shoppingVisibilityEnd)){
+			endDate = DateUtil.parseISODate(shoppingVisibilityEnd);
+		}
 	}
 }
 

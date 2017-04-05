@@ -6,15 +6,27 @@
 				$(document).ready(function() {
 					$( "#tabs" ).tabs();
 					$( "#shoppingtabs" ).tabs();
-					$('.datePicker').datepicker({
-						dateFormat: 'mm/dd/yy',
-						defaultDate: new Date(),
-						hideIfNoPrevNext: true,
-						showOn: 'both', 
-						/*buttonImage: '/library/image/silk/calendar.png',*/
-						
+
+					localDatePicker({
+						input: '#shoppingVisibilityStart',
+						useTime: 0,
+						parseFormat: 'YYYY-MM-DD',
+						allowEmptyDate: true,
+						ashidden: {
+							iso8601: 'shoppingVisibilityStartISO8601'
+						}
 					});
-					
+
+					localDatePicker({
+						input: '#shoppingVisibilityEnd',
+						useTime: 0,
+						parseFormat: 'YYYY-MM-DD',
+						allowEmptyDate: true,
+						ashidden: {
+							iso8601: 'shoppingVisibilityEndISO8601'
+						}
+					});
+
 					//make the select box pretty:
 					$("#showAuthTools").asmSelect({selectClass: "shoppingSetting showAuthTools", removeClass: "asmListItemRemove shoppingSetting"})
 					.each(function(index){
@@ -137,7 +149,7 @@
 							<span style="font-weight: bold"><wicket:message key="startDate"/></span>
 						</td>
 						<td>
-							<input type="text" wicket:id="shoppingVisibilityStart"/>
+							<input wicket:id="shoppingVisibilityStart" id="shoppingVisibilityStart" type="text" />
 						</td>
 					</tr>
                     <tr>
@@ -145,7 +157,7 @@
                         	<span style="font-weight: bold"><wicket:message key="endDate"/></span>
                         </td>
                         <td>
-							<input type="text" wicket:id="shoppingVisibilityEnd"/>
+							<input wicket:id="shoppingVisibilityEnd" id="shoppingVisibilityEnd" type="text" />
 						</td>
 					</tr>
 					<wicket:enclosure child="shoppingRole">
