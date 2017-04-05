@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +116,9 @@ public class ZipLoader implements CartridgeLoader {
 	  ZipEntry entry;
 	  while ((entry = zis.getNextEntry())!=null) {
 	      log.info("zip name " + entry.getName());
-	      File target=new File(root, entry.getName());
+	      //Fix the path to be correct for the system extracting it to
+	      String fileName = FilenameUtils.separatorsToSystem(entry.getName());
+	      File target=new File(root, fileName);
 	      // not sure if you can put things like .. into a zip file, but be careful
 	      if (!target.getCanonicalPath().startsWith(rootPath))
 		  throw new FileNotFoundException(target.getCanonicalPath());
