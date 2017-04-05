@@ -1166,8 +1166,8 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		//User has access to. May need to make sure they have TA role in those sections
 		if (permsForGroupsAnyCategory.isEmpty()){
 			if(!sections.isEmpty()) {
-				Permission perm = new Permission();
 				for(Object obj: sections){
+					Permission perm = new Permission();
 					CourseSection section = (CourseSection) obj;
 					perm.setFunction(GraderPermission.GRADE.toString());
 					perm.setUserId(userId);
