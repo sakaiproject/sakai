@@ -2,12 +2,6 @@
 
 //.#{$namespace}
 .is-logged-out{
-	#content, .#{$namespace}container--footer{
-		margin: 0 0 0 0;
-		@media #{$phone}{
-			margin: 6.5em 0 0 0;
-		}
-	}
 	.#{$namespace}topHeader {
 		@media #{$phone}{
 			&.moving{
@@ -35,10 +29,6 @@
 	margin: 0;
 	width: 100%;
 
-	@media #{$phone}{
-		margin: 6.5em 0 0;
-	}
-
 	@media #{$nonPhone} {
 		#col1of2, #col2of2{
 			margin: 0 0 0 1%;
@@ -57,6 +47,13 @@
 .#{$namespace}mainContent{
 	background: $main-content-background;
 	padding-top: 1em;
+}
+
+#content {
+	@media #{$phone}{
+		margin: 0;
+		padding-top: 2em; // make way for the button container
+	}
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{

@@ -17,7 +17,7 @@ body.is-logged-out{
 
 .#{$namespace}mainHeader{
 		box-shadow: $divider-shadow;
-		margin-bottom: 4px;
+		position: relative;
 
 	.#{$namespace}headerLogo{
 		width: 100%;
@@ -235,33 +235,117 @@ body.is-logged-out{
 			margin-right: 1em;
 			border-right: 1px solid #F0F0F0;
 			white-space: nowrap;
-			i, #roleSwitchSelect {
+
+				@media #{$phone} {
+					&.menu-not-setup {
+						display: none;
+					}
+				}
+
+			// Show as a menu on mobile
+			#roleSwitchDropDownToggle {
+				display: none;
+
+				@media #{$phone} {
+					display: block;
+				}
+
 				vertical-align: middle;
-				line-height: 1.3em;
-			}
-			#roleSwitchAnchor {
 				text-decoration: none;
 
 				i {
-					margin-right: 4px;
+					font-size: 1.33333em;
+					vertical-align: -15%;
 				}
 
-				&:hover, &:active {
-					color: $topNav-text-color;
+				&:hover {
+					text-decoration: none;
+					color: #FFF;
+					text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+				}
+			}
 
-					span {
-						text-decoration: underline;
+			#roleSwitchDropDown {
+				@media #{$phone} {
+					position: absolute;
+					left: -100000000;
+					height: 1px;
+					width: 1px;
+					overflow: hidden;
+
+					> i {
+						display: none;
 					}
+				}
 
-					i {
-						text-decoration: none;
-						text-shadow: 0 0 5px rgba(165, 165, 165, 0.95); /* same as profile picture hover */
+				@media #{$nonPhone} {
+					> i {
+						display: inline-block;
+						vertical-align: middle;
+					}
+					.#{$namespace}roleSwitch__anchor {
+						display: inline-block;
+					}
+				}
+
+				line-height: 1em;
+				display: inline-block;
+
+				@media #{$phone} {
+					&.open {
+						left: auto;
+						height: auto;
+						width: auto;
+						background: #FAFAFA;
+						box-shadow: 2px 2px 4px rgba(33,33,33,0.35);
+						padding: 1em;
+						z-index: 50;
+						overflow: visible;
+						min-width: 180px;
+						margin-top: 4px;
+
+						&:after {
+							bottom: 100%;
+							right: 21px;
+							border: solid transparent;
+							content: " ";
+							height: 0;
+							width: 0;
+							position: absolute;
+							pointer-events: none;
+							border-color: rgba(255,255,255,0);
+							border-bottom-color: #FAFAFA;
+							border-width: 7px;
+							margin-left: -7px;
+							outline: 0;
+						}
+
+						a {
+							display: inline-block;
+						}
 					}
 				}
 			}
-			@media #{$phone} {
-				i {
-					display: none;
+
+			#roleSwitchAnchor {
+				text-decoration: none;
+				@media #{$phone} {
+					color: $primary-color;
+				}
+
+				@media #{$nonPhone} {
+					color: $topNav-text-color;
+					display: inline-block;
+				}
+
+				&:hover, &:active {
+					span {
+						text-decoration: underline;
+					}
+				}
+
+				&.#{$namespace}roleSwitch__exit {
+					color: $topNav-text-color;
 				}
 			}
 		}
@@ -442,7 +526,7 @@ body.is-logged-out{
 			}
 			@media #{$phone}
 			{
-				margin-right: 1em;
+				margin-right: 0;
 			}
 		}
 		.#{$namespace}userNav__pic-changer{
@@ -667,7 +751,7 @@ body.is-logged-out{
 	vertical-align: middle;
 }
 
-.all-sites-icon, .tools-icon
+.all-sites-icon
 {
 	/* Using !important here because CKEditor pulls in its own
 		fontawesome.css which adjusts the size of our icon unless

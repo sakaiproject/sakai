@@ -120,7 +120,7 @@
 				border-bottom: 1px solid $tool-tab-active-background-color !important;
 				color: $primary-color;
 				&:hover{
-					background: $tool-tab-active-border-color;
+					background: $tool-tab-active-background-color;
 					color: $primary-color;
 				}
 			}
@@ -136,7 +136,14 @@
 	}
 }
 
-@mixin sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color ){
+@mixin sakai_button(	$button-text-color,
+											$button-icon-color,
+											$button-background-color,
+											$button-border-color,
+											$button-hover-text-color,
+											$button-hover-icon-color,
+											$button-hover-background-color,
+											$button-hover-border-color) {
 	background: $button-background-color;
 	border: 1px solid $button-border-color;
 	color: $button-text-color !important;
@@ -144,22 +151,36 @@
 	display: inline-block;
 	font-family: $font-family;
 	font-size: #{ $default-font-size - 2 };
-	letter-spacing: 0.8px;
 	line-height: 18px;
 	margin: 0.5em 0.8em 0.5em 0;
 	padding: 0.4em 0.8em 0.45em 0.8em;
 	text-decoration: none !important;
 	@include appearance(none);
-	@include border-radius(3px);
-	&:hover{
-		text-decoration: none;
-		background: linear-gradient( $button-background-secondary-color, $button-background-color );
+	@include border-radius($button-radius);
+
+	&:before { // icon
+		color: $button-icon-color;
 	}
+
+	&:hover{
+		color: $button-hover-text-color !important;
+		text-decoration: none;
+		background: $button-hover-background-color;
+		border-color: $button-hover-border-color;
+
+		&:before { // icon
+			color: $button-hover-icon-color;
+		}
+	}
+
 	&:active{
 		outline: 0;
+		color: $button-hover-text-color !important;
 		text-decoration: none;
-		background: linear-gradient( $button-background-color, $button-background-secondary-color );
+		background: $button-hover-background-color;
+		border-color: $button-hover-border-color;
 	}
+
 	&[disabled="disabled"],&[disabled],&[disabled="true"]{
 		background: $button-background-color;
 		color: lighten( $button-text-color, 5% );
@@ -168,27 +189,44 @@
 	}
 }
 
+
+@mixin sakai_primary_button() {
+	@include sakai_button(	$button-primary-text-color,
+													$button-primary-text-color,
+													$button-primary-background-color,
+													$button-primary-border-color,
+													$button-primary-hover-text-color,
+													$button-primary-hover-text-color,
+													$button-primary-hover-background-color,
+													$button-primary-hover-border-color);
+}
+
+@mixin sakai_secondary_button() {
+	@include sakai_button(	$button-secondary-text-color,
+													$button-secondary-icon-color,
+													$button-secondary-background-color,
+													$button-secondary-border-color,
+													$button-secondary-hover-text-color,
+													$button-secondary-hover-icon-color,
+													$button-secondary-hover-background-color,
+													$button-secondary-hover-border-color);
+}
+
+
 @mixin sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color ){
-	@include sakai_button( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
-	position: relative;
-	&:hover{
-		background: linear-gradient( $button-color-background-color, $button-color-background-secondary-color );
-	}
-	&:active{
-		background: linear-gradient( $button-color-background-secondary-color, $button-color-background-color );
-	}
+	@include sakai_primary_button();
 }
 
 .button_color, button, button.btn-primary {
-	@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
+	@include sakai_primary_button();
 }
 
 .button, button.ui-state-default, .btn.btn-default {
-	@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
+	@include sakai_secondary_button();
 }
 
 .button.link, a.btn-link, button.btn-link {
-	@include sakai_button( $link-background-color, $link-background-color, $link-color, $link-hover-background-color );
+	@include sakai_secondary_button();
 }
 
 .btn-group .btn {

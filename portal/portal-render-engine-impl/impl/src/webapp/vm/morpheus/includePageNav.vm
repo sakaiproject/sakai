@@ -20,7 +20,7 @@
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
 				<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav" style='display: none;'>
-					<i class="fa fa-lg fa-angle-double-left"></i>
+					<i class="fa fa-lg fa-angle-double-left" aria-hidden="true"></i>
 				</li>
 			#set( $categoryMap = {})
 			#set( $categoryList = [])

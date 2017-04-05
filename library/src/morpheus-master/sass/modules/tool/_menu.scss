@@ -1,6 +1,5 @@
 .navIntraTool{
 	margin: -14px -14px 0 -14px;
-	background: $tool-background-color;
 	border-bottom: 1px solid $tool-border-color;
 	padding: 0 1em 0 0;
 	//max-width: calc(100% - 170px);
@@ -13,29 +12,34 @@
 	li{
 		display: inline-block;
 		font-size: $default-font-size;
-		margin: 0 0 0 0;
+		margin: 0 -1px 0 0;
 		span{
 			display: inline;
 			a{
 				background: $tool-tab-background-color;
-				border-top: 1px solid $tool-border-color;
-				border-left: 1px solid $tool-border-color;
-				border-right: 1px solid $tool-border-color;
-				color: $tool-nav-link-color;
+				border-top: 1px solid $tool-tab-border-color;
+				border-left: 1px solid $tool-tab-border-color;
+				border-right: 1px solid $tool-tab-border-color;
+				color: $tool-tab-text-color;
+				font-size: $tool-tab-text-size;
+				font-weight: $tool-tab-text-weight;
 				display: block;
 				margin: 0;
 				padding: 0 0.6em;
-				line-height: 2.5em;
-				height: 2.5em;
+				line-height: $tool-tab-height;
+				height: $tool-tab-height;
 				text-decoration: none;
+				text-transform: $tool-tab-text-transform;
+				letter-spacing: $tool-tab-text-letter-spacing;
 
 				&:hover{
-					color: $swapped-view-text-color;
+					color: $tool-tab-hover-text-color;
+					background: $tool-tab-hover-background-color;
 					text-decoration: none;
 					position: relative;
 
 					&:before{
-						border-top: 4px solid $swapped-view-text-color;
+						border-top: 4px solid $tool-tab-hover-highlight-color;
 						content: "";
 						display: block;
 						position: absolute;
@@ -46,22 +50,37 @@
 			  }
 			}
 			&.current{
-				background-color: $tool-background-color;
+				color: $tool-tab-active-text-color;
+				font-size: $tool-tab-active-text-size;
+				background-color: $tool-tab-active-background-color;
+				border-top: 1px solid $tool-tab-border-color;
+				border-left: 1px solid $tool-tab-border-color;
+				border-right: 1px solid $tool-tab-border-color;
 				position: relative;
 				margin: 0;
 				padding: 0 0.6em;
-				line-height: 2.5em;
-				height: 2.5em;
+				line-height: $tool-tab-height;
+				height: $tool-tab-height;
 				display: block;
+				margin-bottom: -1px;
 
 				&:before {
-					border-top: 4px solid $swapped-view-text-color;
+					border-top: 4px solid $tool-tab-active-highlight-color;
 					content: "";
 					display: block;
 					position: absolute;
 					left: -1px;
 					right: -1px;
 					top: -1px;
+				}
+				&:after{
+					border-bottom: 1px solid $tool-tab-active-background-color;
+					content: '';
+					display: block;
+					position: absolute;
+					left: 0;
+					right: 0;
+					bottom: -1px;
 				}
 				a{
 				    border: 0px none;

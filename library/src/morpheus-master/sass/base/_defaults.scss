@@ -9,7 +9,7 @@ body{
 	&.#{$namespace}portalBody{
 		background-color: $body-background-color;
 		@media #{$phone}{
-			padding: 2.8em 0 0 0;
+			padding: $banner-height 0 0 0;
 		}
 	}
 }
