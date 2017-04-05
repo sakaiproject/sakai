@@ -9,9 +9,13 @@ import java.util.Date;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.routines.DoubleValidator;
+import org.sakaiproject.util.ResourceLoader;
 
 @Slf4j
 public class FormatHelper {
+
+	private static ResourceLoader rl = new ResourceLoader();
 
 	/**
 	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
@@ -102,7 +106,7 @@ public class FormatHelper {
 		try {
 			final Double d = Double.parseDouble(grade);
 
-			final DecimalFormat df = new DecimalFormat();
+			final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
 			df.setMinimumFractionDigits(0);
 			df.setGroupingUsed(false);
 
@@ -164,5 +168,27 @@ public class FormatHelper {
 	 */
 	public static String abbreviateMiddle(final String s) {
 		return StringUtils.abbreviateMiddle(s, "...", 45);
+	}
+
+	/**
+	 * Validate if a string is a valid Double using the specified Locale.
+	 *
+	 * @param value - The value validation is being performed on.
+	 * @return true if the value is valid
+	 */
+	public static boolean isValidDouble(String value) {
+		DoubleValidator dv = new DoubleValidator();
+		return dv.isValid(value, rl.getLocale());
+	}
+
+	/**
+	 * Validate/convert a Double using the user's Locale.
+	 *
+	 * @param value - The value validation is being performed on.
+	 * @return The parsed Double if valid or null if invalid.
+	 */
+	public static Double validateDouble(String value) {
+		DoubleValidator dv = new DoubleValidator();
+		return dv.validate(value, rl.getLocale());
 	}
 }

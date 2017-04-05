@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -200,9 +199,7 @@ public class GradeItemCellPanel extends BasePanel {
 					clearNotifications();
 
 					// perform validation here so we can bypass the backend
-					final DoubleValidator validator = new DoubleValidator();
-
-					if (StringUtils.isNotBlank(rawGrade) && (!validator.isValid(rawGrade) || Double.parseDouble(rawGrade) < 0)) {
+					if (StringUtils.isNotBlank(rawGrade) && FormatHelper.validateDouble(rawGrade)!= null && (!FormatHelper.isValidDouble(rawGrade) || FormatHelper.validateDouble(rawGrade) < 0)) {
 						// show warning and revert button
 						markWarning(getComponent());
 						target.add(page.updateLiveGradingMessage(getString("feedback.error")));
