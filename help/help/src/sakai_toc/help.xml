@@ -1071,9 +1071,6 @@
     <property name="location">
       <value>/sakai_screensteps_resourcesAdministratorGuide/What-Resources-are-specific-to-admin-users-.html</value>
     </property>
-    <property name="defaultForTool">
-      <value>sakai.resources</value>
-    </property>
   </bean>
   <bean id="searchAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
     <property name="name">
@@ -1094,9 +1091,6 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_searchAdministratorGuide/Search-Administration.html</value>
-    </property>
-    <property name="defaultForTool">
-      <value>sakai.search</value>
     </property>
   </bean>
   <bean id="siteArchiveAdministratorGuide" class="org.sakaiproject.component.app.help.model.CategoryBean">
@@ -1449,7 +1443,7 @@
       <value>/sakai_screensteps_userMembershipAdministratorGuide/What-is-User-Membership-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.usermembership</value>
+      <value>sakai.membership</value>
     </property>
   </bean>
   <bean id="howdoIsearchforanaccountinUserMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -2147,7 +2141,7 @@
       <value>/sakai_screensteps_calendarUserGuide/What-is-the-Calendar-tool-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.calendar</value>
+      <value>sakai.schedule</value>
     </property>
   </bean>
   <bean id="howdoIcustomizemyCalendardisplay" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -2366,7 +2360,7 @@
       <value>/sakai_screensteps_contactUsUserGuide/What-is-the-Contact-Us-tool-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.contactUs</value>
+      <value>sakai.feedback</value>
     </property>
   </bean>
   <bean id="howdoIusetheContactUstool" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -2929,7 +2923,7 @@
       <value>/sakai_screensteps_gradebookUserGuide/What-is-Gradebook-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.gradebook.tool</value>
+      <value>sakai.gradebookng</value>
     </property>
   </bean>
   <bean id="howdoIviewandorganizeinformationinGradebook" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3241,7 +3235,7 @@
       <value>/sakai_screensteps_homeUserGuide/What-is-Home-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.home</value>
+      <value>sakai.iframe.myworkspace</value>
     </property>
   </bean>
   <bean id="whatisSiteNavigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3276,6 +3270,9 @@
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Message-of-the-Day-.html</value>
     </property>
+    <property name="defaultForTool">
+      <value>sakai.motd</value>
+    </property>
   </bean>
   <bean id="whatistheHomeCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
@@ -3286,6 +3283,9 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/What-is-the-Home-Calendar-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.summary.calendar</value>
     </property>
   </bean>
   <bean id="whatistheHomeInformationDisplay" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3309,6 +3309,9 @@
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/What-are-the-Home-Recent-Announcements-.html</value>
     </property>
+    <property name="defaultForTool">
+      <value>sakai.synoptic.announcements</value>
+    </property>
   </bean>
   <bean id="whataretheHomeMessageCenterNotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
@@ -3319,6 +3322,9 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/What-are-the-Home-Message-Center-Notifications-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.synoptic.messagecenter</value>
     </property>
   </bean>
   <bean id="whatisMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3342,6 +3348,9 @@
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/How-do-I-view-and-edit-my-account-details-.html</value>
     </property>
+    <property name="defaultForTool">
+      <value>sakai.singleuser</value>
+    </property>
   </bean>
   <bean id="whatisthePreferencestool" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
@@ -3352,6 +3361,9 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_homeUserGuide/What-is-the-Preferences-tool-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.preferences</value>
     </property>
   </bean>
   <bean id="whataretheResourcesinHome" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3881,7 +3893,7 @@
       <value>/sakai_screensteps_newsUserGuide/What-is-the-News-tool-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.news</value>
+      <value>sakai.simple.rss</value>
     </property>
   </bean>
   <bean id="howdoIaddaNewstool" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5662,7 +5674,7 @@
       <value>/sakai_screensteps_testsandQuizzesUserGuide/What-is-the-Tests---Quizzes-tool-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.testsandQuizzes</value>
+      <value>sakai.samigo</value>
     </property>
   </bean>
   <bean id="howdoIcreateanassessmentinTestsandQuizzes" class="org.sakaiproject.component.app.help.model.ResourceBean">
