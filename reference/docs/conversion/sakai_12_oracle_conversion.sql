@@ -473,3 +473,6 @@ CREATE OR REPLACE TRIGGER bullhorn_alerts_bir
         INTO   :new.id
         FROM   dual;
     END;
+
+-- SAK-32417 Forums permission composite index
+CREATE INDEX MFR_COMPOSITE_PERM ON MFR_PERMISSION_LEVEL_T (TYPE_UUID, NAME);
