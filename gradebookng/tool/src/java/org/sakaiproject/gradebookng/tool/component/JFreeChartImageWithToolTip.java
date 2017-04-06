@@ -40,6 +40,8 @@ public class JFreeChartImageWithToolTip extends NonCachingImage {
 		this.imageMapId = imageMapId;
 		this.width = width;
 		this.height = height;
+
+		setOutputMarkupId(true);
 	}
 
 	@Override

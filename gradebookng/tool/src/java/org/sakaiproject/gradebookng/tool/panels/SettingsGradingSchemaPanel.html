@@ -48,11 +48,29 @@
 						</div>
 						
 						<div class="col pull-right gb-schema-chart">
-							
+													
 							<!-- chart -->
 							<div>
 								<img wicket:id="chart" usemap="#tooltip"></img>
 							</div>
+			
+							<!--  other stats -->
+							<dl class="dl-horizontal">
+								<dt><wicket:message key="label.statistics.coursegrade.average"></wicket:message></dt>
+								<dd wicket:id="average"></dd>
+								<dt><wicket:message key="label.statistics.coursegrade.median"></wicket:message></dt>
+								<dd wicket:id="median"></dd>
+								<dt><wicket:message key="label.statistics.coursegrade.deviation"></wicket:message></dt>
+								<dd wicket:id="deviation"></dd>
+								<dt><wicket:message key="label.statistics.coursegrade.lowest"></wicket:message></dt>
+								<dd wicket:id="lowest"></dd>
+								<dt><wicket:message key="label.statistics.coursegrade.highest"></wicket:message></dt>
+								<dd wicket:id="highest"></dd>
+								<dt><wicket:message key="label.statistics.coursegrade.graded"></wicket:message></dt>
+								<dd wicket:id="graded"></dd>
+							</dl>
+							
+							<div class="messageWarning"><wicket:message key="settingspage.gradingschema.refresh" /></div>
 							
 							<wicket:enclosure child="studentsWithCourseGradeOverrides">
 								<div class="instruction">

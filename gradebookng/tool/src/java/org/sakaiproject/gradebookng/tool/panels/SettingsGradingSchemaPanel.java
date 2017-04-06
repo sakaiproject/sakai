@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -73,6 +75,11 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * List of {@link CourseGrade} cached here as it is used by a few components
 	 */
 	Map<String, CourseGrade> courseGradeMap;
+
+	/**
+	 * Count of grades for the chart
+	 */
+	int total;
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -193,9 +200,34 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
-		// add the chart
-		final JFreeChart chart = getChartData();
-		settingsGradingSchemaPanel.add(new JFreeChartImageWithToolTip("chart",  Model.of(chart), "tooltip", 540, 300));
+		//get the courser grade map as we are about to use it a lot
+		this.courseGradeMap = getCourseGrades();
+
+		// chart
+		final JFreeChart chartData = getChartData();
+		final JFreeChartImageWithToolTip chart = new JFreeChartImageWithToolTip("chart",  Model.of(chartData), "tooltip", 700, 400);
+		settingsGradingSchemaPanel.add(chart);
+
+		// other stats
+		//TODO this could be in a panel/fragment of its own
+		final DescriptiveStatistics stats = calculateStatistics();
+
+		if (this.total > 0) {
+			settingsGradingSchemaPanel.add(new Label("average", stats.getMean()));
+			settingsGradingSchemaPanel.add(new Label("median", stats.getPercentile(50)));
+			settingsGradingSchemaPanel.add(new Label("lowest", stats.getMin()));
+			settingsGradingSchemaPanel.add(new Label("highest", stats.getMax()));
+			settingsGradingSchemaPanel.add(new Label("deviation", stats.getStandardDeviation()));
+		} else {
+			settingsGradingSchemaPanel.add(new Label("average", "-"));
+			settingsGradingSchemaPanel.add(new Label("median", "-"));
+			settingsGradingSchemaPanel.add(new Label("lowest", "-"));
+			settingsGradingSchemaPanel.add(new Label("highest", "-"));
+			settingsGradingSchemaPanel.add(new Label("deviation", "-"));
+		}
+
+		settingsGradingSchemaPanel.add(new Label("graded", String.valueOf(this.total)));
+
 
 		//if there are course grade overrides, add the list of students
 		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
@@ -212,6 +244,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				return !usersWithOverrides.isEmpty();
 			}
 		});
+
 	}
 
 	/**
@@ -304,11 +337,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	private JFreeChart getChartData() {
 
-		// get course grade data according to currently selected
-		if(this.courseGradeMap == null) {
-			this.courseGradeMap = getCourseGrades();
-		}
-
 		// just need the list
 		final List<CourseGrade> courseGrades = this.courseGradeMap.values().stream().collect(Collectors.toList());
 
@@ -324,7 +352,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		});
 
 		// now add the count of each course grade for those schema entries
-		//int totalCounted = 0;
+		this.total = 0;
 		for(final CourseGrade g: courseGrades) {
 
 			// course grade may not be released so we have to skip it
@@ -333,7 +361,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 
 			counts.put(g.getMappedGrade(), counts.get(g.getMappedGrade()) + 1);
-			//totalCounted++;
+			this.total++;
 		}
 
 		// build the data with x-axis inverted
@@ -373,7 +401,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// show only integers in the count axis
 		plot.getRangeAxis().setStandardTickUnits(new NumberTickUnitSource(true));
+
+		//make x-axis wide enough so we don't get ... suffix
+		plot.getDomainAxis().setMaximumCategoryLabelWidthRatio(2.0f);
+
 		plot.setBackgroundPaint(Color.white);
+
+		chart.setTitle(getString("settingspage.gradingschema.chart.heading"));
 
 		return chart;
 	}
@@ -384,9 +418,6 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @return
 	 */
 	private List<GbUser> getStudentsWithCourseGradeOverrides() {
-		if(this.courseGradeMap == null) {
-			this.courseGradeMap = getCourseGrades();
-		}
 
 		// get all users with course grade overrides
 		final List<String> userUuids = this.courseGradeMap.entrySet().stream()
@@ -410,10 +441,31 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @return
 	 */
 	private Map<String, CourseGrade> getCourseGrades() {
+
 		final List<String> studentUuids = this.businessService.getGradeableUsers();
 		final Map<String,CourseGrade> rval = this.businessService.getCourseGrades(studentUuids);
 		return rval;
 	}
+
+
+	/**
+	 * Calculates stats based on the calculated course grade values
+	 * @return
+	 */
+	private DescriptiveStatistics calculateStatistics() {
+
+		final List<Double> grades = this.courseGradeMap.values().stream().map(c -> NumberUtils.toDouble(c.getCalculatedGrade())).collect(Collectors.toList());
+
+		final DescriptiveStatistics stats = new DescriptiveStatistics();
+
+		grades.forEach(g -> {
+			stats.addValue(g);
+		});
+
+		return stats;
+	}
+
+
 
 }
 
