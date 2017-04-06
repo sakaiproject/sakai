@@ -57,6 +57,8 @@ import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
+import org.sakaiproject.gradebookng.tool.panels.StudentExtraInfoCellPanel;
+import org.sakaiproject.gradebookng.tool.panels.StudentExtraInfoColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
@@ -279,6 +281,39 @@ public class GradebookPage extends BasePage {
 
 		};
 		cols.add(studentNameColumn);
+
+		// student extra info optional column
+		String extraStudentProperty = this.businessService.getExtraStudentProperty();
+		if (StringUtils.isNotBlank(extraStudentProperty)) {
+			final AbstractColumn studentExtraInfoColumn = new AbstractColumn(new Model("")) {
+	
+				@Override
+				public Component getHeader(final String componentId) {
+					return new StudentExtraInfoColumnHeaderPanel(componentId, Model.of(settings.getStudentExtraInfoSortOrder()), extraStudentProperty);
+				}
+	
+				@Override
+				public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+					final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+					final Map<String, String> studentProps = studentGradeInfo.getStudentExtraProperties();
+					String studentProperty = "";
+					if (studentProps.containsKey(extraStudentProperty)) {
+						studentProperty = studentProps.get(extraStudentProperty);
+					}
+	
+					final Map<String, Object> modelData = new HashMap<>();
+					modelData.put("extraStudentProperty", studentProperty);
+					cellItem.add(new StudentExtraInfoCellPanel(componentId, Model.ofMap(modelData)));
+				}
+	
+				@Override
+				public String getCssClass() {
+					return "gb-student-extrainfo-cell";
+				}
+	
+			};
+			cols.add(studentExtraInfoColumn);
+		}
 
 		// course grade column
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);

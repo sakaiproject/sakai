@@ -1026,6 +1026,18 @@ public class GradebookNgBusinessService {
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
+		if (settings.getStudentExtraInfoSortOrder() != null) {
+
+			Comparator<GbStudentGradeInfo> comp = new StudentExtraInfoComparator(this.getExtraStudentProperty());
+			// reverse if required
+			if (settings.getStudentExtraInfoSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+			// sort
+			Collections.sort(items, comp);
+		}
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by student extra info", stopwatch.getTime());
+
 		return items;
 	}
 
@@ -1959,4 +1971,12 @@ public class GradebookNgBusinessService {
 		return iconClass;
 	}
 
+	/**
+	 * Helper to see if institution wants to display extra student information in All Grades display.
+	 * Example: student internal id that would help the instructor grade.
+	 * @return property name if available or null
+	 */
+	public String getExtraStudentProperty() {
+		return this.serverConfigurationService.getString("gradebook.extra.student.property", null);
+	}
 }
