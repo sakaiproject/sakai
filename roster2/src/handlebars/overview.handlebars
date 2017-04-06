@@ -2,11 +2,11 @@
 	<span class="instruction rosterTitleMessage">{{translate 'title_msg'}}</span>
 {{/if}}
 
-<div id="roster-filters" class="row">
+<div id="roster-filters">
     {{#if viewGroup}}
-    <div class="form-group col-sm-6">
-        <label for="roster-groups-selector-top" class="form-control-label col-sm-3">{{translate 'groups'}}</label>
-        <div class="col-sm-4">
+    <div class="form-group" id="roster-group-selector-wrapper">
+        <label for="roster-groups-selector-top" class="form-control-label">{{translate 'groups'}}</label>
+        <div>
             <select id="roster-groups-selector-top">
                 <option value="all">{{translate 'roster_sections_all'}}</option>
                 {{#each siteGroups}}
@@ -16,9 +16,9 @@
         </div>
     </div>
     {{/if}}
-    <div class="form-group col-sm-6">        
-        <label for="roster-roles-selector" class="form-control-label col-sm-2">{{translate 'roles_label'}}</label>
-        <div class="col-sm-4">
+    <div class="form-group" id="roster-roles-selector-wrapper">        
+        <label for="roster-roles-selector" class="form-control-label">{{translate 'roles_label'}}</label>
+        <div>
             <select id="roster-roles-selector">
                 <option value="all">{{translate 'roster_sections_all'}}</option>
                 {{#each roles}}
@@ -29,10 +29,10 @@
     </div>
 </div>
 
-<div id="roster-search-group" class="row">
-    <div class="form-group col-sm-6">
-        <label for="roster-search-field" class="form-control-label col-sm-3">{{translate 'roster_search_text'}}</label>
-        <div class="col-sm-9">
+<div id="roster-search-group">
+    <div class="form-group">
+        <label for="roster-search-field" class="form-control-label">{{translate 'roster_search_text'}}</label>
+        <div>
             <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" name="roster_form_search" />
             <input id="roster-search-button" class="active" type="button" value="{{translate 'roster_search_button'}}" name="roster_form:search_button" />
             <input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" name="roster_form:clear_button" />		

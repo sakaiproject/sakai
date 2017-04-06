@@ -77,3 +77,39 @@ profile.ignoreFriendRequest = function (removerId, friendId) {
 
     return false;
 };
+
+/**
+ * Takes a jQuery array of the elements you want to attach a profile popup to. Each element must
+ * have a data attribute with the user's user UUID.
+ * @param jqArray An array of jQuery objects.
+ */
+profile.attachPopups = function (jqArray) {
+
+    if (!(jqArray instanceof jQuery)) {
+        console.log('profile.attachPopups takes a jQuery object array, from a selector');
+        return;
+    }
+
+    jqArray.each(function () {
+
+        var userId = this.dataset.userId;
+
+        $(this).qtip({
+            position: { viewport: $(window), adjust: { method: 'flipinvert none'} },
+            show: { event: 'click', delay: 0 },
+            style: { classes: 'profile-popup-qtip qtip-shadow' },
+            hide: { event: 'click unfocus' },
+            content: {
+                text: function (event, api) {
+
+                    return $.ajax( { url: "/direct/portal/" + userId + "/formatted", cache: false })
+                        .then(function (html) {
+                                return html;
+                            }, function (xhr, status, error) {
+                                api.set('content.text', status + ': ' + error);
+                            });
+                }
+            }
+        });
+    });
+};
