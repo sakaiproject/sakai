@@ -6601,7 +6601,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							} // for
 
  							// when importing, refer to property to determine draft status
-							if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+							if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
 							{
 								String draftAttribute = el2clone.getAttribute("draft");
 								if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
@@ -6767,7 +6767,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nAssignment.setContext(toContext);
 							
  							// when importing, refer to property to determine draft status
-							if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+							if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
 							{
 								nAssignment.setDraft(oAssignment.getDraft());
 							}
