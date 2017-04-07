@@ -4,6 +4,7 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.time.api.Time;
 
 import java.util.Comparator;
+import java.util.Date;
 
 /**
  * The AssignmentComparator class that sorts by the due date of the assignment.
@@ -20,8 +21,8 @@ public class AssignmentComparator implements Comparator<Assignment> {
         int result = -1;
 
         // sorted by the assignment due date
-        Time t1 = o1.getDueTime();
-        Time t2 = o2.getDueTime();
+        Date t1 = o1.getDueDate();
+        Date t2 = o2.getDueDate();
 
         if (t1 == null) {
             result = -1;
@@ -34,6 +35,4 @@ public class AssignmentComparator implements Comparator<Assignment> {
         }
         return result;
     }
-
-
 }

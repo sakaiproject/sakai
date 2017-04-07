@@ -26,9 +26,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -730,4 +732,10 @@ public interface AssignmentService extends EntityProducer {
     public String getCsvSeparator();
 
     String getXmlAssignment(Assignment assignment);
+
+    String getGradeForUserInGradeBook(String assignmentId, String userId);
+
+    String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
+
+    Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
 }

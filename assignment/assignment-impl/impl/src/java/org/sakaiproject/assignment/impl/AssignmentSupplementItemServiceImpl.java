@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 import java.util.Set;
+
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 
@@ -466,7 +468,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			AssignmentModelAnswerItem m = getModelAnswer(a.getId());
 			if (m != null)
 			{
-				if (m_assignmentService.allowGradeSubmission(a.getReference()))
+				if (m_assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference()))
 				{
 					// model answer is viewable to all graders
 					return true;
@@ -512,7 +514,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 				{
 					return true;
 				}
-				else if (m_assignmentService.allowGradeSubmission(a.getReference()))
+				else if (m_assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference()))
 				{
 					// check whether the instructor type can view the note
 					int share = note.getShareWith();
@@ -556,7 +558,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					// being creator can edit
 					return true;
 				}
-				else if (note.getShareWith() == AssignmentConstants.NOTE_READ_AND_WRITE_BY_OTHER && m_assignmentService.allowGradeSubmission(a.getReference()))
+				else if (note.getShareWith() == AssignmentConstants.NOTE_READ_AND_WRITE_BY_OTHER && m_assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference()))
 				{
 					return true;
 				}		

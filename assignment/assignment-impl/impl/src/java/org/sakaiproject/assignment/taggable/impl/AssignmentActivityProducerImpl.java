@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -120,10 +122,8 @@ public class AssignmentActivityProducerImpl implements
 				Assignment assignment = assignmentService.getAssignment(activityRef);
 				if (assignment != null)
 					activity = new AssignmentActivityImpl(assignment, this);
-			} catch (IdUnusedException iue) {
+			} catch (IdUnusedException | PermissionException iue) {
 				logger.error(iue.getMessage(), iue);
-			} catch (PermissionException pe) {
-				logger.error(pe.getMessage(), pe);
 			}
 		}
 		return activity;
@@ -154,10 +154,8 @@ public class AssignmentActivityProducerImpl implements
 				item = new AssignmentItemImpl(this, submission, parseAuthor(itemRef),
 						new AssignmentActivityImpl(submission.getAssignment(),
 								this));
-			} catch (IdUnusedException iue) {
+			} catch (IdUnusedException | PermissionException iue) {
 				logger.error(iue.getMessage(), iue);
-			} catch (PermissionException pe) {
-				logger.error(pe.getMessage(), pe);
 			}
 		}
 		return item;
@@ -170,7 +168,7 @@ public class AssignmentActivityProducerImpl implements
 		try {
 			Assignment assignment = (Assignment) activity.getObject();
 			AssignmentSubmission submission = assignmentService.getSubmission(
-					assignment.getReference(), userDirectoryService
+					new AssignmentEntity(assignment).getReference(), userDirectoryService
 							.getUser(userId));
 			if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
 				TaggableItem item = new AssignmentItemImpl(this, submission, userId,
@@ -193,14 +191,12 @@ public class AssignmentActivityProducerImpl implements
 		 * look at submission items. It seems that anybody is allowed to get any
 		 * submissions.
 		 */
-		if (assignmentService.allowGradeSubmission(assignment.getReference())) {
-			for (Iterator<AssignmentSubmission> i = assignmentService
-					.getSubmissions(assignment).iterator(); i.hasNext();) {
+		if (assignmentService.allowGradeSubmission(new AssignmentEntity(assignment).getReference())) {
+			for (Iterator<AssignmentSubmission> i = assignmentService.getSubmissions(assignment).iterator(); i.hasNext();) {
 				AssignmentSubmission submission = i.next();
 				if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
-					for (Object submitterId : submission.getSubmitterIds()) {
-						items.add(new AssignmentItemImpl(this, submission,
-								(String) submitterId, activity));
+					for (AssignmentSubmissionSubmitter submissionSubmitter : submission.getSubmitters()) {
+						items.add(new AssignmentItemImpl(this, submission, submissionSubmitter.getSubmitter(), activity));
 					}
 				}
 			}

@@ -1,14 +1,20 @@
 package org.sakaiproject.assignment.impl;
 
 import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
@@ -16,6 +22,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.assignment.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -40,6 +47,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
@@ -52,6 +60,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -63,8 +74,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AssignmentServiceImpl implements AssignmentService {
-    @Setter private boolean allowGroupAssignments;
-    @Setter private boolean allowGroupAssignmentsInGradebook;
+
+    private static ResourceLoader rb = new ResourceLoader("assignment");
+
     @Setter private AnnouncementService announcementService;
     @Setter private AssignmentActivityProducer assignmentActivityProducer;
     @Setter private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
@@ -92,6 +104,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
+
+    @Setter private boolean allowGroupAssignments;
+    @Setter private boolean allowGroupAssignmentsInGradebook;
 
     public void init() {
 
@@ -572,6 +587,138 @@ public class AssignmentServiceImpl implements AssignmentService {
         return assignmentRepository.toXML(assignment);
     }
 
+    @Override
+    public String getGradeForUserInGradeBook(String assignmentId, String userId) {
+        if (StringUtils.isAnyBlank(assignmentId, userId)) return null;
+
+        String rv = null;
+        Assignment m;
+        try {
+            m = getAssignment(assignmentId);
+        } catch (IdUnusedException | PermissionException e) {
+            log.warn("Could not get assignment with id = {}", assignmentId, e);
+            return null;
+        }
+
+        String gAssignmentName = StringUtils.trimToEmpty(m.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+        String gradebookUid = m.getContext();
+        org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = gradebookService.getAssignment(gradebookUid, gAssignmentName);
+        if (gradebookAssignment != null) {
+            final GradeDefinition def = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, gradebookAssignment.getId(), userId);
+            String gString = def.getGrade();
+            if (StringUtils.isNotBlank(gString)) {
+                try {
+                        String decSeparator = FormattedText.getDecimalSeparator();
+                        rv = StringUtils.replace(gString, (",".equals(decSeparator) ? "." : ","), decSeparator);
+                        NumberFormat nbFormat = FormattedText.getNumberFormat(new Double(Math.log10(m.getScaleFactor())).intValue(), new Double(Math.log10(m.getScaleFactor())).intValue(), false);
+                        DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                        Double dblGrade = dcformat.parse(rv).doubleValue();
+                        rv = nbFormat.format(dblGrade);
+                } catch (Exception e) {
+                    log.warn("Could not format grade [{}]", gString, e);
+                    return null;
+                }
+            }
+        }
+        return rv;
+    }
+
+    @Override
+    public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor) {
+        if (StringUtils.isBlank(grade)) return null;
+
+        if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE)
+        {
+            if (grade != null && grade.length() > 0 && !"0".equals(grade))
+            {
+                int dec = new Double(Math.log10(scaleFactor)).intValue();
+                String decSeparator = FormattedText.getDecimalSeparator();
+                String decimalGradePoint = "";
+                try
+                {
+                    Integer.parseInt(grade);
+                    // if point grade, display the grade with factor decimal place
+                    int length = grade.length();
+                    if (length > dec) {
+                        decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+                    }
+                    else {
+                        String newGrade = "0".concat(decSeparator);
+                        for (int i = length; i < dec; i++) {
+                            newGrade = newGrade.concat("0");
+                        }
+                        decimalGradePoint = newGrade.concat(grade);
+                    }
+                }
+                catch (NumberFormatException e) {
+                    try {
+                        Float.parseFloat(grade);
+                        decimalGradePoint = grade;
+                    }
+                    catch (Exception e1) {
+                        return grade;
+                    }
+                }
+                // get localized number format
+                NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);
+                DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                // show grade in localized number format
+                try {
+                    Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
+                    decimalGradePoint = nbFormat.format(dblGrade);
+                }
+                catch (Exception e) {
+                    return grade;
+                }
+                return decimalGradePoint;
+            }
+            else
+            {
+                return StringUtils.trimToEmpty(grade);
+            }
+        }
+        else if (typeOfGrade == Assignment.GradeType.UNGRADED_GRADE_TYPE) {
+            String ret = "";
+            if (grade != null) {
+                if (grade.equalsIgnoreCase("gen.nograd")) ret = rb.getString("gen.nograd");
+            }
+            return ret;
+        }
+        else if (typeOfGrade == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+            String ret = rb.getString("ungra");
+            if (grade != null) {
+                if (grade.equalsIgnoreCase("Pass")) ret = rb.getString("pass");
+                else if (grade.equalsIgnoreCase("Fail")) ret = rb.getString("fail");
+            }
+            return ret;
+        }
+        else if (typeOfGrade == Assignment.GradeType.CHECK_GRADE_TYPE) {
+            String ret = rb.getString("ungra");
+            if (grade != null) {
+                if (grade.equalsIgnoreCase("Checked")) ret = rb.getString("gen.checked");
+            }
+            return ret;
+        }
+        else
+        {
+            if (grade != null && grade.length() > 0)
+            {
+                return StringUtils.trimToEmpty(grade);
+            }
+            else
+            {
+                // return "ungraded" in stead
+                return rb.getString("ungra");
+            }
+        }
+    }
+
+    @Override
+    public Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission) {
+        Objects.requireNonNull(submission, "Submission cannot be null");
+        return submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
+    }
+
     private String getAccessPoint(boolean relative) {
         return (relative ? "" : serverConfigurationService.getAccessUrl()) + AssignmentServiceConstants.REFERENCE_ROOT;
     }
@@ -623,33 +770,4 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         return rv;
     }
-
-    public String getGradeForUserInGradeBook(String userId) {
-        String rv = null;
-        if (userId == null) {
-            userId = m_submitterId;
-        }
-        Assignment m = getAssignment();
-        String gAssignmentName = StringUtils.trimToEmpty(m.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-        String gradebookUid = m.getContext();
-        org.sakaiproject.service.gradebook.shared.Assignment gradebookAssignment = m_gradebookService.getAssignment(gradebookUid, gAssignmentName);
-        if (gradebookAssignment != null) {
-            final GradeDefinition def = m_gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, gradebookAssignment.getId(), userId);
-            String gString = def.getGrade();
-            try {
-                if (gString != null) {
-                    String decSeparator = FormattedText.getDecimalSeparator();
-                    rv = StringUtils.replace(gString, (",".equals(decSeparator) ? "." : ","), decSeparator);
-                    NumberFormat nbFormat = FormattedText.getNumberFormat((int) Math.log10(m.getContent().getFactor()), (int) Math.log10(m.getContent().getFactor()), false);
-                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
-                    Double dblGrade = dcformat.parse(rv).doubleValue();
-                    rv = nbFormat.format(dblGrade);
-                }
-            } catch (Exception e) {
-                M_log.warn(" BaseAssignmentSubmission getGradeFromGradeBook  " + e.getMessage());
-            }
-        }
-        return rv;
-    }
-
 }

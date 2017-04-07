@@ -1,26 +1,37 @@
 package org.sakaiproject.assignment.impl.sort;
 
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Sorts assignment submissions by the submitter's sort name.
  */
+@Slf4j
 public class AssignmentSubmissionComparator implements Comparator<AssignmentSubmission> {
-
-    private static Logger M_log = LoggerFactory.getLogger(AssignmentSubmissionComparator.class);
 
     private Collator collator;
     private SiteService siteService;
+    private AssignmentService assignmentService;
+    private UserDirectoryService userDirectoryService;
 
     public AssignmentSubmissionComparator(SiteService siteService) {
         this.siteService = siteService;
@@ -30,7 +41,7 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
             // error with init RuleBasedCollator with rules
             // use the default Collator
             collator = Collator.getInstance();
-            M_log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
+            log.warn("AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead.", e);
         }
     }
 
@@ -61,29 +72,31 @@ public class AssignmentSubmissionComparator implements Comparator<AssignmentSubm
      * get the submitter sortname String for the AssignmentSubmission object
      */
     private String getSubmitterSortname(Object o2) {
-        String rv = "";
+        StringBuffer buffer = new StringBuffer();
         if (o2 instanceof AssignmentSubmission) {
             // get Assignment
             AssignmentSubmission _submission = (AssignmentSubmission) o2;
-            if (_submission.getAssignment().isGroup()) {
+            if (_submission.getAssignment().getIsGroup()) {
                 // get the Group
                 try {
-                    Site _site = siteService.getSite(_submission.getAssignment().getContext());
-                    rv = _site.getGroup(_submission.getSubmitterId()).getTitle();
+                    Site site = siteService.getSite(_submission.getAssignment().getContext());
+                    // TODO handle optional
+                    buffer.append(site.getGroup(assignmentService.getSubmissionSubmittee(_submission).get().getSubmitter()).getTitle());
                 } catch (Throwable _dfd) {
                 }
             } else {
-                User[] users2 = ((AssignmentSubmission) o2).getSubmitters();
-                if (users2 != null) {
-                    StringBuffer users2Buffer = new StringBuffer();
-                    for (int i = 0; i < users2.length; i++) {
-                        users2Buffer.append(users2[i].getSortName() + " ");
+                for (AssignmentSubmissionSubmitter submitter : ((AssignmentSubmission) o2).getSubmitters()) {
+                    try {
+                        User user = userDirectoryService.getUser(submitter.getSubmitter());
+                        buffer.append(user.getSortName());
+                        buffer.append(" ");
+                    } catch (UserNotDefinedException e) {
+                        log.warn("Could not get user with id: {}", submitter.getSubmitter());
                     }
-                    rv = users2Buffer.toString();
                 }
             }
         }
-        return rv;
+        return buffer.toString();
     }
 
 }

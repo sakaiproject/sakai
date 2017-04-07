@@ -23,6 +23,8 @@ package org.sakaiproject.assignment.api.model;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +38,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -65,17 +68,10 @@ public class AssignmentSubmission {
 	@JoinColumn(name = "ASSIGNMENT_ID")
 	private Assignment assignment;
 
-	@ElementCollection
-	@CollectionTable(name = "ASN_SUBMISSION_SUBMITTERS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	@Column(name = "SUBMITTERS")
-	private Set<String> submitters;
+	@OneToMany(mappedBy = "submission")
+	private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
 	//private List submissionLog;
-
-	@ElementCollection
-	@CollectionTable(name = "ASN_SUBMISSION_GRADES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	@Column(name = "GRADES")
-	private Set<String> grades;
 
 	@Column(name = "SUBMITTED_DATE")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -89,9 +85,16 @@ public class AssignmentSubmission {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateModified;
 
-	//private List submittedAttachments;
+	@ElementCollection
+	@Column(name = "ATTACHMENT")
+	@CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+	private Set<String> submittedAttachments;
 
-	//private List feedbackAttachments;
+	// TODO combine submitted and feedback attachements into a single table
+	@ElementCollection
+	@Column(name = "FEEDBACK_ATTACHMENT")
+	@CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+	private List feedbackAttachments;
 
 	@Lob
 	@Column(name = "TEXT")

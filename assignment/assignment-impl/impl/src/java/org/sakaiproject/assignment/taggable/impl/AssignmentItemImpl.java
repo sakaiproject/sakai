@@ -22,7 +22,11 @@
 package org.sakaiproject.assignment.taggable.impl;
 
 import java.util.Date;
+import java.util.Set;
 
+import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -34,9 +38,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
-public class AssignmentItemImpl implements TaggableItem {
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
-	private static final Logger logger = LoggerFactory.getLogger(AssignmentItemImpl.class);
+@Slf4j
+public class AssignmentItemImpl implements TaggableItem {
 
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -49,6 +55,9 @@ public class AssignmentItemImpl implements TaggableItem {
 	protected TaggableActivity activity;
 
 	protected AssignmentActivityProducerImpl producer;
+
+	@Setter
+	private UserDirectoryService userDirectoryService;
 
 	public AssignmentItemImpl(AssignmentActivityProducerImpl producer, AssignmentSubmission submission, String userId,
 			TaggableActivity activity) {
@@ -72,7 +81,7 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	public String getReference() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(submission.getReference());
+		sb.append(new AssignmentEntity(submission.getAssignment()).getReference());
 		sb.append(ITEM_REF_SEPARATOR);
 		sb.append(userId);
 		return sb.toString();
@@ -88,7 +97,7 @@ public class AssignmentItemImpl implements TaggableItem {
 			sb.append(' ');
 			sb.append(rb.getString("gen.submission"));
 		} catch (UserNotDefinedException unde) {
-			logger.error(this + ":getTitle " + unde.getMessage());
+			log.error(this + ":getTitle " + unde.getMessage());
 		}
 		return sb.toString();
 	}
@@ -99,16 +108,16 @@ public class AssignmentItemImpl implements TaggableItem {
 	
 	public String getItemDetailUrl()
 	{
-		String subRef = submission.getReference().replaceAll("/", "_");
+		String subRef = new AssignmentEntity(submission.getAssignment()).getReference().replaceAll("/", "_");
 		String url = producer.serverConfigurationService.getServerUrl() +
-			"/direct/assignment/" + submission.getAssignmentId() + "/doView_grade/" + subRef;
+			"/direct/assignment/" + submission.getAssignment().getId() + "/doView_grade/" + subRef;
 		return url;
 	}
 	
 	public String getItemDetailPrivateUrl(){
-		String subRef = submission.getReference().replaceAll("/", "_");
+		String subRef = new AssignmentEntity(submission.getAssignment()).getReference().replaceAll("/", "_");
 		String url = producer.serverConfigurationService.getServerUrl() +
-			"/direct/assignment/" + submission.getAssignmentId() + "/doView_grade_private/" + subRef;
+			"/direct/assignment/" + submission.getAssignment().getId() + "/doView_grade_private/" + subRef;
 		return url;
 	}
 	
@@ -128,12 +137,15 @@ public class AssignmentItemImpl implements TaggableItem {
 	
 	public String getOwner() {
 		String owner = null;
-		User[] submitters = ((AssignmentSubmission)getObject()).getSubmitters();
-		for (User submitter : submitters) {
-			if (owner != null)
-				owner = owner + ", " + submitter.getDisplayName();
-			else
-				owner = submitter.getDisplayName();
+		Set<AssignmentSubmissionSubmitter> submitters = ((AssignmentSubmission)getObject()).getSubmitters();
+		for (AssignmentSubmissionSubmitter submitter : submitters) {
+			try {
+				User user = userDirectoryService.getUser(submitter.getSubmitter());
+				owner =  owner != null ? owner + ", " + user.getDisplayName() : user.getDisplayName();
+			} catch (UserNotDefinedException e) {
+				log.warn("User not find for id: {}", submitter.getSubmitter());
+				owner = submitter.getSubmitter();
+			}
 		}
 		return owner;
 	}
@@ -158,7 +170,7 @@ public class AssignmentItemImpl implements TaggableItem {
 		try {
 			site = producer.siteService.getSite(siteId);
 		} catch (IdUnusedException e) {
-			logger.warn("Failed to find site for ID of: "+ siteId);
+			log.warn("Failed to find site for ID of: "+ siteId);
 		}
 		return site;
 	}

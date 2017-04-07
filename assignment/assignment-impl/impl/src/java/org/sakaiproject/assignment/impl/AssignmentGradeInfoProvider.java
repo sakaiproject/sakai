@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -128,7 +129,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
             List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(azgList, userId);
             visible = (matched.size() > 0);
         } else {
-            visible = securityService.unlock(userId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, a.getReference());
+            visible = securityService.unlock(userId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, new AssignmentEntity(a).getReference());
         }
         return visible;
     }
@@ -137,7 +138,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         List<String> externalIds = new ArrayList<String>();
         List<Assignment> assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
         for (Assignment a : assignments) {
-            externalIds.add(a.getReference());
+            externalIds.add(new AssignmentEntity(a).getReference());
         }
         return externalIds;
     }
@@ -152,7 +153,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         List<String> externalIds = new ArrayList<String>();
         List<Assignment> assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
         for (Assignment a : assignments) {
-            externalIds.add(a.getReference());
+            externalIds.add(new AssignmentEntity(a).getReference());
         }
         return externalIds;
     }
@@ -165,7 +166,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
         Map<Assignment, List<String>> submitters = assignmentService.getSubmittableAssignmentsForContext(gradebookUid);
         for (Assignment assignment : submitters.keySet()) {
-            String externalId = assignment.getReference();
+            String externalId = new AssignmentEntity(assignment).getReference();
             for (String userId : submitters.get(assignment)) {
                 if (allExternals.containsKey(userId)) {
                     allExternals.get(userId).add(externalId);

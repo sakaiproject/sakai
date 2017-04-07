@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.taggable.impl;
 
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
@@ -62,7 +63,7 @@ public class AssignmentActivityImpl implements TaggableActivity {
 	}
 
 	public String getReference() {
-		return assignment.getReference();
+		return new AssignmentEntity(assignment).getReference();
 	}
 
 	public String getTitle() {

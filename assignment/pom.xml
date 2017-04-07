@@ -17,7 +17,8 @@
     <module>assignment-api/api</module>
     <module>assignment-bundles</module>
     <module>assignment-impl/impl</module>
-    <module>assignment-tool/tool</module>
+    <!-- TODO remember to uncomment -->
+    <!-- module>assignment-tool/tool</module -->
   </modules>
 
   <dependencyManagement>

@@ -12,6 +12,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,12 +27,17 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class AssignmentEntity implements Entity {
+
     @Setter private AssignmentService assignmentService;
+    @Setter private EntityManager entityManager;
     @Setter private ServerConfigurationService serverConfigurationService;
-    @Setter private Assignment assignment;
+
+    private Assignment assignment;
+    private Reference reference;
 
     public AssignmentEntity(Assignment assignment) {
         this.assignment = assignment;
+        reference = entityManager.newReference(getAccessPoint(false));
     }
 
     @Override
@@ -40,7 +47,7 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public String getReference() {
-        return null;
+        return reference.getReference();
     }
 
     @Override
@@ -55,7 +62,7 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public String getId() {
-        return assignment.getId();
+        return reference.getId();
     }
 
     @Override
