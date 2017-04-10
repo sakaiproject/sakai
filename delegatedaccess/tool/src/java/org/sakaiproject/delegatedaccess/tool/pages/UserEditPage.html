@@ -68,6 +68,10 @@
 		.filterMatch{
 			background-color: yellow;
 		}
+		
+		.delegatedAccessTree .row {
+			margin: 0;
+		}
     </style>
 </wicket:head>
 
@@ -111,7 +115,7 @@
 		</div>
 	</form>
 	<form wicket:id="form">
-        <div wicket:id="treeTable" class="my-tree">
+        <div wicket:id="treeTable" class="my-tree delegatedAccessTree">
         </div>
         <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
     </form>
