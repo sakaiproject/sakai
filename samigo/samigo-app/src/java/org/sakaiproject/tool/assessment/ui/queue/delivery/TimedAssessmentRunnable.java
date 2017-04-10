@@ -150,7 +150,7 @@ public class TimedAssessmentRunnable implements Runnable {
 
             notiValues.put( "confirmationNumber", confirmationNumber );
 
-            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED,
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED,
                notiValues.toString(),
                siteId,
                true,
