@@ -669,8 +669,9 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 	margin: 0;
 }
 
-.jsfFormTable td .shorttext label{
+.jsfFormTable td .shorttext .syllabusLabel{
 	width: 17em;
+	display: inline-block;
 }
 
 .jsfFormTable td .required input {
