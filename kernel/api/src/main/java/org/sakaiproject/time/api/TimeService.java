@@ -41,7 +41,7 @@ public interface TimeService
 	 * Get a time object.
 	 * 
 	 * @return A time object, set to now.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTime();
 
@@ -51,7 +51,7 @@ public interface TimeService
 	 * @param value
 	 *        time format string.
 	 * @return A time object.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTimeGmt(String value);
 
@@ -61,7 +61,7 @@ public interface TimeService
 	 * @param value
 	 *        time long milliseconds value.
 	 * @return A time object.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTime(long value);
 
@@ -69,7 +69,7 @@ public interface TimeService
 	 * Get a time object, based on the time set in the calendar
 	 * 
 	 * @return A time object, set to now.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTime(GregorianCalendar cal);
 
@@ -91,7 +91,7 @@ public interface TimeService
 	 * @param millisecond
 	 *        millisecond in second (0..999)
 	 * @return A time object.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTimeGmt(int year, int month, int day, int hour, int minute, int second, int millisecond);
 
@@ -101,7 +101,7 @@ public interface TimeService
 	 * @param breakdown
 	 *        The time breakdown values.
 	 * @return A time object.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTimeGmt(TimeBreakdown breakdown);
 
@@ -123,7 +123,7 @@ public interface TimeService
 	 * @param millisecond
 	 *        millisecond in second (0..999)
 	 * @return A time object.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTimeLocal(int year, int month, int day, int hour, int minute, int second, int millisecond);
 
@@ -133,7 +133,7 @@ public interface TimeService
 	 * @param breakdown
 	 *        The time breakdown values.
 	 * @return A time object.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	Time newTimeLocal(TimeBreakdown breakdown);
 
@@ -155,7 +155,7 @@ public interface TimeService
 	 * @param millisecond
 	 *        millisecond in second (0..999)
 	 * @return A TimeBreakdown.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	TimeBreakdown newTimeBreakdown(int year, int month, int day, int hour, int minute, int second, int millisecond);
 
@@ -171,7 +171,7 @@ public interface TimeService
 	 * @param endIncluded
 	 *        true of end is part of the range, false if not.
 	 * @return A TimeRange.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	TimeRange newTimeRange(Time start, Time end, boolean startIncluded, boolean endIncluded);
 
@@ -190,7 +190,7 @@ public interface TimeService
 	 * @param startAndEnd
 	 *        The Time for the range.
 	 * @return A TimeRange.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	TimeRange newTimeRange(Time startAndEnd);
 
@@ -214,7 +214,7 @@ public interface TimeService
 	 * @param end
 	 *        The end time.
 	 * @return A TimeRange.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	TimeRange newTimeRange(Time start, Time end);
 
@@ -262,7 +262,7 @@ public interface TimeService
 	 * @param b
 	 *        The other Time.
 	 * @return true if the Times are different, false if they are the same.
-	 * @deprecated the use of time is discouraged in favour of <link>java.util.Date</link>. This interface will be removed in 2.0
+	 * @deprecated the use of time is discouraged in favour of {@link java.time.Instant}. This interface will be removed in 2.0
 	 */
 	boolean different(Time a, Time b);
 }
