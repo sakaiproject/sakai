@@ -67,8 +67,8 @@
 </xsl:variable>
 
 <xsl:variable name="hoursPerPage" select="10"/>
-<xsl:variable name="lengthPerHour" select="2.4"/> 
-<xsl:variable name="heightPerTimeslot" select="0.5"/>
+<xsl:variable name="lengthPerHour" select="2.0"/> 
+<xsl:variable name="heightPerTimeslot" select="0.4"/>
 <xsl:variable name="heightLineHeader" select="0.4"/>
 
 <xsl:variable name="borderSize" select="0.8"/> 
@@ -500,7 +500,7 @@
 
 <xsl:template name="left-bar">
 <xsl:param name="intimePt"/>
-<xsl:if test="$intimePt &gt; 0">
+<xsl:if test="$intimePt &gt; $begin">
  	<xsl:call-template name="left-bar">
       	<xsl:with-param name="intimePt" select="$intimePt - 1"/>
      	</xsl:call-template>
@@ -510,19 +510,19 @@
 
 <xsl:variable name="in-time">
  	<xsl:choose>
-		<xsl:when test="$timePt = 0 ">
-			<xsl:value-of select="$timePt + 12"/>:00AM
+		<xsl:when test="$intimePt = 0 ">
+			<xsl:value-of select="$intimePt + 12"/>:00AM
 		</xsl:when>
- 		<xsl:when test="$timePt  &lt; 12">
-			<xsl:value-of select="$timePt"/>:00AM
+ 		<xsl:when test="$intimePt  &lt; 12">
+			<xsl:value-of select="$intimePt"/>:00AM
 		</xsl:when>
-		<xsl:when test="$timePt = 12">
-			<xsl:value-of select="$timePt"/>:00PM
+		<xsl:when test="$intimePt = 12">
+			<xsl:value-of select="$intimePt"/>:00PM
 		</xsl:when>
-		<xsl:when test="$timePt &gt; 23.55">12:00AM
+		<xsl:when test="$intimePt &gt; 23.55">12:00AM
 	      </xsl:when>
 		<xsl:otherwise>
-			<xsl:value-of select="$timePt - 12"/>:00PM
+			<xsl:value-of select="$intimePt - 12"/>:00PM
 		</xsl:otherwise>
 	</xsl:choose>
  </xsl:variable>
@@ -530,24 +530,24 @@
  <xsl:variable name="top-val" select="$intimePt * 2"/>
 
 	<fo:block line-height="{$heightPerTimeslot}cm" font-size="{$evFontSize}pt" text-align="right" vertical-align="top"
-	border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid">
+	border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid" border-collapse="collapse" border-style="solid" border-width="0.4pt" border-color="#fff">
 		<xsl:value-of select="$in-time"/>
 	</fo:block>
 		
 	<fo:block line-height="{$heightPerTimeslot}cm"  text-align="center"
-	border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid"> 
+	border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid" border-collapse="collapse" border-style="solid" border-width="0.4pt" border-color="#fff"> 
      	<fo:leader leader-pattern="dots" 
                    rule-thickness="1.0pt"          
                    leader-length="0.1cm"/> 
     </fo:block>
 	<fo:block line-height="{$heightPerTimeslot}cm"  text-align="center"
-	border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid"> 
+	border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid" border-collapse="collapse" border-style="solid" border-width="0.2pt" border-color="#fff"> 
      	<fo:leader leader-pattern="dots" 
                    rule-thickness="1.0pt"          
                    leader-length="0.1cm"/> 
      </fo:block>
     <fo:block line-height="{$heightPerTimeslot}cm"  text-align="center"
-    border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid"> 
+    border-top-color="white" border-top-width="{$borderSize}pt" border-top-style="solid" border-collapse="collapse" border-style="solid" border-width="0.2pt" border-color="#fff"> 
      	<fo:leader leader-pattern="dots" 
                    rule-thickness="1.0pt"          
                    leader-length="0.1cm"/> 
@@ -618,7 +618,7 @@
                    leader-length="0.1cm"/> 
     	</fo:block>
 	
-		<xsl:variable name="intimePt" select="$begin + $hoursPerPage"/>
+		<xsl:variable name="intimePt" select="$begin + $hoursPerPage - 1"/>
 		<xsl:call-template name="left-bar">
   			<xsl:with-param name="intimePt" select="$intimePt"/>		
 		</xsl:call-template> 
