@@ -25,8 +25,8 @@
     <property name="modifiedBy" column="MODIFIED_BY" length="255" not-null="true" />
  
     <!-- Permission Levl Fields -->        
-    <property name="name" column="NAME" length="50" not-null="true"/>
-    <property name="typeUuid" column="TYPE_UUID" length="36" not-null="true"/>    
+    <property name="name" column="NAME" length="50" index="MFR_COMPOSITE_PERM" not-null="true"/>
+    <property name="typeUuid" column="TYPE_UUID" length="36" index="MFR_COMPOSITE_PERM" not-null="true"/>
     
     <!-- Permissions -->
     <property name="changeSettings" column="CHANGE_SETTINGS" not-null="true"/>
