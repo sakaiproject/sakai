@@ -1,0 +1,23 @@
+{
+  "name": "rubrics",
+  "version": "1.0.0",
+  "description": "Rubrics front-end built tools",
+  "author": "Phillip Ball - Unicon, inc",
+  "license": "ISC",
+  "devDependencies": {
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-bower": "0.0.13",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify-inline": "^0.2.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.3.2",
+    "gulp-style-modules": "^0.1.0",
+    "gulp-uglify": "^2.0.0",
+    "gulp-vulcanize": "^6.1.0",
+    "run-sequence": "^1.2.2",
+    "vulcanize": "^1.14.8"
+  }
+}

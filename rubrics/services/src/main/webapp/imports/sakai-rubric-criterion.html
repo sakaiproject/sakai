@@ -1,0 +1,343 @@
+<link rel="import" href="sakai-rubric-edit.html">
+<link rel="import" href="sakai-rubric-delete.html">
+<link rel="import" href="sakai-rubric-criterion-edit.html">
+<link rel="import" href="sakai-rubric-criterion-rating-edit.html">
+
+<dom-module id="sakai-rubric-criterion">
+  <template>
+
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+    <div class="criterion">
+      <sortable-js id="sort-criterion" draggable=".criterion-row" handle=".reorder-icon" on-update="handleSortedCriterion" animation="200">
+        <template is="dom-repeat" id="criterion" items="{{criterion}}" as="criterionitem">
+          <div id="criterion_row_[[criterionitem.id]]" class="criterion-row">
+            <div class="criterion-detail" on-activate="activate">
+              <h4 class="criterion-title">
+                <iron-icon on-focus="activate" tabindex="0" role="button" title="[[lang('drag_order', 'Drag to reorder')]]" class="reorder-icon" icon="rubrics-icons:drag-handle"></iron-icon>
+                {{criterionitem.title}}
+                <sakai-rubric-criterion-edit criterion="{{criterionitem}}"></sakai-rubric-criterion-edit>
+              </h4>
+              <p>
+                {{criterionitem.description}}
+              </p>
+              <div class="add-criterion-item">
+                <iron-icon tabindex="0" role="button" title="[[lang('add_rating', 'Add rating to')]] [[criterionitem.title]]" icon="rubrics-icons:add" on-tap="addRating"></iron-icon>
+              </div>
+            </div>
+            <div class="criterion-ratings" on-activate="activate">
+              <div class="cr-table">
+                <sortable-js class="cr-table-row" draggable=".rating-item" handle=".reorder-icon" on-update="handleSortedCriterionRatings" animation="200">
+                  <template is="dom-repeat" id="ratingitems_[[criterionitem.id]]" items="{{criterionitem.ratings}}" as="ratingitem" index-as="rikey">
+                    <div class="rating-item" id="rating_item_{{ratingitem.id}}" on-save-ratings="saveRatings" on-delete-rating="deleteCriterionRating">
+                      <h5 class="criterion-item-title">
+                        {{ratingitem.title}}
+                        <sakai-rubric-criterion-rating-edit minpoints="{{criterionitem.pointrange.low}}" maxpoints="{{criterionitem.pointrange.high}}" rating="{{ratingitem}}"></sakai-rubric-criterion-rating-edit>
+                      </h5>
+                      <p>
+                        {{ratingitem.description}}
+                      </p>
+                      <span class="points">
+                        {{ratingitem.points}} <sr-lang key="points">Points</sr-lang>
+                      </span>
+
+                      <div class="add-criterion-item">
+                        <iron-icon tabindex="0" role="button" title="[[lang('add_rating', 'Add rating to')]] [[criterionitem.title]]" icon="rubrics-icons:add" on-tap="addRating"></iron-icon>
+                      </div>
+
+                      <iron-icon tabindex="0" role="button" title="[[lang('drag_order', 'Drag to reorder')]]" class="reorder-icon sideways" icon="rubrics-icons:drag-handle"></iron-icon>
+                    </div>
+                  </template>
+                </sortable-js>
+              </div>
+            </div>
+            <div class="criterion-actions" on-activate="activate">
+              <iron-icon on-focus="activate" tabindex="0" role="button" tabindex="0" role="button" title="[[lang('clone','Clone')]] [[criterionitem.title]]" class="clone" icon="rubrics-icons:content-copy" on-tap="cloneCriterion"></iron-icon>
+              <sakai-rubric-delete rubric="{{rubric}}" criterion="{{criterionitem}}" on-delete-item="deleteCriterion"></sakai-rubric-delete>
+            </div>
+          </div>
+        </template>
+      </sortable-js>
+    </div>
+    <br>
+    <button class="btn btn-link add-criterion" on-tap="createCriterion">
+      <iron-icon tabindex="0" role="button" class="add" icon="rubrics-icons:add"></iron-icon>
+      <sr-lang key="add_criterion">Add Criterion</sr-lang>
+    </button>
+
+
+    <iron-ajax
+         id="createCriterion"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"Content-Type": "application/json", "x-copy-source": "default", "authorization": "[[token]]", "lang": "[[locale]]"}'
+         method="POST"
+         body="{}"
+         handle-as="json"
+         on-response="createCriterionResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="cloneCriterion"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"Content-Type": "application/json", "x-copy-source": [[cloneId]], "authorization": "[[token]]", "lang": "[[locale]]"}'
+         method="POST"
+         contentType=""
+         body="{}"
+         handle-as="json"
+         on-response="createCriterionResponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="updateCriterion"
+         url="/rubrics-service/rest/rubrics/[[rubric.id]]/criterions"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="text"
+         content-type="text/uri-list"
+         method="PUT"
+         on-response="letShareKnow"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="addCriterionToRubric"
+         url="/rubrics-service/rest/rubrics/[[rubric.id]]/criterions"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="text"
+         content-type="text/uri-list"
+         method="POST"
+         on-response="letShareKnow"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="updateRatings"
+         url="/rubrics-service/rest/criterions/"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="text/uri-list"
+         method="PUT"
+         on-response="letShareKnow"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="updateRating"
+         url="/rubrics-service/rest/rating/"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         content-type="application/json"
+         method="PATCH"
+         on-response="letShareKnow"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="addRating"
+         url="/rubrics-service/rest/ratings"
+         headers$='{"Content-Type": "application/json" , "x-copy-source": "default", "authorization": "[[token]]", "lang": "[[locale]]"}'
+         on-response="addRatingResponse"
+         handle-as="json"
+         content-type="application/json"
+         method="POST"
+         debounce-duration="300">
+    </iron-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric-criterion",
+      properties: {
+        // API token
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        },
+        rubric: {
+          type: Object
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        'hide-tooltip': 'hideToolTip',
+        'show-tooltip': 'showToolTip'
+      },
+      activate: function(e) {
+        var criterionItem = this.$.criterion.itemForElement(e.target);
+        var criterionRows = this.$$('.criterion').querySelectorAll('.criterion-row');
+        for (var i = criterionRows.length - 1; i >= 0; i--) {
+          removeClass(criterionRows[i], 'active');
+        }
+        addClass(this.$$('#criterion_row_'+criterionItem.id), 'active');
+      },
+      hideToolTip: function(e) {
+        e.stopPropagation();
+        removeClass(this.$$('#criterion_row_'+e.detail.id), 'active');
+      },
+      showToolTip: function(e) {
+        e.stopPropagation();
+        addClass(this.$$('#criterion_row_'+e.detail.id), 'active');
+      },
+      criterionResponse: function(request){
+        // this.criterion = request.detail.response;
+        // for (var i = this.criterion.length - 1; i >= 0; i--) {
+        //   this.criterion[i].pointrange = getHighLow(this.criterion[i].items, "points");
+        // }
+      },
+      handleSortedCriterion: function(e) {
+        var getUrl = window.location;
+        var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
+
+        if (e.item) {
+          var criterionRows = this.$$('.criterion').querySelectorAll('.criterion-row');
+          var urlList = '';
+          for (var i = criterionRows.length - 1; i >= 0; i--) {
+            var item = this.$.criterion.itemForElement(criterionRows[i]);
+
+            urlList = baseUrl + item.id + '\n' + urlList;
+          }
+
+          this.$.updateCriterion.body = urlList;
+          this.$.updateCriterion.generateRequest();
+        }
+
+        this.fire('sharing-change');
+      },
+      letShareKnow: function() {
+        console.log('letShareKnow');
+        this.fire('sharing-change');
+      },
+      handleSortedCriterionRatings: function(e) {
+        e.stopPropagation();
+        var getUrl = window.location;
+        var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/ratings/";
+
+        if (e.item) {
+          var criterionRow = this.$.criterion.itemForElement(e.target);
+          var ratingItems = this.$$('#criterion_row_'+criterionRow.id).querySelectorAll('.rating-item');
+          var urlList = '';
+          for (var i = ratingItems.length - 1; i >= 0; i--) {
+            var item = this.$$('#ratingitems_'+criterionRow.id).itemForElement(ratingItems[i]);
+            urlList = baseUrl + item.id + '\n' + urlList;
+          }
+
+          this.$.updateRatings.url = '/rubrics-service/rest/criterions/' + criterionRow.id + '/ratings';
+          this.$.updateRatings.body = urlList;
+          this.$.updateRatings.generateRequest();
+        }
+
+        this.fire('sharing-change');
+      },
+      saveRatings: function(e, data) {
+        e.stopPropagation();
+
+        this.$.updateRating.url = '/rubrics-service/rest/ratings/' + data.id;
+        this.$.updateRating.body = data;
+        this.$.updateRating.generateRequest();
+      },
+      deleteCriterion: function(e) {
+        e.stopPropagation();
+        var index = this.$.criterion.indexForElement(e.target);
+        this.splice('criterion',index,1);
+        this.fire('sharing-change');
+      },
+      addRating: function(e) {
+        var ci = this.$.criterion.indexForElement(e.target);
+        var cri = e.model.dataHost.indexForElement(e.target) + 1;
+        if (e.model.dataHost.id === "criterion") {
+          cri = 0;
+        }
+
+        this.newRatingIndexes = {
+          criterionIndex: ci,
+          ratingIndex: cri
+        };
+
+        this.$.addRating.generateRequest();
+      },
+      addRatingResponse: function(request) {
+        var getUrl = window.location;
+        var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/ratings/";
+
+        var newRating = request.detail.response;
+        newRating.new = true;
+
+        this.splice('criterion.'+this.newRatingIndexes.criterionIndex+'.ratings', this.newRatingIndexes.ratingIndex, 0, newRating);
+
+        var urlList = '';
+        for (var i = this.criterion[this.newRatingIndexes.criterionIndex].ratings.length - 1; i >= 0; i--) {
+          urlList = baseUrl + this.criterion[this.newRatingIndexes.criterionIndex].ratings[i].id + '\n' + urlList;
+        }
+
+        this.$.updateRatings.url = '/rubrics-service/rest/criterions/' + this.criterion[this.newRatingIndexes.criterionIndex].id + '/ratings';
+        this.$.updateRatings.body = urlList;
+        this.$.updateRatings.generateRequest();
+
+        setTimeout(function(){
+          addClass(this.$$('#rating_item_'+newRating.id) ,'active');
+        }.bind(this));
+
+        this.fire('sharing-change');
+        // console.log(citem);
+      },
+      deleteCriterionRating: function(e, detail, sender) {
+        e.stopPropagation();
+        var ci = this.$.criterion.indexForElement(e.target);
+        var cri = this.criterion[ci].ratings.indexOf(e.detail);
+        this.splice('criterion.'+ci+'.ratings', cri, 1);
+
+        var getUrl = window.location;
+        var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
+
+        var criterionRow = this.$.criterion.itemForElement(e.target);
+        var urlList = '';
+        for (var i = this.criterion[ci].ratings.length - 1; i >= 0; i--) {
+          urlList = baseUrl + this.criterion[ci].ratings[i].id + '\n' + urlList;
+        }
+
+        this.$.updateRatings.url = '/rubrics-service/rest/criterions/' + criterionRow.id + '/ratings';
+        this.$.updateRatings.body = urlList;
+        this.$.updateRatings.generateRequest();
+
+      },
+      cloneCriterion: function(e) {
+        e.stopPropagation();
+        var index = this.$.criterion.indexForElement(e.target);
+        var item = this.$.criterion.itemForElement(e.target);
+        this.cloneId = item.id;
+        this.$.cloneCriterion.generateRequest();
+      },
+      createCriterionResponse: function(request) {
+        var nc = request.detail.response;
+        nc.new = true;
+        this.push('criterion', nc);
+        this.handleNewCriterion(nc);
+
+        // Add the association to the rubric
+        var getUrl = window.location;
+        var baseUrl = getUrl.protocol + "//" + getUrl.host + "/rubrics-service/rest/criterions/";
+        var criterionRows = this.$$('.criterion').querySelectorAll('.criterion-row');
+        var urlList = baseUrl + nc.id + '\n';
+        this.$.addCriterionToRubric.body = urlList;
+        this.$.addCriterionToRubric.generateRequest();
+        this.fire('sharing-change');
+      },
+      handleNewCriterion: function(nc) {
+        setTimeout(function(n, o) {
+          var newCriterion = Polymer.dom(this.root).querySelector('#criterion_row_' + nc.id + ' .criterion-detail');
+          addClass(newCriterion, 'active');
+        }.bind(this));
+      },
+      createCriterion: function(e) {
+        this.$.createCriterion.generateRequest();
+      },
+      ready: function() {
+        this.locale = rubrics.rubricsLocale;
+        this.criterion = this.rubric.criterions;
+      }
+    });
+  </script>
+</dom-module>
