@@ -6450,7 +6450,7 @@ public class SimplePageBean {
 	}
 
 	public List<Map<String, Object>> getToolsImportItem() {
-		return ltiService.getToolsImportItem();
+		return ltiService.getToolsImportItem(getCurrentSiteId());
 	}
 
 	public void handleImportItem() {
@@ -6467,7 +6467,7 @@ public class SimplePageBean {
                         return;
                 }
 
-                Map<String, Object> tool = ltiService.getTool(toolKey);
+                Map<String, Object> tool = ltiService.getTool(toolKey, getCurrentSiteId());
                 if ( tool == null ) {
 			setErrKey("simplepage.lti-import-error-id", toolId);
                         return;

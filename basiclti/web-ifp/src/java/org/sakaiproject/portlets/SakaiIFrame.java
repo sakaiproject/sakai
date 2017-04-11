@@ -21,17 +21,11 @@
 
 package org.sakaiproject.portlets;
 
-import java.lang.Integer;
-
 import java.io.PrintWriter;
 import java.io.IOException;
-import java.io.InputStream;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.List;
 import java.util.Enumeration;
 
 import org.slf4j.Logger;
@@ -42,37 +36,23 @@ import javax.portlet.RenderRequest;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.RenderResponse;
-import javax.portlet.PortletRequest;
 import javax.portlet.PortletException;
 import javax.portlet.PortletURL;
-import javax.portlet.PortletPreferences;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletConfig;
-import javax.portlet.WindowState;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletSession;
-import javax.portlet.ReadOnlyException;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.portlet.util.VelocityHelper;
 import org.sakaiproject.portlet.util.JSPHelper;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
 
 import javax.servlet.ServletRequest;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -211,12 +191,12 @@ public class SakaiIFrame extends GenericPortlet {
 				return;
 			}
 			try {
-				content = m_ltiService.getContent(key);
+				content = m_ltiService.getContent(key, placement.getContext());
 				Long tool_id = getLongNull(content.get("tool_id"));
 				// If we are supposed to popup (per the content), do so and optionally
 				// copy the calue into the placement to communicate with the portal
 				if (tool_id != null) {
-					tool = m_ltiService.getTool(tool_id);
+					tool = m_ltiService.getTool(tool_id, placement.getContext());
 					m_ltiService.filterContent(content, tool);
 				}
 				Object popupValue = content.get("newpage");
@@ -288,7 +268,7 @@ public class SakaiIFrame extends GenericPortlet {
 				return;
 			}
 
-			Map<String, Object> content = m_ltiService.getContent(key);
+			Map<String, Object> content = m_ltiService.getContent(key, placement.getContext());
 			if ( content == null ) {
 				out.println(rb.getString("get.info.notconfig"));
 				M_log.warn("Cannot find content item placement="+placement.getId()+" key="+key);
@@ -297,14 +277,14 @@ public class SakaiIFrame extends GenericPortlet {
 
 			// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
 			String foundLtiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-			Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(foundLtiToolId));
+			Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(foundLtiToolId), placement.getContext());
 			if ( tool == null ) {
 				out.println(rb.getString("get.info.notconfig"));
 				M_log.warn("Cannot find tool placement="+placement.getId()+" key="+foundLtiToolId);
 				return;
 			}
 
-			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId));
+			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId), placement.getContext());
 			String formInput=m_ltiService.formInput(content, contentToolModel);
 			context.put("formInput", formInput);
 			
@@ -376,7 +356,7 @@ public class SakaiIFrame extends GenericPortlet {
 				String name = (String) names.nextElement();
 				reqProps.setProperty(name, request.getParameter(name));
 			}
-			Object retval = m_ltiService.updateContent(Long.parseLong(id), reqProps);
+			Object retval = m_ltiService.updateContent(Long.parseLong(id), reqProps, placement.getContext());
 			String fa_icon = (String)request.getParameter(LTIService.LTI_FA_ICON);
 			if ( fa_icon != null && fa_icon.length() > 0 ) {
 				placement.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);

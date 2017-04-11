@@ -189,45 +189,19 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return insertThingDao("lti_tools", LTIService.TOOL_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getToolDao(java.lang.Long, java.lang.String, boolean)
-	 */
-	public Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole) 
+	public Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole)
 	{
 		return getThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#deleteToolDao(java.lang.Long, java.lang.String, boolean)
-	 */
 	public boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		return deleteThingDao("lti_tools", LTIService.TOOL_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateToolDao(java.lang.Long,
-	 *      java.lang.Object, java.lang.String, boolean)
-	 */
 	public Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		return updateThingDao("lti_tools", LTIService.TOOL_MODEL, null, key, (Object) newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getToolsDao(java.lang.String, java.lang.String,
-	 *      int, int, java.lang.String, boolean)
-	 */
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 
@@ -381,26 +355,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return retval;
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#deleteContent(java.lang.Long, java.lang.String, boolean)
-	 */
 	public boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		deleteContentLinkDao(key, siteId, isAdminRole, isMaintainRole);
 		return deleteThingDao("lti_content", LTIService.CONTENT_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateContentDao(java.lang.Long, 
-	 *      java.lang.Object, java.lang.String, boolean)
-	 */
-	public Object updateContentDao(Long key, Object newProps, String siteId, 
-		boolean isAdminRole, boolean isMaintainRole) 
+	public Object updateContentDao(Long key, Object newProps, String siteId,
+		boolean isAdminRole, boolean isMaintainRole)
 	{
 		if ( key == null || newProps == null ) {
 			throw new IllegalArgumentException(
@@ -454,13 +415,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			key, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#getContentsDao(java.lang.String,
-	 *      java.lang.String, int, int)
-	 */
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 
@@ -522,24 +476,11 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return insertThingDao("lti_deploy", LTIService.DEPLOY_MODEL, null, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.api.LTIService#deleteDeployDao(java.lang.Long, java.lang.String, boolean)
-	 */
 	public boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
 		return deleteThingDao("lti_deploy", LTIService.DEPLOY_MODEL, key, siteId, isAdminRole, isMaintainRole);
 	}
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * 
-	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateDeployDao(java.lang.Long,
-	 *      java.lang.Object, java.lang.String, boolean)
-	 */
 	public Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
 		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
 		return updateThingDao("lti_deploy", LTIService.DEPLOY_MODEL, null, key, newProps, siteId, isAdminRole, isMaintainRole);
@@ -747,15 +688,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return retval;
 	}
 
-	/**
-	 * 
-	 * @param table
-	 * @param model
-	 * @param key
-	 * @param siteId - This is allowed to be null
-	 * @param isMaintainRole
-	 * @return
-	 */
 	private Map<String, Object> getThingDao(String table, String[] model, Long key,
 			String siteId, boolean isAdminRole)
 	{
@@ -793,19 +725,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return null;
 	}
 
-	/**
-	 * 
-	 * @param table
-	 * @param model
-	 * @param search
-	 * @param order
-	 * @param first
-	 * @param last
-	 * @param siteId
-	 * @param isMaintainRole
-	 * @return
-	 */
-	public List<Map<String, Object>> getThingsDao(String table, String[] model, 
+	public List<Map<String, Object>> getThingsDao(String table, String[] model,
 		String extraSelect, String joinClause, String search, String groupBy, String order, 
 		int first, int last, String siteId, boolean isAdminRole) 
 	{
@@ -879,18 +799,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return getResultSet(statement, ((fields.size() > 0) ? fields.toArray() : null), columns);
 	}
 
-	/**
-	 * 
-	 * @param table
-	 * @param model
-	 * @param joinClause
-	 * @param search
-	 * @param groupBy
-	 * @param siteId
-	 * @param isMaintainRole
-	 * @return
-	 */
-	public int countThingsDao(String table, String[] model, String joinClause, String search, String groupBy, String siteId, boolean isAdminRole) 
+	public int countThingsDao(String table, String[] model, String joinClause, String search, String groupBy, String siteId, boolean isAdminRole)
 	{
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
