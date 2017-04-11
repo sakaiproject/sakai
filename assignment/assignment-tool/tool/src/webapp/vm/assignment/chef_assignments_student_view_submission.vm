@@ -659,6 +659,9 @@ $(document).ready(function(){
 										#if ($plagiarismFileTypes)
 											$plagiarismFileTypes
 										#end
+										#if ($plagiarismStudentPreview)
+											$plagiarismStudentPreview
+										#end
 									</em>
 								</p>
 							#end
@@ -732,6 +735,9 @@ $(document).ready(function(){
 								$plagiarismNote
 								#if ($plagiarismFileTypes)
 									$plagiarismFileTypes
+								#end
+								#if ($plagiarismStudentPreview)
+									$plagiarismStudentPreview
 								#end
 							</em>
 						</p>

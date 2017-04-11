@@ -959,6 +959,22 @@
 							</label>
 						</div>
 						#end
+
+						<!-- Student Preview -->
+						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW)
+							<div class="checkbox">
+								<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW">
+									<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW" type="checkbox" value="true"
+										#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_STUDENT_PREVIEW.equals("true"))
+										   checked="checked"
+										#end
+									/>
+									$tlang.getString("review.studentPreview")
+								</label>
+								<div class="info-text help-block small">$tlang.getString("review.studentPreview.help")</div>
+							</div>
+						#end
+
 				<!-- End VeriCite custom options -->
 				#elseif($reviewServiceName.equals("Compilatio"))
 						#if ($content_review_note)

@@ -8720,6 +8720,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		boolean m_excludeQuoted = true;
 		boolean m_excludeSelfPlag = true;
 		boolean m_storeInstIndex = true;
+		boolean m_studentPreview = false;
 		int m_excludeType = 0;
 		int m_excludeValue = 1;
 		
@@ -8800,6 +8801,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_excludeQuoted = getBool(el.getAttribute("excludeQuoted"));
 			m_excludeSelfPlag = getBool(el.getAttribute("excludeSelfPlag"));
 			m_storeInstIndex = getBool(el.getAttribute("storeInstIndex"));
+			m_studentPreview = getBool(el.getAttribute("studentPreview"));
 			String excludeTypeStr = el.getAttribute("excludeType");
 			try{
 				m_excludeType = Integer.parseInt(excludeTypeStr);
@@ -9014,6 +9016,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_excludeQuoted = getBool(attributes.getValue("excludeQuoted"));
 							m_excludeSelfPlag = getBool(attributes.getValue("excludeSelfPlag"));
 							m_storeInstIndex = getBool(attributes.getValue("storeInstIndex"));
+							m_studentPreview = getBool(attributes.getValue("studentPreview"));
 							String excludeTypeStr = attributes.getValue("excludeType");
 							try{
 								m_excludeType = Integer.parseInt(excludeTypeStr);
@@ -9197,6 +9200,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			content.setAttribute("excludeQuoted", getBoolString(m_excludeQuoted));
 			content.setAttribute("excludeSelfPlag", getBoolString(m_excludeSelfPlag));
 			content.setAttribute("storeInstIndex", getBoolString(m_storeInstIndex));
+			content.setAttribute("studentPreview", getBoolString(m_studentPreview));
 			content.setAttribute("excludeType", Integer.toString(m_excludeType));
 			content.setAttribute("excludeValue", Integer.toString(m_excludeValue));
 			
@@ -9280,6 +9284,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_excludeQuoted = content.isExcludeQuoted();
 				m_excludeSelfPlag = content.isExcludeSelfPlag();
 				m_storeInstIndex = content.isStoreInstIndex();
+				m_studentPreview = content.isStudentPreview();
 				m_excludeType = content.getExcludeType();
 				m_excludeValue = content.getExcludeValue();
 				m_timeCreated = content.getTimeCreated();
@@ -9799,6 +9804,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		public void setStoreInstIndex(boolean m_storeInstIndex) {
 			this.m_storeInstIndex = m_storeInstIndex;
+		}
+
+		public boolean isStudentPreview() {
+			return m_studentPreview;
+		}
+
+		public void setStudentPreview(boolean m_studentPreview) {
+			this.m_studentPreview = m_studentPreview;
 		}
 		
 		public int getExcludeType(){
@@ -10744,7 +10757,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String iconCssClass = null;
 
 				if (!"Error".equals(reviewReport)) {
-					iconCssClass = contentReviewService.getIconCssClassforScore(reviewScore);
+					iconCssClass = contentReviewService.getIconCssClassforScore(reviewScore, contentId);
 				} else {
 					iconCssClass = "contentReviewIconWarn";
 				}

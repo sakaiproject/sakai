@@ -84,7 +84,6 @@ import lombok.Setter;
 
 @Slf4j
 public class ContentReviewServiceVeriCite implements ContentReviewService {
-
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
 	
@@ -122,7 +121,9 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 	
 	private MemoryService memoryService;
 	//Caches requests for instructors so that we don't have to send a request for every student
-	Cache userUrlCache, contentScoreCache, assignmentTitleCache;
+	Cache userUrlCache, assignmentTitleCache;
+	Cache<String, Map<Date, ReportScoreReponse>> contentScoreCache;
+	Cache<String, Date> assignmentLastCheckedCache;
 	private static final int CACHE_EXPIRE_URLS_MINS = 20;
 	
 	private static final int CONTENT_SCORE_CACHE_MINS = 5;
@@ -133,6 +134,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		consumerSecret = serverConfigurationService.getString("vericite.consumerSecret", "");
 		userUrlCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.userUrlCache", new SimpleConfiguration<>(10000, CACHE_EXPIRE_URLS_MINS * 60, -1));
 		contentScoreCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.contentScoreCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
+		assignmentLastCheckedCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.assignmentLastCheckedCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
 		assignmentTitleCache = memoryService.getCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.assignmentTitleCache");
 		showPreliminary = serverConfigurationService.getBoolean("contentreview.config.show_preliminary_score", true);
 	}
@@ -175,6 +177,9 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 						}
 						if(opts.containsKey("store_inst_index")){
 							assignmentData.setAssignmentStoreInIndex("1".equals(opts.get("store_inst_index").toString()));
+						}
+						if(opts.containsKey("student_preview")){
+							assignmentData.setAssignmentEnableStudentPreview("1".equals(opts.get("student_preview").toString()));
 						}
 						if(opts.containsKey("dtdue")){
 							SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
@@ -282,20 +287,37 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		return crqs.getDateSubmitted(getProviderId(), contextId);
 	}
 
-	public String getIconCssClassforScore(int score) {
+	public String getIconCssClassforScore(int score, String contentId) {
+		String cssClass;
 		if (score < 0) {
-			return "contentReviewIconThreshold-6";
+			cssClass = "contentReviewIconThreshold-6";
 		} else if (score == 0) {
-			return "contentReviewIconThreshold-5";
+			cssClass = "contentReviewIconThreshold-5";
 		} else if (score < 25) {
-			return "contentReviewIconThreshold-4";
+			cssClass = "contentReviewIconThreshold-4";
 		} else if (score < 50) {
-			return "contentReviewIconThreshold-3";
+			cssClass = "contentReviewIconThreshold-3";
 		} else if (score < 75) {
-			return "contentReviewIconThreshold-2";
+			cssClass = "contentReviewIconThreshold-2";
 		} else {
-			return "contentReviewIconThreshold-1";
+			cssClass = "contentReviewIconThreshold-1";
 		}
+
+		//Different icon if draft
+
+		String externalContentId = getAttachmentId(contentId);
+		if(contentScoreCache.containsKey(externalContentId)) {
+			Map<Date, ReportScoreReponse> contentDateScoreMap = contentScoreCache.get(externalContentId);
+			Map.Entry<Date, ReportScoreReponse> contentDateScore = contentDateScoreMap.entrySet().iterator().next();
+			Date date = contentDateScore.getKey();
+			ReportScoreReponse reportScoreReponse = contentDateScore.getValue();
+			if(reportScoreReponse.getDraft()) {
+				cssClass += "-draft";
+			}
+		}
+
+
+		return cssClass;
 	}
 
 	public String getLocalizedStatusMessage(String arg0) {
@@ -457,56 +479,41 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		Integer score = null;
 		String assignment = getAssignmentId(assignmentRef, isA2);
 		boolean preliminarySkipped = false;
-		if(StringUtils.isNotEmpty(assignment)){
-			if(contentScoreCache.containsKey(assignment)){
-				Object cacheObj = contentScoreCache.get(assignment);
-				if(cacheObj != null && cacheObj instanceof Map){
-					Map<String, Map<String, Object[]>> contentScoreCacheObject = (Map<String, Map<String, Object[]>>) cacheObj;
-					if(contentScoreCacheObject.containsKey(userId) 
-							&& contentScoreCacheObject.get(userId).containsKey(externalContentId)){
-						Object[] cacheItem = contentScoreCacheObject.get(userId).get(externalContentId);
-						Calendar cal = Calendar.getInstance();
-						cal.setTime(new Date());
-						//subtract the exipre time
-						cal.add(Calendar.MINUTE, CONTENT_SCORE_CACHE_MINS * -1);
-						if(((Date) cacheItem[1]).after(cal.getTime())){
-							//token hasn't expired, use it
-							boolean preliminary = cacheItem.length == 3 ? (boolean) cacheItem[2] : false;
-							if(!showPreliminary && preliminary) {
-								preliminarySkipped = true;
-							}else{
-								score = (Integer) cacheItem[0];
-							}
-						}else{
-							//token is expired, remove it
-							contentScoreCacheObject.remove(userId);
-							contentScoreCache.put(assignment, contentScoreCacheObject);
-						}
-					}
+		if(contentScoreCache.containsKey(externalContentId)){
+			Map<Date, ReportScoreReponse> dateScoreCacheItem = contentScoreCache.get(externalContentId);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			//subtract the expire time
+			cal.add(Calendar.MINUTE, CONTENT_SCORE_CACHE_MINS * -1);
+			Date cacheDate = dateScoreCacheItem.entrySet().iterator().next().getKey();
+
+			if(cacheDate.after(cal.getTime())){
+				//token hasn't expired, use it
+				ReportScoreReponse reportScoreReponse = dateScoreCacheItem.get(cacheDate);
+				boolean preliminary = reportScoreReponse.getPreliminary();
+				if(!showPreliminary && preliminary) {
+					preliminarySkipped = true;
+				}else{
+					score = reportScoreReponse.getScore();
 				}
+			}else{
+				//token is expired, remove it
+				contentScoreCache.remove(externalContentId);
 			}
 		}
 		if(score == null){
 			//wasn't in cache
 			//make sure we didn't just check VC:
 			boolean skip = false;
-			if(StringUtils.isNotEmpty(assignment)
-					&& contentScoreCache.containsKey(assignment)){ 
-				Object cacheObj = contentScoreCache.get(assignment);
-				if(cacheObj != null && cacheObj instanceof Map){
-					Map<String, Map<String, Object[]>> contentScoreCacheObject = (Map<String, Map<String, Object[]>>) cacheObj;
-					if(contentScoreCacheObject.containsKey(VERICITE_CACHE_PLACEHOLDER)
-							&& contentScoreCacheObject.get(VERICITE_CACHE_PLACEHOLDER).containsKey(VERICITE_CACHE_PLACEHOLDER)){
-						Object[] cacheItem = contentScoreCacheObject.get(VERICITE_CACHE_PLACEHOLDER).get(VERICITE_CACHE_PLACEHOLDER);
-						Calendar cal = Calendar.getInstance();
-						cal.setTime(new Date());
-						//only check vericite every 2 mins to prevent subsequent calls from the same thread
-						cal.add(Calendar.MINUTE, VERICITE_SERVICE_CALL_THROTTLE_MINS * -1);
-						if(((Date) cacheItem[1]).after(cal.getTime())){
-							//we just checked VC, skip asking again
-							skip = true;
-						}
-					}
+			if(StringUtils.isNotEmpty(assignment) && assignmentLastCheckedCache.containsKey(assignment)){
+				Date assignmentLastCheckedDate = assignmentLastCheckedCache.get(assignment);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(new Date());
+				//only check vericite every 2 mins to prevent subsequent calls from the same thread
+				cal.add(Calendar.MINUTE, VERICITE_SERVICE_CALL_THROTTLE_MINS * -1);
+				if(assignmentLastCheckedDate.after(cal.getTime())){
+					//we just checked VC, skip asking again
+					skip = true;
 				}
 			}			
 			//look up score in VC 
@@ -528,33 +535,15 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 						}
 						//only cache the score if it is > 0
 						if(scoreResponse.getScore() != null && scoreResponse.getScore().intValue() >= 0){
-							Object userCacheMap = contentScoreCache.get(scoreResponse.getAssignment());
-							if(userCacheMap == null){
-								userCacheMap = new HashMap<String, Map<String, Object[]>>();
-							}
-							Map<String, Object[]> cacheMap = ((Map<String, Map<String, Object[]>>) userCacheMap).get(scoreResponse.getUser());
-							if(cacheMap == null){
-								cacheMap = new HashMap<String, Object[]>();
-							}
-							cacheMap.put(scoreResponse.getExternalContentId(), new Object[]{scoreResponse.getScore(), new Date(), scoreResponse.getPreliminary()});
-							((Map<String, Map<String, Object[]>>) userCacheMap).put(scoreResponse.getUser(), cacheMap);								
-							contentScoreCache.put(scoreResponse.getAssignment(), userCacheMap);
+							Map<Date, ReportScoreReponse> dateReportScoreReponseMap = new HashMap<Date, ReportScoreReponse>();
+							dateReportScoreReponseMap.put(new Date(), scoreResponse);
+							contentScoreCache.put(scoreResponse.getExternalContentId(), dateReportScoreReponseMap);
 						}
 					}
 				}
 				//keep track of last call to make sure we don't call VC too much
 				if(StringUtils.isNotEmpty(assignment)){
-					Object userCacheMap = contentScoreCache.get(assignment);
-					if(userCacheMap == null){
-						userCacheMap = new HashMap<String, Map<String, Object[]>>();
-					}
-					Map<String, Object[]> cacheMap = ((Map<String, Map<String, Object[]>>) userCacheMap).get(VERICITE_CACHE_PLACEHOLDER);
-					if(cacheMap == null){
-						cacheMap = new HashMap<String, Object[]>();
-					}
-					cacheMap.put(VERICITE_CACHE_PLACEHOLDER, new Object[]{0, new Date()});
-					((Map<String, Map<String, Object[]>>) userCacheMap).put(VERICITE_CACHE_PLACEHOLDER, cacheMap);								
-					contentScoreCache.put(assignment, userCacheMap);
+					assignmentLastCheckedCache.put(assignment, new Date());
 				}
 			}
 		}
@@ -731,6 +720,10 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			try {
 				String assignmentParam = getAssignmentId(item.getTaskId(), isA2(item.getContentId(), null));
 				uploadInfo = veriCiteApi.reportsSubmitRequestContextIDAssignmentIDUserIDPost(item.getSiteId(), assignmentParam, item.getUserId(), consumer, consumerSecret, reportMetaData);
+				
+				if(assignmentParam != null && assignmentLastCheckedCache.containsKey(assignmentParam)) {
+					assignmentLastCheckedCache.remove(assignmentParam);
+				}
 			} catch (ApiException e) {
 				log.error(e.getMessage()  + ", id: " + item.getContentId(), e);
 				item.setLastError(e.getMessage());
