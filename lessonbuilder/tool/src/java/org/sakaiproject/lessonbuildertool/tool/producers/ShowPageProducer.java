@@ -4092,7 +4092,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    makeCsrf(form, "csrf26");
 		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
-			boolean showEmbedTwitterLink = ServerConfigurationService.getBoolean("lessonbuilder.show.twitter.link", true);
+			boolean showEmbedTwitterLink = ServerConfigurationService.getBoolean("lessonbuilder.show.twitter.link", false);
 			if (showEmbedTwitterLink){
 				//Adding 'Embed twitter timeline' component
 				UIOutput.make(tofill, "twitter-li");
