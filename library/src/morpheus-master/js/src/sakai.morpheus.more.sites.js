@@ -47,6 +47,7 @@ var dhtml_view_sites = function(){
       paneHeight -= parseInt(modal.css('padding-bottom'), 20);
 
       $PBJQ('#txtSearch').focus();
+
       createDHTMLMask(dhtml_view_sites);
 
       $PBJQ('.selectedTab').bind('click', function(e){
@@ -76,7 +77,7 @@ var dhtml_view_sites = function(){
   }
   
   
-  if($(window).width() < 800) {
+  if(MorpheusViewportHelper.isPhone()) {
 	  paneHeight = paneHeight*0.85;
   }
   $PBJQ('.tab-pane').css('height', paneHeight);
