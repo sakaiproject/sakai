@@ -1,5 +1,46 @@
 body.active-more-sites{
-        overflow: hidden;
+  overflow: hidden;
+
+  @media #{$phone} {
+    overflow: auto;
+
+    // hide the tool body
+    .#{$namespace}pagebody {
+      #content {
+        display: none;
+      }
+    }
+
+    // make the banner stick to the top on scroll when the tool menu is visible
+    .#{$namespace}mainHeader {
+      position: absolute;
+      top: -$banner-height;
+
+      .#{$namespace}topHeader {
+        position: relative;
+        padding-top: 0 !important;
+
+        .#{$namespace}headerLogo {
+          position: relative;
+        }
+      }
+    }
+
+
+    #selectSiteModal {
+      width: 100% !important;
+      right: 0 !important;
+      top: ($banner-height - 4) !important;
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      position: absolute !important;
+
+      .tab-pane {
+        height: auto !important;
+      }
+    }
+  }
 }
 
 #portalMask{
