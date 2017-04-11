@@ -46,7 +46,10 @@ var dhtml_view_sites = function(){
       // and adjust to show the bottom of the modal frame
       paneHeight -= parseInt(modal.css('padding-bottom'), 20);
 
-      $PBJQ('#txtSearch').focus();
+      // Avoid auto zoom to focus text field on touch devices
+      if (MorpheusViewportHelper.isNonPhone()) {
+        $PBJQ('#txtSearch').focus();
+      }
 
       createDHTMLMask(dhtml_view_sites);
 
@@ -77,7 +80,7 @@ var dhtml_view_sites = function(){
   }
   
   
-  if(MorpheusViewportHelper.isPhone()) {
+  if($(window).width() < 800) {
 	  paneHeight = paneHeight*0.85;
   }
   $PBJQ('.tab-pane').css('height', paneHeight);
