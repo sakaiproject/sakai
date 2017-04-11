@@ -137,7 +137,7 @@ function setupEditable(msgs, iframId){
 		event.stopPropagation();
 	});
 	
-	$(".startTimeInput").editable({
+	$(".startTimeInput").tooltip().editable({
 		name: "startDate",
 		type: "combodate",
 		title: msgs.startdatetitle,
@@ -148,7 +148,7 @@ function setupEditable(msgs, iframId){
 		},
 		format: 'YYYY-MM-DD HH:mm',
 		viewformat: 'YYYY/MM/DD h:mm a',
-		template: 'YYYY / MM / DD hh:mm a',
+		template: '<div>YYYY / MM / DD</div><br/><div>hh:mm a</div><br/>',
 		placement: "left",
 		url: function(params) {
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
@@ -162,9 +162,10 @@ function setupEditable(msgs, iframId){
 			}
 		}
 	}).click(function (event){
+		$('.endTimeInput').tooltip("close");
 		event.stopPropagation();
 	});
-	$(".endTimeInput").editable({
+	$(".endTimeInput").tooltip().editable({
 		name: "endDate",
 		type: "combodate",
 		title: msgs.enddatetitle,
@@ -175,7 +176,7 @@ function setupEditable(msgs, iframId){
 		},
 		format: 'YYYY-MM-DD HH:mm',
 		viewformat: 'YYYY/MM/DD h:mm a',
-		template: 'YYYY / MM / DD hh:mm a',
+		template: '<div>YYYY / MM / DD</div><br/><div>hh:mm a</div><br/>',
 		placement: "left",
 		url: function(params) {
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
@@ -189,6 +190,7 @@ function setupEditable(msgs, iframId){
 			}
 		}
 	}).click(function (event){
+		$('.startTimeInput').tooltip("close");
 		event.stopPropagation();
 	});
 	
