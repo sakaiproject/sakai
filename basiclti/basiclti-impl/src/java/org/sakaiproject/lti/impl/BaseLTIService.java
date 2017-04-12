@@ -280,6 +280,22 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public boolean needsConfig(Map<String, Object> tool, String[] fieldInfos) {
+		for (String fieldInfo: fieldInfos) {
+			Properties info = foorm.parseFormString(fieldInfo);
+			// Field is hidden no matter it's type
+			boolean isHidden = "true".equals(info.getProperty("hidden", null));
+			String type = info.getProperty("type", null);
+			// Is rendered as a hidden input or empty so user can't change
+			boolean isInvisible = "hidden".equals(type) || "key".equals(type) || "autodate".equals(type);
+			if (!isHidden && !isInvisible) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean isAdmin(String siteId) {
 		if ( siteId == null ) {
 			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
@@ -570,6 +586,7 @@ public abstract class BaseLTIService implements LTIService {
 		{
 			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
 			// insertContentDao checks to make sure that the TOOL_ID in reqProps is suitable
+			reqProps.setProperty(LTIService.LTI_TOOL_ID, toolId);
 			retval = insertContentDao(reqProps, siteId, isAdminRole, isMaintainRole);
 		} else {
 			contentKey = new Long(id);
@@ -626,7 +643,7 @@ public abstract class BaseLTIService implements LTIService {
 			retval = new String("1" + rb.getString("error.content.not.found"));
 			return retval;
 		}
-	
+		Map<String, Object> tool = getToolDao(new Long(content.get(LTI_TOOL_ID).toString()), siteId);
 		String contentSite = (String) content.get(LTI_SITE_ID);
 		try
 		{
@@ -636,13 +653,16 @@ public abstract class BaseLTIService implements LTIService {
 			{
 				SitePage sitePage = site.addPage();
 		
-				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
+				ToolConfiguration toolConfiguration = sitePage.addTool(WEB_PORTLET);
 				String fa_icon = (String)content.get(LTI_FA_ICON);
+				if (fa_icon == null || fa_icon.isEmpty()) {
+					fa_icon = (String)tool.get(LTI_FA_ICON);
+				};
 				if ( fa_icon != null && fa_icon.length() > 0 ) {
-					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
+					toolConfiguration.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
 				}
-				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
-				tool.setTitle((String) content.get(LTI_TITLE));
+				toolConfiguration.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
+				toolConfiguration.setTitle((String) content.get(LTI_TITLE));
 				
 				sitePage.setTitle(button_text);
 				sitePage.setTitleCustom(true);
@@ -650,7 +670,7 @@ public abstract class BaseLTIService implements LTIService {
 		
 				// Record the new placement in the content item
 				Properties newProps = new Properties();
-				newProps.setProperty(LTI_PLACEMENT, tool.getId());
+				newProps.setProperty(LTI_PLACEMENT, toolConfiguration.getId());
 				retval = updateContentDao(key, newProps, siteId, isAdminRole, isMaintainRole);
 			}
 			catch (PermissionException ee)

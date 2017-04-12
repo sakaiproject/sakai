@@ -2896,23 +2896,25 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 			{
 				HashMap<String, Map<String, Object>> currentLtiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
+				HashMap<String, Map<String, Object>> ltiToolsToConfig = new HashMap<>();
 				for (Map.Entry<String, Map<String, Object>> entry : currentLtiTools.entrySet() ) {
-					 Map<String, Object> toolMap = entry.getValue();
-					 String toolId = entry.getKey();
-					// get the proper html for tool input
+					Map<String, Object> toolMap = entry.getValue();
 					String ltiToolId = toolMap.get("id").toString();
 					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
-					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
-					for(int k=0; k<contentToolModel.length;k++)
-					{
-						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
-					}
 					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
-					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
-					toolMap.put("formInput", formInput);
-					currentLtiTools.put(ltiToolId, toolMap);
+
+					if (m_ltiService.needsConfig(ltiTool, contentToolModel)) {
+						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
+						for (int k = 0; k < contentToolModel.length; k++) {
+							contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+						}
+						// get the proper html for tool input
+						String formInput = m_ltiService.formInput(ltiTool, contentToolModel);
+						toolMap.put("formInput", formInput);
+						ltiToolsToConfig.put(ltiToolId, toolMap);
+					}
 				}
-				context.put("ltiTools", currentLtiTools);
+				context.put("ltiTools", ltiToolsToConfig);
 				context.put("ltiService", m_ltiService);
 				context.put("oldLtiTools", state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST));
 			}
@@ -11653,14 +11655,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Map multipleToolIdTitleMap = state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP) != null? (Map) state.getAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP):new HashMap();
 
 		// related to LTI Tool selection
-		Map<String, Map<String, Object>> existingLtiIds = state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) != null? (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST):null;
+		Map<String, Map<String, Object>> existingLtiIds = (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_LIST);
 		HashMap<String, Map<String, Object>> ltiSelectedTools = new HashMap<String, Map<String, Object>> ();
 		
 		boolean goToToolConfigPage = false;
 		boolean homeSelected = false;
 		// lti tool selection
-		boolean ltiToolSelected = false;
+		boolean needsLtiConfig = false;
 
 		// Add new pages and tools, if any
 		if (params.getStrings("selectedTools") == null && params.getStrings("selectedLtiTools") == null) {
@@ -11680,17 +11682,19 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				else if (toolId.startsWith(LTITOOL_ID_PREFIX))
 				{
 					String ltiToolId = toolId.substring(LTITOOL_ID_PREFIX.length());
+					Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
+					String[] contentToolModel = m_ltiService.getContentModel(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
 					// whether there is any lti tool been selected
 					if (existingLtiIds == null)
 					{
-						ltiToolSelected = true;
+						needsLtiConfig |= m_ltiService.needsConfig(tool, contentToolModel);
 					}
 					else
 					{
 						if (!existingLtiIds.keySet().contains(ltiToolId))
 						{
 							// there are some new lti tool(s) selected
-							ltiToolSelected = true;
+							needsLtiConfig |= m_ltiService.needsConfig(tool, contentToolModel);
 						}
 					}
 						
@@ -11797,7 +11801,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (state.getAttribute(STATE_IMPORT) != null) {
 				// go to import tool page
 				state.setAttribute(STATE_TEMPLATE_INDEX, "27");
-			} else if (goToToolConfigPage || ltiToolSelected) {
+			} else if (goToToolConfigPage || needsLtiConfig) {
 				state.setAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, Boolean.valueOf(goToToolConfigPage));
 				// go to the configuration page for multiple instances of tools
 				state.setAttribute(STATE_TEMPLATE_INDEX, "26");
