@@ -64,18 +64,13 @@
 		}
 	}
 	.#{$namespace}toolTitleNav__button_container{
+		position: absolute;
 		float: right;
-		display: block;
-		position: relative;
-		margin: 0px 0 -20px 0;
-		top: 9px;
+		top: 5px;
+		right: 4px;
 		z-index: 1;
 		@media #{$tablet}{
-			left: 0.35em;
 			font-size: 1.5em;
-			margin: 0px 0 0px 0;
-			top: -4px;
-			z-index: 1;
 		}
 	}
 	.#{$namespace}toolTitleNav__link{
