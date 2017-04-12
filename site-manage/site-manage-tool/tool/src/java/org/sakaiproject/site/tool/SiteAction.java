@@ -2903,7 +2903,7 @@ public class SiteAction extends PagedResourceActionII {
 					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
 					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
 
-					if (m_ltiService.needsConfig(ltiTool, contentToolModel)) {
+					if (!m_ltiService.hideConfig(ltiTool, contentToolModel) && m_ltiService.needsConfig(ltiTool, contentToolModel)) {
 						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
 						for (int k = 0; k < contentToolModel.length; k++) {
 							contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
@@ -11687,14 +11687,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// whether there is any lti tool been selected
 					if (existingLtiIds == null)
 					{
-						needsLtiConfig |= m_ltiService.needsConfig(tool, contentToolModel);
+						needsLtiConfig |= !m_ltiService.hideConfig(tool, contentToolModel) && m_ltiService.needsConfig(tool, contentToolModel);
 					}
 					else
 					{
 						if (!existingLtiIds.keySet().contains(ltiToolId))
 						{
 							// there are some new lti tool(s) selected
-							needsLtiConfig |= m_ltiService.needsConfig(tool, contentToolModel);
+							needsLtiConfig |= !m_ltiService.hideConfig(tool, contentToolModel) && m_ltiService.needsConfig(tool, contentToolModel);
 						}
 					}
 						

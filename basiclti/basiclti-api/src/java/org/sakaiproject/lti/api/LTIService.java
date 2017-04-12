@@ -142,6 +142,8 @@ public interface LTIService {
             "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
             "allowcustom:checkbox:label=bl_allowcustom",
             "xmlimport:textarea:hidden=true:maxlength=1M",
+            // Should we hide the more advanced config options when allowing people to add this tool?
+            "hideconfig:checkbox:label=bl_hideconfig",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             "created_at:autodate",
             "updated_at:autodate"};
@@ -503,6 +505,14 @@ public interface LTIService {
     String formInput(Object row, String fieldInfo);
 
     String formInput(Object row, String[] fieldInfo);
+
+    /**
+     * Should the user be presented with config options when adding tool?
+     * @param tool The tool being added.
+     * @param contentToolModel The content model for the tool..
+     * @return <code>true</code> If we should skip config options when adding this tool.
+     */
+    boolean hideConfig(Map<String, Object> tool, String[] contentToolModel);
 
     boolean isAdmin(String siteId);
 

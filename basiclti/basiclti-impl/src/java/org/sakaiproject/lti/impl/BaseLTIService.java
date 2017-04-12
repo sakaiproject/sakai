@@ -296,6 +296,12 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+	public boolean hideConfig(Map<String, Object> tool, String[] contentToolModel) {
+		Object hideconfig = tool.get("hideconfig");
+		return hideconfig instanceof Integer && hideconfig.equals(1);
+	}
+
+	@Override
 	public boolean isAdmin(String siteId) {
 		if ( siteId == null ) {
 			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
