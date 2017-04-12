@@ -41,6 +41,7 @@
         @include border-radius(5px);
         padding: 5px;
         margin-bottom: 5px;
+        width: 161px;
         .roster-pictureview-picture {
             width: 150px;
             height: 150px;
@@ -48,6 +49,11 @@
                 width: 150px;
                 max-height: 150px;
             }
+        }
+        .roster-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -86,6 +92,8 @@
 
                 .roster-picture {
                     width: 80px;
+                    min-height: 60px;
+                    max-height: 140px;
                     padding: 5px 0px 5px 5px;
                 }
 
@@ -122,12 +130,36 @@
     
     .roster-group-cell {
         display: inline-block;
-        width: 40px !important;
+        min-width: 40px !important;
         max-width: 80px !important;
         white-space: normal !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
 
         .roster-group-link {
             white-space: nowrap !important;
+            font-size: smaller;
+        }
+    }
+
+    #roster-filters {
+        div {
+            display: inline-block;
+        }
+
+        #roster-group-selector-wrapper {
+            margin-right: 20px;
+        }
+
+        #roster-set-selector-wrapper {
+            margin-right: 20px;
+        }
+    }
+
+    #roster-search-group {
+        div {
+            display: inline-block;
         }
     }
 
