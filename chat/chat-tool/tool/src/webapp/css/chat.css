@@ -3,6 +3,8 @@
     float:left;
     width:82%;
     clear:none;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 .chat-post-warning {
     max-height: 2em;
