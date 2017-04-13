@@ -24,8 +24,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -74,7 +73,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -95,15 +93,11 @@ public class podHomeBean {
 	
 	// Patterns for Date and Number formatting
 	private static final String PUBLISH_DATE_FORMAT = "publish_date_format";
-	private static final String DATE_PICKER_FORMAT = "date_picker_format";
-	private static final String DATE_BY_HAND_FORMAT = "date_by_hand_format";
-	private static final String INTERNAL_DATE_FORMAT = "internal_date_format";
+	private static final String DATEPICKER_EDIT_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
-	/** TODO: This is required until date-picker is internationalized. */
-	private static final String FIXED_DATE_PICKER_FORMAT = "MM/dd/yyyy hh:mm:ss a";
+	private static final String POD_ADD_ISO_HIDDEN_DATE = "podAddISO8601";
+	private static final String POD_REVISE_ISO_HIDDEN_DATE = "podReviseISO8601";
 
-	private static final String LAST_MODIFIED_TIME_FORMAT = "hh:mm a z";
-	private static final String LAST_MODIFIED_DATE_FORMAT = "MM/dd/yyyy";
 	
 	// error handling variables
 	private boolean displayNoFileErrMsg = false;
@@ -125,12 +119,12 @@ public class podHomeBean {
 		private long fileSize;
 		private String displayDate;
 		private String displayDateRevise;
+		private Date editDate;
 		private String title;
 		private String description;
 		private String size;
 		private String type;
-		private String postedTime;
-		private String postedDate;
+		private String postedDatetime;
 		private String author;
 		private String fileURL;
 		private String newWindow;
@@ -166,33 +160,24 @@ public class podHomeBean {
 			String dispDate = null;
 			
 			if (displayDateRevise == null) {
-				dispDate = displayDate;
+				return DateUtil.format(this.getEditDate(), DATEPICKER_EDIT_FORMAT, rb.getLocale());
 			}
 			else {
-				dispDate = displayDateRevise;
+				return displayDateRevise;
 			}
-				
-			SimpleDateFormat formatter = new SimpleDateFormat(getErrorMessageString(DATE_BY_HAND_FORMAT), rb.getLocale());
-			formatter.setTimeZone(TimeService.getLocalTimeZone());
-			
-			try {
-				Date tempDate = convertDateString(dispDate,
-						getErrorMessageString(PUBLISH_DATE_FORMAT));
-				
-				return formatter.format(tempDate);
-			
-			} catch (ParseException e) {
-				// since revising, only log error if malformed date and not just blank
-				if (! "".equals(dispDate)) {
-					LOG.error("ParseException while rendering Revise Podcast page. ", e);
-				}
-			}
-			
-			return dispDate;
-
 		}
 		public void setDisplayDate(String displayDate) {
 			this.displayDate = displayDate;
+		}
+
+		/** Returns the revised date for this podcast **/
+		public Date getEditDate() {
+			return this.editDate;
+		}
+
+		/** Sets the revised date for this podcast **/
+		public void setEditDate(Date editDate) {
+			this.editDate = editDate;
 		}
 
 		public String getFilename() {
@@ -231,20 +216,12 @@ public class podHomeBean {
 			this.type = type;
 		}
 
-		public String getPostedTime() {
-			return postedTime;
+		public String getPostedDatetime() {
+			return postedDatetime;
 		}
 
-		public void setPostedTime(String postedTime) {
-			this.postedTime = postedTime;
-		}
-
-		public String getPostedDate() {
-			return postedDate;
-		}
-
-		public void setPostedDate(String postedDate) {
-			this.postedDate = postedDate;
+		public void setPostedDatetime(String postedDatetime) {
+			this.postedDatetime = postedDatetime;
 		}
 
 		public String getAuthor() {
@@ -640,8 +617,6 @@ public class podHomeBean {
 		// if instructor or has hidden property, set hidden property of decorated bean
 		// if not, return null since user cannot see
 		Date tempDate = null;
-		final SimpleDateFormat formatter = new SimpleDateFormat(getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale());
-		formatter.setTimeZone(TimeService.getLocalTimeZone());
 
 		// get release/publish date - else part needed for podcasts created before release/retract dates
 		// feature implemented
@@ -659,7 +634,9 @@ public class podHomeBean {
 		if (! uiHidden || getHasHidden()) {
 			podcastInfo = new DecoratedPodcastBean();
 
-			podcastInfo.setDisplayDate(formatter.format(tempDate));
+			podcastInfo.setDisplayDate(DateUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
+
+			podcastInfo.setEditDate(tempDate);
 
 			// store resourceId
 			podcastInfo.setResourceId(podcastResource.getId());
@@ -725,19 +702,9 @@ public class podHomeBean {
 				podcastInfo.setType("UNK");
 			}
 
-			// get and format last modified time
-			formatter.applyPattern(LAST_MODIFIED_TIME_FORMAT);
-
 			tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 
-			podcastInfo.setPostedTime(formatter.format(tempDate));
-
-			// get and format last modified date
-			formatter.applyPattern(LAST_MODIFIED_DATE_FORMAT);
-
-			tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
-
-			podcastInfo.setPostedDate(formatter.format(tempDate));
+			podcastInfo.setPostedDatetime(DateUtil.format(tempDate, getErrorMessageString(PUBLISH_DATE_FORMAT), rb.getLocale()));
 
 			// get author
 			podcastInfo.setAuthor(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
@@ -1219,39 +1186,6 @@ public class podHomeBean {
 	}
 
 	/**
-	 * Converts the date string input using the FORMAT_STRING given.
-	 * 
-	 * @param inputDate
-	 *            The string that needs to be converted.
-	 * @param FORMAT_STRING
-	 *            The format the data needs to conform to
-	 * 
-	 * @return Date
-	 * 			The Date object containing the date passed in or null if invalid.
-	 * 
-	 * @throws ParseException
-	 * 			If not a valid date compared to FORMAT_STRING given
-	 */
-	private Date convertDateString(final String inputDate,
-			final String FORMAT_STRING) throws ParseException {
-
-		Date convertedDate = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat(FORMAT_STRING, rb.getLocale());
-		dateFormat.setTimeZone(TimeService.getLocalTimeZone());
-
-		try {
-			convertedDate = dateFormat.parse(inputDate);
-		} catch (ParseException e) {
-			// TODO: This is required until date-picker is internationalized.
-			dateFormat = new SimpleDateFormat(FORMAT_STRING, Locale.ENGLISH);
-			dateFormat.setTimeZone(TimeService.getLocalTimeZone());
-			convertedDate = dateFormat.parse(inputDate);
-		}
-
-		return convertedDate;
-	}
-
-	/**
 	 * Performs the actual adding of a podcast. Calls PodcastService to actually
 	 * add the podcast.
 	 * 
@@ -1292,26 +1226,15 @@ public class podHomeBean {
 				Date displayDate = null;
 
 				try {
-					displayDate = convertDateString(date,
-							FIXED_DATE_PICKER_FORMAT);
-
+					displayDate = DateUtil.parseISODate(date);
 				} 
-				catch (ParseException e) {
-					// must have entered it in by hand so try again
-					try {
-						displayDate = convertDateString(date,
-								getErrorMessageString(DATE_BY_HAND_FORMAT));
+				catch (DateTimeParseException e1) {
+					// Now it's invalid, so set error message and stay on page
+					LOG.warn("DateTimeParseException attempting to convert " + date
+							+ " both valid ways. " + e1.getMessage(), e1);
 
-					} 
-					catch (ParseException e1) {
-						// Now it's invalid, so set error message and stay on page
-						LOG.warn("ParseException attempting to convert " + date
-								+ " both valid ways. " + e1.getMessage(), e1);
-
-						displayInvalidDateErrMsg = true;
-						return "podcastAdd";
-					}
-
+					displayInvalidDateErrMsg = true;
+					return "podcastAdd";
 				}
 
 				podcastService.addPodcast(title, displayDate, description,
@@ -1502,27 +1425,21 @@ public class podHomeBean {
 
 		Date displayDate = null;
 		Date displayDateRevise = null;
+
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		String editedISODate = params.get(POD_REVISE_ISO_HIDDEN_DATE);
+
 		try {
 			try {
-				// SAK-13493: SimpleDateFormat.parse() did not enforce format specified, so
-				// had to call custom method to check if String was valid
-				if (DateUtil.isValidDate(selectedPodcast.displayDateRevise, getErrorMessageString(DATE_BY_HAND_FORMAT), rb.getLocale())) {
-					displayDateRevise = convertDateString(selectedPodcast.displayDateRevise, 
-											getErrorMessageString(DATE_BY_HAND_FORMAT));
+				if (DateUtil.isValidISODate(editedISODate)) {
+					displayDateRevise = DateUtil.parseISODate(editedISODate);
 				}
 				else {
-					throw new ParseException("Invalid displayDate stored in selectedPodcast", 0);
+					throw new DateTimeParseException("Invalid displayDate stored in selectedPodcast", editedISODate, 0);
 				}
 			}
-			catch (ParseException e) {
-				// must have used date picker, so try again
-				if (isValidDate(selectedPodcast.displayDateRevise)) {
-					displayDateRevise = convertDateString(selectedPodcast.displayDateRevise, 
-											FIXED_DATE_PICKER_FORMAT);
-				}
-				else {
-					throw new ParseException("Invalid displayDate entered while revising podcast " + selectedPodcast.filename, 0);
-				}
+			catch (DateTimeParseException e) {
+					throw new DateTimeParseException("Invalid displayDate entered while revising podcast " + selectedPodcast.filename, editedISODate, 0);
 			}
 
 			if (filenameChange) {
@@ -1557,8 +1474,8 @@ public class podHomeBean {
 			}
 */			
 		} 
-		catch (ParseException e1) {
-			LOG.error("ParseException attempting to convert date for " + selectedPodcast.title
+		catch (DateTimeParseException e1) {
+			LOG.error("DateTimeParseException attempting to convert date for " + selectedPodcast.title
 							+ " for site " + podcastService.getSiteId() + ". " + e1.getMessage(), e1);
 			date = "";
 			displayInvalidDateErrMsg = true;
@@ -1784,6 +1701,10 @@ public class podHomeBean {
 			displayNoFileErrMsg = false;
 		
 		}
+	
+
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		date = params.get(POD_ADD_ISO_HIDDEN_DATE);
 
 		if (date == null) {
 			displayNoDateErrMsg = true;
@@ -1798,10 +1719,8 @@ public class podHomeBean {
 		else {
 			displayNoDateErrMsg = false;
 
-			if (DateUtil.isValidDate(date, getErrorMessageString(DATE_BY_HAND_FORMAT), rb.getLocale())
-					|| isValidDate(date)) {
+			if (DateUtil.isValidISODate(date)) {
 				displayInvalidDateErrMsg = false;
-			
 			} 
 			else {
 				displayInvalidDateErrMsg = true;
@@ -1841,138 +1760,6 @@ public class podHomeBean {
 	 */
 	private String getErrorMessageString(String key) {
 		return getMessageFromBundle(key);
-	}
-
-	/**
-	 * Performs date validation checking. Validator object
-	 * does not do bounds checking, so do that and if OK,
-	 * let Validator check for errors like Feb 30, etc.
-	 * 
-	 * TODO: Try and find an actual validator to replace this
-	 * 		 method
-	 * 
-	 * @param date
-	 * 			The candidate String date
-	 * 
-	 * @return boolean
-	 * 			TRUE - Conforms to a valid input date format string
-	 * 			FALSE - Does not conform 
-	 */
-	private boolean isValidDate(String date) {
-		boolean validDate = true;
-
-		// Should contain date part, time port, AM/PM part
-		String[] wholeDateSplit = date.split(" ");
-
-		// if not in 2 parts, input error
-		if (wholeDateSplit.length != 3) {
-			return false;
-		}
-
-		// since date entered first, check it first
-		String[] dateSplit = wholeDateSplit[0].split("/");
-		
-		if (dateSplit.length != 3) {
-			return false;
-
-		} 
-		else {
-			if(!dateSplit[0].equals("") && !dateSplit[1].equals("") && !dateSplit[2].equals("")) {
-				int month = Integer.parseInt(dateSplit[0]);
-				int day = Integer.parseInt(dateSplit[1]);
-
-				if (month < 0 || month > 12) {
-					return false;
-				} 
-				else if (day < 0 || day > 31) {
-					return false;
-				} 
-				else if (dateSplit[2].length() != 4) {
-					return false;
-				} 
-				else {
-					int year = Integer.parseInt(dateSplit[2]);
-
-					validDate = Validator.checkDate(day, month, year);
-				}
-			} else {
-				return false;
-			}
-		}
-
-		if (! validDate) {
-			return false;
-		}
-		else {
-			// Date's OK, now to the time
-			String[] timeSplit = wholeDateSplit[1].split(":");
-
-			// Valid times are hh:mm or hh:mm:ss, so check for either 
-			if (timeSplit.length < 2 || timeSplit.length > 3) {
-				return false;
-
-			} 
-			else if (timeSplit.length == 2) {
-				if(!timeSplit[0].equals("") && !timeSplit[1].equals("")) {
-					int hour = Integer.parseInt(timeSplit[0]);
-					int min = Integer.parseInt(timeSplit[1]);
-
-					if (hour < 1 || hour > 12) {
-						return false;
-
-					} 
-					else if (min < 0 || min > 59) {
-						return false;
-
-					}
-				} 
-				else {
-					return false;
-				}
-			} 
-			else {
-				if(!timeSplit[0].equals("") && !timeSplit[1].equals("") && !timeSplit[2].equals("")) {
-					int hour = Integer.parseInt(timeSplit[0]);
-					int min = Integer.parseInt(timeSplit[1]);
-					int sec = Integer.parseInt(timeSplit[2]);
-
-					if (hour < 1 || hour > 12) {
-						return false;
-
-					}
-					else if (min < 0 || min > 59) {
-						return false;
-
-					} 
-					else if (sec < 0 || sec > 59) {
-						return false;
-
-					}
-				}
-				else {
-					return false;
-				}
-			}
-		}
-
-		// We want a 12 hour clock, so AM/PM needs to be specified
-		if ("AM".equalsIgnoreCase(wholeDateSplit[2]) || "PM".equalsIgnoreCase(wholeDateSplit[2])) {
-			return true;
-
-		}
-		else {
-			return false;
-
-		}	
-	}
-	
-	private String formatDate(long date) {
-		String disTimeString = TimeService.newTime(date).toStringGmtFull();
-		
-		String temp = monStrings.get(disTimeString.substring(0, 3)) + disTimeString.substring(3);
-		
-		return temp;
-		
 	}
 
 	/**

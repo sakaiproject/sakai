@@ -103,9 +103,7 @@
     	          <h:outputText value="#{msgs.posted_by}" />
         	      <h:outputText value="#{eachPodcast.author} " />
             	  <h:outputText value="#{msgs.at}" />
-	              <h:outputText value="#{eachPodcast.postedTime} " />
-    	          <h:outputText value="#{msgs.on}" />
-        	      <h:outputText value="#{eachPodcast.postedDate}" />
+	              <h:outputText value="#{eachPodcast.postedDatetime} " />
             	</h:panelGroup>
               </h:panelGrid>
             </h:column>
