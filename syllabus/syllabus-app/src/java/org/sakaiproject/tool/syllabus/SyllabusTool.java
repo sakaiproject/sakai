@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.syllabus;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -40,6 +41,8 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FilenameUtils;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -2138,41 +2141,31 @@ public class SyllabusTool
   {
     if(attachCaneled == false)
     {
-      UIComponent component = event.getComponent();
       Object newValue = event.getNewValue();
-      Object oldValue = event.getOldValue();
-      PhaseId phaseId = event.getPhaseId();
-      Object source = event.getSource();
-      
+
       if (newValue instanceof String) return "";
       if (newValue == null) return "";
-      
-      try
+
+      FileItem item = (FileItem) event.getNewValue();
+      try (InputStream inputStream = item.getInputStream())
       {
-        FileItem item = (FileItem) event.getNewValue();
         String fileName = item.getName();
-        byte[] fileContents = item.get();
-        
+
         ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
-        
-        String tempS = fileName;
-        //logger.info(tempS);
-        int lastSlash = tempS.lastIndexOf("/") > tempS.lastIndexOf("\\") ? 
-            tempS.lastIndexOf("/") : tempS.lastIndexOf("\\");
-        if(lastSlash > 0)
-          fileName = tempS.substring(lastSlash+1);
-            
-        ContentResource thisAttach = contentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents, props);
+
+        if (fileName != null) {
+            filename = FilenameUtils.getName(filename);
+        }
+
+        ContentResourceEdit thisAttach = contentHostingService.addAttachmentResource(fileName);
+        thisAttach.setContent(inputStream);
+        thisAttach.setContentType(item.getContentType());
+        thisAttach.getPropertiesEdit().addAll(props);
+        contentHostingService.commitResource(thisAttach);
         
         SyllabusAttachment attachObj = syllabusManager.createSyllabusAttachmentObject(thisAttach.getId(), fileName);
-        ////////revise        syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), attachObj);
         attachments.add(attachObj);
-        
-        String ss = thisAttach.getUrl();
-        String fileWithWholePath = thisAttach.getUrl();
-        
-        String s = ss;
-        
+
         if(entry.justCreated != true)
         {
           allAttachments.add(attachObj);
@@ -2180,8 +2173,7 @@ public class SyllabusTool
       }
       catch (Exception e)
       {
-        logger.error(this + ".processUpload() in SyllabusTool " + e);
-        e.printStackTrace();
+        logger.error(this + ".processUpload() in SyllabusTool", e);
       }
       if(entry.justCreated == true)
       {
