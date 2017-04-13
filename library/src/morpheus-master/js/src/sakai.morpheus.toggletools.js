@@ -33,34 +33,12 @@ $PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
 
 var collapsed = false;
 
-var $window = $PBJQ(window),
-	$tools	= $("#toolMenu"),
-	padding	= $(".Mrphs-topHeader").height();
-
 $PBJQ(document).ready(function(){
 	if(getCookieVal('sakai_nav_minimized') === 'true') {
 		$PBJQ(".js-toggle-nav").click();
 		collapsed = true;
 	}
 });
-
-function animateToolBar() {
-	var offset = $('#toolMenuWrap').offset().top;
-	if($("#toolMenuWrap").attr("scrollingToolbarEnabled") != undefined){
-		var topPad = padding + $(".pasystem-banner-alerts").height();
-		var follow = ($window.height() - topPad) > $tools.height();
-		if($("#toolMenuWrap").css('position') !== 'fixed'
-			&& follow && $window.scrollTop() > 0) {
-			$("#toolMenu,#subSites").stop().animate({
-				top: Math.max($window.scrollTop() + topPad - offset, 0)
-			});
-		} else {
-			$("#toolMenu,#subSites").stop().animate({
-				top: 0
-			});
-		}
-	}
-}
 
 function getCookieVal(cookieName) {
 	var cks = document.cookie.split(';');
