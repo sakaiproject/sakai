@@ -27,6 +27,7 @@ import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.sakaiproject.profile2.tool.pages.MyFriends;
 import org.sakaiproject.profile2.tool.pages.MyMessages;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
@@ -66,6 +67,7 @@ public class ProfileApplication extends WebApplication {
 		setRootRequestMapper(cryptoMapper);
 
 		// page mounting
+		mountPage("/connections", MyFriends.class);
 		mountPage("/messages", MyMessages.class);
 		mountPage("/profile", MyProfile.class);
 		mountPage("/viewprofile/${id}", ViewProfile.class);

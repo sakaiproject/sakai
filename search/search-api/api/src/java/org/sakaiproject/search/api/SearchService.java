@@ -24,8 +24,10 @@ package org.sakaiproject.search.api;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.elasticsearch.action.search.SearchResponse;
 
 
 /**
@@ -156,6 +158,62 @@ public interface SearchService extends Diagnosable
 	 */
 	public SearchList search(String searchTerms, List<String> contexts, int start,
 			int end, String filterName, String sorterName) throws InvalidSearchQueryException;
+
+	/**
+	 * This is the same as standard search, but the caller can specify the logical name
+	 * of the index builder which should execute the search.
+	 *
+	 *
+	 * @param searchTerms A search string
+	 * @param contexts A list of contexts
+	 * @param start starting from
+	 * @param end ending at
+	 * @param indexBuilderName logical index builder name or {@code null} to fall back to default
+	 * @return
+	 * @throws InvalidSearchQueryException if unable to parse the query
+     */
+	SearchList search(String searchTerms, List<String> contexts, int start,
+			int end, String indexBuilderName) throws InvalidSearchQueryException;
+
+	/**
+	 * This is the same as standard search, but the caller can specify the logical name
+	 * of the index builder which should execute the search and pass a more complex information in the search Terms.
+	 *
+	 *
+	 * @param searchTerms A Map where we can define more information for the search
+	 * @param contexts A list of contexts
+	 * @param start starting from
+	 * @param end ending at
+	 * @param indexBuilderName logical index builder name or {@code null} to fall back to default
+	 * @param additionalSearchInformation extra parameters to construct more advanced queries
+	 * @return
+	 * @throws InvalidSearchQueryException if unable to parse the query
+	 */
+	SearchList search(String searchTerms, List<String> contexts, int start,
+					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
+
+
+	/**
+	 * This is the same as standard search, but the caller can specify the logical name
+	 * of the index builder which should execute the search and pass a more complex information in the search Terms.
+	 * In this case we return the SearchResponse directly
+	 *
+	 *
+	 * @param searchTerms A Map where we can define more information for the search
+	 * @param contexts A list of contexts
+	 * @param start starting from
+	 * @param end ending at
+	 * @param indexBuilderName logical index builder name or {@code null} to fall back to default
+	 * @param additionalSearchInformation extra parameters to construct more advanced queries
+	 * @return
+	 * @throws InvalidSearchQueryException if unable to parse the query
+	 */
+	SearchResponse searchResponse(String searchTerms, List<String> contexts, int start,
+					  int end, String indexBuilderName, Map<String,String> additionalSearchInformation) throws InvalidSearchQueryException;
+
+
+
+
 	/**
 	 * Adds a function for the SearchService to respond to and route to the
 	 * index builder. EntityProducers that want their content to be searched,
@@ -175,10 +233,22 @@ public interface SearchService extends Diagnosable
 	 */
 	void refreshInstance();
 
+    /**
+     * Trigger a refresh of the named index
+     * @param indexBuilderName the name of the index to refresh
+     */
+	void refreshIndex(String indexBuilderName);
+
 	/**
 	 * trigger a rebuild of the whole index
 	 */
 	void rebuildInstance();
+
+    /**
+     * Trigger a rebuild of the named index
+     * @param indexBuilderName the name of the index to rebuild
+     */
+	void rebuildIndex(String indexBuilderName);
 
 	/**
 	 * Refresh the current site only
@@ -241,7 +311,7 @@ public interface SearchService extends Diagnosable
 	 * 
 	 * @return
 	 */
-	SearchStatus getSearchStatus();
+	List<SearchStatus> getSearchStatus();
 
 	/**
 	 * force the removal of the worker lock
@@ -295,11 +365,29 @@ public interface SearchService extends Diagnosable
 
     public String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites);
 
-	
+	/**
+	 * Same as {@link #getSearchSuggestions(String, String, boolean)}, but can specify the
+	 * logical name of the index builder which should execute the search.
+	 *
+	 * @param searchString the search terms
+	 * @param currentSite the user's current site. Will search only this site if not {@code null}
+	 *                       and {@code allMySites} is false
+	 * @param allMySites if true, will search all of the current user's sites
+	 * @param indexBuilderName logical index builder name or {@code null} to fall back to default
+     * @return
+     */
+	String[] getSearchSuggestions(String searchString, String currentSite, boolean allMySites,
+										 String indexBuilderName);
+
 	/**
 	 * SRCH-96
 	 * whether the current server is of search server or not
 	 * @return
 	 */
 	boolean isSearchServer();
+
+    /**
+     * @return the list of search index builder names
+     */
+    Set<String> getIndexBuilderNames();
 }

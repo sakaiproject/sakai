@@ -11,9 +11,13 @@
     vertical-align: middle !important;
     text-align:left !important;
   }
+  .table .attach {
+    width:1%;
+    white-space:nowrap;
+  }
 </style>
 
-<script type="text/javascript" src="/sakai-content-tool/js/content.js">
+#javascript("/sakai-content-tool/js/content.js")
 <!-- // -->
 </script>
 
@@ -26,8 +30,9 @@
     }    
 </script>
 
-<script src="/sakai-content-tool/js/jstree/dist/jstree.min.js"></script>
-<link rel="stylesheet" href="/sakai-content-tool/js/jstree/dist/themes/default/style.min.css" />
+#javascript("/sakai-content-tool/js/jstree/dist/jstree.min.js")
+#css("/sakai-content-tool/js/jstree/dist/themes/default/style.min.css")
+<div id="dialog-copyright"></div>
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
@@ -125,7 +130,7 @@
               <p class="close">&times;</p>
             </div>
             <div id="navigatePanelInner">
-              <div id="spinner" style="display:none"></div>
+              <div id="spinner" style="display:none"><i class="fa fa-circle-o-notch fa-2x fa-spin" ></i></div>
             </div>
           </div>
         </li>
@@ -138,7 +143,7 @@
           </li>
         #elseif($item.canRead())
           <li>
-            <a href="" 
+            <a href="#"
               onclick="document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
               title= "$tlang.getString('sh.go')">
                $validator.escapeHtml("$item.name")
@@ -209,13 +214,19 @@
                                     #end
                                  #end
                                  ####### end SAK-23304, add Show and Hide
+                                 #if ($canZipDownload)
+                                     <button  style="margin:0" class="btn btn-default" id="zipdownload-button" type="button"
+                                         onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='zipDownload';document.getElementById('showForm').submit();"
+                                         disabled="disabled">$tlang.getString('avail.zipdownload')
+                                    </button>
+                                 #end
 
     					#end
     				</div>
     		#end
-        <div class="col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
+        <div class="col-xs-12 col-lg-6 col-md-4 col-sm-4 col-xs-4 btn-group btn-group-sm form-inline" style="text-align: right;padding-right:0">
             #if($showHotDropboxWidget)
-              <label for="dropboxHighlight" class="hidden-sm hidden-xs">
+              <label for="dropboxHighlight">
                   <small>$clang.getString("dropbox_highlight")</small>
               </label>
               <select class="form-control " name="dropboxHighlight" id="dropboxHighlight" onchange="document.getElementById('sakai_action').value='doSetHotDropbox';document.getElementById('showForm').submit();">
@@ -369,9 +380,10 @@
 						#if($item.depth > 0 && $item.hasMultipleItemActions())
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains($item.id))checked="checked"#end
-									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this)"
+									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this);adjustCount(this,'zipdownload');"
  									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
+							$counter.increment("zipdownload") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("zipdownloadselected")#end
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
@@ -387,12 +399,14 @@
 
               #if ($item.canRead())
 								#if($item.isCollection()) 
-									<span class="skip">$newNote</span><span class="$iconDecor">
+									<span class="skip">$newNote</span>
 									#if($item.isEmpty() || $item.isTooBig() || $item.depth < 1 || $item.isTooBigNav())
+										<span class="$iconDecor">
 										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 									#else
-                    <img class="visible-sm-inline visible-xs-inline" src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
-										<a class="hidden-sm hidden-xs" href="#"
+										<span class="$iconDecor visible-sm-inline visible-xs-inline">
+										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
+										<a class="hidden-sm hidden-xs $iconDecor" href="#"
 											#if($item.isExpanded())
 												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#else
@@ -513,7 +527,7 @@
                         </div>
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getShortAccessLabel()">
+						<td headers="access" class="hidden-sm hidden-xs access" title="$item.getLongAccessLabel()">
 							$item.getShortAccessLabel()
 						</td>
 						<td headers="creator" class="creator hidden-sm hidden-xs">
@@ -753,7 +767,7 @@
 					#end ## foreach $root in $other_sites
 	
 				#else
-					<tr class="hidden-xs hidden-sm">
+					<tr class="hidden-xs">
 						<th colspan="10">
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
@@ -780,6 +794,7 @@
 		<input type="hidden" id="hide-count" value="$counter.getValue("hideselected")" /> 
 		## copy for other sites
 		<input type="hidden" id="copy-count-other" value="0" />
+		<input type="hidden" id="zipdownload-count" value="$counter.getValue("zipdownloadselected")" />
 	</form>						
 </div>
 <script type="text/JavaScript">
@@ -791,14 +806,53 @@
 				document.getElementById("hide-button").disabled = false;
 			#end
 		#end
+		#if($counter.getValue("$zipdownloadselected") > 0)
+			document.getElementById("zipdownload-button").disabled = false;
+		#end
 		#if($counter.getValue("selectall") > 0)
 			document.getElementById("selectall").disabled = false;
 		#end
-		function openCopyrightWindow(theURL,winName,winSettings) 
-		{ 
-		  window.open(theURL,winName,winSettings);
-		  return false;
-		}
+
+		jQuery(function() {
+			jQuery("#dialog-copyright").dialog({
+				resizable: false,
+				autoOpen: false,
+				height:300,
+				width:600,
+				modal: true
+			});
+		});
+
+		function openCopyrightWindow(url,winName,winSettings) {
+			//Idea from http://stackoverflow.com/q/16086162/3708872
+			jQuery.ajax({
+				type: "GET",
+				url: url,
+				dataType: "html",
+				success: function(response, status, request) {
+					var disp = request.getResponseHeader('Content-Disposition');
+					//Might just want to do attachments, but for now put everything in a new window
+					if (disp) {
+						var form = jQuery('<form method="GET" action="' + url + '" target="_blank">');
+						jQuery('body').append(form);
+						form.submit();
+					} 
+					else {
+						jQuery.get(url, function(data, textStatus, jqXHR){
+							jQuery('#dialog-copyright').html(data);
+							jQuery('#dialog-copyright').dialog('open');
+						}, "html");
+					}
+
+					return false;
+				},
+			error: function (xhr, ajaxOptions, thrownError) {
+				window.console && console.log("Error from GET request"+thrownError);
+				
+			}
+			});
+		};
+
 		function toggleSelectAll(caller, elementName)
 		{
 			var newValue = caller.checked;
@@ -838,6 +892,12 @@
                 }
                 document.getElementById("hide-count").value = "$counter.getValue("hide")";
 #### end SAK-23304
+				var zipdownload_button = document.getElementById("zipdownload-button");
+				if(zipdownload_button)
+				{
+					zipdownload_button.disabled = false;
+				}
+				document.getElementById("zipdownload-count").value = "$counter.getValue("zipdownload")";
 			}
 			else
 			{
@@ -867,6 +927,12 @@
                 }
                 document.getElementById("hide-count").value = "0";
 #### end SAK-23304
+				var zipdownload_button = document.getElementById("zipdownload-button");
+				if(zipdownload_button)
+				{
+					zipdownload_button.disabled = true;
+				}
+				document.getElementById("zipdownload-count").value = "0";
 			}
 		}
 		

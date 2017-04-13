@@ -24,14 +24,16 @@ package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 
-public class GradingScale implements Serializable, Comparable {
+public class GradingScale implements Serializable, Comparable<Object> {
+	
+	private static final long serialVersionUID = 1L;
+	
 	private Long id;
 	private int version;
 
@@ -93,10 +95,12 @@ public class GradingScale implements Serializable, Comparable {
 		this.version = version;
 	}
 
-    public int compareTo(Object o) {
+    @Override
+	public int compareTo(Object o) {
         return getName().compareTo(((GradingScale)o).getName());
     }
-    public String toString() {
+    @Override
+	public String toString() {
         return new ToStringBuilder(this).
             append(getUid()).toString();
     }

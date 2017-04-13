@@ -35,6 +35,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -84,9 +85,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
-@CommonsLog
+@Slf4j
 public class TurnitinReviewServiceImpl implements ContentReviewService {
 
 	public static final String TURNITIN_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -243,23 +243,18 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 		return true;
 	}
 
-	public String getIconUrlforScore(Long score) {
-
-		String urlBase = "/library/content-review/score_";
-		String suffix = ".gif";
-
-		if (score.equals(Long.valueOf(0))) {
-			return urlBase + "blue" + suffix;
-		} else if (score.compareTo(Long.valueOf(25)) < 0) {
-			return urlBase + "green" + suffix;
-		} else if (score.compareTo(Long.valueOf(50)) < 0) {
-			return urlBase + "yellow" + suffix;
-		} else if (score.compareTo(Long.valueOf(75)) < 0) {
-			return urlBase + "orange" + suffix;
+	public String getIconCssClassforScore(int score) {
+		if (score == 0) {
+			return "contentReviewIconThreshold-5";
+		} else if (score < 25) {
+			return "contentReviewIconThreshold-4";
+		} else if (score < 50) {
+			return "contentReviewIconThreshold-3";
+		} else if (score < 75) {
+			return "contentReviewIconThreshold-2";
 		} else {
-			return urlBase + "red" + suffix;
+			return "contentReviewIconThreshold-1";
 		}
-
 	}
 
 	/**
@@ -561,9 +556,9 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 			try {
 				document = turnitinConn.callTurnitinReturnDocument(params);
 			} catch (TransientSubmissionException e) {
-				log.error(e);
+				log.error(e.getMessage());
 			} catch (SubmissionException e) {
-				log.warn("SubmissionException error. " + e);
+				log.warn("SubmissionException error. " + e.getMessage());
 			}
 			Element root = document.getDocumentElement();
 			if (((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim()

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
@@ -1613,7 +1613,8 @@ public class BaseDbFlatStorage
 	protected String qualifyField(String field, String table)
 	{
 		// if it's not a field but a sub-select, don't qualify
-		if (field.startsWith("("))
+		// if its hsqldb don't qualify, change from 1.8 to 2.x
+		if (field.startsWith("(") || "hsqldb".equals(m_sql.getVendor()))
 		{
 			return field;
 		}

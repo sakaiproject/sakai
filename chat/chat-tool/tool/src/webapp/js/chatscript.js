@@ -182,7 +182,7 @@ function updateUsers() {
 		}
  
 		if (frameless) {
-		    $('.chatList a').each(function(index) {
+		    $('.chatList a[id*="deleteMessage"]').each(function(index) {
 			    $(this).attr('onclick', $(this).attr('onclick').replace("'/sakai.chat.deleteMessage.helper","'sakai.chat.deleteMessage.helper"));
 			});
 		    

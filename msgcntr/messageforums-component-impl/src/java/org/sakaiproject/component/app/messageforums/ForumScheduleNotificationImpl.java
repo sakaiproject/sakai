@@ -18,7 +18,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 public class ForumScheduleNotificationImpl implements ForumScheduleNotification {
 	
@@ -77,16 +77,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
     
     private void scheduleAvailability(String id, boolean availabilityRestricted, Date openDate, Date closeDate){
     	// Remove any existing notifications for this area
-    	DelayedInvocation[] fdi = scheduledInvocationManager.findDelayedInvocations("org.sakaiproject.api.app.messageforums.ForumScheduleNotification",
-    			id);
-    	if (fdi != null && fdi.length > 0)
-    	{
-    		for (DelayedInvocation d : fdi)
-    		{
-    			scheduledInvocationManager.deleteDelayedInvocation(d.uuid);
-    		}
-    	}
-    	
+    	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.api.app.messageforums.ForumScheduleNotification", id);
     	if (availabilityRestricted)
     	{
     		Time openTime = null;

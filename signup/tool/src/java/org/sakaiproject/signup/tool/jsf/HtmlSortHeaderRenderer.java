@@ -20,6 +20,7 @@
 package org.sakaiproject.signup.tool.jsf;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.html.HtmlGraphicImage;
@@ -34,6 +35,7 @@ import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 import org.apache.myfaces.shared_tomahawk.renderkit.html.HTML;
 import org.apache.myfaces.shared_tomahawk.renderkit.html.HtmlLinkRendererBase;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Based on org.apache.myfaces.custom.sortheader.HtmlSortHeaderRenderer.
@@ -44,6 +46,8 @@ public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
 	private static final Logger log = LoggerFactory.getLogger(HtmlSortHeaderRenderer.class);
 	public final static String CURRENT_SORT_STYLE = "currentSort";
 	public final static String NOT_CURRENT_SORT_STYLE = "notCurrentSort";
+
+	private ResourceLoader rb = new ResourceLoader("messages");
 
 	public void encodeBegin(FacesContext facesContext, UIComponent component)
 			throws IOException {
@@ -91,12 +95,15 @@ public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
                 HtmlGraphicImage image = new HtmlGraphicImage();
                 if (dataTable.isSortAscending()) {
                     image.setValue("/library/image/sakai/sortascending.gif");
+                    image.setAlt(MessageFormat.format(rb.getString("sort_ascending"), sortHeader.getColumnName().toLowerCase()));
 				} else {
                     image.setValue("/library/image/sakai/sortdescending.gif");
+                    image.setAlt(MessageFormat.format(rb.getString("sort_descending"), sortHeader.getColumnName().toLowerCase()));
 				}
 
                 writer.startElement(HTML.IMG_ELEM, image);
                 writer.writeURIAttribute("src", image.getValue(), null);
+                writer.writeAttribute("alt",image.getAlt().toString(), null);
                 writer.endElement(HTML.IMG_ELEM);
 			}
             super.encodeEnd(facesContext, component);

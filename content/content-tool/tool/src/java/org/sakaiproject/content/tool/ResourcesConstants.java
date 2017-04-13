@@ -29,5 +29,5 @@ public class ResourcesConstants
 	public static final String DEFAULT_MAX_FILE_SIZE_STRING = "20";
 	public static final String DEFAULT_SITE_QUOTA_STRING = "0";
 	public static final Long DEFAULT_MAX_FILE_SIZE = 20L;
-	public static final Long DEFAULT_SITE_QUOTA = 0L;
+	public static final Long DEFAULT_SITE_QUOTA = 1048576L;
 }

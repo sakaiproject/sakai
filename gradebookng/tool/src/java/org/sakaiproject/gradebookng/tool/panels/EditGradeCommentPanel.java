@@ -4,19 +4,16 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.StringValidator;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
@@ -29,12 +26,9 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class EditGradeCommentPanel extends Panel {
+public class EditGradeCommentPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	private final ModalWindow window;
 	private String comment;
@@ -65,7 +59,7 @@ public class EditGradeCommentPanel extends Panel {
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
 		final Form<GradeComment> form = new Form<GradeComment>("form", formModel);
 
-		final AjaxButton submit = new AjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -91,7 +85,7 @@ public class EditGradeCommentPanel extends Panel {
 		};
 		form.add(submit);
 
-		final AjaxButton cancel = new AjaxButton("cancel") {
+		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

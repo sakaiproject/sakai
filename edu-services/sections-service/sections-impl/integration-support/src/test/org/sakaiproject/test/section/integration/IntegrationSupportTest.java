@@ -23,16 +23,7 @@ package org.sakaiproject.test.section.integration;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sakaiproject.component.section.support.IntegrationSupport;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -40,9 +31,11 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @ContextConfiguration(locations = { 
 		"classpath:org/sakaiproject/component/section/spring-beans.xml",
@@ -51,7 +44,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 		"classpath:org/sakaiproject/component/section/support/spring-services-test.xml",
 		"classpath:org/sakaiproject/component/section/support/spring-integrationSupport.xml"
 	})
-public class IntegrationSupportTest extends AbstractJUnit4SpringContextTests {
+public class IntegrationSupportTest extends AbstractTransactionalJUnit4SpringContextTests {
 	private static final Logger log = LoggerFactory.getLogger(IntegrationSupportTest.class);
 	private static String SITE_1 = "site_1";
 	private static String USER_1 = "integration_user_1";

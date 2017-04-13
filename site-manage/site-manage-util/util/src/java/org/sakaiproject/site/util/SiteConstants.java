@@ -34,7 +34,10 @@ public class SiteConstants {
 	public static final String SORTED_BY_GROUP_TITLE = "group_title";
 	
 	public static final String SORTED_BY_GROUP_SIZE = "group_size";
-	
+
+	/**
+	 * This stores the list of roles that a group should have as participants from the containing sites.
+	 */
 	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
 	
 	public static final int SITE_GROUP_TITLE_LIMIT = 99;
@@ -59,4 +62,8 @@ public class SiteConstants {
 	public final static String SITE_ACTIVE = "pubView";
 
 	public final static String SITE_INACTIVE = "inactive";
+
+	//SAK-32127
+	public final static String SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN = "poh.resources.content.sync.visibility";
+	public final static boolean SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT = false;
 }

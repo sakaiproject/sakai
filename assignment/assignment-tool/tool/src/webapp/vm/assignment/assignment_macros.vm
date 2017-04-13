@@ -22,20 +22,18 @@
 
 #macro( assignmentTitleIcon $assignment )
     #if ($!assignment.isGroup() )
-        <span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
-    #else
-        <span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
+        <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
     #end
 #end
 
 #macro( sectionIcon $group )
     #if ($!group.getProperties().get("sections_category"))
-        <span class="section_icon" title="$tlang.getString('gen.section.info')" alt="$tlang.getString('gen.section.info')"></span> 
+        <i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.section.info')"></i>
     #end
 #end
 
 ## Defining macro to repeat buttons at the top and bottom of the page
-#macro( buttonBar $submitnotif )
+#macro( buttonBar )
     <div class="act">
         <input accesskey="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'post', null, null ); return false;" />
         <input accesskey="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'newAssignmentForm', 'preview', null, null ); return false;" />

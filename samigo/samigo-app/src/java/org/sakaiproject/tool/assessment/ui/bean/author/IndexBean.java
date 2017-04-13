@@ -27,6 +27,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+
 import javax.faces.context.FacesContext;
 
 import org.slf4j.Logger;
@@ -46,7 +48,7 @@ public class IndexBean implements Serializable
 {
   private static BeanSort bs;
   private Collection templateList;
-  private ArrayList sortTemplateList;
+  private List sortTemplateList;
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 7919219404875270127L;
@@ -83,9 +85,9 @@ public class IndexBean implements Serializable
     try
     {
       AssessmentService delegate = new AssessmentService();
-      ArrayList list = delegate.getBasicInfoOfAllActiveAssessmentTemplates("title");
+      List list = delegate.getBasicInfoOfAllActiveAssessmentTemplates("title");
       //ArrayList list = delegate.getAllAssessmentTemplates();
-      ArrayList templates = new ArrayList();
+      List templates = new ArrayList();
       Iterator iter = list.iterator();
       while (iter.hasNext())
       {
@@ -116,7 +118,7 @@ public class IndexBean implements Serializable
     this.templateList = templateList;
   }
 
-  public ArrayList getSortTemplateList()
+  public List getSortTemplateList()
   {
    return this.sortTemplateList;
   }
@@ -126,7 +128,7 @@ public class IndexBean implements Serializable
    *
    * @param templateList DOCUMENTATION PENDING
    */
-  public void setSortTemplateList(ArrayList sortTemplateList)
+  public void setSortTemplateList(List sortTemplateList)
   {
     this.sortTemplateList = sortTemplateList;
   }

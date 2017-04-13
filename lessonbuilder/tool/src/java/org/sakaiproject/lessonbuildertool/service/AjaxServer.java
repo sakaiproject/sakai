@@ -76,6 +76,9 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 
 /**
  * <p>
@@ -102,6 +105,8 @@ public class AjaxServer extends HttpServlet
    private static SiteService siteService;
    private static AuthzGroupService authzGroupService;
    private static SimplePageToolDao simplePageToolDao;
+   private static LessonsAccess lessonsAccess;
+   private static LessonBuilderAccessService lessonBuilderAccessService;
 
    public void setSimplePageToolDao(Object dao) {
        log.info("setdao " + dao);
@@ -393,13 +398,14 @@ public class AjaxServer extends HttpServlet
 	    // get all users in site and add entries to user@groups
 	    // this will have all the groups each user belongs to
 	    site = siteService.getSite(siteId);
+	    String siteRef = site.getReference();
 	    HashSet<String> siteGroup = new HashSet<String>();
 	    siteGroup.add("/site/" + siteId);
-	    // not in 2.8   users = authzGroupService.getAuthzUsersInGroups(siteGroup);
-	    users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
-
-	    for (String userId: users) {
-		user2groups.put(userId, null);
+	    //users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
+	    // only want students
+	    List<User>userList = SecurityService.unlockUsers("section.role.student", siteRef);
+	    for (User user: userList) {
+		user2groups.put(user.getId(), null);
 	    }
 
 	    // get list of groups, either specified list or all groups in site
@@ -477,6 +483,8 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
+	simplePageToolDao.setRefreshMode();
+
 	boolean below = false;
 	itemId = itemId.trim();
 	if (itemId.startsWith("-")) {
@@ -516,8 +524,7 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
-	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 	    log.error("Ajax insertBreakBefore passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
@@ -610,6 +617,8 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
+	simplePageToolDao.setRefreshMode();
+
 	itemId = itemId.trim();
 	// we don't actually use the integers. Just for syntax checking
 	int widthi = 0;
@@ -638,32 +647,7 @@ public class AjaxServer extends HttpServlet
 	String siteId = null;
 	try {
 	    Long itemNum = Long.parseLong(itemId);
-	    item = simplePageToolDao.findItem(itemNum);
-	    if (item.getType() != SimplePageItem.BREAK) {
-		// hopefully this is the first item, in an old page that doesnbt' begin with a page break
-		List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
-		if (items.get(0).getId() == itemNum) {
-		    // this is first item on page, add a section break before it
-		    item = simplePageToolDao.makeItem(item.getPageId(), 1, SimplePageItem.BREAK, null, null);
-		    item.setFormat("section");
-		    simplePageToolDao.quickSaveItem(item);
-		    int seq = 2;
-		    // and bump sequence numbers
-		    for (SimplePageItem i: items) {
-			i.setSequence(seq);
-			simplePageToolDao.quickUpdate(i);
-			seq++;
-		    }
-		} else if (items.get(0).getType() == SimplePageItem.BREAK &&
-			   items.get(1).getId() == itemNum) {
-		    // maybe we just inserted a break before our item. 
-		    // If so, use the break;
-		    item = items.get(0);
-		} else {
-		    log.error("Ajax setcolumnproperties passed item not a break: " + itemId);
-		}
-		    
-	    }
+	    item = getCorrectBreakItem(itemNum);
 	    page = simplePageToolDao.getPage(item.getPageId());
 	    siteId = page.getSiteId();
 	} catch (Exception e) {
@@ -676,8 +660,7 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
-	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 	    log.error("Ajax setcolumnproperties passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
@@ -703,12 +686,103 @@ public class AjaxServer extends HttpServlet
 
     }
 
+	public static String setSectionCollapsible(String itemId, String collapsible, String sectionTitle, String defaultClosed, String csrfToken) {
+		if (itemId == null || collapsible == null || sectionTitle == null) {
+			log.error("Ajax setSectionCollapsible passed null argument");
+			return null;
+		}
+
+		simplePageToolDao.setRefreshMode();
+
+		itemId = itemId.trim();
+		// we don't actually use the integers. Just for syntax checking
+		int collapsiblei = 0;
+		int defaultClosedi = 0;
+		try {
+			collapsiblei = Integer.parseInt(collapsible);
+			defaultClosedi = Integer.parseInt(defaultClosed);
+		} catch (Exception e) {
+			log.error("Ajax setSectionCollapsible passed non-numeric collapsible or defaultClosed");
+			return null;
+		}
+
+		// currently this is only needed by the instructor
+
+		SimplePageItem item = null;
+		SimplePage page = null;
+		String siteId = null;
+		try {
+			Long itemNum = Long.parseLong(itemId);
+			item = getCorrectBreakItem(itemNum);
+			page = simplePageToolDao.getPage(item.getPageId());
+			siteId = page.getSiteId();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("Ajax setSectionCollapsible passed invalid data " + e);
+			return null;
+		}
+		if (siteId == null) {
+			log.error("Ajax setSectionCollapsible passed null site id");
+			return null;
+		}
+
+		if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
+			log.error("Ajax setSectionCollapsible passed itemid " + itemId + " but user doesn't have permission");
+			return null;
+		}
+
+		if (collapsible.trim().equals("1"))
+			item.setAttribute("collapsible", collapsible);
+		else
+			item.removeAttribute("collapsible");
+
+		if (defaultClosed.trim().equals("1"))
+			item.setAttribute("defaultClosed", defaultClosed);
+		else
+			item.removeAttribute("defaultClosed");
+
+		item.setName(sectionTitle);
+
+		simplePageToolDao.quickUpdate(item);
+		return "ok";
+	}
+
+	private static SimplePageItem getCorrectBreakItem(Long itemNum) {
+		SimplePageItem item = simplePageToolDao.findItem(itemNum);
+		if (item.getType() != SimplePageItem.BREAK) {
+			// hopefully this is the first item, in an old page that doesn't begin with a page break
+			List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+			if (items.get(0).getId() == itemNum) {
+				// this is first item on page, add a section break before it
+				item = simplePageToolDao.makeItem(item.getPageId(), 1, SimplePageItem.BREAK, null, null);
+				item.setFormat("section");
+				simplePageToolDao.quickSaveItem(item);
+				int seq = 2;
+				// and bump sequence numbers
+				for (SimplePageItem i: items) {
+					i.setSequence(seq);
+					simplePageToolDao.quickUpdate(i);
+					seq++;
+				}
+			} else if (items.get(0).getType() == SimplePageItem.BREAK &&
+					items.get(1).getId() == itemNum) {
+				// maybe we just inserted a break before our item.
+				// If so, use the break;
+				item = items.get(0);
+			} else {
+				log.error("Ajax setSectionCollapsible passed item not a break: " + itemNum);
+			}
+		}
+		return item;
+	}
 
     public static String deleteItem(String itemId, String csrfToken) {
 	if (itemId == null) {
 	    log.error("Ajax deleteBreak passed null itemid");
 	    return null;
 	}
+
+	simplePageToolDao.setRefreshMode();
 
 	itemId = itemId.trim();
 
@@ -731,8 +805,7 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 
-	String ref = "/site/" + siteId;
-	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 	    log.error("Ajax deleteBreak passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
@@ -755,6 +828,51 @@ public class AjaxServer extends HttpServlet
 	simplePageToolDao.quickDelete(item);
 
 	return "ok";
+
+    }
+
+    public static String isLogged(String itemId) {
+	if (itemId == null) {
+	    log.error("Ajax isLogged passed null itemid");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+
+	// maybe this isn't needed. Just trying to verify that user
+	// is actually in the site
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax track passed invalid data " + e);
+	    return null;
+	}
+	// user can pass any item id they want. It doesnt' make sense to protect against this, since doing that is
+	// more work than just looking at the link. But only allow it for actual links.
+	if (siteId == null || item.getType() != SimplePageItem.RESOURCE) {
+	    log.error("Ajax isLogged passed bad item " + itemId);
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref)) {
+	    // user doesn't have permission in site
+	    // not worth testing whether they have access to the page
+	    return null;
+	}
+
+	// there should be no required items on student pages, so we just pass -1
+	SimplePageLogEntry entry = simplePageToolDao.getLogEntry(SessionManager.getCurrentSessionUserId(), item.getId(), -1L);
+	if (entry != null)
+	    return "ok";
+	else
+	    return "fail";
 
     }
 
@@ -819,10 +937,20 @@ public class AjaxServer extends HttpServlet
 	  String color = req.getParameter("color");
 	  String csrfToken = req.getParameter("csrf");
 	  out.println(setColumnProperties(itemId, width, split, color, csrfToken));
+	  } else if (op.equals("setsectioncollapsible")) {
+	  String itemId = req.getParameter("itemid");
+	  String collapsible = req.getParameter("collapsible");
+	  String sectionTitle = req.getParameter("sectiontitle");
+	  String defaultClosed = req.getParameter("defaultclosed");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(setSectionCollapsible(itemId, collapsible, sectionTitle, defaultClosed, csrfToken));
       } else if (op.equals("deleteitem")) {
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");
 	  out.println(deleteItem(itemId, csrfToken));
+      } else if (op.equals("islogged")) {
+	  String itemId = req.getParameter("itemid");
+	  out.println(isLogged(itemId));
       }
 
    }
@@ -837,6 +965,14 @@ public class AjaxServer extends HttpServlet
 
     public void setAuthzGroupService(AuthzGroupService s) {
         authzGroupService = s;
+    }
+
+    public void setLessonsAccess(LessonsAccess s) {
+        lessonsAccess = s;
+    }
+
+    public void setLessonBuilderAccessService(LessonBuilderAccessService s) {
+        lessonBuilderAccessService = s;
     }
 
 }

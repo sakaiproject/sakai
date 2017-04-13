@@ -23,31 +23,26 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -97,7 +92,7 @@ public class GrantSubmissionListener
 		int itemType = gradingService.getTypeId(itemGradingId).intValue();
 		if(itemType == 6 || itemType == 7){
 			//if is file upload or recording type, check if there is file/media uploaded
-			ArrayList mediaDatas = gradingService.getMediaArray(itemGradingId.toString());
+			List<MediaData> mediaDatas = gradingService.getMediaArray(itemGradingId.toString());
 			for(int j = 0; j < mediaDatas.size(); j++) {
 				//if there are file(s) uploaded, delete them
 				String mediaId = ((MediaData)mediaDatas.get(j)).getMediaId().toString();
@@ -120,9 +115,9 @@ public class GrantSubmissionListener
     	}
     }
 
-    ArrayList gradingList = totalScores.getAssessmentGradingList();
+    List gradingList = totalScores.getAssessmentGradingList();
     //Get the list of submission for this student
-    ArrayList deletedStudentGradingList = new ArrayList();
+    List deletedStudentGradingList = new ArrayList();
     for(int i = 0; i < gradingList.size(); i++){
     	if (((AssessmentGradingData)gradingList.get(i)).getAgentId().equals(deletedStudentId)) {
     		deletedStudentGradingList.add(gradingList.get(i));

@@ -40,7 +40,17 @@ public interface MessageForumsMessageManager {
     public void saveMessage(Message message);
 
     public void saveMessage(Message message, boolean logEvent);
-    
+    /**
+     * 
+     * @param message message
+     * @param logEvent logEvent
+     * @param toolId id of the forums tool 
+     * @param userId user id
+     * @param contextId context id
+     *
+     */
+	public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId);
+	
     /**
      * 
      * @param message
@@ -221,7 +231,7 @@ public interface MessageForumsMessageManager {
     
 	public boolean isToolInSite(String siteId, String toolId);
 
-	public Map<Long, Boolean> getReadStatusForMessagesWithId(List msgIds, String userId);
+	public Map<Long, Boolean> getReadStatusForMessagesWithId(List<Long> msgIds, String userId);
 	
 	/**
 	 * Returns list of all messages in site with Pending approval for which
@@ -248,4 +258,13 @@ public interface MessageForumsMessageManager {
 	public void saveMessageMoveHistory(Long msgid, Long desttopicId,Long sourceTopicId, boolean checkreminder);
 	  
 	public List findMovedMessagesByTopicId(Long id); 
+
+	/**
+	 * Returns a given number of recent threads(which are not deleted and not in draft stage)
+	 * for a given list of topicIds
+	 * @param topicIds
+	 * @param numberOfMessages
+	 * @return
+	 */
+	public List getRecentDiscussionForumThreadsByTopicIds(List<Long> topicIds, int numberOfMessages);
 }

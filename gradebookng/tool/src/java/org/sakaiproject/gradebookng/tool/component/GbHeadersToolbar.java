@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -86,8 +87,15 @@ public class GbHeadersToolbar extends HeadersToolbar {
 					if (GbCategoryType.WEIGHTED_CATEGORY.equals(categoryType) && category.getWeight() != null) {
 						final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
 						categoryItem.add(new Label("weight", weight));
+						categoryItem.add(new AttributeModifier("title",
+							new StringResourceModel("label.gradeitem.categoryandweightheadertooltip", null,
+								new Object[] {category.getName(), weight})));
 					} else {
 						categoryItem.add(new WebMarkupContainer("weight").setVisible(false));
+						categoryItem.add(new AttributeModifier("title",
+							new StringResourceModel("label.gradeitem.categoryheadertooltip", null,
+								new Object[] {category.getName()})));
+
 					}
 				}
 			});
@@ -95,6 +103,8 @@ public class GbHeadersToolbar extends HeadersToolbar {
 			if (categoryCounts.get(null) > 0) {
 				final WebMarkupContainer uncategorizedHeader = new WebMarkupContainer("uncategorized");
 				uncategorizedHeader.add(new AttributeModifier("colspan", categoryCounts.get(null)));
+				uncategorizedHeader.add(new AttributeModifier("title",
+					getString("gradebookpage.uncategorised")));
 				categoriesRow.add(uncategorizedHeader);
 			} else {
 				categoriesRow.add(new WebMarkupContainer("uncategorized").setVisible(false));

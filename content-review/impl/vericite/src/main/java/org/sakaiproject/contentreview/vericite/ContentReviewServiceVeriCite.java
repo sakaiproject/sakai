@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -80,9 +81,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
 
-@CommonsLog
+@Slf4j
 public class ContentReviewServiceVeriCite implements ContentReviewService {
 
 	@Setter
@@ -118,6 +118,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 	private String serviceUrl;
 	private String consumer;
 	private String consumerSecret;
+	private Boolean showPreliminary;
 	
 	private MemoryService memoryService;
 	//Caches requests for instructors so that we don't have to send a request for every student
@@ -133,6 +134,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		userUrlCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.userUrlCache", new SimpleConfiguration<>(10000, CACHE_EXPIRE_URLS_MINS * 60, -1));
 		contentScoreCache = memoryService.createCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.contentScoreCache", new SimpleConfiguration<>(10000, CONTENT_SCORE_CACHE_MINS * 60, -1));
 		assignmentTitleCache = memoryService.getCache("org.sakaiproject.contentreview.vericite.ContentReviewServiceVeriCite.assignmentTitleCache");
+		showPreliminary = serverConfigurationService.getBoolean("contentreview.config.show_preliminary_score", true);
 	}
 	
 	public boolean allowResubmission() {
@@ -167,6 +169,12 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 						}
 						if(opts.containsKey("exclude_quoted")){
 							assignmentData.setAssignmentExcludeQuotes("1".equals(opts.get("exclude_quoted").toString()));
+						}
+						if(opts.containsKey("exclude_self_plag")){
+							assignmentData.setAssignmentExcludeSelfPlag("1".equals(opts.get("exclude_self_plag").toString()));
+						}
+						if(opts.containsKey("store_inst_index")){
+							assignmentData.setAssignmentStoreInIndex("1".equals(opts.get("store_inst_index").toString()));
 						}
 						if(opts.containsKey("dtdue")){
 							SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
@@ -274,22 +282,19 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		return crqs.getDateSubmitted(getProviderId(), contextId);
 	}
 
-	public String getIconUrlforScore(Long score) {
-		String urlBase = "/library/content-review/";
-		String suffix = ".png";
-
-		if (score.compareTo(Long.valueOf(0)) < 0) {
-			return urlBase + "greyflag" + suffix;
-		}else if (score.equals(Long.valueOf(0))) {
-			return urlBase + "blueflag" + suffix;
-		} else if (score.compareTo(Long.valueOf(25)) < 0 ) {
-			return urlBase + "greenflag" + suffix;
-		} else if (score.compareTo(Long.valueOf(50)) < 0  ) {
-			return urlBase + "yellowflag" + suffix;
-		} else if (score.compareTo(Long.valueOf(75)) < 0 ) {
-			return urlBase + "orangeflag" + suffix;
+	public String getIconCssClassforScore(int score) {
+		if (score < 0) {
+			return "contentReviewIconThreshold-6";
+		} else if (score == 0) {
+			return "contentReviewIconThreshold-5";
+		} else if (score < 25) {
+			return "contentReviewIconThreshold-4";
+		} else if (score < 50) {
+			return "contentReviewIconThreshold-3";
+		} else if (score < 75) {
+			return "contentReviewIconThreshold-2";
 		} else {
-			return urlBase + "redflag" + suffix;
+			return "contentReviewIconThreshold-1";
 		}
 	}
 
@@ -451,6 +456,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		String context = getSiteIdFromConentId(contentId);
 		Integer score = null;
 		String assignment = getAssignmentId(assignmentRef, isA2);
+		boolean preliminarySkipped = false;
 		if(StringUtils.isNotEmpty(assignment)){
 			if(contentScoreCache.containsKey(assignment)){
 				Object cacheObj = contentScoreCache.get(assignment);
@@ -465,7 +471,12 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 						cal.add(Calendar.MINUTE, CONTENT_SCORE_CACHE_MINS * -1);
 						if(((Date) cacheItem[1]).after(cal.getTime())){
 							//token hasn't expired, use it
-							score = (Integer) cacheItem[0];
+							boolean preliminary = cacheItem.length == 3 ? (boolean) cacheItem[2] : false;
+							if(!showPreliminary && preliminary) {
+								preliminarySkipped = true;
+							}else{
+								score = (Integer) cacheItem[0];
+							}
 						}else{
 							//token is expired, remove it
 							contentScoreCacheObject.remove(userId);
@@ -509,7 +520,11 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 				if(scores != null){
 					for(ReportScoreReponse scoreResponse : scores){
 						if(externalContentId.equals(scoreResponse.getExternalContentId())){
-							score = scoreResponse.getScore();
+							if(!showPreliminary && scoreResponse.getPreliminary()) {
+								preliminarySkipped = true;
+							}else{
+								score = scoreResponse.getScore();
+							}
 						}
 						//only cache the score if it is > 0
 						if(scoreResponse.getScore() != null && scoreResponse.getScore().intValue() >= 0){
@@ -521,7 +536,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 							if(cacheMap == null){
 								cacheMap = new HashMap<String, Object[]>();
 							}
-							cacheMap.put(scoreResponse.getExternalContentId(), new Object[]{scoreResponse.getScore(), new Date()});
+							cacheMap.put(scoreResponse.getExternalContentId(), new Object[]{scoreResponse.getScore(), new Date(), scoreResponse.getPreliminary()});
 							((Map<String, Map<String, Object[]>>) userCacheMap).put(scoreResponse.getUser(), cacheMap);								
 							contentScoreCache.put(scoreResponse.getAssignment(), userCacheMap);
 						}
@@ -548,7 +563,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		if(score == null){
 			//nothing was found, throw exception for this contentId
 			//remove from queue so that we can start again.
-			if(needsRequeue(reviewItem)){
+			if(!preliminarySkipped && needsRequeue(reviewItem)){
 				if(reviewItem.isPresent()){
 					//in order to requeue, we need to delete the old queue:
 					crqs.removeFromQueue(getProviderId(), contentId);
@@ -880,6 +895,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		}
 		apiUrl += VERICITE_API_VERSION;
 		apiClient.setBasePath(apiUrl);
+		apiClient.setConnectTimeout(30000); //30 sec timeout
 		return new DefaultApi(apiClient);
 	}
 	

@@ -28,7 +28,7 @@ import org.sakaiproject.entity.api.Edit;
  * MessageChannelEdit is the base interface for Sakai communications service message channels in read/write mode.
  * </p>
  */
-public interface MessageChannelEdit extends MessageChannel, Edit
+public interface MessageChannelEdit<T extends Message> extends MessageChannel<T>, Edit
 {
 }
 

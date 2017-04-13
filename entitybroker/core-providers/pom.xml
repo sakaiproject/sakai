@@ -49,8 +49,8 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
          <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -58,13 +58,8 @@
             <version>2.1.0</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

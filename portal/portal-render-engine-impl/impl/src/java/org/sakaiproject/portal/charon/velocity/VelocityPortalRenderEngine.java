@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.velocity.app.VelocityEngine;
@@ -107,10 +108,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		vengine = new VelocityEngine();
 
 		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
+		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, new SLF4JLogChute());
 
-		vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-		vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
 		Properties p = new Properties();
 		InputStream in = null;
 		try {

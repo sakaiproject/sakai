@@ -7,12 +7,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class GradeItemCellPopoverPanel extends Panel {
+public class GradeItemCellPopoverPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 

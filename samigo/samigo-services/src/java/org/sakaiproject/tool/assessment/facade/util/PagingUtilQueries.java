@@ -27,8 +27,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.ScrollableResults;

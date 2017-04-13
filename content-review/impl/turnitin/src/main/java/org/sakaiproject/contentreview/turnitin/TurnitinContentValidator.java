@@ -17,6 +17,7 @@ package org.sakaiproject.contentreview.turnitin;
 
 import java.io.IOException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -25,8 +26,6 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * This class contains the implementation of 
@@ -37,7 +36,7 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author sgithens
  *
  */
-@CommonsLog
+@Slf4j
 public class TurnitinContentValidator {
 
 	private int tii_Max_Fil_Size;

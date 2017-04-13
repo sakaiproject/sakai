@@ -59,7 +59,14 @@ public interface MembershipManager {
    * @return list of MembershipItems
    */
   public List getAllCourseUsers();
-  
+
+  /**
+   * get all users for course w/o filtering of FERPA enabled members
+   * @return map of MembershipItems
+   */
+  public Map getAllCourseUsersAsMap();
+
+
   /**
    * returns a list for UI
    * @param memberMap

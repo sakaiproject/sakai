@@ -44,7 +44,6 @@ public class ContentReviewItem {
 	private Long status;
 	private Integer reviewScore;
 	private String lastError;
-	private String iconUrl;
 	private Long retryCount;
 	private Integer version;
 

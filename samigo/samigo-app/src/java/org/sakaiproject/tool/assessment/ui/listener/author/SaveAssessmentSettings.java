@@ -45,10 +45,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
+import org.sakaiproject.tool.assessment.data.dao.assessment.*;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -56,6 +53,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIf
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.assessment.facade.ExtendedTimeFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -85,17 +83,12 @@ public class SaveAssessmentSettings
     // template selected
     // #1 - set Assessment
     Long assessmentId = assessmentSettings.getAssessmentId();
-    //log.info("**** save assessment assessmentId ="+assessmentId.toString());
     ItemAuthorBean iAuthor=new ItemAuthorBean();
-    //System.out.println("assessmentSettings.getFeedbackAuthoring: "+assessmentSettings.getFeedbackAuthoring());
-    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());
-    //System.out.println("iAuthor.getShowFeedbackAuthoring :"+iAuthor.getShowFeedbackAuthoring());
+    iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());;
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());
-    //log.info("** assessment = "+assessment);
     assessment.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getTitle()));
-    //assessment.setTitle(assessmentSettings.getTitle());
     assessment.setDescription(assessmentSettings.getDescription());
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.AUTHORS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getAuthors()));
 
@@ -128,16 +121,18 @@ public class SaveAssessmentSettings
             || "".equals(assessmentSettings.getRetractDateString())) {
         control.setRetractDate(null);
         control.setLateHandling(AssessmentAccessControl.NOT_ACCEPT_LATE_SUBMISSION);
+    } else if (!assessmentSettings.getAutoSubmit() && 
+               assessmentSettings.getRetractDate() != null && 
+               assessmentSettings.getLateHandling() != null && 
+               AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+        control.setRetractDate(null);
     } else {
         control.setRetractDate(assessmentSettings.getRetractDate());
     }
     control.setFeedbackDate(assessmentSettings.getFeedbackDate());
     control.setReleaseTo(assessmentSettings.getReleaseTo());
-    //log.info("control RELEASETO ="+control.getReleaseTo());
-    //log.info("settings RELEASETO ="+assessmentSettings.getReleaseTo());
 
     // b. set Timed Assessment
-    //log.info("** Time limit update to = "+assessmentSettings.getTimeLimit().intValue());
     control.setTimeLimit(assessmentSettings.getTimeLimit());
     if (assessmentSettings.getTimedAssessment())
       control.setTimedAssessment(AssessmentAccessControl.TIMED_ASSESSMENT);
@@ -169,6 +164,7 @@ public class SaveAssessmentSettings
     	control.setMarkForReview(AssessmentAccessControl.NOT_MARK_FOR_REVIEW);
     }
 
+    control.setHonorPledge(assessmentSettings.isHonorPledge());
 
     // d. set Submissions
     if (assessmentSettings.getUnlimitedSubmissions()!=null){
@@ -306,9 +302,14 @@ public class SaveAssessmentSettings
     // hasRetractDate, hasAnonymous, hasAuthenticatedUser, hasIpAddress,
     // hasUsernamePassword,
     // hasTimeAssessment,hasAutoSubmit, hasPartMetaData, hasQuestionMetaData
-    HashMap h;
-    h = addExtendedTimeValuesToMetaData(assessment, assessmentSettings);
+    Map <String, String> h = assessmentSettings.getValueMap();
     updateMetaWithValueMap(assessment, h);
+
+    //Update with any settings that are unsaved
+    assessmentSettings.addExtendedTime(false);
+
+    ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+    extendedTimeFacade.saveEntries(assessment, assessmentSettings.getExtendedTimes());
 
     // i. set Graphics
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.BGCOLOR, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(LOG, assessmentSettings.getBgColor()));
@@ -378,7 +379,7 @@ public class SaveAssessmentSettings
 
     // added by daisyf, 10/10/06
     updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), true);
-    EventTrackingService.post(EventTrackingService.newEvent("sam.setting.edit", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId(), true));
     
     AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
@@ -391,7 +392,7 @@ public class SaveAssessmentSettings
             }
     		
     		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-    		TreeMap groupsForSite = publishedAssessmentService.getGroupsForSite();
+    		Map groupsForSite = publishedAssessmentService.getGroupsForSite();
     		if (groupsForSite != null && groupsForSite.size() > 0) {
     			String releaseToGroups = getReleaseToGroupsAsString(groupsForSite, groupsAuthorized);
     			assessmentSettings.setReleaseToGroupsAsString(releaseToGroups);
@@ -427,7 +428,7 @@ public class SaveAssessmentSettings
   }
 
 
-  public void updateMetaWithValueMap(AssessmentIfc assessment, HashMap map){
+  public void updateMetaWithValueMap(AssessmentIfc assessment, Map map){
 	  //log.info("** map size ="+map.size());
 
 	  if (map!=null){
@@ -492,7 +493,7 @@ public class SaveAssessmentSettings
   public void updateAttachment(List oldList, List newList, AssessmentIfc assessment, boolean isAuthorSettings){
     if ((oldList == null || oldList.isEmpty() ) && (newList == null || newList.isEmpty())) return;
     List list = new ArrayList();
-    HashMap map = getAttachmentIdHash(oldList);
+    Map map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
       AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)newList.get(i);
       if (map.get(a.getAttachmentId())!=null){
@@ -524,8 +525,8 @@ public class SaveAssessmentSettings
     }
   }
 
-  private HashMap getAttachmentIdHash(List list){
-    HashMap map = new HashMap();
+  private Map getAttachmentIdHash(List list){
+    Map map = new HashMap();
     for (int i=0; i<list.size(); i++){
       AssessmentAttachmentIfc a = (AssessmentAttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);
@@ -533,7 +534,7 @@ public class SaveAssessmentSettings
     return map;
   }
 
-  private String getReleaseToGroupsAsString(TreeMap groupsForSiteMap, String [] groupsAuthorized) {
+  private String getReleaseToGroupsAsString(Map groupsForSiteMap, String [] groupsAuthorized) {
 	  List releaseToGroups = new ArrayList();
       for( String groupsAuthorized1 : groupsAuthorized )
       {
@@ -558,42 +559,4 @@ public class SaveAssessmentSettings
 
 	  return releaseToGroupsAsString.toString();
   }
-
-	/**
-	 * This will clear out the old extended time values and update them with new
-	 * ones.
-	 * 
-	 * @param assessment
-	 * @param assessmentSettings
-	 * @return
-	 */
-	private HashMap addExtendedTimeValuesToMetaData(AssessmentFacade assessment,
-			AssessmentSettingsBean assessmentSettings) {
-
-		String[] allExtendedTimeEntries = assessmentSettings.getExtendedTimes().split("\\^");
-		HashMap<String, String> metaDataMap = assessment.getAssessmentMetaDataMap();
-		String metaKey;
-
-		// clear out the old extended Time values
-		int itemNum = 1;
-		String extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
-			metaKey = EXTENDED_TIME_KEY + itemNum;
-			metaDataMap.put(metaKey, ""); // set to empty string TODO: actually
-											// delete it.
-			extendedTimeData = assessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-			itemNum++;
-		}
-
-		for (itemNum = 0; itemNum < allExtendedTimeEntries.length; itemNum++) {
-			String extendedTimeEntry = allExtendedTimeEntries[itemNum];
-			metaKey = "extendedTime" + (itemNum + 1);
-
-			// Add in the new extended time values
-			metaDataMap.put(metaKey, extendedTimeEntry);
-		}
-
-		return metaDataMap;
-	}
-
 }

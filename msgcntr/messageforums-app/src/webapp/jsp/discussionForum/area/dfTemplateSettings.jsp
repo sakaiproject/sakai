@@ -101,6 +101,7 @@
             <script type="text/javascript">
                   localDatePicker({
                   	input:'.openDate',
+                  	allowEmptyDate:true,
                   	ashidden: { iso8601: 'openDateISO8601' }, 
                   	getval:'.openDate',
                   	useTime:1 
@@ -108,6 +109,7 @@
 
                   localDatePicker({
                   	input:'.closeDate', 
+                  	allowEmptyDate:true,
                   	ashidden: { iso8601: 'closeDateISO8601' },
                   	getval:'.closeDate',
                   	useTime:1 
@@ -115,10 +117,8 @@
             </script>
 
 
-				<div class="instruction" style="padding: 0.5em;"><h4>
-					<h:outputText  value="#{msgs.cdfm_forum_mark_read}" />
-				</h4></div>
-				<h:panelGrid columns="1" columnClasses="shorttext,checkbox">
+				<h4><h:outputText  value="#{msgs.cdfm_forum_mark_read}" /></h4>
+				<h:panelGrid columns="1" columnClasses="shorttext,checkbox" style="margin-bottom:1em">
 				  <h:panelGroup><h:outputLabel id="outputLabel5" for="autoMarkThreadsRead"  value="#{msgs.cdfm_auto_mark_threads_read}"/>	</h:panelGroup>
 				  <h:panelGroup>
 					  <h:selectOneRadio layout="pageDirection" disabled="#{not ForumTool.editMode}" id="autoMarkThreadsRead" 

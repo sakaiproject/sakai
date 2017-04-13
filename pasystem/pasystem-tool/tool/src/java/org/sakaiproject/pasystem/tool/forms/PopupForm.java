@@ -50,34 +50,34 @@ public class PopupForm extends BaseForm {
 
     private final String descriptor;
     private final boolean isOpenCampaign;
-    private final List<String> assignToUsers;
+    private final List<String> assignToEids;
     private final Optional<DiskFileItem> templateItem;
 
     private PopupForm(String uuid,
                       String descriptor,
                       long startTime, long endTime,
                       boolean isOpenCampaign,
-                      List<String> assignees,
+                      List<String> assignToEids,
                       Optional<DiskFileItem> templateItem) {
         this.uuid = uuid;
         this.descriptor = descriptor;
         this.startTime = startTime;
         this.endTime = endTime;
         this.isOpenCampaign = isOpenCampaign;
-        this.assignToUsers = assignees;
+        this.assignToEids = assignToEids;
         this.templateItem = templateItem;
     }
 
     public static PopupForm fromPopup(Popup existingPopup, PASystem paSystem) {
         try {
             String uuid = existingPopup.getUuid();
-            List<String> assignees = paSystem.getPopups().getAssignees(uuid);
+            List<String> assignToEids = paSystem.getPopups().getAssigneeEids(uuid);
 
             return new PopupForm(uuid, existingPopup.getDescriptor(),
                     existingPopup.getStartTime(),
                     existingPopup.getEndTime(),
                     existingPopup.isOpenCampaign(),
-                    assignees,
+                    assignToEids,
                     Optional.empty());
         } catch (MissingUuidException e) {
             throw new RuntimeException(e);
@@ -91,11 +91,11 @@ public class PopupForm extends BaseForm {
         long startTime = "".equals(request.getParameter("start_time")) ? 0 : parseTime(request.getParameter("start_time_selected_datetime"));
         long endTime = "".equals(request.getParameter("end_time")) ? 0 : parseTime(request.getParameter("end_time_selected_datetime"));
 
-        List<String> assignees = new ArrayList<String>();
+        List<String> assignToEids = new ArrayList<String>();
         if (request.getParameter("distribution") != null) {
             for (String user : request.getParameter("distribution").split("[\r\n]+")) {
                 if (!user.isEmpty()) {
-                    assignees.add(user);
+                    assignToEids.add(user);
                 }
             }
         }
@@ -106,7 +106,7 @@ public class PopupForm extends BaseForm {
             templateItem = Optional.of(dfi);
         }
 
-        return new PopupForm(uuid, descriptor, startTime, endTime, isOpenCampaign, assignees, templateItem);
+        return new PopupForm(uuid, descriptor, startTime, endTime, isOpenCampaign, assignToEids, templateItem);
     }
 
     public Errors validate(CrudHandler.CrudMode mode) {

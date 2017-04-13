@@ -59,7 +59,7 @@ public class AuthnCacheWatcher implements Observer {
         this.memoryService = memoryService;
     }
 
-		public void setUserCache(Cache userCache) {
+	public void setUserCache(Cache userCache) {
 		this.userCache = userCache;
 	}
 

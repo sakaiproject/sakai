@@ -274,7 +274,11 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
         // Remove the existing groups
         for (Iterator i = groups.iterator(); i.hasNext(); ) {
-            site.removeGroup((Group) i.next());
+            try {
+                site.deleteGroup((Group) i.next());
+            } catch (IllegalStateException e) {
+                M_log.error(".processMembershipsResponse: Group with id {} cannot be removed because is locked", ((Group) i).getId());
+            }
         }
 
         for (String consumerGroupTitle : consumerGroups.keySet()) {
@@ -291,7 +295,11 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
                     M_log.debug("Adding '" + consumerGroupMember.firstName + " " + consumerGroupMember.lastName + "' to '" + consumerGroupTitle + "' ...");
                 }
 
-                sakaiGroup.addMember(consumerGroupMember.userId, consumerGroupMember.role, true, false);
+                try {
+                    sakaiGroup.insertMember(consumerGroupMember.userId, consumerGroupMember.role, true, false);
+                } catch (IllegalStateException e) {
+                    M_log.error(".processMembershipsResponse: User with id {} cannot be inserted in group with id {} because the group is locked", consumerGroupMember.userId, sakaiGroup.getId());
+                }
             }
         }
 

@@ -3203,6 +3203,7 @@ public abstract class BaseCitationService implements CitationService
 				this.m_citations = new Hashtable<String, Citation>();
 			}
 			this.m_citations.clear();
+			this.m_nestedCitationCollectionOrders.clear();
 			if(this.m_order == null)
 			{
 				this.m_order = new TreeSet<String>(this.m_comparator);
@@ -4815,7 +4816,7 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
 
-	    registry.register(typedef);
+	    registry.register(typedef, new CitationContentChangeHandler());
     }
 
 	/**
@@ -5752,8 +5753,13 @@ public abstract class BaseCitationService implements CitationService
         }
         return citation;
     }
-
-
+    
+    @Override    
+    public Citation copyCitation(Citation citation) {
+    	BasicCitation c = new BasicCitation();
+    	c.copy(citation);
+    	return c;
+    }
 
 } // BaseCitationService
 

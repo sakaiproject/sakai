@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
@@ -172,12 +172,11 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 		}
 		else if (level.equals("TRACE"))
 		{
-			// Note: log4j has nothing below debug
 			Logger logger = Logger.getLogger(loggerName);
 			if (logger != null)
 			{
-				logger.setLevel(org.apache.log4j.Level.DEBUG);
-				log.info("TRACE (DEBUG) logging for: " + loggerName);
+				logger.setLevel(org.apache.log4j.Level.TRACE);
+				log.info("TRACE logging for: " + loggerName);
 			}
 			else
 			{

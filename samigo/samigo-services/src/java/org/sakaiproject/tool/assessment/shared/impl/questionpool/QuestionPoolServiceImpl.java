@@ -198,7 +198,7 @@ public class QuestionPoolServiceImpl
   /**
    * Get the size of a subpool.
    */
-  public int getSubPoolSize(Long poolId)
+  public long getSubPoolSize(Long poolId)
   {
     try
     {
@@ -220,22 +220,6 @@ public class QuestionPoolServiceImpl
     {
       QuestionPoolService service = new QuestionPoolService();
       return service.hasSubPools(poolId);
-    }
-    catch (Exception ex)
-    {
-      throw new QuestionPoolServiceException(ex);
-    }
-  }
-
-  /**
-   * Get all items sorted by orderby
-   */
-    public List getAllItemsSorted(Long poolId, String orderBy, String ascending)
-  {
-    try
-    {
-      QuestionPoolService service = new QuestionPoolService();
-      return service.getAllItemsSorted(poolId, orderBy, ascending);
     }
     catch (Exception ex)
     {

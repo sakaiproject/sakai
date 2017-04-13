@@ -52,6 +52,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 //import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 //import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -126,17 +127,13 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 			searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
 					.getName());
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-			
-    
-
 
 			if ( "true".equals(ServerConfigurationService.getString(
 					"search.enable", "false")))
 			{
-
-				searchService.registerFunction("lessonbuilder.create");
-				searchService.registerFunction("lessonbuilder.update");
-				searchService.registerFunction("lessonbuilder.delete");
+				searchService.registerFunction(LessonBuilderEvents.ITEM_CREATE);
+				searchService.registerFunction(LessonBuilderEvents.ITEM_UPDATE);
+				searchService.registerFunction(LessonBuilderEvents.ITEM_DELETE);
 				searchIndexBuilder.registerEntityContentProducer(this);
 			}
 		}
@@ -220,12 +217,12 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	public Integer getAction(Event event)
 	{
 		String eventName = event.getEvent();
-		if ("lessonbuilder.create".equals(eventName)
-				|| "lessonbuilder.update".equals(eventName))
+		if (LessonBuilderEvents.ITEM_CREATE.equals(eventName)
+				|| LessonBuilderEvents.ITEM_UPDATE.equals(eventName))
 		{
 			return SearchBuilderItem.ACTION_ADD;
 		}
-		if ("lessonbuilder.delete".equals(eventName))
+		if (LessonBuilderEvents.ITEM_DELETE.equals(eventName))
 		{
 			return SearchBuilderItem.ACTION_DELETE;
 		}
@@ -360,10 +357,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 		try
 		{
 			Reference r = entityManager.newReference(reference);
-			if (log.isDebugEnabled())
-			{
-				log.debug("Lessons.getReference:" + reference + ":" + r);
-			}
+            log.debug("Lessons.getReference:{}:{}", reference, r);
 			return r;
 		}
 		catch (Exception ex)
@@ -394,10 +388,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 		try
 		{
 			String r = getReference(reference).getId();
-			if (log.isDebugEnabled())
-			{
-				log.debug("Lessons.getId:" + reference + ":" + r);
-			}
+            log.debug("Lessons.getId:{}:{}", reference, r);
 			return r;
 		}
 		catch (Exception ex)
@@ -416,10 +407,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 		try
 		{
 			String r = getReference(reference).getSubType();
-			if (log.isDebugEnabled())
-			{
-				log.debug("Lessons.getSubType:" + reference + ":" + r);
-			}
+            log.debug("Lessons.getSubType:{}:{}", reference, r);
 			return r;
 		}
 		catch (Exception ex)
@@ -438,10 +426,7 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 		try
 		{
 			String r = getReference(reference).getType();
-			if (log.isDebugEnabled())
-			{
-				log.debug("Lessons.getType:" + reference + ":" + r);
-			}
+            log.debug("Lessons.getType:{}:{}", reference, r);
 			return r;
 		}
 		catch (Exception ex)

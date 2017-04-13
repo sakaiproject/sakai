@@ -11,7 +11,11 @@
 	<name>External Calendaring Service :: Implementation</name>
 	<groupId>org.sakaiproject.calendaring</groupId>
 	<artifactId>external-calendaring-service-impl</artifactId>
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
 	
   	<dependencies>
     	<dependency>
@@ -66,24 +70,15 @@
       		<groupId>org.mnode.ical4j</groupId>
       		<artifactId>ical4j</artifactId>
     	</dependency>
-    	<dependency>
-			<groupId>backport-util-concurrent</groupId>
-			<artifactId>backport-util-concurrent</artifactId>
-		</dependency>
-   
+
         <!--  test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
     	<dependency>
     		<groupId>org.springframework</groupId>
     		<artifactId>spring-test</artifactId>
     	</dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
 

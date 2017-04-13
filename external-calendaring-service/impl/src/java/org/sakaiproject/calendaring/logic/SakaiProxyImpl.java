@@ -22,8 +22,7 @@ package org.sakaiproject.calendaring.logic;
 import java.io.File;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -37,7 +36,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-@CommonsLog
+@Slf4j
 public class SakaiProxyImpl implements SakaiProxy {
     
 	/**

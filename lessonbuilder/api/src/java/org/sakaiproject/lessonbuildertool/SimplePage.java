@@ -93,4 +93,8 @@ public interface SimplePage {
 
     public String getFolder();
 
+    public boolean isOwned();
+
+    public void setOwned(Boolean isOwned);
+
 }

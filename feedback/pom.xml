@@ -37,12 +37,6 @@
 		</pluginRepository>
     </pluginRepositories>
 
-	<issueManagement>
-        <system>JIRA</system>
-        <url>https://jira.oucs.ox.ac.uk/jira/browse/WL-3179</url>
-    </issueManagement>
-
-
   	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -108,8 +102,8 @@
             <artifactId>activation</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>net.tanesha.recaptcha4j</groupId>
@@ -145,7 +139,7 @@
                                     <templates>
                                         <template>content</template>
                                         <template>home</template>
-                                        <template>technical</template>
+                                        <template>emailForm</template>
                                         <template>toolbar</template>
                                     </templates>
                                 </configuration>
@@ -181,7 +175,7 @@
                             <templates>
                                 <template>content</template>
                                 <template>home</template>
-                                <template>technical</template>
+                                <template>emailForm</template>
                                 <template>toolbar</template>
                             </templates>
                         </configuration>

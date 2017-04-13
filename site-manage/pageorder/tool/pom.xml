@@ -52,6 +52,10 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.sitemanage</groupId>
+            <artifactId>sakai-site-manage-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

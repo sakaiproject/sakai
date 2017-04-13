@@ -8,8 +8,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityView;
@@ -27,7 +26,7 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-@CommonsLog
+@Slf4j
 public class ShortenedUrlServiceEntityProviderImpl implements ShortenedUrlServiceEntityProvider,  EntityProvider, AutoRegisterEntityProvider, Describeable, ActionsExecutable {
 
 	

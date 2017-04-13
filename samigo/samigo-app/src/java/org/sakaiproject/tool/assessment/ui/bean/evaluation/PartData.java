@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
@@ -42,7 +43,7 @@ public class PartData
 	 * 
 	 */
 	private static final long serialVersionUID = -6113822805534954287L;
-private ArrayList questionNumberList;
+  private List questionNumberList;
   private String partNumber;
   private String id;
   private boolean linked;
@@ -55,7 +56,7 @@ private ArrayList questionNumberList;
    * Returns a list of the question numbers as Strings.
    * @return ArrayList
    */
-  public ArrayList getQuestionNumberList()
+  public List getQuestionNumberList()
   {
     if (questionNumberList == null)
       return new ArrayList();
@@ -66,7 +67,7 @@ private ArrayList questionNumberList;
    * Sets a list of question number Strings.
    * @param pquestionNumberList ArrayList
    */
-  public void setQuestionNumberList(ArrayList pquestionNumberList)
+  public void setQuestionNumberList(List pquestionNumberList)
   {
     questionNumberList = pquestionNumberList;
   }

@@ -37,7 +37,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
 
 
         try {
-            highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<String>(), 0, references.size(), references);
+            highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<String>(), 0, references.size(), references, searchIndexBuilder.getName());
         } catch (Exception e) {
             log.error("problem running hightlighted and facetted search: " + e.getMessage(), e);
             return;
@@ -46,7 +46,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
         int i=0;
         for (SearchHit hit : highlightedResponse.getHits()) {
             InternalTermsFacet facet = null;
-            if (elasticSearchService.getUseFacetting()){
+            if (searchIndexBuilder.getUseFacetting()){
                 facet = (InternalTermsFacet) highlightedResponse.getFacets().facet(facetName);
             }
             ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);

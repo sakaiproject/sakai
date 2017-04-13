@@ -134,26 +134,14 @@
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_view_userDefined_Timeslot_page_title}"/>
-				
-							
-				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" onmouseover="delayedRecalcDate();">
-				
-					<h:outputText value="&nbsp;" escape="false"/>
-					<h:outputText value="&nbsp;" escape="false"/>
-					
-					<h:outputText value="&nbsp;" escape="false" rendered="#{UserDefineTimeslotBean.someoneSignedUp}"/>
+
 					<h:outputText value="#{msgs.warn_reschedule_event}" styleClass="alertMessage" style="width:85%" escape="false" rendered="#{UserDefineTimeslotBean.someoneSignedUp}"/>
 					
-					<h:panelGroup styleClass="titleText">		           			
-					           <h:outputText value ="&nbsp;" escape="false"/>
-					    </h:panelGroup>
+						<div class="table-responsive">
 					    <t:dataTable id="userDefinedTS" value="#{UserDefineTimeslotBean.timeSlotWrpList}" 
 					    	var="tsWrapper"
 					    	binding="#{UserDefineTimeslotBean.tsTable}"
-					    	styleClass="userDefineTsTable" 
-							rowClasses="oddRow,evenRow"
-							rowStyle="#{tsWrapper.errorStyle}"
-							columnClasses="delTSCol, startTSCol, endTSCol, numAttnTSCol" >
+					    	styleClass="userDefineTsTable table table-striped table-bordered table-hover" >
 								<t:column rendered="#{!tsWrapper.deleted}">
 									<f:facet name="header" >								
 											<h:outputText value="&nbsp;" escape="false"/>
@@ -195,10 +183,10 @@
 											<h:outputText value="#{msgs.tab_max_participants}" escape="false"/>
 									</f:facet>
 										<h:panelGroup styleClass="titleText" >
-							        		<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText numericOnly ranged notblank" size="2" style="margin-left:12px;margin-top:6px;" />
+							        		<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText numericOnly ranged notblank" size="2" />
 										</h:panelGroup>
 							</t:column>
-					    </t:dataTable>
+					    </t:dataTable></div>
 					    
 					    <h:outputText id="addMoreTS_1" value ="&nbsp;" escape="false" styleClass="titleText" />
 					    <h:panelGrid columns="1" id="addMoreTS_2">
@@ -206,21 +194,14 @@
 					    		<h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" />
 					    	 	<h:outputLabel value="#{msgs.add_more_ts}"  style="font-weight:bold" styleClass="activeTag"/>
 					    	 </h:commandLink>					    	  
-					    </h:panelGrid>
-					    
-					    <h:outputText value="&nbsp;" escape="false"/>
-					    <h:outputText value="&nbsp;" escape="false"/>
-					    
-					    <h:outputText value="&nbsp;" escape="false"/>
+					    </h:panelGrid>					    
+
 						<h:panelGroup  styleClass="longtext" >
 								<h:selectBooleanCheckbox value="#{UserDefineTimeslotBean.putInMultipleCalendarBlocks}"/>
 								<h:outputText value="#{msgs.put_In_Multiple_Calendar_Blocks_at_ScheduleTool}" escape="false"/>
-						</h:panelGroup>
-						
-						<h:outputText value="&nbsp;" escape="false"/>
-						<h:outputText value="&nbsp;" escape="false"/>
-				</h:panelGrid>
-				
+						</h:panelGroup>					
+
+
 				<sakai:button_bar>
 					<h:commandButton id="doSave"  action="#{UserDefineTimeslotBean.doSave}" actionListener="#{UserDefineTimeslotBean.validateTimeslots}"   value="#{msgs.continue_button}"/>			
 					<h:commandButton id="cancel" action="#{UserDefineTimeslotBean.doCancel}" value="#{msgs.cancel_button}"/>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.lessonbuildertool">
+
+   <class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl" table="lesson_builder_qr_totals">
+
+      <!-- create the primary key id, using native is typically the best way -->
+
+      <id name="id" type="long">
+         <generator class="native"/>
+      </id>
+
+      <property name="questionId" type="long" />
+      <property name="responseId" type="long" />
+      <property name="count" type="long" column="respcount" />
+
+   </class>
+</hibernate-mapping>

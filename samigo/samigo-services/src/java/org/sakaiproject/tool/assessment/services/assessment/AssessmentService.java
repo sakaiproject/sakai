@@ -30,30 +30,24 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -66,23 +60,25 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
+import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
-import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
-import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
-
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -94,6 +90,7 @@ public class AssessmentService {
 	private Logger log = LoggerFactory.getLogger(AssessmentService.class);
 	public static final int UPDATE_SUCCESS = 0;
 	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
+	private SecurityService securityService = ComponentManager.get(SecurityService.class);
 
 
 	/**
@@ -155,7 +152,7 @@ public class AssessmentService {
 		}
 	}
 
-	public ArrayList getAllAssessmentTemplates() {
+	public List<AssessmentTemplateFacade> getAllAssessmentTemplates() {
 		try {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries().getAllAssessmentTemplates();
@@ -165,7 +162,7 @@ public class AssessmentService {
 		}
 	}
 
-	public ArrayList getAllActiveAssessmentTemplates() {
+	public List<AssessmentTemplateFacade> getAllActiveAssessmentTemplates() {
 		try {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries()
@@ -176,7 +173,7 @@ public class AssessmentService {
 		}
 	}
 
-	public ArrayList getTitleOfAllActiveAssessmentTemplates() {
+	public List<AssessmentTemplateFacade> getTitleOfAllActiveAssessmentTemplates() {
 		try {
 			return PersistenceService.getInstance()
 					.getAssessmentFacadeQueries()
@@ -187,12 +184,12 @@ public class AssessmentService {
 		}
 	}
 
-	public ArrayList getAllAssessments(String orderBy) {
+	public List<AssessmentFacade> getAllAssessments(String orderBy) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getAllAssessments(orderBy); // signalling all & no paging
 	}
 
-	public ArrayList getAllActiveAssessments(String orderBy) {
+	public List<AssessmentFacade> getAllActiveAssessments(String orderBy) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getAllActiveAssessments(orderBy); // signalling all & no
 													// paging
@@ -203,7 +200,7 @@ public class AssessmentService {
 	 * @return an ArrayList of AssessmentFacade. It is IMPORTANT to note that
 	 *         the object is a partial object which contains no SectionFacade
 	 */
-	public ArrayList getSettingsOfAllActiveAssessments(String orderBy) {
+	public List<AssessmentFacade> getSettingsOfAllActiveAssessments(String orderBy) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getSettingsOfAllActiveAssessments(orderBy); // signalling
 																// all & no
@@ -217,7 +214,7 @@ public class AssessmentService {
 	 *         basic info such as title, lastModifiedDate. This method is used
 	 *         by Authoring Front Door
 	 */
-	public ArrayList getBasicInfoOfAllActiveAssessments(String orderBy,
+	public List<AssessmentFacade> getBasicInfoOfAllActiveAssessments(String orderBy,
 			boolean ascending) {
 		String siteAgentId = AgentFacade.getCurrentSiteId();
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
@@ -226,7 +223,7 @@ public class AssessmentService {
 													// paging
 	}
 
-	public ArrayList getBasicInfoOfAllActiveAssessments(String orderBy) {
+	public List<AssessmentFacade> getBasicInfoOfAllActiveAssessments(String orderBy) {
 		String siteAgentId = AgentFacade.getCurrentSiteId();
 		return PersistenceService
 				.getInstance()
@@ -237,7 +234,7 @@ public class AssessmentService {
 																					// paging
 	}
 
-	public ArrayList getAllAssessments(int pageSize, int pageNumber,
+	public List<AssessmentFacade> getAllAssessments(int pageSize, int pageNumber,
 			String orderBy) {
 		try {
 			if (pageSize > 0 && pageNumber > 0) {
@@ -267,13 +264,15 @@ public class AssessmentService {
 			AssessmentTemplateFacade assessmentTemplate = null;
 			// #1 - check templateId and prepared it in Long
 			Long templateIdLong = AssessmentTemplateFacade.DEFAULTTEMPLATE;
-			if (templateId != null && !templateId.equals(""))
+			if (StringUtils.isNotBlank(templateId)) {
 				templateIdLong = new Long(templateId);
+			}
 
 			// #2 - check typeId and prepared it in Long
 			Long typeIdLong = TypeFacade.HOMEWORK;
-			if (typeId != null && !typeId.equals(""))
+			if (StringUtils.isNotBlank(typeId)) {
 				typeIdLong = new Long(typeId);
+			}
 
 			AssessmentFacadeQueriesAPI queries = PersistenceService
 					.getInstance().getAssessmentFacadeQueries();
@@ -291,7 +290,12 @@ public class AssessmentService {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getQuestionSize(new Long(assessmentId));
 	}
-	
+
+	public List getQuestionsIdList(long assessmentId) {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getQuestionsIdList(assessmentId);
+	}
+
 	public void update(AssessmentFacade assessment) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(assessment);
@@ -395,15 +399,10 @@ public class AssessmentService {
 	}
 
 	public boolean verifyItemsDrawSize(SectionFacade section){
-		if ((section != null)
-				&& (section
-						.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
-						&& (section
-								.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)
-								.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
-										.toString()))) {
+		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
+				&& StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
 			QuestionPoolService qpService = new QuestionPoolService();
-			ArrayList itemlist = qpService
+			List itemlist = qpService
 			.getAllItems(Long.valueOf(section
 					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
 			return verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
@@ -430,13 +429,11 @@ public class AssessmentService {
 	}
 	
 	public int updateRandomPoolQuestions(SectionFacade section, boolean publishing){
-		if ((section != null)
-				&& (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
-				&& (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).
-				equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+		if (section != null && section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null
+				&& StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())) {
 
 			QuestionPoolService qpService = new QuestionPoolService();
-			ArrayList itemlist = qpService.getAllItems(Long.valueOf(section
+			List itemlist = qpService.getAllItems(Long.valueOf(section
 					.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW)));
 
 			if(verifyItemsDrawSize(itemlist.size(), section.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN))){
@@ -453,7 +450,9 @@ public class AssessmentService {
 							.toString());
 					if (poolIds.size() == 0) {
 						// System.out.println("not in pool " + item.getItemId());
-						itemService.deleteItem(item.getItemId(), agentId);
+						Long deleteId = item.getItemId();
+						itemService.deleteItem(deleteId, agentId);
+						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
 						itemIter.remove();
 					} // else System.out.println("in pool " + item.getItemId());
 				}
@@ -466,7 +465,7 @@ public class AssessmentService {
 				String requestedScore = (section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION) != null) ? 
 						                 section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION)	: "";
 						                 
-				if (requestedScore != null && !requestedScore.equals("")) {
+				if (StringUtils.isNotBlank(requestedScore)) {
 					hasRandomPartScore = true;
 					score = new Double(requestedScore);
 				}
@@ -475,7 +474,7 @@ public class AssessmentService {
 				String requestedDiscount = (section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) != null) ? 
 											section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION) : "";
 
-				if (requestedDiscount != null && !requestedDiscount.equals("")) {
+				if (StringUtils.isNotBlank(requestedDiscount)) {
 					hasRandomPartDiscount = true;
 					discount = new Double(requestedDiscount);
 				}
@@ -531,6 +530,7 @@ public class AssessmentService {
 						}
 //					}
 					section.addItem(item);
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
 					i = i + 1;
 				}
 
@@ -568,7 +568,7 @@ public class AssessmentService {
 		return UPDATE_SUCCESS;
 	}
 
-	public ArrayList getBasicInfoOfAllActiveAssessmentTemplates(String orderBy) {
+	public List<AssessmentTemplateFacade> getBasicInfoOfAllActiveAssessmentTemplates(String orderBy) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getBasicInfoOfAllActiveAssessmentTemplates(orderBy); // signalling
 																		// all &
@@ -589,13 +589,15 @@ public class AssessmentService {
 			AssessmentTemplateFacade assessmentTemplate = null;
 			// #1 - check templateId and prepared it in Long
 			Long templateIdLong = AssessmentTemplateFacade.DEFAULTTEMPLATE;
-			if (templateId != null && !templateId.equals(""))
+			if (StringUtils.isNotBlank(templateId)) {
 				templateIdLong = new Long(templateId);
+			}
 
 			// #2 - check typeId and prepared it in Long
 			Long typeIdLong = TypeFacade.HOMEWORK;
-			if (typeId != null && !typeId.equals(""))
+			if (StringUtils.isNotBlank(typeId)) {
 				typeIdLong = new Long(typeId);
+			}
 
 			AssessmentFacadeQueriesAPI queries = PersistenceService
 					.getInstance().getAssessmentFacadeQueries();
@@ -649,11 +651,6 @@ public class AssessmentService {
 		}
 		return attachment;
 	}
-	
-	public void removeItemAttachment(String attachmentId) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeItemAttachment(new Long(attachmentId));
-	}
 
 	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
 			String resourceId, String filename, String protocol) {
@@ -673,11 +670,6 @@ public class AssessmentService {
 			log.error(e.getMessage(), e);
 		}
 		return attachment;
-	}
-	
-	public void removeItemTextAttachment(String attachmentId) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeItemTextAttachment(new Long(attachmentId));
 	}
 
 	public void updateAssessmentLastModifiedInfo(
@@ -845,11 +837,23 @@ public class AssessmentService {
 		// java.lang.NoClassDefFoundError: org/sakaiproject/util/Validator
 		filename = filename.replaceAll("http://","http:__");
 		ContentResource cr_copy = null;
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			@Override
+			public SecurityAdvice isAllowed(String arg0, String arg1,
+					String arg2) {
+				if(ContentHostingService.AUTH_RESOURCE_READ.equals(arg1)){
+					return SecurityAdvice.ALLOWED;
+				}else{
+					return SecurityAdvice.PASS;
+				}
+			}
+		};
 		try {
+			securityService.pushAdvisor(securityAdvisor);
 			// create a copy of the resource
 			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
 			String escapedName = escapeResourceName(filename);
-			if (toContext != null && !toContext.equals("")) {
+			if (StringUtils.isNotBlank(toContext)) {
 				cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
 						toContext, 
 						ToolManager.getTool("sakai.samigo").getTitle(), cr
@@ -863,6 +867,8 @@ public class AssessmentService {
 			}
 		} catch (Exception e) {
 			log.warn("Could not copy resource " + resourceId + ", " + e.getMessage());
+		} finally{
+			securityService.popAdvisor();
 		}
 		return cr_copy;
 	}
@@ -1080,41 +1086,276 @@ public class AssessmentService {
 				}
 				if (attachments.size() > 0) {
 					log.info("Found " + attachments.size() + " attachments buried in question or answer text");
-					SecurityService.pushAdvisor(new SecurityAdvisor(){
+					SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
 						@Override
 						public SecurityAdvice isAllowed(String arg0, String arg1,
 								String arg2) {
-							if("content.read".equals(arg1)){
+							if(ContentHostingService.AUTH_RESOURCE_READ.equals(arg1)){
 								return SecurityAdvice.ALLOWED;
 							}else{
 								return SecurityAdvice.PASS;
 							}
 						}
-					});
-					for (String attachment : attachments) {
-						String resourceIdOrig = "/" + StringUtils.substringAfter(attachment, "/access/content/");
-						String resourceId = URLDecoder.decode(resourceIdOrig);
-						String filename = StringUtils.substringAfterLast(attachment, "/");
+					};
+					try{
+						securityService.pushAdvisor(securityAdvisor);
+						for (String attachment : attachments) {
+							String resourceIdOrig = "/" + StringUtils.substringAfter(attachment, "/access/content/");
+							String resourceId = URLDecoder.decode(resourceIdOrig);
+							String filename = StringUtils.substringAfterLast(attachment, "/");
 
-						try {
-							cr = AssessmentService.getContentHostingService().getResource(resourceId);
-						} catch (IdUnusedException e) {
-							log.warn("Could not find resource (" + resourceId + ") that was embedded in a question or answer");
-						} catch (TypeException e) {
-							log.warn("TypeException for resource (" + resourceId + ") that was embedded in a question or answer", e);
-						} catch (PermissionException e) {
-							log.warn("No permission for resource (" + resourceId + ") that was embedded in a question or answer");
-						}
+							try {
+								cr = AssessmentService.getContentHostingService().getResource(resourceId);
+							} catch (IdUnusedException e) {
+								log.warn("Could not find resource (" + resourceId + ") that was embedded in a question or answer");
+							} catch (TypeException e) {
+								log.warn("TypeException for resource (" + resourceId + ") that was embedded in a question or answer", e);
+							} catch (PermissionException e) {
+								log.warn("No permission for resource (" + resourceId + ") that was embedded in a question or answer");
+							}
 
-						if (cr != null && StringUtils.isNotEmpty(filename)) {
-							
-							ContentResource crCopy = createCopyOfContentResource(cr.getId(), filename, toContext);
-							text = StringUtils.replace(text, resourceIdOrig, StringUtils.substringAfter(crCopy.getReference(), "/content"));
+							if (cr != null && StringUtils.isNotEmpty(filename)) {
+
+								ContentResource crCopy = createCopyOfContentResource(cr.getId(), filename, toContext);
+								text = StringUtils.replace(text, resourceIdOrig, StringUtils.substringAfter(crCopy.getReference(), "/content"));
+							}
 						}
 					}
-					SecurityService.popAdvisor();
+					catch(Exception e){
+						log.error(e.getMessage());
+					}
+					finally{
+						securityService.popAdvisor();
+					}
 				}
 			}
 			return text;
 		}
+
+
+	/**
+	 * Exports an assessment to mark up text
+	 * 
+	 * @param assessment
+	 * @param bundle
+	 * @return
+	 */
+	public String exportAssessmentToMarkupText(AssessmentFacade assessment, Map<String,String> bundle) {
+		StringBuilder markupText = new StringBuilder(); 
+		int nQuestion = 1;
+		
+		for (Object sectionObj : assessment.getSectionArray()) {
+			SectionFacade section = (SectionFacade)sectionObj;
+			List<ItemDataIfc> items = null;
+			boolean hasRandomPartScore = false;
+			Double score = null;
+			boolean hasRandomPartDiscount = false;
+			Double discount = null;
+			
+			if (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+  			{
+				items = section.getItemArray();
+  			}
+			else 
+			{
+				String requestedScore = StringUtils.trimToEmpty(section.getSectionMetaDataByLabel(SectionDataIfc.POINT_VALUE_FOR_QUESTION));
+						                 
+				if (StringUtils.isNotEmpty(requestedScore)) {
+					hasRandomPartScore = true;
+					try {
+						score = new Double(requestedScore);
+					} catch (NumberFormatException e) {
+						log.error("NumberFormatException converting to Double: " + requestedScore);
+					}
+				}
+				
+				String requestedDiscount = StringUtils.trimToEmpty(section.getSectionMetaDataByLabel(SectionDataIfc.DISCOUNT_VALUE_FOR_QUESTION));
+
+				if (StringUtils.isNotEmpty(requestedDiscount)) {
+					hasRandomPartDiscount = true;
+					try {
+						discount = new Double(requestedDiscount);
+					} catch (NumberFormatException e) {
+						log.error("NumberFormatException converting to Double: " + requestedDiscount);
+					}
+				}
+				
+				QuestionPoolService qpService = new QuestionPoolService();
+				try {
+					Long sectionId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+					items = qpService.getAllItems(sectionId);
+				} catch (NumberFormatException e) {
+					log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+				}
+			}
+  				
+			for (ItemDataIfc item : items) 
+			{
+				// only exports these questions types
+				if (!isQuestionTypeExportable2MarkupText(item.getTypeId())) {
+					continue;
+				}
+				
+				markupText.append(nQuestion).append(". ");
+				if (hasRandomPartScore) {
+					markupText.append("(").append(score).append(" ").append(bundle.get("points")).append(")");
+				}
+				else {
+					markupText.append("(").append(item.getScore()).append(" ").append(bundle.get("points")).append(")");
+				}
+				if (hasRandomPartDiscount && discount != null && discount > 0) {
+					markupText.append(" (").append(discount).append(" ").append(bundle.get("discount")).append(")");
+				}
+				else if (!hasRandomPartDiscount && item.getDiscount() != null && item.getDiscount() > 0) {
+					markupText.append(" (").append(item.getDiscount()).append(" ").append(bundle.get("discount")).append(")");
+				}
+				
+				for (ItemTextIfc itemText : item.getItemTextArray()) {
+					markupText.append("\n");
+					if (TypeIfc.FILL_IN_BLANK.intValue() == item.getTypeId() 
+							|| TypeIfc.FILL_IN_NUMERIC.intValue() == item.getTypeId()) {
+						markupText.append(itemText.getText().replaceAll("\\{\\}", ""));
+					}
+					else {
+						markupText.append(itemText.getText());
+					}
+					
+					// Answer in Essay question's doesn't need to be exported  
+					if (TypeIfc.ESSAY_QUESTION.intValue() == item.getTypeId()) {
+						continue;
+					}
+
+					for (AnswerIfc answer : itemText.getAnswerArray()) {
+						markupText.append("\n");
+						
+						if (answer.getIsCorrect()) {
+							markupText.append("*");
+						}
+    					if (TypeIfc.MULTIPLE_CHOICE.intValue() == item.getTypeId() 
+    							|| TypeIfc.MULTIPLE_CORRECT.intValue() == item.getTypeId()) {
+    						markupText.append(answer.getLabel()).append(". ");
+    					}
+    					
+    					if (TypeIfc.FILL_IN_NUMERIC.intValue() == item.getTypeId()) {
+    						markupText.append("{").append(answer.getText()).append("}");
+    					}
+    					else if (TypeIfc.TRUE_FALSE.intValue() == item.getTypeId()) {
+    						String boolText = bundle.get("false");
+    						if (Boolean.parseBoolean(answer.getText())) {
+    							boolText = bundle.get("true");
+    						}
+    						markupText.append(boolText);
+    					}
+    					else {
+    						markupText.append(answer.getText());
+    					}
+					}
+				}
+				
+				String randomized = item.getItemMetaDataByLabel(ItemMetaDataIfc.RANDOMIZE);
+				if (randomized != null && Boolean.valueOf(randomized)) {
+					markupText.append("\n");
+					markupText.append(bundle.get("randomize"));
+				}
+				
+				if (item.getHasRationale() != null && item.getHasRationale()) {
+					markupText.append("\n");
+					markupText.append(bundle.get("rationale"));
+				}
+				
+				if (StringUtils.isNotEmpty(item.getCorrectItemFeedback())) {
+					markupText.append("\n");
+					markupText.append("#FBOK:").append(item.getCorrectItemFeedback());
+				}
+				
+				if (StringUtils.isNotEmpty(item.getInCorrectItemFeedback())) {
+					markupText.append("\n");
+					markupText.append("#FBNOK:").append(item.getInCorrectItemFeedback());
+				}
+				markupText.append("\n");
+				
+				nQuestion++;
+			}
+		}
+		
+		return markupText.toString();
+	}	  
+    
+	/**
+	 * Check if there are questions not exportable to markup text
+	 * 
+	 * @param assessment
+	 * @return
+	 */
+	public boolean isExportable(AssessmentFacade assessment) {
+		boolean exportToMarkupText = false;
+		
+		for (Object sectionObj : assessment.getSectionArray()) {
+			SectionFacade section = (SectionFacade)sectionObj;
+			List<ItemDataIfc> items = null;
+			if (section != null) {
+				if (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) == null || StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
+				{
+					items = section.getItemArray();
+				}
+				else if (StringUtils.equals(section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE), SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))
+				{
+					QuestionPoolService qpService = new QuestionPoolService();
+					try {
+						Long qpId = Long.valueOf(section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+						items = qpService.getAllItems(qpId);
+					} catch (NumberFormatException e) {
+						log.error("NumberFormatException converting to Long: " + section.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
+					}
+				}
+			}
+			if (items == null) {
+				log.info("Items for assessment {} section {} is null in isExportable", assessment.getAssessmentId(), section.getSectionId());
+			}
+			else {
+				for (ItemDataIfc item : items) 
+				{
+					// only exports these questions types
+					if (isQuestionTypeExportable2MarkupText(item.getTypeId())) {
+						exportToMarkupText = true;
+						break;
+					}
+				}
+			}
+			if (exportToMarkupText) {
+				break;
+			}
+		}
+		
+		return exportToMarkupText;
+	}
+	
+	/**
+	 * Return true if the item can be exportable to mark up text
+	 * 
+	 * @param itemTypeId
+	 * @return
+	 */
+	public boolean isQuestionTypeExportable2MarkupText(Long itemTypeId) {
+		boolean exportable = false;
+		
+		exportable = exportable || (TypeIfc.MULTIPLE_CHOICE.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.MULTIPLE_CORRECT.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.FILL_IN_BLANK.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.FILL_IN_NUMERIC.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.TRUE_FALSE.intValue() == itemTypeId.intValue());
+		exportable = exportable || (TypeIfc.ESSAY_QUESTION.intValue() == itemTypeId.intValue());
+				
+		return exportable;
+	}
+
+	public static String copyStringAttachment(String stringWithAttachment) {
+		AssessmentService assessmentService = new AssessmentService();
+		
+		if(AgentFacade.getCurrentSiteId()!=null){
+			return assessmentService.copyContentHostingAttachments(stringWithAttachment, AgentFacade.getCurrentSiteId());
+		}
+		
+		return stringWithAttachment;
+	}
 }

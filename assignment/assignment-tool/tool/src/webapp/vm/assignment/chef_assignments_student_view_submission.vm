@@ -25,7 +25,7 @@ $(document).ready(function(){
 });
 </script>
 ## Include other javascript specific to this page
-<script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
+#javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
 <div class="portletBody">
 ## submission times
@@ -307,13 +307,9 @@ $(document).ready(function(){
 									<div>
 										#set ($props = $reviewResult.getContentResource().Properties)
 										<span class="reportIcon">
-										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-										#else
-											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-											</a>
-										#end
+											#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+											<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+											#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 										</span>
 										#if ($reviewResult.isInline())
 											$tlang.getString("submission.inline")
@@ -481,6 +477,23 @@ $(document).ready(function(){
 		#else
 				<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
+
+		#set($notes = [])
+		#set($notes = $notesMap.get($submitter.id))
+		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $notes.size() > 0)
+			#set($notesstr = "")
+			#foreach($note in $!notes)
+				#if($!note) #set($notesstr = "$notesstr<li>$note</li>") #end
+			#end
+			#if($notesstr) 
+				#set($notesstr = "<ul>$notesstr</ul>")
+			#else 
+				#set($notesstr = "---")
+			#end
+			<div class="instruction">
+				$tlang.getFormattedMessage("assignment.additional.notes.students.explanation", $notesstr)
+			</div>
+		#end
 
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
@@ -999,7 +1012,7 @@ $(document).ready(function(){
 						<h4 id="toggleAttach" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.prefeedbackAttachments")
 						</h4>
-						<div class="attachcoms  toggledContent">
+						<div class="attachcoms toggledContent">
 						#set ($size = 0)
 						#set ($props = false)
 						#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1010,12 +1023,12 @@ $(document).ready(function(){
 						#end
 						#if ($size == 0)
 							<p class="instruction">
-                                                            #if ($submissionType == 5)
-                                                                $tlang.getString("gen.noatt.single")
-                                                            #else
-                                                                $tlang.getString("gen.noatt")
-                                                            #end
-                                                        </p>
+								#if ($submissionType == 5)
+									$tlang.getString("gen.noatt.single")
+								#else
+									$tlang.getString("gen.noatt")
+								#end
+							</p>
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1034,9 +1047,9 @@ $(document).ready(function(){
 									#end
 								#end
 							</ul>
-						#end	
+						#end
+						</div>
 					#end
-					</div>	
 				#end
 				#if ($withGrade)
 					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
@@ -1047,7 +1060,7 @@ $(document).ready(function(){
 						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.pregra")
 						</h4>
-						<div class="gradecoms  toggledContent">		
+						<div class="gradecoms toggledContent">
 							$!previousGrades
 						</div>
 					#end
@@ -1055,22 +1068,22 @@ $(document).ready(function(){
 				#if ($!assignment.getContent().HonorPledge!=1)
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
+							#if (!$!canSubmit)
+								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
+								#end
+							#else
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
+								#end
+							#end
 							$honor_pledge_text
 						</label>
-						#if (!$!canSubmit)
-							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
-							#end
-						#else
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
-							#end					
-						#end
 						<br />
 						$tlang.getString("gen.youmus")
 					</p>

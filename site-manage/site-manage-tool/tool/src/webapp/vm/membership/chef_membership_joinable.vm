@@ -1,22 +1,23 @@
 <div id="dialog">
 </div>
 <script type="text/javascript">
-    $(document).ready(function(){
+	$(document).ready(function(){
 		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("mb.nosd")','$tlang.getString("mb.nold")');
-        sakai.setupMessageListener("messageHolder", "information messageInformation");
+		sakai.setupMessageListener("messageHolder", "information messageInformation");
 		sakai.setupSelectList('currentSites','selunselallid','selectedSelected');
-    });
+	});
 </script>
 
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
 		<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a></span></li>
+		<li><span><a href="#toolLink( "$action" "doGoto_enrolments" )" title="$tlang.getString( 'mb.enrolments' )">$tlang.getString( 'mb.enrolments' )</a></span></li>
 		<li><span class="current">$tlang.getString("mb.joisit")</span></li>		
 	</ul>
-			
+
 	<div class="navPanel">
 		<div class="floatLeft">
-			<h3 style="margin:0;padding:0">
+			<h3 class="toolHeading">
 				$tlang.getString("mb.joinable")
 			</h3>
 		</div>
@@ -31,8 +32,7 @@
 			</form> 
 	#end
 		</div>
-	</div>	
-
+	</div>
 
 	#if ($openSites.size() > 0)
 		<div class="navPanel">
@@ -43,14 +43,14 @@
 				$tlang.getString("mb.listjoin")
 			#end
 			</div>
-			
+
 			## join/unjoin action info normally is the only value of "alertMessage"
 			#if ($alertMessage)
-				<p class="information messageInformation" id="messageHolder" style="width:50%;padding:0 0 0 2em;margin:0">
+				<p class="information messageInformation" id="messageHolder">
 					$validator.escapeHtml($alertMessage)
 				</p>
 			#end
-			
+
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("mb.list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("mb.list.of") $allMsgNumber $tlang.getString("mb.list.sites")
@@ -116,47 +116,47 @@
 								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
 								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
-	
 						#end
 					#end
 				</div>
 			</div>
-		</div>	
+		</div>
 		<form action="#toolForm("$action")" method="post">
-			<table class = "listHier lines" cellspacing="0" border="0"  summary ="$tlang.getString("mb.list.joinable.summary")">
-				<tr>
-					<th id="worksite" class="attach">
-						<a href="#toolLink("$action" "doToggle_joinable_sort")" title ="$tlang.getString('list.sortbytitle')"> 
-							$tlang.getString("gen.worksite")
-							#if ($currentSortAsc) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
-							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
-							#end
-						</a>
-					</th>
-					<th id="description">$tlang.getString("gen.description")</th>
-				</tr>
-				#foreach ($site in $openSites)
+			<div class="table-responsive">
+				<table class = "table table-bordered table-hover table-striped" cellspacing="0" border="0"  summary ="$tlang.getString("mb.list.joinable.summary")">
 					<tr>
-
-					<td headers="worksite" style="white-space:nowrap" class="attach">
-					## Note: joinable site shouldn't be clickable because of the permission issues
-					## <a href="$site.Url" target="_top" title="Go to site $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
-					<h4>$validator.escapeHtml($site.Title)</h4>
-						<div class="itemAction">
-							<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
-						</div>	
-						</td>
-						<td headers="description" class="specialLink">
-							#if ($validator.escapeHtml($site.Description) != '')
-								$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
-								<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
-							#end
-						</td>
+						<th id="worksite" class="attach">
+							<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')">
+								$tlang.getString("gen.worksite")
+								#if ($currentSortAsc) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+								#end
+							</a>
+						</th>
+						<th id="description">$tlang.getString("gen.description")</th>
 					</tr>
-				#end	
-			</table>
+					#foreach ($site in $openSites)
+						<tr>
+							<td headers="worksite" class="attach noWrap">
+								## Note: joinable site shouldn't be clickable because of the permission issues
+								## <a href="$site.Url" target="_top" title="Go to site $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
+								<h4>$validator.escapeHtml($site.Title)</h4>
+								<div class="itemAction">
+									<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.joinsite') $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
+								</div>
+							</td>
+							<td headers="description" class="specialLink">
+								#if ($validator.escapeHtml($site.Description) != '')
+									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
+									<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
+								#end
+							</td>
+						</tr>
+					#end
+				</table>
+			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#elseif ($search.length() > 0)
@@ -168,7 +168,6 @@
 				$validator.escapeHtml($alertMessage)
 			</p>
 		#end
-					
 	#else
 		<p class="instruction">$tlang.getString('mb.list.nosites')</p>
 		<br>
@@ -178,7 +177,5 @@
 				$validator.escapeHtml($alertMessage)
 			</p>
 		#end
-			
-    	
 	#end
 </div>

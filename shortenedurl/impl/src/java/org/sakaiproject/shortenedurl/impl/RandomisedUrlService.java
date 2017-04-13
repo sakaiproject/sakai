@@ -21,28 +21,23 @@
 
 package org.sakaiproject.shortenedurl.impl;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.sql.SQLException;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.hibernate.type.StringType;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.shortenedurl.model.RandomisedUrl;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * An implementation of {@link org.sakaiproject.shortenedurl.api.ShortenedUrlService} to provide randomised URLs
@@ -183,17 +178,15 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		//then check db
 		RandomisedUrl randomisedUrl = null;
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_URL);
-	  			q.setParameter(KEY, key, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<RandomisedUrl> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_URL);
+            q.setParameter(KEY, key, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (RandomisedUrl) q.uniqueResult();
+      };
 	
 		//will be either a RandomisedUrl or null
-		randomisedUrl = (RandomisedUrl) getHibernateTemplate().execute(hcb);
+		randomisedUrl = getHibernateTemplate().execute(hcb);
 		if(randomisedUrl == null) {
 			//log
 			log.warn("Request for invalid record: " + key);
@@ -248,17 +241,15 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		//then check db
 		RandomisedUrl randomisedUrl = null;
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_KEY);
-	  			q.setParameter(URL, url, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<RandomisedUrl> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_KEY);
+            q.setParameter(URL, url, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (RandomisedUrl) q.uniqueResult();
+      };
 	
 		//will be either a RandomisedUrl or null
-		randomisedUrl = (RandomisedUrl) getHibernateTemplate().execute(hcb);	
+		randomisedUrl = getHibernateTemplate().execute(hcb);
 		if(randomisedUrl == null) {
 			return null;
 		}
@@ -288,17 +279,15 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		RandomisedUrl randomisedUrl = null;
 		
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  			Query q = session.getNamedQuery(QUERY_GET_URL);
-	  			q.setParameter(KEY, key, Hibernate.STRING);
-	  			q.setMaxResults(1);
-	  			return q.uniqueResult();
-			}
-		};
+		HibernateCallback<RandomisedUrl> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_URL);
+            q.setParameter(KEY, key, StringType.INSTANCE);
+            q.setMaxResults(1);
+            return (RandomisedUrl) q.uniqueResult();
+      };
 	
 		//if null then it doesn't exist
-		randomisedUrl = (RandomisedUrl) getHibernateTemplate().execute(hcb);
+		randomisedUrl = getHibernateTemplate().execute(hcb);
 		if(randomisedUrl == null) {
 			return true;
 		}

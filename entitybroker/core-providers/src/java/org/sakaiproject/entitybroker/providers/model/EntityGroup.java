@@ -33,6 +33,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
@@ -369,6 +370,19 @@ public class EntityGroup implements Group {
     public void addMember(String arg0, String arg1, boolean arg2, boolean arg3) {
         if (group != null) {
             group.addMember(arg0, arg1, arg2, arg3);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void insertMember(String arg0, String arg1, boolean arg2, boolean arg3) throws IllegalStateException {
+        if (group != null) {
+            try {
+                group.insertMember(arg0, arg1, arg2, arg3);
+                return;
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         }
         throw new UnsupportedOperationException();
     }
@@ -486,10 +500,34 @@ public class EntityGroup implements Group {
         throw new UnsupportedOperationException();
     }
 
+    public void deleteMember(String arg0) throws IllegalStateException {
+        if (group != null) {
+            try {
+                group.deleteMember(arg0);
+                return;
+            } catch (IllegalStateException e) {
+                throw e;
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
     public void removeMembers() {
         if (group != null) {
             group.removeMembers();
             return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void deleteMembers() throws IllegalStateException {
+        if (group != null) {
+            try {
+                group.deleteMembers();
+                return;
+            } catch (IllegalStateException e) {
+                throw e;
+            }
         }
         throw new UnsupportedOperationException();
     }
@@ -513,6 +551,60 @@ public class EntityGroup implements Group {
     public Site getContainingSite() {
         if (group != null) {
             return group.getContainingSite();
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void lockGroup(Entity entity) {
+        if (group != null) {
+            group.lockGroup(entity);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void lockGroup(String lock) {
+        if (group != null) {
+            group.lockGroup(lock);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlockGroup(Entity entity) {
+        if (group != null) {
+            group.unlockGroup(entity);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlockGroup(String lock) {
+        if (group != null) {
+            group.unlockGroup(lock);
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public void unlockGroup() {
+        if (group != null) {
+            group.unlockGroup();
+            return;
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isLocked(String lock) {
+        if (group != null) {
+            return group.isLocked(lock);
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isLocked() {
+        if (group != null) {
+            return group.isLocked();
         }
         throw new UnsupportedOperationException();
     }

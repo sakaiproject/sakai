@@ -24,6 +24,7 @@ import org.sakaiproject.mailsender.tool.beans.EmailBean;
 import org.sakaiproject.mailsender.tool.params.UserGroupViewParameters;
 import org.sakaiproject.mailsender.tool.producers.fragments.UserGroupingProducer;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -172,6 +173,14 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 		{
 			UIOutput.make(mainForm, "addToArchiveDiv");
 			UIBoundBoolean.make(mainForm, "addToArchive", emailBean + ".config.addToArchive");
+		}
+
+		Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+		// not sure why we can't just use the token as the value in UIInput, but if we do that,
+		// nothing is submitted
+		if (sessionToken != null) {
+		    UIInput.make(mainForm, "csrf", emailBean + ".csrf");
+		    UIOutput.make(mainForm, "csrfvalue", sessionToken.toString());
 		}
 
 		// create buttons for form

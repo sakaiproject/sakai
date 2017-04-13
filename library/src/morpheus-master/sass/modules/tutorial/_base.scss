@@ -1,0 +1,87 @@
+.sakai-tutorial.qtip
+{
+	border: 0 none;
+	background-color: $background-color;
+	font-family: $font-family;
+	font-size: $default-font-size + 2px;
+	line-height: 1.4;
+	color: $alt-colour; /* determines the colour of the tip */
+
+	.qtip-titlebar
+	{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 4px 8px;
+		background: $alt-colour;
+		color: $background-color;
+	}
+	
+	.qtip-content
+	{
+		padding: 1em;
+		border: 4px solid $alt-colour;
+		border-top:0 none;
+		color: $text-color;
+		
+		.no-wrap
+		{
+			white-space:nowrap;
+		}
+	}
+
+	.tut-icon-home, .tut-icon-sites, .tut-icon-toggle, .tut-icon-help
+	{
+		font-size: $default-font-size + 2px;;
+	}
+
+	.qtip-title:focus
+	{
+		outline: none;
+	}
+	
+	.qtipClose
+	{
+		border: 0 none;
+		background:none;
+		color: $background-color;
+	}
+	
+	.tut-footer
+	{
+		display: flex;
+		justify-content: space-between;
+		margin-top:1em;
+		padding-top:1em;
+		border-top:1px solid #ccc;
+		
+		.qtipLinkButton
+		{
+			display:flex;
+			align-items:center;
+			font-size: inherit;
+			text-decoration:none;
+		}
+		
+		.tut-next
+		{
+			margin-left:auto;
+			
+		}
+		
+		.tut-close
+		{
+			margin: -5px 0 0 0;
+		}
+	}
+/*
+	.qtip-shadow {
+	  box-shadow: 1px 1px 8px 4px rgba(0, 0, 0, 0.25);
+	}
+	.qtip-tipped {
+	  background-color: $tool-background-color;
+	  border: 4px solid $primary-color;
+	}
+*/
+
+}

@@ -7,29 +7,28 @@
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
 <title rsf:id="msg=simplepage.blti.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
 	<div class="portletBody" id="portletBody">
 		<div rsf:id="error-div" class="ui-widget">
-			<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;">
+			<div class="messageError below-link-help">
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 				<span rsf:id="error"></span> </p>
 			</div>
 		</div>
-
-		<h2 rsf:id="mainhead" id="mainhead"></h2>
-
-		<a style="float:right;" role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
-		<p rsf:id="blti-tools-text"></p>
-
 		<div rsf:id="no-blti-tools" class="ui-widget" role="alert">
-			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; margin-bottom: 20px; padding: .5em .7em;">
-				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+			<div class="instruction below-link-help">
 				<div rsf:id="no-blti-tools-text" ></div>
 			</div>
 		</div>
+
+		<a role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
+
+		<h2 rsf:id="mainhead" id="mainhead"></h2>
+
+		<p rsf:id="blti-tools-text"></p>
+
 
 		<div rsf:id="blti-create:" style="margin-left:2em">
 		  <i class="" rsf:id="blti-create-icon"></i>
@@ -40,6 +39,7 @@
 			<input type="hidden" rsf:id="csrf"/>
 			<input type="hidden" rsf:id="item-id" id="item-id" />
 			<input type="hidden" rsf:id="select"/>
+			<input type="hidden" rsf:id="add-before" id="add-before" />
 			<input type="hidden" class="bold" rsf:id="submit" />
 		</form>
 
@@ -57,7 +57,7 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 		<div id="modal-iframe-div" style="display:none">
-			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="height:300px"></iframe>
+			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="height:400px"></iframe>
 		</div>
 	</div>
 
@@ -74,7 +74,7 @@ function showIframe(title) {
 		modal: true,
 		draggable: false,
 		open: function() {
-			$('#sakai-basiclti-admin-iframe').width('100%');
+			$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 		},
 		close: function() {
 			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
@@ -83,9 +83,27 @@ function showIframe(title) {
 
 	$(window).resize(function() {
 		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
-		$('#sakai-basiclti-admin-iframe').width('100%');
+		$('#sakai-basiclti-admin-iframe').attr('width', '100%');
 	});
 }
+
+// Make sure to be careful to use .style.height or .height sepending on the iframe 
+// tag you are working with.
+window.addEventListener('message', function(e) {
+	try {
+		var message = JSON.parse(e.data);
+		var idval = 'sakai-basiclti-admin-iframe';
+		if ( message.subject == 'lti.frameResize' ) {
+		var height = message.height;
+			document.getElementById(idval).style.height = height;
+			document.getElementById(idval).style.width = '100%';
+			console.log('BltiPicker received lti.frameResize height='+height);
+		}
+	} catch (error) {
+		console.log('BltiPicker lti.frameResize of '+idval+' failed height='+height);
+		console.log(e.data);
+	}
+});
 //]]>
 </script>
 

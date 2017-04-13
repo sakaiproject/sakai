@@ -495,8 +495,7 @@
 								<f:verbatim>
 									<br />
 								</f:verbatim>
-								<h:inputText id="itemScore" value="#{answer.score}" styleClass="ConvertPoint"
-									style="" size="4" maxlength="4" >
+								<h:inputText id="itemScore" value="#{answer.score}" styleClass="ConvertPoint" size="4" maxlength="4" >
 									<f:validateDoubleRange minimum="0.00"/>
 								</h:inputText>
 								<h:inputHidden id="itemScoreUserSet" value="#{answer.scoreUserSet}" />
@@ -577,6 +576,8 @@
 						value="#{itemauthor.currentItem.rubric}" />
 				</h:panelGrid>
 			</h:panelGroup>
+
+			<%@ include file="/jsf/author/item/tags.jsp" %>
 
 			<p class="act">
 				<h:commandButton rendered="#{itemauthor.target=='assessment'}"

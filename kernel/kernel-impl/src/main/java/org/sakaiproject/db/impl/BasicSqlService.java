@@ -979,6 +979,13 @@ public abstract class BasicSqlService implements SqlService
 		}
 		catch (SQLException e)
 		{
+			// On mysql unless you allow serverside prepared statements then the maximum size possible is configured
+			// by max_allowed_packet. The error codes below are:
+			// 1105 max_allowed_packet too small
+			// 1118 redo log size not at least 10 times max_allowed_packet
+			if ( "mysql".equals(m_vendor) && (e.getErrorCode() == 1105 || e.getErrorCode() == 1118) ) {
+				LOG.warn("SQL '{}' failed, consider useServerPrepStmts=true on JDBC connection.", sql, e);
+			}
 			// this is likely due to a key constraint problem...
 			return false;
 		}

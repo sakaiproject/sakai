@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -35,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -140,10 +142,10 @@ public class SavePartListener
     }
     
     if (isEditPendingAssessmentFlow) {
-    	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
+    	EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVISE, "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
     }
     else {
-    	EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
+    	EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REVISE, "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
     }
 
     boolean addItemsFromPool = false;
@@ -279,7 +281,7 @@ public class SavePartListener
     assessmentBean.setAssessment(assessment);
     assessmentService.updateAssessmentLastModifiedInfo(assessment);
     
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + section.getSectionId(), true));
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVISE, "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + section.getSectionId(), true));
   }
 
   public SectionFacade addPart(String assessmentId){
@@ -309,7 +311,7 @@ public class SavePartListener
     
      QuestionPoolService qpservice = new QuestionPoolService();
 
-     ArrayList itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
+     List itemlist = qpservice.getAllItems(Long.valueOf(sectionBean.getSelectedPool()) );
      int itemcount = itemlist.size();
      String itemcountString=" "+Integer.toString(itemcount);
 
@@ -375,7 +377,7 @@ public class SavePartListener
     private void updateAttachment(List oldList, List newList, SectionDataIfc section){
     if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
     List list = new ArrayList();
-    HashMap map = getAttachmentIdHash(oldList);
+    Map map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
       SectionAttachmentIfc a = (SectionAttachmentIfc)newList.get(i);
       if (map.get(a.getAttachmentId())!=null){
@@ -407,8 +409,8 @@ public class SavePartListener
     }
   }
 
-  private HashMap getAttachmentIdHash(List list){
-    HashMap map = new HashMap();
+  private Map getAttachmentIdHash(List list){
+    Map map = new HashMap();
     for (int i=0; i<list.size(); i++){
       SectionAttachmentIfc a = (SectionAttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);

@@ -26,7 +26,6 @@
       <modules>
         <module>content-metadata/api</module>
         <module>content-metadata/impl</module>
-        <module>content-metadata/pack</module>
       </modules>
     </profile>
     <profile>
@@ -38,16 +37,12 @@
         <module>content-cleanup</module>
         <module>content-copyright/api</module>
         <module>content-copyright/impl</module>
-        <module>content-copyright/pack</module>
         <module>content-impl-providers/impl</module>
-        <module>content-impl-providers/pack</module>
         <module>content-metadata/api</module>
         <module>content-metadata/impl</module>
-        <module>content-metadata/pack</module>
         <module>content-tool/tool</module>
         <module>content-bundles</module>
         <module>content-types</module>
-        <module>content-types-pack</module>
       </modules>
     </profile>
   </profiles>

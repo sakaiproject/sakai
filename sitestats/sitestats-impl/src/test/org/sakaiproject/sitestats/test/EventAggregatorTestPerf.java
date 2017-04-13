@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.easymock.IAnswer;
@@ -51,6 +52,7 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
@@ -81,12 +83,15 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 	private List<String>			siteUsers;
 	private List<String>			siteResources;
 
+	@Autowired
 	public void setStatsManager(StatsManager M_sm) {
 		this.M_sm = M_sm;
 	}
+	@Autowired
 	public void setStatsUpdateManager(StatsUpdateManager M_sum) {
 		this.M_sum = M_sum;
 	}
+	@Autowired
 	public void setEventTrackingService(EventTrackingService M_ets) {
 		this.M_ets = M_ets;
 	}
@@ -95,7 +100,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 	public void onSetUp() throws Exception {
 		/** run this before each test starts */
 		LOG.debug("Setting up tests...");
-		
+
 		// Setup site users
 		siteUsers = new ArrayList<String>();
 		for(int i=0; i<MAX_USERS; i++) {
@@ -110,7 +115,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 		// Site A:
 		//        - tools {SiteStats, Chat, Resources}
 		//        - users {user-0, user-1, ... , user-999}
-		Site siteA = new FakeSite(siteId,
+		Site siteA = Mockito.spy(FakeSite.class).set(siteId,
 				Arrays.asList(StatsManager.SITESTATS_TOOLID, FakeData.TOOL_CHAT, StatsManager.RESOURCES_TOOLID)
 		);
 		Set<String> usersSet = new HashSet<String>(siteUsers);
@@ -119,7 +124,7 @@ public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 		expect(M_ss.getSite(siteId)).andStubReturn(siteA);
 		expect(M_ss.isUserSite(siteId)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(siteId)).andStubReturn(false);
-		expect(siteA.getCreatedTime()).andStubReturn((Time)anyObject());
+		Mockito.when(siteA.getCreatedTime()).thenReturn(Mockito.any(Time.class));
 		// Site 'non_existent_site' doesn't exist
 		expect(M_ss.isUserSite("non_existent_site")).andStubReturn(false);
 		expect(M_ss.isSpecialSite("non_existent_site")).andStubReturn(false);

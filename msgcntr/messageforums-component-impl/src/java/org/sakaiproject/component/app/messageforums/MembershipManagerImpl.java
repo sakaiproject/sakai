@@ -417,14 +417,22 @@ public class MembershipManagerImpl implements MembershipManager{
 	  }
 	  return false;
   }
-  
-    
+
   /**
    * @see org.sakaiproject.api.app.messageforums.MembershipManager#getAllCourseUsers()
    */
-  public List getAllCourseUsers()
+  @Override
+  public List<MembershipItem> getAllCourseUsers() {
+      return convertMemberMapToList(getAllCourseUsersAsMap());
+  }
+
+  /**
+   *  @see MembershipManager#getAllCourseUsersAsMap()
+   */
+  @Override
+  public Map<String, MembershipItem> getAllCourseUsersAsMap()
   {       
-    Map userMap = new HashMap();    
+    Map<String, MembershipItem> userMap = new HashMap();
     String realmId = getContextSiteId();    
      
     AuthzGroup realm = null;
@@ -472,14 +480,14 @@ public class MembershipManagerImpl implements MembershipManager{
      		userMap.put(memberItem.getId(), memberItem);     
          }
     }
-    
-    return convertMemberMapToList(userMap);
+    return userMap;
   }
   
   /**
    * @see org.sakaiproject.api.app.messageforums.MembershipManager#convertMemberMapToList(java.util.Map)
    */
-  public List convertMemberMapToList(Map memberMap){
+  @Override
+  public List<MembershipItem> convertMemberMapToList(Map memberMap){
             
     MembershipItem[] membershipArray = new MembershipItem[memberMap.size()];
     membershipArray = (MembershipItem[]) memberMap.values().toArray(membershipArray);

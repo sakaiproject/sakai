@@ -62,7 +62,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 import org.hibernate.HibernateException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -150,7 +150,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	
 	private int maxReferencesStringSize = 4000;
 
-	private boolean trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", false);
+	private boolean trackReads = ServerConfigurationService.getBoolean("wiki.trackreads", true);
    
 	/**
 	 * Configuration: to run the ddl on init or not.
@@ -189,7 +189,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		renderService = (RenderService) load(cm, RenderService.class.getName());
 		preferenceService = (PreferenceService) load(cm,
 				PreferenceService.class.getName());
-
 		userDirectoryService = (UserDirectoryService) load(cm,UserDirectoryService.class.getName());
 		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
@@ -585,7 +584,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 		if (content != null && !content.equals(rwo.getContent()))
 		{
-
 			// create a history instance
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
 

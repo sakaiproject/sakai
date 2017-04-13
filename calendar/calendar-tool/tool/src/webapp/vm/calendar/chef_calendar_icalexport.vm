@@ -25,7 +25,7 @@
 	</h3>
 	
 	<p class="messageInformation">
-		$icalInfoStr $tlang.getString("ical.info")<br/>
+		$icalInfoStr $tlang.getString("ical.info.public")<br/>
 	</p>
 	
    <p/>

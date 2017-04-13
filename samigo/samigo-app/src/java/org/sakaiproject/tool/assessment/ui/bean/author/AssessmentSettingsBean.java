@@ -1,15 +1,11 @@
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+/*
+ * Copyright (c) 2016, The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
+ */
 
 
 
@@ -42,6 +38,7 @@ import javax.faces.model.SelectItem;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -49,6 +46,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.assessment.facade.*;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
@@ -59,6 +57,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -68,9 +67,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeliveryModuleIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
@@ -203,12 +199,14 @@ public class AssessmentSettingsBean
   private String originalFeedbackDateString;
   
   private boolean isMarkForReview;
-  
+  private boolean honorPledge;
   private String releaseToGroupsAsString;
   private String blockDivs;
   
-  private String extendedTimes;
-  private SelectItem[] extendedTimeTargets;
+  private List<ExtendedTime> extendedTimes;
+  private ExtendedTime extendedTime;
+  private ExtendedTime transitoryExtendedTime;
+  private boolean editingExtendedTime = false;
   
   // SAM-2323 jQuery-UI datepicker
   private final TimeUtil tu = new TimeUtil();
@@ -219,10 +217,13 @@ public class AssessmentSettingsBean
   
   private SimpleDateFormat displayFormat;
 
+  private ResourceLoader assessmentSettingMessages;
+
   /*
    * Creates a new AssessmentBean object.
    */
   public AssessmentSettingsBean() {
+      this.assessmentSettingMessages = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   }
 
   public AssessmentFacade getAssessment() {
@@ -280,18 +281,10 @@ public class AssessmentSettingsBean
             this.bgImageSelect=null;
 	    this.bgColorSelect="1";
 	}
-	
-			// Get the extended time information for this assessment
-			short extendedTimeCount = 1;
-			String extendedTimeLabel = "extendedTime" + extendedTimeCount;
-			this.extendedTimes = "";
-			while ((assessment.getAssessmentMetaDataByLabel(extendedTimeLabel) != null)
-					&& (!assessment.getAssessmentMetaDataByLabel(extendedTimeLabel).equals(""))) {
-				String extendedTimeValue = assessment.getAssessmentMetaDataByLabel(extendedTimeLabel);
-				this.extendedTimes = this.extendedTimes.concat(extendedTimeValue + "^");
-				extendedTimeCount++;
-				extendedTimeLabel = "extendedTime" + extendedTimeCount;
-			}
+        ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
+        this.extendedTimes = extendedTimeFacade.getEntriesForAss(assessment.getData());
+
+        resetExtendedTime();
 
       // these are properties in AssessmentAccessControl
       AssessmentAccessControlIfc accessControl;
@@ -335,7 +328,8 @@ public class AssessmentSettingsBean
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
         this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
-        
+        if (accessControl.getHonorPledge() != null)
+          this.honorPledge = accessControl.getHonorPledge();
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -393,20 +387,6 @@ public class AssessmentSettingsBean
 
         String currentSiteId = AgentFacade.getCurrentSiteId();
         this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
-        
-        this.extendedTimeTargets = initExtendedTimeTargets();
-        
-        /*
-        GradebookService g = null;
-        if (integrated)
-        {
-          g = (GradebookService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookService");
-        }
-
-        this.gradebookExists = gbsHelper.gradebookExists(
-        	GradebookFacade.getGradebookUId(), g);
-        */
       }
 
       // ip addresses
@@ -929,8 +909,11 @@ public class AssessmentSettingsBean
     this.scoringType = scoringType;
   }
 
+  public boolean isHonorPledge() { return honorPledge; }
 
-  public void setValue(String key, Object value){
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
+
+    public void setValue(String key, Object value){
     this.values.put(key, value);
   }
 
@@ -1110,7 +1093,8 @@ public class AssessmentSettingsBean
     }
 
     try {
-      dateString = tu.getDisplayDateTime(displayFormat, date);
+      // Do not manipulate the date based on the client browser timezone.
+      dateString = tu.getDisplayDateTime(displayFormat, date, false);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1288,17 +1272,17 @@ public class AssessmentSettingsBean
     Iterator iter = e.iterator();
     int numSelections = getNumberOfGroupsForSite() > 0 ? 3 : 2;
    	SelectItem[] target = new SelectItem[numSelections];
-   	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+
     while (iter.hasNext()){
 	    String t = (String)iter.next();
 	    if ("Anonymous Users".equals(t)) {
-	    	target[0] = new SelectItem(t, rb.getString("anonymous_users"));
+	    	target[0] = new SelectItem(t, assessmentSettingMessages.getString("anonymous_users"));
 	    }
 	    else if (numSelections == 3 && t.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-	      target[2] = new SelectItem(t, rb.getString("selected_groups"));
+	      target[2] = new SelectItem(t, assessmentSettingMessages.getString("selected_groups"));
 	    }
 	    else if (t.equals(AgentFacade.getCurrentSiteName())) {
-	      target[1] = new SelectItem(t, rb.getString("entire_site"));
+	      target[1] = new SelectItem(t, assessmentSettingMessages.getString("entire_site"));
 	    }
     }
     return target;
@@ -1536,6 +1520,17 @@ public class AssessmentSettingsBean
       }
       return groupSelectItems;
   }
+
+  public SelectItem[] getGroupsForSiteWithNoGroup() {
+      SelectItem[] items = getGroupsForSite();
+      SelectItem[] itemsWithNoGroup = new SelectItem[items.length + 1];
+      itemsWithNoGroup[0] = new SelectItem("", assessmentSettingMessages.getString("extendedTime_select_group"));
+      for(int i = 1; i <= items.length; i++) {
+          itemsWithNoGroup[i] = items[i-1];
+      }
+
+      return itemsWithNoGroup;
+  }
   
   
   /**
@@ -1654,46 +1649,35 @@ public class AssessmentSettingsBean
 	  return selections;
   }
 
-	public void setExtendedTimes(String extendedTimes) {
+
+	public void setExtendedTimes(List<ExtendedTime> extendedTimes) {
 		this.extendedTimes = extendedTimes;
 	}
 
-	public String getExtendedTimes() {
+	public List<ExtendedTime> getExtendedTimes() {
 		return extendedTimes;
 	}
 
+	public int getExtendedTimesSize() {
+        return this.extendedTimes.size();
+    }
+
 	/**
-	 * Populate the select item list of extended time targets
-	 * 
+	 *
 	 * @return
 	 */
-	public SelectItem[] initExtendedTimeTargets() {
-		SelectItem[] extTimeSelectItems = null;
+	public SelectItem[] getUsersInSite() {
+		SelectItem[] usersInSite = null;
 		Site site;
 
 		try {
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			Collection groups = site.getGroups();
 			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
 			// List sections = sectionAwareness.getSections(site.getId());
 			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
 
 			// Treemaps are used here because they auto-sort
-			TreeMap groupTargets = new TreeMap<>();
 			TreeMap studentTargets = new TreeMap<>();
-
-			// Add groups to target set
-			if (groups != null && groups.size() > 0) {
-				Iterator groupIter = groups.iterator();
-				while (groupIter.hasNext()) {
-					Group group = (Group) groupIter.next();
-					if (!group.getTitle().startsWith("Access: ")) // do not
-																	// include
-																	// Lessons
-																	// groups
-						groupTargets.put("Group: " + group.getTitle(), group.getId());
-				}
-			}
 
 			// Add students to target set
 			if (enrollments != null && enrollments.size() > 0) {
@@ -1709,40 +1693,120 @@ public class AssessmentSettingsBean
 			// key so it would
 			// be alphabetized. Now we pull it out and build the select item
 			// list.
-			int listSize = 1 + groupTargets.size() + studentTargets.size();
-			extTimeSelectItems = new SelectItem[listSize];
-			extTimeSelectItems[0] = new SelectItem("1", "Select User/Group");
+			int listSize = 1 + studentTargets.size();
+			usersInSite = new SelectItem[listSize];
+			usersInSite[0] = new SelectItem("", assessmentSettingMessages.getString("extendedTime_select_User"));
 			int selectCount = 1;
 
-			// Add in groups to select item list
-			Set keySet = groupTargets.keySet();
+			// Add in students to select item list
+			Set keySet = studentTargets.keySet();
 			Iterator iter = keySet.iterator();
 			while (iter.hasNext()) {
 				String alphaName = (String) iter.next();
-				String sakaiId = (String) groupTargets.get(alphaName);
-				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
-			}
-
-			// Add in students to select item list
-			keySet = studentTargets.keySet();
-			iter = keySet.iterator();
-			while (iter.hasNext()) {
-				String alphaName = (String) iter.next();
 				String sakaiId = (String) studentTargets.get(alphaName);
-				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+				usersInSite[selectCount++] = new SelectItem(sakaiId, alphaName);
 			}
 
 		} catch (IdUnusedException ex) {
 			// No site available
 		}
-		return extTimeSelectItems;
+		return usersInSite;
 	}
 
-	public SelectItem[] getExtendedTimeTargets() {
-		return extendedTimeTargets;
-	}
+	public ExtendedTime getExtendedTime() {
+        return this.extendedTime;
+    }
 
-	public void setExtendedTimeTargets(SelectItem[] targets) {
-		this.extendedTimeTargets = targets;
-	}
+    public String getExtendedTimeStartString() {
+        return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getStartDate());
+    }
+
+    public void setExtendedTimeStartString(String exTimeStartString) {
+        Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam("newEntry-start_date-iso8601"));
+        if(tempDate != null) {
+            this.extendedTime.setStartDate(tempDate);
+        }
+    }
+
+    public String getExtendedTimeDueString() {
+        return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getDueDate());
+    }
+
+    public void setExtendedTimeDueString(String exTimeDueString) {
+        Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam("newEntry-due_date-iso8601"));
+        if(tempDate != null) {
+            this.extendedTime.setDueDate(tempDate);
+        }
+    }
+
+    public String getExtendedTimeRetractString() {
+        return tu.getDateTimeWithTimezoneConversion(this.extendedTime.getRetractDate());
+    }
+
+    public void setExtendedTimeRetractString(String exTimeRetractString) {
+        Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam("newEntry-retract_date-iso8601"));
+        if(tempDate != null) {
+            this.extendedTime.setRetractDate(tempDate);
+        }
+    }
+
+    public void setTransitoryExtendedTime(ExtendedTime newExTime) {
+        this.transitoryExtendedTime = newExTime;
+    }
+
+    //From the form
+    public void addExtendedTime() {
+  	  addExtendedTime(true);
+    }
+
+    //Internal to be able to supress error easier
+    public void addExtendedTime(boolean errorToContext) {
+    	ExtendedTime entry = this.extendedTime;
+  	if(StringUtils.isBlank(entry.getUser()) && StringUtils.isBlank(entry.getGroup())) {
+  		if (errorToContext) {
+  			  FacesContext context = FacesContext.getCurrentInstance();
+  			  String errorString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages", "extended_time_user_and_group_set");
+  			  errorString = errorString.replace("{0}", entry.getUser()).replace("{1}", entry.getGroup());
+  			  context.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, errorString, null));
+  		}
+    	}
+    	else {
+    		this.extendedTime.syncDates();
+    		this.extendedTimes.add(this.extendedTime);
+    		resetExtendedTime();
+    	}
+    }
+    
+    public void deleteExtendedTime() {
+        this.extendedTimes.remove(this.transitoryExtendedTime);
+        this.transitoryExtendedTime = null;
+    }
+
+    public void editExtendedTime() {
+      this.editingExtendedTime = true;
+      this.extendedTime = new ExtendedTime(this.transitoryExtendedTime);
+      //Remove from the list but keep transitory available for cancel
+      this.extendedTimes.remove(this.transitoryExtendedTime);
+    }
+
+    public void saveEditedExtendedTime() {
+      //Re-add after editing
+      addExtendedTime();
+    }
+
+    public void cancelEdit() {
+      //Reset the time back again
+      this.extendedTime = this.transitoryExtendedTime;
+      addExtendedTime();
+    }
+
+    public boolean getEditingExtendedTime() {
+      return this.editingExtendedTime;
+    }
+
+    private void resetExtendedTime() {
+        this.extendedTime = new ExtendedTime(this.getAssessment().getData());
+        this.transitoryExtendedTime = null;
+        this.editingExtendedTime = false;
+    }
 }

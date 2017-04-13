@@ -727,6 +727,10 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
     {
         extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
     }
+    if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+    }
     if (extraInfoArray.length === 0)
     {
         alert(alertMessage);

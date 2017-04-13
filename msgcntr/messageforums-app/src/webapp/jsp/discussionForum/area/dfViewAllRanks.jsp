@@ -36,6 +36,7 @@
 
         <%-- ranks --%>
 		<h:outputText value="#{msgs.no_ranks_defined}" rendered="#{empty ForumTool.rankBeanList}" />
+        <div class="table-responsive">
             <h:dataTable value="#{ForumTool.rankBeanList}" var="eachrank" rendered="#{!empty ForumTool.rankBeanList}" summary="layout"
                          styleClass="table table-hover table-striped table-bordered" border="0" cellpadding="3" cellspacing="0"
                          columnClasses="ranktable-name,ranktable-image,ranktable-assignto,ranktable-minpost,ranktable-delete">
@@ -80,6 +81,7 @@
                     </h:selectManyCheckbox>
                 </h:column>
             </h:dataTable>
+        </div>
             <f:verbatim><br/></f:verbatim>
 		    <h:graphicImage id="iamgespacer" url="/images/ranksSpaceFiller.jpg" height="20"/>
 			<div class="act">

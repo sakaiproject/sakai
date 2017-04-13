@@ -23,8 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.tool.api.Tool;
 
@@ -38,8 +37,7 @@ import org.sakaiproject.tool.api.Tool;
  *         (earle.nietzel@gmail.com)
  *
  */
-@CommonsLog
-@SuppressWarnings("serial")
+@Slf4j
 public class SakaiToolServlet extends HttpServlet {
 
 	@Override
@@ -64,18 +62,20 @@ public class SakaiToolServlet extends HttpServlet {
 			}
 			params.append("]");
 
-			log.debug(new StringBuilder().append("SakaiToolServlet: service(HttpServletRequest, HttpServletResponse)\n")
-					.append("context path = ").append(req.getContextPath()).append("\n")
-					.append("request path = ").append(StringUtils.isNotEmpty(req.getPathInfo()) ? req.getPathInfo() : "null").append("\n")
-					.append("headers      = ").append(headers).append("\n")
-					.append("params       = ").append(params).append("\n")
-					.append("content type = ").append(StringUtils.isNotEmpty(req.getContentType()) ? req.getContentType() : "null").append("\n")
-					.append("method       = ").append(req.getMethod()).append("\n")
-					.append("query        = ").append(StringUtils.isNotEmpty(req.getQueryString()) ? req.getQueryString() : "null").append("\n")
-					.append("request url  = ").append(req.getRequestURL()).append("\n")
-					.append("request uri  = ").append(req.getRequestURI()).append("\n")
-					.append("locale       = ").append(req.getLocale()).append("\n")
-					);
+			log.debug("SakaiToolServlet: service(HttpServletRequest, HttpServletResponse)\n" +
+					"context path = {}\n" +
+					"request path = {}\n" +
+					"headers      = {}\n" +
+					"params       = {}\n" +
+					"content type = {}\n" +
+					"method       = {}\n" +
+					"query        = {}\n" +
+					"request url  = {}\n" +
+					"request uri  = {}\n" +
+					"locale       = {}\n",
+					req.getContextPath(), req.getPathInfo(), headers, params, req.getContentType(), req.getMethod(),
+					req.getQueryString(), req.getRequestURL(), req.getRequestURI(), req.getLocale()
+			);
 		}
 		
 		final String startPage = StringUtils.isNotEmpty(getInitParameter("index")) ? getInitParameter("index") : "/";

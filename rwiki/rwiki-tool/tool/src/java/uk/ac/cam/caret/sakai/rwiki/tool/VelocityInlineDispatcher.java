@@ -38,6 +38,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.time.cover.TimeService;
 
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
@@ -69,6 +70,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 			vengine = new VelocityEngine();
 
 			vengine.setApplicationAttribute(ServletContext.class.getName(), context);
+			vengine.setProperty(VelocityEngine.RUNTIME_LOG_LOGSYSTEM, new SLF4JLogChute());
 
 			Properties p = new Properties();
 			p.load(this.getClass().getResourceAsStream("rwikivelocity.config"));

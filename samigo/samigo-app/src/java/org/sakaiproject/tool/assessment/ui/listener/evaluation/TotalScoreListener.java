@@ -318,11 +318,11 @@ public class TotalScoreListener
       //#1 - prepareAgentResultList prepare a list of AssesmentGradingData and set it as
       // bean.agents later in step #4
       // scores is a filtered list contains last AssessmentGradingData submitted for grade
-      ArrayList scores = new ArrayList();  
-      ArrayList students_not_submitted= new ArrayList();  
+      List scores = new ArrayList();
+      List students_not_submitted= new ArrayList();
       
       Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER);
-      ArrayList agents = new ArrayList();
+      List agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
       if ((scores.size()==0) && (students_not_submitted.size()==0)) 
       // no submission and no not_submitted students, return
@@ -338,8 +338,7 @@ public class TotalScoreListener
       // need not be executed everytime
       if (firstTime){
         // if section set is null, initialize it - daisyf , 01/31/05
-        HashSet sectionSet = PersistenceService.getInstance().
-                     getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(p);
+        Set sectionSet = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(p);
         p.setSectionSet(sectionSet);
         Iterator sectionIter = sectionSet.iterator();
         boolean isAutoScored = true;
@@ -393,7 +392,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       log.debug("**isValueChange="+isValueChange);
 
       //#3 - Collect a list of all the users in the scores list
-      ArrayList agentUserIds = getAgentIds(useridMap);
+      List agentUserIds = getAgentIds(useridMap);
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
       //#4 - prepare agentResult list
@@ -439,10 +438,10 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
      I have rewritten this method so it is more efficient. The old method
      has trouble dealing with large class with large question set. */
 
-  public HashMap getAnsweredItems(ArrayList scores, PublishedAssessmentData pub){
+  public Map getAnsweredItems(List scores, PublishedAssessmentData pub){
     log.debug("*** in getAnsweredItems.  scores.size = " + scores.size());
-    HashMap answeredItems = new HashMap();
-    HashMap h = new HashMap();
+    Map answeredItems = new HashMap();
+    Map h = new HashMap();
 
     // 0. build a Hashmap containing all the assessmentGradingId in the filtered list 
     for (int m=0; m<scores.size(); m++){
@@ -457,7 +456,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
         log.debug("***list .size "+list.size());
     // 2. build a HashMap (Long publishedItemId, ArrayList assessmentGradingIds)
-    HashMap itemIdHash = getPublishedItemIdHash(pub);
+    Map<Long, List<Long>> itemIdHash = getPublishedItemIdHash(pub);
         log.debug("***temIdHash.size "+itemIdHash.size());
 
     // 3. go through each publishedItemId and get all the submission of 
@@ -465,7 +464,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     for (int i=0; i<list.size(); i++){
       Long itemId = (Long)list.get(i);
       log.debug("****publishedItemId"+itemId);
-      ArrayList l = new ArrayList();
+      List l = new ArrayList();
       Object o = itemIdHash.get(itemId);
       if (o != null) l = (ArrayList) o;
       // check if the assessmentGradingId submitted is among the filtered list
@@ -498,8 +497,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       return "";
   }
 
-  public void getFilteredList(TotalScoresBean bean, ArrayList allscores,ArrayList scores, 
-                              ArrayList students_not_submitted, Map useridMap){
+  public void getFilteredList(TotalScoresBean bean, List allscores, List scores,
+                              List students_not_submitted, Map useridMap){
     // only do section filter if it's published to authenticated users
     if (bean.getReleaseToAnonymous()){
     // skip section filter if it's published to anonymous users
@@ -513,7 +512,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 */
     else {
       // now we need filter by sections selected 
-      ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
+      List students_submitted= new ArrayList();  // arraylist of students submitted test
       Iterator allscores_iter = allscores.iterator();
       while (allscores_iter.hasNext())
       {
@@ -542,7 +541,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   // This method also store all the submitted assessment grading for a given published
   // assessment in TotalScoresBean
   public void prepareAgentResultList(TotalScoresBean bean, PublishedAssessmentData p,
-                 ArrayList scores, ArrayList students_not_submitted, Map useridMap){ 
+                 List scores, List students_not_submitted, Map useridMap){
 
     // get available sections 
     //String pulldownid = bean.getSelectedSectionFilterValue();
@@ -550,7 +549,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     // daisyf: #1a - place for optimization. all score contains full object of
     // AssessmentGradingData, do we need full?
     GradingService delegate = new GradingService();
-    ArrayList allscores = bean.getAssessmentGradingList();
+    List allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac.getUnlimitedSubmissions()!=null && !ac.getUnlimitedSubmissions().booleanValue()){
@@ -580,10 +579,10 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   }
 
   /* Dump the grading and agent information into AgentResults */
-  public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
+  public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, List agents, Map userRoles){
 	
 	TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-	HashMap agentResultsByAssessmentGradingIdMap = new HashMap();
+	Map agentResultsByAssessmentGradingIdMap = new HashMap();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
@@ -740,8 +739,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     }
   }
 
-  public ArrayList getAgentIds(Map useridMap){
-    ArrayList agentUserIds = new ArrayList();
+  public List getAgentIds(Map useridMap){
+    List agentUserIds = new ArrayList();
     Iterator iter = useridMap.keySet().iterator();
     while (iter.hasNext())
     {
@@ -752,7 +751,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   }
 
 
-  public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents, boolean sortAscending){
+  public void setRoleAndSortSelection(TotalScoresBean bean, List agents, boolean sortAscending){
     log.debug("TotalScoreListener: setRoleAndSortSection() starts");
 	  if (ContextUtil.lookupParam("roleSelection") != null)
     {
@@ -793,11 +792,11 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     
     if (sortAscending) {
     	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
-    	agents = (ArrayList)bs.sort();
+    	agents = (List)bs.sort();
     }
     else {
     	log.debug("TotalScoreListener: setRoleAndSortSection() :: !sortAscending");
-    	agents = (ArrayList)bs.sortDesc();
+    	agents = (List)bs.sortDesc();
     }
   }
 
@@ -826,7 +825,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   // in the UI as well SAK-2234
   // students_not_submitted
   public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter,
-                                             ArrayList agents, Map userRoles){
+                                             List agents, Map userRoles){
 	log.debug("TotalScoreListener: prepareNotSubmittedAgentResult starts");
     while (notsubmitted_iter.hasNext()){
       String studentid = (String) notsubmitted_iter.next();
@@ -870,8 +869,8 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
   // build a Hashmap (Long itemId, ArrayList assessmentGradingIds)
   // containing the last/highest item submission 
   // (regardless of users who submitted it) of a given published assessment
-  public HashMap getPublishedItemIdHash(PublishedAssessmentData pub){
-    HashMap publishedItemIdHash;
+  public Map<Long, List<Long>> getPublishedItemIdHash(PublishedAssessmentData pub){
+    Map<Long, List<Long>> publishedItemIdHash;
     Integer scoringType = getScoringType(pub);
     if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
 	publishedItemIdHash = PersistenceService.getInstance().

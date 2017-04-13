@@ -17,27 +17,42 @@
     
     <div class="action-container">
     #if ( ${adminModel.enabled} )
-    	#foreach( $option in ${adminModel.optons} )
+        <label>${rlb.searchadmin_index_site_functions}</label><br/>
+    	#foreach( $option in ${adminModel.defaultOptions} )
     			<a class="btn btn-default" href="${option.url}" ${option.attributes} >${option.name}</a>
     	#end
+        <hr/>
+        <label>${rlb.searchadmin_index_functions}</label>
+    	<form method="GET">
+    	        <select name="indexbuildername">
+    	        #foreach( $iName in ${adminModel.indexBuilderNames} )
+    			    <option value="${iName}">${iName}</option>
+    	        #end
+    	        </select>
+    	        #foreach( $option in ${adminModel.indexSpecificOptions} )
+                <button class="btn btn-default" type="submit" name="command" value="${option.url}">${option.name}</button>
+    	        #end
+    	</form>
     #end
     </div>
     
 #if ( ${adminModel.enabled} )
     <p>
- #set( $searchStatus = ${adminModel.getSearchStatus()} )
-	<p>${rlb.vm_searchadmin_last_loaded} ${adminModel.searchStatus.lastLoad} ${rlb.vm_searchadmin_in} ${searchStatus.loadTime}</p>
-	<p>${rlb.vm_searchadmin_being_indexed} ${searchStatus.currentWorker} ${rlb.vm_searchadmin_expected_before} ${searchStatus.currentWorkerETC}</p>
-	<p>${rlb.vm_searchadmin_index_contains} ${searchStatus.nDocuments} ${rlb.vm_searchadmin_documents} ${searchStatus.pDocuments} ${rlb.vm_searchadmin_pending}</p>
-	<div class="table-responsive">
-	<table class="table table-striped table-bordered table-hover" summary="${rlb.searchadmin_index_master_control_records}" >
-	<tr><th colspan="4">${rlb.searchadmin_index_master_control_records}</th></tr>
-	<tr>
-	 <td>${rlb.searchadmin_index_context}</td>
-	 <td>${rlb.searchadmin_index_operation}</td>
-	 <td>${rlb.searchadmin_index_current_status}</td>
-	 <td>${rlb.searchadmin_index_last_update}</td>
-	</tr>
+ #set( $searchStatuses = ${adminModel.getSearchStatus()} )
+	#foreach( $searchStatus in ${searchStatuses} )
+		<p>${rlb.vm_searchadmin_last_loaded} ${searchStatus.lastLoad} ${rlb.vm_searchadmin_in} ${searchStatus.loadTime}</p>
+		<p>${rlb.vm_searchadmin_being_indexed} ${searchStatus.currentWorker} ${rlb.vm_searchadmin_expected_before} ${searchStatus.currentWorkerETC}</p>
+		<p>${rlb.vm_searchadmin_index_contains} ${searchStatus.nDocuments} ${rlb.vm_searchadmin_documents} ${searchStatus.pDocuments} ${rlb.vm_searchadmin_pending}</p>
+		<div class="table-responsive">
+		<table class="table table-striped table-bordered table-hover" summary="${rlb.searchadmin_index_master_control_records}" >
+		<tr><th colspan="4">${rlb.searchadmin_index_master_control_records}</th></tr>
+		<tr>
+		 <td>${rlb.searchadmin_index_context}</td>
+		 <td>${rlb.searchadmin_index_operation}</td>
+		 <td>${rlb.searchadmin_index_current_status}</td>
+		 <td>${rlb.searchadmin_index_last_update}</td>
+		</tr>
+	#end
 #foreach( $record in ${adminModel.globalMasterRecords} )
 	<tr>
 		<td>${record.context}</td>

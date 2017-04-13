@@ -12,24 +12,18 @@ import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Radio;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
-public class SettingsGradeReleasePanel extends Panel {
+public class SettingsGradeReleasePanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<GbSettings> model;
 
@@ -39,6 +33,10 @@ public class SettingsGradeReleasePanel extends Panel {
 	private boolean expanded;
 
 	AjaxCheckBox points;
+	AjaxCheckBox letterGrade;
+	AjaxCheckBox percentage;
+
+	WebMarkupContainer courseGradeType;
 
 	public SettingsGradeReleasePanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -95,13 +93,31 @@ public class SettingsGradeReleasePanel extends Panel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 				// update preview
 				target.add(SettingsGradeReleasePanel.this.preview);
+
+				// toggle courseGradeType panel
+				target.add(SettingsGradeReleasePanel.this.courseGradeType);
+
+				// if we have disabled this, enable categories and weighting
+				// if its enabled then catgories and weighting may or may not be enabled depending on other rules
+				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
+				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
+				target.add(categoriesAndWeightingRadio);
+
+				//disabling this should also uncheck all formatting types
+				updatePointsCheckboxState();
+				updateLetterGradeCheckboxState();
+				updatePercentageCheckboxState();
+
+				target.add(SettingsGradeReleasePanel.this.points);
+				target.add(SettingsGradeReleasePanel.this.letterGrade);
+				target.add(SettingsGradeReleasePanel.this.percentage);
 			}
 		};
-		displayCourseGrade.setOutputMarkupId(true);
+		displayCourseGrade.setOutputMarkupPlaceholderTag(true);
 		settingsGradeReleasePanel.add(displayCourseGrade);
 
 		// course grade type container
-		final WebMarkupContainer courseGradeType = new WebMarkupContainer("courseGradeType") {
+		this.courseGradeType = new WebMarkupContainer("courseGradeType") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -110,11 +126,11 @@ public class SettingsGradeReleasePanel extends Panel {
 			}
 
 		};
-		courseGradeType.setOutputMarkupPlaceholderTag(true);
-		settingsGradeReleasePanel.add(courseGradeType);
+		this.courseGradeType.setOutputMarkupPlaceholderTag(true);
+		settingsGradeReleasePanel.add(this.courseGradeType);
 
 		// letter grade
-		final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade",
+		this.letterGrade = new AjaxCheckBox("letterGrade",
 				new PropertyModel<Boolean>(this.model, "gradebookInformation.courseLetterGradeDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
@@ -125,11 +141,11 @@ public class SettingsGradeReleasePanel extends Panel {
 				target.add(SettingsGradeReleasePanel.this.minimumOptions);
 			}
 		};
-		letterGrade.setOutputMarkupId(true);
-		courseGradeType.add(letterGrade);
+		this.letterGrade.setOutputMarkupPlaceholderTag(true);
+		this.courseGradeType.add(this.letterGrade);
 
 		// percentage
-		final AjaxCheckBox percentage = new AjaxCheckBox("percentage",
+		this.percentage = new AjaxCheckBox("percentage",
 				new PropertyModel<Boolean>(this.model, "gradebookInformation.courseAverageDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
@@ -140,8 +156,8 @@ public class SettingsGradeReleasePanel extends Panel {
 				target.add(SettingsGradeReleasePanel.this.minimumOptions);
 			}
 		};
-		percentage.setOutputMarkupId(true);
-		courseGradeType.add(percentage);
+		this.percentage.setOutputMarkupPlaceholderTag(true);
+		this.courseGradeType.add(this.percentage);
 
 		// points
 		this.points = new AjaxCheckBox("points",
@@ -155,20 +171,13 @@ public class SettingsGradeReleasePanel extends Panel {
 				target.add(SettingsGradeReleasePanel.this.minimumOptions);
 
 				// if points selected, disable categories and weighting
-				final GradebookInformation settings = SettingsGradeReleasePanel.this.model.getObject().getGradebookInformation();
-
 				final Radio<Integer> categoriesAndWeightingRadio = settingsPage.getSettingsCategoryPanel().getCategoriesAndWeightingRadio();
-				if (settings.isCoursePointsDisplayed()) {
-					categoriesAndWeightingRadio.setEnabled(false);
-				} else {
-					categoriesAndWeightingRadio.setEnabled(true);
-				}
+				settingsPage.getSettingsCategoryPanel().updateCategoriesAndWeightingRadioState();
 				target.add(categoriesAndWeightingRadio);
-
 			}
 		};
-		this.points.setOutputMarkupId(true);
-		courseGradeType.add(this.points);
+		this.points.setOutputMarkupPlaceholderTag(true);
+		this.courseGradeType.add(this.points);
 
 		// minimum options label. only shows if we have too few selected
 		this.minimumOptions = new Label("minimumOptions", new ResourceModel("settingspage.displaycoursegrade.notenough")) {
@@ -199,7 +208,7 @@ public class SettingsGradeReleasePanel extends Panel {
 
 		};
 		this.minimumOptions.setOutputMarkupPlaceholderTag(true);
-		courseGradeType.add(this.minimumOptions);
+		this.courseGradeType.add(this.minimumOptions);
 
 		// preview model, uses settings to determine out what to display
 		final Model<String> previewModel = new Model<String>() {
@@ -266,20 +275,16 @@ public class SettingsGradeReleasePanel extends Panel {
 			protected void onUpdate(final AjaxRequestTarget target) {
 
 				final boolean checked = displayCourseGrade.getModelObject();
-				courseGradeType.setVisible(checked);
+				SettingsGradeReleasePanel.this.courseGradeType.setVisible(checked);
 				courseGradePreview.setVisible(checked);
-				target.add(courseGradeType);
+				target.add(SettingsGradeReleasePanel.this.courseGradeType);
 				target.add(courseGradePreview);
 
 			}
 		});
 
 		// if weighted category, disable points
-		final GbCategoryType type = GbCategoryType.valueOf(this.model.getObject().getGradebookInformation().getCategoryType());
-		if (type == GbCategoryType.WEIGHTED_CATEGORY) {
-			this.points.setEnabled(false);
-		}
-
+		updatePointsCheckboxState();
 	}
 
 	public boolean isExpanded() {
@@ -290,5 +295,48 @@ public class SettingsGradeReleasePanel extends Panel {
 	AjaxCheckBox getPointsCheckBox() {
 		return this.points;
 	}
+
+	// helper to apply the rules for whether the points checkbox should be enabled
+	// runs via data from the model
+	void updatePointsCheckboxState() {
+
+		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
+		final GbCategoryType type = GbCategoryType.valueOf(settings.getCategoryType());
+
+		//if categories and weighting, disable course grade points
+		if (settings.isCourseGradeDisplayed()) {
+			if (type == GbCategoryType.WEIGHTED_CATEGORY) {
+				this.points.setEnabled(false);
+			} else {
+				this.points.setEnabled(true);
+			}
+		}
+
+		//if course grade disabled, clear this field
+		if (!settings.isCourseGradeDisplayed()) {
+			this.points.setDefaultModelObject(Boolean.FALSE);
+		}
+	}
+
+
+	void updateLetterGradeCheckboxState() {
+		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
+
+		//if course grade disabled, clear this field
+		if (!settings.isCourseGradeDisplayed()) {
+			this.letterGrade.setDefaultModelObject(Boolean.FALSE);
+		}
+	}
+
+	void updatePercentageCheckboxState() {
+		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
+
+		//if course grade disabled, clear this field
+		if (!settings.isCourseGradeDisplayed()) {
+			this.percentage.setDefaultModelObject(Boolean.FALSE);
+		}
+	}
+
+
 
 }

@@ -5,11 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.StatefulJob;
+import org.quartz.UnableToInterruptJobException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -17,6 +19,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Class to load all the sites, check if they have a provided group and if so refresh
@@ -24,14 +27,17 @@ import org.sakaiproject.tool.api.SessionManager;
  *
  * @author Matthew Buckett
  */
-public class AuthzGroupProviderSync implements StatefulJob {
+@DisallowConcurrentExecution
+public class AuthzGroupProviderSync implements InterruptableJob {
 
-	private static final Logger log = LoggerFactory.getLogger(AuthzGroupProviderSync.class);
+	private final Logger log = LoggerFactory.getLogger(AuthzGroupProviderSync.class);
 	
 	// If it's been modified in the last hour ignore it.
 	private long refreshAge = 3600000;
 	
 	private int batchSize = 200;
+
+	private boolean run = true;
 	
 	private SessionManager sessionManager;
 	private AuthzGroupService authzGroupService;
@@ -45,7 +51,7 @@ public class AuthzGroupProviderSync implements StatefulJob {
 		try {
 			groupsTotal = authzGroupService.countAuthzGroups(null);
 			Iterator<AuthzGroup> groupsIt = getAuthzGroups();
-			while (groupsIt.hasNext()) {
+			while (groupsIt.hasNext() && run) {
 				AuthzGroup group = groupsIt.next();
 				groupsProcessed++;
 				if (group.getProviderGroupId() != null && group.getProviderGroupId().length() > 0) {
@@ -81,7 +87,8 @@ public class AuthzGroupProviderSync implements StatefulJob {
 					" Processed: "+ groupsProcessed+
 					" Updated: "+ groupsUpdated+
 					" No Provider: "+ groupsNoProvider+
-					" Too New: "+ groupsTooNew
+					" Too New: "+ groupsTooNew+
+					((run)?" finished.":" stopped early.")
 					);
 			session.invalidate();
 		}
@@ -98,14 +105,14 @@ public class AuthzGroupProviderSync implements StatefulJob {
 			private int current = 1;
 			private int size = batchSize;
 			private boolean tryGetMore = true;
-			private Iterator<AuthzGroup> internalIt = Collections.EMPTY_LIST.iterator(); 
+			private Iterator<AuthzGroup> internalIt = Collections.<AuthzGroup>emptyList().iterator();
 			
 			private boolean checkOrLoadNext() {
 				if (internalIt.hasNext()) {
 					return true;
 				}
 				if (tryGetMore) {
-					List groups = authzGroupService.getAuthzGroups(null, new PagingPosition(current, current+size));
+					List<AuthzGroup> groups = authzGroupService.getAuthzGroups(null, new PagingPosition(current, current+size));
 					if (groups.size() < size) {
 						tryGetMore = false;
 					}
@@ -132,19 +139,28 @@ public class AuthzGroupProviderSync implements StatefulJob {
 		};
 	}
 
+	@Autowired(required = false)
 	public void setRefreshAge(long refreshAge) {
 		this.refreshAge = refreshAge;
 	}
-	
+
+	@Autowired(required = false)
 	public void setBatchSize(int batchSize) {
 		this.batchSize = batchSize;
 	}
 
+	@Autowired
 	public void setSessionManager(SessionManager sessionManager) {
 		this.sessionManager = sessionManager;
 	}
 
+	@Autowired
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+
+	@Override
+	public void interrupt() throws UnableToInterruptJobException {
+		run = false;
 	}
 }

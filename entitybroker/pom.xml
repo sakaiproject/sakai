@@ -69,14 +69,6 @@
       <timezone>0</timezone>
     </developer>
   </developers>
-  <licenses>
-    <license>
-      <name>Educational Community License, Version 2.0</name>
-      <url>http://www.opensource.org/licenses/ecl2.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <!-- define source code repository location -->
   <dependencyManagement>
     <dependencies>
       <dependency>

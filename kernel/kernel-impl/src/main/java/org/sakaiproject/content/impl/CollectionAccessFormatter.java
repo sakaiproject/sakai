@@ -30,7 +30,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -130,9 +130,8 @@ public class CollectionAccessFormatter
 					new Object[]{ formattedText.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME))}) + "</title>");
 			out.println("<link href=\"" + webappRoot + skinRepo+ "/" + skinName + 
 			"/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
-			out.println("<script src=\"" + webappRoot
-					+ "/library/js/jquery.js\" type=\"text/javascript\">");
-			out.println("</script>");
+			out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
+			out.println("<script type=\"text/javascript\">includeLatestJQuery(\"access\");</script>");
 			out.println("</head><body class=\"specialLink\">");
 
 			out.println("<script type=\"text/javascript\" src=\"/library/js/access.js\"></script>");

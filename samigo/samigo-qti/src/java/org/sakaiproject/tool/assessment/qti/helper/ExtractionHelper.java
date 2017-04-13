@@ -2837,7 +2837,7 @@ public class ExtractionHelper
           if (instruction != null && instruction.length() > 0) {
               instruction = XmlUtil.processFormattedText(log, (String) instructions.get(0));
               instruction = instruction.replaceAll("\\?\\?"," ");//SAK-2298
-              item.setInstruction(instruction);
+              item.setInstruction(makeFCKAttachment(instruction));
           }
       }
       
@@ -3113,7 +3113,7 @@ public class ExtractionHelper
 			option = option.trim();
 			String text = option.substring(3).trim();
 			Answer a = new Answer(itemText, text, seq++, option.substring(1, 2));
-			a.setIsCorrect(false);
+			a.setIsCorrect(Boolean.FALSE);
 			answerSet.add(a);
 			optionMap.put(option.substring(1, 2), text);
 		}

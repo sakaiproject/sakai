@@ -15,7 +15,6 @@
 
   <modules>
     <module>scheduler-api</module>
-    <module>scheduler-deploy</module>
     <module>scheduler-component</module>
     <module>scheduler-component-shared</module>
     <module>scheduler-events-model</module>
@@ -23,13 +22,5 @@
     <module>scheduler-test-component</module>
     <module>scheduler-test-component-shared</module>
   </modules>
-
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url>
-    </site>
-  </distributionManagement>
 
 </project>

@@ -19,7 +19,6 @@
   <properties>
     <deploy.target>shared</deploy.target>
     <kernel.basedir>${basedir}/..</kernel.basedir>
-    <powermock.version>1.6.2</powermock.version>
   </properties>
   <dependencies>
     <dependency>
@@ -33,6 +32,10 @@
 	<dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
@@ -52,8 +55,8 @@
       <artifactId>HikariCP</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
+      <groupId>com.sun.mail</groupId>
+      <artifactId>javax.mail</artifactId>
     </dependency>
     <!-- UNUSED
     <dependency>
@@ -89,14 +92,16 @@
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
   </dependencies>
 </project>

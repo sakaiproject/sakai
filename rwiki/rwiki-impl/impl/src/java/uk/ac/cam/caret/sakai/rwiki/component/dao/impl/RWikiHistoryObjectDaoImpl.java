@@ -28,8 +28,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;

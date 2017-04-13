@@ -85,6 +85,18 @@
       <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
 </bean>
 
+<bean name="tagServiceHelper"
+      class="org.sakaiproject.tool.assessment.integration.helper.integrated.TagServiceHelperImpl">
+    <property name="notificationService" ref="org.sakaiproject.event.api.NotificationService" />
+    <property name="tagService" ref="org.sakaiproject.tags.api.TagService" />
+</bean>
+
+<bean name="tagSyncEventHandler"
+      class="org.sakaiproject.tool.assessment.integration.helper.integrated.TagSyncEventHandlerImpl"
+      init-method="init" destroy-method="destroy">
+    <property name="tagServiceHelper" ref="tagServiceHelper"/>
+</bean>
+
 </beans>
 
 

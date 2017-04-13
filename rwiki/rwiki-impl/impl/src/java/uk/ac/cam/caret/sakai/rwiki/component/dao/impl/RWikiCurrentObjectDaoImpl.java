@@ -20,21 +20,21 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.hibernate.type.DateType;
+import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
@@ -49,110 +49,65 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 // FIXME: Component
 
-public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
-		RWikiCurrentObjectDao, ObjectProxy
-{
+public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements RWikiCurrentObjectDao, ObjectProxy {
+
 	private static Logger log = LoggerFactory.getLogger(RWikiCurrentObjectDaoImpl.class);
 
 	protected RWikiObjectContentDao contentDAO = null;
 
 	protected RWikiHistoryObjectDao historyDAO = null;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean exists(final String name)
-	{
+	public boolean exists(final String name) {
 		long start = System.currentTimeMillis();
-		try
-		{
-			HibernateCallback callback = new HibernateCallback()
-			{
+		try {
+			HibernateCallback<Number> callback = session -> (Number) session
+                    .createQuery("select count(*) from RWikiCurrentObjectImpl r where r.name = :name")
+                    .setString("name", name)
+                    .uniqueResult();
 
-				public Object doInHibernate(Session session)
-						throws HibernateException, SQLException
-				{
-					return session
-							.createQuery(
-									"select count(*) from RWikiCurrentObjectImpl r where r.name = ? ") //$NON-NLS-1$
-							.setParameter(0, name, Hibernate.STRING).list();
-				}
+			Integer count = getHibernateTemplate().execute(callback).intValue();
 
-			};
-
-			Integer count = (Integer) getHibernateTemplate().executeFind(
-					callback).get(0);
-
-			return (count.intValue() > 0);
-		}
-		finally
-		{
+			return (count > 0);
+		} finally {
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("RWikiObjectDaoImpl.exists: " + name, start, //$NON-NLS-1$
-					finish);
+			TimeLogger.printTimer("RWikiObjectDaoImpl.exists: " + name, start, finish);
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public RWikiCurrentObject findByGlobalName(final String name)
-	{
+	public RWikiCurrentObject findByGlobalName(final String name) {
 		long start = System.currentTimeMillis();
-		try
-		{
+		try {
 			// there is no point in sorting by version, since there is only one
 			// version in
 			// this table.
 			// also using like is much slower than eq
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiCurrentObject.class)
-							.add(Expression.eq("name", name)).list(); //$NON-NLS-1$
-				}
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
+			HibernateCallback<List> callback = session -> session
+					.createCriteria(RWikiCurrentObject.class)
+                    .add(Expression.eq("name", name))
+					.list();
+			List found = getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("Found " + found.size() + " objects with name " //$NON-NLS-1$ //$NON-NLS-2$
-							+ name);
-				}
+				log.debug("Found {} objects with name {}", found.size(), name);
 				return null;
 			}
-			if (log.isDebugEnabled())
-			{
-				log.debug("Found " + found.size() + " objects with name " //$NON-NLS-1$ //$NON-NLS-2$
-						+ name + " returning most recent one."); //$NON-NLS-1$
-			}
+			log.debug("Found {} objects with name {} returning most recent one.", found.size(), name);
 			return (RWikiCurrentObject) proxyObject(found.get(0));
-		}
-		finally
-		{
+		} finally {
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer("RWikiObjectDaoImpl.findByGlobalName: " //$NON-NLS-1$
-					+ name, start, finish);
+			TimeLogger.printTimer("RWikiObjectDaoImpl.findByGlobalName: " + name, start, finish);
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List findByGlobalNameAndContents(final String criteria,
-			final String user, final String realm)
-	{
+	public List findByGlobalNameAndContents(final String criteria, final String user, final String realm) {
 
-		String[] criterias = criteria.split("\\s\\s*"); //$NON-NLS-1$
+		String[] criterias = criteria.split("\\s\\s*");
 
 		final StringBuffer expression = new StringBuffer();
 		final List criteriaList = new ArrayList();
 		criteriaList.add(realm);
-		criteriaList.add("%" + criteria.toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
-		criteriaList.add("%" + criteria.toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
+		criteriaList.add("%" + criteria.toLowerCase() + "%");
+		criteriaList.add("%" + criteria.toLowerCase() + "%");
 
 		// WARNING: In MySQL like does not produce a case sensitive search so
 		// this is Ok
@@ -161,58 +116,38 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 
 		for (int i = 0; i < criterias.length; i++)
 		{
-			if (!"".equals(criterias[i])) //$NON-NLS-1$
+			if (!"".equals(criterias[i]))
 			{
-				expression.append(" or lower(c.content) like ? "); //$NON-NLS-1$
-				criteriaList.add("%" + criterias[i].toLowerCase() + "%"); //$NON-NLS-1$ //$NON-NLS-2$
+				expression.append(" or lower(c.content) like ? ");
+				criteriaList.add("%" + criterias[i].toLowerCase() + "%");
 			}
 		}
-		if ("".equals(criteria)) //$NON-NLS-1$
+		if ("".equals(criteria))
 		{
-			expression.append(" or lower(c.content) like ? "); //$NON-NLS-1$
-			criteriaList.add("%%"); //$NON-NLS-1$
+			expression.append(" or lower(c.content) like ? ");
+			criteriaList.add("%%");
 		}
 		final Type[] types = new Type[criteriaList.size()];
 		for (int i = 0; i < types.length; i++)
 		{
-			types[i] = Hibernate.STRING;
+			types[i] = StringType.INSTANCE;
 		}
 
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				return session
-						.createQuery(
-								"select distinct r " //$NON-NLS-1$
-										+ "		from RWikiCurrentObjectImpl as r, " //$NON-NLS-1$
-										+ "			RWikiCurrentObjectContentImpl as c " //$NON-NLS-1$
-										+ "   where r.realm = ? and (" //$NON-NLS-1$
-										+ " lower(r.name) like ? or " //$NON-NLS-1$
-										+ "          lower(c.content) like ? " //$NON-NLS-1$
-										+ expression.toString() + " ) and " //$NON-NLS-1$
-										+ "			r.id = c.rwikiid " //$NON-NLS-1$
-										+ "  order by r.name ").setParameters( //$NON-NLS-1$
-								criteriaList.toArray(), types).list();
-
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
-				this);
+		HibernateCallback<List> callback = session -> session
+				.createQuery("select distinct r " +
+						"from RWikiCurrentObjectImpl as r, RWikiCurrentObjectContentImpl as c " +
+						"where r.realm = ? and ( lower(r.name) like ? or lower(c.content) like ? " + expression.toString() + " ) and r.id = c.rwikiid order by r.name")
+				.setParameters(criteriaList.toArray(), types)
+				.list();
+		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void update(RWikiCurrentObject rwo, RWikiHistoryObject rwho)
-	{
+	public void update(RWikiCurrentObject rwo, RWikiHistoryObject rwho) {
 		// should have already checked
 		RWikiCurrentObjectImpl impl = (RWikiCurrentObjectImpl) rwo;
 		getHibernateTemplate().saveOrUpdate(impl);
 		// update the history
-		if (rwho != null)
-		{
+		if (rwho != null) {
 			rwho.setRwikiobjectid(impl.getId());
 			historyDAO.update(rwho);
 		}
@@ -221,14 +156,9 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		impl.setRwikiObjectContentDao(contentDAO);
 		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
 		contentDAO.update(impl.getRWikiObjectContent());
-
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public RWikiCurrentObject createRWikiObject(String name, String realm)
-	{
+	public RWikiCurrentObject createRWikiObject(String name, String realm) {
 
 		RWikiCurrentObjectImpl returnable = new RWikiCurrentObjectImpl();
 		proxyObject(returnable);
@@ -237,183 +167,95 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		returnable.setVersion(new Date());
 		returnable.setRevision(Integer.valueOf(0));
 
-		returnable.setContent(Messages.getString("RWikiCurrentObjectDaoImpl.30") //$NON-NLS-1$
-				+ Messages.getString("RWikiCurrentObjectDaoImpl.31")); //$NON-NLS-1$
+		returnable.setContent(Messages.getString("RWikiCurrentObjectDaoImpl.30") + Messages.getString("RWikiCurrentObjectDaoImpl.31"));
 		return returnable;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List findChangedSince(final Date since, final String realm)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				return session.createCriteria(RWikiCurrentObject.class).add(
-						Expression.ge("version", since)).add( //$NON-NLS-1$
-						Expression.eq("realm", realm)).addOrder( //$NON-NLS-1$
-						Order.desc("version")).list(); //$NON-NLS-1$
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
-				this);
+	public List findChangedSince(final Date since, final String realm) {
+		HibernateCallback<List> callback = session -> session
+				.createCriteria(RWikiCurrentObject.class)
+				.add(Expression.ge("version", since))
+				.add(Expression.eq("realm", realm))
+				.addOrder(Order.desc("version"))
+				.list();
+		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List findReferencingPages(final String name)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				return session.createQuery(
-						"select r.name " + "from RWikiCurrentObjectImpl r " //$NON-NLS-1$ //$NON-NLS-2$
-								+ "where referenced like ?").setParameter(0, //$NON-NLS-1$
-						"%::" + name + "::%", Hibernate.STRING).list(); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
-				this);
+	public List findReferencingPages(final String name) {
+		HibernateCallback<List> callback = session -> session
+				.createQuery("select r.name " + "from RWikiCurrentObjectImpl r where referenced like :name")
+				.setString("name", "%::" + name + "::%")
+				.list();
+		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public RWikiCurrentObject getRWikiCurrentObject(final RWikiObject reference)
-	{
+	public RWikiCurrentObject getRWikiCurrentObject(final RWikiObject reference) {
 		long start = System.currentTimeMillis();
-		try
-		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(RWikiCurrentObject.class)
-							.add(
-									Expression.eq("id", reference //$NON-NLS-1$
-											.getRwikiobjectid())).list();
-				}
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
-			if (found.size() == 0)
-			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("Found " + found.size() + " objects with id " //$NON-NLS-1$ //$NON-NLS-2$
-							+ reference.getRwikiobjectid());
-				}
+		try {
+			HibernateCallback<List> callback = session -> session.createCriteria(RWikiCurrentObject.class)
+                    .add(Expression.eq("id", reference.getRwikiobjectid()))
+					.list();
+			List found = getHibernateTemplate().execute(callback);
+			if (found.size() == 0) {
+				log.debug("Found {} objects with id {}", found.size(), reference.getRwikiobjectid());
 				return null;
 			}
-			if (log.isDebugEnabled())
-			{
-				log.debug("Found " + found.size() + " objects with id " //$NON-NLS-1$ //$NON-NLS-2$
-						+ reference.getRwikiobjectid()
-						+ " returning most recent one."); //$NON-NLS-1$
-			}
+			log.debug("Found {} objects with id {} returning most recent one.", found.size(), reference.getRwikiobjectid());
 			return (RWikiCurrentObject) proxyObject(found.get(0));
 		}
-		finally
-		{
+		finally {
 			long finish = System.currentTimeMillis();
-			TimeLogger.printTimer(
-					"RWikiCurrentObjectDaoImpl.getRWikiCurrentObject: " //$NON-NLS-1$
-							+ reference.getName(), start, finish);
+			TimeLogger.printTimer("RWikiCurrentObjectDaoImpl.getRWikiCurrentObject: " + reference.getName(), start, finish);
 		}
 	}
 
-	public RWikiObjectContentDao getContentDAO()
-	{
+	public RWikiObjectContentDao getContentDAO() {
 		return contentDAO;
 	}
 
-	public void setContentDAO(RWikiObjectContentDao contentDAO)
-	{
+	public void setContentDAO(RWikiObjectContentDao contentDAO) {
 		this.contentDAO = contentDAO;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public Object proxyObject(Object o)
-	{
-		if (o != null && o instanceof RWikiCurrentObjectImpl)
-		{
+	public Object proxyObject(Object o) {
+		if (o != null && o instanceof RWikiCurrentObjectImpl) {
 			RWikiCurrentObjectImpl rwCo = (RWikiCurrentObjectImpl) o;
 			rwCo.setRwikiObjectContentDao(contentDAO);
 		}
 		return o;
 	}
 
-	public RWikiHistoryObjectDao getHistoryDAO()
-	{
+	public RWikiHistoryObjectDao getHistoryDAO() {
 		return historyDAO;
 	}
 
-	public void setHistoryDAO(RWikiHistoryObjectDao historyDAO)
-	{
+	public void setHistoryDAO(RWikiHistoryObjectDao historyDAO) {
 		this.historyDAO = historyDAO;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List getAll()
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				return session.createCriteria(RWikiCurrentObject.class)
-						.addOrder(Order.desc("version")).list(); //$NON-NLS-1$
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
-				this);
+	public List getAll() {
+		HibernateCallback<List> callback = session -> {
+            return session.createCriteria(RWikiCurrentObject.class)
+                    .addOrder(Order.desc("version"))
+					.list();
+        };
+		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void updateObject(RWikiObject rwo)
-	{
+	public void updateObject(RWikiObject rwo) {
 		getHibernateTemplate().saveOrUpdate(rwo);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public int getPageCount(final String group)
-	{
+	public int getPageCount(final String group) {
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
+			HibernateCallback<Number> callback = session -> (Number) session
+					.createQuery("select count(*) from RWikiCurrentObjectImpl r where r.realm = :realm")
+					.setString("realm", group)
+					.uniqueResult();
 
-				public Object doInHibernate(Session session)
-						throws HibernateException, SQLException
-				{
-					return session.createQuery(
-							"select count(*) " //$NON-NLS-1$
-									+ "from RWikiCurrentObjectImpl r " //$NON-NLS-1$
-									+ "where r.realm = ?").setParameter(0, //$NON-NLS-1$
-							group, Hibernate.STRING).list();
-				}
-
-			};
-
-			Integer count = (Integer) getHibernateTemplate().executeFind(
-					callback).get(0);
-
-			return count.intValue();
+			return getHibernateTemplate().execute(callback).intValue();
 		}
 		finally
 		{
@@ -423,93 +265,46 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List findRWikiSubPages(final String globalParentPageName)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				String search = globalParentPageName.replaceAll("([A%_])", //$NON-NLS-1$
-						"A$1"); //$NON-NLS-1$
-				return session.createQuery(
-						"from RWikiCurrentObjectImpl as r " //$NON-NLS-1$
-								+ "where r.name like concat(?,'%') escape 'A' " //$NON-NLS-1$
-								+ "order by name asc").setParameter(0, search, //$NON-NLS-1$
-						Hibernate.STRING).list();
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
-				this);
+	public List findRWikiSubPages(final String globalParentPageName) {
+		HibernateCallback<List> callback = session -> {
+            String search = globalParentPageName.replaceAll("([A%_])", "A$1");
+            return session.createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' order by name asc")
+					.setString("search", search)
+					.list();
+        };
+		return new ListProxy(getHibernateTemplate().execute(callback), this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public RWikiObject findLastRWikiSubPage(final String globalParentPageName)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				String search = globalParentPageName.replaceAll("([A%_])", //$NON-NLS-1$
-						"A$1"); //$NON-NLS-1$
-				return session.createQuery(
-						"from RWikiCurrentObjectImpl as r " //$NON-NLS-1$
-								+ "where r.name like concat(?,'%') escape 'A' " //$NON-NLS-1$
-								+ "order by name desc").setParameter(0, search, //$NON-NLS-1$
-						Hibernate.STRING).list();
-			}
-		};
-		List l = (List) getHibernateTemplate().execute(callback);
+	public RWikiObject findLastRWikiSubPage(final String globalParentPageName) {
+		HibernateCallback<List> callback = session -> {
+            String search = globalParentPageName.replaceAll("([A%_])", "A$1");
+            return session.createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' order by name desc")
+					.setString("search", search)
+                    .list();
+        };
+		List l = getHibernateTemplate().execute(callback);
 		if (l == null || l.size() == 0) return null;
 		return (RWikiObject) l.get(0);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List findAllChangedSince(final Date time, final String basepath)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				String search = basepath.replaceAll("([A%_])", "A$1"); //$NON-NLS-1$ //$NON-NLS-2$
-				return session
-						.createQuery(
-								"from RWikiCurrentObjectImpl as r " //$NON-NLS-1$
-										+ "where r.name like concat(?,'%') escape 'A' " //$NON-NLS-1$
-										+ "and r.version >= ? " //$NON-NLS-1$
-										+ "order by r.version desc, r.name asc") //$NON-NLS-1$
-						.setParameters(new Object[] { search, time },
-								new Type[] { Hibernate.STRING, Hibernate.DATE })
-						.list();
-			}
-		};
-		return new ListProxy((List) getHibernateTemplate().execute(callback),
-				this);
+	public List findAllChangedSince(final Date time, final String basepath) {
+		HibernateCallback<List> callback = session -> {
+            String search = basepath.replaceAll("([A%_])", "A$1");
+            return session
+                    .createQuery("from RWikiCurrentObjectImpl as r where r.name like concat( :search , '%' ) escape 'A' and r.version >= :time order by r.version desc, r.name asc")
+                    .setString("search", search)
+                    .setDate("time", time)
+                    .list();
+        };
+		return new ListProxy(getHibernateTemplate().execute(callback), this);
 
 	}
 
-	public List findAllPageNames()
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				return session.createQuery(
-						"select r.name " + "from RWikiCurrentObjectImpl  r ") //$NON-NLS-1$ //$NON-NLS-2$
-						.list();
-			}
-		};
-		return (List) getHibernateTemplate().execute(callback);
+	public List findAllPageNames() {
+		HibernateCallback<List> callback = session -> session
+				.createQuery("select r.name " + "from RWikiCurrentObjectImpl  r ")
+                .list();
+		return getHibernateTemplate().execute(callback);
 	}
 
 }

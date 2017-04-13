@@ -20,24 +20,19 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.syllabus;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
-
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
@@ -49,25 +44,21 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
-
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * SyllabusManagerImpl provides convenience functions to query the database
@@ -135,26 +126,21 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {                 
-      HibernateCallback hcb = new HibernateCallback()
-      {                
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {            
-          // get syllabi in an eager fetch mode
-          Criteria crit = session.createCriteria(SyllabusItemImpl.class)
-                      .add(Expression.eq(SURROGATE_KEY, syllabusItem.getSurrogateKey()))
-                      .setFetchMode(SYLLABI, FetchMode.EAGER);
-                      
-          
-          SyllabusItem syllabusItem = (SyllabusItem) crit.uniqueResult();
-          
-          if (syllabusItem != null){            
-            return syllabusItem.getSyllabi();                                           
-          }     
-          return new TreeSet();
+      HibernateCallback<Set> hcb = session -> {
+        // get syllabi in an eager fetch mode
+        Criteria crit = session.createCriteria(SyllabusItemImpl.class)
+                    .add(Expression.eq(SURROGATE_KEY, syllabusItem.getSurrogateKey()))
+                    .setFetchMode(SYLLABI, FetchMode.EAGER);
+
+
+        SyllabusItem syllabusItem1 = (SyllabusItem) crit.uniqueResult();
+
+        if (syllabusItem1 != null){
+          return syllabusItem1.getSyllabi();
         }
-      };             
-      return (Set) getHibernateTemplate().execute(hcb);     
+        return new TreeSet();
+      };
+      return getHibernateTemplate().execute(hcb);
     }
   }  
   
@@ -249,21 +235,16 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {
-      HibernateCallback hcb = new HibernateCallback()
-      {                
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {            
-          // load objects from hibernate
-          SyllabusData data1 = (SyllabusData) session.get(SyllabusDataImpl.class, d1.getSyllabusId());
-          SyllabusData data2 = (SyllabusData) session.get(SyllabusDataImpl.class, d2.getSyllabusId());
-          
-          Integer temp = data1.getPosition();
-          data1.setPosition(data2.getPosition());
-          data2.setPosition(temp);
-          
-          return null;                    
-        }
+      HibernateCallback hcb = session -> {
+        // load objects from hibernate
+        SyllabusData data1 = (SyllabusData) session.get(SyllabusDataImpl.class, d1.getSyllabusId());
+        SyllabusData data2 = (SyllabusData) session.get(SyllabusDataImpl.class, d2.getSyllabusId());
+
+        Integer temp = data1.getPosition();
+        data1.setPosition(data2.getPosition());
+        data2.setPosition(temp);
+
+        return null;
       };
       getHibernateTemplate().execute(hcb);
     }
@@ -290,26 +271,21 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {
-      HibernateCallback hcb = new HibernateCallback()
-      {                
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {            
-          Query q = session.getNamedQuery(QUERY_LARGEST_POSITION);                
-          q.setParameter(FOREIGN_KEY, syllabusItem.getSurrogateKey(), Hibernate.LONG);
-          
-          Integer position = (Integer) q.uniqueResult();
-          
-          if (position == null){
-            return new Integer(0);
-          }
-          else{
-            return position;
-          }
-          
+      HibernateCallback<Integer> hcb = session -> {
+        Query q = session.getNamedQuery(QUERY_LARGEST_POSITION);
+        q.setParameter(FOREIGN_KEY, syllabusItem.getSurrogateKey(), LongType.INSTANCE);
+
+        Integer position = (Integer) q.uniqueResult();
+
+        if (position == null){
+          return 0;
         }
+        else{
+          return position;
+        }
+
       };
-      return (Integer) getHibernateTemplate().execute(hcb);
+      return getHibernateTemplate().execute(hcb);
     }
   }    
   
@@ -327,53 +303,38 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }
           
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_BY_CONTEXTID);                        
-        q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);                   
-        return q.uniqueResult();
-      }
+    HibernateCallback<SyllabusItem> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_BY_CONTEXTID);
+      q.setParameter(CONTEXT_ID, contextId, StringType.INSTANCE);
+      return (SyllabusItem) q.uniqueResult();
     };
         
-    return (SyllabusItem) getHibernateTemplate().execute(hcb);
+    return getHibernateTemplate().execute(hcb);
   }
   
   @SuppressWarnings("unchecked")
   public Set<SyllabusData> findPublicSyllabusData() {
-      HibernateCallback hcb = new HibernateCallback()
-      {
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {
-          Criteria crit = session.createCriteria(SyllabusDataImpl.class)
-                      .add(Expression.eq(VIEW, "yes"))
-                      .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
+      HibernateCallback<List<SyllabusData>> hcb = session -> {
+        Criteria crit = session.createCriteria(SyllabusDataImpl.class)
+                    .add(Expression.eq(VIEW, "yes"))
+                    .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
 
-          return crit.list();
-        }
+        return crit.list();
       };
-      return new HashSet<SyllabusData>((List<SyllabusData>) getHibernateTemplate().executeFind(hcb));
+      return new HashSet<>(getHibernateTemplate().execute(hcb));
   }
   
   @SuppressWarnings("unchecked")
   private Set<SyllabusData> findPublicSyllabusDataWithCalendarEvent(final long syllabusId) {
-      HibernateCallback hcb = new HibernateCallback()
-      {
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {
-          Criteria crit = session.createCriteria(SyllabusDataImpl.class)
-          				.add(Expression.eq("syllabusItem.surrogateKey", syllabusId))
-                      .add(Expression.eq("status", "posted"))
-                      .add(Expression.eq("linkCalendar", true));
+      HibernateCallback<List<SyllabusData>> hcb = session -> {
+        Criteria crit = session.createCriteria(SyllabusDataImpl.class)
+                        .add(Expression.eq("syllabusItem.surrogateKey", syllabusId))
+                    .add(Expression.eq("status", "posted"))
+                    .add(Expression.eq("linkCalendar", true));
 
-          return crit.list();
-        }
+        return crit.list();
       };
-      return new HashSet<SyllabusData>((List<SyllabusData>) getHibernateTemplate().executeFind(hcb));
+      return new HashSet<>(getHibernateTemplate().execute(hcb));
   }
   
   /**
@@ -390,19 +351,14 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }
           
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        Query q = session.getNamedQuery(QUERY_BY_USERID_AND_CONTEXTID);                
-        q.setParameter(USER_ID, userId, Hibernate.STRING);
-        q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);                   
-        return q.uniqueResult();
-      }
+    HibernateCallback<SyllabusItem> hcb = session -> {
+      Query q = session.getNamedQuery(QUERY_BY_USERID_AND_CONTEXTID);
+      q.setParameter(USER_ID, userId, StringType.INSTANCE);
+      q.setParameter(CONTEXT_ID, contextId, StringType.INSTANCE);
+      return (SyllabusItem) q.uniqueResult();
     };
         
-    return (SyllabusItem) getHibernateTemplate().execute(hcb);
+    return getHibernateTemplate().execute(hcb);
   }
   
   /**
@@ -423,20 +379,14 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }      
            
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-
-        SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
-        if (returnedItem != null){          
-          returnedItem.getSyllabi().add(syllabusData);                   
-          session.save(returnedItem);                              
-        }           
-        return null;
+    HibernateCallback hcb = session -> {
+      SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
+      if (returnedItem != null){
+        returnedItem.getSyllabi().add(syllabusData);
+        session.save(returnedItem);
       }
-    }; 
+      return null;
+    };
     getHibernateTemplate().execute(hcb);    
     updateSyllabusAttachmentsViewState(syllabusData);
     syllabusData.setSyllabusItem(syllabusItem);
@@ -463,19 +413,14 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }      
            
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
-        if (returnedItem != null){                    
-          returnedItem.getSyllabi().remove(syllabusData);          
-          session.saveOrUpdate(returnedItem);          
-        }           
-        return null;
+    HibernateCallback hcb = session -> {
+      SyllabusItem returnedItem = (SyllabusItem) session.get(SyllabusItemImpl.class, syllabusItem.getSurrogateKey());
+      if (returnedItem != null){
+        returnedItem.getSyllabi().remove(syllabusData);
+        session.saveOrUpdate(returnedItem);
       }
-    }; 
+      return null;
+    };
     getHibernateTemplate().execute(hcb);
   }  
 
@@ -558,17 +503,11 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {                 
-      HibernateCallback hcb = new HibernateCallback()
-      {
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {
-          Long longObj = new Long(dataId);
-          SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, longObj);
-          return returnedData;
-        }
-      }; 
-      return (SyllabusData) getHibernateTemplate().execute(hcb);
+      HibernateCallback<SyllabusData> hcb = session -> {
+        Long longObj = new Long(dataId);
+        return (SyllabusData) session.get(SyllabusDataImpl.class, longObj);
+      };
+      return getHibernateTemplate().execute(hcb);
     }
 
   }  
@@ -581,16 +520,8 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {                 
-      HibernateCallback hcb = new HibernateCallback()
-      {
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {
-          SyllabusItem returnedData = (SyllabusItem) session.get(SyllabusItemImpl.class, itemId);
-          return returnedData;
-        }
-      }; 
-      return (SyllabusItem) getHibernateTemplate().execute(hcb);
+      HibernateCallback<SyllabusItem> hcb = session -> (SyllabusItem) session.get(SyllabusItemImpl.class, itemId);
+      return getHibernateTemplate().execute(hcb);
     }
 
   }
@@ -657,19 +588,14 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }      
            
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
-        if (returnedData != null){
-          returnedData.getAttachments().add(syllabusAttach);
-          session.save(returnedData);                              
-        }           
-        return null;
+    HibernateCallback hcb = session -> {
+      SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
+      if (returnedData != null){
+        returnedData.getAttachments().add(syllabusAttach);
+        session.save(returnedData);
       }
-    }; 
+      return null;
+    };
     getHibernateTemplate().execute(hcb);
     updateSyllabusAttachmentViewState(syllabusData, syllabusAttach);
   }  
@@ -688,19 +614,14 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
       throw new IllegalArgumentException("Null Argument");
     }      
            
-    HibernateCallback hcb = new HibernateCallback()
-    {
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException
-      {
-        SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
-        if (returnedData != null){                    
-          returnedData.getAttachments().remove(syllabusAttach);          
-          session.saveOrUpdate(returnedData);          
-        }           
-        return null;
+    HibernateCallback hcb = session -> {
+      SyllabusData returnedData = (SyllabusData) session.get(SyllabusDataImpl.class, syllabusData.getSyllabusId());
+      if (returnedData != null){
+        returnedData.getAttachments().remove(syllabusAttach);
+        session.saveOrUpdate(returnedData);
       }
-    }; 
+      return null;
+    };
     getHibernateTemplate().execute(hcb);
   }  
 
@@ -712,25 +633,20 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {                 
-      HibernateCallback hcb = new HibernateCallback()
-      {                
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {            
-          Criteria crit = session.createCriteria(SyllabusDataImpl.class)
-                      .add(Expression.eq(SYLLABUS_DATA_ID, syllabusData.getSyllabusId()))
-                      .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
-                      
-          
-          SyllabusData syllabusData = (SyllabusData) crit.uniqueResult();
-          
-          if (syllabusData != null){            
-            return syllabusData.getAttachments();                                           
-          }     
-          return new TreeSet();
+      HibernateCallback<Set<SyllabusAttachment>> hcb = session -> {
+        Criteria crit = session.createCriteria(SyllabusDataImpl.class)
+                    .add(Expression.eq(SYLLABUS_DATA_ID, syllabusData.getSyllabusId()))
+                    .setFetchMode(ATTACHMENTS, FetchMode.EAGER);
+
+
+        SyllabusData syllabusData1 = (SyllabusData) crit.uniqueResult();
+
+        if (syllabusData1 != null){
+          return syllabusData1.getAttachments();
         }
-      };             
-      return (Set<SyllabusAttachment>) getHibernateTemplate().execute(hcb);
+        return new TreeSet();
+      };
+      return getHibernateTemplate().execute(hcb);
     }
   }  
 
@@ -742,17 +658,11 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
     }
     else
     {                 
-      HibernateCallback hcb = new HibernateCallback()
-      {
-        public Object doInHibernate(Session session) throws HibernateException,
-            SQLException
-        {
-          Long longObj = new Long(syllabusAttachId);
-          SyllabusAttachment returnedAttach = (SyllabusAttachment) session.get(SyllabusAttachmentImpl.class, longObj);
-          return returnedAttach;
-        }
-      }; 
-      return (SyllabusAttachment) getHibernateTemplate().execute(hcb);
+      HibernateCallback<SyllabusAttachment> hcb = session -> {
+        Long longObj = new Long(syllabusAttachId);
+        return (SyllabusAttachment) session.get(SyllabusAttachmentImpl.class, longObj);
+      };
+      return getHibernateTemplate().execute(hcb);
     }
 
   }

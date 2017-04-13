@@ -138,11 +138,6 @@
 					<h:outputText value="#{msgs.cdfm_topic_settings}"/>
 				</h:commandLink>
 				
-				<h:commandLink action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
-				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-				<h:outputText value="#{msgs.cdfm_button_bar_delete_topic}"/>
-				</h:commandLink>
-				
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
@@ -238,6 +233,7 @@
 					
 					<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
 						<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}"/> 
+						<div class="table-responsive">
 						<h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em">
 					  <h:column>
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
@@ -249,6 +245,7 @@
 						</h:outputLink>				  
 					</h:column>
 			  </h:dataTable>
+			</div>
 					<f:verbatim></div></f:verbatim>
 				</h:panelGroup>
 			</h:panelGrid>	

@@ -1,16 +1,15 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.grading"
+                   default-lazy="false">
 
-<hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData" table="SAM_ITEMGRADING_T">
     <id name="itemGradingId" column="ITEMGRADINGID" type="java.lang.Long" unsaved-value="0" >
       <generator class="native">
         <param name="sequence">SAM_ITEMGRADING_ID_S</param>
       </generator>
     </id>
-    <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" index="SAM_ASSESSMENTGRADING_I" unique-key="uniqueStudentResponse" />
+    <property name="assessmentGradingId" type="long" column="ASSESSMENTGRADINGID" not-null="true" unique-key="uniqueStudentResponse" />
     <property name="publishedItemId" type="long" column="PUBLISHEDITEMID" not-null="true" index="SAM_ITEMGRADING_ITEM_I" unique-key="uniqueStudentResponse" />
     <property name="publishedItemTextId" type="long" column="PUBLISHEDITEMTEXTID" not-null="true" index="SAM_ITEMGRADING_ITEMTEXT_I" unique-key="uniqueStudentResponse" />
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" unique-key="uniqueStudentResponse" />

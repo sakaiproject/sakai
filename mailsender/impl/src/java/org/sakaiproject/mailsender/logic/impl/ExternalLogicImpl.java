@@ -18,11 +18,8 @@ package org.sakaiproject.mailsender.logic.impl;
 
 import static org.sakaiproject.mailsender.logic.impl.MailConstants.PROTOCOL_SMTP;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.mail.MessagingException;
@@ -33,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.ContentType;
@@ -41,6 +40,10 @@ import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.email.api.NoRecipientsException;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
@@ -61,6 +64,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Validator;
 
 /**
  * This is the implementation for logic which is external to our app logic
@@ -81,6 +85,8 @@ public class ExternalLogicImpl implements ExternalLogic
     private EmailService emailService;
     private ServerConfigurationService configService;
     private EventTrackingService eventService;
+    private ContentHostingService contentHostingService;
+    private EntityManager entityManager;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here
@@ -261,11 +267,16 @@ public class ExternalLogicImpl implements ExternalLogic
 	}
 
 	public boolean addToArchive(ConfigEntry config, String channelRef, String sender,
-			String subject, String body)
+			String subject, String body, List<Attachment> attachments)
 	{
 		if (config == null)
 		{
 			config = ConfigEntry.DEFAULT_CONFIG;
+		}
+
+		if (attachments == null)
+		{
+			attachments = Collections.EMPTY_LIST;
 		}
 
 		boolean retval = true;
@@ -316,6 +327,15 @@ public class ExternalLogicImpl implements ExternalLogic
 			header.setFromAddress(sender);
 			header.setDateSent(timeService.newTime());
 			header.setMailHeaders(mailHeaders);
+			// List of references needed.
+			List<Reference> refs = new ArrayList<Reference>();
+			for(Attachment attachment : attachments) {
+				ContentResource resource = createAttachment(channel.getContext(), attachment.getContentTypeHeader(),
+						attachment.getFilename(), attachment.getDataSource().getInputStream(), edit.getId());
+				if (resource != null) {
+					header.addAttachment(entityManager.newReference(resource.getReference()));
+				}
+			}
 			channel.commitMessage(edit, NotificationService.NOTI_NONE);
 		}
 		catch (Exception e)
@@ -324,6 +344,34 @@ public class ExternalLogicImpl implements ExternalLogic
 			retval = false;
 		}
 		return retval;
+	}
+
+	protected ContentResource createAttachment(String siteId, String type, String fileName, InputStream in, String id) {
+		// we just want the file name part - strip off any drive and path stuff
+        // This shouldn't be necessary as it's already been processed.
+		String resourceName = Validator.escapeResourceName(fileName);
+
+		// make a set of properties to add for the new resource
+		ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
+		props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
+		props.addProperty(ResourceProperties.PROP_DESCRIPTION, fileName);
+
+		// make an attachment resource for this URL
+		try {
+			ContentResource attachment;
+			if (siteId == null) {
+				attachment = contentHostingService.addAttachmentResource(resourceName, type, in, props);
+			} else {
+				attachment = contentHostingService.addAttachmentResource(resourceName, siteId, null, type, in, props);
+			}
+
+			log.debug(id + " : attachment: " + attachment.getReference() + " size: " + attachment.getContentLength());
+
+			return attachment;
+		} catch (Exception any) {
+			log.warn(id + " : exception adding attachment resource: " + fileName + " : " + any.toString());
+			return null;
+		}
 	}
 
 	public List<String> sendEmail(ConfigEntry config, String fromEmail, String fromName,
@@ -524,5 +572,13 @@ public class ExternalLogicImpl implements ExternalLogic
 
 	public void setEventTrackingService(EventTrackingService eventService) {
 		this.eventService = eventService;
+	}
+
+	public void setContentHostingService(ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 }

@@ -16,21 +16,27 @@ $(function () {
             return {
                 siteid: $(this).find('.site-id').text(),
                 title: $(this).find('.site-title').text(),
-                description: $(this).find('.site-description').text()
+                description: $(this).find('.site-short-description').text()
             };
         }).toArray();
 
         var term = $('<div class="term-section" />');
 
         var title_elt = $('<div class="manage-hidden-entry term-entry" />');
-        title_elt.append($('<h2 class="title" />').text(title.text()));
+        title_elt.append($('<h3 class="title" />').text(title.text()));
         title_elt.append($('<input type="checkbox" class="term-hidden hidden-checkbox">'));
         term.append(title_elt);
 
         $.each(sites, function (i, site) {
             var item = $('<div class="manage-hidden-entry site-entry" />');
             item.append($('<i class="fa site-entry-star" />'));
-            item.append($('<span class="title" />').text(site.title));
+
+            if ($('#selectedTabLabelValue').text().trim() == '2' && site.description) {
+                item.append($('<span class="title" />').text(site.description));
+            } else {
+                item.append($('<span class="title" />').text(site.title));
+            }
+
             item.append($('<input type="checkbox" class="site-hidden hidden-checkbox">').data('site-id', site.siteid));
 
             term.append(item);

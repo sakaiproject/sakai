@@ -72,6 +72,8 @@
 				
 			<div class="textPanel toggle"  id="toggle">
 				<mf:htmlShowArea hideBorder="true" id="topic_fullDescription"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/>
+				
+				<div class="table-responsive">
 				<h:dataTable value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" styleClass="table table-hover table-striped table-bordered" columnClasses="attach,bogus">
 				  <h:column>
 					<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
@@ -83,6 +85,7 @@
 				    </h:outputLink>
 				  </h:column>
 				</h:dataTable>
+				</div>
 			</div>
 		</div>	
 		<%-- originally hidden

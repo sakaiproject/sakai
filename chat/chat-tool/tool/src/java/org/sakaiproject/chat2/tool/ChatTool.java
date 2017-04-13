@@ -185,6 +185,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final int DEFAULT_ITEMS = 3;
    private static final int DEFAULT_LENGTH = 50;
    
+   private static final String HIDDEN_START_ISO_DATE = "chatStartDateISO8601";
+   private static final String HIDDEN_END_ISO_DATE = "chatEndDateISO8601";
+   
    /* All the managers */
    /**   The work-horse of chat   */
    private ChatManager chatManager;
@@ -797,9 +800,17 @@ public class ChatTool implements RoomObserver, PresenceObserver {
            else
                retView = PAGE_LIST_ROOMS;
 
-           // copy the dates into the channel for saving
-           channel.setStartDate(dChannel.getStartDate());
-           channel.setEndDate(dChannel.getEndDate());
+           // If the hidden values contain valid ISO dates set them
+           Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+           String startISODate = params.get(HIDDEN_START_ISO_DATE);
+           String endISODate = params.get(HIDDEN_END_ISO_DATE);
+           if(DateUtil.isValidISODate(startISODate)){
+                channel.setStartDate(DateUtil.parseISODate(startISODate));
+           }
+
+           if(DateUtil.isValidISODate(endISODate)){
+                channel.setEndDate(DateUtil.parseISODate(endISODate));
+           }
 
            if (validateChannel(channel))
                try {

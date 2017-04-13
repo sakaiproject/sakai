@@ -153,7 +153,7 @@ public abstract class DirectServlet extends HttpServlet {
         String uri = req.getRequestURI();
         if ( uri != null ) {
             String[] parts = uri.split("/");
-            if ((parts.length == 2) && ((parts[1].equals("login")))) {
+            if ((parts.length > 0) && ("login".equals(parts[parts.length-1]))) {
                 handleUserLogin(req, res, null);
             } else {
                 dispatch(req, res);

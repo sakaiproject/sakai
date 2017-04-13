@@ -54,16 +54,16 @@ public class SamigoObserver implements Observer {
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notiValues, event);
-        } else if(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED.equals(eventType)){
+        } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO.equals(eventType)){
             log.debug("Assessment Auto Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
-            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED, notiValues, event);
-        } else if(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED.equals(eventType)){
+            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues, event);
+        } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED.equals(eventType)){
             log.debug("Assessment Timed Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues = stringToHashMap(hashMapString);
-            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues, event);
+            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED, notiValues, event);
         }
     }
 

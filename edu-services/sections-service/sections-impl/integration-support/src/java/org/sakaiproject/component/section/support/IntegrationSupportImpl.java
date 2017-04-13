@@ -20,18 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.component.section.support;
 
-import java.sql.SQLException;
 import java.sql.Time;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sakaiproject.component.section.EnrollmentRecordImpl;
+import org.sakaiproject.component.section.InstructorRecordImpl;
+import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -40,11 +37,10 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.component.section.EnrollmentRecordImpl;
-import org.sakaiproject.component.section.InstructorRecordImpl;
-import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Provides integration support using the standalone hibernate implementation.
@@ -79,14 +75,12 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 	}
 
 	public List getAllSiteMemberships(final String userUid) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Query q = session.getNamedQuery("getUsersSiteMemberships");
-				q.setParameter("userUid", userUid);
-				return q.list();
-			}
-		};
-		return getHibernateTemplate().executeFind(hc);
+		HibernateCallback<List> hc = session -> {
+            Query q = session.getNamedQuery("getUsersSiteMemberships");
+            q.setParameter("userUid", userUid);
+            return q.list();
+        };
+		return getHibernateTemplate().execute(hc);
 	}
 
 	public Set getAllSectionMemberships(String userUid, String siteContext) {
@@ -121,16 +115,14 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 	}
 
 	public void removeSiteMembership(final String userUid, final String siteContext) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				log.info("getting query object");
-				Query q = session.getNamedQuery("loadSiteParticipation");
-				log.info("query = " + q);
-				q.setParameter("userUid", userUid);
-				q.setParameter("siteContext", siteContext);
-				return q.uniqueResult();
-			}
-		};
+		HibernateCallback hc = session -> {
+            log.info("getting query object");
+            Query q = session.getNamedQuery("loadSiteParticipation");
+            log.info("query = " + q);
+            q.setParameter("userUid", userUid);
+            q.setParameter("siteContext", siteContext);
+            return q.uniqueResult();
+        };
 		ParticipationRecord record = (ParticipationRecord)getHibernateTemplate().execute(hc);
 		if(record != null) {
 			log.info("Preparing to delete record " + record);

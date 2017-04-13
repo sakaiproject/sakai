@@ -1,8 +1,8 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-   "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="none" package="org.sakaiproject.component.section"
-	default-lazy="false">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="none"
+                   package="org.sakaiproject.component.section"
+                   default-lazy="false">
 
     <class name="org.sakaiproject.component.section.LearningContextImpl"
         table="SEC_LEARNING_CONTEXT_T">

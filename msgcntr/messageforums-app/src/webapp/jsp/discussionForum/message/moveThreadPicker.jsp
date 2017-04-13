@@ -1,5 +1,5 @@
 <f:verbatim>
-    <h:outputText escape="false" value='<div class="topic-picker" id="topic-picker" title="#{msgs.move_thread}">'/>
+    <h:outputText escape="false" value='<div class="topic-picker" id="topic-picker" style="display:none" title="#{msgs.move_thread}">'/>
         <div class="selected-threads-to-move">
             <div>
                 <h:outputText value="#{msgs.move_thread_info1}"  />

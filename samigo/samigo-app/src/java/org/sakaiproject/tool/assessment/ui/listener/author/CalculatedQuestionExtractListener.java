@@ -391,6 +391,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_min"));
                     variable.setValidMin(false);
+                } catch (ArithmeticException n) {
+                    errors.add(getErrorMessage("invalid_min_scale"));
+                    variable.setValidMin(false);
                 }
             }
 
@@ -410,6 +413,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     variable.setMax(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_max"));
+                    variable.setValidMax(false);
+                } catch (ArithmeticException n) {
+                    errors.add(getErrorMessage("invalid_max_scale"));
                     variable.setValidMax(false);
                 }
             }

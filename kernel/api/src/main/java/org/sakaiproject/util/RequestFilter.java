@@ -26,6 +26,7 @@ import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.cluster.api.ClusterNode;
@@ -278,19 +279,11 @@ public class RequestFilter implements Filter
 
 		// if force.url.secure is set (to a https port number), use https and this port
 		String forceSecure = System.getProperty("sakai.force.url.secure");
-		if (forceSecure != null && !"".equals(forceSecure)) {
-		    // allow the value to be forced to 0 or blank to disable this
-            int portNum;
-            try {
-                portNum = Integer.parseInt(forceSecure);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("force.url.secure must be set to the port number which should be a numeric value > 0 (or set it to 0 to disable secure urls)", e);
-            }
-            if (portNum > 0) {
-                transport = "https";
-                port = portNum;
-                secure = true;
-            }
+		int forceSecureInt = NumberUtils.toInt(forceSecure);
+		if (forceSecureInt > 0 && forceSecureInt <= 65535) {
+			transport = "https";
+			port = forceSecureInt;
+			secure = true;
 		} else {
 	        // otherwise use the request scheme and port
 			transport = req.getScheme();

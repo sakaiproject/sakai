@@ -40,6 +40,7 @@
 			       <h:outputText value="#{mfStatisticsBean.selectedMsgSubject}" />
 			    <f:verbatim></h3></div></f:verbatim>
   
+  		<div class="table-responsive">
   		<h:dataTable id="subjectBody" value="#{mfStatisticsBean.userSubjectMsgBody}" var="stat" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column rendered="#{!stat.msgDeleted}">
 				<f:verbatim><div  class="printBlock"></f:verbatim>
@@ -74,7 +75,7 @@
   			</h:column>
   			
   		</h:dataTable>
-
+  		</div>
   	</h:form>
   </sakai:view>
  </f:view>

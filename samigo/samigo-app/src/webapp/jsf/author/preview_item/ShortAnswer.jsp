@@ -48,3 +48,5 @@ should be included in file importing DeliveryMessages
   <h:outputLabel value="#{commonMessages.feedback}: " />
   <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 </h:panelGroup>
+
+<%@ include file="/jsf/author/preview_item/tags.jsp" %>

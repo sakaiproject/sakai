@@ -43,4 +43,5 @@ include file for displaying fill in the numeric questions
  </h:dataTable>
  </h:column>
 </h:dataTable>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
 

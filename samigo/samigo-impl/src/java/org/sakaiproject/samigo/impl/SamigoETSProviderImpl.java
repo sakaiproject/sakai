@@ -15,35 +15,30 @@
  */
 package org.sakaiproject.samigo.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import javax.mail.internet.InternetAddress;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.samigo.api.SamigoETSProvider;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.user.api.*;
@@ -68,52 +63,77 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     private static  final   String              CHANGE_SETTINGS_HOW_TO_INSTRUCTOR   = RB.getString("changeSetting_instructor");
     private static  final   String              CHANGE_SETTINGS_HOW_TO_STUDENT      = RB.getString("changeSetting_student");
 
-    public      void                init                            () {
+    public      void                init                                () {
         LOG.info("init()");
 
-        String samigoFromAddress                    = serverConfigurationService.getString("samigo.fromAddress");
-
-        if( samigoFromAddress == null || StringUtils.isBlank(samigoFromAddress)){
-            fromAddress                             = serverConfigurationService.getString("setup.request", "no-reply@" + serverConfigurationService.getServerName());
-        } else {
-            fromAddress                             = samigoFromAddress;
+        fromAddress = serverConfigurationService.getString("samigo.fromAddress");
+        if(StringUtils.isBlank(fromAddress)){
+            String defaultAddress = "no-reply@" + serverConfigurationService.getServerName();
+            fromAddress = serverConfigurationService.getString("setup.request", defaultAddress);
         }
 
-        constantValues.put("localSakaiName" , serverConfigurationService.getString("ui.service", ""));
+        constantValues.put("localSakaiName" , serverConfigurationService.getString("ui.service", "Sakai"));
         constantValues.put("localSakaiUrl"  , serverConfigurationService.getPortalUrl());
 
-        loadTemplate(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED_FILE_NAME      , SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED);
-        loadTemplate(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED_FILE_NAME , SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED);
-        loadTemplate(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME, SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED);
+        // Register XML file email templates with the service
+        ClassLoader cl = SamigoETSProviderImpl.class.getClassLoader();
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_SUBMITTED);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
     }
 
-    public      void                notify                          (String eventKey, Map<String, Object> notificationValues, Event event) {
+    public      void                notify                              (String eventKey, Map<String, Object> notificationValues, Event event) {
         LOG.debug("Notify, templateKey: " + eventKey + " event: " + event.toString());
         switch(eventKey){
             case SamigoConstants.EVENT_ASSESSMENT_SUBMITTED:
                 handleAssessmentSubmitted(notificationValues, event);
                 break;
-            case SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED:
+            case SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO:
                 handleAssessmentAutoSubmitted(notificationValues, event);
                 break;
-            case SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED:
+            case SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMED:
                 handleAssessmentTimedSubmitted(notificationValues, event);
                 break;
         }
     }
 
-    private     void                handleAssessmentSubmitted       (Map<String, Object> notificationValues, Event event) {
+    public      void                notifyAutoSubmitFailures            (int count) {
+        boolean notifyOn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED, false);
+        if (!notifyOn) {
+            return;
+        }
+        String supportAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_SUPPORT_EMAIL_ADDRESS, fromAddress);
+        String toAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS, supportAddress);
+
+        Map<String, String> replacementValues = new HashMap<>();
+        replacementValues.put("failureCount", Integer.toString(count));
+
+        try {
+            RenderedTemplate template = emailTemplateService.getRenderedTemplate(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS, Locale.getDefault(), replacementValues);
+            if (template == null) {
+                throw new IllegalStateException("Template is null");
+            }
+            InternetAddress[] to = { new InternetAddress(toAddress) };
+            emailService.sendMail(new InternetAddress(fromAddress), to, template.getRenderedSubject(), template.getRenderedMessage(), null, null, null);
+        }
+        catch (Exception e) {
+            LOG.error("Unable to send email notification for AutoSubmit failures.", e);
+        }
+    }
+
+    private     void                handleAssessmentSubmitted           (Map<String, Object> notificationValues, Event event) {
         LOG.debug("Assessment Submitted");
         assessmentSubmittedHelper(notificationValues, event, 1);
 
     }
 
-    private     void                handleAssessmentAutoSubmitted   (Map<String, Object> notificationValues, Event event){
+    private     void                handleAssessmentAutoSubmitted       (Map<String, Object> notificationValues, Event event){
         LOG.debug("Assessment Auto Submitted");
         assessmentSubmittedHelper(notificationValues, event, 2);
     }
 
-    private     void                handleAssessmentTimedSubmitted  (Map<String, Object> notificationValues, Event event){
+    private     void                handleAssessmentTimedSubmitted      (Map<String, Object> notificationValues, Event event){
         LOG.debug("Assessment Timed Submitted");
         assessmentSubmittedHelper(notificationValues, event, 3);
     }
@@ -124,7 +144,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
      * 2 = Auto Submission
      * 3 = Timer expired Submission
      */
-    private     void                assessmentSubmittedHelper       (Map<String, Object> notificationValues, Event event, int assessmentSubmittedType){
+    private     void                assessmentSubmittedHelper           (Map<String, Object> notificationValues, Event event, int assessmentSubmittedType){
         LOG.debug("assessment Submitted helper, assessmentSubmittedType: " + assessmentSubmittedType);
         String              priStr                  = Integer.toString(event.getPriority());
         Map<String, String> replacementValues       = new HashMap<>(constantValues);
@@ -133,6 +153,27 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
 
             PublishedAssessmentService pubAssServ   = new PublishedAssessmentService();
             PublishedAssessmentFacade  pubAssFac    = pubAssServ.getSettingsOfPublishedAssessment(notificationValues.get("publishedAssessmentID").toString());
+
+            // Format dates
+            DateFormat dfIn                         = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+            DateFormat dfIn2                        = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+            DateFormat dfOut                        = DateFormat.getDateInstance(DateFormat.DEFAULT, getUserLocale(user.getId()));
+            String formattedDueDate                 = (pubAssFac.getDueDate() == null) ? "" : dfOut.format(pubAssFac.getDueDate());
+            Date submissionDate                     = null;
+            String inSubmissionDateStr              = (notificationValues.get("submissionDate") == null) ? "" : notificationValues.get("submissionDate").toString();
+            try {
+               submissionDate = dfIn.parse(inSubmissionDateStr);
+            } catch (java.text.ParseException e) {
+               LOG.debug("Submission date parse exception (first format): " + e.getMessage());
+            }
+            if (submissionDate == null) {
+               try {
+                  submissionDate = dfIn2.parse(inSubmissionDateStr);
+               } catch (java.text.ParseException e) {
+                  LOG.debug("Submission date parse exception (second format): " + e.getMessage());
+               }
+            }
+            String formattedSubmissionDate          = (submissionDate == null) ? inSubmissionDateStr : dfOut.format(submissionDate);
 
             String          siteID                  = pubAssFac.getOwnerSiteId();
             /*
@@ -145,45 +186,54 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
              * assessmentGradingID
              * submissionDate
              * confirmationNumber
+             * releaseToGroups
              */
             replacementValues.put("siteName"            , pubAssFac.getOwnerSite());
             replacementValues.put("siteID"              , siteID);
             replacementValues.put("userName"            , user.getDisplayName());
             replacementValues.put("userDisplayID"       , user.getDisplayId());
             replacementValues.put("assessmentTitle"     , pubAssFac.getTitle());
-            replacementValues.put("assessmentDueDate"   , pubAssFac.getDueDate() == null ? "" : pubAssFac.getDueDate().toString());
+            replacementValues.put("assessmentDueDate"   , formattedDueDate);
             replacementValues.put("assessmentGradingID" , notificationValues.get("assessmentGradingID").toString());
-            replacementValues.put("submissionDate"      , notificationValues.get("submissionDate").toString());
+            replacementValues.put("submissionDate"      , formattedSubmissionDate);
             replacementValues.put("confirmationNumber"  , notificationValues.get("confirmationNumber").toString());
+            
+            if (notificationValues.get("releaseToGroups") != null){
+            	replacementValues.put("releaseToGroups", notificationValues.get("releaseToGroups").toString());
+            }            
 
             notifyStudent(user, priStr, assessmentSubmittedType, replacementValues);
-            notifyInstructor(siteID, pubAssFac.getInstructorNotification(), priStr, assessmentSubmittedType, user, replacementValues);
+            notifyInstructor(siteID, pubAssFac.getInstructorNotification(), assessmentSubmittedType, user, replacementValues);
         } catch(UserNotDefinedException e){
             LOG.warn("UserNotDefined: " + notificationValues.get("userID").toString() + " in sending samigo notification.");
         }
     }
 
-    private     void                notifyInstructor                (String siteID, Integer instructNoti, String priStr, int assessmentSubmittedType, 
-                                                                        User submittingUser, Map<String, String> replacementValues){
+    private     void                notifyInstructor                    (String siteID, Integer instructNoti, int assessmentSubmittedType,
+                                                                            User submittingUser, Map<String, String> replacementValues){
         LOG.debug("notifyInstructor");
         replacementValues.put("changeSettingInstructions" , CHANGE_SETTINGS_HOW_TO_INSTRUCTOR);
 
-        Map<User, Integer>  validUsers              = new HashMap<>();
+        List<User>  validUsers                      = new ArrayList<>();
         RenderedTemplate    rt                      = getRenderedTemplateBySubmissionType(assessmentSubmittedType, submittingUser, replacementValues);
         String              message                 = getBody(rt);
 
         try{
             Site            site                    = siteService.getSite(siteID);
-            AuthzGroup      azGroup                 = authzGroupService.getAuthzGroup("/site/" + siteID);
-            Set<String>     siteUsersHasRole        = site.getUsersHasRole(azGroup.getMaintainRole());
+            Set<String>     siteUsersHasRole;
+            
+            if (replacementValues.get("releaseToGroups") != null){
+            	siteUsersHasRole = extractInstructorsFromGroups(site,replacementValues.get("releaseToGroups") );
+            }else{
+            	AuthzGroup azGroup = authzGroupService.getAuthzGroup("/site/" + siteID);
+            	siteUsersHasRole = site.getUsersHasRole(azGroup.getMaintainRole());
+            }
 
             for(String userString : siteUsersHasRole){
                 try{
                     if(!userString.equals(ADMIN)) {
                         User user = userDirectoryService.getUser(userString);
-
-                        Integer uPref = getUserPreferences(user, priStr);
-                        validUsers.put(user, uPref);
+                        validUsers.add(user);
                     }
                 } catch(UserNotDefinedException e){
                     LOG.warn("Instructor '" + userString +"' not found in samigo notification.");
@@ -199,17 +249,12 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             LOG.debug(e.getMessage(), e);
         }
 
-        List<User>          users                   = new ArrayList<>();
         List<User>          immediateUsers          = new ArrayList<>();
 
         if(validUsers.size() > 0){
-            users.addAll(validUsers.keySet());
+            List<String>        headers         = getHeaders(rt, validUsers, constantValues.get("localSakaiName"), fromAddress);
 
-            List<String>        headers         = getHeaders(rt, users, constantValues.get("localSakaiName"), fromAddress);
-
-
-            for(Map.Entry<User, Integer> entry : validUsers.entrySet()){
-                User user = entry.getKey();
+            for(User user : validUsers){
                 if(instructNoti == NotificationService.PREF_IMMEDIATE){
                     immediateUsers.add(user);
                 } else if(instructNoti == NotificationService.PREF_DIGEST){
@@ -224,8 +269,26 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
             }
         }
     }
+    
+    private Set<String> extractInstructorsFromGroups(Site site,String allGroups){
+    	
+    	Set<String> usersWithRole = new HashSet<String>();
+    	
+    	List<String> groups = Stream.of(allGroups)
+				.map(s -> s.split(";")).flatMap(Arrays::stream)
+				.collect(Collectors.toList());
+    	
+    	for (String groupId : groups){
+    		Group group = site.getGroup(groupId);
+    		Set <String> groupUsersWithRole = group.getUsersHasRole(group.getMaintainRole());
+    		usersWithRole.addAll(groupUsersWithRole);
+    	}
+    	
+    	return usersWithRole;
+    }
 
-    private void notifyStudent(User user, String priStr, int assessmentSubmittedType, Map<String, String> replacementValues){
+    private     void                notifyStudent                       (User user, String priStr, int assessmentSubmittedType,
+                                                                            Map<String, String> replacementValues){
         LOG.debug("notifyStudent");
         replacementValues.put( "changeSettingInstructions" , CHANGE_SETTINGS_HOW_TO_STUDENT );
 
@@ -246,7 +309,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         }
     }
 
-    private     int                 getUserPreferences              (User user, String priStr){
+    private     int                 getUserPreferences                  (User user, String priStr){
         LOG.debug("getUserPreferences User: " + user.getDisplayName());
         int                 uSamEmailPref           = SamigoConstants.NOTI_PREF_DEFAULT;
 
@@ -262,7 +325,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         return uSamEmailPref;
     }
 
-    private     String              getBody                         (RenderedTemplate rt){
+    private     String              getBody                             (RenderedTemplate rt){
         LOG.debug("getBody");
         StringBuilder       body                = new StringBuilder();
         body.append(MIME_ADVISORY);
@@ -284,7 +347,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         return body.toString();
     }
 
-    private     RenderedTemplate    getRenderedTemplateBySubmissionType(int assessmentSubmittedType, User user, Map<String, String> replacementValues){
+    private     RenderedTemplate    getRenderedTemplateBySubmissionType (int assessmentSubmittedType, User user, Map<String, String> replacementValues){
         RenderedTemplate template;
         switch(assessmentSubmittedType){
             case 2:
@@ -301,7 +364,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         return template;
     }
 
-    private     RenderedTemplate    getRenderedTemplate             (String templateName, User user, Map<String,String> replacementValues){
+    private     RenderedTemplate    getRenderedTemplate                 (String templateName, User user, Map<String,String> replacementValues){
         LOG.debug("getting template: " + templateName);
         RenderedTemplate    template            = null;
 
@@ -315,7 +378,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     }
 
     // Based on EmailTemplateService.sendRenderedMessages()
-    private     List<String>        getHeaders                      (RenderedTemplate rt, List<User> toAddress, String fromName, String fromEmail){
+    private     List<String>        getHeaders                          (RenderedTemplate rt, List<User> toAddress, String fromName, String fromEmail){
         LOG.debug("getHeaders");
         List<String>        headers             = new ArrayList<>();
         //the template may specify a from address
@@ -346,86 +409,14 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         return headers;
     }
 
-    // loadTemplate from ValidationLogicImpl.java
-    /**
-     * Load and register one or more email templates (contained in the given
-     * .xml file) with the email template service
-     *
-     * @param templateFileName - the name of the .xml file to load
-     * @param templateRegistrationString - the key (name) of the template to be saved to the service
-     */
-    @SuppressWarnings("unchecked")
-    private     void                loadTemplate                    (String templateFileName, String templateRegistrationString) {
-        LOG.info(this + " loading template " + templateFileName);
+    private     Locale              getUserLocale                       (final String userId) {
+        Locale              locale                  = preferencesService.getLocale(userId);
 
-        SecurityAdvisor yesMan = new SecurityAdvisor() {
-            public SecurityAdvice isAllowed( String userId, String function, String reference ) {
-                return SecurityAdvice.ALLOWED;
-            }
-        };
-
-        try {
-            // Push the yesMan SA on the stack and perform the necessary actions
-            securityService.pushAdvisor(yesMan);
-
-            // Load up the resource as an input stream
-            InputStream input = SamigoETSProviderImpl.class.getClassLoader().getResourceAsStream("" + templateFileName);
-            if ( input == null ) {
-                LOG.error( "Could not load resource from '" + templateFileName + "'. Skipping ..." );
-            } else {
-                // Parse the XML, get all the child templates
-                Document document = new SAXBuilder().build( input );
-                List<?> childTemplates = document.getRootElement().getChildren( "emailTemplate" );
-                Iterator<?> iter = childTemplates.iterator();
-
-                // Create and register a template with the service for each one found in the XML file
-                while ( iter.hasNext() ) {
-                    xmlToTemplate( (Element) iter.next(), templateRegistrationString );
-                }
-            }
-        } catch (JDOMException | IOException e) {
-            LOG.error("loadTemplate error: ", e);
-        } finally { // Pop the yesMan SA off the stack (remove elevated permissions)
-            securityService.popAdvisor(yesMan);
+        if(locale == null) {
+            locale                                  = Locale.getDefault();
         }
-    }
 
-    // xmlToTemplate from ValidationLogicImpl.java
-    private     void                xmlToTemplate                   (Element xmlTemplate, String key) {
-        String              subject                 = xmlTemplate.getChildText("subject");
-        String              body                    = xmlTemplate.getChildText("message");
-        String              bodyHtml                = xmlTemplate.getChildText("messagehtml");
-        String              locale                  = xmlTemplate.getChildText("locale");
-        String              localeLangTag           = xmlTemplate.getChildText("localeLangTag");
-        String              versionString           = xmlTemplate.getChildText("version");
-
-        if (emailTemplateService.getEmailTemplate(key, Locale.forLanguageTag(localeLangTag)) == null)
-        {
-            EmailTemplate template = new EmailTemplate();
-            template.setSubject(subject);
-            template.setMessage(body);
-            if (bodyHtml != null) {
-                String decodedHtml;
-                try {
-                    decodedHtml = URLDecoder.decode(bodyHtml, "utf8");
-                } catch (UnsupportedEncodingException e) {
-                    decodedHtml = bodyHtml;
-                    LOG.warn(e.getMessage(), e);
-                }
-                template.setHtmlMessage(decodedHtml);
-            }
-            template.setLocale(locale);
-            template.setKey(key);
-            template.setVersion(Integer.valueOf(versionString));//setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
-            template.setOwner("admin");
-            template.setLastModified(new Date());
-            try {
-                this.emailTemplateService.saveTemplate(template);
-                LOG.info(this + " user notification template " + key + " added");
-            }catch (Exception e){
-                LOG.warn("Samigo notification xmlToTemplate error." + e);
-            }
-        }
+        return locale;
     }
 
     @Setter
@@ -447,16 +438,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
     private                         DigestService               digestService;
 
     @Setter
-    private                         NotificationService         notificationService;
-
-    @Setter
     private                         SiteService                 siteService;
-
-    @Setter
-    private                         SessionManager              sessionManager;
-
-    @Setter
-    private                         SecurityService             securityService;
 
     @Setter
     private                         AuthzGroupService           authzGroupService;

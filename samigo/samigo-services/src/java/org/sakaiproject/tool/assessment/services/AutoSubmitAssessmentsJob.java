@@ -4,6 +4,7 @@ package org.sakaiproject.tool.assessment.services;
 
 import java.util.Date;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
@@ -14,6 +15,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.samigo.api.SamigoETSProvider;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -24,9 +26,15 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 	protected String serverName = "unknown";
 
 	private AuthzGroupService authzGroupService;
+	private SamigoETSProvider etsProvider;
 
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+	
+	public void setSamigoETSProvider(SamigoETSProvider value)
+	{
+		etsProvider = value;
 	}
 
 	public void init() {
@@ -43,10 +51,7 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 	}
  
 	/*
-	 * This job expects to find a nexusId in its trigger name or "where clause fragments"
-	 * in its property file, e.g "and termid = 1064". 
-	 * It runs the CourseAnchorImport first, then the CourseMaterialsImport, the AssignmentMigration 
-	 * and the SyllabusImport. If it runs into an exception during any of the imports, it stops.
+	 * Quartz job to check for assessment attempts that should be autosubmitted
 	 * 
 	 * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
 	 */
@@ -74,13 +79,20 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 			whoAmI.append(actualfire.toString());
 		}
 		
-		EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_AUTO_SUBMIT_JOB,
 				safeEventLength(whoAmI.toString()), true));			
 
 		LOG.info("Start Job: " + whoAmI.toString());
 		
 		GradingService gradingService = new GradingService();
-		gradingService.autoSubmitAssessments();
+		int failures = gradingService.autoSubmitAssessments();
+		
+		if (failures > 0)
+		{
+			etsProvider.notifyAutoSubmitFailures(failures);
+		}
+		
+		LOG.info("End Job: " + whoAmI.toString() + " (" + failures + " failures)");
 		
 		logoutFromSakai();
 	}
@@ -101,7 +113,7 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 		UsageSession session = UsageSessionService.startSession(whoAs, serverName, "AutoSubmitAssessmentsJob");
         if (session == null)
         {
-    		EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job.error", whoAs + " unable to log into " + serverName, true));
+    		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_AUTO_SUBMIT_JOB_ERROR, whoAs + " unable to log into " + serverName, true));
     		return;
         }
 		

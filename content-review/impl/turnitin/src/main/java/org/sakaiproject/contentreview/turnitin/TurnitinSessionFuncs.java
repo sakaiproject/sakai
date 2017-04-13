@@ -18,13 +18,12 @@ package org.sakaiproject.contentreview.turnitin;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * This contains a few functional utilities to help with logging in and out of
@@ -38,7 +37,7 @@ import lombok.extern.apachecommons.CommonsLog;
  * @author sgithens
  *
  */
-@CommonsLog
+@Slf4j
 public class TurnitinSessionFuncs {
 	/**
 	 * Logs in to turnitin.  Scrapes the response XML and returns the session id

@@ -112,15 +112,18 @@
 				 </h:panelGroup>
 				 
 				 <h:panelGroup styleClass="itemNav">
-				   <h:outputText   value="#{msgs.cdfm_previous_thread}"  rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
+				 	<h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" >
+						<h:outputText  value="#{msgs.cdfm_previous_thread}"/>
+					</h:panelGroup>
+					 <h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
 						 <f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
 						 <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
-					 <f:verbatim><h:outputText  id="blankSpace1" value=" #{msgs.cdfm_toolbar_separator} " /></f:verbatim>				
-					 <h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
+					 <h:panelGroup styleClass="button formButtonDisabled" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}">
+					 	<h:outputText value="#{msgs.cdfm_next_thread}"/>
+					 </h:panelGroup>
+					 <h:commandLink styleClass="button" action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
 						<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
@@ -152,6 +155,7 @@
         </h:panelGroup>
 		<div id="messNavHolder" style="clear:both;"></div>
 		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
+		<div class="table-responsive">
 		<h:dataTable id="expandedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{!ForumTool.threaded}"
    	 		styleClass="table table-hover table-striped table-bordered messagesFlat specialLink" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
@@ -159,14 +163,17 @@
 				<%@ include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>
 		</h:dataTable>
+		</div>
 		
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
+		<div class="table-responsive">
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{ForumTool.threaded}"
    	 		noarrows="true" styleClass="table table-hover table-striped table-bordered messagesThreaded specialLink" border="0" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<%@ include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>
 		</mf:hierDataTable>
+		</div>
 				
 		<h:inputHidden id="mainOrForumOrTopic" value="dfViewThread" />
 		<%--//designNote:  need a message if no messages (as in when there are no unread ones)  --%>

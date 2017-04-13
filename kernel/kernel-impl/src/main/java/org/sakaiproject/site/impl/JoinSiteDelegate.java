@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -339,8 +339,12 @@ public class JoinSiteDelegate
                     	}
                     	
                     	// try adding the user to the group
-                        site.getGroup(joinerGroupId).addMember(user.getId(), site.getJoinerRole(), true, false);
-                        siteService.saveGroupMembership(site);
+                        try {
+                            site.getGroup(joinerGroupId).insertMember(user.getId(), site.getJoinerRole(), true, false);
+                            siteService.saveGroupMembership(site);
+                        } catch (IllegalStateException e) {
+                            log.error(".addJoinerToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", user.getId(), site.getGroup(joinerGroupId).getId());
+                        }
                     }
                     catch(Exception e)
                     {

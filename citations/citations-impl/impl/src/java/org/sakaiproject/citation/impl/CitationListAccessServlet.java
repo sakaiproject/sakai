@@ -321,7 +321,7 @@ public class CitationListAccessServlet implements HttpAccess
 					+ Validator.escapeHtml(title)
 					+ "</title>\n"
 					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
-					+ "<link href=\"/library/skin/default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+					+ "<link href=\"/library/skin/" + ServerConfigurationService.getString("skin.default") + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/sakai-citations-tool/css/citations.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.11.3/jquery.min.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"

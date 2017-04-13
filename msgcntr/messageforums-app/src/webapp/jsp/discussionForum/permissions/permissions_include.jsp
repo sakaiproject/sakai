@@ -6,13 +6,6 @@
     DiscussionForumTool dft = (DiscussionForumTool) binding.getValue(context);
     out.print(dft.generatePermissionScript());
 %>
-<%--
-       		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
-			<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
-<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
---%>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="#{ForumTool.collapsePermissionPanel}">
   <%--
@@ -30,7 +23,7 @@
 	<h:panelGroup style="padding-left:15px">
 		<h:outputText value="#{msgs.perm_level}" style="font-weight:bold;" />
     </h:panelGroup>
-  
+  <div class="table-responsive"> 
   <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" cellpadding="0" cellspacing="0" styleClass="table table-hover table-striped table-bordered">
     <h:column>
     <%-- row for role permission level begin --%>
@@ -121,4 +114,5 @@
     --%>
     </h:column>
   </h:dataTable>
+</div>
 </mf:forumHideDivision>

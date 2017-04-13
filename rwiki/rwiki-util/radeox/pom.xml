@@ -28,20 +28,18 @@
         <filtering>false</filtering>
       </resource>
     </resources>
-<!-- java source -->
-<!-- I have disabled all tests, If you want to run them
-    move into this folder -->
-    <testSourceDirectory>src/tests</testSourceDirectory>
-    <testResources>
-      <testResource>
-        <directory>${basedir}/src/bundle</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-        <filtering>false</filtering>
-      </testResource>
-<!--includes: org/radeox/test/*Tests -->
-    </testResources>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- according to ieb all tests were disabled -->
+          <!-- briefly turning them on yeilds 57 failures so leaving disabled -->
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
   <dependencies>
     <dependency>
@@ -51,12 +49,6 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>

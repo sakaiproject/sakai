@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -70,6 +71,14 @@ public interface ServerConfigurationService
 	 * @return The server DNS name.
 	 */
 	String getServerName();
+
+	/**
+	 * Access alternative names
+	 *
+	 * @return The server alternative names (doesn't contain the server name)
+	 *         or an empty collection if there is no alternative name
+	 */
+	Collection<String> getServerNameAliases();
 
 	/**
 	 * Access the URL to the root of the server - append any additional path to the end.

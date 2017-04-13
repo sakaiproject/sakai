@@ -23,6 +23,7 @@ package org.sakaiproject.user.impl;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -76,6 +77,12 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
 
     /** array of all special characters (used for calculating password entropy) */
     private static final char[] CHARS_SPECIAL = { '!', '$', '*', '+', '-', '.', '=', '?', '@', '^', '_', '|', '~' };
+
+    private static char[] allCharacterSets;
+
+    static {
+        allCharacterSets = ArrayUtils.addAll(ArrayUtils.addAll(ArrayUtils.addAll(CHARS_LOWER, CHARS_UPPER), CHARS_DIGIT), CHARS_SPECIAL);
+    }
 
     /** value for minimum password entropy */
     private int minEntropy = DEFAULT_MIN_ENTROPY;
@@ -172,6 +179,7 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         characterSets += isCharacterSetPresentInPassword(CHARS_UPPER, password);
         characterSets += isCharacterSetPresentInPassword(CHARS_DIGIT, password);
         characterSets += isCharacterSetPresentInPassword(CHARS_SPECIAL, password);
+        characterSets += isOtherCharacterTypePresentInPassword(password);
 
         // Calculate and verify the password strength
         int strength = password.length() * characterSets;
@@ -209,6 +217,22 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         return 0;
     }
 
+    /**
+     * Determine if any other characters are present in the given password string
+     * for example letters with accents, Chinese or Arabic characters.
+     *
+     * @param password
+     *            the password to be searched
+     * @return 1 if there is a character not in the other types of character set, 0 otherwise
+     */
+    private int isOtherCharacterTypePresentInPassword(String password) {
+        for (int i = 0; i < password.length(); i++) {
+            if (!ArrayUtils.contains(allCharacterSets, password.charAt(i))) {
+                return 1; // SHORT CIRCUIT
+            }
+        }
+        return 0;
+    }
 
     private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {

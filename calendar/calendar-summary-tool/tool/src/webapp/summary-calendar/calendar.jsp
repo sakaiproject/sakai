@@ -148,7 +148,7 @@
 				style="width:100%; padding-top: 5px;"
 				>
 				<h:column id="one_column">
-			        <h:graphicImage value="#{CalBean.eventImageMap[event.type]}"/>
+					<h:outputText value="#{CalBean.eventIconMap[event.type]}" escape="false"/>
 					<h:outputText value=" #{event.typeLocalized} - "/>
 				    <h:commandLink value="#{event.truncatedDisplayName}" actionListener="#{CalBean.selectEvent}" immediate="true">
 				       	<f:param name="calendarRef" value="#{event.calendarRef}"/>
@@ -175,7 +175,7 @@
 		        <h:outputText id="date" value="#{CalBean.selectedEvent.date}" />
 				<h:outputLabel for="type" value="#{msgs.type}" />
 				<h:panelGroup>
-		        	<h:graphicImage value="#{CalBean.eventImageMap[CalBean.selectedEvent.type]}"/>
+					<h:outputText value="#{CalBean.eventIconMap[CalBean.selectedEvent.type]}" escape="false"/>
 		        	<h:outputText id="type" value="#{CalBean.selectedEvent.typeLocalized}" style="padding-left: 3px;"/>
 		        </h:panelGroup>
 				<h:outputLabel for="description" value="#{msgs.description}" rendered="#{CalBean.selectedEvent.description ne ''}"/>

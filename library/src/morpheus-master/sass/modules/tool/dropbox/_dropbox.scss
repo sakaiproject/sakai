@@ -1,0 +1,11 @@
+.#{$namespace}sakai-dropbox {
+    .recentItem{
+        padding: 2px;
+        background: url(/library/image/sakai/new_item_back.gif) top right no-repeat;
+    }
+
+    .recentItemInstruction{
+        padding: 0 5px;
+        background: url(/library/image/sakai/new_item_back_inst.png) center left no-repeat;
+    }
+}

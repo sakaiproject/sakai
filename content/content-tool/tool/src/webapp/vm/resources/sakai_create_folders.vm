@@ -35,14 +35,14 @@
 				<div id="contentDiv${DOT}$i" class="container-fluid">
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<div class="row">
-						<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12"
+						<div class="col-sm-2 col-xs-12">
 							<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
 						</div>
-						<div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+						<div class="col-md-6 col-sm-4 col-xs-12">
 							<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
 						##  onkeypress="return handleEnterKey(this, event)"
 						</div>
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<div class="col-sm-4 col-xs-12">
 							<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 							<a class="remove" style="display:none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
 								<img src="#imageLink("sakai/cross.png")"  alt="x" />

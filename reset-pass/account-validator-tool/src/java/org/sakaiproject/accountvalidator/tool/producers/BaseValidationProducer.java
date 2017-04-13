@@ -8,13 +8,18 @@ import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UILink;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
@@ -117,6 +122,82 @@ public class BaseValidationProducer implements ViewParamsReporter
 			}
 		}
 		return va;
+	}
+
+
+	/**
+	 * Adds a link to the page for the user to request another validation token
+	 * @param toFill the parent of the link
+	 */
+	protected void addResetPassLink(UIContainer toFill, ValidationAccount va)
+	{
+		if (toFill == null || va == null)
+		{
+			// enforce method contract
+			throw new IllegalArgumentException("null passed to addResetPassLink()");
+		}
+
+		//the url to reset-pass - assume it's on the gateway. Otherwise, we don't render a link and we log a warning
+		String url = null;
+		try
+		{
+			//get the link target
+			url = getPasswordResetUrl();
+		}
+		catch (IllegalArgumentException e)
+		{
+			log.warn("Couldn't create a link to reset-pass; no instance of reset-pass found on the gateway");
+		}
+
+		if (url != null)
+		{
+			//add the container
+			UIBranchContainer requestAnotherContainer = UIBranchContainer.make(toFill, "requestAnotherContainer:");
+			//add a label
+			UIMessage.make(requestAnotherContainer, "request.another.label", "validate.requestanother.label");
+			//add the link to reset-pass
+			String requestAnother = null;
+			if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getAccountStatus())
+			{
+				requestAnother = messageLocator.getMessage("validate.requestanother.reset");
+			}
+			else
+			{
+				requestAnother = messageLocator.getMessage("validate.requestanother");
+			}
+			UILink.make(requestAnotherContainer, "request.another", requestAnother, url);
+		}
+		//else - there is no reset pass instance on the gateway, but the user sees an appropriate message regardless (handled by a targetted message)
+	}
+
+	/**
+	 * Gets the password reset URL. If looks for a configured URL, otherwise it looks
+	 * for the password reset tool in the gateway site and builds a link to that.
+	 * @return The password reset URL or <code>null</code> if there isn't one or we
+	 * can't find the password reset tool.
+	 */
+	public String getPasswordResetUrl()
+	{
+		// Has a password reset url been specified in sakai.properties? If so, it rules.
+		String passwordResetUrl = serverConfigurationService.getString("login.password.reset.url", null);
+
+		if(passwordResetUrl == null) {
+			// No explicit password reset url. Try and locate the tool on the gateway page.
+			// If it has been  installed we'll use it.
+			String gatewaySiteId = serverConfigurationService.getGatewaySiteId();
+			Site gatewaySite = null;
+			try {
+				gatewaySite = siteService.getSite(gatewaySiteId);
+				ToolConfiguration resetTC = gatewaySite.getToolForCommonId("sakai.resetpass");
+				if(resetTC != null) {
+					passwordResetUrl = resetTC.getContainingPage().getUrl();
+				}
+			} catch (IdUnusedException e) {
+				log.warn("No " + gatewaySiteId + " site found whilst building password reset url, set password.reset.url" +
+						" or create " + gatewaySiteId + " and add password reset tool.");
+			}
+		}
+		return passwordResetUrl;
 	}
 
 	/**

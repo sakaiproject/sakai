@@ -29,7 +29,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.config.api.HibernateConfigItem;
 import org.sakaiproject.config.api.HibernateConfigItemDao;
 import org.sakaiproject.db.api.SqlService;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import java.util.Collections;
 import java.util.Date;
@@ -72,7 +72,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
     @Override
     public void create(HibernateConfigItem item) {
         if (item != null) {
-            getSession().save(item);
+            currentSession().save(item);
         }
     }
 
@@ -85,7 +85,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return null;
         }
 
-        return (HibernateConfigItem) getSession().get(HibernateConfigItem.class, id);
+        return (HibernateConfigItem) currentSession().get(HibernateConfigItem.class, id);
     }
 
     /* (non-Javadoc)
@@ -97,7 +97,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        getSession().update(item);
+        currentSession().update(item);
     }
 
     /* (non-Javadoc)
@@ -109,7 +109,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        getSession().delete(item);
+        currentSession().delete(item);
     }
 
     /* (non-Javadoc)
@@ -119,11 +119,11 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (node == null) {
             return -1;
         }
-        Criteria criteria = getSession().createCriteria(HibernateConfigItem.class)
+        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class)
                                     .setProjection(Projections.rowCount())
                                     .add(Restrictions.eq("node", node));
 
-        return (Integer) criteria.uniqueResult();
+        return ((Number) criteria.uniqueResult()).intValue();
     }
 
     /* (non-Javadoc)
@@ -134,12 +134,12 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (node == null || name == null) {
             return -1;
         }
-        Criteria criteria = getSession().createCriteria(HibernateConfigItem.class)
+        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class)
                                     .setProjection(Projections.rowCount())
                                     .add(Restrictions.eq("node", node))
                                     .add(Restrictions.eq("name", name));
 
-        return (Integer) criteria.uniqueResult();
+        return ((Number) criteria.uniqueResult()).intValue();
     }
 
     /* (non-Javadoc)
@@ -167,7 +167,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return;
         }
 
-        getSession().saveOrUpdate(item);
+        currentSession().saveOrUpdate(item);
     }
 
     /* (non-Javadoc)
@@ -180,7 +180,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
             return Collections.emptyList();
         }
 
-        Criteria criteria = getSession().createCriteria(HibernateConfigItem.class);
+        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class);
         criteria.add(Restrictions.eq("node", node)); // TODO make this search by null also
         if (name != null && name.length() > 0) {
             criteria.add(Restrictions.eq("name", name));
@@ -207,7 +207,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
     @SuppressWarnings("unchecked")
     @Override
     public List<HibernateConfigItem> findPollOnByNode(String node, Date onOrAfter, Date before) {
-        Criteria criteria = getSession().createCriteria(HibernateConfigItem.class)
+        Criteria criteria = currentSession().createCriteria(HibernateConfigItem.class)
                                     .add(Restrictions.eq("node", node));
         if (onOrAfter == null && before == null) {
             criteria.add(Restrictions.isNotNull("pollOn"));

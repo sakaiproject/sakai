@@ -42,7 +42,7 @@
     </div>
     <br />
 
-  <table class="listHier lines nolines nocolor" cellpadding="0" cellspacing="0" border="0"
+  <table class="table" cellpadding="0" cellspacing="0" border="0"
        summary="Table holds radio buttons to select access rights.">
 
       <tr class="navIntraTool">

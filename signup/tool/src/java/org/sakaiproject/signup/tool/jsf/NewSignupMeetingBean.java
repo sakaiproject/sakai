@@ -22,6 +22,7 @@ package org.sakaiproject.signup.tool.jsf;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -625,7 +626,18 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 					this.signupMeeting.setCategory(selectedCategory);
 				}
 			}
-			
+
+			// Need to filter for bad HTML
+			StringBuilder descriptionErrors = new StringBuilder();
+			String filteredDescription = sakaiFacade.getFormattedText()
+					.processFormattedText(this.signupMeeting.getDescription(), descriptionErrors, true);
+			this.signupMeeting.setDescription(filteredDescription);
+			if (descriptionErrors.length() > 0) {
+				validationError = true;
+				Utilities.addErrorMessage(descriptionErrors.toString());
+				return;
+			}
+
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
@@ -2141,7 +2153,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return	List<String> of eids.
 	 */
 	public List<String> getEidsForEmail(String email) {
-		List<User> users = sakaiFacade.getUsersByEmail(email);
+		Collection<User> users = sakaiFacade.getUsersByEmail(email);
 		
 		List<String> eids = new ArrayList<String>();
 		for(User u:users) {

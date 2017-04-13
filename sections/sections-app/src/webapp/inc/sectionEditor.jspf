@@ -112,7 +112,7 @@
 									</t:div>
 			
 									<t:div styleClass="indent meetingSecondCol">
-										<h:inputText id="location" value="#{meeting.location}" maxlength="20" />
+										<h:inputText id="location" value="#{meeting.location}" maxlength="80" size="40" />
                                         <h:message for="startTime" styleClass="validationEmbedded"/>
                                         <h:message for="endTime" styleClass="validationEmbedded"/>
 									</t:div>

@@ -1,0 +1,314 @@
+// #sakai-rubrics-manager
+
+.manager-collapse-title {
+  cursor: pointer;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-width: 1px 0;
+  margin: 10px 0;
+}
+
+.rubric-item {
+  position: relative;
+}
+.rubric-title {
+  background: #f2f2f4;
+  padding: 20px;
+  border: 1px solid #e4e4e6;
+  border-width: 1px 0px;
+  font-weight: bold;
+  overflow: auto;
+  .rubric-name {
+    cursor: default;
+    color: #0093b8;
+  }
+
+  iron-icon:not(.collpase-icon), sakai-rubric-edit, sakai-rubric-delete {
+    display: none;
+  }
+  &:hover, &.active, &:focus {
+    background: #ced5e0;
+    iron-icon:not(.collpase-icon), sakai-rubric-edit, sakai-rubric-delete {
+      display: inline-block;
+    }
+  }
+  iron-icon.locked {
+    display: inline-block;
+  }
+  .edit {
+    margin-left: 10px;
+  }
+  .actions {
+    float: right;
+  }
+}
+
+iron-icon:not(.collpase-icon):not(.reorder-icon):not(.comment-icon) {
+  background: #6e757d;
+  color: #f2f2f4;
+  border-radius: 50px;
+  padding: 5px;
+  cursor: pointer;
+  --iron-icon-height: 20px;
+  --iron-icon-width: 20px;
+  &:hover {
+    background: #e7e7e7;
+    color: #6e757d;
+  }
+
+  &.add {
+    color: #ffffff;
+    background: #0093b8;
+  }
+}
+
+iron-icon.sideways {
+  transform: rotate(90deg);
+}
+
+iron-icon.comment-icon {
+  --iron-icon-height: 15px;
+  --iron-icon-width: 15px;
+  margin: 5px auto;
+  display: block;
+  &.active {
+    fill: orange;  
+  }
+  
+}
+
+
+[class*="edit-popover"] {
+  width: 400px;
+  .buttons {
+    text-align: right;
+    .btn {
+      margin: 0;
+      &.cancel {
+        color: #777;
+      }
+    }
+  }
+  .form-group {
+    &.title {
+      display: inline-block;
+      width: 70%;
+    }
+    &.points {
+      display: inline-block;
+      width: 28%;
+    }
+  }
+}
+
+.show-tooltip {
+  display: inline-block;
+  position: absolute;
+}
+
+.btn.add-rubric {
+  color: #0093b8;
+}
+
+.rubric-details {
+  padding: 10px;
+}
+
+.criterion {
+  width: 100%;
+  border-bottom: 1px solid #d3d3d3;
+  .criterion-row {
+    width: 100%;
+    height: 100%;
+    display: table;
+    border: 1px solid #d3d3d3;
+    border-width: 1px 0 0 0;
+    &.sortable-ghost, .sortable-ghost {
+      opacity: 0.25;
+    }
+    &.sortable-drag, .sortable-drag {
+      cursor: grabbing;
+      cursor: -webkit-grabbing;
+      cursor: -moz-grabbing;
+    }
+    &:last-of-type {
+      
+    }
+    .criterion-detail {
+      position: relative;
+      padding: 10px;
+      display: table-cell;
+      vertical-align: top;
+      background: #f2f2f4;
+      width: 20%;
+      border-right: 1px solid #d3d3d3;
+      p {
+        margin: 0;
+        padding: 0;
+        font-size: 11px;
+        color: #414141;
+      }
+      sakai-rubric-criterion-edit {
+        display: none;
+      }
+      &:hover sakai-rubric-criterion-edit, &.active sakai-rubric-criterion-edit {
+        display: inline-block;
+      }
+    }
+
+    .reorder-icon {
+      cursor: grab;
+      cursor: -webkit-grab;
+      cursor: -moz-grab;
+      &:active {
+        cursor: grabbing;
+        cursor: -webkit-grabbing;
+        cursor: -moz-grabbing;
+      }
+    }
+
+
+    .criterion-ratings {
+      .rating-item {
+        sakai-rubric-criterion-rating-edit {
+          visibility: hidden;
+        }
+        &:hover sakai-rubric-criterion-rating-edit, &.active sakai-rubric-criterion-rating-edit {
+          visibility: visible;
+        }
+      }
+    }
+
+    .add-criterion-item {
+      display: none;
+      opacity: 0.5;
+      position: absolute;
+      padding-top: 5px;
+      right: -10px;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      z-index: 5;
+      &:hover {
+        opacity: 1;
+      }
+    }
+    
+    &:hover, &.active {
+      .add-criterion-item {
+        display: block;
+      }
+      sakai-rubric-criterion-edit {
+        display: inline-block;
+      }
+      .criterion-ratings {
+        .rating-item {
+          sakai-rubric-criterion-rating-edit {
+            visibility: visible;
+          }
+        }
+      }
+    }
+
+    .criterion-ratings {
+      display: table-cell;
+      vertical-align: top;
+      width: 75%;
+      height: 100%;
+      .cr-table {
+        display: table;
+        width: 100%;
+        height: 100%;
+        .cr-table-row {
+          display: table-row;
+          height: 100%;
+        }
+      }
+      .rating-item {
+        position: relative;
+        display: table-cell;
+        padding: 5px;
+        height: 100%;
+        border-right: 1px solid #d3d3d3;
+        p {
+          margin: 0;
+          padding: 0;
+          font-size: 11px;
+          color: #747474;
+        }
+        .points {
+          color: #444444;
+          font-style: italic;
+        }
+      }
+    }
+    .criterion-actions {
+      padding: 10px;
+      display: table-cell;
+      background: #f2f2f4;
+      width: 5%;
+      position: relative;
+    }
+  }
+  .criterion-title, .criterion-item-title {
+    font-size: 16px;
+    color: #2f2f2f;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    &.criterion-item-title {
+      font-weight: normal;
+      color: #3a3a3a;
+    }
+  }
+
+
+  &.grading {
+    .rating-item {
+      cursor: default;
+      &:hover:not(.student) {
+        background: #D7E1E7;
+      }
+      &.selected {
+        background: #bed8e7;
+      }
+    }
+    .fine-tune-points {
+      min-width: 75px;
+    }
+    strong.points-display {
+      display: block;
+      padding: 2px;
+      text-align: center;
+      &.strike {
+        text-decoration: line-through;
+      }
+    }
+  }
+}
+
+.rubric-totals {
+  text-align: right;
+  padding: 5px 10px;
+}
+
+.sakai-rubric-association {
+  .disabled {
+    label {
+      color: #ccc;
+    }
+  }
+  .rubrics-list {
+    padding-left: 20px;
+  }
+  select.form-control {
+    -webkit-appearance: menulist;
+    width: auto;
+    display: inline-block;
+    margin: 0 20px 10px 0;
+    #rubricslist {
+      display: inline-block;
+    }
+  }
+}

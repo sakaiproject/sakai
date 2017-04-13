@@ -196,7 +196,27 @@
 													#if ($assignment.getContent().TypeOfGrade == 1)
 														$tlang.getString("gen.nograd")
 													#else
-														$!submission.gradeDisplay
+														#if ($assignment.isGroup())
+															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.getContent().TypeOfGrade == 3))
+																#if ($submission.getGradeForUserInGradeBook($!member.getId()))
+																	$!submission.getGradeForUserInGradeBook($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
+																#else
+																	#if ($!submission.getGradeForUser($!member.getId()))
+																		$!submission.getGradeForUser($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
+																	#else
+																		$!submission.gradeDisplay
+																	#end
+																#end
+															#else
+																#if ($!submission.getGradeForUser($!member.getId()))
+																	$!submission.getGradeForUser($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
+																#else
+																	$!submission.gradeDisplay
+																#end
+															#end
+														#else
+															$!submission.gradeDisplay
+														#end
 													#end
 											</td>
 										#end

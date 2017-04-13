@@ -8,6 +8,8 @@ var delbutton;
 var mm_testing = 0;
 var editrow;
 var delete_orphan_enabled = true;
+// for generating ids
+var nextid = 0;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -16,6 +18,15 @@ var delete_orphan_enabled = true;
 $(window).load(function () {
 	window.onbeforeunload = null;
 	fixupHeights();
+	// Show expand collapse all if needed
+	if($('.collapsibleSectionHeader').length) {
+		$('#expandCollapseButtons').show();
+	}
+	$('.defaultClosed').each(function() {
+		var header = $(this).prev();
+		setCollapsedStatus(header, true);
+	    });
+
 });
 
 function msg(s) {
@@ -58,10 +69,32 @@ function checkgroups(elt, groups) {
     }
 }
 
-function safeParseFloat(s) {
-    if (!/^[0-9.]+$/.test(s))
+// maxpoints is an Integer. Actually in GB it's float, but
+// our code in SimplePageBean parses the string as Integer, so make
+// sure it's OK. At least according to ecmascript, parseInt will do
+// weird things if the value is >= 2^31. It is impossible to catch
+// this with numerical functions, so I have to do string comparison
+// 2^31 is 2147483648. length is 10
+function safeParseInt(s) {
+    if (!/^[0-9]+$/.test(s))
 	return NaN;
-    return parseFloat(s);
+    if (s.length > 10) {
+	return Infinity;
+    }
+    if (s.length === 10) {
+	if (s >= "2147483648") {
+	    return Infinity;
+	}
+    }
+    return parseInt(s);
+}
+// get the right error message. called when ifFinite(i) returns false
+// that happens if it is not a number or is too big
+function intError(i) {
+    if (isNaN(i))
+	return msg("simplepage.integer-expected");
+    else
+	return msg('simplepage.integer-too-big');
 }
 
 var blankRubricTemplate, blankRubricRow;
@@ -71,6 +104,38 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
+        $("li.multimediaType iframe, li.multimediaType object, li.multimediaType embed, li.multimediaType video").each(function() {
+		var width = $(this).attr("width");
+		var height = $(this).attr("height");
+                if ($(this).attr('defaultsize') === 'true' ||
+		    (typeof width !== 'undefined' && width !== '' &&
+		     (typeof height === 'undefined' || height =='')))
+                    $(this).height($(this).width() * 0.75);
+            });
+
+        $("li.multimediaType img").each(function() {
+		var width = $(this).attr("width");
+		var height = $(this).attr("height");
+		// if just width specified, we're fine. it will scale. But if height is specified narrow windows
+		// will give us the wrong aspect ration
+                if (typeof height !== 'undefined' && height !== '') {
+		    if (typeof width !== 'undefined' && width !== '') {
+			// both specified. use specified aspect ratio
+			if ($(this).width() != width) {
+			    var aspect = height / width;
+			    $(this).height($(this).width() * aspect);
+			}
+		    } else {
+			var aspect = $(this)[0].naturalHeight / $(this)[0].naturalWidth;
+			// -1 to avoid triggering because of rounding
+			if ($(this).width() *  aspect < (height-1)) {
+			    // width has been reduced because of max-width 100%
+			    $(this).height($(this).width() * aspect);			    
+			}
+		    }
+                }
+            });
+
 	$("input[type=checkbox].checklist-checkbox").on("change", function(){
 
 		$(this).next("span").addClass("savingChecklistItem");
@@ -79,6 +144,69 @@ $(document).ready(function() {
 		$("#saveChecklistForm-checklistItemIdInput").val($(this).val()).change();
 		$("#saveChecklistForm-checklistItemDone").val($(this).is(':checked')).change();
 
+	});
+
+	//Only number allowed for announcements height
+	$("#announcements-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#announcementsHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
+	$(".sectionHeader").on("click", function(){
+		var section = $(this).next("div.section");
+		if (section.hasClass("collapsible")) {
+			section.slideToggle();
+			setCollapsedStatus($(this), null); // toggle
+			doIndents();
+		}
+	});
+
+	$("#collapsible").on("change", function(){
+		if(this.checked) {
+			$("#defaultClosedSpan").show();
+		} else {
+			$("#defaultClosed").prop('checked', false);
+			$("#defaultClosedSpan").hide();
+		}
+	});
+
+	$("#sectionTitle").keyup(function(){
+		if($("#sectionTitle").val()) {
+			$("#collapsible").removeProp('disabled');
+		} else {
+			$("#collapsible").prop('checked', false);
+			$("#collapsible").prop('disabled', true);
+			$("#defaultClosed").prop('checked', false);
+			$("#defaultClosedSpan").hide();
+		}
+	});
+
+	$("#expandAllSections").on("click", function(){
+		$(".sectionHeader").each(function(){
+			var section = $(this).next("div.section");
+			if (section.hasClass("collapsible")) {
+				section.slideDown();
+				setCollapsedStatus($(this), false);
+			}
+		});
+		$("#expandAllSections").hide();
+		$("#collapseAllSections").show();
+		doIndents();
+	});
+
+	$("#collapseAllSections").on("click", function(){
+		$(".sectionHeader").each(function(){
+			var section = $(this).next("div.section");
+			if (section.hasClass("collapsible")) {
+				section.slideUp();
+				setCollapsedStatus($(this), true);
+			}
+		});
+		$("#collapseAllSections").hide();
+		$("#expandAllSections").show();
 	});
 
 	// This is called in comments.js as well, however this may be faster.
@@ -94,6 +222,15 @@ $(document).ready(function() {
                 $(this).oembed(null, {maxWidth: width, maxHeight: height});
             });
 
+	//Only number allowed for forum-summary height
+	$("#forum-summary-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#forumSummaryHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	// We don't need to run all of this javascript if the user isn't an admin
 	if($("#subpage-dialog").length > 0) {
 		$('#subpage-dialog').dialog({
@@ -103,7 +240,29 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
-
+		$('#add-twitter-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-announcements-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		//Only number allowed for twitter height
+		$("#widget-height").keypress(function (e) {
+			 //if the letter is not digit then display error
+			 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+				//display error message
+				$("#heightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+				return false;
+			}
+		});
 		$('#edit-item-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -113,6 +272,13 @@ $(document).ready(function() {
 		});
 
 		$('#edit-multimedia-dialog').dialog({
+			autoOpen: false,
+			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-forum-summary-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
 			modal: true,
@@ -286,6 +452,8 @@ $(document).ready(function() {
 			if ($(this).hasClass("add-at-end"))
 			    addAboveItem = '';
 			$('#subpage-add-before').val(addAboveItem);
+			if (typeof $('#subpage-choose').attr('href') !== 'undefined')
+			    $('#subpage-choose').attr('href', fixAddBefore($('#subpage-choose').attr('href')));
 			$('#subpage-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
 			return false;
@@ -317,10 +485,77 @@ $(document).ready(function() {
 			return false;
 		});
 
+		$(".edit-calendar").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			$("#change-assignment-p").hide();
+			$("#change-quiz-p").hide();
+			$("#change-forum-p").hide();
+			$("#change-resource-p").hide();
+			$("#change-resource-version-p").hide();
+			$("#change-blti-p").hide();
+			$("#change-page-p").hide();
+			$("#pagestuff").hide();
+			$("#newwindowstuff").hide();
+			$("#formatstuff").hide();
+			$("#edit-height").hide();
+			$("#prereqstuff").hide();
+			$("#pathdiv").hide();
+			$("#editgroups").hide();
+			$("#resource-group-inherited").hide();
+			$("#assignment-points").hide();
+			$("#assignment-points-label").hide();
+			$("#name").val($(".calendar-name").text());
+			$("#description").val($(".calendar-description").text());
+			$("select[name=indent-level-selection]").val($(".calendar-indentLevel").text());
+			$("#customCssClass").val($(".calendar-custom-css-class").text());
+			$("#item-id").val(row.find(".calendar-item-id").text());
+			$("#edit-item-error-container").hide();
+			$("#edit-item-dialog").dialog('open');
+			setupdialog($("#edit-item-dialog"));
+			return false;
+		});
 		$("#releaseDiv input").change(function(){
 			$("#page-releasedate").prop('checked', true);
 		    });
 
+		$('.announcements-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$("#announcements-error-container").hide();
+			$("#announcementsEditId").val("-1");
+			$("#announcements-height").val("");
+			$("#announcementsNumberDropdown-selection").val("5");
+			$("#add-announcements-dialog").dialog("open");
+			$("#announcements-add-before").val(addAboveItem);
+			setupdialog($("#add-announcements-dialog"));
+			return false;
+		});
+
+		$(".edit-announcements").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".announcementsId").text();
+			$('#announcementsEditId').val(itemId);
+			var height = row.find(".announcementsWidgetHeight").text().replace(/'/g,"");
+			$('#announcements-height').val(height);
+			var number = row.find(".numberOfAnnouncements").text();
+			$("#announcementsNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#announcements-error-container').hide();
+			//Change the text of the add button to 'Update Item'
+			$("#announcements-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#announcements-delete-span").show();
+			$('#add-announcements-dialog').dialog('open');
+			setupdialog($("#add-announcements-dialog"));
+			return false;
+		});
 		$('#import-cc').click(function(){
 			oldloc = $(".dropdown a");
 			closeDropdowns();
@@ -440,6 +675,7 @@ $(document).ready(function() {
 				
 				// create the test link from prototype, because oembed will remove it
 				var testlink = $('#mm-test-prototype').clone();
+				testlink.attr('id', 'mm-test-link');
 				$('#mm-test-prototype').after(testlink);
 				testlink.attr('href', url);
 				$('#mm-test-oembed-results').show();
@@ -458,6 +694,15 @@ $(document).ready(function() {
 			    //  there's another button to try the other alterantive
 
 			}
+			// for file upload set up the names
+			if ($('.mm-file-input-names').size() > 0) {
+			    var names = '';
+			    $('.mm-file-input-names').each(function() {
+				    names = names + $(this).val().replace(/\s/g," ") + "\n";
+				});
+			    // it's not really HTML, but I don't want any processing done on it
+			    $('#mm-names').html(names);
+			};
 			// prevent double click
 			if (!mmactive)
 			    return false;
@@ -497,6 +742,27 @@ $(document).ready(function() {
 			return false;
 		    });
 		
+		$(".edit-forum-summary").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".forumSummaryId").text();
+			$('#forumSummaryEditId').val(itemId);
+			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
+			$('#forum-summary-height').val(height);
+			var number = row.find(".numberOfConversations").text();
+			$("#forumNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#forum-summary-error-container').hide();
+			//Change the text of the button to 'Update Item'
+			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#forum-summary-delete-span").show();
+			$('#add-forum-summary-dialog').dialog('open');
+			setupdialog($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.mm-test-reset').click(function() {
 			mm_test_reset();
 			return false;
@@ -517,6 +783,12 @@ $(document).ready(function() {
 				$("#page-points").prop("disabled", true);
 			}
 	    });
+
+		// link to resource helper. add name if user has typed one
+		$('#mm-choose').click(function() {
+			$(this).attr('href', $(this).attr('href').replace(/&name=[a-z]*/, "&name=" + encodeURIComponent($('#mm-name').val())));
+			return true;
+		    });
 
 		$('#new-page').click(function(){
 			oldloc = $(".dropdown a");
@@ -1045,6 +1317,19 @@ $(document).ready(function() {
 			}
 		});
 		
+		$('.forum-summary-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			$("#forum-summary-error-container").hide();
+			$("#forumSummaryEditId").val("-1");
+			$("#forum-summary-height").val("");
+			$("#forumNumberDropdown-selection").val("5");
+			$("#forum-summary-add-before").val(addAboveItem);
+			$("#add-forum-summary-dialog").dialog("open");
+			setupdialog($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.question-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -1232,10 +1517,47 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			return false;
 		});
-		
+		//when edit twitter link is clicked twitterDialog is opened
+		$(".edit-twitter").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).parent().parent().parent();
+			var itemId = row.find(".twitter-id").text();
+			$("#twitterEditId").val(itemId);
+			$("#twitter-addBefore").val(addAboveItem);
+			var username = row.find(".username").text().replace(/'/g,"");
+			$("#twitter-username").val(username);
+			//remove single quotes from the string
+			var height = row.find(".twitterHeight").text().replace(/'/g,"");
+			$("#widget-height").val(height);
+			var tweetLimit = row.find(".tweetLimit").text().replace(/'/g,"");
+			$("#numberDropdown-selection").val(tweetLimit);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#twitter-error-container').hide();
+			//Change the text for the button to 'Update Item'
+			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
+			//make delete twitter link visible
+			$("#twitter-delete-span").show();
+			$('#add-twitter-dialog').dialog('open');
+			setupdialog($("#add-twitter-dialog"));
+			return false;
+		});
 		$("#question-editgroups").click(function(){
 			$("#question-editgroups").hide();
 			$("#grouplist").show();
+		    });
+
+		$('#add-comments-link').click(function() {
+			$("#comments-addBefore").val(addAboveItem);
+                        $("#add-comments").click();
+			return false;
+		    });
+
+		$('#add-student-link').click(function() {
+			$("#add-student-addBefore").val(addAboveItem);
+                        $("#add-student").click();
+			return false;
 		    });
 
 		$('.change-resource-movie').click(function(){
@@ -1248,6 +1570,9 @@ $(document).ready(function() {
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
+			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$(this).attr("href");
 			var editingCaption = (href.indexOf("&caption=true&")>0);
 			$("#mm-is-caption").val(editingCaption ? "true" : "false");
@@ -1426,11 +1751,11 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_assessment"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_quiz"));
 					$("#edit-item-settings-p").show();
 					$("#edit-item-settings").attr("href", 
-						$("#edit-item-settings").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editsettingsurl) + '$2'));
+						$("#edit-item-settings").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
 
 				}else if (type === '8'){
@@ -1440,7 +1765,7 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_forum"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_topic"));
 
 				}else if (type === 'b'){
@@ -1466,9 +1791,8 @@ $(document).ready(function() {
 					$("#require-label").text(msg("simplepage.require_submit_assignment"));
 					$("#edit-item-object-p").show();
 					$("#edit-item-object").attr("href", 
-						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + encodeURIComponent(editurl) + '$2'));
+						$("#edit-item-object").attr("href").replace(/(itemId=).*?(&)/, '$1' + itemid + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_assignment"));
-
 				}
 				
 				if(type === '3' || type === '6') {
@@ -1591,6 +1915,20 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			return false;
 		});
+		$('.twitter-link').click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			$('#twitter-error-container').hide();
+			$("#twitterEditId").val("-1");
+			$("#twitter-addBefore").val(addAboveItem);
+			$("#twitter-username").val("");
+			$("#widget-height").val("");
+			$('#numberDropdown-selection').val("5");
+			$('#add-twitter-dialog').dialog('open');
+			setupdialog($('#add-twitter-dialog'));
+			return false;
+		});
 
 		$("#editgroups").click(function(){
 			$("#editgroups").hide();
@@ -1612,6 +1950,9 @@ $(document).ready(function() {
 			$("#mm-item-id").val($("#item-id").val());
 			$("#mm-is-mm").val('false');
 			$("#mm-add-before").val(addAboveItem);
+			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#item-id").val(), "false", "false"));
 			$("#mm-choose").attr("href",href);
@@ -1647,6 +1988,9 @@ $(document).ready(function() {
 			$("#mm-is-website").val('false');
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
+			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1", "true", "false"));
 			$("#mm-choose").attr("href",href);
@@ -1683,6 +2027,9 @@ $(document).ready(function() {
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-website").val('false');
 			$("#mm-is-caption").val('false');
+			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href,"-1","false","false"));
 			$("#mm-choose").attr("href",href);
@@ -1716,6 +2063,9 @@ $(document).ready(function() {
 			$("#mm-is-website").val('true');
 			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
+			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, "-1","false","true"));
 			$("#mm-choose").attr("href",href);
@@ -1841,6 +2191,9 @@ $(document).ready(function() {
 			$("#mm-item-id").val($("#multimedia-item-id").val());
 			$("#mm-is-mm").val('true');
 			$("#mm-add-before").val(addAboveItem);
+			$(".mm-file-group").remove();
+			$('.add-another-file').hide();
+			$('.add-file-div').removeClass('add-another-file-div');
 			var href=$("#mm-choose").attr("href");
 			href=fixAddBefore(fixhref(href, $("#multimedia-item-id").val(), true, false));
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
@@ -1928,7 +2281,9 @@ $(document).ready(function() {
 				$('#movie-dialog').dialog('isOpen') ||
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#export-cc-dialog').dialog('isOpen') ||
+				$('#add-forum-summary-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
+				$('#add-twitter-dialog').dialog('isOpen')||
 				$('#column-dialog').dialog('isOpen') ||
 			        $('#student-dialog').dialog('isOpen') ||
 			        $('#question-dialog').dialog('isOpen'))) {
@@ -2016,12 +2371,22 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
-		section.after('<div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div>');
+		var sectionId = "sectionid" + (nextid++);
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
-		section = section.next();
+		section = section.prev('.sectionHeader').parent().next().children(".section");
+
+		section.prev('.sectionHeader').on("click", function(){
+			var section = $(this).next("div.section");
+			if (section.hasClass("collapsible")) {
+				section.slideToggle();
+				setCollapsedStatus($(this), null);
+			}
+		});
+
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    section.find("ul").append(addAboveLI, tail_lis);
+		    section.find("ul.mainList").append(addAboveLI, tail_lis);
 		section.find(".column").append(tail_uls);
 		section.append(tail_cols);
 
@@ -2032,7 +2397,7 @@ $(document).ready(function() {
 		fixupColAttrs();
 		fixupHeights();
 		closeDropdownc();
-	    });
+	});
 
 	$('.add-break-column').click(function(e) {
 		e.preventDefault();
@@ -2045,12 +2410,12 @@ $(document).ready(function() {
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-cog fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
 		// now go to new section
 		column = column.next();
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    column.find("ul").append(addAboveLI, tail_lis);
+		    column.find("ul.mainList").append(addAboveLI, tail_lis);
 		column.find(".column").append(tail_uls);
 		// need trigger on the A we just added
 		column.find('.column-merge-link').click(columnMergeLink);
@@ -2075,14 +2440,21 @@ $(document).ready(function() {
 
 		// current section DIV
 		var section = thisCol.parent();
+		var sectionHeader = section.prev('.sectionHeader');
 		// append rest of ul last one in prevous section
-		section.prev().find('ul').last().append(tail_lis);
-		section.prev().find('.column').last().append(tail_uls);
-		section.prev().append(tail_cols);
+		sectionHeader.parent().prev().find('ul.mainList').last().append(tail_lis);
+		sectionHeader.parent().prev().find('.column').last().append(tail_uls);
+		sectionHeader.parent().prev().append(tail_cols);
 		// nothing should be left in current section. kill it
 		section.remove();
+		sectionHeader.remove();
 		fixupColAttrs();
 		fixupHeights();
+
+		if(!$('.collapsibleSectionHeader').length) {
+			$('#expandCollapseButtons').hide();
+		}
+
 	};
 
 	function columnMergeLink(e) {
@@ -2094,7 +2466,7 @@ $(document).ready(function() {
 		var tail_uls = thisCol.find('.mainList').nextAll();
 
 		// append rest of ul last one in prevous column;
-		thisCol.prev().find('ul').last().append(tail_lis);
+		thisCol.prev().find('ul.mainList').last().append(tail_lis);
 		thisCol.prev().append(tail_uls);
 		// nothing should be left in current section. kill it
 		thisCol.remove();
@@ -2117,6 +2489,21 @@ $(document).ready(function() {
 	    $('#columnblue').prop('selected', col.hasClass('colblue'));
 	    $('#columngreen').prop('selected', col.hasClass('colgreen'));
 	    $('#columnyellow').prop('selected', col.hasClass('colyellow'));
+	    $('#collapsible').prop('checked', col.parent('.section').hasClass('collapsible'));
+	    $('#defaultClosed').prop('checked', col.parent('.section').hasClass('defaultClosed'));
+	    $('#sectionTitle').val(col.parent('.section').prev().find('.sectionHeaderText').text());
+		if(!$("#sectionTitle").val()) {
+			$("#collapsible").prop('checked', false);
+			$("#collapsible").prop("disabled", true);
+		} else {
+			$("#collapsible").prop("disabled", false);
+		}
+		if(!$("#collapsible").prop('checked')) {
+			$("#defaultClosed").prop('checked', false);
+			$("#defaultClosedSpan").hide();
+		} else {
+			$("#defaultClosedSpan").show();
+		}
 	    $('#column-dialog').dialog('open');
 	    return false;
 	}
@@ -2131,6 +2518,8 @@ $(document).ready(function() {
 		var width = $('#columndouble').prop('checked') ? 2 : 1;
 		var split = $('#columnsplit').prop('checked') ? 2 : 1;
 		var col =  $('.currentlyediting');
+		var section = col.parent('.section');
+		var header = section.prev('.sectionHeader');
 		var color_index = $('#columnbackground')[0].selectedIndex; 
 		var color = '';
 		switch (color_index) {
@@ -2142,6 +2531,9 @@ $(document).ready(function() {
 		case 5: color = 'green'; break;
 		case 6: color = 'yellow'; break;
 		}
+		var collapsible = $('#collapsible').prop('checked') ? 1 : 0;
+		var defaultClosed = $('#defaultClosed').prop('checked') ? 1 : 0;
+		var sectionTitle = $('#sectionTitle').val();
 		setColumnProperties(itemid, width, split, color);
 		if (width === 2)
 		    col.addClass('double');		    
@@ -2156,6 +2548,40 @@ $(document).ready(function() {
 		    col.addClass('col' + color);
 		fixupColAttrs();
 		fixupHeights();
+		setSectionCollapsible(itemid, collapsible, sectionTitle, defaultClosed);
+		header.find('.sectionHeaderText').text(sectionTitle);
+		if (sectionTitle === '') {
+			header.addClass('skip');
+		} else {
+			header.removeClass('skip');
+		}
+		if (collapsible) {
+			section.addClass('collapsible');
+			header.addClass('collapsibleSectionHeader');
+			setCollapsedStatus(header, false);
+			var sectionId = section.attr('id');
+			if (typeof sectionId === 'undefined' || sectionId === null || sectionId === '') {
+			    sectionId = 'sectionid' + (nextid++);
+			    section.attr('id', sectionId);
+			}
+			header.attr('aria-controls', sectionId);
+		} else {
+			section.removeClass('collapsible');
+			header.removeClass('collapsibleSectionHeader');
+			setCollapsedStatus(header, false);
+			header.removeAttr('aria-controls');
+			header.removeAttr('aria-expanded');
+		}
+		if (defaultClosed) {
+			section.addClass('defaultClosed');
+		} else {
+			section.removeClass('defaultClosed');
+		}
+		if($('.collapsibleSectionHeader').length) {
+			$('#expandCollapseButtons').show();
+		} else {
+			$('#expandCollapseButtons').hide();
+		}
 		$('#column-dialog').dialog('close');
 		return false;
 	    });
@@ -2291,16 +2717,48 @@ $(document).ready(function() {
 
 	$("[aria-describedby='moreDiv'] .ui-dialog-titlebar-close")
 	    .click(closeDropdown);
-
+	$('.no-highlight').folderListing({
+		enableHighlight: false,
+	});
 	return false;
 });
 
+function setCollapsedStatus(header, collapse) {
+    if (collapse === null) {
+	// toggle
+	collapse = header.find('.collapseIcon').hasClass("fa-toggle-up");
+    }
+    if (collapse) {
+	header.find('.collapseIcon').addClass("fa-toggle-down");
+	header.find('.collapseIcon').removeClass("fa-toggle-up");
+	header.find('.sectionCollapsedIcon').show();
+	header.find('.toggleCollapse').text(msg('simplepage.clickToExpand'));
+	header.attr('aria-expanded', 'false');
+    } else {
+	header.find('.collapseIcon').removeClass("fa-toggle-down");
+	header.find('.collapseIcon').addClass("fa-toggle-up");
+	header.find('.sectionCollapsedIcon').hide();
+	header.find('.toggleCollapse').text(msg('simplepage.clickToCollapse'));
+	header.attr('aria-expanded', 'true');
+    }
+}
+
+function closeTwitterDialog(){
+	$('#add-twitter-dialog').dialog('close');
+	$('#twitter-error-container').hide();
+	oldloc.focus();
+}
 function closeSubpageDialog() {
 	$("#subpage-dialog").dialog("close");
 	$('#subpage-error-container').hide();
 	oldloc.focus();
 }
 
+function closeAnnouncementsDialog(){
+	$('#add-announcements-dialog').dialog('close');
+	$('#announcements-error-container').hide();
+	oldloc.focus();
+}
 function closeEditItemDialog() {
 	$("#edit-item-dialog").dialog("close");
 	$('#edit-item-error-container').hide();
@@ -2377,14 +2835,18 @@ function closeQuestionDialog() {
 function closePeerReviewDialog() {
 	$('#peer-eval-create-dialog').dialog('close');
 }
-
+function closeForumSummaryDialog(){
+	$('#add-forum-summary-dialog').dialog('close');
+	$('#forum-summary-error-container').hide();
+	oldloc.focus();
+}
 function checkEditTitleForm() {
 	if($('#pageTitle').val() === '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
 		return false;
-	}else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseFloat($("#page-points").val()))) {
-		$('#edit-title-error').text(msg("simplepage.integer-expected"));
+	}else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
+		$('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
 		$('#edit-title-error-container').show();
 	}else {
 		$('#edit-title-error-container').hide();
@@ -2435,6 +2897,16 @@ function checkYoutubeForm(w, h) {
 	}
 }
 
+//function called when adding twitter feed
+function confirmAddTwitterTimeline(){
+	//Check if username is empty or not?
+	if( $('#twitter-username').val().trim() === ""){
+		$('#twitter-error').text(msg("simplepage.twitter-name-notblank"));
+		$('#twitter-error-container').show();
+		return false;
+	}
+	return true;
+}
 //this checks the width and height fields in the Edit dialog to validate the input
 function checkMovieForm(w, h, y) {
 		var wmatch = checkPercent(w); 	// use a regex to check if the input is of the form ###%
@@ -2525,8 +2997,8 @@ function checkEditItemForm() {
 		$('#edit-item-error-container').show();
 		return false;
         } else if ((requirementType === '3' || requirementType === '6') && 
-		   $("#item-required2").prop("checked") && !isFinite(safeParseFloat($("#assignment-points").val()))) {
-		$('#edit-item-error').text(msg("simplepage.integer-expected"));
+		   $("#item-required2").prop("checked") && !isFinite(safeParseInt($("#assignment-points").val()))) {
+		$('#edit-item-error').text(intError(safeParseInt($("#assignment-points").val())));
 		$('#edit-item-error-container').show();
 		return false;
 	}else {
@@ -2619,6 +3091,98 @@ $(function() {
 	        return true;  
 	    }  
 	});
+
+	function mmFileInputDelete() {
+	    // embed dialog doesn't have an item name, so only do this if there is one
+	    var doingNames = ($('#mm-name-section').is(':visible') ||
+			      $('.mm-file-input-names').size() > 0);
+	    $(this).parent().remove();
+	    if (doingNames) {
+		// if no files left, need to put back the original name section
+		if ($('.mm-file-group').size() === 0) {
+		    $('.add-another-file').hide();
+		    $('.add-file-div').removeClass('add-another-file-div');
+		    $('#mm-name-section').show();
+		    // if there are files left but the first one was removed, put the label on
+		    // the new first
+		} else if ($('#mm-file-input-itemname').size() === 0) {
+		    var nameInput = $('.mm-file-input-names').first();
+		    nameInput.attr('id', 'mm-file-input-itemname');
+		    nameInput.before('<label></label>');
+		    nameInput.prev().text($('#mm-name').prev().text());
+		    nameInput.prev().attr('for','mm-file-input-itemname');
+		}
+	    }
+	}
+	function mmFileInputChanged() {
+	    // user has probably selected a file. 
+	    var lastInput = $(".mm-file-input").last();
+	    if (lastInput[0].files.length !== 0) {
+		// embed dialog doesn't have names
+		var doingNames = ($('#mm-name-section').is(':visible') ||
+				  $('.mm-file-input-names').size() > 0);
+		// user has chosen a file. 
+		// Add another button for user to pick more files
+		lastInput.parent().after(lastInput.parent().clone());
+		// find the new button and put this trigger on it
+		lastInput.parent().next().find('input').on("change", mmFileInputChanged);
+		// change this one to have name of file and remove button
+		var newStuff = '<span class="mm-file-input-name"></span> <span title="' + msg('simplepage.remove_from_uploads') + '"><span class="mm-file-input-delete fa fa-times"></span></span>';
+		// only do this if we're doing names
+		if (doingNames) {
+		    for (i = 0; i < lastInput[0].files.length; i++) {
+			newStuff = newStuff + '<input class="mm-file-input-names" type="text" size="30" maxlength="255"/>';
+		    }
+		}
+		// now need annotation on the next input, so remove the old
+		$('.add-another-file').hide();
+		$('.add-file-div').removeClass('add-another-file-div');
+		$('.add-another-file').last().show().parent().addClass('add-another-file-div');
+		lastInput.after(newStuff);
+		lastInput.parent().addClass('mm-file-group');
+		var names = "";
+		for (i = 0; i < lastInput[0].files.length; i++) {
+		    names = names + ", " + lastInput[0].files[i].name;
+		}
+		lastInput.next().text(names.substring(2));
+		// arm the delete
+		lastInput.next().next().on('click', mmFileInputDelete);
+		// and hide the actual button
+		lastInput.hide();
+		if (doingNames) {
+		    // put the item name after it
+		    // for first file, initialize to whatever is in the top field
+		    var itemName = '';
+		    var firsttime = false;
+		    if ($('#mm-name-section').is(':visible')) {
+			// first time
+			itemName = $('#mm-name').val();
+			firsttime = true;
+		    }
+		    $('#mm-name-section').hide();
+		    var nameInput = lastInput.parent().find('.mm-file-input-names');
+		    nameInput.addClass('mm-file-input-itemname');
+		    nameInput.attr('title', msg('simplepage.title_for_upload'));
+		    // rest is just for the first. nameInput can be more than one if user selected multiple files
+		    // only put the label on the first
+		    nameInput = nameInput.first();
+		    nameInput.val(itemName);
+		    if (firsttime) {
+			// add a label for the name field. I think it's too much to do it for all of them
+			nameInput.attr('id', 'mm-file-input-itemname');
+			nameInput.before('<label></label>');
+			nameInput.prev().text($('#mm-name').prev().text());
+			nameInput.prev().attr('for','mm-file-input-itemname');
+		    }
+		    nameInput.show();
+		}
+	    }
+	};
+
+	$(".mm-file-input").on("change", mmFileInputChanged);
+
+
+
 });
 
 var hasBeenInMenu = false;
@@ -2648,8 +3212,8 @@ function buttonOpenDropdowna() {
 
 function buttonOpenDropdownb() {
     oldloc = $(this);
-    addAboveItem = '-' + $(this).closest('.column').find('ul').children().last().find("span.itemid").text();
-    addAboveLI = $(this).closest('.column').find('ul').children().last().closest("li");
+    addAboveItem = '-' + $(this).closest('.column').find('ul.mainList').children().last().find("span.itemid").text();
+    addAboveLI = $(this).closest('.column').find('ul.mainList').children().last().closest("li");
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
     return false;
@@ -2804,8 +3368,8 @@ function checkQuestionGradedForm() {
 
 // Prepares the question dialog to be submitted
 function prepareQuestionDialog() {
-	if ($("#question-graded").prop("checked") && !isFinite(safeParseFloat($("#question-max").val()))) {
-	    $('#question-error').text(msg("simplepage.integer-expected"));
+	if ($("#question-graded").prop("checked") && !isFinite(safeParseInt($("#question-max").val()))) {
+	    $('#question-error').text(intError(safeParseInt($("#question-max").val())));
 	    $('#question-error-container').show();
 	    return false;
 	} else if($("#question-graded").prop("checked") && $("#question-gradebook-title").val() === '') {
@@ -2862,7 +3426,7 @@ function getGroupErrors(groups) {
      $.ajax({type: "GET",
 	     async: false,
 	      url: url,
-   	  success: function(data, status, hdr) { 
+	      success: function(data, status, hdr) { 
 		 errors = data.trim();
 	    }});
      return errors;
@@ -2912,6 +3476,20 @@ function setColumnProperties(itemId, width, split, color) {
 	    success: function(data){
 		ok = data;
 	    }});
+}
+
+function setSectionCollapsible(itemId, collapsible, sectionTitle, defaultClosed) {
+	var url = location.protocol + '//' + location.host + '/lessonbuilder-tool/ajax';
+	var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
+	$.ajax({
+		type: "POST",
+		async: false,
+		url: url,
+		data: {op: 'setsectioncollapsible', itemid: itemId, collapsible: collapsible, sectiontitle: sectionTitle, defaultclosed: defaultClosed, csrf: csrf},
+		success: function(data){
+			ok = data;
+		}
+	});
 }
 
 var mimeMime = "";
@@ -3018,6 +3596,9 @@ function fixupHeights() {
 	return;
     }
     $(".section").each(function(index) {
+		var visible = $(this).is(":visible");
+		// Unhide all to calculate correct heights
+		$(this).show();
 	    var max = 0;
 	    // reset to auto to cause recomputation. This is needed because
 	    // this gets called after contents of columns have changed.
@@ -3030,20 +3611,28 @@ function fixupHeights() {
 		    if (max > $(this).height())
 			$(this).height(max);
 		});
+		if (!visible) {
+			$(this).hide();
+		}
 	});
 };
+
 
 // indent is 20px. but with narrow screen and indent 8, this could use too
 // much. So constrain indent so only 1/4 of the width can be used for the
 // maximum indent in the column.
 var indentSize = 20;
 var indentFraction = 4;
+// this is more complex than you'd think. in some cases a section starts invisible
+// in that case width is zero, and the calculation is meaningless
+// also, because it adds to the existing indent, we can't do it more than once per item
+// so check if it's visible and that a done attribute isn't set
 function doIndents() {
     $(".column").each(function(index) {
 	    var max = 0;
 	    var indents = $(this).find("[x-indent]");
 	    var width = $(this).width();
-	    if (indents.size() > 0) {
+	    if ($(this).is(':visible') && indents.size() > 0) {
 		indents.each(function(i) {
 		    var indent = $(this).attr('x-indent');
 		    if (indent > max)
@@ -3056,8 +3645,12 @@ function doIndents() {
 		// do the indents
 		indents.each(function(i) {
 		    var existing = parseInt($(this).css("padding-left"),10);
-		    $(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
-		    });
+		    // make sure we only do this once
+		    if (typeof $(this).attr('x-indent-done') === 'undefined') {
+			$(this).css("padding-left", (existing + indent1 * $(this).attr('x-indent')) + "px");
+			$(this).attr('x-indent-done','true');
+		    }
+		});
 	    }
 	});		
 
@@ -3079,3 +3672,32 @@ function doIndents() {
 		});
 	});
 };
+
+function afterLink(here,itemId) {
+    setTimeout(function(){fixStatus(here,itemId)},3000);
+}
+
+// if direct url we need to track it and change status to checkmark
+// if not backend does it, and we need to redisplay the page to show the status changed
+function fixStatus(here,itemId) {
+    if (itemId !== 0) {
+	var errors = '';
+	var url = location.protocol + '//' + location.host + 
+	    '/lessonbuilder-tool/ajax';
+	$.ajax({type: "GET",
+	    async: false,
+	    url: url,
+	    data: {op: 'islogged', itemid: itemId},
+   	    success: function(data, status, hdr) { 
+		 // track worked, update image to checkmark and offscreen label to completed
+		 errors = data.trim();
+		 if (errors === 'ok') {
+		     var img = here.closest('.right-col').find('.statusCol img');
+		     img.attr('src', '/lessonbuilder-tool/images/checkmark.png');
+		     here.closest('.right-col').find('.link-div .offscreen').text(msg('simplepage.status.completed') + ' ');
+		 }
+		}
+	    });
+	return;
+    };
+}

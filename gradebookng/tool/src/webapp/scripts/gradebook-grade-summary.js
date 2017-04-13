@@ -39,6 +39,7 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
     this.setupTabs();
     this.setupStudentNavigation();
     this.setupFixedFooter();
+    this.setupTableSorting();
     this.setupMask();
     this.setupModalPrint();
     this.bindModalClose();
@@ -86,9 +87,9 @@ GradebookGradeSummary.prototype.setupCategoryToggles = function() {
   this.$content.find(".gb-summary-category-toggle").click(function() {
     var $toggle = $(this);
     if ($toggle.is(".collapsed")) {
-      $toggle.closest("tbody").find(".gb-summary-grade-row").show();
+      $toggle.closest("tbody").next(".gb-summary-assignments-tbody").find(".gb-summary-grade-row").show();
     } else {
-      $toggle.closest("tbody").find(".gb-summary-grade-row").hide();
+      $toggle.closest("tbody").next(".gb-summary-assignments-tbody").find(".gb-summary-grade-row").hide();
     }
     $toggle.toggleClass("collapsed");
   });
@@ -130,11 +131,15 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
 
 GradebookGradeSummary.prototype.setupFixedFooter = function() {
   // do this by setting the height of the tab content to leave room for the navigation
-  if (this.$modal.height() > $(window).height()) {
-    var $tabPane = this.$content.find(".tab-content");
-    var $contentPane =  this.$content.find(".gb-grade-summary-content");
+  var $tabPane = this.$content.find(".gb-summary-grade-panel");
 
-    var paddingSize = 160; // modal padding and modal content padding/margins (yep... fudged)
+  // reset height
+  $tabPane.removeAttr("style");
+
+  if (this.$modal.height() > $(window).height()) {
+    var $contentPane =  this.$modal.find(".gb-grade-summary-content");
+
+    var paddingSize = 100; // modal padding and modal content padding/margins (yep... fudged)
 
     var height = $tabPane.height() - (this.$modal.height() - $(window).height()) - ($contentPane.height() - this.$modal.height()) - paddingSize;
 
@@ -214,53 +219,110 @@ GradebookGradeSummary.prototype.setupPopovers = function() {
 
 
 GradebookGradeSummary.prototype.setupModalPrint = function() {
-  this._setupPrint(
-    this.$content.find(".gb-summary-print"),
-    this.$modal.find("h3[class*='w_captionText']"),
-    this.$content.find(".gb-summary-grade-panel"),
-    this.$content);
+    var self = this;
+    self.setupTableSorting();
+
+    var $button = this.$content.find(".gb-summary-print");
+    $button.off("click").on("click", function() {
+      self._print(
+        self.$modal.find("h3[class*='w_captionText']")[0].outerHTML,
+        self.$content.find(".gb-summary-grade-panel")[0].outerHTML,
+        self.$content);
+    });
 };
 
 
 GradebookGradeSummary.prototype.setupStudentView = function() {
-  this._setupPrint(
-    $("body").find(".portletBody .gb-summary-print"),
-    $("body").find(".portletBody h2:first"),
-    $("body").find("#studentGradeSummary"),
-    $("body"));
+  var self = this;
+  self.setupTableSorting();
+
+  var $button = $("body").find(".portletBody .gb-summary-print");
+  $button.off("click").on("click", function() {
+    self._print(
+      $("body").find(".portletBody h2:first")[0].outerHTML,
+      $("body").find("#studentGradeSummary")[0].outerHTML,
+      $("body"));
+  });
 };
 
 
-GradebookGradeSummary.prototype._setupPrint = function($button, $header, $content, $container) {
-  var self = this;
-  $button.off("click").on("click", function() {
-    function updateIframeContentAndPrint() {
-        self.$iframe.contents().find("body").empty();
-        self.$iframe.contents().find("body").append($header.clone());
-        self.$iframe.contents().find("body").append($content.clone());
+GradebookGradeSummary.prototype._print = function(headerHTML, contentHTML, $container) {
+  $("#summaryForPrint").remove();
 
-        self.$iframe[0].contentWindow.print();
-    }
+  var $iframe = $("<iframe id='summaryForPrint'>").hide();
+  $iframe.one("load", function() {
+    var $head = $iframe.contents().find("head");
+    $(document.head).find("link").each(function() {
+      if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
+        $head.append($($(this).clone().attr("media", "all")[0].outerHTML));
+      }
+    });
+    setTimeout(function() {
+      $iframe.contents().find("body").empty();
+      $iframe.contents().find("body").append(headerHTML);
+      $iframe.contents().find("body").append(contentHTML);
 
-    if (!self.$iframe) {
-      self.$iframe = $("<iframe id='summaryForPrint'>").hide();
-      self.$iframe.one("load", function() {
-        var $head = self.$iframe.contents().find("head");
-        $(document.head).find("link").each(function() {
-          if ($(this).is("[href*='tool.css']") || $(this).is("[href*='gradebookng-tool']")) {
-            $head.append($(this).clone().attr("media", "all")[0].outerHTML);
-          }
-        });
-        setTimeout(function() {
-          updateIframeContentAndPrint();
-        }, 500);
-      });
-      $container.append(self.$iframe);
-    } else {
-      updateIframeContentAndPrint();
-    }
+      $iframe[0].contentWindow.print();
+    }, 1000);
   });
-}
+  $container.append($iframe);
+};
+
+
+GradebookGradeSummary.prototype.setupTableSorting = function() {
+  var $table = this.$content.find(".gb-summary-grade-panel table");
+
+  var stickyHeaderContainer = null;
+  if ($(".tab-pane.active .gb-summary-grade-panel").length == 1) {
+    stickyHeaderContainer = $(".tab-pane.active .gb-summary-grade-panel");
+  }
+
+  $table.tablesorter({
+    theme : "bootstrap",
+    widthFixed: true,
+    headerTemplate : '{content} {icon}',
+    widgets : [ "uitheme", "zebra", "stickyHeaders" ],
+    widgetOptions : {
+      zebra : ["even", "odd"],
+      //filter_reset : ".reset",
+      filter_hideFilters : true,
+      stickyHeaders_offset : 0,
+      stickyHeaders_cloneId : '-sticky',
+      stickyHeaders_addResizeEvent : true,
+      stickyHeaders_zIndex : 2,
+      stickyHeaders_attachTo : stickyHeaderContainer,
+      stickyHeaders_xScroll : null,
+      stickyHeaders_yScroll : null,
+      stickyHeaders_filteredToTop: true
+    },
+    //sort by due date descending and secondarily by assignment title
+    sortList: [[3, 0], [0, 0]],
+    textExtraction: function(node) {
+      var $node = $(node);
+      // sort dates by data-sort-key
+      if ($node.is(".gb-summary-grade-duedate")) {
+        var time = $node.data("sort-key");
+        if (time == 0) {
+          // max integer value so assignments with no due date
+          // appear after those with due dates (to match GB1)
+          return Math.pow(2, 53)-1;
+        }
+        return time;
+      // sort grades by their raw grade
+      } else if ($node.is(".gb-summary-grade-score")) {
+        var grade = $node.find(".gb-summary-grade-score-raw").text().trim();
+        if (grade == "") {
+          return -1;
+        } else {
+          return grade;
+        }
+      }
+
+      return $(node).text().trim();
+    },
+    cssInfoBlock: "gb-summary-category-tbody"
+  });
+};
 
 
 var GradebookGradeSummaryUtils = {

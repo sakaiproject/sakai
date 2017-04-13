@@ -1,0 +1,242 @@
+##<!-- START VM site.vm --> ## Comments seen before doctype. Internet Explorer will go into the quirks mode.
+## Create a variable that is a dollar sign for later
+#set ( $d = "$")
+
+    #parse("/vm/morpheus/includeStandardHead.vm")
+
+    <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass}" #end $pageSiteType>
+
+        <noscript>
+            <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
+        </noscript>
+        
+        #if ( ${bufferedResponse} && ${responseHead} )
+        #else 
+            ${sakai_html_head_js}
+        #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
+
+        <div #if( ${roleSwitchState} ) class="Mrphs-portalWrapper swapped-view" #else class="Mrphs-portalWrapper"#end>
+
+            ## Skip Nav
+            #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
+
+            <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized" #else class="Mrphs-mainHeader is-minimized" #end>
+
+                ## Header
+                <div class="Mrphs-topHeader">
+                    #parse("/vm/morpheus/snippets/header-snippet.vm")
+                </div>
+
+                #if (${tabsSites})
+                    ## tabs
+                    #parse("/vm/morpheus/includeTabs.vm")
+                #end ## END of IF (${tabsSites})
+
+            </div>
+
+            #parse("/vm/morpheus/moresites.vm")
+            #parse("/vm/morpheus/includePageWithNav.vm")
+
+        </div> <!-- end Mrphs-portalWrapper -->
+        <!-- END VM site.vm -->
+
+        ## Make sure we at least have a jQuery 1.11 or higher, log messages
+    #set ( $d = "$")
+    <script>
+        var needJQuery = true;
+        var secondJQuery = false;
+        var notJQuery = false;
+        var dollarEmpty = false;
+        var dollarVersion = false;
+        if ( window.$ ) {
+              if ( window.${d}.fn && window.${d}.fn ) {
+                 dollarVersion = window.${d}.fn.jquery;
+              } else {
+                 dollarVersion = 'not jQuery';
+                 window.console && console.log('Dollar is defined but is not jQuery');
+                 window.console && console.log($d);
+                 //Just have it reload this other $ afterward
+                 notJQuery = true;
+              }
+         } else {
+              dollarEmpty = true;
+              dollarVersion = 'not present';
+              if ( window.jQuery ) {
+                  window.console && console.log('tool called jQuery.noConflict()');
+              }
+        }
+        if ( window.jQuery ) {
+            tver = jQuery.fn.jquery;
+            if ( tver.indexOf('1.11.') == 0 ) {
+                window.console && console.log('Using tool jQuery '+tver);
+                needJQuery = false;
+            } else {
+                secondJQuery = true;
+            }
+        }
+        if ( needJQuery ) {
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}bootstrap/3.3.7/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}"/>')
+            if (Modernizr.touch) {
+              document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            }
+            window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
+        } else {
+            if (typeof jQuery.migrateWarnings == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding jQuery migrate');
+            }
+            if ( typeof jQuery.fn.popover == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}bootstrap/3.3.7/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding Bootstrap');
+            }
+            if (typeof jQuery.ui == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+		document.write('\x3Clink rel="stylesheet" href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}"/>')
+                window.console && console.log('Portal adding jQuery UI');
+            }
+            if (typeof jQuery.ui == 'undefined' || (typeof jQuery.ui.mouse != 'undefined' && typeof jQuery.ui.mouse.prototype._touchStart == 'undefined')) {
+                document.write('\x3Cscript type="text/javascript" src="${pageWebjarsPath}jquery-ui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding jQuery UI Touch Punch for touch device support');
+            }
+        }
+    </script>
+    <script>
+        ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+    </script>
+
+        #if ($loggedIn)
+            <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
+        #end ## END of IF ($loggedIn)
+        
+        <!--[if lt IE 9]>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
+<![endif]-->
+
+        <script src="${pageScriptPath}trimpath-template-latest.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}/pnotify/2.1.0/pnotify.core.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.js$!{portalCDNQuery}"></script>
+
+        #if ( $tutorial && $loggedIn )
+            <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+        #end ## END of IF ( $tutorial && $loggedIn )
+
+        #parse("/vm/morpheus/snippets/portalChat-snippet.vm")
+
+        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
+
+        #if ($pageTop)
+            <script>
+                var sakaiPortalWindow = "";
+                ${d}PBJQ(document).ready(function() {
+                    setupSkipNav();
+                });
+            </script>
+        #end ## END of IF ($pageTop)
+
+        <script>
+            // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+            if ( secondJQuery ) {
+                ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+                if ( ! dollarEmpty && !notJQuery ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
+            }
+            if (notJQuery && !secondJQuery) {
+                ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+                //Just set jQuery to be the same thing since it didn't exist before
+                jQuery = ${d}PBJQ;
+
+            }
+            window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
+
+            ${d}PBJQ(document).ready(function() {
+                setupSiteNav();
+                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308         
+            });
+        </script>
+
+        <script>
+        PNotify.prototype.options.styling = "jqueryui";
+        function portal_check_pnotify() {
+            ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
+                for(i=0; i<data.error.length; i++ ) {
+                     ${d}PBJQ(function(){
+                        new PNotify({
+                            title: '${rloader.getString("pnotify_notice")}',
+                            text: data.error[i],
+                            type: 'notice'
+                        });
+                    });
+                }
+            });
+        }
+    #if ($userWarning) 
+        ${d}PBJQ(document).ready(portal_check_pnotify);
+    #end
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
+<![endif]-->
+
+        <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+
+        #parse("/vm/morpheus/includeAnalytics.vm")
+        #parse("/vm/morpheus/includePASystem.vm")
+
+        #parse("/vm/morpheus/includeCookieNotice.vm")
+
+        #parse("/vm/morpheus/includeGoogleTagManager.vm")
+
+        ${includeExtraHead}
+
+        <!-- Modal popup for profile picture changer -->
+        <div class="modal fade" id="profileImageUpload" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header"><h3>${rloader.getString("pic_changer_title")}</h3></div>
+                    <div class="modal-body">
+                        <div id="remove-error" class="alert alert-danger">${rloader.getString("pic_changer_remove_error")}</div>
+                        <div id="upload-error" class="alert alert-danger">${rloader.getString("pic_changer_upload_error")}</div>
+                        <a id="upload" class="button">
+                            ${rloader.getString("pic_changer_upload")}
+                            <input type="file" id="file" value="${rloader.getString("pic_changer_choose")}" accept="image/*">
+                        </a>
+                        <div id="cropme">
+                            <img style="maxWidth: 100%" />
+                        </div>
+                        <div id="cropToolbar" class="btn-toolbar" style="display: none;">
+                            <div class="btn-group">
+                                <a class="profile-image-zoom-in btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-zoom-out btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="profile-image-pan-up btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-pan-down btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-pan-left btn btn-sm btn-default" href="javascript:void(0)"></a>
+                                <a class="profile-image-pan-right btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="profile-image-rotate btn btn-sm btn-default" href="javascript:void(0)"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="button_color pull-left" id="save" disabled="disabled">${rloader.getString("pic_changer_save")}</button>
+                        <button type="button" class="button pull-left" data-dismiss="modal">${rloader.getString("pic_changer_cancel")}</button>
+                        <button class="btn btn-link remove-profile-image pull-right">${rloader.getString("pic_changer_remove")}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

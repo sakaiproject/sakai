@@ -497,10 +497,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		log.debug("filterHiddenMembers");
 		
+		boolean viewHidden = false;
 		if (isAllowed(currentUserId,
 				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
 			log.debug("permission to view all, including hidden");
-			return members;
+			viewHidden = true;
 		}
 
 		List<RosterMember> filtered = new ArrayList<RosterMember>();
@@ -513,10 +514,6 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 			userIds.add(userId);
 
-            // If this member is not in the authzGroup, remove them.
-            if (authzGroup.getMember(userId) == null) {
-                i.remove();
-            }
 		}
 
 		Set<String> hiddenUserIds
@@ -535,8 +532,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		for (RosterMember member : members) {
 			String userId = member.getUserId();
 			
-			// skip if privacy restricted and not the current user
-			if (!userId.equals(currentUserId) && hiddenUserIds.contains(userId)) {
+			// skip if not the current user and privacy restricted or user not in group
+			if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId)) || authzGroup.getMember(userId) == null)) {
 				continue;
 			}
 			
@@ -739,6 +736,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 String gId = group.getId();
                 Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId), memberComparator);
                 for (Role role : roles) {
+                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + role.getId()), memberComparator);
                     Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId + "#" + role.getId()), memberComparator);
                 }
             }

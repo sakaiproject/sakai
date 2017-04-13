@@ -21,17 +21,14 @@
 
 package org.sakaiproject.portal.service;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -87,8 +84,6 @@ public class PortalServiceImpl implements PortalService
 	private StyleAbleProvider stylableServiceProvider;
 
 	private SiteNeighbourhoodService siteNeighbourhoodService;
-	
-	private String m_portalLinks;
 	
 	private ContentHostingService contentHostingService;
 	
@@ -528,23 +523,18 @@ public class PortalServiceImpl implements PortalService
 	{
 		this.siteNeighbourhoodService = siteNeighbourhoodService;
 	}
-	/* optional portal links for portal header (SAK-22912)
-	 */
-	public String getPortalLinks()
-	{
-		return m_portalLinks;
-	}	
-	
-	
+
 	public ContentHostingService getContentHostingService() {
 		return contentHostingService;
 	}
+
 	/**
 	 * @param portalLinks the portal icons to set
+	 * @superseded by quickLinks functionality also in this class.
+	 * @setter left as portalLinks is in the component.xml file.
 	 */
-	public void setPortalLinks(String portalLinks)
-	{
-		m_portalLinks = portalLinks;
+	public void setPortalLinks(String portalLinks) {
+		log.warn("Attempted to call PortalServiceImpl.setPortalLinks, method superseded by quickLinks functionality.");
 	}
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
@@ -618,5 +608,88 @@ public class PortalServiceImpl implements PortalService
 		return "";
 	}
 
+	public String getQuickLinksTitle(String siteSkin) {
+		//Try the skin .info first, then default to the regular, then if that fails just return an empty string
+		//A null siteSkin is fine but this would generally just return the defined default (like morpheus-default) and not return anything
+		return serverConfigurationService.getString("portal.quicklink." + siteSkin + ".info", serverConfigurationService.getString("portal.quicklink.info", ""));
+	}
 
+	public List<Map> getQuickLinks(String siteSkin){
+		/* Find the quick links (if they are in the properties file) ready for display in the top navigation bar.
+		 * First try with the skin name as there may be different quick links per site, then try with no skin. */
+		List<String> linkUrls = null;
+		List<String> linkTitles = null;
+		List<String>linkNames = null;
+		List<String> linkIcons = null;
+
+		//A null check really isn't needed here sin siteSkin should always be set (or it can just turn into the string "null") but it's here anyway)
+		if (siteSkin != null) {
+			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".url")));
+			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".title")));
+			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".name")));
+			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink." + siteSkin + ".icon")));
+		}
+
+		//However if it is null or if the linkUrls was empty from before, just use the default
+		if (siteSkin == null || (siteSkin != null && linkUrls.isEmpty())) {
+			linkUrls = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.url")));
+			linkTitles = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.title")));
+			linkNames = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.name")));
+			linkIcons = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings("portal.quicklink.icon")));
+		}
+
+		List<Map> quickLinks = new ArrayList<Map>(linkUrls.size());
+		if (!linkUrls.isEmpty()) {
+			if (linkUrls.size() != linkTitles.size() || linkUrls.size() != linkNames.size() || linkUrls.size() != linkIcons.size()) {
+				log.info("All portal.quicklink variables must be defined and the same size for quick links feature to work. One or more is not configured correctly.");
+				return new ArrayList<Map>();
+			}
+			for (int i = 0; i < linkUrls.size(); i++) {
+				String url = linkUrls.get(i);
+				String title = linkTitles.get(i);
+				String name = linkNames.get(i);
+				String icon = linkIcons.get(i);
+
+				if (url != null) {
+					Map<String, String> linkDetails = new HashMap<String, String>();
+					linkDetails.put("url", url);
+					if (name != null) {
+						linkDetails.put("name", name);
+						if (title != null) {
+							linkDetails.put("title", title);
+						} else {
+							linkDetails.put("title", name);
+						}
+					} else {
+						if (title != null) {
+							linkDetails.put("name", title);
+							linkDetails.put("title", title);
+						} else {
+							linkDetails.put("name", url);
+							linkDetails.put("title", url);
+						}
+					}
+					if (icon != null) {
+						// if the 'portal.quicklink.icon' value has a type and at least one character for the icon name then try to parse it.
+						if (icon.length()>3){
+							String iconType = icon.substring(0,2);
+
+							if (iconType.equalsIgnoreCase("im")) {
+								linkDetails.put("iconType", "image");
+								linkDetails.put("imageURI", icon.substring(3));
+							}
+							else if (iconType.equalsIgnoreCase("cl")){
+								linkDetails.put("iconType", "icon");
+								linkDetails.put("iconClass", icon.substring(3));
+							}
+						}
+					}
+
+					quickLinks.add(Collections.unmodifiableMap(linkDetails));
+				}
+			}
+		}
+		return Collections.unmodifiableList(quickLinks);
+
+	}
 }

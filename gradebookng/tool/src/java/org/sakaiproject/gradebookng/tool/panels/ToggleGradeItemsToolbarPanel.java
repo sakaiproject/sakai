@@ -15,12 +15,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -29,12 +26,9 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 /**
  * Panel that renders the list of assignments and categories and allows the user to toggle each one on and off from the display.
  */
-public class ToggleGradeItemsToolbarPanel extends Panel {
+public class ToggleGradeItemsToolbarPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<List<? extends Assignment>> model;
 	boolean categoriesEnabled = false;
@@ -77,7 +71,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
 
-				WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
+				final WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
 				if (!ToggleGradeItemsToolbarPanel.this.categoriesEnabled) {
 					categoryFilter.add(new AttributeAppender("class", " hide"));
 					categoryItem.add(new AttributeAppender("class", " gb-no-categories"));
@@ -86,7 +80,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 
-				GradebookUiSettings settings = gradebookPage.getUiSettings();
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
 				final Label categoryLabel = new Label("category", categoryName);
 				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));

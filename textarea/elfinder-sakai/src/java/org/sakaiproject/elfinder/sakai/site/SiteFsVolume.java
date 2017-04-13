@@ -35,8 +35,7 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
     public SiteFsVolume(String siteId, SakaiFsService service) {
         this.siteId = siteId;
         this.service = service;
-        // TODO Injection
-        siteService = (SiteService) ComponentManager.get(SiteService.class);
+        this.siteService = service.getSiteService();
     }
 
     @Override

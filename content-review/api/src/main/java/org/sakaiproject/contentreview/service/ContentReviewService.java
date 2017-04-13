@@ -247,7 +247,7 @@ public interface ContentReviewService {
 	 * @param score
 	 * @return
 	 */
-	public String getIconUrlforScore(Long score);
+	public String getIconCssClassforScore(int score);
 	
 	/**
 	 *  Does the service support resubmissions?

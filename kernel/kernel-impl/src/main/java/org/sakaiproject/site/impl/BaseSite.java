@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -695,12 +695,12 @@ public class BaseSite implements Site
 				.setLazy(((BaseResourceProperties) pOther).isLazy());
 
 		// deep copy the pages, but avoid triggering fetching by passing false to getPages
-		m_pages = new ResourceVector();
-		for (Iterator iPages = other.getPages(false).iterator(); iPages.hasNext();)
-		{
-			BaseSitePage page = (BaseSitePage) iPages.next();
-			m_pages.add(new BaseSitePage(siteService,page, this, exact));
+		List<BaseSitePage> otherPages = new ArrayList<BaseSitePage>(other.getPages(false));
+		List<BaseSitePage> copiedPages = new ArrayList<BaseSitePage>(otherPages.size());
+		for (BaseSitePage page : otherPages) {
+		    copiedPages.add(new BaseSitePage(siteService, page, this, exact));
 		}
+		m_pages = new ResourceVector(copiedPages);
 		m_pagesLazy = other.m_pagesLazy;
 
 		// deep copy the groups, but avoid triggering fetching by passing false to getGroups
@@ -1730,6 +1730,25 @@ public class BaseSite implements Site
 	 */
 	public void removeGroup(Group group)
 	{
+		if(group.isLocked()) {
+			M_log.error("Error, cannot remove a locked group");
+			return;
+		}
+		// remove it
+		m_groups.remove(group);
+
+		// track so we can clean up related on commit
+		m_deletedGroups.add(group);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void deleteGroup(Group group) throws IllegalStateException
+	{
+		if (group.isLocked()) {
+			throw new IllegalStateException("Error, cannot remove group: " + group.getId() + " because it is locked");
+		}
 		// remove it
 		m_groups.remove(group);
 

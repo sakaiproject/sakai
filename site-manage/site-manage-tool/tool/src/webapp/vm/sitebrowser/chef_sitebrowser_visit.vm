@@ -5,7 +5,7 @@
 		#toolbar($menu)
 	#end
 	
-	## bjones86 - SAK-24423 - alert messages needed for site browser join
+	## SAK-24423 - alert messages needed for site browser join
 	#if( $alertMessage )
 		<div class="alertMessage">$tlang.getString( "gen.alert" ) $validator.escapeHtml( $alertMessage )</div>
 	#end
@@ -22,7 +22,7 @@
 				#end
 				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" accesskey="l" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				
-				## bjones86 - SAK-24423 - only show the join button if site browser joining is enabled in sakai.properties
+				## SAK-24423 - only show the join button if site browser joining is enabled in sakai.properties
 				#if( $siteBrowserJoinEnabled )
 					#if( $site.isJoinable() && !$alreadyMember && !$joinExcludeFromPublicList )
 						<a href="#" onclick="location='#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">
@@ -174,7 +174,7 @@
 	#end
 	<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("vi.ret")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 	
-	## bjones86 - SAK-24423 - only show the join button if sitebrowser joining is enabled in sakai.properties
+	## SAK-24423 - only show the join button if sitebrowser joining is enabled in sakai.properties
 	#if( $siteBrowserJoinEnabled )
 		#if( $site.isJoinable() && !$alreadyMember && !$joinExcludeFromPublicList )
 			<a href="#" onclick="location = '#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )'; return false;" accesskey="j">

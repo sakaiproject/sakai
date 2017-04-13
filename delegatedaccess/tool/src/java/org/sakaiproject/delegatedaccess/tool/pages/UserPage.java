@@ -41,9 +41,12 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.tree.AbstractTree;
-import org.apache.wicket.markup.html.tree.BaseTree;
-import org.apache.wicket.markup.html.tree.LinkTree;
+import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.PopupSettings;
+import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
+import org.apache.wicket.extensions.markup.html.tree.BaseTree;
+import org.apache.wicket.extensions.markup.html.tree.DefaultAbstractTree;
+import org.apache.wicket.extensions.markup.html.tree.LinkTree;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
@@ -52,6 +55,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -147,8 +151,7 @@ public class UserPage  extends BaseTreePage{
 					if(nodeModel.isSiteNode()){
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
-							//redirect the user to the site
-							target.appendJavascript("popupWindow('" + site.getUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
+							getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(site.getUrl()));
 						}
 					}
 				}else{
@@ -325,8 +328,11 @@ public class UserPage  extends BaseTreePage{
 			}
 
 			@Override
-			public Iterator<? extends String> iterator(int first, int count) {
-				return nodeSelectOrder.subList(first, first + count).iterator();
+			public Iterator<? extends String> iterator(long first, long count) {
+				//should really check bounds here 
+				int f = (int) first;
+				int c = (int) count;
+				return nodeSelectOrder.subList(f, f + c).iterator();
 			}
 
 			@Override
@@ -342,7 +348,7 @@ public class UserPage  extends BaseTreePage{
 			}
 
 			@Override
-			public int size() {
+			public long size() {
 				return nodeSelectOrder.size();
 			}
 			
@@ -373,7 +379,7 @@ public class UserPage  extends BaseTreePage{
 						}
 						
 						//refresh everything:
-						target.addComponent(form);
+						target.add(form);
 					}
 				});
 				item.add(choice);
@@ -385,8 +391,8 @@ public class UserPage  extends BaseTreePage{
 		form.add(hierarchyDiv);
 		
 		
-		form.add(new WebMarkupContainer("searchHeader"));
-		form.add(new Button("submitButton"));
+//		form.add(new WebMarkupContainer("searchHeader"));
+//		form.add(new Button("submitButton"));
 
 		add(form);
 

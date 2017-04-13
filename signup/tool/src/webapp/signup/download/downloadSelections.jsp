@@ -177,39 +177,39 @@
 					<h:outputText value="#{msgs.events_attendee_download_instruction}" rendered="#{!DownloadEventBean.allowedToUpdate && DownloadEventBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>
 				</h:panelGrid>
-				<h:panelGrid columns="3">
-					<h:panelGroup>
-					    <h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" />
+				
+				<div class="form-group row">
+					<!-- view range dropdown -->
+					<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" styleClass="form-control-label col-lg-1 col-md-1"/>
+					<div class="col-lg-3 col-md-3">
 						<h:selectOneMenu id="viewByRange" value="#{DownloadEventBean.viewDateRang}" valueChangeListener="#{DownloadEventBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{DownloadEventBean.viewDropDownList}"/>
 						</h:selectOneMenu>
-					</h:panelGroup>
-										
+					</div>
+
 					<!-- filter by category dropdown -->
-					<h:panelGroup>
-						<h:panelGroup styleClass="padLeft"> 
-							<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" />
-							<h:selectOneMenu id="viewByCategory" value="#{DownloadEventBean.categoryFilter}" valueChangeListener="#{DownloadEventBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
-								<f:selectItems value="#{DownloadEventBean.allCategoriesForFilter}"/>
-							</h:selectOneMenu>
-						</h:panelGroup>
-					</h:panelGroup>
+					<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" styleClass="form-control-label col-lg-2 col-md-2"/>
+					<div  class="col-lg-2 col-md-2">
+						<h:selectOneMenu id="viewByCategory" value="#{DownloadEventBean.categoryFilter}" valueChangeListener="#{DownloadEventBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
+							<f:selectItems value="#{DownloadEventBean.allCategoriesForFilter}"/>
+						</h:selectOneMenu>
+					</div>
 					<!--  expand all recurring meetings -->
-					<h:panelGroup>
-						<h:panelGroup styleClass="padLeft" rendered="#{DownloadEventBean.enableExpandOption && DownloadEventBean.meetingsAvailable}">
+					<h:panelGroup layout="block" styleClass="col-lg-4 col-md-4" rendered="#{DownloadEventBean.enableExpandOption && DownloadEventBean.meetingsAvailable}">
+						<h:panelGroup >
 							<h:selectBooleanCheckbox id="expandingchkbox" value="#{DownloadEventBean.showAllRecurMeetings}" valueChangeListener="#{DownloadEventBean.processExpandAllRcurEvents}" onclick="submit();"/>
 							<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
 						</h:panelGroup>
-						<h:outputText value="&nbsp;" escape="false" rendered="#{!DownloadEventBean.enableExpandOption}"/>
+						<h:outputText value="&nbsp;" escape="false" rendered="#{!DownloadEventBean.enableExpandOption}"/>					
 					</h:panelGroup>
-				</h:panelGrid>
-								
+				</div>
+
 				<h:panelGrid columns="1" styleClass="noMeetingsWarn" rendered="#{!DownloadEventBean.meetingsAvailable}" >
 					<h:outputText value="&nbsp;" escape="false"/>
 					<h:outputText value="#{DownloadEventBean.meetingUnavailableMessages}" />
 				</h:panelGrid>
 					
-				<h:panelGroup rendered="#{DownloadEventBean.meetingsAvailable}">								 	
+				<h:panelGroup rendered="#{DownloadEventBean.meetingsAvailable}" layout="block" styleClass="table-responsive">
 				 	<t:dataTable 
 				 		id="eventlist"
 				 		value="#{DownloadEventBean.signupMeetings}"
@@ -220,7 +220,7 @@
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
 				 		columnClasses="titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol, removeCol"
-				 		styleClass="signupTable">
+				 		styleClass="table table-bordered table-striped table-hover">
 	
 						<t:column>
 							<f:facet name="header">
@@ -235,16 +235,7 @@
 							</h:panelGroup>
 							<%-- normal checkbox --%>
 							<h:selectBooleanCheckbox id="selectItem" value="#{wrapper.toDownload}" rendered="#{wrapper.recurEventsSize < 1}" styleClass="#{wrapper.recurId}"/>
-							
-						</t:column>		
-						
-						<t:column defaultSorted="true" sortable="true">
-							<f:facet name="header" >
-								<t:commandSortHeader columnName="#{DownloadEventBean.signupSorter.titleColumn}" immediate="true" arrow="true">
-									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
-								</t:commandSortHeader>
-							</f:facet>
-							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" style="margin-left:-13px; cursor:pointer;">
+							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" styleClass="toggleMeetings toggleDownload">
 								<h:outputText value="<span id='imageOpen_RM_#{wrapper.recurId}' style='display:none'>"  escape="false"/>
 		   	    					<h:graphicImage value="/images/minusSmall.gif"  alt="open" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{DownloadEventBean.iframeId}');" />
 		   	    				<h:outputText value="</span>" escape="false" />
@@ -255,7 +246,14 @@
 		   	    				
 		   	    				<h:outputText value="&nbsp;" escape="false"/>
 		   	    			</h:panelGroup>
-							
+						</t:column>		
+						
+						<t:column defaultSorted="true" sortable="true">
+							<f:facet name="header" >
+								<t:commandSortHeader columnName="#{DownloadEventBean.signupSorter.titleColumn}" immediate="true" arrow="true">
+									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
+								</t:commandSortHeader>
+							</f:facet>							
 							<h:outputText  value="#{wrapper.meeting.title}" />
 							
 						</t:column>

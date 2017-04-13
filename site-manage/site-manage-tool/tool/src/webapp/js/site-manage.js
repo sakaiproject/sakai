@@ -417,7 +417,7 @@ sakai.siteTypeSetup = function(){
             }
             else {
                 //show all the controls, unchecked, unlocked, since there are no settings
-                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',false);
+                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',true);
                 $('#copyUsersWrapper').show().find('input').prop('disabled', false).prop('checked',false);
                 $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
                 $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
@@ -651,14 +651,14 @@ var setupCategTools = function(){
         var mylist = $('#toolSelectionList ul');
         var listitems = mylist.children('li').get();
         listitems.sort(function(a, b){
-            return $(a).text().toUpperCase().localeCompare($(b).text().toUpperCase());
+            return $(a).text().trim().toUpperCase().localeCompare($(b).text().trim().toUpperCase());
         });
         $.each(listitems, function(idx, itm){
             mylist.append(itm);
         });
         if ($('#toolSelectionList ul li').length > 1) {
-            if ($('#toolSelectionList ul').find('li#selected_sakai_home').length) {
-             $('#toolSelectionList ul').find('li#selected_sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
+            if ($('#toolSelectionList ul').find('li#sakai_home').length) {
+             $('#toolSelectionList ul').find('li#sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
             }
             // SAK-22384
             var listHeader = document.getElementById("#toolSelectionListHeader");
@@ -789,7 +789,7 @@ var setupCategTools = function(){
 
         	// selectedTools with disable checkboxes don't have the red [X] remove link
         	if ($(this).prop('disabled') !== true) {
-        		removeLink = '<a href="#" class=\"removeTool icon-sakai-delete' + toolInstance + '\"></a>';
+        		removeLink = '<a href="#" class=\"removeTool icon-sakai--delete' + toolInstance + '\"></a>';
         	}
                         
     		var selId = normalizedId($(this).attr('id'));
@@ -799,7 +799,7 @@ var setupCategTools = function(){
             var mathJaxCheckBox = buildMathJaxCheckBox(this);
             var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
             var newListItem = '<li id=\"' + thisToolId
-                    + '\"><span class=\"selectedToolTitle \"><i class="icon-' + iconId + '"></i>' + safeLabelText + "</span>"
+                    + '\"><span class=\"selectedToolTitle \"><i class="icon-sakai--' + iconId + '"></i>' + safeLabelText + "</span>"
                     + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
             $('#toolSelectionList ul').append(newListItem);
             
@@ -1291,7 +1291,6 @@ function submitRemoveSection(index, formID)
     id = "removeSection"+index;
     removeSection = document.getElementById(id);
     removeSection.value="true";
-    document.getElementById("option").value="removeSection";
     document.getElementById( formID ).submit();
     return false;
 }
@@ -1386,3 +1385,28 @@ function changeLevel(level)
     document.getElementById("cmLevelChanged").value="true";
     document.getElementById("cmChangedLevel").value=level;
 }
+
+
+/*
+  Setup the Import from Site form
+*/
+function setupImportSitesForm($form) {
+    // Allow toggle of tools for an entire site/column
+    $form.on("click", ".import-sites-tool-toggle", function(event) {
+        var $checkbox = $(this);
+        var $th = $checkbox.closest("th");
+        var $tr = $checkbox.closest("tr");
+
+        $tr.siblings().each(function() {
+            var $td = $($(this).children().get($th.index()));
+            $td.find(":checkbox:not(:disabled)").prop("checked", $checkbox.is(":checked"));
+        });
+    });
+};
+
+$(document).ready(function() {
+    var $form = $("form[name='importSitesForm'");
+    if ($form.length > 0) {
+        setupImportSitesForm($form);
+    }
+});

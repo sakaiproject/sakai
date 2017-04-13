@@ -107,4 +107,10 @@ h3.chatListHeadWrapper{
   #chatLeft {
      width:auto;
   }
+  .jsfFormTable .shorttext input[type='text']{
+      margin: 0 0px 0 0px;
+  }
+  input[type='checkbox'] + label{
+    display: inline;
+  }
 }

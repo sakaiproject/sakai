@@ -94,7 +94,7 @@
 		         		</h:selectOneRadio> 
 					</h:panelGroup>
 				</h:panelGrid>
-			   	    
+			   <h:panelGroup layout="block" styleClass="table-responsive">
 			   <h:dataTable id="preSignup" value="#{NewSignupMeetingBean.timeSlotWrappers}" var="timeSlot"
 			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable"  style="width: 55%"
 			   		binding="#{NewSignupMeetingBean.timeslotWrapperTable}">
@@ -175,7 +175,7 @@
 				   		</h:panelGrid>
 			   		</h:column>
 			   </h:dataTable>
-			   
+			   </h:panelGroup>
 						   
 			    <sakai:doc_section>
 					<h:panelGrid columns="2" styleClass="instruction">

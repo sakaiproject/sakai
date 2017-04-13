@@ -21,7 +21,6 @@
 
 package org.sakaiproject.calendar.tool;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -53,6 +52,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
@@ -215,6 +215,8 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
+	//Map for event icons
+	private Map<String, String> eventIconMap;
 
 	public CalendarAction() {
 		super();
@@ -2495,6 +2497,7 @@ extends VelocityPortletStateAction
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
 		context.put("config",configProps);
+		context.put("eventIconMap", eventIconMap);
 		context.put("dateFormat", getDateFormatString());
 		context.put("timeFormat", getTimeFormatString());
       
@@ -2514,9 +2517,9 @@ extends VelocityPortletStateAction
 			state.setImportWizardState(IMPORT_WIZARD_SELECT_TYPE_STATE);
 		}
 		
-		// (optional) ical.experimental import
+		// (optional) ical.public.userdefined.subscribe import (ical.experimental is deprecated)
 		context.put("icalEnable", 
-						ServerConfigurationService.getString("ical.experimental"));
+						ServerConfigurationService.getBoolean("ical.public.userdefined.subscribe",ServerConfigurationService.getBoolean("ical.experimental",true)));
 		
 		// Set whatever the current wizard state is.
 		context.put("importWizardState", state.getImportWizardState());
@@ -4039,8 +4042,8 @@ extends VelocityPortletStateAction
 
 		context.put("serverName", ServerConfigurationService.getServerName());
 
-		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
-			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 			
@@ -4070,8 +4073,8 @@ extends VelocityPortletStateAction
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-generate", BUTTON + "doOpaqueUrlGenerate");
 		context.put("form-cancel", BUTTON + "doCancel");
-		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
-			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 	}
@@ -4086,8 +4089,8 @@ extends VelocityPortletStateAction
 		String opaqueUrl = ServerConfigurationService.getAccessUrl()
 			+ CalendarService.calendarOpaqueUrlReference(calendarRef);
 
-		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
-			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 
@@ -4724,7 +4727,7 @@ extends VelocityPortletStateAction
 			// Do the import and send us to the confirm page
 			FileItem importFile = data.getParameters().getFileItem(WIZARD_IMPORT_FILE);
 			
-			try
+			try (InputStream stream = importFile.getInputStream())
 			{
 				Map columnMap = CalendarImporterService.getDefaultColumnMap(CalendarImporterService.CSV_IMPORT);
 				
@@ -4741,13 +4744,13 @@ extends VelocityPortletStateAction
 							addFieldsCalendarArray[i]);
 					}
 				}
-						
+
 				state.setWizardImportedEvents(
-					CalendarImporterService.doImport(
-						CalendarImporterService.CSV_IMPORT,
-						new ByteArrayInputStream(importFile.get()),
-						columnMap,
-						addFieldsCalendarArray));
+						CalendarImporterService.doImport(
+								CalendarImporterService.CSV_IMPORT,
+								stream,
+								columnMap,
+								addFieldsCalendarArray));
 
 				importSucceeded = true;
 			}
@@ -4755,7 +4758,11 @@ extends VelocityPortletStateAction
 			{
 				addAlert(sstate, e.getMessage());
 			}
-			
+			catch (IOException e)
+			{
+				M_log.warn("Failed to close stream.", e);
+			}
+
 			if ( importSucceeded )
 			{
 				// If all is well, go on to the confirmation page. 
@@ -4777,12 +4784,12 @@ extends VelocityPortletStateAction
 			
 			String [] addFieldsCalendarArray = getCustomFieldsArray(state, sstate);
 			
-			try
+			try (InputStream stream = importFile.getInputStream())
 			{
 				state.setWizardImportedEvents(
 					CalendarImporterService.doImport(
 						state.getImportWizardType(),
-						new ByteArrayInputStream(importFile.get()),
+						stream,
 						null,
 						addFieldsCalendarArray));
 						
@@ -4791,7 +4798,11 @@ extends VelocityPortletStateAction
 			catch (ImportException e)
 			{
 				addAlert(sstate, e.getMessage());
-			} 
+			}
+			catch (IOException e)
+			{
+				M_log.warn("Failed to close stream.", e);
+			}
 				
 			if ( importSucceeded )
 			{
@@ -7653,7 +7664,7 @@ extends VelocityPortletStateAction
 		bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
 		
 		// See if we are allowed to configure external calendar subscriptions
-		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,false))
+		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,true))
 			{
 				bar.add( new MenuEntry(rb.getString("java.subscriptions"), rb.getString("java.subscriptions.title"), null, allow_subscribe, MenuItem.CHECKED_NA, "doSubscriptions") );
 			}
@@ -7661,14 +7672,15 @@ extends VelocityPortletStateAction
 		// See if we are allowed to export items.
 		String calId = state.getPrimaryCalendarReference();
 		if ( (allow_import_export || CalendarService.getExportEnabled(calId)) && 
-			  ServerConfigurationService.getBoolean("ical.experimental",false))
+			  ServerConfigurationService.getBoolean("ical.public.userdefined.subscribe",ServerConfigurationService.getBoolean("ical.experimental",true)))
 		{
 			bar.add( new MenuEntry(rb.getString("java.export"), rb.getString("java.export.title"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
 		}
 		
 		
-		// A link for subscribing to the implicit calendar
-		if ( ServerConfigurationService.getBoolean("ical.opaqueurl.subscribe", true) )
+		// A link for subscribing to the implicit calendar if the user is logged in.
+		if ( sessionManager.getCurrentSessionUserId() != null &&
+				(ServerConfigurationService.getBoolean("ical.public.secureurl.subscribe", ServerConfigurationService.getBoolean("ical.opaqueurl.subscribe", true))) )
 		{
 			bar.add( new MenuEntry(rb.getString("java.opaque_subscribe"), rb.getString("java.opaque_subscribe.title"), null, allow_subscribe_this, MenuItem.CHECKED_NA, "doOpaqueUrl") );
 		}
@@ -8085,6 +8097,8 @@ extends VelocityPortletStateAction
 				inConfig = this.getClass().getResourceAsStream("calendar.config");
 				configProps.load(inConfig);
 			}
+			//get map with key as event and value as image, if empty then create one.
+			eventIconMap = new CalendarUtil().getEventImageMap(configProps);
 		}
 		catch ( IOException e )
 		{

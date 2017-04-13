@@ -48,13 +48,34 @@
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
 
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+  </h:commandButton>
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+  </h:commandButton>
+
+
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+  </h:commandButton>
+
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+ </h:commandButton>
 
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
   <div class="form-group row"> 
     <h:outputLabel styleClass="col-md-2" value="#{authorMessages.answer_point_value}" />
     <div class="col-md-2">
-      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="ConvertPoint">
+      <h:inputText id="answerptr" label="#{authorMessages.pt}" value="#{itemauthor.currentItem.itemScore}" required="true" disabled="#{author.isEditPoolFlow}" styleClass="form-control ConvertPoint">
 	    <f:validateDoubleRange minimum="0.00"/>
 	  </h:inputText>
 	<h:message for="answerptr" styleClass="validate"/>
@@ -76,24 +97,30 @@
   </div>
 
 <!-- 1.2 MIN POINTS -->
-<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-  <div class="shorttext">
-    <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-    <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="ConvertPoint">
-	  <f:validateDoubleRange/>
-	</h:inputText>
-    <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
-	<h:message for="answerminptr" styleClass="validate"/>
+<f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}" >
+  <div class="form-group row">
+    <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2"/>
+    <div class="col-md-2">
+        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" styleClass="form-control ConvertPoint">
+	      <f:validateDoubleRange/>
+	    </h:inputText>
+        <h:outputText value="#{authorMessages.answer_min_point_info}" style="font-size: x-small" />
+	    <h:message for="answerminptr" styleClass="validate"/>
+    </div>
   </div>
 </f:subview>
 
   <!-- 2 TEXT -->
-  <div class="longtext">
-  <h:outputLabel value="#{authorMessages.q_text}" />
-  <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
-     <f:validateLength minimum="1" maximum="60000"/>
-   </samigo:wysiwyg>
+  <div class="form-group row">  
+  <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
+      <div class="col-md-8">
+          <!-- WYSIWYG -->
+          <h:panelGrid>
+              <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
+                  <f:validateLength minimum="1" maximum="60000"/>
+              </samigo:wysiwyg>
+          </h:panelGrid>
+      </div>
   </div>
 
   <!-- 2a ATTACHMENTS -->
@@ -121,30 +148,37 @@
     </div>
   </h:panelGroup>
 
-</div>
 
   <!-- 5 ANSWER and ANSWERFEEDBACK -->
   <h2>
     <h:outputText value="#{authorMessages.answer_provide_a_mo}" />  
   </h2>
 
-  <div class="tier2">
-    <h:outputLabel value="#{authorMessages.model_short_answer}" />
+  <div class="form-group row">
+    <h:outputLabel value="#{authorMessages.model_short_answer}" styleClass="col-md-2 form-control-label"/>
+    <div class="col-md-8">
+        <h:panelGrid>
+            <!-- WYSIWYG -->
+            <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes" mode="author">
+                <f:validateLength maximum="60000"/>
+            </samigo:wysiwyg>
+        </h:panelGrid>
+     </div>
+ </div>
 
- <!-- WYSIWYG -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrAnswer}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
-
- <h:panelGroup styleClass="form-group" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
-  <h:outputLabel value="#{commonMessages.feedback_optional}" />
-   <!-- WYSIWYG  -->
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
-     <f:validateLength maximum="60000"/>
-   </samigo:wysiwyg>
+ <h:panelGroup styleClass="form-group row" layout="block" rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
+  <h:outputLabel value="#{commonMessages.feedback_optional}"  styleClass="col-md-2 form-control-label"/>
+    <div class="col-md-8">
+        <!-- WYSIWYG  -->
+        <h:panelGrid>
+            <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
+                <f:validateLength maximum="60000"/>
+            </samigo:wysiwyg>
+        </h:panelGrid>
+    </div>
 </h:panelGroup>
 
-  </div>
+
 
 
 <!-- METADATA -->
@@ -164,8 +198,8 @@
 </h:panelGrid>
 
 </h:panelGroup>
-</div>
 
+    <%@ include file="/jsf/author/item/tags.jsp" %>
 
 <p class="act">
 

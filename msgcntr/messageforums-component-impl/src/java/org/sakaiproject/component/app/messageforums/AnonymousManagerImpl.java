@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
@@ -23,8 +24,8 @@ import org.sakaiproject.api.app.messageforums.AnonymousMapping;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * @see org.sakaiproject.api.app.messageforums.AnonymousManager
@@ -103,7 +104,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 
 		HibernateCallback<List<AnonymousMapping>> hcb = new HibernateCallback<List<AnonymousMapping>>()
 		{ 
-			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException, SQLException
+			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
 			{
 				List<AnonymousMapping> mappings = new ArrayList<>();
 				// be mindful of Oracle's 1000 in clause limit
@@ -112,7 +113,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 				while (minUser < userIds.size())
 				{
 					Query q = session.getNamedQuery(QUERY_BY_SITE_AND_USERS);
-					q.setParameter("siteId", siteId, Hibernate.STRING);
+					q.setParameter("siteId", siteId, StringType.INSTANCE);
 					q.setParameterList("userIds", userIds.subList(minUser, maxUser));
 					mappings.addAll(q.list());
 					minUser += MAX_IN_CLAUSE_SIZE;
@@ -132,10 +133,10 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 
 		HibernateCallback<List<AnonymousMapping>> hcb = new HibernateCallback<List<AnonymousMapping>>()
 		{
-			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException, SQLException
+			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(QUERY_BY_SITE);
-				q.setParameter("siteId", siteId, Hibernate.STRING);
+				q.setParameter("siteId", siteId, StringType.INSTANCE);
 				return q.list();
 			}
 		};

@@ -6,7 +6,6 @@ create table SST_REPORTS (ID number(19,0) not null, SITE_ID varchar2(99 char), T
 create table SST_RESOURCES (ID number(19,0) not null, USER_ID varchar2(99 char) not null, SITE_ID varchar2(99 char) not null, RESOURCE_REF varchar2(255 char) not null, RESOURCE_ACTION varchar2(12 char) not null, RESOURCE_DATE date not null, RESOURCE_COUNT number(19,0) not null, primary key (ID));
 create table SST_SITEACTIVITY (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, ACTIVITY_DATE date not null, EVENT_ID varchar2(32 char) not null, ACTIVITY_COUNT number(19,0) not null, primary key (ID));
 create table SST_SITEVISITS (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, VISITS_DATE date not null, TOTAL_VISITS number(19,0) not null, TOTAL_UNIQUE number(19,0) not null, primary key (ID));
-create index SST_EVENTS_USER_ID_IX on SST_EVENTS (USER_ID);
 create index SST_EVENTS_SITE_ID_IX on SST_EVENTS (SITE_ID);
 create index SST_EVENTS_SITEEVENTUSER_ID_IX on SST_EVENTS (USER_ID, SITE_ID, EVENT_ID);
 create index SST_EVENTS_EVENT_ID_IX on SST_EVENTS (EVENT_ID);
@@ -14,7 +13,6 @@ create index SST_EVENTS_DATE_IX on SST_EVENTS (EVENT_DATE);
 create index SST_PREFERENCES_SITE_ID_IX on SST_PREFERENCES (SITE_ID);
 create index SST_PRESENCE_DATE_IX on SST_PRESENCES (P_DATE);
 create index SST_PRESENCE_USER_ID_IX on SST_PRESENCES (USER_ID);
-create index SST_PRESENCE_SITE_ID_IX on SST_PRESENCES (SITE_ID);
 create index SST_PRESENCE_SUD_ID_IX on SST_PRESENCES (SITE_ID, USER_ID, P_DATE);
 create index SST_REPORTS_SITE_ID_IX on SST_REPORTS (SITE_ID);
 create index SST_RESOURCES_USER_ID_IX on SST_RESOURCES (USER_ID);

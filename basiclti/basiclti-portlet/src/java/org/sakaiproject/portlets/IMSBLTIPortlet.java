@@ -383,7 +383,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
 					String tid = tool.getToolId();
 					if ( "sakai.lessonbuildertool".equals(tid) ) foundLessons = true;
-					if ( "sakai.gradebook.tool".equals(tid) || "sakai.gradebook.gwt.rpc".equals(tid) ) foundGradebook = true;
+					if ( tid != null && tid.startsWith("sakai.gradebook") ) foundGradebook = true;
 				}
 			}
 		} catch (IdUnusedException ex) {

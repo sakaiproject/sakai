@@ -8,7 +8,7 @@
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
 	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-	<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
+	<script type="text/javascript" language="JavaScript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" language="JavaScript" src="../js/mailsender.js"></script>
 </head>
@@ -110,6 +110,8 @@
 				<label rsf:id="msg=appendrecipientlist" for="appendRecipientList">Append list of recipients to message</label>
 			</div>
 		</div>
+		<input rsf:id="csrf" type="hidden" name="csrf" id="csrf" />
+		<span rsf:id="csrfvalue" id="csrfvalue" style="display:none"/>
 		<div class="section headervalue">
 			<input rsf:id="send-button" value="Send Mail" class="active" type="submit" />
 			<input rsf:id="cancel-button" value="Cancel" type="submit" />
@@ -118,6 +120,9 @@
 	<script rsf:id="init_js" type="text/javascript">
 	// a real function call with real values which come from the 
 	// "emitJavascriptCall" method will be placed here by RSF
+	</script>
+	<script type="text/javascript">
+	  $("#csrf").val($("#csrfvalue").text());
 	</script>
 	<div class="cleaner" />
 </div>

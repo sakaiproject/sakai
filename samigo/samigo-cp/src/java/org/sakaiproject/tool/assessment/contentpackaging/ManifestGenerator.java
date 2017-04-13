@@ -262,7 +262,7 @@ public class ManifestGenerator {
 			while (itemIter.hasNext()) {
 				itemData = (ItemData) itemIter.next();
 				// Question Text
-				if (itemData.getTypeId().equals(TypeIfc.MATCHING)) {
+				if (itemData.getTypeId().equals(TypeIfc.MATCHING) || itemData.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
 					processDescription(itemData.getInstruction());
 				}
 				Set itemTextSet = itemData.getItemTextSet();

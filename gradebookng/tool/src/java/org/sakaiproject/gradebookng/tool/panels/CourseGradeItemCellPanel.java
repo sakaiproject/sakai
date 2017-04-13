@@ -5,17 +5,15 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -25,12 +23,9 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 /**
  * Panel that is rendered for each student's course grade
  */
-public class CourseGradeItemCellPanel extends Panel {
+public class CourseGradeItemCellPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<Map<String, Object>> model;
 
@@ -66,6 +61,12 @@ public class CourseGradeItemCellPanel extends Panel {
 		final boolean showPoints = (boolean) modelData.get("showPoints");
 		final boolean showOverride = (boolean) modelData.get("showOverride");
 
+		final boolean hasCourseGradeOverride = (boolean) modelData.get("hasCourseGradeOverride");
+
+		if (hasCourseGradeOverride) {
+			getParentCellFor(this).add(new AttributeAppender("class", " gb-cg-override"));
+		}
+
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
@@ -85,11 +86,15 @@ public class CourseGradeItemCellPanel extends Panel {
 
 						final String newCourseGradeDisplay = refreshCourseGrade(studentUuid, gradebook, role, courseGradeVisible,
 								showPoints, showOverride);
-						setDefaultModel(Model.of(newCourseGradeDisplay));
 
-						scoreChangedEvent.getTarget().add(this);
-						scoreChangedEvent.getTarget().appendJavaScript(
+						// if course grade has changed, then refresh it
+						if (!newCourseGradeDisplay.equals(getDefaultModelObject())) {
+							setDefaultModel(Model.of(newCourseGradeDisplay));
+
+							scoreChangedEvent.getTarget().add(this);
+							scoreChangedEvent.getTarget().appendJavaScript(
 								String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
+						}
 					}
 				}
 			}
@@ -108,7 +113,7 @@ public class CourseGradeItemCellPanel extends Panel {
 				return role == GbRole.INSTRUCTOR;
 			}
 		};
-		menu.add(new AjaxLink<String>("courseGradeOverride", Model.of(studentUuid)) {
+		menu.add(new GbAjaxLink("courseGradeOverride", Model.of(studentUuid)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -120,7 +125,7 @@ public class CourseGradeItemCellPanel extends Panel {
 				window.show(target);
 			}
 		});
-		menu.add(new AjaxLink<String>("courseGradeOverrideLog", Model.of(studentUuid)) {
+		menu.add(new GbAjaxLink<String>("courseGradeOverrideLog", Model.of(studentUuid)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -21,7 +21,6 @@
 package org.sakaiproject.coursemanagement.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,13 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -49,8 +42,10 @@ import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Provides access to course and enrollment data stored in sakai's local hibernate tables.
@@ -58,9 +53,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
+@Slf4j
 public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport implements CourseManagementService {
-	private static final Logger log = LoggerFactory.getLogger(CourseManagementServiceHibernateImpl.class);
-	
+
 	public void init() {
 		log.info("Initializing " + getClass().getName());
 	}
@@ -79,19 +74,17 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	 * @throws IdNotFoundException
 	 */
 	private Object getObjectByEid(final String eid, final String className) throws IdNotFoundException {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				StringBuilder hql = new StringBuilder();
-				hql.append("from ").append(className).append(" as obj where obj.eid=:eid");
-				Query q = session.createQuery(hql.toString());
-				q.setParameter("eid", eid);
-				Object result = q.uniqueResult();
-				if(result == null) {
-					throw new IdNotFoundException(eid, className);
-				}
-				return result;
-			}
-		};
+		HibernateCallback hc = session -> {
+            StringBuilder hql = new StringBuilder();
+            hql.append("from ").append(className).append(" as obj where obj.eid=:eid");
+            Query q = session.createQuery(hql.toString());
+            q.setParameter("eid", eid);
+            Object result = q.uniqueResult();
+            if(result == null) {
+                throw new IdNotFoundException(eid, className);
+            }
+            return result;
+        };
 		return getHibernateTemplate().execute(hc);
 	}
 	
@@ -122,15 +115,13 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 
 	public Set<CanonicalCourse> getEquivalentCanonicalCourses(String canonicalCourseEid) {
 		final CanonicalCourseCmImpl canonicalCourse = (CanonicalCourseCmImpl)getCanonicalCourse(canonicalCourseEid);
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("findEquivalentCanonicalCourses");
-				q.setParameter("crossListing", canonicalCourse.getCrossListing());
-				q.setParameter("canonicalCourse", canonicalCourse);
-				return q.list();
-			}
-		};
-		return new HashSet<CanonicalCourse>((List<CanonicalCourse>) getHibernateTemplate().executeFind(hc));
+		HibernateCallback<List<CanonicalCourse>> hc = session -> {
+            Query q = session.getNamedQuery("findEquivalentCanonicalCourses");
+            q.setParameter("crossListing", canonicalCourse.getCrossListing());
+            q.setParameter("canonicalCourse", canonicalCourse);
+            return q.list();
+        };
+		return new HashSet<>(getHibernateTemplate().execute(hc));
 	}
 
 	public Set<CanonicalCourse> getCanonicalCourses(final String courseSetEid) throws IdNotFoundException {
@@ -138,26 +129,20 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public List <AcademicSession> getAcademicSessions() {
-	    return (List <AcademicSession>) getHibernateTemplate().execute(new HibernateCallback() {
-		@Override
-		public List <AcademicSession> doInHibernate(Session session) {
-		    Query query = session.getNamedQuery("findAcademicSessions");
-		    query.setCacheable(true);
-		    return query.list();
-		}
-	    });
+	    return getHibernateTemplate().execute((HibernateCallback<List<AcademicSession>>) session -> {
+            Query query = session.getNamedQuery("findAcademicSessions");
+            query.setCacheable(true);
+            return query.list();
+        });
 
 	}
 
 	public List <AcademicSession> getCurrentAcademicSessions() {
-	    return (List <AcademicSession>) getHibernateTemplate().execute(new HibernateCallback() {
-		@Override
-		public List <AcademicSession> doInHibernate(Session session) {
-		    Query query = session.getNamedQuery("findCurrentAcademicSessions");
-		    query.setCacheable(true);
-		    return query.list();
-		}
-	    });
+	    return getHibernateTemplate().execute((HibernateCallback<List<AcademicSession>>) session -> {
+            Query query = session.getNamedQuery("findCurrentAcademicSessions");
+            query.setCacheable(true);
+            return query.list();
+        });
 	}
 
 	public AcademicSession getAcademicSession(final String eid) throws IdNotFoundException {
@@ -177,15 +162,13 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 
 	public Set<CourseOffering> getEquivalentCourseOfferings(String courseOfferingEid) throws IdNotFoundException {
 		final CourseOfferingCmImpl courseOffering = (CourseOfferingCmImpl)getCourseOffering(courseOfferingEid);
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("findEquivalentCourseOfferings");
-				q.setParameter("crossListing", courseOffering.getCrossListing());
-				q.setParameter("courseOffering", courseOffering);
-				return q.list();
-			}
-		};
-		return new HashSet<CourseOffering>((List<CourseOffering>) getHibernateTemplate().executeFind(hc));
+		HibernateCallback<List<CourseOffering>> hc = session -> {
+            Query q = session.getNamedQuery("findEquivalentCourseOfferings");
+            q.setParameter("crossListing", courseOffering.getCrossListing());
+            q.setParameter("courseOffering", courseOffering);
+            return q.list();
+        };
+		return new HashSet<>(getHibernateTemplate().execute(hc));
 	}
 
 	public Set<Membership> getCourseOfferingMemberships(String courseOfferingEid) throws IdNotFoundException {
@@ -206,18 +189,16 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 		// that hibernate understands.
 		final String className = Hibernate.getClass(container).getName();
 		
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				StringBuilder sb = new StringBuilder("select mbr from MembershipCmImpl as mbr, ");
-					sb.append(className);
-					sb.append(" as container where mbr.memberContainer=container ");
-					sb.append("and container.eid=:eid");
-				Query q = session.createQuery(sb.toString());
-				q.setParameter("eid", container.getEid());
-				return q.list();
-			}
-		};
-		return new HashSet<Membership>((List<Membership>) getHibernateTemplate().executeFind(hc));
+		HibernateCallback<List<Membership>> hc = session -> {
+            StringBuilder sb = new StringBuilder("select mbr from MembershipCmImpl as mbr, ");
+                sb.append(className);
+                sb.append(" as container where mbr.memberContainer=container ");
+                sb.append("and container.eid=:eid");
+            Query q = session.createQuery(sb.toString());
+            q.setParameter("eid", container.getEid());
+            return q.list();
+        };
+		return new HashSet<>(getHibernateTemplate().execute(hc));
 	}
 
 	public Section getSection(String eid) throws IdNotFoundException {
@@ -263,14 +244,12 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	}
 
 	public boolean isEnrolled(final String userId, final Set<String> enrollmentSetEids) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("countEnrollments");
-				q.setParameter("userId", userId);
-				q.setParameterList("enrollmentSetEids", enrollmentSetEids);
-				return q.iterate().next();
-			}
-		};
+		HibernateCallback hc = session -> {
+            Query q = session.getNamedQuery("countEnrollments");
+            q.setParameter("userId", userId);
+            q.setParameterList("enrollmentSetEids", enrollmentSetEids);
+            return q.iterate().next();
+        };
 		int i = ((Number)getHibernateTemplate().execute(hc)).intValue();
 		if(log.isDebugEnabled()) log.debug(userId + " is enrolled in " + i + " of these " + enrollmentSetEids.size() + " EnrollmentSets" );
 		return i > 0;
@@ -287,14 +266,12 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 			log.warn("Could not find an enrollment set with eid=" + enrollmentSetEid);
 			return null;
 		}
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("findEnrollment");
-				q.setParameter("userId", userId);
-				q.setParameter("enrollmentSetEid", enrollmentSetEid);
-				return q.uniqueResult();
-			}
-		};
+		HibernateCallback hc = session -> {
+            Query q = session.getNamedQuery("findEnrollment");
+            q.setParameter("userId", userId);
+            q.setParameter("enrollmentSetEid", enrollmentSetEid);
+            return q.uniqueResult();
+        };
 		return (Enrollment)getHibernateTemplate().execute(hc);
 	}
 	
@@ -349,37 +326,31 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	
 	
 	public Set<Section> findInstructingSections(final String userId, final String academicSessionEid) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("findInstructingSectionsByAcademicSession");
-				q.setParameter("userId", userId);
-				q.setParameter("academicSessionEid", academicSessionEid);
-				return q.list();
-			}
-		};
-		return new HashSet<Section>((List<Section>) getHibernateTemplate().executeFind(hc));
+		HibernateCallback<List<Section>> hc = session -> {
+            Query q = session.getNamedQuery("findInstructingSectionsByAcademicSession");
+            q.setParameter("userId", userId);
+            q.setParameter("academicSessionEid", academicSessionEid);
+            return q.list();
+        };
+		return new HashSet<>(getHibernateTemplate().execute(hc));
 	}
 
 	public Set<CourseOffering> findCourseOfferings(final String courseSetEid, final String academicSessionEid) throws IdNotFoundException {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("findCourseOfferingsByCourseSetAndAcademicSession");
-				q.setParameter("courseSetEid", courseSetEid);
-				q.setParameter("academicSessionEid", academicSessionEid);
-				return q.list();
-			}
-		};
-		return new HashSet<CourseOffering>((List<CourseOffering>) getHibernateTemplate().executeFind(hc));
+		HibernateCallback<List<CourseOffering>> hc = session -> {
+            Query q = session.getNamedQuery("findCourseOfferingsByCourseSetAndAcademicSession");
+            q.setParameter("courseSetEid", courseSetEid);
+            q.setParameter("academicSessionEid", academicSessionEid);
+            return q.list();
+        };
+		return new HashSet<>(getHibernateTemplate().execute(hc));
 	}
 
 	public boolean isEmpty(final String courseSetEid) {
-		HibernateCallback hc = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				Query q = session.getNamedQuery("findNonEmptyCourseSet");
-				q.setParameter("eid", courseSetEid);
-				return Boolean.valueOf( ! q.iterate().hasNext());
-			}
-		};
+		HibernateCallback hc = session -> {
+            Query q = session.getNamedQuery("findNonEmptyCourseSet");
+            q.setParameter("eid", courseSetEid);
+            return Boolean.valueOf( ! q.iterate().hasNext());
+        };
 		return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
 	}
 

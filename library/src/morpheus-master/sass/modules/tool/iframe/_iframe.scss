@@ -1,0 +1,20 @@
+.#{$namespace}sakai-iframe {
+
+	@media #{$desktop}{
+		.Mrphs-toolTitleNav__button_container{
+			top: -15px;
+		}
+	}
+
+}
+
+.#{$namespace}toolBody--sakai-iframe-site{
+	img{
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+.Mrphs-multipleTools .#{$namespace}sakai-iframe {
+	margin: -1em 0 0 0;
+}

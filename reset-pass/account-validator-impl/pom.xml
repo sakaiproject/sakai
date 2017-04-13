@@ -10,9 +10,9 @@
 	</organization>
 	<inceptionYear>2007</inceptionYear>
 	<description>Account Validator implementation</description>
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
 	<properties>
-		<deploy.target />
+		<deploy.target>components</deploy.target>
 	</properties>
 
    <!-- the base is parent -->
@@ -33,8 +33,8 @@
 
 	  <!-- email dependencies -->
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
 		</dependency>
 
       <!-- generic DAO -->
@@ -125,10 +125,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jta</groupId>
+			<groupId>javax.transaction</groupId>
 			<artifactId>jta</artifactId>
-			<version>h2.1.8</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>cglib</groupId>
@@ -147,11 +145,6 @@
 			<artifactId>easymock</artifactId>
 			<version>1.2_Java1.3</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-validator</groupId>

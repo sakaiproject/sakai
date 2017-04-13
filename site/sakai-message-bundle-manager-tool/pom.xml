@@ -11,6 +11,12 @@
 	<artifactId>sakai-message-bundle-manager-tool</artifactId>
 	<packaging>war</packaging>
 
+	<properties>
+		<maven.deploy.skip>true</maven.deploy.skip>
+		<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+	</properties>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>

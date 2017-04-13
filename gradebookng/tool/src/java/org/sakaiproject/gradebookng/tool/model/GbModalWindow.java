@@ -100,6 +100,11 @@ public class GbModalWindow extends ModalWindow {
 
 			@Override
 			public void onClose(final AjaxRequestTarget target) {
+				// Disable all buttons with in the modal in case it takes a moment to close
+				target.appendJavaScript(
+					String.format("$('#%s :input').prop('disabled', true);",
+						GbModalWindow.this.getContent().getMarkupId()));
+
 				// Ensure the date picker is hidden
 				target.appendJavaScript("$('#ui-datepicker-div').hide();");
 

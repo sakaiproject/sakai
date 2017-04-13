@@ -21,11 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -36,6 +32,10 @@ import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfileConnectionsLogic for Profile2.
@@ -54,6 +54,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<BasicConnection> getBasicConnectionsForUser(final String userUuid) {
 		List<User> users = getConnectedUsers(userUuid);
 		return getBasicConnections(users);
@@ -62,15 +63,25 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<Person> getConnectionsForUser(final String userUuid) {
 		List<User> users = getConnectedUsers(userUuid);
 		return profileLogic.getPersons(users);
+	}
+
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	@Override
+	public List<User> getConnectedUsersForUserInsecurely(final String userUuid) {
+		return getConnectedUsersInsecurely(userUuid);
 	}
 	
 	
 	/**
  	 * {@inheritDoc}
  	 */	
+	@Override
 	public int getConnectionsForUserCount(final String userId) {
 		return getConnectionsForUser(userId).size();
 	}
@@ -78,6 +89,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */	
+	@Override
 	public List<Person> getConnectionRequestsForUser(final String userId) {
 		List<User> users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
 		return profileLogic.getPersons(users);
@@ -86,6 +98,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */	
+	@Override
 	public int getConnectionRequestsForUserCount(final String userId) {
 		return getConnectionRequestsForUser(userId).size();
 	}
@@ -93,11 +106,12 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean isUserXFriendOfUserY(String userX, String userY) {
 		
 		//if same then friends.
 		//added this check so we don't need to do it everywhere else and can call isFriend for all user pairs.
-		if(userY.equals(userX)) {
+		if(StringUtils.equals(userX, userY)) {
 			return true;
 		}
 		
@@ -118,6 +132,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search) {
 		return getConnectionsSubsetForSearch( connections, search, false);
 	}
@@ -125,6 +140,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<Person> getConnectionsSubsetForSearch(List<Person> connections, String search, boolean forMessaging) {
 		
 		List<Person> subList = new ArrayList<Person>();
@@ -163,6 +179,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public int getConnectionStatus(String userA, String userB) {
 		
 		//current user must be the user making the request
@@ -201,6 +218,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean requestFriend(String userId, String friendId) {
 		
 		if(userId == null || friendId == null){
@@ -218,9 +236,11 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
 		
 		//make the request
-		if(dao.addNewConnection(profileFriend)) {
+		if (dao.addNewConnection(profileFriend)) {
 			
 			log.info("User: " + userId + " requested friend: " + friendId);  
+
+			sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_REQUEST, "/profile/" + friendId, true);
 
 			//send email notification
 			sendConnectionEmailNotification(friendId, userId, EmailType.EMAIL_NOTIFICATION_REQUEST);
@@ -233,6 +253,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean isFriendRequestPending(String fromUser, String toUser) {
 		
 		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
@@ -248,6 +269,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean confirmFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
@@ -283,8 +305,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			sakaiProxy.postEvent(ProfileConstants.EVENT_FRIEND_CONFIRM, "/profile/"+fromUser, true);
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
-			evictFromCache(fromUser);
-			evictFromCache(toUser);
+			this.cacheManager.evictFromCache(this.cache, fromUser);
+			this.cacheManager.evictFromCache(this.cache, toUser);
 			
 			return true;
 		} 
@@ -295,39 +317,44 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean ignoreFriendRequest(final String fromUser, final String toUser) {
 		
 		if(fromUser == null || toUser == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.ignoreFriendRequest"); 
 	  	}
 		
-		//current user must be the user making the request
+		//current user must be the user making the request or the user receiving it.
 		String currentUserId = sakaiProxy.getCurrentUserId();
-		if(!StringUtils.equals(currentUserId, toUser)) {
+		if(!(StringUtils.equals(currentUserId, toUser) || StringUtils.equals(currentUserId, fromUser))) {
 			log.error("User: " + currentUserId + " attempted to ignore connection request from " + fromUser + " on behalf of " + toUser);
 			throw new SecurityException("You are not authorised to perform that action.");
 		}
-		
+
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
 		if(profileFriend == null) {
-			log.error("ProfileLogic.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");   
-			return false;
+		    profileFriend = dao.getPendingConnection(toUser, fromUser);
+		    if (profileFriend == null) {
+				log.error("ProfileLogic.ignoreFriendRequest() failed. No pending friend request from userId: " + fromUser + " to friendId: " + toUser + " found.");
+				return false;
+			}
 		}
-	  	
+
 		//delete
 		if(dao.removeConnection(profileFriend)) {
 			log.info("User: " + toUser + " ignored friend request from: " + fromUser);  
 			return true;
 		}
-		
+
 		return false;
 	}
 	
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean removeFriend(String userId, String friendId) {
 		
 		if(userId == null || friendId == null){
@@ -354,8 +381,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			log.info("User: " + userId + " removed friend: " + friendId);  
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
-			evictFromCache(userId);
-			evictFromCache(friendId);
+			this.cacheManager.evictFromCache(this.cache, userId);
+			this.cacheManager.evictFromCache(this.cache, friendId);
 			
 			return true;
 		}
@@ -366,6 +393,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public BasicConnection getBasicConnection(String userUuid) {
 		return getBasicConnection(sakaiProxy.getUserById(userUuid));
 	}
@@ -373,6 +401,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public BasicConnection getBasicConnection(User user) {
 		BasicConnection p = new BasicConnection();
 		p.setUuid(user.getId());
@@ -385,6 +414,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<BasicConnection> getBasicConnections(List<User> users) {
 		
 		List<BasicConnection> list = new ArrayList<BasicConnection>();
@@ -409,6 +439,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public int getOnlineStatus(String userUuid) {
 		
 		//TODO check prefs and privacy for the user. has the user allowed it?
@@ -440,6 +471,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public Map<String, Integer> getOnlineStatus(List<String> userUuids) {
 		
 		//get the list of users that have active sessions
@@ -453,9 +485,11 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		//iterate over original list, create the map
 		Map<String, Integer> map = new HashMap<String, Integer>();
 		for(String uuid: userUuids) {
-			if(lastEventTimes.containsKey(uuid)){
-				//calc time, iff less than interval, online, otherwise away
-				if((timeNow - lastEventTimes.get(uuid).longValue()) < ProfileConstants.ONLINE_INACTIVITY_INTERVAL) {
+			if(lastEventTimes.containsKey(uuid)) {
+				
+				//calc time, if less than interval, online, otherwise away
+				Long lastEventTime = lastEventTimes.get(uuid);
+				if(lastEventTime != null && ((timeNow - lastEventTime.longValue()) < ProfileConstants.ONLINE_INACTIVITY_INTERVAL)) {
 					map.put(uuid, ProfileConstants.ONLINE_STATUS_ONLINE);
 				} else {
 					map.put(uuid, ProfileConstants.ONLINE_STATUS_AWAY);
@@ -484,15 +518,24 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			throw new SecurityException("You must be logged in to get a connection list.");
 		}
 		
-		List<User> users = new ArrayList<User>();
+		List<User> users = new ArrayList<>();
 		
 		//check privacy
 		if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS)) {
 			return users;
 		}
-		
+
 		users = sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userUuid));
 		return users;
+	}
+
+	/**
+	 * Check auth, privacy and get the list of users that are connected to this user.
+	 * @param userUuid
+	 * @return List<User>, will be empty if none or not allowed.
+	 */
+	private List<User> getConnectedUsersInsecurely(final String userUuid) {
+		return sakaiProxy.getUsers(getConfirmedConnectionUserIdsForUser(userUuid));
 	}
 	
 
@@ -506,12 +549,18 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	 */
 	private List<String> getConfirmedConnectionUserIdsForUser(final String userUuid) {
 
-		List<String> userUuids = new ArrayList<String>();
+		List<String> userUuids = null;
 		
 		if(cache.containsKey(userUuid)){
 			log.debug("Fetching connections from cache for: " + userUuid);
 			userUuids = (List<String>)cache.get(userUuid);
-		} else {
+			if(userUuids == null) {
+				// This means that the cache has expired. evict the key from the cache
+				log.debug("Connections cache appears to have expired for " + userUuid);
+				this.cacheManager.evictFromCache(this.cache, userUuid);
+			}
+		}
+		if(userUuids == null) {
 			userUuids = dao.getConfirmedConnectionUserIdsForUser(userUuid);
 			if(userUuids != null){
 				log.debug("Adding connections to cache for: " + userUuid);
@@ -574,16 +623,6 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		}
 		
 	}
-	
-	/**
-	 * Helper to evict an item from a cache. 
-	 * @param cacheKey	the id for the data in the cache
-	 */
-	private void evictFromCache(String cacheKey) {
-		cache.remove(cacheKey);
-		log.info("Evicted data in cache for key: " + cacheKey);
-	}
-
 	
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);

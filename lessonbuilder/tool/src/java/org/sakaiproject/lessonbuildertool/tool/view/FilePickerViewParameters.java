@@ -42,6 +42,7 @@ public class FilePickerViewParameters extends HelperViewParameters {
         private boolean website = false;
         private boolean caption = false;
 	public String addBefore = ""; // itemid to add a new item before that item
+	public String name = "";
 
 	public FilePickerViewParameters() {
 		super();
@@ -80,16 +81,16 @@ public class FilePickerViewParameters extends HelperViewParameters {
 		website = b;
 	}
 
-	public boolean getWebsite() {
+	public boolean isWebsite() {
 		return website;
 	}
 
 	public void setCaption(boolean b) {
-		website = b;
+		caption = b;
 	}
 
 	public boolean getCaption() {
-		return website;
+		return caption;
 	}
 
 	public void setAddBefore(String s) {
@@ -102,6 +103,14 @@ public class FilePickerViewParameters extends HelperViewParameters {
 		if (addBefore == null)
 		    return "";
 		return addBefore;
+	}
+
+	public void setName(String s) {
+		this.name = s;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }

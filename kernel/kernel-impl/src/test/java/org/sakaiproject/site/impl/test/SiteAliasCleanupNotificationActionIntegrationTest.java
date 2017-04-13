@@ -60,19 +60,9 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		startSession();
 	}
 
-    /**
-     * This does not test anything, it just makes sure we have one active test in the class
-     */
-	@Test
-    public void testNothing() {
-        Assert.assertEquals(1, 1);
-    }
 
-    /**
-     * DISABLED this test since it no longer works, the functionality still does though - KNL-1162
-     */
 	@Test
-	public void disabledTestSiteDeletionTriggersSiteAliasDeletion()
+	public void testSiteDeletionTriggersSiteAliasDeletion()
 	throws IdInvalidException, IdUsedException, PermissionException {
 		IdManager idManager = getService(IdManager.class);
 		SiteService siteService = getService(SiteService.class);
@@ -92,6 +82,9 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		
 		// the "real" code exercise
 		try {
+			// Mark as deleted.
+			siteService.removeSite(site);
+			// Remove the deleted site.
 			siteService.removeSite(site);
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block

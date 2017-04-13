@@ -9,8 +9,14 @@ import org.sakaiproject.elfinder.sakai.content.ContentFsItem;
 import org.sakaiproject.elfinder.sakai.content.ContentSiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.site.SiteFsItem;
 import org.sakaiproject.elfinder.sakai.site.SiteFsVolume;
+import org.sakaiproject.elfinder.sakai.samigo.SamFsItem;
+import org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory;
+import org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory.SamSiteVolume;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,6 +39,7 @@ public class SakaiFsService implements FsService {
 
 	private ContentHostingService contentHostingService;
 	private SiteService siteService;
+	private UserDirectoryService userDirectoryService;
 
 	private FsSecurityChecker securityChecker;
 
@@ -112,6 +119,10 @@ public class SakaiFsService implements FsService {
 			path.append("/").append(((SiteVolume)volume).getSiteId());
 			// Need prefix but don't want volumes to be able to screw it up.
 			path.append("/").append(((SiteVolume)volume).getSiteVolumeFactory().getPrefix());
+		} else if (volume instanceof SamSiteVolume) {
+			path.append("/").append(((SamSiteVolume)volume).getSiteId());
+			// Need prefix but don't want volumes to be able to screw it up.
+			path.append("/").append(((SiteVolume)volume).getSiteVolumeFactory().getPrefix());
 		} else {
 			throw new IllegalArgumentException("Expected different type of FsItem: "+ volume.getClass());
 		}
@@ -145,6 +156,9 @@ public class SakaiFsService implements FsService {
 		} else if (volume instanceof SiteFsVolume) {
 			// Will return the site ID
 			return ((SiteFsVolume)volume).getSiteId();
+		} else if (volume instanceof SamSiteVolume) {
+			// Will return the site ID
+			return ((SamSiteVolume)volume).getSiteId();
 		} else {
 			throw new IllegalArgumentException("Passed argument isn't SakaiFsVolume");
 		}
@@ -152,9 +166,19 @@ public class SakaiFsService implements FsService {
 
 	public FsVolume[] getVolumes() {
 		List<Site> sites  = siteService.getSites(ACCESS, null, null, null, null, null);
+		// Add the user workspace as volume.
+		try {
+			String userId = userDirectoryService.getCurrentUser().getId();
+			Site myWorkspace = siteService.getSiteVisit(siteService.getUserSiteId(userId));
+			sites.add(0,myWorkspace);
+		} catch (Exception e) {}
 		List<FsVolume> volumes = new ArrayList<>(sites.size());
 		for (Site site: sites) {
 			String currentSiteId = site.getId();
+			//Exclude the admin site as do not contain tools with real content
+			if("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)){
+				continue;
+			}
 			volumes.add(getSiteVolume(currentSiteId));
 		}
 		return volumes.toArray(new FsVolume[0]);
@@ -188,9 +212,15 @@ public class SakaiFsService implements FsService {
 			return ((ContentFsItem) fsItem).getId();
 		} else if (fsItem instanceof SiteFsItem) {
 			return ((SiteFsItem)fsItem).getId();
+		} else if (fsItem instanceof SamFsItem) {
+			return ((SamFsItem)fsItem).getId();
 		} else {
 			throw new IllegalArgumentException("Passed FsItem must be a SakaiFsItem.");
 		}
+	}
+
+	public SiteService getSiteService() {
+		return siteService;
 	}
 
 	public void setSiteService(SiteService siteService) {
@@ -199,6 +229,10 @@ public class SakaiFsService implements FsService {
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
 	}
 
 }

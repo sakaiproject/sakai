@@ -146,7 +146,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -684,8 +684,8 @@ public class DiscussionForumTool
 	    	 List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
 	    	 for (Object[] counts: topicMessageCounts) {
 	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    		 decoTopic.setTotalNoMessages((Integer)counts[1]);
-	    		 decoTopic.setUnreadNoMessages((Integer)counts[1]);
+	    		 decoTopic.setTotalNoMessages(((Long) counts[1]).intValue());
+	    		 decoTopic.setUnreadNoMessages(((Long) counts[1]).intValue());
 	    	 }
 
 	    	 // get the total read message count for the current user of non-moderated and add them to the discussion
@@ -697,7 +697,7 @@ public class DiscussionForumTool
 	    	 topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
 	    	 for (Object[] counts: topicMessageCounts) {
 	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
+	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - ((Long) counts[1]).intValue());
 	    	 }
 
 	    	 // get the assignments for use later
@@ -4501,7 +4501,8 @@ public class DiscussionForumTool
 		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
-		      gbItemScore = gradeDef.getGrade();
+		      String decSeparator = FormattedText.getDecimalSeparator();
+		      gbItemScore = StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator);
 		  }
 
 		  if (gradeDef.getGradeComment() != null) {
@@ -7217,10 +7218,7 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
-    if (selectedForum != null)
-    {
-      return;
-    }
+    DiscussionForumBean oldSelectedForum = selectedForum;
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {
@@ -7228,17 +7226,20 @@ public class DiscussionForumTool
       String forumId = getExternalParameterByKey(FORUM_ID);
       if (forumId == null || forumId.trim().length() < 1)
       {
-        selectedForum = null;
+        selectedForum = oldSelectedForum;
         return;
       }
       forum = forumManager.getForumById(Long.valueOf(forumId));
       if (forum == null)
       {
-        selectedForum = null;
+        selectedForum = oldSelectedForum;
         return;
       }
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+    if (selectedForum == null) {
+    	selectedForum = oldSelectedForum;
+    }
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
     	selectedForum.setReadFullDesciption(true);

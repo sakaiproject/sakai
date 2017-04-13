@@ -18,7 +18,10 @@
     </parent>
 
     <!-- Packaging -->
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <!-- Dependencies -->
     <dependencies>
@@ -67,6 +70,10 @@
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>lessonbuilder-api</artifactId>
       	</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.course-management</groupId>
+            <artifactId>coursemanagement-api</artifactId>
+        </dependency>
 
         <!-- Spring & Hibernate -->
         <dependency>
@@ -99,11 +106,6 @@
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -170,12 +172,6 @@
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
-            <version>4.11</version>
-        </dependency>
         <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
             <scope>test</scope> </dependency> -->
         <dependency>
@@ -211,13 +207,18 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.5.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -237,6 +238,16 @@
                 <directory>src/bundle</directory>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
+        </testResources>
     </build>
 
     <profiles>

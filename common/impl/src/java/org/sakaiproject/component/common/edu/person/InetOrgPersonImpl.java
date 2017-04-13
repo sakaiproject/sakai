@@ -29,6 +29,8 @@ import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import javax.sql.rowset.serial.SerialBlob;
+
 import org.hibernate.Hibernate;
 
 import org.slf4j.Logger;
@@ -545,7 +547,12 @@ public class InetOrgPersonImpl extends OrganizationalPersonImpl implements Perso
 		{
 			return null;
 		}
-		return Hibernate.createBlob(this.jpegPhoto);
+		try {
+			return new SerialBlob(this.jpegPhoto);
+		} catch (SQLException e) {
+			LOG.warn(e.getMessage(), e);
+			return null;
+		}
 	}
 
 	public void setBlobImage(Blob blobImage)

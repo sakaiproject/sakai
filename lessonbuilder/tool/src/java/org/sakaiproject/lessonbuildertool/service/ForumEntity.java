@@ -25,69 +25,54 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.StringEscapeUtils;
-
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.api.app.messageforums.BaseForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
-import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.hibernate.SessionFactory;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
-
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;             
-import org.sakaiproject.db.cover.SqlService;
-
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
-
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.FormattedText;
-import java.net.URLEncoder;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.org.ponder.messageutil.MessageLocator;
-
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.hibernate.SessionFactory;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 /**
  * Interface to Message Forums, the forum that comes with Sakai
@@ -115,9 +100,8 @@ import org.hibernate.Transaction;
 // we save a copy of the session factory and then set it in the
 // instance when we need it.
 
+@Slf4j
 public class ForumEntity extends HibernateDaoSupport implements LessonEntity, ForumInterface {
-
-    private static Logger log = LoggerFactory.getLogger(ForumEntity.class);
 
     private static Cache topicCache = null;   // topicid => grouplist
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -520,6 +504,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    noneMask.put(PermissionLevel.READ, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+	    noneMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 	    noneMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -537,6 +522,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    contributorMask.put(PermissionLevel.READ, Boolean.valueOf(true));
 	    contributorMask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 	    contributorMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(false));
+	    contributorMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 	    contributorMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 	    contributorMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(false));
 	    contributorMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));
@@ -554,6 +540,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    ownerMask.put(PermissionLevel.READ, Boolean.valueOf(true));
 	    ownerMask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(true));
 	    ownerMask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(true));
+	    ownerMask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(false));
 	    ownerMask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(false));
 	    ownerMask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(true));
 	    ownerMask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(false));

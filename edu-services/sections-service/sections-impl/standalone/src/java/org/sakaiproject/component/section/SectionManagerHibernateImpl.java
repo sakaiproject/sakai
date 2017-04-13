@@ -22,6 +22,7 @@ package org.sakaiproject.component.section;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -35,7 +36,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Calendar;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -43,9 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -58,8 +55,10 @@ import org.sakaiproject.section.api.exception.MembershipException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Context;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * A standalone implementation of the Section Management API.
@@ -91,72 +90,60 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * {@inheritDoc}
 	 */
 	public List<CourseSection> getSectionsInCategory(final String siteContext, final String categoryId) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	            Query q = session.getNamedQuery("findSectionsByCategory");
-	            q.setParameter("categoryId", categoryId);
-	            q.setParameter("siteContext", siteContext);
-	            return q.list();
-	        }
+        HibernateCallback<List<CourseSection>> hc = session -> {
+            Query q = session.getNamedQuery("findSectionsByCategory");
+            q.setParameter("categoryId", categoryId);
+            q.setParameter("siteContext", siteContext);
+            return q.list();
         };
-        return (List<CourseSection>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public CourseSection getSection(final String sectionUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	        	return getSection(sectionUuid, session);
-	        }
-        };
-        return (CourseSection) getHibernateTemplate().execute(hc);
+        HibernateCallback<CourseSection> hc = session -> getSection(sectionUuid, session);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<ParticipationRecord> getSiteInstructors(final String siteContext) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Course course = getCourseFromSiteContext(siteContext, session);
-            	Query q = session.getNamedQuery("findSiteInstructors");
-                q.setParameter("course", course);
-                return q.list();
-            }
+        HibernateCallback<List<ParticipationRecord>> hc = session -> {
+            Course course = getCourseFromSiteContext(siteContext, session);
+            Query q = session.getNamedQuery("findSiteInstructors");
+            q.setParameter("course", course);
+            return q.list();
         };
-        return (List<ParticipationRecord>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<ParticipationRecord> getSiteTeachingAssistants(final String siteContext) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Course course = getCourseFromSiteContext(siteContext, session);
-            	Query q = session.getNamedQuery("findSiteTAs");
-                q.setParameter("course", course);
-                return q.list();
-            }
+        HibernateCallback<List<ParticipationRecord>> hc = session -> {
+            Course course = getCourseFromSiteContext(siteContext, session);
+            Query q = session.getNamedQuery("findSiteTAs");
+            q.setParameter("course", course);
+            return q.list();
         };
-        return (List<ParticipationRecord>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<EnrollmentRecord> getSiteEnrollments(final String siteContext) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Course course = getCourseFromSiteContext(siteContext, session);
-            	Query q = session.getNamedQuery("findSiteEnrollments");
-                q.setParameter("course", course);
-                return q.list();
-            }
+        HibernateCallback<List<EnrollmentRecord>> hc = session -> {
+            Course course = getCourseFromSiteContext(siteContext, session);
+            Query q = session.getNamedQuery("findSiteEnrollments");
+            q.setParameter("course", course);
+            return q.list();
         };
-        return (List<EnrollmentRecord>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
@@ -186,30 +173,26 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * {@inheritDoc}
 	 */
 	public List<ParticipationRecord> getSectionTeachingAssistants(final String sectionUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	CourseSection section = getSection(sectionUuid, session);
-            	Query q = session.getNamedQuery("findSectionTAs");
-                q.setParameter("section", section);
-                return q.list();
-            }
+        HibernateCallback<List<ParticipationRecord>> hc = session -> {
+            CourseSection section = getSection(sectionUuid, session);
+            Query q = session.getNamedQuery("findSectionTAs");
+            q.setParameter("section", section);
+            return q.list();
         };
-        return (List<ParticipationRecord>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<EnrollmentRecord> getSectionEnrollments(final String sectionUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	CourseSection section = getSection(sectionUuid, session);
-            	Query q = session.getNamedQuery("findSectionStudents");
-                q.setParameter("section", section);
-                return q.list();
-            }
+        HibernateCallback<List<EnrollmentRecord>> hc = session -> {
+            CourseSection section = getSection(sectionUuid, session);
+            Query q = session.getNamedQuery("findSectionStudents");
+            q.setParameter("section", section);
+            return q.list();
         };
-        return (List<EnrollmentRecord>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
@@ -310,20 +293,18 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * {@inheritDoc}
 	 */
 	public SectionEnrollments getSectionEnrollmentsForStudents(final String siteContext, final Set studentUids) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Course course = getCourse(siteContext);
-            	Query q = session.getNamedQuery("findSectionEnrollments");
-            	q.setParameter("course", course);
-            	q.setParameterList("studentUids", studentUids);
-            	return q.list();
-            }
+        HibernateCallback<List> hc = session -> {
+            Course course = getCourse(siteContext);
+            Query q = session.getNamedQuery("findSectionEnrollments");
+            q.setParameter("course", course);
+            q.setParameterList("studentUids", studentUids);
+            return q.list();
         };
 		if(studentUids == null || studentUids.isEmpty()) {
 			if(log.isDebugEnabled()) log.debug("No student uids were passed to getSectionEnrollments.");
 			return new SectionEnrollmentsImpl(new ArrayList());
 		}
-    	return new SectionEnrollmentsImpl(getHibernateTemplate().executeFind(hc));
+    	return new SectionEnrollmentsImpl(getHibernateTemplate().execute(hc));
 	}
 
 	/**
@@ -843,30 +824,26 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	 * {@inheritDoc}
 	 */
 	public List<EnrollmentRecord> getUnsectionedEnrollments(final String courseUuid, final String category) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Query q = session.getNamedQuery("findUnsectionedEnrollmentsInCategory");
-            	q.setParameter("courseUuid", courseUuid);
-            	q.setParameter("category", category);
-            	return q.list();
-            }
+        HibernateCallback<List<EnrollmentRecord>> hc = session -> {
+            Query q = session.getNamedQuery("findUnsectionedEnrollmentsInCategory");
+            q.setParameter("courseUuid", courseUuid);
+            q.setParameter("category", category);
+            return q.list();
         };
-        return (List<EnrollmentRecord>) getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public Set<EnrollmentRecord> getSectionEnrollments(final String userUid, final String courseUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Query q = session.getNamedQuery("findSingleStudentSectionEnrollmentsInCourse");
-            	q.setParameter("userUid", userUid);
-            	q.setParameter("courseUuid", courseUuid);
-            	return q.list();
-            }
+        HibernateCallback<List<EnrollmentRecord>> hc = session -> {
+            Query q = session.getNamedQuery("findSingleStudentSectionEnrollmentsInCourse");
+            q.setParameter("userUid", userUid);
+            q.setParameter("courseUuid", courseUuid);
+            return q.list();
         };
-        return new HashSet(getHibernateTemplate().executeFind(hc));
+        return new HashSet<>(getHibernateTemplate().execute(hc));
 	}
 
 	/**

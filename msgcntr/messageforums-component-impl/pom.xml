@@ -14,9 +14,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2005</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -84,8 +84,12 @@
       <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
     </dependency>
     <dependency>
     	<groupId>org.sakaiproject.search</groupId>

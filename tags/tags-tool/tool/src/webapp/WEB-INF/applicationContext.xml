@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.tags.tool.TagServiceServlet" class="org.sakaiproject.tags.tool.TagServiceServlet">
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+        <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+        <property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService" /></property>
+    </bean>
+
+</beans>

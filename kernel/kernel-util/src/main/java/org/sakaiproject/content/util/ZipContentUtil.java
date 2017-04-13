@@ -378,7 +378,14 @@ public class ZipContentUtil {
 			ZipEntry nextElement, ZipFile zipFile) throws Exception {
 		String resourceId = rootCollectionId + nextElement.getName();
 		String resourceName = extractName(nextElement.getName());
-		ContentResourceEdit resourceEdit = ContentHostingService.addResource(resourceId);	
+		ContentResourceEdit resourceEdit;
+		try {
+			resourceEdit = ContentHostingService.addResource(resourceId);
+		} catch (IdUsedException iue) {
+			// resource exists, update instead
+			LOG.debug("Content resource with ID " + resourceId + " exists. Editing instead.");
+			resourceEdit = ContentHostingService.editResource(resourceId);
+		}
 		resourceEdit.setContent(zipFile.getInputStream(nextElement));
 		resourceEdit.setContentType(mime.getContentType(resourceName));
 		ResourcePropertiesEdit props = resourceEdit.getPropertiesEdit();
@@ -397,7 +404,14 @@ public class ZipContentUtil {
 			ZipEntry element) throws Exception {
 		String resourceId = rootCollectionId + element.getName();
 		String resourceName = extractName(element.getName());
-		ContentCollectionEdit collection = ContentHostingService.addCollection(resourceId);										
+		ContentCollectionEdit collection;
+		try {
+			collection = ContentHostingService.addCollection(resourceId);
+		} catch (IdUsedException iue) {
+			// collection exists, update instead
+			LOG.debug("Content collection with ID " + resourceId + " exists. Editing instead.");
+			collection = ContentHostingService.editCollection(resourceId);
+		}
 		ResourcePropertiesEdit props = collection.getPropertiesEdit();
 		props.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
 		ContentHostingService.commitCollection(collection);

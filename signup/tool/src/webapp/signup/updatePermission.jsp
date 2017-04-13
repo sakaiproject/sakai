@@ -23,7 +23,7 @@
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:panelGrid>					
 				</sakai:doc_section>
-				
+				<div class="table-responsive">
 				<h:panelGrid columns="1">
 					
 					<h:dataTable 
@@ -55,7 +55,7 @@
 							</f:facet>
 							<h:commandButton value="#{msgs.permission_tab_edit_button}" action="#{SignupPermissionsUpdateBean.updatePermission}" disabled="#{!permission.allowedUpd}"/>					
 						</h:column>
-					</h:dataTable>
+					</h:dataTable></div>
 								
 					<sakai:doc_section>
 							<h:panelGrid columns="2" styleClass="instruction" style="width:80%;" columnClasses="note,desc">

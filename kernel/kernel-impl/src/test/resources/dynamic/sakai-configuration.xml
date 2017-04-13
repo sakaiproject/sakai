@@ -38,7 +38,7 @@
 		<property name="targetMethod" value="getProperty" />
 		<property name="arguments"><list><value>password@javax.sql.BaseDataSource</value></list></property>
 	</bean>
-	<bean id="org.sakaiproject.component.test.dynamic.propertiesDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	<bean id="org.sakaiproject.component.test.dynamic.propertiesDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" ref="dbProperties.driverClassName"/>
 		<property name="url" ref="dbProperties.url"/>
 		<property name="username" ref="dbProperties.username"/>

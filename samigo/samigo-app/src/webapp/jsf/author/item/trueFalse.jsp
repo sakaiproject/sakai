@@ -112,12 +112,12 @@
     <div class="form-group row">
         <h:outputLabel for="answerdsc" value="#{authorMessages.negative_point_value}" styleClass="col-md-4 form-control-label"/>
         <div class="col-md-2">
-            <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" 
-                        styleClass="form-control ConvertPoint" disabled="#{itemauthor.disableNegativePoints}">
+            <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" 
+                         required="true" styleClass="form-control ConvertPoint">
                         <f:validateDoubleRange/>
             </h:inputText>
-            <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
             <h:message for="answerdsc" styleClass="validate"/>
+            <h:outputText value="#{authorMessages.note_negative_point_value_question}" />
         </div>
     </div>
 
@@ -141,7 +141,7 @@
     <!-- 3 ANSWER -->
     <div class="form-group row">
         <h:outputLabel value="#{authorMessages.answer} " styleClass="col-md-4 form-control-label"/>
-        <div class="col-md-2 samigo-inline-radio">
+        <div class="col-md-8 samigo-inline-radio">
             <h:selectOneRadio layout="lineDirection" id="TF" border="0"
                               value="#{itemauthor.currentItem.corrAnswer}">
                 <f:selectItems value="#{itemauthor.trueFalseAnswerSelectList}" />
@@ -237,6 +237,7 @@
        </div>
     </h:panelGroup>
 
+    <%@ include file="/jsf/author/item/tags.jsp" %>
 
 
 <%--

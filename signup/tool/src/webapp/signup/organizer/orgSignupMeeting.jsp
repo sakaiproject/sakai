@@ -255,8 +255,8 @@
 		</h:form>
 		
 		<sakai:view_content>
-
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
+			<h:outputText value="#{msgs.invalid_session}" styleClass="alertMessage" escape="false" rendered="#{OrganizerSignupMBean.sessionValid}"/>
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 			<h:outputText value="#{messageUIBean.infoMessage}" styleClass="success" escape="false" rendered="#{messageUIBean.info}"/>      			
 			
 			<h:form id="meeting">
@@ -265,7 +265,7 @@
 				<h:inputHidden id="selectedFirstUser"  value="#{OrganizerSignupMBean.selectedFirstUser}"/>
 			
 			 	<sakai:view_title value="#{msgs.organizer_page_title}"/>
-
+				<div class="table-responsive">
 				<h:panelGrid columns="1" styleClass="organizerToplevelTable">
 					<%-- show title only when collapsed --%>
 					<h:panelGrid id="showMeetingTitleOnly" columns="2" columnClasses="titleColumn,valueColumn" styleClass="orgShowTitleOnly">
@@ -434,11 +434,11 @@
 						<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
 						<h:panelGroup styleClass="longtext" rendered="#{OrganizerSignupMBean.publishedSite}">
 							<h:selectBooleanCheckbox id="chkBx_pub" value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;"/>
-							<h:outputText value="#{msgs.event_email_yes_label}" escape="false" />
+							<h:outputLabel for="chkBx_pub" value="#{msgs.event_email_yes_label}" escape="false" />
 						</h:panelGroup>
 						<h:panelGroup styleClass="longtext" rendered="#{!OrganizerSignupMBean.publishedSite}">
 							<h:selectBooleanCheckbox id="chkBx_unpub" value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;" disabled="true"/>
-							<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
+							<h:outputLabel for="chkBx_unpub" value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
 						</h:panelGroup>							
 						<h:panelGroup>	
 		   	    				<h:outputLabel  id="imageOpen_meetingInfoDetail"  styleClass="activeTag" onclick="showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail','meeting:meetingInfoDetails');setMeetingCollapseInfo(true);">
@@ -589,10 +589,10 @@
 						   							<h:panelGroup>
 							   							<h:graphicImage id="editAttendee" value="/images/edit.png" title="#{msgs.event_tool_tips_edit}" styleClass="openCloseImageIcon"
 							   								onclick="showHideEditPanel('#{timeSlotWrapper.positionInTSlist}','#{attendeeWrapper.positionIndex}','#{attendeeWrapper.signupAttendee.attendeeUserId}');" 
-							   								alt="edit" style="cursor:pointer; border:none" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
+							   								alt="#{msgs.edit}" style="cursor:pointer; border:none" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}"/>
 							   							<h:outputText value="&nbsp;" escape="false"/>
 							   							<h:commandLink id="deleteAttendee" action="#{OrganizerSignupMBean.removeAttendee}"  onmousedown="assignDeleteClick(this,'#{msgs.delete_attandee_confirmation}');"  title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" >
-							   								<h:graphicImage value="/images/delete.png"  alt="delete" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
+							   								<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"></h:graphicImage>
 							   								<f:param id="deletAttendeeUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"></f:param>
 							   							</h:commandLink>
 														<%--creating mailtos--%>
@@ -618,7 +618,7 @@
 							   								<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>
 							   								<f:param id="attendeeUserId" name="attendeeUserId" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>				   										   								
 							   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
-							   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="view comment" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
+							   								<h:graphicImage title="Click to view/edit attendee's comment" value="/images/comment.gif" width="18" height="18" alt="#{msgs.event_view_comment_page_title}" style="border:none" styleClass="openCloseImageIcon" rendered="#{attendeeWrapper.comment}" />
 							   							</h:commandLink>
 						   							</h:panelGroup>
 						   						</h:panelGrid>
@@ -750,7 +750,7 @@
 									   					<h:panelGrid columns="2" border="0" columnClasses="editAddImages,attName" rendered="#{waiterWrapper.signupAttendee.attendeeUserId !=null}">
 																<h:panelGroup>
 									   						<h:commandLink id="removeWaitingList" action="#{OrganizerSignupMBean.removeAttendeeFromWList}" title="#{msgs.event_tool_tips_delete}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" style="text-decoration:none !important">
-									   							<h:graphicImage value="/images/delete.png"  alt="delete" style="border:none" styleClass="openCloseImageIcon"/>
+									   							<h:graphicImage value="/images/delete.png"  alt="#{msgs.delete}" style="border:none" styleClass="openCloseImageIcon"/>
 									   							<f:param id="waiterUserId" name="#{OrganizerSignupMBean.attendeeUserId}" value="#{waiterWrapper.signupAttendee.attendeeUserId}"/>
 									   							<h:outputText value="&nbsp;" escape="false" />
 									   						</h:commandLink>
@@ -838,28 +838,28 @@
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:panelGroup>							 
 									<h:outputText value="#{msgs.organizer_instruction_click}" escape="false" />
-									<h:graphicImage value="/images/edit.png"/>
+									<h:graphicImage value="/images/edit.png" alt="#{msgs.edit}"/>
 									<h:outputText value="#{msgs.organizer_instruction_edit_image}" escape="false"/> 
 								</h:panelGroup>
 								
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:panelGroup >							 
 									<h:outputText value="#{msgs.organizer_instruction_click}" escape="false"/>
-									<h:graphicImage value="/images/delete.png"/>
+									<h:graphicImage value="/images/delete.png" alt="#{msgs.delete}"/>
 									<h:outputText value="#{msgs.organizer_instruction_delete_image}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:panelGroup >							 
 									<h:outputText value="#{msgs.organizer_instruction_click}" escape="false"/>
-									<h:graphicImage value="/images/email_go.png"/>
+									<h:graphicImage value="/images/email_go.png" alt="#{msgs.email}"/>
 									<h:outputText value="#{msgs.organizer_instruction_mailto_image}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:outputText value="&nbsp;" escape="false"/>
 								<h:panelGroup >							 
 									<h:outputText value="#{msgs.organizer_instruction_click}" escape="false"/>
-									<h:graphicImage value="/images/comment.gif"/>
+									<h:graphicImage value="/images/comment.gif" alt="#{msgs.event_view_comment_page_title}"/>
 									<h:outputText value="#{msgs.organizer_instruction_comment_image}" escape="false"/>
 								</h:panelGroup>
 								
@@ -874,7 +874,7 @@
 	                </sakai:button_bar>
 	                
 	                <h:outputText value="&nbsp;" escape="false"/>
-			</h:panelGrid>
+			</h:panelGrid></div>
 		</h:form>
 			 
   		</sakai:view_content>	

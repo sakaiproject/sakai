@@ -436,7 +436,7 @@ public class EntityEncodingManager {
         }
         if (entities.isEmpty()) {
             // just log this for now
-            log.info("EntityEncodingManager: No entities to format ("+format+") and output for ref (" + ref + ")");
+            log.debug("EntityEncodingManager: No entities to format ("+format+") and output for ref (" + ref + ")");
         }
 
         // SAK-22738 - do not show form editing when batch processing is disabled

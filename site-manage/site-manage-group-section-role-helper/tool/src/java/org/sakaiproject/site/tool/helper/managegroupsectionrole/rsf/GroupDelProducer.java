@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,35 +97,40 @@ implements ViewComponentProducer, ActionResultInterceptor{
 		List<Group> groups = handler.getSelectedGroups();
 		
 		StringList deletable = new StringList();
+		StringList notDeletable = new StringList();
 		M_log.debug(this + "fillComponents: got a list of " + groups.size() + " groups");
       
 		if (groups != null && groups.size() > 0)
         {
             for (Iterator<Group> it=groups.iterator(); it.hasNext(); ) {
             	Group group = it.next();
-            	String groupId = group.getId();
-                UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
+                if (group.isLocked()) {
+                    notDeletable.add(group.getTitle());
+                } else {
+                    String groupId = group.getId();
+                    UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
 
-    			UIOutput.make(grouprow,"group-title",group.getTitle());
-    			
-    			int size = 0;
-    			try
-    			{
-    				size=authzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
-    			}
-    			catch (GroupNotDefinedException e)
-    			{
-    				M_log.debug(this + "fillComponent: cannot find group " + group.getReference());
-    			}
-    			UIOutput.make(grouprow,"group-size",String.valueOf(size));
+                    UIOutput.make(grouprow,"group-title",group.getTitle());
 
-    			deletable.add(group.getId());
-				UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
-				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
-				UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
-				UILabelTargetDecorator.targetLabel(message,delete);
-				M_log.debug(this + ".fillComponent: this group can be deleted");
-				renderDelete = true;
+                    int size = 0;
+                    try
+                    {
+                            size=authzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
+                    }
+                    catch (GroupNotDefinedException e)
+                    {
+                            M_log.debug(this + "fillComponent: cannot find group {}" , group.getReference());
+                    }
+                    UIOutput.make(grouprow,"group-size",String.valueOf(size));
+
+                    deletable.add(group.getId());
+                    UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
+                    delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
+                    UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
+                    UILabelTargetDecorator.targetLabel(message,delete);
+                    M_log.debug(this + ".fillComponent: this group can be deleted");
+                    renderDelete = true;
+                }
             }
 		}
 
@@ -132,7 +138,18 @@ implements ViewComponentProducer, ActionResultInterceptor{
 		UICommand.make(deleteForm, "delete-groups",  UIMessage.make("editgroup.removegroups"), "#{SiteManageGroupSectionRoleHandler.processDeleteGroups}");
 		UICommand cancel = UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelDelete}");
 		cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
-   
+
+		if (!notDeletable.isEmpty()) {
+			StringJoiner groupsTitles = new StringJoiner(", ");
+
+			for (Object groupTitle : notDeletable) {
+				groupsTitles.add(groupTitle.toString());
+			}
+
+			UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:");
+			UIMessage.make(errorRow, "error", "deletegroup.notallowed.groups.remove", new String[]{groupsTitles.toString()});
+		}
+		
 		//process any messages
         UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", "0");
 		UIMessage.make(errorRow,"error","editgroup.groupdel.alert", new String[]{});

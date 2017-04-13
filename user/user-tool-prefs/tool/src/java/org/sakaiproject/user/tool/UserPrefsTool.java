@@ -34,15 +34,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -61,9 +59,11 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
@@ -75,9 +75,6 @@ public class UserPrefsTool
 
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
-
-	/** The string that Charon uses for preferences. */
-	private static final String CHARON_PREFS = "sakai:portal:sitenav";
 
 	/** The string to get whether privacy status should be visible */
 	private static final String ENABLE_PRIVACY_STATUS = "enable.privacy.status";
@@ -226,7 +223,7 @@ public class UserPrefsTool
 
 	private List prefOrderItems = new ArrayList();
 
-	private List prefTimeZones = new ArrayList();
+	private List<SelectItem> prefTimeZones = new ArrayList<>();
 
 	private List<SelectItem> prefLocales = new ArrayList<SelectItem>();
 
@@ -259,6 +256,8 @@ public class UserPrefsTool
 	protected final static String EXCLUDE_SITE_LISTS = "exclude";
 
 	protected final static String ORDER_SITE_LISTS = "order";
+
+	protected final static String TAB_LABEL_PREF = "tab:label";
 
 	protected boolean isNewUser = false;
 
@@ -371,14 +370,23 @@ public class UserPrefsTool
 	/**
 	 * @return Returns the prefTimeZones.
 	 */
-	public List getPrefTimeZones()
+	public List<SelectItem> getPrefTimeZones()
 	{
 		if (prefTimeZones.size() == 0)
 		{
 			String[] timeZoneArray = TimeZone.getAvailableIDs();
 			Arrays.sort(timeZoneArray);
-			for (int i = 0; i < timeZoneArray.length; i++)
-				prefTimeZones.add(new SelectItem(timeZoneArray[i], timeZoneArray[i]));
+			for (int i = 0; i < timeZoneArray.length; i++) {
+				String tzt = timeZoneArray[i];
+				if (StringUtils.contains(tzt, '/') && StringUtils.indexOf(tzt, "SystemV/") != 0) {
+					String id = tzt;
+					String name = tzt;
+					if (StringUtils.contains(tzt, '_')) {
+						name = StringUtils.replace(tzt, "_", " ");
+					}
+					prefTimeZones.add(new SelectItem(id, name));
+				}
+			}
 		}
 
 		return prefTimeZones;
@@ -388,7 +396,7 @@ public class UserPrefsTool
 	 * @param prefTimeZones
 	 *        The prefTimeZones to set.
 	 */
-	public void setPrefTimeZones(List prefTimeZones)
+	public void setPrefTimeZones(List<SelectItem> prefTimeZones)
 	{
 		if (LOG.isDebugEnabled())
 		{
@@ -645,21 +653,10 @@ public class UserPrefsTool
 		boolean show_tab_label_option = ServerConfigurationService.getBoolean("preference.show.tab.label.option", true);
 		setPrefShowTabLabelOption(show_tab_label_option);
 
-		//Tab order configuration
-		String defaultPreference="prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title";
-
-		if (ServerConfigurationService.getString("preference.pages")== null || ServerConfigurationService.getString("preference.pages").length() == 0)
-		{
-			LOG.info("The preference.pages is not specified in sakai.properties, hence the default option of '" + defaultPreference + "' is considered");
-		}
-		else
-		{
-			LOG.debug("Setting preference.pages as "+ ServerConfigurationService.getString("preference.pages"));
-		}
-		
 		//To indicate that it is in the refresh mode
 		refreshMode=true;
-		String tabOrder=ServerConfigurationService.getString("preference.pages",defaultPreference);
+		String tabOrder = ServerConfigurationService.getString("preference.pages", "prefs_noti_title, prefs_timezone_title, prefs_lang_title, prefs_hidden_title, prefs_hidden_title");
+		LOG.debug("Setting preference.pages as " + tabOrder);
 
 		tablist=tabOrder.split(",");
 
@@ -671,10 +668,8 @@ public class UserPrefsTool
 			else if (tablist[i].equals(Language)) language_selection=i+1;
 			else if (tablist[i].equals(Privacy)) privacy_selection=i+1;
 			else if (tablist[i].equals(Hidden)) hidden_selection=i+1;
-			else LOG.warn(tablist[i] + " is not valid!!! Re-configure preference.pages at sakai.properties");
+			else LOG.warn(tablist[i] + " is not valid!!! Please fix preference.pages property in sakai.properties");
 		}
-
-		//defaultPage=tablist[0];
 
 		initNotificationStructures();
 		LOG.debug("new UserPrefsTool()");
@@ -1451,8 +1446,8 @@ public class UserPrefsTool
 	        return prefTabLabel;
 
 	    Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-	    ResourceProperties props = prefs.getProperties(CHARON_PREFS);
-	    prefTabLabel = props.getProperty("tab:label");
+	    ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
+	    prefTabLabel = props.getProperty(TAB_LABEL_PREF);
 
 	    if ( prefTabLabel == null )
 	        prefTabLabel = String.valueOf(DEFAULT_TAB_LABEL);
@@ -2198,47 +2193,52 @@ public class UserPrefsTool
 
 	public String processHiddenSites()
 	{
-		// Remove existing property
 		setUserEditingOn();
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
+		if (m_edit != null) {
+			// Remove existing property
+			ResourcePropertiesEdit props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
 
-		List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
+			List currentFavoriteSites = props.getPropertyList(ORDER_SITE_LISTS);
 
-		if (currentFavoriteSites == null) {
-			currentFavoriteSites = Collections.<String>emptyList();
-		}
-
-		props.removeProperty(ORDER_SITE_LISTS);
-		props.removeProperty(EXCLUDE_SITE_LISTS);
-
-		m_preferencesService.commit(m_edit);
-		cancelEdit();
-
-		// Set favorites and hidden sites
-		setUserEditingOn();
-		props = m_edit.getPropertiesEdit(CHARON_PREFS);
-
-		// Any site now hidden should also be removed from favorites
-		for (String siteId : hiddenSitesInput.split(",")) {
-			currentFavoriteSites.remove(siteId);
-		}
-
-		for (Object siteId : currentFavoriteSites) {
-			props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
-		}
-
-		if (hiddenSitesInput != null && !hiddenSitesInput.isEmpty()) {
-			for (String siteId : hiddenSitesInput.split(",")) {
-				props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
+			if (currentFavoriteSites == null) {
+				currentFavoriteSites = Collections.<String>emptyList();
 			}
+
+			props.removeProperty(TAB_LABEL_PREF);
+			props.removeProperty(ORDER_SITE_LISTS);
+			props.removeProperty(EXCLUDE_SITE_LISTS);
+
+			m_preferencesService.commit(m_edit);
+			cancelEdit();
+
+			// Set favorites and hidden sites
+			setUserEditingOn();
+			props = m_edit.getPropertiesEdit(PreferencesService.SITENAV_PREFS_KEY);
+
+			// Any site now hidden should also be removed from favorites
+			for (String siteId : hiddenSitesInput.split(",")) {
+				currentFavoriteSites.remove(siteId);
+			}
+
+			for (Object siteId : currentFavoriteSites) {
+				props.addPropertyToList(ORDER_SITE_LISTS, (String)siteId);
+			}
+
+			if (hiddenSitesInput != null && !hiddenSitesInput.isEmpty()) {
+				for (String siteId : hiddenSitesInput.split(",")) {
+					props.addPropertyToList(EXCLUDE_SITE_LISTS, siteId);
+				}
+			}
+
+			props.addProperty(TAB_LABEL_PREF, prefTabLabel);
+
+			m_preferencesService.commit(m_edit);
+			cancelEdit();
+
+			hiddenUpdated = true;
+
+			m_reloadTop = Boolean.TRUE;
 		}
-
-		m_preferencesService.commit(m_edit);
-		cancelEdit();
-
-		hiddenUpdated = true;
-
-		m_reloadTop = Boolean.TRUE;
 
 		return "hidden";
 	}
@@ -2262,7 +2262,7 @@ public class UserPrefsTool
 			
 			try {
 				Site site = SiteService.getSite(siteId);
-				this.siteTitle =site.getTitle();
+				this.siteTitle = getUserSpecificSiteTitle(site);
 			} catch (IdUnusedException e) {
 				LOG.warn("Unable to get Site object for id: " + siteId, e);
 			}
@@ -2317,7 +2317,7 @@ public class UserPrefsTool
 			this.defaultOpen = defaultOpen;
 			
 			for (DecoratedSiteBean dsb : sites) {
-				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), dsb.getSite().getTitle()));
+				sitesAsSelects.add(new SelectItem(dsb.getSite().getId(), getUserSpecificSiteTitle(dsb.getSite())));
 			}			
 		}
 		
@@ -2576,6 +2576,7 @@ public class UserPrefsTool
 					termsToSites.put(term, new ArrayList<Site>(1));
 				}
 
+				site.setTitle(getUserSpecificSiteTitle(site));
 				termsToSites.get(term).add(site);
 			}
 
@@ -2649,7 +2650,7 @@ public class UserPrefsTool
 
 	public String getHiddenSites() {
 		Preferences prefs = m_preferencesService.getPreferences(getUserId());
-		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+		ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 		List currentHiddenSites = props.getPropertyList(EXCLUDE_SITE_LISTS);
 
 		StringBuilder result = new StringBuilder();

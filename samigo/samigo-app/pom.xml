@@ -107,6 +107,21 @@
             <artifactId>sakai-portal-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <scope>provided</scope>
+            <version>${sakai.elasticsearch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.htmlparser.jericho</groupId>
+            <artifactId>jericho-html</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
             <version>2.1.7</version>
@@ -139,7 +154,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math</artifactId>
+            <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>
@@ -152,8 +167,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
 	<dependency>
             <groupId>javax.servlet.jsp</groupId>
@@ -213,11 +228,6 @@
 	    <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>struts</groupId>
-            <artifactId>struts</artifactId>
-            <version>1.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.rsf</groupId>
             <artifactId>sakai-rsf-web-templates</artifactId>
             <version>${project.version}</version>
@@ -238,18 +248,11 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>2.0.2</version>
         </dependency>
         <!-- test -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>3.8.2</version>
         </dependency>
         <dependency>
         	<groupId>joda-time</groupId>
@@ -258,7 +261,15 @@
         	<type>jar</type>
         	<scope>compile</scope>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
+        </dependency>
+    </dependencies>
     
 	<build>
 		<plugins>

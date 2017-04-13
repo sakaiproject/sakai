@@ -18,16 +18,42 @@
  */
 package org.sakaiproject.sitestats.impl.report;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.fop.apps.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
+
+import org.apache.fop.apps.FOPException;
+import org.apache.fop.apps.FOUserAgent;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.MimeConstants;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.sakaiproject.content.api.ContentCollection;
@@ -44,11 +70,22 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.*;
+import org.sakaiproject.sitestats.api.EventStat;
+import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.SitePresence;
+import org.sakaiproject.sitestats.api.SiteVisits;
+import org.sakaiproject.sitestats.api.Stat;
+import org.sakaiproject.sitestats.api.StatsAuthz;
+import org.sakaiproject.sitestats.api.StatsManager;
+import org.sakaiproject.sitestats.api.Util;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.report.*;
+import org.sakaiproject.sitestats.api.report.Report;
+import org.sakaiproject.sitestats.api.report.ReportDef;
+import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
+import org.sakaiproject.sitestats.api.report.ReportManager;
+import org.sakaiproject.sitestats.api.report.ReportParams;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
@@ -61,22 +98,12 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import javax.xml.transform.*;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 
 /**
@@ -509,11 +536,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		if(cached != null){
 			reportDef = (ReportDef) cached;
 		}else{
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					return session.load(ReportDef.class, Long.valueOf(id));
-				}
-			};
+			HibernateCallback<ReportDef> hcb = session -> (ReportDef) session.load(ReportDef.class, Long.valueOf(id));
 			Object o;
 			try{
 				o = getHibernateTemplate().execute(hcb);
@@ -583,52 +606,48 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
 			return false;
 		}
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Transaction tx = null;
-				try{
-					tx = session.beginTransaction();
-					session.saveOrUpdate(reportDef);
-					tx.commit();
-				}catch(Exception e){
-					if(tx != null) tx.rollback();
-					LOG.warn("Unable to commit transaction: ", e);
-					return Boolean.FALSE;
-				}
-				return Boolean.TRUE;
-			}
-		};
-		Boolean success = (Boolean) getHibernateTemplate().execute(hcb);
-		if(success.booleanValue()) {
+		HibernateCallback<Boolean> hcb = session -> {
+            Transaction tx = null;
+            try{
+                tx = session.beginTransaction();
+                session.saveOrUpdate(reportDef);
+                tx.commit();
+            }catch(Exception e){
+                if(tx != null) tx.rollback();
+                LOG.warn("Unable to commit transaction: ", e);
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        };
+		Boolean success = getHibernateTemplate().execute(hcb);
+		if(success) {
 			String siteId = reportDef.getSiteId();
 			if(siteId == null) {
 				siteId = reportDef.getReportParams().getSiteId();
 			}
 			M_sm.logEvent(reportDef, isNew ? StatsManager.LOG_ACTION_NEW : StatsManager.LOG_ACTION_EDIT, siteId, false);
 		}
-		return success.booleanValue();
+		return success;
 	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.report.ReportManager#removeReportDefinition(org.sakaiproject.sitestats.api.report.ReportDef)
 	 */
 	public boolean removeReportDefinition(final ReportDef reportDef) {
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-				Transaction tx = null;
-				try{
-					tx = session.beginTransaction();
-					session.delete(reportDef);
-					tx.commit();
-				}catch(Exception e){
-					if(tx != null) tx.rollback();
-					LOG.warn("Unable to commit transaction: ", e);
-					return Boolean.FALSE;
-				}
-				return Boolean.TRUE;
-			}
-		};
-		Boolean success = (Boolean) getHibernateTemplate().execute(hcb);
+		HibernateCallback<Boolean> hcb = session -> {
+            Transaction tx = null;
+            try{
+                tx = session.beginTransaction();
+                session.delete(reportDef);
+                tx.commit();
+            }catch(Exception e){
+                if(tx != null) tx.rollback();
+                LOG.warn("Unable to commit transaction: ", e);
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        };
+		Boolean success = getHibernateTemplate().execute(hcb);
 		if(success) {
 			String siteId = reportDef.getSiteId();
 			if(siteId == null) {
@@ -650,27 +669,24 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			reportDefs = (List<ReportDef>) cached;
 			LOG.debug("Getting report list from cache for site "+siteId);
 		}else{
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Criteria c = session.createCriteria(ReportDef.class);
-					if(siteId != null) {
-						if(includedPredefined) {
-							c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
-						}else{
-							c.add(Expression.eq("siteId", siteId));
-						}
-					}else{
-						c.add(Expression.isNull("siteId"));
-					}
-					if(!includeHidden) {
-						c.add(Expression.eq("hidden", false));
-					}
-					return c.list();
-				}
-			};
-			Object o = getHibernateTemplate().execute(hcb);
-			if(o != null) {
-				reportDefs = (List<ReportDef>) o;
+			HibernateCallback<List<ReportDef>> hcb = session -> {
+                Criteria c = session.createCriteria(ReportDef.class);
+                if(siteId != null) {
+                    if(includedPredefined) {
+                        c.add(Expression.or(Expression.eq("siteId", siteId), Expression.isNull("siteId")));
+                    }else{
+                        c.add(Expression.eq("siteId", siteId));
+                    }
+                }else{
+                    c.add(Expression.isNull("siteId"));
+                }
+                if(!includeHidden) {
+                    c.add(Expression.eq("hidden", false));
+                }
+                return c.list();
+            };
+			reportDefs = getHibernateTemplate().execute(hcb);
+			if(reportDefs != null) {
 				for(ReportDef reportDef : reportDefs) {
 					try{
 						reportDef.setReportParams(DigesterUtil.convertXmlToReportParams(reportDef.getReportDefinitionXml()));

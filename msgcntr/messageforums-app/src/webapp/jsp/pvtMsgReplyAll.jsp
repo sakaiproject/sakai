@@ -120,7 +120,7 @@
 					<h:outputLabel for="list1"><h:outputText value="#{msgs.pvt_select_forward_recipients}"/></h:outputLabel>
 			  </h:panelGroup>
 		<h:panelGroup styleClass="shorttext">
-			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;">
+			<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 		    	<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 		    </h:selectManyListbox>
 		    <f:verbatim>
@@ -174,7 +174,7 @@
 	       		</h:outputLabel>
 		  	</h:panelGroup>
 		  	<h:panelGroup styleClass="shorttext bcc" style="display:none">
-				<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;">
+				<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 	         		<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 	       		</h:selectManyListbox>
 	       		<f:verbatim>
@@ -230,7 +230,6 @@
 			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
 
 			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="pvt_forward_body" value="#{PrivateMessagesTool.forwardBody}">
-				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 
             <%--********************* Attachment *********************--%>

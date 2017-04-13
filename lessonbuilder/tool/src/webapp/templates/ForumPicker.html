@@ -14,7 +14,7 @@
 	<div class="portletBody">
 		
 		<div rsf:id="error-div" class="ui-widget">
-			<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;"> 
+			<div class="messageError below-link-help">
 				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 				<span rsf:id="error"></span> </p>
 			</div>
@@ -36,14 +36,14 @@
 		<input type="hidden" rsf:id="csrf"/>
 
 		<span rsf:id="forum-span"/>
-        <table id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
-            <tr rsf:id="forum:" role="listitem">
-                <td>
+        <div id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
+            <div rsf:id="forum:" role="listitem">
+                <div width="100%">
                     <h4 rsf:id="name"></h4>
                     <input type="radio" rsf:id="select" /> <a href="#" rsf:id="link" target="_blank"></a>
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
 		
 		<input type="hidden" rsf:id="item-id" id="item-id" />
 		<input type="hidden" rsf:id="add-before" id="add-before" />

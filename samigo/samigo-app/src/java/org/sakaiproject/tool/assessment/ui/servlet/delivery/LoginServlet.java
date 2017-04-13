@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import javax.faces.component.UICommand;
 import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
@@ -135,8 +137,8 @@ public class LoginServlet
     }
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
-    delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    		pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
+    Boolean honorPledge = BooleanUtils.toBoolean(pub.getAssessmentAccessControl().getHonorPledge());
+    delivery.setHonorPledge(honorPledge);
     delivery.setPublishedAssessment(pub);
 
     BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
@@ -175,6 +177,8 @@ public class LoginServlet
           // in 2.2, agentId is differnt from req.getRemoteUser()
           agentIdString = AgentFacade.getAgentString();
         }
+        delivery.setAnonymousLogin(false);
+        person.setAnonymousId(null);
       }
 
       log.debug("*** agentIdString: "+agentIdString);

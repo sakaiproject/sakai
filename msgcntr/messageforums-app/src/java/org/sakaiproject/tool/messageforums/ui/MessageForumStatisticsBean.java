@@ -324,7 +324,7 @@ public class MessageForumStatisticsBean {
 	public DecoratedCompiledMessageStatistics userInfo = null;
 	public UserStatistics userAuthoredInfo = null;
 	
-	private Map courseMemberMap;
+	private Map<String, MembershipItem> courseMemberMap;
 	protected boolean ascending = true;
 	protected boolean ascendingForUser = false;
 	protected boolean ascendingForUser2 = false;
@@ -452,15 +452,6 @@ public class MessageForumStatisticsBean {
 
 	private boolean m_displayAnonIds; // this will be true in a pure-anon scenario
 
-	
-	public Map getCourseMemberMap(){
-		return this.courseMemberMap;
-	}
-	
-	public void setCourseMemberMap(Map newValue){
-		this.courseMemberMap = newValue;
-	}
-	
 	/** to get accces to log file */
 	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBean.class);
 	
@@ -571,7 +562,7 @@ public class MessageForumStatisticsBean {
 				totalForum = studentTotalCount.get((String) readStat[0]);
 			}
 			if (totalForum > 0) {
-				userStats.setReadForumsAmt((Integer)readStat[1]);
+				userStats.setReadForumsAmt(((Long)readStat[1]).intValue());
 			} else {
 				userStats.setReadForumsAmt(0);				
 			}
@@ -590,7 +581,7 @@ public class MessageForumStatisticsBean {
 				totalForum = studentTotalCount.get((String) authoredStat[0]);
 			}
 			if (totalForum > 0) {
-				userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
+				userStats.setAuthoredForumsAmt(((Long)authoredStat[1]).intValue());
 			} else {
 				userStats.setAuthoredForumsAmt(0);
 			}
@@ -601,7 +592,7 @@ public class MessageForumStatisticsBean {
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
 
 		if(courseMemberMap == null){
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		}
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);
 		
@@ -717,7 +708,7 @@ public class MessageForumStatisticsBean {
 				List<Object[]> totalTopcsCountList = messageManager.findMessageCountByForumId(forum.getId());
 				Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
 				for(Object[] objArr : totalTopcsCountList){
-					totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
+					totalTopcsCountMap.put((Long) objArr[0], ((Long) objArr[1]).intValue());
 				}
 				// if there are no topics, reveal IDs; otherwise assume we're in a pure anonymous scenario (all topics are anonymous), if we find one that isn't anonymous, we'll flip it to false
 				m_displayAnonIds = !forum.getTopicsSet().isEmpty();
@@ -768,7 +759,7 @@ public class MessageForumStatisticsBean {
 					totalForum = userMessageTotal.get((String) readStat[0]);
 				}
 				if (totalForum > 0) {
-					userStats.setReadForumsAmt((Integer)readStat[1]);
+					userStats.setReadForumsAmt(((Long)readStat[1]).intValue());
 				} else {
 					userStats.setReadForumsAmt(0);				
 				}
@@ -793,7 +784,7 @@ public class MessageForumStatisticsBean {
 					totalForum = userMessageTotal.get((String) authoredStat[0]);
 				}
 				if (totalForum > 0) {
-					userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
+					userStats.setAuthoredForumsAmt(((Long)authoredStat[1]).intValue());
 				} else {
 					userStats.setAuthoredForumsAmt(0);
 				}
@@ -801,7 +792,7 @@ public class MessageForumStatisticsBean {
 
 			// now process the users from the list of site members to add display information
 			// this will also prune the list of members so only the papropriate ones are displayed
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 			Map convertedMap = convertMemberMapToUserIdMap(courseMemberMap);
 			Map<String, DecoratedGradebookAssignment> studentGradesMap = getGradebookAssignment();
 			List<DecoratedUser> dUsers = new ArrayList();
@@ -975,7 +966,7 @@ public class MessageForumStatisticsBean {
 		for (Object[] counts: topicMessageCounts) {
 			dCompiledStatsByTopic = statisticsMap.get(counts[0]);
 			if(dCompiledStatsByTopic != null){
-				dCompiledStatsByTopic.setTotalTopicMessages((Integer) counts[1]);
+				dCompiledStatsByTopic.setTotalTopicMessages(((Long) counts[1]).intValue());
 			}
 		}
 		
@@ -2248,7 +2239,7 @@ public class MessageForumStatisticsBean {
 	public Map<String, String> getUserIdName() {
 		Map<String, String> idNameMap = new LinkedHashMap<String, String>();
 		
-		Map courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+		Map courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		List<MembershipItem> members;
 		if (m_displayAnonIds)
 		{
@@ -2987,7 +2978,7 @@ public class MessageForumStatisticsBean {
 		List<Object[]> totalTopcsCountList = messageManager.findMessageCountTotal();
 		Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
 		for(Object[] objArr : totalTopcsCountList){
-			totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
+			totalTopcsCountMap.put((Long) objArr[0], ((Long) objArr[1]).intValue());
 		}
 		Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
 
@@ -3047,7 +3038,7 @@ public class MessageForumStatisticsBean {
 	public Map<String, Boolean> getOverridingPermissionsMap(){
 		Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
 		if(courseMemberMap == null){
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+			courseMemberMap = membershipManager.getAllCourseUsersAsMap();
 		}
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);
 		for (Iterator i = members.iterator(); i.hasNext();) {

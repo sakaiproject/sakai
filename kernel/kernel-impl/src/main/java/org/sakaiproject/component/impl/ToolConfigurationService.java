@@ -1,6 +1,6 @@
 package org.sakaiproject.component.impl;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.Xml;
@@ -305,7 +305,7 @@ public class ToolConfigurationService {
      */
 
     public boolean toolGroupIsSelected(String groupName, String toolId) {
-        List<String> selList = m_toolGroupRequired.get(groupName);
+        List<String> selList = m_toolGroupSelected.get(groupName);
         if (selList == null) {
             return false;
         } else {

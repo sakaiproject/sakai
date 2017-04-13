@@ -10,7 +10,11 @@
   <name>search-impl</name>
   <groupId>org.sakaiproject.search</groupId>
   <artifactId>search-impl</artifactId>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
+
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
 
     <profiles>
         <profile>

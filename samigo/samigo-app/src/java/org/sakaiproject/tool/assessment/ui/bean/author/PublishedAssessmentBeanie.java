@@ -52,8 +52,8 @@ public class PublishedAssessmentBeanie
   private String assessmentId;
   private String title;
   // ArrayList of SectionContentsBean
-  private ArrayList sections = new ArrayList();
-  private ArrayList partNumbers = new ArrayList();
+  private List sections = new ArrayList();
+  private List partNumbers = new ArrayList();
   private int questionSize=0;
   private double totalScore=0;
   private String newQuestionTypeId;
@@ -76,7 +76,7 @@ public class PublishedAssessmentBeanie
 
       // work out the question side & total point
       this.sections = new ArrayList();
-      ArrayList sectionArray = assessment.getSectionArraySorted();
+      List sectionArray = assessment.getSectionArraySorted();
       for (int i=0; i<sectionArray.size(); i++){
         SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
         SectionContentsBean sectionBean = new SectionContentsBean(section);
@@ -107,15 +107,15 @@ public class PublishedAssessmentBeanie
     this.title = title;
   }
 
-  public ArrayList getSections() {
+  public List getSections() {
     return sections;
   }
 
-  public void setSections(ArrayList sections) {
+  public void setSections(List sections) {
     this.sections = sections;
   }
 
-  public ArrayList getPartNumbers() {
+  public List getPartNumbers() {
     return partNumbers;
   }
 
@@ -135,7 +135,7 @@ public class PublishedAssessmentBeanie
    this.totalScore = 0;
    for(int i=0;i<this.sections.size();i++){
       SectionContentsBean sectionBean = (SectionContentsBean) sections.get(i);
-      ArrayList items = sectionBean.getItemContents();
+      List items = sectionBean.getItemContents();
       this.questionSize += items.size();
       for (int j=0; j<items.size();j++){
         ItemContentsBean item = (ItemContentsBean)items.get(j);

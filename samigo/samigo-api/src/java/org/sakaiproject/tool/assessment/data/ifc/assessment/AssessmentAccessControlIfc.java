@@ -174,4 +174,8 @@ public interface AssessmentAccessControlIfc
 
   void setMarkForReview(Integer markForReview);
 
+  Boolean getHonorPledge();
+
+  void setHonorPledge(Boolean honorPledge);
+
 }

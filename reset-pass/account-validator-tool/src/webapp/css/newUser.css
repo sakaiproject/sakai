@@ -15,14 +15,14 @@ p, h1, form, button {
 
 /* ----------- Activate Form ----------- */
 .activateForm {
-	border: 1px solid #DDDDDD;
+	border: 2px solid #DDDDDD;
 	margin: 0 auto;
 	padding: 1em;
 }
 
 .activateLegend
 {
-	margin-left: 2em;
+	padding: 0 0.5em;
 }
 
 
@@ -33,6 +33,26 @@ p, h1, form, button {
 	background:#fff;
 	margin: 2em auto;
 	width:50em;
+}
+
+.stylized .topheading {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.stylized .logo {
+    background: #444 url(/library/skin/morpheus-default/images/logo.png) no-repeat center center;
+    width: 100%;
+    height: 64px;
+    margin: 0 auto;
+    overflow: hidden;
+@include border-radius( 0px );
+}
+
+.stylized .logo h3 {
+    position: relative;
+    top: 18px;
+    left: 220px;
 }
 
 /* ----------- stylized ----------- */
@@ -56,7 +76,7 @@ p, h1, form, button {
 .stylized div.instruction {
 	display:block;
 	margin:0 auto;
-	text-align:center;
+	line-height: 200%;
 }
 
 .stylized ul.instruction {
@@ -84,13 +104,7 @@ p, h1, form, button {
 {
 	display: block;
 	text-align:left;
-	margin: 0.5em auto;
-	width:50%;
-}
-
-.siteList li
-{
-	list-style: disc inside none;
+	margin: auto;
 }
 
 .inputDiv label
@@ -138,20 +152,10 @@ p, h1, form, button {
     margin: 0 0 6px 1em;
 }
 
-.stylized .terms {
-	/*float: left;*/
-	padding: 5px;
-	border: 1px solid transparent; /* Stop layout jumping when isn't checked. */
-}
-
-.stylized .terms label {
-	width: auto;
-	float: none;
-	display: inline;
-}
-
-.terms input, .terms label
-{
+.stylized .terms input {
+	float: left;
+	margin-left: 1em;
+	margin-bottom: 1em;
 	vertical-align: middle;
 }
 
@@ -175,14 +179,14 @@ p, h1, form, button {
 	word-break:break-all;
 }
 
-.inputDiv
+.inputDiv, .required
 {
 	height: 2.5em;
 }
 
 .validationMsgContainer
 {
-	margin-left: 21em;
+	margin-left: 20em;
 	width: 20em;
 }
 
@@ -240,7 +244,7 @@ form p
     display: block;
     vertical-align: top;
     line-height: 1.4em;
-	margin: 0 0 0 24px;
+	margin: 30px 0 5px 40px;
 	padding: 0 0 0 20px;
 	text-align: left;
 }

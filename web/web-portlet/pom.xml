@@ -63,6 +63,10 @@
       <version>${sakai.velocity.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject.velocity</groupId>
+      <artifactId>sakai-velocity-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>logkit</groupId>
       <artifactId>logkit</artifactId>
       <version>1.2</version>

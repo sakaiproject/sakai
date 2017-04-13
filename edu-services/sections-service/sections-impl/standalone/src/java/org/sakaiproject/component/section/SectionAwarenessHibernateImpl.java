@@ -32,17 +32,16 @@ import java.util.ResourceBundle;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * Hibernate based implementation of SectionAwareness.
@@ -60,23 +59,21 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 */
 	public List getSections(final String siteContext) {
     	if(log.isDebugEnabled()) log.debug("Getting sections for context " + siteContext);
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	// Get the sections
-                Query secQuery = session.getNamedQuery("findSectionsBySiteContext");
-                secQuery.setParameter("context", siteContext);
-                List list = secQuery.list();
+        HibernateCallback<List> hc = session -> {
+            // Get the sections
+            Query secQuery = session.getNamedQuery("findSectionsBySiteContext");
+            secQuery.setParameter("context", siteContext);
+            List list = secQuery.list();
 
-                // Get the teams
-                Query teamQuery = session.getNamedQuery("findTeamsBySiteContext");
-                teamQuery.setParameter("context", siteContext);
+            // Get the teams
+            Query teamQuery = session.getNamedQuery("findTeamsBySiteContext");
+            teamQuery.setParameter("context", siteContext);
 
-                // Add the teams after the sections
-                list.addAll(teamQuery.list());
-                return list;
-            }
+            // Add the teams after the sections
+            list.addAll(teamQuery.list());
+            return list;
         };
-        return getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
     }
 
 	/**
@@ -99,12 +96,8 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 */
 	public CourseSection getSection(final String sectionUuid) {
     	if(log.isDebugEnabled()) log.debug("Getting section with uuid=" + sectionUuid);
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	return getSection(sectionUuid, session);
-            }
-        };
-        return (CourseSection)getHibernateTemplate().execute(hc);
+        HibernateCallback<CourseSection> hc = session -> getSection(sectionUuid, session);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	private CourseSection getSection(final String sectionUuid, Session session) throws HibernateException {
@@ -122,28 +115,26 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getSiteMembersInRole(final String siteContext, final Role role) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Course course = getCourse(siteContext, session);
-            	if(course == null) {
-            		if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
-            		return new ArrayList();
-            	}
-            	Query q;
-                if(role.isInstructor()) {
-        			q = session.getNamedQuery("findSiteInstructors");
-        		} else if(role.isStudent()) {
-        			q = session.getNamedQuery("findSiteEnrollments");
-        		} else if(role.isTeachingAssistant()) {
-        			q = session.getNamedQuery("findSiteTAs");
-        		} else {
-        			throw new IllegalArgumentException("There are no users without a role in a site.");
-        		}
-                q.setParameter("course", course);
-                return q.list();
+        HibernateCallback<List> hc = session -> {
+            Course course = getCourse(siteContext, session);
+            if(course == null) {
+                if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
+                return new ArrayList();
             }
+            Query q;
+            if(role.isInstructor()) {
+                q = session.getNamedQuery("findSiteInstructors");
+            } else if(role.isStudent()) {
+                q = session.getNamedQuery("findSiteEnrollments");
+            } else if(role.isTeachingAssistant()) {
+                q = session.getNamedQuery("findSiteTAs");
+            } else {
+                throw new IllegalArgumentException("There are no users without a role in a site.");
+            }
+            q.setParameter("course", course);
+            return q.list();
         };
-        return getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	private Course getCourse(String siteContext, Session session) throws HibernateException {
@@ -178,21 +169,19 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public boolean isSiteMemberInRole(final String siteContext, final String userUid, final Role role) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	Course course = getCourse(siteContext, session);
-            	if(course == null) {
-            		if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
-            		return Boolean.valueOf(false);
-            	}
-                Query q = session.getNamedQuery("checkForSiteMembershipInRole");
-                q.setParameter("course", course);
-                q.setParameter("userUid", userUid);
-                List list = q.list();
-                return checkRole(role, list);
+        HibernateCallback<Boolean> hc = session -> {
+            Course course = getCourse(siteContext, session);
+            if(course == null) {
+                if(log.isInfoEnabled()) log.info("No course founf for siteContext " + siteContext);
+                return Boolean.valueOf(false);
             }
+            Query q = session.getNamedQuery("checkForSiteMembershipInRole");
+            q.setParameter("course", course);
+            q.setParameter("userUid", userUid);
+            List list = q.list();
+            return checkRole(role, list);
         };
-        return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
@@ -225,106 +214,94 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getSectionMembers(final String sectionUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-                Query q = session.getNamedQuery("findSectionMembers");
-                q.setParameter("sectionUuid", sectionUuid);
-                return q.list();
-            }
+        HibernateCallback<List> hc = session -> {
+            Query q = session.getNamedQuery("findSectionMembers");
+            q.setParameter("sectionUuid", sectionUuid);
+            return q.list();
         };
-        return getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public List getSectionMembersInRole(final String sectionUuid, final Role role) {
-        HibernateCallback hc = new HibernateCallback(){
-            public Object doInHibernate(Session session) throws HibernateException {
-            	CourseSection section = getSection(sectionUuid, session);
-            	Query q;
-                if(role.isInstructor()) {
-                	q = session.getNamedQuery("findSectionInstructors");
-        		} else if(role.isStudent()) {
-                    q = session.getNamedQuery("findSectionStudents");
-        		} else if(role.isTeachingAssistant()) {
-                    q = session.getNamedQuery("findSectionTAs");
-        		} else {
-        			throw new IllegalArgumentException("There are no users without a role in a section.");
-        		}
-                q.setParameter("section", section);
-                return q.list();
+        HibernateCallback<List> hc = session -> {
+            CourseSection section = getSection(sectionUuid, session);
+            Query q;
+            if(role.isInstructor()) {
+                q = session.getNamedQuery("findSectionInstructors");
+            } else if(role.isStudent()) {
+                q = session.getNamedQuery("findSectionStudents");
+            } else if(role.isTeachingAssistant()) {
+                q = session.getNamedQuery("findSectionTAs");
+            } else {
+                throw new IllegalArgumentException("There are no users without a role in a section.");
             }
+            q.setParameter("section", section);
+            return q.list();
         };
-        return getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public boolean isSectionMemberInRole(final String sectionUuid, final String userUid, final Role role) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	        	CourseSection section = getSection(sectionUuid, session);
-	            Query q = session.getNamedQuery("checkForSectionMembershipInRole");
-	            q.setParameter("section", section);
-	            q.setParameter("userUid", userUid);
-	            List list = q.list();
-	            return checkRole(role, list);
-        	}
+        HibernateCallback<Boolean> hc = session -> {
+            CourseSection section = getSection(sectionUuid, session);
+            Query q = session.getNamedQuery("checkForSectionMembershipInRole");
+            q.setParameter("section", section);
+            q.setParameter("userUid", userUid);
+            List list = q.list();
+            return checkRole(role, list);
         };
-        return ((Boolean)getHibernateTemplate().execute(hc)).booleanValue();
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public String getSectionName(final String sectionUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	            Query q = session.getNamedQuery("loadSectionName");
-	            q.setParameter("sectionUuid", sectionUuid);
-	            Object name = q.uniqueResult();
-	            if(name != null) {
-	            	if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
-	            }
-	            return name;
-        	}
+        HibernateCallback<String> hc = session -> {
+            Query q = session.getNamedQuery("loadSectionName");
+            q.setParameter("sectionUuid", sectionUuid);
+            Object name = q.uniqueResult();
+            if(name != null) {
+                if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
+            }
+            return (String) name;
         };
-        return (String)getHibernateTemplate().execute(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public String getSectionCategory(final String sectionUuid) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	            Query q = session.getNamedQuery("loadSectionCategory");
-	            q.setParameter("sectionUuid", sectionUuid);
-	            Object category = q.uniqueResult();
-	            if(category == null) {
-	            	if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
-	            }
-            	return category;
-	        }
+        HibernateCallback<String> hc = session -> {
+            Query q = session.getNamedQuery("loadSectionCategory");
+            q.setParameter("sectionUuid", sectionUuid);
+            Object category = q.uniqueResult();
+            if(category == null) {
+                if(log.isDebugEnabled()) log.debug("Section " + sectionUuid + " does not exist.");
+            }
+            return (String) category;
         };
-        return (String)getHibernateTemplate().execute(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public List getSectionsInCategory(final String siteContext, final String categoryId) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	            Query q = session.getNamedQuery("findSectionsByCategory");
-	            q.setParameter("categoryId", categoryId);
-	            q.setParameter("siteContext", siteContext);
-	            return q.list();
-	        }
+        HibernateCallback<List> hc = session -> {
+            Query q = session.getNamedQuery("findSectionsByCategory");
+            q.setParameter("categoryId", categoryId);
+            q.setParameter("siteContext", siteContext);
+            return q.list();
         };
-        return getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 	/**
@@ -346,23 +323,21 @@ public class SectionAwarenessHibernateImpl extends HibernateDaoSupport
 	 * @inheritDoc
 	 */
 	public List getUnassignedMembersInRole(final String siteContext, final Role role) {
-        HibernateCallback hc = new HibernateCallback(){
-	        public Object doInHibernate(Session session) throws HibernateException {
-	        	Course course = getCourse(siteContext, session);
-	            Query q;
-	            if(role.isStudent()) {
-	            	q = session.getNamedQuery("findUnsectionedStudents");
-	            } else if (role.isTeachingAssistant()) {
-	            	q = session.getNamedQuery("findUnsectionedTas");
-	            } else {
-	            	if(log.isInfoEnabled()) log.info(role + " is never assigned to sections, so unsectioned members is empty.");
-	            	return new ArrayList();
-	            }
-	            q.setParameter("courseUuid", course.getUuid());
-	            return q.list();
-	        }
+        HibernateCallback<List> hc = session -> {
+            Course course = getCourse(siteContext, session);
+            Query q;
+            if(role.isStudent()) {
+                q = session.getNamedQuery("findUnsectionedStudents");
+            } else if (role.isTeachingAssistant()) {
+                q = session.getNamedQuery("findUnsectionedTas");
+            } else {
+                if(log.isInfoEnabled()) log.info(role + " is never assigned to sections, so unsectioned members is empty.");
+                return new ArrayList();
+            }
+            q.setParameter("courseUuid", course.getUuid());
+            return q.list();
         };
-        return getHibernateTemplate().executeFind(hc);
+        return getHibernateTemplate().execute(hc);
 	}
 
 }

@@ -48,7 +48,7 @@
                     <h:outputText value="#{row}"/>
                 </t:column>
                 
-                <t:columns value="#{question.itemData.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center" >
+                <t:columns value="#{question.itemData.columnIndexList}" var="colIndex" styleClass="center" headerstyleClass="center matrixSurvey" >
                     <f:facet name="header">
                             <t:outputText value="#{question.itemData.columnChoices[colIndex]}" />
                     </f:facet>
@@ -67,3 +67,5 @@
   <h:outputLabel value="#{commonMessages.feedback}: " />
   <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 </h:panelGroup>
+
+<%@ include file="/jsf/author/preview_item/tags.jsp" %>

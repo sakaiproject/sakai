@@ -9,7 +9,6 @@
 </jsp:useBean>
 
 	<sakai:view_container title="#{SyllabusTool.siteTitle}">
-	<sakai:stylesheet path="/syllabus/css/syllabus.css" />
 	<sakai:view_content>
 
 

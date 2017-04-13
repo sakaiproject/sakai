@@ -40,9 +40,6 @@ import org.sakaiproject.user.cover.PreferencesService;
  */
 public class EntryProvider extends MergedListEntryProviderBase
 {
-	/** List of sites tabs from My Workspace preferences. */
-	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
-
 	/** Excluded sites from My Workspace preferences. */
 	private final String TAB_EXCLUDED_SITES = "exclude";
 
@@ -164,7 +161,7 @@ public class EntryProvider extends MergedListEntryProviderBase
 		{
 			String userId = SessionManager.getCurrentSessionUserId();
 			Preferences prefs = PreferencesService.getPreferences(userId);
-			ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
+			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 			list = props.getPropertyList(TAB_EXCLUDED_SITES);
 		}
 		catch (Exception e)

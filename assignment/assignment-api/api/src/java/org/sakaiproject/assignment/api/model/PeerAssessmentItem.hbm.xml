@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-	
-<hibernate-mapping default-lazy="false">
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.assignment.api.model"
+				   default-lazy="false">
+
 	<class name="org.sakaiproject.assignment.api.model.PeerAssessmentItem" table="ASN_PEER_ASSESSMENT_ITEM_T">
 		<composite-id>
 			<key-property name="submissionId">

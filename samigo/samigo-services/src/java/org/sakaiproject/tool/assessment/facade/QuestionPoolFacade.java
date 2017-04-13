@@ -95,7 +95,7 @@ public class QuestionPoolFacade
   private String organizationName;
   private Set questionPoolItems;
   private Collection items = new ArrayList();
-  private Integer subPoolSize;
+  private Long subPoolSize;
 
   /**
    * Creates a new QuestionPoolFacade object.
@@ -788,13 +788,13 @@ public class QuestionPoolFacade
     return  Integer.valueOf(items.size());
   }
 
-  public void setSubPoolSize(Integer subPoolSize)
+  public void setSubPoolSize(Long subPoolSize)
   {
     this.subPoolSize = subPoolSize;
     this.data.setSubPoolSize(subPoolSize);
   }
 
-  public Integer getSubPoolSize()
+  public Long getSubPoolSize()
   {
     try {
       this.data = (QuestionPoolDataIfc) questionPool.getData();

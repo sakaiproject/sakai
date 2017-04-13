@@ -21,32 +21,29 @@
 
 package org.sakaiproject.tool.gradebook;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import java.io.Serializable;
+import java.util.Date;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-
-import java.util.Date;
-import java.io.Serializable;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * User: louis
  * Date: Jun 12, 2006
  * Time: 3:10:12 PM
  */
-public class Spreadsheet  implements Serializable {
-
-    protected Gradebook gradebook;
+public class Spreadsheet implements Serializable {
+   
+	private static final long serialVersionUID = 1L;
+	
+	protected Gradebook gradebook;
     protected Long id;
     protected int version;
     protected String content;
     protected String creator;
     protected String name;
     protected Date dateCreated;
-
-    protected static final Logger log = LoggerFactory.getLogger(Spreadsheet.class);
-
 
     public Spreadsheet(Gradebook gradebook, String content, String creator, String name, Date dateCreated) {
 
@@ -119,7 +116,8 @@ public class Spreadsheet  implements Serializable {
     }
 
 
-    public boolean equals(Object other) {
+    @Override
+	public boolean equals(Object other) {
         if (!(other instanceof Spreadsheet)) {
         	return false;
         }
@@ -130,7 +128,8 @@ public class Spreadsheet  implements Serializable {
             .append(name, sp.getName()).isEquals();
     }
 
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         return new HashCodeBuilder().
           append(gradebook).
           append(id).
@@ -138,7 +137,8 @@ public class Spreadsheet  implements Serializable {
           toHashCode();
 	}
 
-    public String toString() {
+    @Override
+	public String toString() {
          return new ToStringBuilder(this).
         append("id", id).
         append("name", name).toString();

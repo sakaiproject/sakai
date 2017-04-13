@@ -21,7 +21,7 @@
 
 package org.sakaiproject.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -691,8 +691,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
                 bundleMap.putAll(bundleFromDbMap);
                 bundle = new MapResourceBundle(bundleMap, baseName, loc);
             }
-            if (M_log.isDebugEnabled()) { 
-                M_log.debug("Bundle from db added " + bundleFromDbMap.size() + 
+            if (M_log.isDebugEnabled()) {
+                M_log.debug("Bundle from db added " + bundleFromDbMap.size() +
                         " properties to " + baseName + "/" + context + "/" + loc.toString());
             }
         }

@@ -21,7 +21,6 @@
                 <module>site-association-api/api</module>
                 <module>site-association-hbm/hbm</module>
                 <module>site-association-impl/impl</module>
-                <module>site-association-impl/pack</module>
                 <module>site-association-tool/tool</module>
                 <module>site-association-util/util</module>
                 <module>site-manage-api/api</module>
@@ -45,13 +44,11 @@
                 <module>site-association-api/api</module>
                 <module>site-association-hbm/hbm</module>
                 <module>site-association-impl/impl</module>
-                <module>site-association-impl/pack</module>
                 <module>site-association-tool/tool</module>
                 <module>site-association-util/util</module>
                 <module>site-manage-api/api</module>
                 <module>site-manage-hbm</module>
                 <module>site-manage-impl/impl</module>
-                <module>site-manage-impl/pack</module>
                 <module>site-manage-tool/tool</module>
                 <module>site-manage-util/util</module>
                 <module>site-manage-group-helper/tool</module>
@@ -62,15 +59,6 @@
             </modules>
         </profile>
     </profiles>
-
-
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/site-manage/${project.version}</url>
-        </site>
-    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -123,12 +111,6 @@
                 <artifactId>sakai-siteassociation-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
-	    <dependency>
-	      <groupId>net.sf.opencsv</groupId>
-	      <artifactId>opencsv</artifactId>
-	      <version>2.3</version>
-	      <scope>compile</scope>
-	    </dependency>
         </dependencies>
     </dependencyManagement>
     

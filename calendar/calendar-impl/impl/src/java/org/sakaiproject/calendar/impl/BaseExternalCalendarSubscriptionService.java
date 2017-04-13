@@ -217,7 +217,7 @@ public class BaseExternalCalendarSubscriptionService implements
 	public void init()
 	{
 		// external calendar subscriptions: enable?
-		enabled = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_ENABLED, false);
+		enabled = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_ENABLED, true);
 		mergeIntoMyworkspace = m_configurationService.getBoolean(SAK_PROP_EXTSUBSCRIPTIONS_MERGEINTOMYWORKSPACE, true); 
 		m_log.info("init(): enabled: " + enabled + ", merge from other sites into My Workspace? "+mergeIntoMyworkspace);
 

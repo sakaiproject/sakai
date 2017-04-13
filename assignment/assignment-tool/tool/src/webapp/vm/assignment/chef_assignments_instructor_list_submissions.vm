@@ -2,7 +2,7 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #set( $H = '-' )
 <script type="text/javascript">includeLatestJQuery('assignments');</script>
-<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 
 <script type="text/javascript">
 	$(document).ready(function(){
@@ -32,6 +32,18 @@
 	var escapeList = [ 'toggleModel' ];
 </script>
 
+<script type="text/javascript">
+function printView(url) {
+    var i = url.indexOf("/site/");
+    if (i < 0)
+	return url;
+    var j = url.indexOf("/tool/");
+    if (j < 0)
+	return url;
+    return url.substring(0, i) + url.substring(j);
+}
+</script>
+
 #set ($submissionType = $assignmentContent.getTypeOfSubmission())
 
 <div class="portletBody container-fluid">
@@ -41,9 +53,7 @@
 		$validator.escapeHtml($assignment.getTitle()) 
 		<small>
 		#if ($!assignment.isGroup() )
-			<span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
-		#else
-			<span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
+			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
 		#end
 		  - $tlang.getString('gen.subm2')
 		</small>
@@ -398,6 +408,12 @@
 						</div> <!-- allowResubmissionPanelContent -->
 			</div>
 			#end
+			
+			#if ($!isAdditionalNotesEnabled && !$assignment.isGroup())
+				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignment.Reference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
+			#end
+			
+			
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.getPeerAssessmentPeriod().toStringLocalFull())</div>
 			#end
@@ -409,7 +425,7 @@
 						<label for="toggleAllSelectAllowResubmit" class="skip">$tlang.getString("allowResubmission.toggleall")</label>
 					</th> 
 					<th id="attachment" class="attach">
-						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" />
+						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 					</th>
 					<th id="studentname">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
@@ -427,6 +443,11 @@
 							#end 
 						</a>
 					</th>
+					#if($!isAdditionalNotesEnabled && !$assignment.isGroup())
+					<th id="notes">
+						$tlang.getString("gen.notes")
+					</th>
+					#end
 					<th id="submitted">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitTime")'; return false;"  title="$tlang.getString("listsub.sorbysub")">
 							$tlang.getString("gen.subm4")
@@ -546,7 +567,7 @@
 									#end
 								#end
 								#if ($size > 0)
-									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" />
+									<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" class="attachmentsIcon" />
 								#end
 							</td>
 							<td headers="studentname">
@@ -627,6 +648,17 @@
 								#end
 								#end
 							</td>
+							#if($!isAdditionalNotesEnabled && !$assignment.isGroup())
+							<td headers="notes">
+								#set($notes = [])
+								#set($notes = $notesMap.get($siteUser.id))
+								<ul>
+								#foreach($note in $notes)
+									#if($!note) <li>$!note</li> #end
+								#end
+								</ul>
+							</td>
+							#end
 							<td headers="submitted">
 									#if ($!submission)
 										#if($!submitTime)$submitTime.toStringLocalFull()#end
@@ -710,13 +742,9 @@
 										<div>
 											#set ($props = $reviewResult.getContentResource().Properties)
 											<span class="reportIcon">
-											#if ($reviewResult.getReviewReport().equals("Error"))
-												<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-											#else
-												<a href="$reviewResult.getReviewReport()" target="_blank">
-													<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-												</a>
-											#end
+												#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+												<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+												#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 											</span>
 											#if ($reviewResult.isInline())
 												$tlang.getString("submission.inline")
@@ -770,7 +798,7 @@
 	#end
 	
 	## assignment details
-	<a id="toggleModel" href="javascript:;" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" /><h3>$tlang.getString("gen.assdet")</h3></a>
+	<a id="toggleModel" href="javascript:;" class="toggleAnchor specialLink"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" /><h4>$tlang.getString("gen.assdet")</h4></a>
 	<div class="toggledContent">
 	<table class="itemSummary" summary="$tlang.getString("gen.theassinf")">
 		<tr> 

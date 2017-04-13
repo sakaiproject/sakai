@@ -54,8 +54,8 @@
 
 	<tool
 			id="sakai.iframe.myworkspace"
-			title="My Workspace Information Display"
-			description="For displaying information about a user's My Workspace.">
+			title="Home Information Display"
+			description="For displaying information about a user's Home.">
 
 		<configuration name="height" value="600px" />
 

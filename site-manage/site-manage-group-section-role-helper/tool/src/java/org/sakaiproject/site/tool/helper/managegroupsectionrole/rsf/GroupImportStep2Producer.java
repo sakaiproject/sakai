@@ -89,19 +89,20 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             //if group already exists, get the users that are already in the group,
             //merge so we get one list, then display the new or merged ones appropriately.
             Set<String> userIds = importedGroup.getUserIds();
-            List<String> existingUserIds = new ArrayList<String>();
+            List<String> existingUserIds = new ArrayList<>();
             if(groupExists) {
-            	existingUserIds = handler.getGroupUserIds(existingGroup);
-            	userIds.addAll(existingUserIds);
-        	}
+                existingUserIds = handler.getGroupUserIds(existingGroup);
+                userIds.addAll(existingUserIds);
+            }
             
             //print each user
             for(String userId: importedGroup.getUserIds()) {
             	
             	UIOutput output = UIOutput.make(branch,"member:",userId);
             	
-            	//check user is valid
-            	if(handler.isValidSiteUser(userId)){
+                //check user is valid
+                String foundUserId = handler.lookupUser(userId);
+                if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
             		//is user existing?
             		if(existingUserIds.contains(userId)) {
             			//highlight grey

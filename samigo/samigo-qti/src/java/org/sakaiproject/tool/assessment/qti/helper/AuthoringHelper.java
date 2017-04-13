@@ -41,8 +41,11 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
+
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.xml.sax.SAXException;
 
 
@@ -335,7 +338,7 @@ public class AuthoringHelper
   }
 
   /**
-   * Get an object bank of asessments (asi) in Document form.
+   * Get an object bank of assessments (asi) in Document form.
    *
    * @param assessmentIds array of the the assessment ids
    * @return the Document with the item bank data
@@ -503,7 +506,7 @@ public class AuthoringHelper
 	  return createImportedAssessment(document, unzipLocation, false, null);
   }
   
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus, ArrayList failedMatchingQuestions)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, boolean isRespondus, List failedMatchingQuestions)
   {
     return createImportedAssessment(document, unzipLocation, null, isRespondus, failedMatchingQuestions, null);
   }
@@ -552,7 +555,7 @@ public class AuthoringHelper
 	  return AgentFacade.getAgentString();
   }
 
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, ArrayList failedMatchingQuestions, String siteId)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, List failedMatchingQuestions, String siteId)
   {
 	AssessmentFacade assessment = null;
 
@@ -703,6 +706,7 @@ public class AuthoringHelper
           
           section.addItem(item); // many to one
           itemService.saveItem(item);
+          EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
         } // ... end for each item
         
         // Section Attachment
@@ -853,6 +857,7 @@ public class AuthoringHelper
                item.setLastModifiedDate(questionpool.getLastModified());
                item.setStatus(ItemDataIfc.ACTIVE_STATUS);
                itemService.saveItem(item);
+               EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
                
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
                questionPoolItem.setQuestionPoolId(questionpool.getQuestionPoolId());

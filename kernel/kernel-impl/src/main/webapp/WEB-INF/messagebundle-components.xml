@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:annotation-config/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+
+    <bean id="sakai.messagebundle.mappings"
+       class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+       <property name="annotatedClasses">
+          <list>
+             <value>org.sakaiproject.messagebundle.api.MessageBundleProperty</value>
+          </list>
+         </property>
+    </bean>
+
+    <bean id="org.sakaiproject.messagebundle.api.MessageBundleService"
+          class="org.sakaiproject.messagebundle.impl.CachingMessageBundleServiceImpl"
+          init-method="init"
+          destroy-method="destroy"
+          lazy-init="true">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="scheduleSaves" value="true"/>
+        <property name="scheduleDelay" value="5000"/>
+    </bean>
+</beans>

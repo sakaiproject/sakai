@@ -1,13 +1,4 @@
-/*
- * Copyright (c) Orchestral Developments Ltd and the Orion Health group of companies (2001 - 2016).
- *
- * This document is copyright. Except for the purpose of fair reviewing, no part
- * of this publication may be reproduced or transmitted in any form or by any
- * means, electronic or mechanical, including photocopying, recording, or any
- * information storage and retrieval system, without permission in writing from
- * the publisher. Infringers of copyright render themselves liable for
- * prosecution.
- */
+
 package org.sakaiproject.gradebookng.business.util;
 
 import java.util.ArrayList;
@@ -125,7 +116,21 @@ public class CourseGradeFormatter {
 		}
 
 		// percentage
-		final String calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+		// not shown in final grade mode
+		final String calculatedGrade;
+		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+
+			// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
+			// TODO this should probably inform the instructor
+			Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
+			if(mappedGrade == null) {
+				mappedGrade = new Double(0);
+			}
+			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
+
+		} else {
+			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+		}
 
 		if (StringUtils.isNotBlank(calculatedGrade)
 				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
@@ -145,16 +150,24 @@ public class CourseGradeFormatter {
 			final GbCategoryType categoryType = GbCategoryType.valueOf(this.gradebook.getCategory_type());
 			if (categoryType != GbCategoryType.WEIGHTED_CATEGORY) {
 
-				final Double pointsEarned = courseGrade.getPointsEarned();
-				final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+				Double pointsEarned = courseGrade.getPointsEarned();
+				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
+
+				// handle the special case in the gradebook service where totalPointsPossible = -1
+				if(totalPointsPossible != null && totalPointsPossible == -1) {
+					pointsEarned = null;
+					totalPointsPossible = null;
+				}
 
 				// if instructor, show the points if requested
 				// otherwise check the settings
 				if (this.currentUserRole == GbRole.INSTRUCTOR || this.gradebook.isCoursePointsDisplayed()) {
-					if (parts.isEmpty()) {
-						parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarned, totalPointsPossible));
-					} else {
-						parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarned, totalPointsPossible));
+					if(pointsEarned != null && totalPointsPossible != null) {
+						if (parts.isEmpty()) {
+							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarned, totalPointsPossible));
+						} else {
+							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarned, totalPointsPossible));
+						}
 					}
 				}
 			}

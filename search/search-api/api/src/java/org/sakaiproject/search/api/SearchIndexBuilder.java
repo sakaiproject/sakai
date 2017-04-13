@@ -33,8 +33,22 @@ import org.sakaiproject.search.model.SearchBuilderItem;
  * 
  * @author ieb
  */
-public interface SearchIndexBuilder 
+public interface SearchIndexBuilder
 {
+	// (these defaults have to go here so they end up in a shared classloader and can be referenced from field factory
+	// beans in components.xml)
+	String DEFAULT_INDEX_BUILDER_NAME = "default";
+	String DEFAULT_INDEX_NAME = "sakai_index";
+
+	/**
+	 * Access the logical, well-known name of this index builder. This name may be
+	 * distinct from the phyisical name of the index this builder manages, and
+	 * may be cached by {@link SearchService} as a key for index-specific search
+	 * queries.
+	 *
+	 * @return
+	 */
+	String getName();
 
 	/**
 	 * Adds a resource to the index builder
@@ -45,8 +59,8 @@ public interface SearchIndexBuilder
 	void addResource(Notification notification, Event event);
 
 	/**
-	 * EntityProducers that want their content indexed on full text must
-	 * register an EntityContentProducer with the SearchIndexBuilder
+	 * Register an implementation-specific indexable content producer instance with this
+	 * {@code SearchIndexBuilder}.
 	 * 
 	 * @param ecp
 	 */
@@ -70,7 +84,7 @@ public interface SearchIndexBuilder
 	boolean isBuildQueueEmpty();
 
 	/**
-	 * get all the producers registerd, as a clone to avoid concurrent
+	 * Get all the producers registered, as a clone to avoid concurrent
 	 * modification exceptions
 	 * 
 	 * @return
@@ -89,54 +103,30 @@ public interface SearchIndexBuilder
 	 */
 	int getPendingDocuments();
 
-	/** 
-	 * Rebuild the index for the supplied siteId
-	 * @param currentSiteId
-	 */
-	void rebuildIndex(String currentSiteId);
-
-	/**
-	 * Refresh the index for the supplied siteId
-	 * @param currentSiteId
-	 */
-	void refreshIndex(String currentSiteId);
-
 	/**
 	 * get a list of all entitied in the search index
 	 * @return
 	 */
 	List<SearchBuilderItem> getAllSearchItems();
-	
+
 	/**
 	 * get an entity content producer that can handle the event
 	 * @param event
 	 * @return
 	 */
 	EntityContentProducer newEntityContentProducer(Event event);
-	
+
 	/**
-	 * get an entity content procuder that can handle the reference
+	 * get an entity content producer that can handle the reference
 	 * @param ref
 	 * @return
 	 */
 	EntityContentProducer newEntityContentProducer(String ref);
 
 	/**
-	 * get a list of Master Search Items that control the search operation for the 
-	 * Site (current site)
-	 * @return
-	 */
-	List<SearchBuilderItem> getSiteMasterSearchItems();
-
-	/**
 	 * get a list of global search items
 	 * @return
 	 */
 	List<SearchBuilderItem> getGlobalMasterSearchItems();
-
-	boolean isOnlyIndexSearchToolSites();
-	
-	boolean isExcludeUserSites();
-	
 
 }

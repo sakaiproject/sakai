@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -437,8 +438,9 @@ public interface ContentHostingService extends EntityProducer
 	 * Access a List of all the ContentResource objects in this path (and below) which the current user has access.
 	 * 
 	 * @param id
-	 *        A collection id.
+	 *        A collection id. This cannot be the root collection.
 	 * @return a List of the ContentResource objects.
+	 * @throws IllegalArgumentException If the getting all the resources for this collection isn't allowed (eg root).
 	 */
 	public List<ContentResource> getAllResources(String id);
 
@@ -1939,6 +1941,35 @@ public interface ContentHostingService extends EntityProducer
 		throws PermissionException, IdUnusedException, IdUsedException, 
 				IdLengthException, IdInvalidException, TypeException;
 
+	/**
+	 * This method with the limit parameter should be used if you want to create a unique collection id.
+	 * Because the Resources tool allows renaming folders, the end-user can become confused when folder
+	 * creation is denied because the resourceId was already taken.
+	 * 
+	 * @param collectionId
+	 * @param name
+	 * @param limit
+	 *            number of attempts to find a unique resourceId for the collection via incrementing
+	 * @return
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception TypeException
+	 *            if the collectionId is not in the form to identify a collection.
+	 * @exception IdUnusedException
+	 *            if the collectionId does not identify an existing collection.
+	 * @exception IdUnusedException
+	 *            if the collection id for the proposed name already exists in this collection.
+	 * @exception IdLengthException
+	 *            if the new collection id exceeds the maximum number of characters for a valid collection id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception IdUniquenessException
+	 *            if a unique id for the collection cannot be found despite using an incrementor
+	 */
+	public ContentCollectionEdit addCollection(String collectionId, String name, int limit)
+		throws PermissionException, IdUnusedException, IdUsedException,
+				IdLengthException, IdInvalidException, TypeException, IdUniquenessException;
+
    /**
     * gets the quota for a site collection or for a user's my workspace collection
     *
@@ -2019,6 +2050,14 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public void removeDeletedResource(String resourceId) throws PermissionException, IdUnusedException, TypeException, InUseException; 
 
+	/**
+	 * Return a direct link to retrieve the asset instead of streaming the asset inside the JVM. See SAK-30325
+	 *
+	 * @param resourceId The file resource that may have a direct link available
+	 *
+	 * @return URI that will return the asset directly
+	 */
+	public URI getDirectLinkToAsset(ContentResource resource) throws Exception;
 
 	/**
 	 * Expand the supplied resource under its parent collection. See KNL-273

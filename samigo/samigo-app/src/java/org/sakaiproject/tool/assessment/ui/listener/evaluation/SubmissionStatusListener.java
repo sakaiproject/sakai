@@ -160,14 +160,14 @@ public class SubmissionStatusListener
       	log.debug("submissionStatus() :: sortAscending = " + sortAscending);
       }
 
-      totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
-      
       bean.setPublishedId(publishedId);
-      
+
+      totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
+
       // we are only interested in showing last submissions
 
       List scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
-      ArrayList agents = new ArrayList();
+      List agents = new ArrayList();
       Iterator iter = scores.iterator();
       if (!iter.hasNext())
       {
@@ -185,7 +185,7 @@ public class SubmissionStatusListener
       Map useridMap= totalScoresBean.getUserIdMap(TotalScoresBean.CALLED_FROM_SUBMISSION_STATUS_LISTENER);
 
 
-      ArrayList agentUserIds = totalScorelistener.getAgentIds(useridMap);
+      List agentUserIds = totalScorelistener.getAgentIds(useridMap);
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
 
@@ -213,9 +213,9 @@ public class SubmissionStatusListener
 
 
       /* Dump the grading and agent information into AgentResults */
-      ArrayList students_submitted= new ArrayList();
+      List students_submitted= new ArrayList();
       iter = scores.iterator();
-      HashMap studentGradingSummaryDataMap = new HashMap();
+      Map studentGradingSummaryDataMap = new HashMap();
       RetakeAssessmentBean retakeAssessment = (RetakeAssessmentBean) ContextUtil.lookupBean("retakeAssessment");
       while (iter.hasNext())
       {
@@ -250,7 +250,7 @@ public class SubmissionStatusListener
       }
       retakeAssessment.setStudentGradingSummaryDataMap(studentGradingSummaryDataMap);
 
-      ArrayList students_not_submitted= new ArrayList();
+      List students_not_submitted= new ArrayList();
       Iterator useridIterator = useridMap.keySet().iterator();
       while (useridIterator.hasNext()) {
         String userid = (String) useridIterator.next();
@@ -270,11 +270,11 @@ public class SubmissionStatusListener
 
       if (sortAscending) {
       	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
-      	agents = (ArrayList)bs.sort();
+      	agents = (List)bs.sort();
       }
       else {
       	log.debug("TotalScoreListener: setRoleAndSortSection() :: !sortAscending");
-      	agents = (ArrayList)bs.sortDesc();
+      	agents = (List)bs.sortDesc();
       }
       
       bean.setAgents(agents);
@@ -300,8 +300,7 @@ public class SubmissionStatusListener
 
   //add those students that have not submitted scores, need to display them
   // in the UI 
-  public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter,
-                                             ArrayList agents, Map userRoles, RetakeAssessmentBean retakeAssessment, HashMap studentGradingSummaryDataMap){
+  public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter, List agents, Map userRoles, RetakeAssessmentBean retakeAssessment, Map studentGradingSummaryDataMap){
     while (notsubmitted_iter.hasNext()){
       String studentid = (String) notsubmitted_iter.next();
       AgentResults results = new AgentResults();
@@ -333,7 +332,7 @@ public class SubmissionStatusListener
     }
   }
   
-  public boolean getRetakeAllowed(String agentId, HashMap studentGradingSummaryDataMap, RetakeAssessmentBean retakeAssessment) {
+  public boolean getRetakeAllowed(String agentId, Map studentGradingSummaryDataMap, RetakeAssessmentBean retakeAssessment) {
 	    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	    PublishedAssessmentData publishedAssessmentData = totalScoresBean.getPublishedAssessment();
 	    PublishedAssessmentService pubService = new PublishedAssessmentService();

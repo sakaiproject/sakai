@@ -7,37 +7,64 @@ import java.util.List;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Model object used for the import wizard panels
  */
-@Data
 public class ImportWizardModel implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * List of items that have been uploaded
 	 */
+	@Getter
+	@Setter
 	private List<ProcessedGradeItem> processedGradeItems;
-
-	/**
-	 * List of items that have been selected to import
-	 */
-	private List<ProcessedGradeItem> selectedGradeItems;
 
 	/**
 	 * Which step is the new gb item creation currently on
 	 */
+	@Getter
+	@Setter
 	private int step;
 
 	/**
 	 * How many total steps are in the new gb item creation portion of the wizard
 	 */
+	@Getter
+	@Setter
 	private int totalSteps;
 
-	private List<ProcessedGradeItem> gbItemsToCreate;
+	/**
+	 * List of items from the spreadsheet that need to be created first
+	 */
+	@Getter
+	@Setter
 	private List<ProcessedGradeItem> itemsToCreate;
+
+	/**
+	 * List of items from the spreadsheet that just need their data updated.
+	 */
+	@Getter
+	@Setter
 	private List<ProcessedGradeItem> itemsToUpdate;
+
+	/**
+	 * List of items from the spreadsheet that need to have the assignment updated and their data updated
+	 */
+	@Getter
+	@Setter
+	private List<ProcessedGradeItem> itemsToModify;
+
+	/**
+	 * The list of assignments to be created once the form has been filled in
+	 */
+	@Getter
+	@Setter
 	private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
+
 
 }

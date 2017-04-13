@@ -31,41 +31,29 @@ import org.slf4j.LoggerFactory;
 import org.quartz.utils.ConnectionProvider;
 import org.sakaiproject.component.cover.ComponentManager;
 
+/**
+ * This looks up the DataSource from Spring so that it will use the main Sakai connection.
+ */
 public class ConnectionProviderDelegate implements ConnectionProvider
 {
+  private final Logger LOG = LoggerFactory.getLogger(ConnectionProviderDelegate.class);
+  private DataSource ds;
 
-  private static final Logger LOG = LoggerFactory.getLogger(ConnectionProviderDelegate.class);
-  private static DataSource ds;
-
-
-  /**
-   * @see org.quartz.utils.ConnectionProvider#getConnection()
-   */
   @Override
   public Connection getConnection() throws SQLException {
-
      if (LOG.isDebugEnabled()){
        LOG.debug("quartz getConnection()");
-     }
-
-     if (ds == null){
-       ds = (DataSource) ComponentManager.get("javax.sql.DataSource");
      }
      return ds.getConnection();
   }
 
-  /**
-   * @see org.quartz.utils.ConnectionProvider#shutdown()
-   */
   @Override
   public void shutdown() throws SQLException {
   }
 
-  /** (non-Javadoc)
-   * @see org.quartz.utils.ConnectionProvider#initialize()
-   */
   @Override
   public void initialize() throws SQLException {
+      ds = ComponentManager.get(javax.sql.DataSource.class);
   }
 
 }

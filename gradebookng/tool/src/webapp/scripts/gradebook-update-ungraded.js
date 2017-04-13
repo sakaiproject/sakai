@@ -34,7 +34,7 @@ GradebookUpdateUngraded.prototype.setupConfirmation = function(){
   function showConfirmation() {
       var $confirmationModal = buildConfirmationModal();
 
-      $confirmationModal.on("click", ".gb-update-ungraded-continue", function() {
+      $confirmationModal.one("click", ".gb-update-ungraded-continue", function() {
         performRealSubmit();
       });
       $(document.body).append($confirmationModal);
@@ -58,6 +58,7 @@ GradebookUpdateUngraded.prototype.setupConfirmation = function(){
 
   function performRealSubmit() {
     self.$content.find(".gb-update-ungraded-real-submit").trigger("click");
+    self.$content.find(":input").prop("disabled", true);
   };
 
 

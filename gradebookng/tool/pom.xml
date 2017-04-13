@@ -14,12 +14,21 @@
 		<!-- third party dependencies -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket</artifactId>
-			<type>pom</type>
+			<artifactId>wicket-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>cglib</groupId>
+					<artifactId>cglib</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
@@ -58,6 +67,11 @@
 			<artifactId>sections-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<!--  TODO migrate to lang3 -->
+		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
@@ -68,28 +82,20 @@
 		<dependency>
 			<groupId>net.sf.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
-			<version>2.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.8</version>
+			<version>${sakai.poi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>3.8</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
+			<version>${sakai.poi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.10.19</version>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -109,6 +115,10 @@
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
 			<version>1.0.19</version>
+		</dependency>
+		<dependency>
+   			<groupId>org.apache.commons</groupId>
+    		<artifactId>commons-math3</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

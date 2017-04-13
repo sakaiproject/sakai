@@ -480,6 +480,41 @@ function checkUpdate(){
  }
 }
 
+// convenience function for single button arrays, see next function
+function updateButtonStatusOnCheck(button, checkboxContainer)
+{
+    updateButtonStatusesOnCheck([button], checkboxContainer);
+}
+
+// enables/disables the given buttons depending on whether or not
+// any checkbox child element of the given container is checked
+function updateButtonStatusesOnCheck(buttons, checkboxContainer)
+{
+    if (buttons === null || checkboxContainer === null)
+    {
+        return;
+    }
+
+    var inputs = checkboxContainer.getElementsByTagName("input");
+    var foundChecked = false;
+    for (i = 0; i < inputs.length; ++i)
+    {
+        if (inputs[i].type === "checkbox" && inputs[i].checked)
+        {
+            foundChecked = true;
+            break;
+        }
+    }
+
+    for (i = 0; i < buttons.length; ++i)
+    {
+        if (buttons[i] !== null)
+        {
+            buttons[i].disabled = !foundChecked;
+        }
+    }
+}
+
 function inIt()
 {
   var inputs= document.getElementsByTagName("INPUT");
@@ -786,4 +821,19 @@ function toggleSelectAllCheck(checkbox,checkboxtargetname) {
 		else 
 			return;
 	}
+}
+
+  
+var orderUpdate = null;
+  
+function enableOrderUpdate() {  
+	if(orderUpdate != null) return;  
+	var inputs = document.getElementsByTagName("INPUT");  
+	for(var i = 0; i < inputs.length; i++) {  
+		if(inputs[i].name.indexOf("orderUpdate") != -1) {  
+			orderUpdate = inputs[i];  
+			orderUpdate.disabled=false;  
+			break;  
+		}  
+	}  
 }

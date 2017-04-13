@@ -52,45 +52,52 @@ public class SiteZipper {
 	}
 	
 	/**
-	 * Unzip a zip file into the unzip directory. Return the NAME of the archive so we can then merge from it. The merger knows the base dir.
-	 * @param zipFilePath		path to ZIP file
-	 * @param m_unzipPath		unzip dir for zips
-	 * @return
+	 * Unzip a zip file into the unzip directory. Only unzips the files that are found within the first folder
+	 * contained in the zip archive.
+	 * @param zipFilePath Path to ZIP file
+	 * @param m_unzipPath Path to directory to unzip file into.
+	 * @return The toplevel directory which the zipfile created.
 	 * @throws IOException
 	 */
 	public String unzipArchive(String zipFilePath, String m_unzipPath) throws IOException {
 		
 		log.debug("zipFilePath: " + zipFilePath);
-		
-		ZipFile zipFile = new ZipFile(zipFilePath);
-	    Enumeration<? extends ZipEntry> entries = zipFile.entries();
-	    while (entries.hasMoreElements()) {
-	        ZipEntry entry = entries.nextElement();
-	        
-	        //destination file from zip. Straight into the normal archive directory
-	        File dest = new File(m_unzipPath, entry.getName());
-	        log.debug("Dest: " + dest.getAbsolutePath());
 
-	        if(entry.isDirectory()) {
-	        	//create dir
-	        	dest.mkdir();
-	        } else {
-	        	//extract contents
-		        InputStream in = zipFile.getInputStream(entry);
-		        OutputStream out = new FileOutputStream(dest);
-		        IOUtils.copy(in, out);
-		        IOUtils.closeQuietly(in);
-		        IOUtils.closeQuietly(out);
-	        }
-	    }
+		ZipFile zipFile = new ZipFile(zipFilePath);
+		// Default path from the filename.
+		String unzippedArchivePath = null;
+		Enumeration<? extends ZipEntry> entries = zipFile.entries();
+		while (entries.hasMoreElements()) {
+			ZipEntry entry = entries.nextElement();
+
+			//destination file from zip. Straight into the normal archive directory
+			File dest = new File(m_unzipPath, entry.getName());
+			log.debug("Dest: " + dest.getAbsolutePath());
+
+			if(entry.isDirectory()) {
+				//create dir
+				if(!dest.mkdir()) {
+					throw new IOException("Failed to create directory "+ dest);
+				}
+				if (unzippedArchivePath == null) {
+					unzippedArchivePath = entry.getName();
+				}
+
+			} else if (unzippedArchivePath != null && entry.getName().startsWith(unzippedArchivePath)){
+				//extract contents
+				try (InputStream in = zipFile.getInputStream(entry); OutputStream out = new FileOutputStream(dest)) {
+					IOUtils.copy(in, out);
+				}
+			} else {
+				log.info("Ignoring entry: {}", entry.getName());
+			}
+		}
 		
-	    //get original filename, remove timestamp, add -archive
-	    String unzippedArchivePath = StringUtils.substringAfterLast(StringUtils.substringBeforeLast(zipFile.getName(), "-") + "-archive", File.separator);
-	    
-	    log.debug("unzippedArchivePath: " + unzippedArchivePath);
-	    
+		//get original filename, remove timestamp, add -archive
+
+		log.debug("unzippedArchivePath: " + unzippedArchivePath);
+
 		return unzippedArchivePath;
-		
 	}
 
 	/**

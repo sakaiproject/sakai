@@ -69,7 +69,7 @@ public class TimedAssessmentQueue {
   private void scheduleTask(){
     if (timer == null){
       timer  = new Timer();
-      timer.scheduleAtFixedRate(new SubmitTimedAssessmentThread(), 0, 5*1000); //delay=0s, every 5s 
+      timer.scheduleAtFixedRate(new SubmitTimedAssessmentThread(), 0, 3*1000); //delay=0s, every 3s 
     }
   }
 

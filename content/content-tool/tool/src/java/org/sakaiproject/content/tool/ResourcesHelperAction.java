@@ -46,8 +46,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
 
-import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.util.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
@@ -81,7 +82,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -654,6 +654,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String instr_uploads = rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax });
 		context.put("instr_uploads", instr_uploads);
 
+		String uploadWarning = rb.getFormattedMessage("label.overwrite.warning");
+		context.put("label_overwrite_warning",uploadWarning);
 		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", new String[]{ uploadMax });
 		context.put("instr_dnd_uploads", instr_dnd_uploads);
 
@@ -1128,42 +1130,29 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		else if (fileitem.getFileName().length() > 0)
 		{
 			String filename = Validator.getFileName(fileitem.getFileName());
-			InputStream stream;
-				stream = fileitem.getInputStream();
-				if(stream == null)
-				{
-					byte[] bytes = fileitem.get();
-					pipe.setRevisedContent(bytes);
-				}
-				else
-				{
-					 pipe.setRevisedContentStream(stream);
-				}
-				String contentType = fileitem.getContentType().replaceAll("\"", "");
-				//pipe.setRevisedContent(bytes);
-				pipe.setRevisedMimeType(contentType);
-				pipe.setFileName(filename);
-				
-				if(ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
-				{
-					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
-				}
-				else if(pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null)
-				{
-					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
-				}
-				
+			InputStream stream = fileitem.getInputStream();
+			pipe.setRevisedContentStream(stream);
+			String contentType = fileitem.getContentType().replaceAll("\"", "");
+			pipe.setRevisedMimeType(contentType);
+			pipe.setFileName(filename);
+
+			if (ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType)) {
+				pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
+			} else if (pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null) {
+				pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
+			}
+
 			ListItem newFile = new ListItem(pipe.getContentEntity());
 			// notification
 			int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 			newFile.setNotification(noti);
-			
+
 			pipe.setRevisedListItem(newFile);
-			
+
 			pipe.setActionCanceled(false);
 			pipe.setErrorEncountered(false);
 			pipe.setActionCompleted(true);
-			
+
 			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 		}
 
@@ -1396,8 +1385,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	/**
 	 * @param params
-	 * @param newFile
-	 * @return
 	 */
 	protected int determineNotificationPriority(ParameterParser params, boolean contextIsDropbox, boolean userIsMaintainer) 
 	{
@@ -1960,14 +1947,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			boolean siteQuotaUnlimited = siteQuota == 0;
 			
 			// If the file size exceeds the max uploaded file size, post error message
+			Long fileSizeKB = fileSize / 1024L;
 			Long fileSizeMB = fileSize / 1024L / 1024L;
 			if( fileSizeMB > uploadMax )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			}
-			
 			// If the file size exceeds the max quota for the site, post error message
-			else if( !siteQuotaUnlimited && fileSizeMB > siteQuota )
+			else if( !siteQuotaUnlimited && fileSizeKB > siteQuota )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
 			}
@@ -2025,6 +2012,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		String uploadFileName=null;
 		String collectionName=null;
+		String resourceId = null;
+		String overwrite = request.getParameter("overwrite");
 		
 		String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
 
@@ -2052,7 +2041,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			//Now upload the received file
 			//Test that file has been sent in request 
-			DiskFileItem uploadFile = (DiskFileItem) request.getAttribute("file");
+			org.apache.commons.fileupload.FileItem uploadFile = (org.apache.commons.fileupload.FileItem) request.getAttribute("file");
 			
 			if(uploadFile != null)
 			{
@@ -2074,8 +2063,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 				if (collection!=null)
 				{
-					logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
-					resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+					//get the resourceId by using collectionName and uploadFileName
+					resourceId = collectionName +"/"+ uploadFileName;
+					try{
+						//check if resource in collection exists
+						ContentHostingService.getResource(resourceId);
+						//if user has chosen to overwrite existing resource save the new copy
+						if(overwrite != null && overwrite.equals("true")){
+							resource = ContentHostingService.editResource(resourceId);
+						}
+						//if no overwrite then create a new resource in the collection
+						else{
+							resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						}
+					}
+					//if this is a new resource add to the collection.
+					catch(IdUnusedException idUnusedException) {
+						logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
+						resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					}
 				}
 				else
 				{
@@ -2084,9 +2090,24 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					//So I disable this method call, though it can be enabled again if desired.
 					
 					//String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
-					
-					logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
-					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
+					resourceId = resourceGroup + uploadFileName;
+					try{
+						//check if resource exists
+						ContentHostingService.getResource(resourceId);
+						//if it does and overwrite is true save the latest copy
+						if(overwrite != null && overwrite.equals("true")){
+							resource = ContentHostingService.editResource(resourceId);
+						}
+						// if no overwrite then simply create a new resource
+						else{
+							resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+						}
+					}
+					// if new resource then save
+					catch(IdUnusedException idUnusedException) {
+						logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
+						resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+					}
 				}
 
 				if (resource != null)
@@ -2125,12 +2146,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		catch (OverQuotaException e) {
 			addAlert(state, rb.getString("alert.over-site-upload-quota"));
-			logger.warn("Drag and drop upload exceeded site quota: " + e, e);
 			return;
 		}
 		catch (ServerOverloadException e) {
 			addAlert(state,contentResourceBundle.getFormattedMessage("dragndrop.overload.error",new Object[]{uploadFileName}));
-			logger.warn("Drag and drop upload overloaded the server: " + e, e);
+			return;
+		}
+		catch (IdLengthException e) {
+			addAlert(state, contentResourceBundle.getFormattedMessage("dragndrop.length.error", e.getReference(), e.getLimit()));
 			return;
 		}
 		catch (Exception e) {

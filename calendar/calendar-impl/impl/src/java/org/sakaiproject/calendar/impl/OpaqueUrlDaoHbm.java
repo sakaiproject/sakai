@@ -1,19 +1,15 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.OpaqueUrlDao;
 import org.sakaiproject.calendar.dao.hbm.OpaqueUrlHbm;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao {
 
@@ -21,16 +17,12 @@ public class OpaqueUrlDaoHbm extends HibernateDaoSupport implements OpaqueUrlDao
 	
 	public OpaqueUrl newOpaqueUrl(String userUUID, String calendarRef) {
 		final OpaqueUrlHbm opaqueUrl = new OpaqueUrlHbm(userUUID, calendarRef, UUID.randomUUID().toString());
-		getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session)
-					throws HibernateException, SQLException {
-				Serializable opaqueUUID = session.save(opaqueUrl);
-				// We look for the opaque URL later on in the request so flush.
-				session.flush();
-				return opaqueUUID;
-			}
-			
-		});
+		getHibernateTemplate().execute(session -> {
+            Serializable opaqueUUID = session.save(opaqueUrl);
+            // We look for the opaque URL later on in the request so flush.
+            session.flush();
+            return opaqueUUID;
+        });
 		return opaqueUrl;
 	}
 

@@ -52,6 +52,11 @@ $(function() {
 		    });
 	});
 
+	$("#zeroMissing").click(function(event){
+		event.preventDefault();
+		$("#zero").click();
+	});
+
 });
 
 function updateGrade(item) {

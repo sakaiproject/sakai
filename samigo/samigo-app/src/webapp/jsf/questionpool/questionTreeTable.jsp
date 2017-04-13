@@ -72,7 +72,24 @@
     </h:column>
 
 
-    <h:column>
+      <h:column rendered="#{questionpool.showTags == 'true'}" >
+          <f:facet name="header">
+              <h:panelGroup>
+                  <h:outputText value="#{questionPoolMessages.t_tags}" />
+              </h:panelGroup>
+          </f:facet>
+          <t:dataList value="#{question.itemTagSet.toArray()}" var="tag" layout="unorderedList">
+              <f:verbatim><span></f:verbatim>
+              <h:outputText value="#{tag.tagLabel}"/>
+              <f:verbatim><span class="collection"></f:verbatim>
+              (<h:outputText value="#{tag.tagCollectionName}"/>)
+              <f:verbatim></span></span></br>  </f:verbatim>
+          </t:dataList>
+      </h:column>
+
+
+
+      <h:column>
       <f:facet name="header">
         <h:panelGroup>
           <h:outputText value="#{questionPoolMessages.q_type}" />
@@ -95,19 +112,30 @@
      <h:outputText rendered="#{question.typeId== 16}" value="#{authorMessages.image_map_question}"/><!-- // IMAGEMAP_QUESTION -->
 
     </h:column>
+    
+    <h:column>
+      <f:facet name="header">
+        <h:panelGroup>
+          <h:outputText value="#{questionPoolMessages.last_mod}" />
+        </h:panelGroup>
+      </f:facet>
+       <h:outputText value="#{question.lastModifiedDate}">
+           <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+       </h:outputText>
+    </h:column>    
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">
         <h:panelGroup>
-        	<h:outputText value="#{questionPoolMessages.impToAuthor} "/>
-			<h:outputText value="#{questionPoolMessages.select_all}"/>
-        	<h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');" value="" />
-      	</h:panelGroup>
+            <h:outputText value="#{questionPoolMessages.impToAuthor} "/>
+            <h:outputText value="#{questionPoolMessages.select_all}"/>
+            <h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));" value="" />
+        </h:panelGroup>
       </f:facet>
- 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');">
+      <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));">
         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
- 	  </h:selectManyCheckbox>
-     </h:column>
+      </h:selectManyCheckbox>
+    </h:column>
 
 
   </t:dataTable>

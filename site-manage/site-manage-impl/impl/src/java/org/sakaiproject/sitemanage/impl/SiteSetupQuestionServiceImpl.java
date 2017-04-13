@@ -22,25 +22,17 @@
 
 package org.sakaiproject.sitemanage.impl;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Vector;
 
+import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
+import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
+import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService;
+import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
+import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.Expression;
-import org.hibernate.criterion.Order;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import org.sakaiproject.sitemanage.api.model.*;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class SiteSetupQuestionServiceImpl extends HibernateDaoSupport implements SiteSetupQuestionService {
 	

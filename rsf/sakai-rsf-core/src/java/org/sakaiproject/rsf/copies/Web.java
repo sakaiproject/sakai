@@ -32,6 +32,7 @@
 package org.sakaiproject.rsf.copies;
 
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  * Copies of definitions in the utility class org.sakaiproject.util.Web which
@@ -61,12 +62,12 @@ public class Web {
 		// if force.url.secure is set (to a https port number), use https and
 		// this port
 		String forceSecure = System.getProperty("sakai.force.url.secure");
-		if (forceSecure != null) {
+		int forceSecureInt = NumberUtils.toInt(forceSecure);
+		if (forceSecureInt > 0 && forceSecureInt <= 65535) {
 			transport = "https";
-			port = Integer.parseInt(forceSecure);
+			port = forceSecureInt;
 			secure = true;
 		}
-
 		// otherwise use the request scheme and port
 		else {
 			transport = req.getScheme();

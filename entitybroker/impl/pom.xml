@@ -54,8 +54,8 @@
             <artifactId>spring-jdbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <!-- generic DAO -->
         <dependency>
@@ -76,10 +76,6 @@
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-servlet-tester</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

@@ -175,7 +175,7 @@
             </h:selectOneMenu>
        </div>
     </h:panelGroup>
-    
+
     <%-- 5 POOL --%>
     <h:panelGroup styleClass="form-group row" layout="block" 
                     rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
@@ -240,6 +240,8 @@
             </div>
         </div>
     </h:panelGroup>
+
+    <%@ include file="/jsf/author/item/tags.jsp" %>
 
 <%-- BUTTONS --%>
 <p class="act">

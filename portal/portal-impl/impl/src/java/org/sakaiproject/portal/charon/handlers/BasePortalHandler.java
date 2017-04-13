@@ -56,7 +56,7 @@ public abstract class BasePortalHandler implements PortalHandler
 	public BasePortalHandler()
 	{
 		urlFragment = "none";
-		timeService = (TimeService) ComponentManager.get(TimeService.class);
+		timeService = ComponentManager.get(TimeService.class);
 	}
 
 	private TimeService timeService;

@@ -30,7 +30,7 @@
         </h:panelGrid>
   	
   	
-
+      <div class="table-responsive">
   		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.allTopicStatistics}" var="stat" rendered="true"
    	 		columnClasses="specialLink,specialLink,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
@@ -84,6 +84,7 @@
   				<h:outputText value="#{stat.totalTopicMessages}" />
   			</h:column>  			
   		</h:dataTable>
+      </div>
   
   	</h:form>
   </sakai:view>

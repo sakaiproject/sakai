@@ -127,6 +127,8 @@ public interface AssignmentService extends EntityProducer
 	public static final String GRADEBOOK_INTEGRATION_ADD = "add";
 	public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
 	public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
+	public static final String GRADEBOOK_PERMISSION_GRADE_ALL = "gradebook.gradeAll";
+	public static final String GRADEBOOK_PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments";
 	
 	// and the prop name
 	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
@@ -267,8 +269,6 @@ public interface AssignmentService extends EntityProducer
 	public boolean allowAddSubmission(String context);
 	
 	/**
-	 * SAK-21525
-	 * 
 	 * @param context
 	 * @param assignment - An Assignment object. Needed for the groups to be checked.
 	 * @return
@@ -689,7 +689,7 @@ public interface AssignmentService extends EntityProducer
 	 *        Describes the portlet context - generated with DefaultId.getChannel().
 	 * @return List All the Assignments will be listed
 	 */
-	public List getListAssignmentsForContext(String context);
+	public List<Assignment> getListAssignmentsForContext(String context);
 
 	/**
 	 * Retrieve a map of Assignments to a list of User IDs of those who
@@ -709,27 +709,27 @@ public interface AssignmentService extends EntityProducer
 	 * @param person -
 	 *        The User who's Submission you would like.
 	 * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
-	 * @throws IdUnusedException
-	 *         if the assignmentId does not correspond to an existing Assignment.
-	 * @throws PermissionException
-	 *         if the current user is not allowed to read this.
 	 */
 	public AssignmentSubmission getSubmission(String assignmentId, User person);
 	
 	/**
 	 * Access a User or Group's AssignmentSubmission to a particular Assignment.
 	 * 
-	 * @param assignmentId -
+	 * @param assignmentReference -
 	 *        The id of the assignment.
 	 * @param submitterId -
 	 *        The string id of the person or group who's Submission you would like.
 	 * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
-	 * @throws IdUnusedException
-	 *         if the assignmentId does not correspond to an existing Assignment.
-	 * @throws PermissionException
-	 *         if the current user is not allowed to read this.
 	 */
 	public AssignmentSubmission getSubmission(String assignmentReference, String submitterId);
+
+	/**
+	 * Access a mapping of users to their corresponding submission on the specified assignment for the specified users
+	 * @param assignment the assignment with which the submissions should be associated
+	 * @param users the returned map's keys will contain only members of this list of users who have submissions on the specified assignment
+	 * @return a mapping of Users to their corresponding submissions, never null
+	 */
+	public Map<User, AssignmentSubmission> getUserSubmissionMap(Assignment assignment, List<User> users);
 	
 	/**
 	 * Access a User's AssignmentSubmission inside a list of AssignmentSubmission object.
@@ -912,8 +912,6 @@ public interface AssignmentService extends EntityProducer
 	/*
 	 * If the assignment uses anonymous grading returns true, else false
 	 *
-	 * SAK-27824
-	 *
 	 * Params: AssignmentSubmission s
 	 */
 	public boolean assignmentUsesAnonymousGrading(Assignment a);
@@ -927,9 +925,38 @@ public interface AssignmentService extends EntityProducer
 	/*
 	 * This method allows you to know if there are submissions submitted
 	 *
-	 * SAK-30062
-	 *
 	 * Params: AssignmentSubmission s
 	 */
 	public boolean hasBeenSubmitted(AssignmentSubmission s);
+
+	/**
+	 * Get a link directly into an assignment itself, supplying the permissions to use when
+	 * generating the link. Depending on your status, you get a different view on the assignment.
+	 *
+	 * @param context The site id
+	 * @param assignmentId The assignment id
+	 * @param allowReadAssignment Is the curent user allowed to read?
+	 * @param allowAddAssignment Is the curent user allowed to add assignments?
+	 * @param allowSubmitAssignment Is the curent user allowed to submit assignments?
+	 * @return The url as a String
+	 */
+	public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment
+					, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception;
+
+	/**
+	 * Get a link directly into an assignment itself. Depending on your status, you
+	 * get a different view on the assignment.
+	 *
+	 * @param context The site id
+	 * @param assignmentId The assignment id
+	 * @return The url as a String
+	 */
+	public String getDeepLink(String context, String assignmentId) throws Exception;
+	
+	/**
+	 * get csv separator for exporting to CSV. It can be a comma or point configured through
+	 * csv.separator sakai property
+	 * @return
+	 */
+	public String getCsvSeparator();
 }

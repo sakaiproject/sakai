@@ -67,10 +67,6 @@
     
 	<!-- the faces handling xml -->
     <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>client</param-value>
-    </context-param>
-    <context-param>
         <param-name>com.sun.faces.validateXml</param-name>
         <param-value>true</param-value>
     </context-param>

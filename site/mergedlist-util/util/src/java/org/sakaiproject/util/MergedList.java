@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -484,7 +485,7 @@ public class MergedList extends ArrayList
 
 		// Get a list of the currently merged channels.	 This is a delimited list.
 		mergedChannels =
-			StringUtil.trimToNull(
+			StringUtils.trimToNull(
 				mergedInitParameterValue);
 
 		String[] mergedChannelArray = null;

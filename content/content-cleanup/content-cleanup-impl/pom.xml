@@ -12,6 +12,10 @@
   <artifactId>content-cleanup-impl</artifactId>
   <name>content-cleanup-impl</name>
   <url>http://maven.apache.org</url>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -29,10 +33,5 @@
 		<groupId>org.quartz-scheduler</groupId>
 		<artifactId>quartz</artifactId>
 	</dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

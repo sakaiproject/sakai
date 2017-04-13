@@ -253,51 +253,6 @@ public class PasswordResetProducer extends BaseValidationProducer implements Vie
 	}
 
 	/**
-	 * Adds a link to the page for the user to request another validation token
-	 * @param tofill the parent of the link
-	 */
-	private void addResetPassLink(UIContainer toFill, ValidationAccount va)
-	{
-		if (toFill == null || va == null)
-		{
-			// enforce method contract
-			throw new IllegalArgumentException("null passed to addResetPassLink()");
-		}
-
-		//the url to reset-pass - assume it's on the gateway. Otherwise, we don't render a link and we log a warning
-		String url = null;
-		try
-		{
-			//get the link target
-			url = developerHelperService.getToolViewURL("sakai.resetpass", null, null, developerHelperService.getStartingLocationReference());
-		}
-		catch (IllegalArgumentException e)
-		{
-			log.warn("Couldn't create a link to reset-pass; no instance of reset-pass found on the gateway");
-		}
-
-		if (url != null)
-		{
-			//add the container
-			UIBranchContainer requestAnotherContainer = UIBranchContainer.make(toFill, "requestAnotherContainer:");
-			//add a label
-			UIMessage.make(requestAnotherContainer, "request.another.label", "validate.requestanother.label");
-			//add the link to reset-pass
-			String requestAnother = null;
-			if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getAccountStatus())
-			{
-				requestAnother = messageLocator.getMessage("validate.requestanother.reset");
-			}
-			else
-			{
-				requestAnother = messageLocator.getMessage("validate.requestanother");
-			}
-			UILink.make(requestAnotherContainer, "request.another", requestAnother, url);
-		}
-		//else - there is no reset pass instance on the gateway, but the user sees an appropriate message regardless (handled by a targetted message)
-	}
-
-	/**
 	 * When a user's validation token expires (by accountValidator.maxPasswordResetMinutes elapsing)
 	 * this returns an appropriate TargettedMessage
 	 * @return an approrpiate TargettedMessage when a validaiton token has expired,

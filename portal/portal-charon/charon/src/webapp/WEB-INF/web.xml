@@ -5,11 +5,6 @@
 	<display-name>portal</display-name>
 	<description>port</description>
 
-	<!-- the tool listener is to register portlets -->
-	<listener>
-		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
-	</listener>
-
 	<filter>
 		<filter-name>sakai.request</filter-name>
 		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>

@@ -57,3 +57,42 @@ $( document ).ready(function() {
     });
   }
 });
+
+function whichradio(el) {
+	var parentTable = $(el).closest('table');
+	var forcedRanking;
+	var allowChange = true;
+	// resolve the property for this instance
+	$(parentTable).siblings('input[type=hidden]').each(
+			function() {
+				if($(this).prop('id').indexOf('forceRanking') !== -1 ) {
+					forcedRanking = $(this).val() === "true";
+					return false;
+				}
+			});
+	if(forcedRanking) {
+		var parts = $(el).prop('id').split(':');
+		var curCol = -1;
+		var colId = '';
+		// determine current column
+		for(var i = 0; i < parts.length; ++i) {
+			if(parts[i] === 'matrixSurveyRadioTable') {
+				var dynId = parts[i+2];
+				curCol = dynId.substring(dynId.lastIndexOf('_')+1, dynId.length);
+				colId = curCol + ':myRadioId';
+				break;
+			}
+		}
+		// check for conflicts
+		$('input[type=radio]',parentTable).not(el).each(function(){
+			var id = $(this).prop('id');
+			if(id.indexOf(colId) !== -1 && $(this).is(':checked')) {
+				el.checked = false;
+				alert("You are only allowed one selection per column, please try again.");
+				allowChange = false;
+			}
+		});
+	}
+
+	return allowChange;
+}

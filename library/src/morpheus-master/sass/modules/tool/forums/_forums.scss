@@ -1,0 +1,246 @@
+.selected-threads-to-move{
+	.sourcetitle{
+		font-weight: bolder;
+	}
+	.threads-to-move{
+		font-weight: bolder;
+	}
+}
+
+.topic-filter{
+	background: $tool-menu-background-color;
+	border: 1px solid darken( $tool-menu-background-color, 20% );
+	margin: 1em 0;
+	padding: 1em;
+	.topic-header-h3{
+		@extend .h4;
+	}
+}
+
+.#{$namespace}sakai-forums{
+	.topicBlocLone{
+		@extend .bs-callout-warn;
+	}
+
+	.permissionRow{
+		span.ui-accordion-header {
+			@media #{$phone}{
+			    margin-left: 0;
+			    display: block;
+			}
+		}
+		.checkbox_group{
+			display: inline-block;
+			margin: 0 0.25% 0 0;
+			width: 28%;
+			vertical-align: top;
+			@media #{$phone}{
+				display: block;
+				margin: 0 0 1em 0;
+				width: 100%;
+			}
+		}
+		
+		.radio_group{
+			@extend .checkbox_group;
+			width: 20%;
+			@media #{$phone}{
+				width: 100%;
+			}
+		}
+	}
+	
+	.permissionPanel{
+		input[type="checkbox"]{
+			@media #{$nonPhone}{
+				float:left;
+				& + label {
+					overflow:auto;
+					display:block;
+					padding-top: 2px;
+				}
+			}
+		}
+	}
+
+	#msgForum{
+		.itemNav{
+			position: absolute;
+			right: 5px;
+			@media #{$phone}{
+				position: inherit;
+				&:after{
+					content: " ";
+					clear: both;
+				}
+			}
+		}
+		.specialLink{
+			h1{
+				font-size: 18px;
+				margin: 1.4em 0 0.3em 0;
+				@media #{$phone}{
+					margin: 0.5em 0 0.3em 0;
+				}
+			}
+		}
+
+		.view-message-nav{
+			text-align:right;
+		}
+	}
+
+	table.specialLink{
+		.show{
+			img{
+				margin: 0 0.2em 0 0;
+				@include transform( rotate(0deg) );
+				@include transition( all 0.15s linear );
+			}
+			&.opened{
+				img{
+					@include transform( rotate(90deg) );
+				}
+			}
+		}
+	}
+
+	.allMessages{
+		border: 1px solid #ddd;
+		border-collapse: collapse;
+		width: 100%;
+		margin: 1em 0 0 0;
+		thead{
+			th{
+				vertical-align: text-bottom;
+				padding: 0.8em 0em;
+				background: #F9F9F9;
+				border: 1px solid #ddd;
+				text-align: center;
+				&.header{
+					padding: 0.8em 0.4em;					
+					text-align: left;
+				}
+			}
+		}
+		tbody{
+			td{
+				padding: 0.8em 0.4em;
+				&.attach{
+					padding: 0.8em 0;
+					text-align: center;
+				}
+				&.messageTitle{
+					a{
+						margin-left: 0.2em;
+					}
+				}
+			}
+		}
+	}
+
+	.labeled{
+		display: inline-block;
+		font-weight: 700;
+		margin: 1em 0 0.25em 0;
+	}
+
+	#revise{
+		label{
+			font-weight: 400;
+			margin: 1em 0 0.25em 0;
+			input[type="radio"]{
+				margin: 0 0.5em 0 0;
+			}
+			
+			&[for*=forum_assignments]{
+				margin-top: 0;
+			}
+		}
+		input[type="text"], textarea{
+			width: 100%;
+			@extend .form-control;
+			&.hasDatepicker{
+				display: inline-block;
+				margin: 0 4px 0 0;
+				width: calc(100% - 62px);
+			}
+		}
+		.jsfFormTable, .shorttext, .longtext{
+			width: 100%;
+		}
+		table{
+			width: 100%;
+		}
+		.checkbox{
+			display: block;
+			margin: 0 0 0 0;
+			input[type="radio"]{
+				margin-left: -10px;
+				margin-right: 11px;
+				position: relative;
+			}
+			input[type="checkbox"]{
+				margin-left: 10px;
+				position: inherit;
+				+ label{
+					padding-left: 10px;
+					padding-right: 40px;
+					@media #{$phone}{
+						max-width: calc(100% - 50px);
+						vertical-align: middle;
+					}
+				}
+			}
+			&.openDateSpan{
+				label{
+					font-weight: 700;
+					padding-left: 0;
+				}
+			}
+		}
+		.act{
+			margin: 1em 0 0 0;
+		}
+		.permissionRow{
+			label{
+				margin: 0 0 0 0;
+			}
+		}
+		.messageInstruction{
+			@extend .bs-callout-danger;
+			display: inline;
+			@media #{$phone}{
+				display: inline-block;
+			    margin: 0 0 0 0;
+			    padding: 3px 0 3px 6px;
+			}
+		}
+		
+		&\:alert-delete{
+			margin: 2em 0 0 0;
+		}
+		
+		& #forum_grading{
+			margin-top: 2em;
+		}
+	}
+
+	.messagesThreaded{
+		.md{
+			display: inline-block;
+			font-size: 1em;
+			padding: 0.3em 0.2em 0.1em 0;
+			a{
+				color: $text-color;
+				text-decoration: none;
+				border-bottom: 1px dotted darken( $tool-background-color, 15% );
+				&:hover{
+					border-bottom: 1px dotted darken( $tool-background-color, 10% );
+				}
+			}
+		}
+	}
+
+
+}

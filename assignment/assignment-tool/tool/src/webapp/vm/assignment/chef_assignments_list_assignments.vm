@@ -45,7 +45,7 @@
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
-	<div class="navPanel">
+	<div class="navPanel row">
 		#if ($allowAddAssignment)
 			#if (!$!view.equals('stuvie'))
 			<div class="col-md-8">
@@ -65,12 +65,12 @@
 				</form>
 			</div>
 			#else
-				<div class="col-md-8">
+				<div class="col-md-12">
 				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div>
 			</div>
 			#end
 		#else
-			<div class="col-md-8">
+			<div class="col-md-12">
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
@@ -84,10 +84,11 @@
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
-					<th id="attachments" class="attach"> 
+					<th id="attachments" class="attach hidden-xs" scope="col"> 
 						&nbsp;
+						<span class="sr-only">$tlang.getString("gen.att")</span>
 					</th>				
-					<th id="title">
+					<th id="title" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
 							#if ($sortedBy.equals("title"))
@@ -100,7 +101,7 @@
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
-						<th id="$tlang.getString('gen.visible')">
+						<th id="$tlang.getString('gen.visible')" scope="col" class="hidden-xs">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
 								<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
@@ -112,7 +113,7 @@
 							#end
 						</th>
 					#end
-					<th id="status">
+					<th id="status" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"   title="$tlang.getString("list.sorbysta")">
 							$tlang.getString("gen.status")
 							#if ($sortedBy.equals("assignment_status"))
@@ -124,7 +125,7 @@
 							#end
 						</a>
 					</th>
-					<th id="openDate">
+					<th id="openDate" scope="col" class="hidden-xs">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("gen.open")
 							#if ($sortedBy.equals("opendate"))
@@ -151,7 +152,7 @@
 					#if ($!allowGradeSubmission)
 						#if ($!view.equals('lisofass1'))
 						#if ($!showNumSubmissionColumn)
-						<th id="num_submissions">
+						<th id="num_submissions" scope="col" class="hidden-xs">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions"))
 									<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"   title="$tlang.getString("listassig.sorbynum1")">
@@ -178,7 +179,7 @@
 						#end
 					#end
 					#if ($withGrade && $!allowGradeSubmission)
-						<th id="maxgrade">
+						<th id="maxgrade" scope="col" class="hidden-xs">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=max_grade")'; return false;"   title="$tlang.getString("gen.sorbymax")">
 								$tlang.getString("gen.sca")
 								#if ($sortedBy.equals("max_grade"))
@@ -192,8 +193,8 @@
 						</th>
 					#end
 					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
-						<th id="remove" class="screenOnly">
-							$tlang.getString("gen.remove.q")
+						<th id="remove" scope="col">
+							<span class="hidden-xs">$tlang.getString("gen.remove.q")</span>
 						</th>
 					#end
 				</tr>
@@ -217,7 +218,7 @@
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
-							<td headers="attachments" class="attach">
+							<td headers="attachments" class="attach hidden-xs">
 								#set ($attachments = $assignmentContent.getAttachments())
 								#set ($size = 0)
 								#set ($props = false)
@@ -230,14 +231,14 @@
 									#end
 								#end
 								#if ($size > 0)
-									<i class="icon-sakai-clip"></i>
+									<i class="icon-sakai--clip"></i>
 								#else
 									&nbsp;
 								#end
 							</td>						
-							<td headers="title">
+							<td headers="title" scope="row">
 									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
-										<h4>
+										<strong>
 											#assignmentTitleIcon($assignment)
 											## normal instructor view
 											#if ($assignment.draft && $!allowUpdateAssignment )
@@ -254,7 +255,7 @@
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
 											</a>
-										</h4>
+										</strong>
 										<div class="itemAction">
 											#set($prevAction=false)
 											#if ($!allowUpdateAssignment)#set($prevAction=true)<a name="asnActionLink" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'linksSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("gen.revi")<span class="skip"> $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end
@@ -341,18 +342,18 @@
 													## if not submitted or returned and still allowed to submit within the due time
 													#if ($service.canSubmit($assignment.getContext(), $assignment))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<h4>#assignmentTitleIcon($assignment)
+														<strong>#assignmentTitleIcon($assignment)
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
-														</h4>
+														</strong>
 												#else
-														<h4>#assignmentTitleIcon($assignment)
+														<strong>#assignmentTitleIcon($assignment)
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
-														</h4>
+														</strong>
 													#end
 												#else
-												<h4>#assignmentTitleIcon($assignment)
+												<strong>#assignmentTitleIcon($assignment)
 													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
-												</h4>
+												</strong>
 												#end
 												#if ($taggable && $allowAddAssignment)
 													<div class="itemAction">
@@ -386,7 +387,7 @@
 													</div>
 												#end
 											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a></h4>
+												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
 											#end
 										#end
 										#set ($deleted = false)
@@ -397,7 +398,7 @@
 									#end
 							</td>
 						#if ($!allowGradeSubmission)
-							<td style="padding-bottom:0" headers="for">
+							<td headers="for" class="hidden-xs">
 								#set( $groupTitleList = [] )
 								#set( $siteRelease = $assignment.Access.toString().equals("site") )
 								#if( !$siteRelease )
@@ -414,14 +415,14 @@
 									$tlang.getString("gen.viewallgroupssections")
 								#elseif( $groupTitleList.size() > 0 )
 									<div class="groupsContainer">
-										<h4 class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
+										<strong class="collapse" onclick="ASN.toggleGroups( this ); ASN.resizeFrame();">
 											$groupTitleList.size()
 											#if( $groupTitleList.size() == 1 )
 												$tlang.getString( "selected.group" )
 											#else
 												$tlang.getString( "selected.groups" )
 											#end
-										</h4>
+										</strong>
 
 										<div id="groupsPanel" style="display: none;">
 											<ul>
@@ -454,7 +455,7 @@
 									#end
 								#end
 							</td>
-							<td headers="openDate">
+							<td headers="openDate" class="hidden-xs">
 								$!assignment.openTime.toStringLocalFull()
 							</td>
 							<td headers="dueDate">
@@ -468,7 +469,7 @@
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)
-								<td headers="num_submissions" class="specialLink">
+								<td headers="num_submissions" class="specialLink hidden-xs">
 								## not show the link for draft assignment
 								#if (!$assignment.Draft && $!service.allowGradeSubmission($assignment.getReference()))
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
@@ -495,7 +496,7 @@
 								#end
 							#end
 							#if ($withGrade && $!allowGradeSubmission)
-							<td headers="maxgrade">
+							<td headers="maxgrade" class="hidden-xs">
 									#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 									#if ($gradeScale == -1)
 										## Grade type not set
@@ -534,10 +535,9 @@
 								<!-- attachments col -->
 								<td></td>
 								<!-- title col -->
-								<td>
-									<span class="indnt1">
-										$tlang.getString("peerAssessmentName")
-									</span>
+								<td class="peer-header">
+									<strong><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</strong>
+									<em>$tlang.getString("peerAssessmentName")</em>
 								</td>
 								#if ($!groups && $!allowGradeSubmission)
 									<!-- groups col -->

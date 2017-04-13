@@ -16,6 +16,7 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.app.VelocityEngine;
 
+import org.sakaiproject.velocity.util.SLF4JLogChute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,7 @@ public class VelocityHelper {
 			   org.apache.velocity.exception.ParseErrorException, java.lang.Exception
 			   {
 				   VelocityEngine vengine = new VelocityEngine();
-				   vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-						   "org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
-				   vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
+				   vengine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, new SLF4JLogChute());
 				   Properties p = new Properties();
 				   String webappRegPath = "/WEB-INF/velocity.config";
 				   InputStream is = pContext.getResourceAsStream(webappRegPath);
@@ -106,8 +105,7 @@ public class VelocityHelper {
 		"class.resource.loader.modificationCheckInterval=0\n" +
 		"input.encoding=UTF-8\n" +
 		"output.encoding=UTF-8\n" +
-		"runtime.log.logsystem.class=org.apache.velocity.runtime.log.SimpleLog4JLogSystem\n" +
-		"runtime.log.logsystem.log4j.category=vm.none\n" +
+		"runtime.log.logsystem.class=org.sakaiproject.velocity.util.SLF4JLogChute\n" +
 		"velocimacro.permissions.allow.inline=true\n" +
 		"velocimacro.permissions.allow.inline.override=true\n" ;
 

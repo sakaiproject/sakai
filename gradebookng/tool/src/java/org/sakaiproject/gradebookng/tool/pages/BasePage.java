@@ -5,7 +5,9 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -15,11 +17,13 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +47,7 @@ public class BasePage extends WebPage {
 	Link<Void> importExportPageLink;
 	Link<Void> permissionsPageLink;
 
-	final FeedbackPanel feedbackPanel;
+	public final GbFeedbackPanel feedbackPanel;
 
 	/**
 	 * The current user
@@ -60,7 +64,12 @@ public class BasePage extends WebPage {
 
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
-		this.role = this.businessService.getUserRole();
+		try {
+			this.role = this.businessService.getUserRole();
+		} catch (final GbAccessDeniedException e) {
+			log.error("Error getting user role", e);
+			// do not redirect here, let the subclasses handle this!
+		}
 
 		// set locale
 		setUserPreferredLocale();
@@ -83,7 +92,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 			@Override
@@ -95,30 +104,13 @@ public class BasePage extends WebPage {
 		this.gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.gradebookPageLink);
 
-		// settings page
-		this.settingsPageLink = new Link<Void>("settingsPageLink") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SettingsPage());
-			}
-
-			@Override
-			public boolean isVisible() {
-				return (BasePage.this.role == GbRole.INSTRUCTOR);
-			}
-		};
-		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(this.settingsPageLink);
-
 		// import/export page
 		this.importExportPageLink = new Link<Void>("importExportPageLink") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick() {
-				setResponsePage(new ImportExportPage());
+				setResponsePage(ImportExportPage.class);
 			}
 
 			@Override
@@ -135,7 +127,7 @@ public class BasePage extends WebPage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new PermissionsPage());
+				setResponsePage(PermissionsPage.class);
 			}
 
 			@Override
@@ -146,6 +138,23 @@ public class BasePage extends WebPage {
 		this.permissionsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.permissionsPageLink);
 
+		// settings page
+		this.settingsPageLink = new Link<Void>("settingsPageLink") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(SettingsPage.class);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return (BasePage.this.role == GbRole.INSTRUCTOR);
+			}
+		};
+		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(this.settingsPageLink);
+
 		add(nav);
 
 		// Add a FeedbackPanel for displaying our messages
@@ -155,14 +164,10 @@ public class BasePage extends WebPage {
 	}
 
 	/**
-	 * Helper to clear the feedbackpanel display.
-	 *
-	 * @param f FeedBackPanel
+	 * Helper to clear the feedback panel display from any child component
 	 */
-	public void clearFeedback(final FeedbackPanel f) {
-		if (!f.hasFeedbackMessage()) {
-			f.add(AttributeModifier.remove("class"));
-		}
+	public void clearFeedback() {
+		this.feedbackPanel.clear();
 	}
 
 	/**
@@ -174,17 +179,35 @@ public class BasePage extends WebPage {
 	public void renderHead(final IHeaderResponse response) {
 		super.renderHead(response);
 
+		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
+
 		// get the Sakai skin header fragment from the request attribute
 		final HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 
-		response.render(new PriorityHeaderItem(
-				JavaScriptHeaderItem.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference())));
+		response.render(new PriorityHeaderItem(JavaScriptHeaderItem
+				.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference())));
 
 		response.render(StringHeaderItem.forString((String) request.getAttribute("sakai.html.head")));
 		response.render(OnLoadHeaderItem.forScript("setMainFrameHeight( window.name )"));
 
 		// Tool additions (at end so we can override if required)
-		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
+		response.render(StringHeaderItem
+				.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
+
+		// Shared JavaScript and stylesheets
+		// Force Wicket to use Sakai's version of jQuery
+		response.render(
+			new PriorityHeaderItem(
+				JavaScriptHeaderItem
+					.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+		// And pair this instance of jQuery with a Bootstrap version we've tested with
+		response.render(
+			new PriorityHeaderItem(
+				JavaScriptHeaderItem
+					.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
+		// Some global gradebookng styles
+		response.render(CssHeaderItem
+			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
 
 	}
 
@@ -204,13 +227,14 @@ public class BasePage extends WebPage {
 		final WebMarkupContainer flagWithPopover = new WebMarkupContainer(componentId);
 
 		flagWithPopover.add(new AttributeModifier("title", message));
+		flagWithPopover.add(new AttributeModifier("aria-label", message));
 		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
 		flagWithPopover.add(new AttributeModifier("data-trigger", "manual"));
 		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
 		flagWithPopover.add(new AttributeModifier("data-html", "true"));
 		flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
 		flagWithPopover.add(new AttributeModifier("data-template",
-				"'<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>'"));
+				"<div class=\"gb-popover popover\" role=\"tooltip\"><div class=\"arrow\"></div><div class=\"popover-content\"></div></div>"));
 		flagWithPopover.add(new AttributeModifier("data-content", generatePopoverContent(message)));
 		flagWithPopover.add(new AttributeModifier("tabindex", "0"));
 
@@ -234,5 +258,16 @@ public class BasePage extends WebPage {
 		final Locale locale = this.businessService.getUserPreferredLocale();
 		log.debug("User preferred locale: " + locale);
 		getSession().setLocale(locale);
+	}
+
+	/**
+	 * Send a user to the access denied page with a message
+	 * @param message the message
+	 */
+	public void sendToAccessDeniedPage(final String message){
+		final PageParameters params = new PageParameters();
+		params.add("message", message);
+		log.debug("Redirecting to AccessDeniedPage: " + message);
+		throw new RestartResponseException(AccessDeniedPage.class, params);
 	}
 }

@@ -75,21 +75,21 @@
         <input type="hidden" name="back" value="$!backIndex" />
         <input type="hidden" name="templateIndex" value="$!templateIndex" />
         <p class="act" style="float: none;clear:both">
-            <input type="button" name="Continue" 
+            <input type="submit" name="Continue" id="btnContinue"
                     value="$tlang.getString('gen.continue')"
                     accesskey="s"
                     class="active"
-                    onclick="document.featuresForm.option.value='continue'; SPNR.disableControlsAndSpin( this, null ); javascript:document.featuresForm.submit();" />
+                    onclick="document.featuresForm.option.value='continue'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
             #if (!$!existSite)
-            <input type="button" value="$tlang.getString('gen.back')" 
-                    name="Back" 
+            <input type="submit" value="$tlang.getString('gen.back')" 
+                    name="Back" id="btnBack"
                     accesskey="b"
-                    onclick="document.featuresForm.option.value='back'; SPNR.disableControlsAndSpin( this, null ); javascript:document.featuresForm.submit();" />
+                    onclick="document.featuresForm.option.value='back'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
             #end
-            <input type="button" value="$tlang.getString('gen.cancel')" 
-                    name="Cancel"
+            <input type="submit" value="$tlang.getString('gen.cancel')" 
+                    name="Cancel" id="btnCancel"
                     accesskey="x"
-                    onclick="document.featuresForm.option.value='cancel'; SPNR.disableControlsAndSpin( this, null ); javascript:document.featuresForm.submit();" />
+                    onclick="document.featuresForm.option.value='cancel'; SPNR.disableControlsAndSpin( this, null ); document.featuresForm.submit();" />
         </p>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>

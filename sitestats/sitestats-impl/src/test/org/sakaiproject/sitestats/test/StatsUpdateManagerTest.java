@@ -37,6 +37,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -64,13 +65,13 @@ import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 @FixMethodOrder(NAME_ASCENDING)
 @ContextConfiguration(locations={
 		"/hbm-db.xml",
 		"/hibernate-test.xml"})
-public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests { 
+public class StatsUpdateManagerTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
 	private StatsUpdateManager			M_sum;
@@ -89,12 +90,12 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		// Site Service
 		M_ss = createMock(SiteService.class);		
 		// Site A has SiteStats
-		Site siteA = new FakeSite(FakeData.SITE_A_ID, StatsManager.SITESTATS_TOOLID);
+		Site siteA = Mockito.spy(FakeSite.class).set(FakeData.SITE_A_ID, StatsManager.SITESTATS_TOOLID);
 		expect(M_ss.getSite(FakeData.SITE_A_ID)).andStubReturn(siteA);
 		expect(M_ss.isUserSite(FakeData.SITE_A_ID)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(FakeData.SITE_A_ID)).andStubReturn(false);		
 		// Site B don't have SiteStats
-		FakeSite siteB = new FakeSite(FakeData.SITE_B_ID);
+		FakeSite siteB = Mockito.spy(FakeSite.class).set(FakeData.SITE_B_ID);
 		expect(M_ss.getSite(FakeData.SITE_B_ID)).andStubReturn(siteB);
 		expect(M_ss.isUserSite(FakeData.SITE_B_ID)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(FakeData.SITE_B_ID)).andStubReturn(false);		
@@ -128,7 +129,7 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testCollectEvent() {
-		FakeEvent e1 = new FakeEvent(FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, true, 0);
+		FakeEvent e1 = Mockito.spy(FakeEvent.class).set(FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, true, 0);
 		Assert.assertTrue(M_sum.collectEvent(e1));
 		Event e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, "FakeData.USER_A_ID", "session-id-a");
 		Assert.assertTrue(M_sum.collectEvent(e2));

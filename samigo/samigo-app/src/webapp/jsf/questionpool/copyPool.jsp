@@ -38,8 +38,23 @@
 	          collapseAllRowsForSelectList();
                   flagRows();
               }
-              window.onload = flagFolders;
+              function initPage()
+              {
+                  var poolSubmitButton = document.getElementById('copyPool:copypoolsubmit');
+                  if (poolSubmitButton !== null)
+                  {
+                      poolSubmitButton.disabled=true;
+                  }
+                  var itemSubmitButton = document.getElementById('copyPool:copyitemsubmit');
+                  if (itemSubmitButton !== null)
+                  {
+                      itemSubmitButton.disabled=true;
+                  }
+                  flagFolders();
+              }
+              window.onload = initPage;
 </script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
       </head>
 <body onload="collapseAllRowsForSelectList();flagRows();;<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -88,19 +103,23 @@
 <p class="act">
 
   <h:commandButton id="copypoolsubmit" immediate="true" value="#{questionPoolMessages.copy}"
-    action="#{questionpool.copyPool}" styleClass="active" rendered="#{questionpool.actionType == 'pool'}">
+    action="#{questionpool.copyPool}" styleClass="active" rendered="#{questionpool.actionType == 'pool'}"
+    onclick="SPNR.disableControlsAndSpin(this, null);">
   </h:commandButton>
 
   <h:commandButton id="copyitemsubmit" immediate="true" value="#{questionPoolMessages.copy}"
-    action="#{questionpool.copyQuestion}" styleClass="active" rendered="#{questionpool.actionType == 'item'}">
+    action="#{questionpool.copyQuestion}" styleClass="active" rendered="#{questionpool.actionType == 'item'}"
+    onclick="SPNR.disableControlsAndSpin(this, null);">
   </h:commandButton>
 
-	<h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true" rendered="#{questionpool.actionType == 'pool'}">
+	<h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true"
+					 rendered="#{questionpool.actionType == 'pool'}" onclick="SPNR.disableControlsAndSpin(this, null);">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
 		<f:attribute name="returnToParentPool" value="true"/>
 	</h:commandButton>
   
-	<h:commandButton id="cancelItem" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true" rendered="#{questionpool.actionType == 'item'}">
+	<h:commandButton id="cancelItem" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true"
+					 rendered="#{questionpool.actionType == 'item'}" onclick="SPNR.disableControlsAndSpin(this, null);">
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
 		<f:attribute name="returnToParentPool" value="false"/>
 	</h:commandButton>

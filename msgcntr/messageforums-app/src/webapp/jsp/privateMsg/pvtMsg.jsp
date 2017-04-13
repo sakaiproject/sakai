@@ -53,7 +53,7 @@
 	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
-					 columnClasses="attach,attach,attach,specialLink,bogus,bogus,bogus">
+					 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 	  	                
 		  <h:column>
 		    <f:facet name="header">
@@ -103,7 +103,6 @@
     	         <f:param name="sortColumn" value="subject"/>
     	       </h:commandLink>
 		    </f:facet>
-			  <f:verbatim><h4></f:verbatim>
 			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" title="#{rcvdItems.msg.title}" immediate="true">
 
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -111,7 +110,6 @@
 			<h:outputText styleClass="skip" value="#{msgs.pvt_openb}#{msgs.pvt_unread}#{msgs.pvt_closeb}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
-		  			<f:verbatim></h4></f:verbatim>
 		  </h:column>			
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
@@ -183,7 +181,7 @@
 		  </h:column>
 		</h:dataTable>
 	</div>
-		
+	  <div class="table-responsive">	
 	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
@@ -256,6 +254,7 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
+		</div>
 		
 <%-- Added if user clicks Check All --%>
     <script language="Javascript" type="text/javascript">

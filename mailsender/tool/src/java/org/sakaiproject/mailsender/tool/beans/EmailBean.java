@@ -41,6 +41,7 @@ import org.sakaiproject.mailsender.model.EmailEntry;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -138,6 +139,10 @@ public class EmailBean
 		ConfigEntry config = emailEntry.getConfig();
 		User curUser = externalLogic.getCurrentUser();
 
+		String csrfToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token").toString();
+		if (csrfToken != null && !csrfToken.equals(emailEntry.getCsrf()))
+		    return EMAIL_FAILED;
+
 		String fromEmail = "";
 		String fromDisplay = "";
 		if (curUser != null)
@@ -211,7 +216,9 @@ public class EmailBean
 				if (multipartMap != null && !multipartMap.isEmpty()) {
 					for (Entry<String, MultipartFile> entry : multipartMap.entrySet()) {
 						MultipartFile mf = entry.getValue();
-		                String filename = mf.getOriginalFilename();
+						// Although JavaDoc says it may contain path, Commons implementation always just
+						// returns the filename without the path.
+		                String filename = Web.escapeHtml(mf.getOriginalFilename());
 		                try
 		                {
 		                    File f = File.createTempFile(filename, null);
@@ -228,12 +235,12 @@ public class EmailBean
 				// send the message
 				invalids = externalLogic.sendEmail(config, fromEmail, fromDisplay,
 						emailusers, subject, content, attachments);
-			}
+				// append to the email archive
+				String siteId = externalLogic.getSiteID();
+				String fromString = fromDisplay + " <" + fromEmail + ">";
+				addToArchive(config, fromString, subject, siteId, attachments);
 
-			// append to the email archive
-			String siteId = externalLogic.getSiteID();
-			String fromString = fromDisplay + " <" + fromEmail + ">";
-			addToArchive(config, fromString, subject, siteId);
+			}
 
 			// build output message for results screen
 			for (Entry<String, String> entry : emailusers.entrySet())
@@ -304,7 +311,7 @@ public class EmailBean
 		return EMAIL_SENT;
 	}
 
-	private void addToArchive(ConfigEntry config, String fromString, String subject, String siteId)
+	private void addToArchive(ConfigEntry config, String fromString, String subject, String siteId, List<Attachment> attachments)
 	{
 		if (emailEntry.getConfig().isAddToArchive())
 		{
@@ -316,13 +323,13 @@ public class EmailBean
 				{
 					attachment_info.append("<br/>");
 					attachment_info.append("Attachment #").append(i).append(": ").append(
-							file.getName()).append("(").append(file.getSize()).append(" Bytes)");
+							Web.escapeHtml(file.getOriginalFilename())).append("(").append(file.getSize()).append(" Bytes)");
 					i++;
 				}
 			}
 			String emailarchive = "/mailarchive/channel/" + siteId + "/main";
 			String content = Web.cleanHtml(emailEntry.getContent()) + attachment_info.toString();
-			externalLogic.addToArchive(config, emailarchive, fromString, subject, content);
+			externalLogic.addToArchive(config, emailarchive, fromString, subject, content, attachments);
 		}
 	}
 
@@ -458,4 +465,5 @@ public class EmailBean
 		
 		return recipientList.toString();
 	}
+
 }

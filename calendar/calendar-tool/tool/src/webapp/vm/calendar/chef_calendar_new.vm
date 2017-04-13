@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_new.vm,v 1.7 2005/06/14 20:13:13 suiyy.umich.edu Exp $
 <script>includeLatestJQuery('chef_calendar_new.vm');</script>
-
+#javascript("/library/js/lang-datepicker/lang-datepicker.js")
 <script type="text/javascript">
 <!-- For debugger safety -->
 if(!window.console) {
@@ -372,7 +372,21 @@ $(function() {
 				#set($day=$date.getDay())
 				#set($year=$todayYear)
 			#end 
-			#chef_dateselectionwidget("yearSelect" "month" "day" $earliestYear $latestYear $year $month $day $dateFormat "")
+			<input type="text" id="newCalendarDate" name="newCalendarDate" class="datepicker" value="">
+			<script type="text/javascript">
+				localDatePicker({
+					input:'#newCalendarDate',
+					useTime:0,
+					val:"$year$H$month$H$day",
+					parseFormat: 'YYYY-MM-DD',
+					ashidden:{
+						month:"month",
+						day:"day",
+						year:"yearSelect",
+						iso8601: 'newCalendarDateISO8601'
+					}
+				});
+			</script>
 		</p>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>
@@ -769,6 +783,12 @@ $(function() {
 				<option value="Exam">$tlang.getString("legend.key11")</option> 
 				#end
 				
+				#if ($type =="Formative Assessment")
+				<option selected="selected" value="Formative Assessment">$tlang.getString("legend.key17")</option>
+				#else
+				<option value="Formative Assessment">$tlang.getString("legend.key17")</option>
+				#end
+				
 				#if ($type=="Meeting") 
 				<option selected="selected" value="Meeting">$tlang.getString("legend.key12")</option> 
 				#else 
@@ -793,10 +813,28 @@ $(function() {
 				<option value="Special event">$tlang.getString("legend.key15")</option> 
 				#end
 				
-				#if ($type =="Web Assignment") 
-				<option selected="selected" value="Web Assignment">$tlang.getString("legend.key16")</option> 
-				#else 
-				<option value="Web Assignment">$tlang.getString("legend.key16")</option> 
+				#if ($type =="Submission Date")
+				<option selected="selected" value="Submission Date">$tlang.getString("legend.key18")</option>
+				#else
+				<option value="Submission Date">$tlang.getString("legend.key18")</option>
+				#end
+				
+				#if ($type =="Tutorial")
+				<option selected="selected" value="Tutorial">$tlang.getString("legend.key19")</option>
+				#else
+				<option value="Tutorial">$tlang.getString("legend.key19")</option>
+				#end
+				
+				#if ($type =="Web Assignment")
+				<option selected="selected" value="Web Assignment">$tlang.getString("legend.key16")</option>
+				#else
+				<option value="Web Assignment">$tlang.getString("legend.key16")</option>
+				#end
+				
+				#if ($type =="Workshop")
+				<option selected="selected" value="Workshop">$tlang.getString("legend.key20")</option>
+				#else
+				<option value="Workshop">$tlang.getString("legend.key20")</option>
 				#end
 			</select>
 		</p>

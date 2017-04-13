@@ -189,7 +189,43 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 						.getString(Portal.CONFIG_AUTO_RESET)),
 				/* doPages */true, /* toolContextPath */null, loggedIn);
 
-		renderContextMap.put("tabsSites", l);
+		int tabsToDisplay = serverConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 15);
+
+		renderContextMap.put("maxFavoritesShown", tabsToDisplay);
+
+		// Bump it up by one to make room for the user's workspace
+		tabsToDisplay++;
+
+		if (l.size() > tabsToDisplay) {
+		    List<Map> sublist = l.subList(0, tabsToDisplay);
+
+		    boolean listContainsCurrentSite = false;
+		    for (Map entry : sublist) {
+			if ((boolean)entry.get("isCurrentSite")) {
+			    listContainsCurrentSite = true;
+			}
+		    }
+
+		    if (!listContainsCurrentSite) {
+			// If the current site wouldn't have been shown in the
+			// subset of sites we're showing, swap it for the last
+			// in the list.
+			ArrayList<Map> modifiedList = new ArrayList<Map>(sublist);
+
+			for (Map entry : l) {
+			    if ((boolean)entry.get("isCurrentSite")) {
+				modifiedList.set(tabsToDisplay - 1, entry);
+				break;
+			    }
+			}
+
+			sublist = modifiedList;
+		    }
+
+		    renderContextMap.put("tabsSites", sublist);
+		} else {
+		    renderContextMap.put("tabsSites", l);
+		}
 
 		boolean displayActive = serverConfigurationService.getBoolean("portal.always.display.active_sites",false);
 		//If we don't always want to display it anyway, check to see if we need to display it
@@ -228,6 +264,21 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		// get Sections
 		Map<String, List> termsToSites = new HashMap<String, List>();
 		Map<String, List> tabsMoreTerms = new TreeMap<String, List>();
+		
+		//SAK-30712
+		String[] moresitesExternalSites = serverConfigurationService.getStrings("moresites.externalConfig.siteTypes");
+		String moresitesExternalPrefix = serverConfigurationService.getString("moresites.externalConfig.prefix","moresites_");
+		boolean moresitesExternalConfig = (moresitesExternalSites!=null) && (moresitesExternalSites.length>0);
+		
+		Map<String, String> moresitesExternalSiteTypes = new HashMap<String, String>();
+		if (moresitesExternalConfig)
+		{
+			for (int i=0;i<moresitesExternalSites.length;i++)
+			{
+				moresitesExternalSiteTypes.put(moresitesExternalSites[i], moresitesExternalPrefix+moresitesExternalSites[i]);
+			}
+		}
+		
 		for (int i = 0; i < allSites.size(); i++)
 		{
 			Site site = allSites.get(i);
@@ -236,7 +287,11 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			String type = site.getType();
 			String term = null;
 
-			if (isCourseType(type))
+			if (moresitesExternalConfig && moresitesExternalSiteTypes.containsKey(type))
+			{
+				term = rb.getString(moresitesExternalSiteTypes.get(type));
+			}
+			else if (isCourseType(type))
 			{
 				term = siteProperties.getProperty("term");
 				if(null==term) {

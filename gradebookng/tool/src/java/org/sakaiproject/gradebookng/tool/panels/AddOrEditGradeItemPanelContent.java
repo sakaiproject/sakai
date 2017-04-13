@@ -12,19 +12,20 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.validation.IValidationError;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -33,12 +34,9 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class AddOrEditGradeItemPanelContent extends Panel {
+public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	private GradebookNgBusinessService businessService;
 
 	private AjaxCheckBox counted;
 	private AjaxCheckBox released;
@@ -49,6 +47,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		super(id, assignmentModel);
 
 		final Gradebook gradebook = this.businessService.getGradebook();
+		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
 		final Assignment assignment = assignmentModel.getObject();
 
@@ -66,10 +65,28 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			public boolean isEnabled() {
 				return !assignment.isExternallyMaintained();
 			}
+
+			@Override
+			public boolean isRequired() {
+				return true;
+			}
+
+			@Override
+			public void error(final IValidationError error) {
+				// Use our fancy error message for all validation errors
+				error(getString("error.addgradeitem.title"));
+			}
 		};
 		add(title);
 
 		// points
+		final Label pointsLabel = new Label("pointsLabel");
+		if (gradingType == GradingType.PERCENTAGE) {
+			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.percentage"));
+		} else {
+			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
+		}
+		add(pointsLabel);
 		final TextField<Double> points = new TextField<Double>("points",
 				new PropertyModel<Double>(assignmentModel, "points")) {
 			private static final long serialVersionUID = 1L;
@@ -78,13 +95,24 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			public boolean isEnabled() {
 				return !assignment.isExternallyMaintained();
 			}
+
+			@Override
+			public boolean isRequired() {
+				return true;
+			}
+
+			@Override
+			public void error(final IValidationError error) {
+				// Use our fancy error message for all validation errors
+				error(getString("error.addgradeitem.points"));
+			}
 		};
 		add(points);
 
 		// due date
 		// TODO date format needs to come from i18n
 		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"),
-				"MM/dd/yyyy") {
+				getString("format.date")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -132,17 +160,17 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 					public String getIdValue(final Long object, final int index) {
 						return object.toString();
 					}
+				}) {
+			private static final long serialVersionUID = 1L;
 
-				});
+			@Override
+			protected String getNullValidDisplayValue() {
+				return getString("gradebookpage.uncategorised");
+			}
+		};
 
-		// if we don't have a category assigned we want the 'Choose One'
-		// message. setNullValid = false
-		// if we have a category we want to be able to clear it. setNullValid =
-		// true
-		categoryDropDown.setNullValid(false);
-		if (assignment.getCategoryId() != null) {
-			categoryDropDown.setNullValid(true);
-		}
+		// always allow an assignment to be set as uncategorized
+		categoryDropDown.setNullValid(true);
 		categoryDropDown.setVisible(!categories.isEmpty());
 		categoryWrap.add(categoryDropDown);
 

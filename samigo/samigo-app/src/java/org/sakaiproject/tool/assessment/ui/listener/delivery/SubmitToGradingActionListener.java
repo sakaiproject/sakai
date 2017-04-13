@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -37,24 +38,13 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.LearningResourceStoreService;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Actor;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Context;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Result;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
-import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -75,10 +65,13 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -94,6 +87,8 @@ import org.sakaiproject.user.api.UserDirectoryService;
 
 public class SubmitToGradingActionListener implements ActionListener {
 	private static final Logger log = LoggerFactory.getLogger(SubmitToGradingActionListener.class);
+    private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
+
 	
 	/**
 	 * The publishedAssesmentService
@@ -134,19 +129,14 @@ public class SubmitToGradingActionListener implements ActionListener {
 				delivery.setPublishedAssessment(publishedAssessment);
 			}
 			
-			HashMap invalidFINMap = new HashMap();
-			ArrayList invalidSALengthList = new ArrayList();
+			Map invalidFINMap = new HashMap();
+			List invalidSALengthList = new ArrayList();
 			AssessmentGradingData adata = submitToGradingService(ae, publishedAssessment, delivery, invalidFINMap, invalidSALengthList);
 			// set AssessmentGrading in delivery
 			delivery.setAssessmentGrading(adata);
             if (adata.getForGrade()) {
-                Event event = EventTrackingService.newEvent("", adata.getPublishedAssessmentTitle(), true);
-                LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
-                    .get("org.sakaiproject.event.api.LearningResourceStoreService");
-                if (null != lrss && lrss.getEventActor(event) != null) {
-                    lrss.registerStatement(getStatementForGradedAssessment(adata, lrss.getEventActor(event), publishedAssessment),
-                        "sakai.samigo");
-                }
+                Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AUTO_GRADED, adata.getPublishedAssessmentTitle(), null, true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForGradedAssessment(adata, publishedAssessment));
+                eventTrackingService.post(event);
             }
 			// set url & confirmation after saving the record for grade
 			if (delivery.getForGrade())
@@ -304,7 +294,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * @return
 	 */
 	private synchronized AssessmentGradingData submitToGradingService(
-			ActionEvent ae, PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery, HashMap invalidFINMap, ArrayList invalidSALengthList) throws FinFormatException {
+			ActionEvent ae, PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery, Map invalidFINMap, List invalidSALengthList) throws FinFormatException {
 		log.debug("****1a. inside submitToGradingService ");
 		String submissionId = "";
 		HashSet<ItemGradingData> itemGradingHash = new HashSet<>();
@@ -375,7 +365,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						if (tmpAnchorName.equals("") || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
 							tmpAnchorName = redrawAnchorName.toString();
 						}
-						ArrayList list = (ArrayList) invalidFINMap.get(itemId);
+						List list = (List) invalidFINMap.get(itemId);
 						List<FinBean> finArray = item.getFinArray();
 						Iterator<FinBean> iterFin = finArray.iterator();
 						while (iterFin.hasNext()) {
@@ -383,7 +373,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 							if (finBean.getItemGradingData() != null) {
 								Long itemGradingId = finBean.getItemGradingData().getItemGradingId();
 								if (list.contains(itemGradingId)) {
-									finBean.setIsCorrect(false);
+									finBean.setIsCorrect(Boolean.FALSE);
 								}
 							}
 						}
@@ -411,10 +401,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 		return adata;
 	}
 
-	private AssessmentGradingData persistAssessmentGrading(ActionEvent ae, 
+	private AssessmentGradingData persistAssessmentGrading(ActionEvent ae,
 			DeliveryBean delivery, HashSet<ItemGradingData> itemGradingHash,
 			PublishedAssessmentFacade publishedAssessment, HashSet<ItemGradingData> adds,
-			HashSet<ItemGradingData> removes, HashMap invalidFINMap, ArrayList invalidSALengthList) throws FinFormatException {
+			HashSet<ItemGradingData> removes, Map invalidFINMap, List invalidSALengthList) throws FinFormatException {
 		AssessmentGradingData adata = null;
 		if (delivery.getAssessmentGrading() != null) {
 			adata = delivery.getAssessmentGrading();
@@ -433,12 +423,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// 2. add any modified SAQ/TF/FIB/Matching/MCMR/FIN
 			// 3. save any modified Mark for Review in FileUplaod/Audio
 
-			HashMap<Long, ItemDataIfc> fibMap = getFIBMap(publishedAssessment);
-			HashMap<Long, ItemDataIfc> finMap = getFINMap(publishedAssessment);
-			HashMap<Long, ItemDataIfc> calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
-			HashMap<Long, ItemDataIfc> imagQuestionMap = getImagQuestionMap(publishedAssessment); // IMAGEMAP_QUESTION
-			HashMap<Long, ItemDataIfc> mcmrMap = getMCMRMap(publishedAssessment);
-			HashMap<Long, ItemDataIfc> emiMap = getEMIMap(publishedAssessment);
+			Map<Long, ItemDataIfc> fibMap = getFIBMap(publishedAssessment);
+			Map<Long, ItemDataIfc> finMap = getFINMap(publishedAssessment);
+			Map<Long, ItemDataIfc> calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
+			Map<Long, ItemDataIfc> imagQuestionMap = getImagQuestionMap(publishedAssessment); // IMAGEMAP_QUESTION
+			Map<Long, ItemDataIfc> mcmrMap = getMCMRMap(publishedAssessment);
+			Map<Long, ItemDataIfc> emiMap = getEMIMap(publishedAssessment);
 			Set<ItemGradingData> itemGradingSet = adata.getItemGradingSet();
 			log.debug("*** 2a. before removal & addition " + (new Date()));
 			if (itemGradingSet != null) {
@@ -496,9 +486,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// 3. let's build three HashMap with (publishedItemId, publishedItem),
 			// (publishedItemTextId, publishedItem), (publishedAnswerId,
 			// publishedItem) to help with storing grades to adata only, not db
-			HashMap publishedItemHash = delivery.getPublishedItemHash();
-			HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
-			HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
+			Map publishedItemHash = delivery.getPublishedItemHash();
+			Map publishedItemTextHash = delivery.getPublishedItemTextHash();
+			Map publishedAnswerHash = delivery.getPublishedAnswerHash();
 			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, false, invalidFINMap, invalidSALengthList);
 		}
 		else {
@@ -510,20 +500,20 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// 3. let's build three HashMap with (publishedItemId, publishedItem),
 			// (publishedItemTextId, publishedItem), (publishedAnswerId,
 			// publishedItem) to help with storing grades to adata and then persist to DB
-			HashMap publishedItemHash = delivery.getPublishedItemHash();
-			HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
-			HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
+			Map publishedItemHash = delivery.getPublishedItemHash();
+			Map publishedItemTextHash = delivery.getPublishedItemTextHash();
+			Map publishedAnswerHash = delivery.getPublishedAnswerHash();
 			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, invalidFINMap, invalidSALengthList);
 		}
 		return adata;
 	}
 
-	private HashMap<Long, ItemDataIfc> getFIBMap(PublishedAssessmentIfc publishedAssessment) {
+	private Map<Long, ItemDataIfc> getFIBMap(PublishedAssessmentIfc publishedAssessment) {
 		return publishedAssesmentService.prepareFIBItemHash(publishedAssessment);
 	}
 
   
-  	private HashMap<Long, ItemDataIfc> getFINMap(PublishedAssessmentIfc publishedAssessment){
+  	private Map<Long, ItemDataIfc> getFINMap(PublishedAssessmentIfc publishedAssessment){
 	    return publishedAssesmentService.prepareFINItemHash(publishedAssessment);
 	}
   	
@@ -532,8 +522,8 @@ public class SubmitToGradingActionListener implements ActionListener {
   	 * @param publishedAssessment
   	 * @return map of calc items
   	 */
-  	private HashMap<Long, ItemDataIfc> getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
-	    return (HashMap<Long, ItemDataIfc>) publishedAssesmentService.prepareCalcQuestionItemHash(publishedAssessment);
+  	private Map<Long, ItemDataIfc> getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
+	    return (Map<Long, ItemDataIfc>) publishedAssesmentService.prepareCalcQuestionItemHash(publishedAssessment);
 	}
   
   	/**
@@ -541,29 +531,30 @@ public class SubmitToGradingActionListener implements ActionListener {
   	 * @param publishedAssessment
   	 * @return map of image items
   	 */
-  	private HashMap<Long, ItemDataIfc> getImagQuestionMap(PublishedAssessmentIfc publishedAssessment){
-	    return (HashMap<Long, ItemDataIfc>) publishedAssesmentService.prepareImagQuestionItemHash(publishedAssessment);
+  	private Map<Long, ItemDataIfc> getImagQuestionMap(PublishedAssessmentIfc publishedAssessment){
+	    return (Map<Long, ItemDataIfc>) publishedAssesmentService.prepareImagQuestionItemHash(publishedAssessment);
 	}  
 
-	private HashMap<Long, ItemDataIfc> getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
+	private Map<Long, ItemDataIfc> getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
 		return publishedAssesmentService.prepareMCMRItemHash(publishedAssessment);
 	}
 
-	private HashMap<Long, ItemDataIfc> getEMIMap(PublishedAssessmentIfc publishedAssessment) {
+	private Map<Long, ItemDataIfc> getEMIMap(PublishedAssessmentIfc publishedAssessment) {
 		PublishedAssessmentService s = new PublishedAssessmentService();
 		return s.prepareEMIItemHash(publishedAssessment);
 	}
-	
-	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet,
-			Set<ItemGradingData> newItemGradingSet, HashMap<Long, ItemDataIfc> fibMap, HashMap<Long, ItemDataIfc> finMap, HashMap<Long, ItemDataIfc> calcQuestionMap, HashMap<Long, ItemDataIfc> imagQuestionMap,HashMap<Long, ItemDataIfc> mcmrMap,
-			HashMap<Long, ItemDataIfc> emiMap, AssessmentGradingData adata) {
+
+	private HashSet<ItemGradingData> getUpdateItemGradingSet(Set oldItemGradingSet, Set<ItemGradingData> newItemGradingSet,
+															 Map<Long, ItemDataIfc> fibMap, Map<Long, ItemDataIfc> finMap,
+															 Map<Long, ItemDataIfc> calcQuestionMap, Map<Long, ItemDataIfc> imagQuestionMap,
+															 Map<Long, ItemDataIfc> mcmrMap, Map<Long, ItemDataIfc> emiMap, AssessmentGradingData adata) {
 		log.debug("Submitforgrading: oldItemGradingSet.size = "
 				+ oldItemGradingSet.size());
 		log.debug("Submitforgrading: newItemGradingSet.size = "
 				+ newItemGradingSet.size());
 		HashSet<ItemGradingData> updateItemGradingSet = new HashSet<>();
 		Iterator iter = oldItemGradingSet.iterator();
-		HashMap<Long, ItemGradingData> map = new HashMap<>();
+		Map<Long, ItemGradingData> map = new HashMap<>();
 		while (iter.hasNext()) { // create a map with old itemGrading
 			ItemGradingData item = (ItemGradingData) iter.next();
 			map.put(item.getItemGradingId(), item);
@@ -868,22 +859,21 @@ public class SubmitToGradingActionListener implements ActionListener {
 			if (answerModified) {
 				for (int m = 0; m < grading.size(); m++) {
 					ItemGradingData itemgrading = grading.get(m);
+
+					// Remove all previous answers
 					if (itemgrading !=null && itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
-						// remove all old answer
 						removes.add(itemgrading);
-					} else {
-						// add new answer
-						if (itemgrading !=null && (itemgrading.getPublishedAnswerId() != null
-							|| itemgrading.getAnswerText() != null
-							|| (itemgrading.getRationale() != null 
-							&& StringUtils.isNotBlank(itemgrading.getRationale())))) { 
-							itemgrading.setAgentId(AgentFacade.getAgentString());
-							itemgrading.setSubmittedDate(new Date());
-							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
-							}
-							adds.add(itemgrading);
+					}
+
+					// Add all provided answers, regardless if they're new or not
+					if (itemgrading !=null && (itemgrading.getPublishedAnswerId() != null || itemgrading.getAnswerText() != null
+							|| (itemgrading.getRationale() != null && StringUtils.isNotBlank(itemgrading.getRationale())))) { 
+						itemgrading.setAgentId(AgentFacade.getAgentString());
+						itemgrading.setSubmittedDate(new Date());
+						if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
+							itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
 						}
+						adds.add(itemgrading);
 					}
 				}
 			}
@@ -1001,27 +991,4 @@ public class SubmitToGradingActionListener implements ActionListener {
 		else
 			return Boolean.FALSE;
 	}
-	
-    private LRS_Statement getStatementForGradedAssessment(AssessmentGradingData gradingData, LRS_Actor student,
-            PublishedAssessmentFacade publishedAssessment) {
-        LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
-        LRS_Object lrsObject = new LRS_Object(ServerConfigurationService.getPortalUrl() + "/assessment", "received-grade-assessment");
-        HashMap<String, String> nameMap = new HashMap<>();
-        nameMap.put("en-US", "User received a grade");
-        lrsObject.setActivityName(nameMap);
-        HashMap<String, String> descMap = new HashMap<>();
-        descMap.put("en-US", "User received a grade for their assessment: " + publishedAssessment.getTitle() + "; Submitted: "
-                + (gradingData.getIsLate() ? "late" : "on time"));
-        lrsObject.setDescription(descMap);
-        LRS_Context context = new LRS_Context("other", "assessment");
-        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(gradingData, publishedAssessment), context);
-        return statement;
-	}
-
-    private LRS_Result getLRS_Result(AssessmentGradingData gradingData, PublishedAssessmentFacade publishedAssessment) {
-        double score = gradingData.getFinalScore();
-        LRS_Result result = new LRS_Result(score, 0.0, publishedAssessment.getTotalScore(), null);
-        result.setCompletion(true);
-        return result;
-    }
 }

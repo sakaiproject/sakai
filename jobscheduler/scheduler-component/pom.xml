@@ -22,5 +22,13 @@
         <deploy.target>components</deploy.target>
     </properties>
 
-    <dependencies />
+    <dependencies>
+        <dependency>
+            <groupId>${sakai.spring.groupId}</groupId>
+            <artifactId>${sakai.spring.artifactId}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-component-shared</artifactId></dependency>
+    </dependencies>
 </project>

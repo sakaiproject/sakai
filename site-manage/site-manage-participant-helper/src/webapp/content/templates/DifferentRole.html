@@ -24,32 +24,36 @@
 		<h3 rsf:id="msg=adddif.choose">Choose a Role for Participants</h3>
 		<form rsf:id="differentRole-form">
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
-			<table class="listHier lines nolines" style="width:100%" summary="">
-				<tr rsf:id="role-row:">
-					<td rsf:id="role-id"></td>
-					<td rsf:id="role-description"></td>		
-				</tr>
-			</table>
-			<table class="listHier" border="0" cellspacing="0">
-			  <thead>
-			    <tr>
-			      <th rsf:id="msg=addconf.username">UserName</th>
-			      <th rsf:id="msg=addconf.role">Role</th>
-			    </tr>
-			  </thead>
-			  <tbody>
-			    <tr rsf:id="user-row:">
-			      <td rsf:id="user-name"></td>
-			      <td width="10%">
-						<select size="1" rsf:id="role-select" id="role-select" style="valign:top">
-						  <option value="" selected="selected">Please choose a role:</option>
-				          <option value="access" >access</option>
-				          <option value="maintain">maintain</option>
-				        </select>
-				      </td>
-			    </tr>
-			  </tbody>
-			</table>
+			<div class="table-responsive">
+				<table class="table table-bordered table-hover table-striped" summary="">
+					<tr rsf:id="role-row:">
+						<td rsf:id="role-id"></td>
+						<td rsf:id="role-description"></td>		
+					</tr>
+				</table>
+			</div>
+			<div class="table-responsive">
+				<table class="table table-bordered table-hover table-striped" border="0" cellspacing="0">
+					<thead>
+						<tr>
+							<th rsf:id="msg=addconf.username">UserName</th>
+							<th rsf:id="msg=addconf.role">Role</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr rsf:id="user-row:">
+							<td rsf:id="user-name"></td>
+							<td width="10%">
+								<select size="1" rsf:id="role-select" id="role-select" style="valign:top">
+									<option value="" selected="selected">Please choose a role:</option>
+									<option value="access" >access</option>
+									<option value="maintain">maintain</option>
+								</select>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 			<p class="act">
 				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input accesskey ="b" rsf:id="back" value="Back" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />

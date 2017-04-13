@@ -123,7 +123,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- bjones86 - SAK-24423 - joinable site settings -->
+        <!-- SAK-24423 - joinable site settings -->
         <dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
@@ -132,6 +132,27 @@
     	<dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-privacy-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

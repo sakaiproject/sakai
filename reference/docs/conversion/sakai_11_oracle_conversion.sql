@@ -14,9 +14,9 @@ UPDATE sakai_site_tool SET registration = 'sakai.simple.rss' WHERE registration 
 -- New permissions
 
 -- KNL-1350 / SAK-11647
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'dropbox.maintain.own.groups');
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'))
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'dropbox.maintain.own.groups');
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain.own.groups'));
 -- END KNL-1350 / SAK-11647
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'msg.permissions.allowToField.myGroupMembers');
@@ -272,7 +272,7 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 -- ------------------------------
 
 -- KNL-1336 - Add status for all nodes in a cluster.
-ALTER TABLE SAKAI_CLUSTER COLUMN STATUS VARCHAR(8);
+ALTER TABLE SAKAI_CLUSTER ADD STATUS VARCHAR(8);
 -- We rename the column so we don't have update the primary key index
 ALTER TABLE SAKAI_CLUSTER RENAME COLUMN SERVER_ID TO SERVER_ID_INSTANCE;
 ALTER TABLE SAKAI_CLUSTER ADD SERVER_ID VARCHAR (64);
@@ -281,14 +281,6 @@ ALTER TABLE SAKAI_CLUSTER ADD SERVER_ID VARCHAR (64);
 alter table GB_GRADEBOOK_T add COURSE_POINTS_DISPLAYED number(1,0) default '0' not null;
 
 -- END SAK-27937
-
-
---
--- SAK-27929 Add Dashboard to default !user site
---
-
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '0', 0, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!user-999', '!user-99', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
 
 -- SAK-25385
 ALTER TABLE GB_GRADABLE_OBJECT_T MODIFY DUE_DATE TIMESTAMP;
@@ -405,6 +397,10 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1600', 'sitePage.c
 drop index MFR_MESSAGE_DELETED_I;
 -- END SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 
+-- LSNBLDR-646
+drop index lb_qr_questionId;
+-- END LSNBLDR-646
+
 -- SAK-29546 Add site visit totals per user
 CREATE TABLE SST_PRESENCE_TOTALS (
                 ID NUMBER(19,0) NOT NULL,
@@ -435,7 +431,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.view.audience'));
 -- END SAK-29497
 
--- SAK-29271 Feedback Tool
+-- SAK-29271 / SAK-31315 Feedback Tool
 CREATE TABLE sakai_feedback (
                 id number not null primary key,
                 user_id varchar2(99) null,
@@ -444,7 +440,7 @@ CREATE TABLE sakai_feedback (
                 report_type varchar2(15) not null,
                 title varchar2(40) not null,
                 content varchar2(4000) not null,
-                CONSTRAINT cons_report_type CHECK (report_type IN ('content','technical', 'helpdesk')));
+                CONSTRAINT cons_report_type CHECK (report_type IN ('content','technical', 'helpdesk', 'suggestions', 'supplementala', 'supplementalb')));
 CREATE SEQUENCE sakai_feedback_seq START WITH 1 INCREMENT BY 1 nomaxvalue;
 INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '', '', null, 1, 0, 0, '', 'admin', 'admin', sysdate, sysdate, 1, 0, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
@@ -467,7 +463,7 @@ UPDATE SAKAI_SITE_TOOL SET TITLE='Calendar' WHERE REGISTRATION = 'sakai.schedule
 UPDATE SAKAI_SITE_PAGE SET TITLE='Calendar' WHERE TITLE = 'Schedule';
 
 -- SAK-30000 Site creation notification email template updates
-UPDATE email_template_item
+UPDATE EMAIL_TEMPLATE_ITEM
 SET message = '
 From Worksite Setup to ${serviceName} support:
 
@@ -477,7 +473,7 @@ From Worksite Setup to ${serviceName} support:
 ${sections}
 '
 WHERE template_key = 'sitemanage.notifySiteCreation' AND template_locale = 'default';
-UPDATE email_template_item
+UPDATE EMAIL_TEMPLATE_ITEM
 SET subject = 'Site "${siteTitle}" was successfully created by ${currentUserDisplayName}', message = '
 Hi, ${currentUserDisplayName}:
 
@@ -663,6 +659,8 @@ ALTER TABLE SAKAI_SESSION MODIFY SESSION_END NULL;
 
 -- 1389 GradebookNG sortable assignments within categories, add CATEGORIZED_SORT_ORDER to GB_GRADABLE_OBJECT_T
 ALTER TABLE GB_GRADABLE_OBJECT_T ADD CATEGORIZED_SORT_ORDER number;
+-- 1840 Allow quick queries of grading events by date graded
+CREATE INDEX GB_GRADING_EVENT_T_DATE_OBJ_ID ON GB_GRADING_EVENT_T (DATE_GRADED, GRADABLE_OBJECT_ID);
 -- 
 -- SAM-1117 - Option to not display scores
 --
@@ -761,8 +759,6 @@ CREATE TABLE lti_memberships_jobs (
 );
 -- END LTI CHANGES !!
 
--- LSNBLDR-500
-alter table lesson_builder_pages add folder varchar2(250);
 -- LSNBLDR-622
 alter table lesson_builder_items modify (name varchar2(255 char));
 alter table lesson_builder_pages modify (title varchar2(255 char));
@@ -784,117 +780,6 @@ create table lesson_builder_ch_status (
         primary key (checklistId,checklistItemId,owner)
  );
 create index lb_p_eval_res_row on lesson_builder_p_eval_results(page_id);
-create index lb_page_folder on lesson_builder_pages(siteId, folder);
-
--- ------------------------------
--- DASHBOARD                -----
--- ------------------------------
-
-create table dash_availability_check 
-( id number not null primary key, entity_ref varchar2(255) not null, 
-entity_type_id varchar2(255) not null, scheduled_time timestamp(0) not null); 
-create sequence dash_availability_check_seq start with 1 increment by 1 nomaxvalue; 
-create unique index dash_avail_check_idx on dash_availability_check(entity_ref, scheduled_time); 
-create index dash_avail_check_time_idx on dash_availability_check(scheduled_time);
-
-create table dash_calendar_item 
-( id number not null primary key, calendar_time timestamp(0) not null, calendar_time_label_key varchar2(40), 
-title varchar2(255) not null, 
-entity_ref varchar2(255) not null, entity_type number not null, subtype varchar2(255), context_id number not null, 
-repeating_event_id number, sequence_num integer ); 
-create sequence dash_calendar_item_seq start with 1 increment by 1 nomaxvalue; 
-create index dash_cal_time_idx on dash_calendar_item (calendar_time); 
-create unique index dash_cal_entity_label_idx on dash_calendar_item (entity_ref, calendar_time_label_key, sequence_num); 
-create index dash_cal_entity_idx on dash_calendar_item (entity_ref);
-
-create table dash_calendar_link 
-( id number not null primary key, person_id number not null, context_id number not null, 
-item_id number not null, hidden number(1,0) default 0, sticky number(1,0) default 0, 
-unique (person_id, context_id, item_id) ); 
-create sequence dash_calendar_link_seq start with 1 increment by 1 nomaxvalue; 
-create index dash_calendar_link_idx on dash_calendar_link (person_id, context_id, item_id, hidden, sticky);
-create index dash_calendar_link_item_id_idx on dash_calendar_link (item_id);
-
-create table dash_config ( id number not null primary key, 
-property_name varchar2(99) not null, property_value number(10,0) not null ); 
-create sequence dash_config_seq start with 1 increment by 1 nomaxvalue;  
-create unique index dash_config_name_idx on dash_config(property_name); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_DEFAULT_ITEMS_IN_PANEL', 5); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_DEFAULT_ITEMS_IN_DISCLOSURE', 20); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_DEFAULT_ITEMS_IN_GROUP', 2); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_NEWS_ITEMS_AFTER_WEEKS', 8); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_STARRED_NEWS_ITEMS_AFTER_WEEKS', 26); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_HIDDEN_NEWS_ITEMS_AFTER_WEEKS', 4); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_CALENDAR_ITEMS_AFTER_WEEKS', 2); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_STARRED_CALENDAR_ITEMS_AFTER_WEEKS', 26); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_HIDDEN_CALENDAR_ITEMS_AFTER_WEEKS', 1); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_NEWS_ITEMS_WITH_NO_LINKS', 1); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_REMOVE_CALENDAR_ITEMS_WITH_NO_LINKS', 1); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_DAYS_BETWEEN_HORIZ0N_UPDATES', 1); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_WEEKS_TO_HORIZON', 4); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_MOTD_MODE', 1); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_NAVIGATION_EVENTS', 2); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS', 2); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_PREFERENCE_EVENTS', 2); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_DASH_NAV_EVENTS', 2);
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOOP_TIMER_ENABLED', 0);
-
-create table dash_context 
-( id number not null primary key, context_id varchar2(255) not null, 
-context_url varchar2(1024) not null, context_title varchar2(255) not null ); 
-create sequence dash_context_seq start with 1 increment by 1 nomaxvalue; 
-create unique index dash_context_idx on dash_context (context_id);
-
-create table dash_event (event_id number not null primary key, event_date timestamp with time zone, 
-event varchar2 (32), ref varchar2 (255), context varchar2 (255), session_id varchar2 (163), event_code varchar2 (1)); 
---create unique index dash_event_index on dash_event (event_id asc); 
-create sequence dash_event_seq start with 1 increment by 1 nomaxvalue;
-
-create table dash_news_item ( id number not null primary key, 
-news_time timestamp(0) not null, news_time_label_key varchar2(40), title varchar2(255) not null, 
-entity_ref varchar2(255) not null, 
-entity_type number not null, subtype varchar2(255), context_id number not null, grouping_id varchar2(90) ); 
-create sequence dash_news_item_seq start with 1 increment by 1 nomaxvalue; 
-create index dash_news_time_idx on dash_news_item (news_time); 
-create index dash_news_grouping_idx on dash_news_item (grouping_id); 
-create unique index dash_news_entity_idx on dash_news_item (entity_ref);
-
-create table dash_news_link 
-( id number not null primary key, person_id number not null, context_id number not null, 
-item_id number not null, hidden number(1,0) default 0, sticky number(1,0) default 0, unique (person_id, context_id, item_id) ); 
-create sequence dash_news_link_seq start with 1 increment by 1 nomaxvalue; 
-create index dash_news_link_idx on dash_news_link (person_id, context_id, item_id, hidden, sticky);
-create index dash_news_link_item_id_idx on dash_news_link (item_id);
-
-create table dash_person 
-( id number not null primary key,user_id varchar2(99) not null, sakai_id varchar2(99) ); 
-create sequence dash_person_seq start with 1 increment by 1 nomaxvalue; 
-create unique index dash_person_user_id_idx on dash_person (user_id); 
-create unique index dash_person_sakai_id_idx on dash_person (sakai_id);
-
-create table dash_repeating_event (id number not null primary key, 
-first_time timestamp(0) not null, last_time timestamp(0), frequency varchar2(40) not null, max_count integer, 
-calendar_time_label_key varchar2(40), title varchar2(255) not null, 
-entity_ref varchar2(255) not null, subtype varchar2(255), entity_type number not null, context_id number not null ); 
-create sequence dash_repeating_event_seq start with 1 increment by 1 nomaxvalue; 
-create index dash_repeating_event_first_idx on dash_repeating_event (first_time); 
-create index dash_repeating_event_last_idx on dash_repeating_event (last_time);
-
-create table dash_sourcetype 
-( id number not null primary key, identifier varchar2(255) not null ); 
-create sequence dash_sourcetype_seq start with 1 increment by 1 nomaxvalue; 
-create unique index dash_source_idx on dash_sourcetype (identifier);
-
-create table dash_task_lock
-( id number not null primary key, 
-task varchar2(255) not null, 
-server_id varchar2(255) not null, 
-claim_time timestamp(9), 
-last_update timestamp(9), 
-has_lock number(1,0) default 0); 
-create sequence dash_task_lock_seq start with 1 increment by 1 nomaxvalue; 
-create index dash_lock_ct_idx on dash_task_lock (claim_time); 
-create unique index dash_lock_ts_idx on dash_task_lock (task, server_id);
 
 -----------------------------------------------------------------------------
 -- SAKAI_CONFIG_ITEM - KNL-1063 - ORACLE
@@ -925,16 +810,7 @@ ALTER TABLE SAKAI_CONFIG_ITEM
 CREATE INDEX SCI_NODE_IDX ON SAKAI_CONFIG_ITEM (NODE ASC);
 CREATE INDEX SCI_NAME_IDX ON SAKAI_CONFIG_ITEM (NAME ASC);
 
-CREATE SEQUENCE SAKAI_CFG_ITEM_S;
-
--- This is not needed if sequence match name in file HibernateConfigItem.hbm.xml
---CREATE OR REPLACE TRIGGER SCI_ID_AI
---BEFORE INSERT ON SAKAI_CONFIG_ITEM
---FOR EACH ROW
---BEGIN
---  SELECT SAKAI_CFG_ITEM_SEQ.NEXTVAL INTO :new.ID FROM dual;
---END;
---/
+CREATE SEQUENCE SAKAI_CONFIG_ITEM_S;
 
 -- SAK-30032 Create table to handle Peer Review attachments --
 CREATE TABLE ASN_PEER_ASSESSMENT_ATTACH_T (
@@ -991,3 +867,191 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENT
       AND TYPEID='142' AND ISTEMPLATE=1),
        'instructorNotification_isInstructorEditable', 'true');
 --END SAM-2709
+
+-- SAK-29442 Sequence LB_PEER_EVAL_RESULT_S Missing
+CREATE SEQUENCE LB_PEER_EVAL_RESULT_S;
+-- END SAK-29442
+
+-- SAM-2751
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD HONORPLEDGE NUMBER(1,0);
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD HONORPLEDGE NUMBER(1,0);
+INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
+    SELECT SAM_ASSESSMETADATA_ID_S.nextval, ASSESSMENTID, LABEL, ENTRY
+     FROM (SELECT DISTINCT ASSESSMENTID, 'honorpledge_isInstructorEditable' as LABEL, 'true' as ENTRY
+            FROM SAM_ASSESSMETADATA_T WHERE ASSESSMENTID NOT IN
+            (SELECT DISTINCT ASSESSMENTID FROM SAM_ASSESSMETADATA_T WHERE LABEL = 'honorpledge_isInstructorEditable'));
+-- END SAM-2751
+
+-- SAM-1200 Oracle conversion, size increases of Samigo columns
+alter table SAM_PUBLISHEDASSESSMENT_T add tempcol clob;
+update SAM_PUBLISHEDASSESSMENT_T set tempcol=description;
+alter table SAM_PUBLISHEDASSESSMENT_T drop column description;
+alter table SAM_PUBLISHEDASSESSMENT_T rename column tempcol to description;
+
+alter table SAM_PUBLISHEDSECTION_T add tempcol clob;
+update SAM_PUBLISHEDSECTION_T set tempcol=description;
+alter table SAM_PUBLISHEDSECTION_T drop column description;
+alter table SAM_PUBLISHEDSECTION_T rename column tempcol to description;
+
+alter table SAM_ASSESSMENTBASE_T add tempcol clob;
+update SAM_ASSESSMENTBASE_T set tempcol=description;
+alter table SAM_ASSESSMENTBASE_T drop column description;
+alter table SAM_ASSESSMENTBASE_T rename column tempcol to description;
+
+alter table SAM_SECTION_T add tempcol clob;
+update SAM_SECTION_T set tempcol=description;
+alter table SAM_SECTION_T drop column description;
+alter table SAM_SECTION_T rename column tempcol to description;
+
+alter table SAM_ITEMGRADING_T add tempcol clob;
+update SAM_ITEMGRADING_T set tempcol=comments;
+alter table SAM_ITEMGRADING_T drop column comments;
+alter table SAM_ITEMGRADING_T rename column tempcol to comments;
+
+alter table SAM_ASSESSMENTGRADING_T add tempcol clob;
+update SAM_ASSESSMENTGRADING_T set tempcol=comments;
+alter table SAM_ASSESSMENTGRADING_T drop column comments;
+alter table SAM_ASSESSMENTGRADING_T rename column tempcol to comments;
+-- END SAM-1200
+
+CREATE TABLE SST_LESSONBUILDER
+(ID             NUMBER(19) PRIMARY KEY,
+ USER_ID        VARCHAR2(99) NOT NULL,
+ SITE_ID        VARCHAR2(99) NOT NULL,
+ PAGE_REF       VARCHAR2(255) NOT NULL,
+ PAGE_ID        NUMBER(19) NOT NULL,
+ PAGE_ACTION    VARCHAR2(12) NOT NULL,
+ PAGE_DATE      DATE NOT NULL,
+ PAGE_COUNT     NUMBER(19) NOT NULL
+);
+
+CREATE SEQUENCE SST_LESSONBUILDER_ID;
+
+CREATE INDEX SST_LESSONBUILDER_PAGE_ACT_IDX ON SST_LESSONBUILDER (PAGE_ACTION);
+
+CREATE INDEX SST_LESSONBUILDER_DATE_IX ON SST_LESSONBUILDER (PAGE_DATE);
+
+CREATE INDEX SST_LESSONBUILDER_SITE_ID_IX ON SST_LESSONBUILDER (SITE_ID);
+
+CREATE INDEX SST_LESSONBUILDER_USER_ID_IX ON SST_LESSONBUILDER (USER_ID);
+
+CREATE TABLE MFR_ANONYMOUS_MAPPING_T (
+  SITE_ID varchar(255) NOT NULL,
+  USER_ID varchar(255) NOT NULL,
+  ANON_ID varchar(255) NOT NULL,
+  PRIMARY KEY (SITE_ID,USER_ID)
+);
+
+CREATE TABLE MFR_RANK_INDIVIDUAL_T (
+  RANK_ID number(19,0) NOT NULL,
+  USER_ID varchar(99) NOT NULL,
+  PRIMARY KEY (RANK_ID,USER_ID),
+  CONSTRAINT mfr_rank_indiv_fk FOREIGN KEY (RANK_ID) REFERENCES MFR_RANK_T (ID)
+);
+
+CREATE INDEX mfr_rank_indiv_idx ON MFR_RANK_INDIVIDUAL_T (RANK_ID);
+
+-- SAK-30141 New permissions
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'syllabus.add.item');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'syllabus.bulk.add.item');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'syllabus.bulk.edit.item');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.nextval, 'syllabus.redirect');
+
+-- maintain
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.edit.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.redirect'));
+
+-- maintain
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.edit.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.redirect'));
+
+-- Instructor
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.edit.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.redirect'));
+
+-- Administrator
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Administrator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Administrator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Administrator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.edit.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Administrator'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.redirect'));
+
+-- Instructor
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.add.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.bulk.edit.item'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'syllabus.redirect'));
+
+-- Permission backfill
+
+-- for each realm that has a role matching something in this table, we will add to that role the function from this table
+CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
+
+-- maintain
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','syllabus.add.item');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','syllabus.bulk.add.item');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','syllabus.bulk.edit.item');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','syllabus.redirect');
+
+-- Instructor
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','syllabus.add.item');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','syllabus.bulk.add.item');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','syllabus.bulk.edit.item');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','syllabus.redirect');
+
+-- lookup the role and function numbers
+CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
+INSERT INTO PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
+SELECT SRR.ROLE_KEY, SRF.FUNCTION_KEY
+from PERMISSIONS_SRC_TEMP TMPSRC
+JOIN SAKAI_REALM_ROLE SRR ON (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
+JOIN SAKAI_REALM_FUNCTION SRF ON (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
+
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper" OR "!user.template")
+INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
+SELECT
+    SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
+FROM
+    (SELECT DISTINCT SRRF.REALM_KEY, SRRF.ROLE_KEY FROM SAKAI_REALM_RL_FN SRRF) SRRFD
+    JOIN PERMISSIONS_TEMP TMP ON (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
+    JOIN SAKAI_REALM SR ON (SRRFD.REALM_KEY = SR.REALM_KEY)
+    WHERE SR.REALM_ID != '!site.helper' AND SR.REALM_ID NOT LIKE '!user.template%'
+    AND NOT EXISTS (
+        SELECT 1
+            FROM SAKAI_REALM_RL_FN SRRFI
+            WHERE SRRFI.REALM_KEY=SRRFD.REALM_KEY AND SRRFI.ROLE_KEY=SRRFD.ROLE_KEY AND SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
+    );
+
+-- clean up the temp tables
+DROP TABLE PERMISSIONS_TEMP;
+DROP TABLE PERMISSIONS_SRC_TEMP;
+-- ------------------------------
+--  END permission backfill -----
+-- ------------------------------
+
+-- END SAK-30141
+
+-- SAK-30144: Add the new 'EID' column to the VALIDATIONACCOUNT_ITEM table
+ALTER TABLE VALIDATIONACCOUNT_ITEM ADD EID VARCHAR2(255);
+
+-- SAK-31468 rename existing gradebooks to 'Gradebook Classic'
+-- This will not change any tool placements. To do that, uncomment the following line:
+-- UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.gradebookng' WHERE REGISTRATION='sakai.gradebook.tool';
+UPDATE SAKAI_SITE_TOOL SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
+UPDATE SAKAI_SITE_PAGE SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
+
+-- SAK-31507/KNL-1394 Oracle conversion, size increases of Message Bundle columns
+alter table SAKAI_MESSAGE_BUNDLE add tempcol clob;
+update SAKAI_MESSAGE_BUNDLE set tempcol=DEFAULT_VALUE;
+alter table SAKAI_MESSAGE_BUNDLE drop column DEFAULT_VALUE;
+alter table SAKAI_MESSAGE_BUNDLE rename column tempcol to DEFAULT_VALUE;
+
+alter table SAKAI_MESSAGE_BUNDLE add tempcol clob;
+update SAKAI_MESSAGE_BUNDLE set tempcol=PROP_VALUE;
+alter table SAKAI_MESSAGE_BUNDLE drop column PROP_VALUE;
+alter table SAKAI_MESSAGE_BUNDLE rename column tempcol to PROP_VALUE;

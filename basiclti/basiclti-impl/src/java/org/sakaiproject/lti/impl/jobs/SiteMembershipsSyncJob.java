@@ -2,7 +2,7 @@ package org.sakaiproject.lti.impl.jobs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tsugi.basiclti.BasicLTIProviderUtil;
+import org.sakaiproject.basiclti.util.SakaiLTIProviderUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class SiteMembershipsSyncJob implements StatefulJob {
             String membershipsUrl = (String) job.get("memberships_url");
             String consumerKey = (String) job.get("consumerkey");
             String ltiVersion = (String) job.get("lti_version");
-            boolean isEmailTrustedConsumer= BasicLTIProviderUtil.isEmailTrustedConsumer(consumerKey);
+            boolean isEmailTrustedConsumer= SakaiLTIProviderUtil.isEmailTrustedConsumer(consumerKey);
 
             siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, consumerKey, isEmailTrustedConsumer,ltiVersion);
         }

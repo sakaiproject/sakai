@@ -24,34 +24,37 @@
 			<!-- roles -->
 			<h4 rsf:id="msg=addsame.roles"></h4>
 			<span rsf:id="select-roles"></span>
-			<table class="listHier lines nolines" style="width:auto" summary="">
-				<tr rsf:id="role-row:">
-					<td>
-					  <input rsf:id="role-select" title="Select role type" type="radio" id="radio" name="roleChoice" value=""/>
-					</td>		
-					<td>
-					  <label rsf:id="role-label" for = "role-select">
-					  	label
-					  </label>
-					</td>		
-					<td>
-					  <label rsf:id="role-descr-label">
-					  	label
-					  </label>
-					</td>		
-				</tr>
-			</table>
-			
-			<h4 rsf:id="msg=addsame.participants"></h4> 
-			<table class="listHier lines nolines" style="width:auto" summary="">
-				<tr rsf:id="user-row:">
-					<td>
-					  <h5 rsf:id="user-label">
-					  	user
-					  </h5>
-					</td>		
-				</tr>
-			</table>
+			<div class="table-responsive">
+				<table class="table table-bordered table-hover table-striped" summary="">
+					<tr rsf:id="role-row:">
+						<td>
+							<input rsf:id="role-select" title="Select role type" type="radio" id="radio" name="roleChoice" value=""/>
+						</td>
+						<td>
+							<label rsf:id="role-label" for = "role-select">
+								label
+							</label>
+						</td>
+						<td>
+							<label rsf:id="role-descr-label">
+								label
+							</label>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<h4 rsf:id="msg=addsame.participants"></h4>
+			<div class="table-responsive"> 
+				<table class="table table-bordered table-hover table-striped" summary="">
+					<tr rsf:id="user-row:">
+						<td>
+							<h5 rsf:id="user-label">
+								user
+							</h5>
+						</td>
+					</tr>
+				</table>
+			</div>
 			<p class="act">
 				<input accesskey ="s" rsf:id="continue" class="active" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input accesskey ="b" rsf:id="back" value="Back" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );" />

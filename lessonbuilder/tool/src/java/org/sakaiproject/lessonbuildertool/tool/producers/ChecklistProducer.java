@@ -24,18 +24,17 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
 import org.sakaiproject.tool.cover.SessionManager;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.*;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
-import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -44,7 +43,10 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class ChecklistProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 
@@ -55,6 +57,10 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
     public LocaleGetter localeGetter;
 
     public static final String VIEW_ID = "Checklist";
+
+    private static final List restrictedItems = new ArrayList<>(
+            Arrays.asList(SimplePageItem.CHECKLIST, SimplePageItem.BREAK, SimplePageItem.MULTIMEDIA, SimplePageItem.TEXT)
+    );
 
     public String getViewID() {
         return VIEW_ID;
@@ -110,11 +116,12 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
             UIForm form = UIForm.make(tofill, "page_form");
 
             Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
-            if (sessionToken != null)
+            if (sessionToken != null) {
                 UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
+            }
 
             // Name of the checklist
-            UIInput.make(form, "name", "#{simplePageBean.name}").decorate(new UIFreeAttributeDecorator("style", "vertical-align:middle;"));
+            UIInput.make(form, "name", "#{simplePageBean.name}");
 
             // Is the name hidden from students
             UIBoundBoolean.make(form, "isNameHidden", "#{simplePageBean.nameHidden}");
@@ -122,13 +129,13 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
             // Description for checklist
             UIInput instructions = UIInput.make(form, "description", "#{simplePageBean.description}");
-            instructions.decorate(new UIFreeAttributeDecorator("style", "height:80px;width:500px;"));
 
             UIOutput.make(form, "checklist-item-del").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
 
             UIInput.make(form, "checklist-item-complete", "#{simplePageBean.addChecklistItemData}");
             UIInput.make(form, "checklist-item-id", null);
             UIInput.make(form, "checklist-item-name", null);
+            UIInput.make(form, "checklist-item-link", null);
 
             form.parameters.add(new UIELBinding("#{simplePageBean.itemId}", itemId));
 
@@ -136,20 +143,22 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
 
             UIOutput.make(tofill, "attributeString", itemAttributeString);
 
-	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+	    String indentLevel = "0";
+	    if (i != null && i.getAttribute(SimplePageItem.INDENT) != null)
+		indentLevel = i.getAttribute(SimplePageItem.INDENT);
 	    String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
 	    UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentLevel);
 
-	    String customClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
-	    if (customClass == null)
-		customClass = "";
+	    String customClass = "";
+	    if (i != null && i.getAttribute(SimplePageItem.CUSTOMCSSCLASS) != null)
+		customClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
 	    // If current user is an admin show the css class input box
 	    UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}", customClass);
 	    UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
-            if (page.getOwner() == null)
+            if (!simplePageBean.isStudentPage(page)) {
                 showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
-
+            }
             UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addChecklist}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
             UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));
@@ -159,6 +168,8 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
                 UICommand.make(form, "delete", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.delete")));
                 UIOutput.make(form, "delete-div");
             }
+
+            createExternalLinkDialog(tofill, page);
         } else {
             UIBranchContainer error = UIBranchContainer.make(tofill, "error");
             UIOutput.make(error, "message", messageLocator.getMessage("simplepage.not_available"));
@@ -185,5 +196,24 @@ public class ChecklistProducer implements ViewComponentProducer, NavigationCaseR
         togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 
         return togo;
+    }
+
+    private void createExternalLinkDialog(UIContainer toFill, SimplePage currentPage) {
+        UIOutput.make(toFill, "dialogDiv");
+        UIOutput.make(toFill, "externalLink-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simpleapge.checklist.edit_externalLink")));
+        List<SimplePageItem> itemList =  simplePageBean.getItemsOnPage(currentPage.getPageId());
+        UIForm form = UIForm.make(toFill, "item-picker");
+        for(SimplePageItem item : itemList) {
+            if(item.isRequired() && !restrictedItems.contains(item.getType())) {
+                // Output item name & id, with a radio button
+                // when dialog is "saved" use JS to add the id to the appropriate checklist item attribute string
+                // clear the dialog
+
+                UIBranchContainer row = UIBranchContainer.make(form, "item:", String.valueOf(item.getId()));
+                UIOutput.make(row, "select", String.valueOf(item.getId()));
+                UIOutput.make(row, "name", SimplePageItemUtilities.getDisplayName(item));
+            }
+        }
+
     }
 }

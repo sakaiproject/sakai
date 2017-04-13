@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.CacheMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -48,6 +49,10 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
+import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
+import org.sakaiproject.lessonbuildertool.SimpleChecklistItemImpl;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageCommentImpl;
@@ -56,9 +61,13 @@ import org.sakaiproject.lessonbuildertool.SimplePageGroupImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
-import org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntryImpl;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
+import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl;
+import org.sakaiproject.lessonbuildertool.SimplePageProperty;
+import org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswerImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
@@ -67,21 +76,11 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalImpl;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl;
-import org.sakaiproject.lessonbuildertool.SimplePageProperty;
-import org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl;
-import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
-import org.sakaiproject.lessonbuildertool.SimpleChecklistItemImpl;
-import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
-
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateTemplate;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -113,6 +112,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     public HibernateTemplate getDaoHibernateTemplate() {
 	return getHibernateTemplate();
     }
+
+    // make sure future reads come from the database. Currently used to minimize the possibiliy of race conditions
+    // involving old data, for the sequence number. I'm not currently clearing the session cache, because this 
+    // method is called before anyone has read any items, so there shouldn't be any old data there.
+	public void setRefreshMode() {
+		getSessionFactory().getCurrentSession().setCacheMode(CacheMode.REFRESH);
+	}
 
 	public boolean canEditPage() {
 		String ref = null;
@@ -631,6 +637,55 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 * 
 		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
 		 */
+		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
+				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
+				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
+				&& !(o instanceof SimplePageGroup)) {
+			elist.add(nowriteerr);
+			return false;
+		}
+
+		try {
+			getHibernateTemplate().save(o);
+
+			if (o instanceof SimplePageItem) {
+				SimplePageItem item = (SimplePageItem)o;
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE, "/lessonbuilder/item/" + item.getId(), true));
+			} else if (o instanceof SimplePage) {
+				SimplePage page = (SimplePage)o;
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_CREATE, "/lessonbuilder/page/" + page.getPageId(), true));
+			} else if (o instanceof SimplePageComment) {
+				SimplePageComment comment = (SimplePageComment)o;
+				EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.COMMENT_CREATE, "/lessonbuilder/comment/" + comment.getId(), true));
+			}
+
+			if(o instanceof SimplePageItem || o instanceof SimplePage) {
+				updateStudentPage(o);
+			}
+
+			return true;
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			getCause(e, elist);
+			return false;
+		} catch (org.hibernate.exception.DataException e) {
+			getCause(e, elist);
+			return false;
+		} catch (DataAccessException e) {
+			getCause(e, elist);
+			return false;
+		}
+	}
+
+	public boolean saveOrUpdate(Object o, List<String>elist, String nowriteerr, boolean requiresEditPermission) {
+		
+		/*
+		 * 1) If o is SimplePageItem or SimplePage, it makes sure it gets the right page and checks the
+		 *    permissions on it.
+		 * 2) If it's a log entry or question response, it lets it go.
+		 * 3) If requiresEditPermission is set to false, it lets it go.
+		 * 
+		 * Essentially, if any of those say that the edit is fine, it won't throw the error.
+		 */
 	    if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
 	    			&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
 				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
@@ -640,20 +695,28 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 
 		try {
-		    getHibernateTemplate().save(o);
+		    getHibernateTemplate().saveOrUpdate(o);
 		    
 		    if (o instanceof SimplePageItem) {
-			SimplePageItem i = (SimplePageItem)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/item/" + i.getId(), true));
+				SimplePageItem i = (SimplePageItem)o;
+				if (i.getId() == 0) {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_CREATE, "/lessonbuilder/item/" + i.getId(), true));
+				} else  {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, "/lessonbuilder/item/" + i.getId(), true));
+				}
 		    } else if (o instanceof SimplePage) {
-			SimplePage i = (SimplePage)o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.create", "/lessonbuilder/page/" + i.getPageId(), true));
+				SimplePage i = (SimplePage)o;
+				if (i.getPageId() == 0) {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_CREATE, "/lessonbuilder/page/" + i.getPageId(), true));
+				} else {
+					EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_UPDATE, "/lessonbuilder/page/" + i.getPageId(), true));
+				}
 		    } 
 
 		    if(o instanceof SimplePageItem || o instanceof SimplePage) {
 		    	updateStudentPage(o);
 		    }
-		    
+
 		    return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
 		    getCause(e, elist);
@@ -695,13 +758,13 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		if (o instanceof SimplePageItem) {
 		    SimplePageItem i = (SimplePageItem)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/item/" + i.getId(), true));
+		    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_DELETE, "/lessonbuilder/item/" + i.getId(), true));
 		} else if (o instanceof SimplePage) {
 		    SimplePage i = (SimplePage)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/page/" + i.getPageId(), true));
+		    EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_DELETE, "/lessonbuilder/page/" + i.getPageId(), true));
 		} else if(o instanceof SimplePageComment) {
 			SimplePageComment i = (SimplePageComment) o;
-			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/comment/" + i.getId(), true));
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.COMMENT_DELETE, "/lessonbuilder/comment/" + i.getId(), true));
 		}
 
 		try {
@@ -757,18 +820,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		 */
 		if(requiresEditPermission && !(o instanceof SimplePageItem && canEditPage(((SimplePageItem)o).getPageId()))
 				&& !(o instanceof SimplePage && canEditPage((SimplePage)o))
-		   		&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
+				&& !(o instanceof SimplePageLogEntry || o instanceof SimplePageQuestionResponse)
 				&& !(o instanceof SimplePageGroup)) {
 			elist.add(nowriteerr);
 			return false;
 		}
 		
 		if (o instanceof SimplePageItem) {
-		    SimplePageItem i = (SimplePageItem)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/item/" + i.getId(), true));
+			SimplePageItem item = (SimplePageItem)o;
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.ITEM_UPDATE, "/lessonbuilder/item/" + item.getId(), true));
 		} else if (o instanceof SimplePage) {
-		    SimplePage i = (SimplePage)o;
-		    EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.update", "/lessonbuilder/page/" + i.getPageId(), true));
+			SimplePage page = (SimplePage)o;
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.PAGE_UPDATE, "/lessonbuilder/page/" + page.getPageId(), true));
+		} else if (o instanceof SimplePageComment) {
+			SimplePageComment comment = (SimplePageComment)o;
+			EventTrackingService.post(EventTrackingService.newEvent(LessonBuilderEvents.COMMENT_UPDATE, "/lessonbuilder/comment/" + comment.getId(), true));
 		}
 
 		try {
@@ -785,21 +851,21 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 					getHibernateTemplate().merge(o);
 				}
 			}
-		    
-		    if(o instanceof SimplePageItem || o instanceof SimplePage) {
-		    	updateStudentPage(o);
-		    }
-		    
-		    return true;
+
+			if(o instanceof SimplePageItem || o instanceof SimplePage) {
+				updateStudentPage(o);
+			}
+
+			return true;
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		} catch (org.hibernate.exception.DataException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		} catch (DataAccessException e) {
-		    getCause(e, elist);
-		    return false;
+			getCause(e, elist);
+			return false;
 		}
 	}
 
@@ -1531,7 +1597,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			return ret;
 		for (Object i: checklistItems) {
 			Map checklistItem = (Map) i;
-			SimpleChecklistItem newChecklistItem = new SimpleChecklistItemImpl((Long)checklistItem.get("id"), (String)checklistItem.get("name"));
+			SimpleChecklistItem newChecklistItem = new SimpleChecklistItemImpl((Long)checklistItem.get("id"), (String)checklistItem.get("name"), (Long)checklistItem.get("link"));
 			ret.add(newChecklistItem);
 		}
 		return ret;
@@ -1545,7 +1611,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		for (Object i: checklistItems) {
 			Map checklistItem = (Map) i;
 			if (checklistItemId == (Long)checklistItem.get("id")) {
-				SimpleChecklistItem newChecklistItem = new SimpleChecklistItemImpl(checklistItemId, (String)checklistItem.get("name"));
+				SimpleChecklistItem newChecklistItem = new SimpleChecklistItemImpl(checklistItemId, (String)checklistItem.get("name"), (Long)checklistItem.get("link"));
 				return newChecklistItem;
 			}
 		}
@@ -1596,15 +1662,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return max;
 	}
 
-	public Long addChecklistItem(SimplePageItem checklist, Long id, String name) {
+	public Long addChecklistItem(SimplePageItem checklist, Long id, String name, Long linkedId) {
 		// no need to check security. that happens when item is saved
 
 		List checklistItems = (List)checklist.getJsonAttribute("checklistItems");
 		if (checklistItems == null) {
 			checklistItems = new JSONArray();
 			checklist.setJsonAttribute("checklistItems", checklistItems);
-			if (id <= 0L)
+			if (id <= 0L) {
 				id = 1L;
+			}
 		} else if (id <= 0L) {
 			Long max = 0L;
 			for (Object i: checklistItems) {
@@ -1620,6 +1687,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		Map newChecklistItem = new JSONObject();
 		newChecklistItem.put("id", id);
 		newChecklistItem.put("name", name);
+		newChecklistItem.put("link", linkedId);
 		checklistItems.add(newChecklistItem);
 
 		return id;

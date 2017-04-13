@@ -26,30 +26,18 @@ package org.sakaiproject.tool.assessment.qti.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.collections.ReferenceMap;
+import org.jdom.JDOMException;
+import org.jdom.output.DOMOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jaxen.JaxenException;
-import org.jaxen.XPath;
-import org.jaxen.dom.DOMXPath;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.DOMOutputter;
 import org.w3c.dom.Attr;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -62,6 +50,8 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
+
+import org.sakaiproject.importer.impl.XPathHelper;
 
 /**
  * <p>Copyright: Copyright (c) 2004</p>
@@ -428,43 +418,11 @@ public class XmlStringBuffer
 		  log.debug("selectNodes(String " + xpath + ")");
 	  }
 
-	  List result = null;
-	  try
-	  {
-		  XPath path = new DOMXPath(xpath);
-		  result = path.selectNodes(this.getDocument());
-	  }
-	  catch(JaxenException je)
-	  {
-		  log.error(je.getMessage(), je);
-	  }
-	  catch(ParserConfigurationException e)
-	  {
-		  log.error(e.getMessage(), e);
-	  }
-	  catch(SAXException e)
-	  {
-		  log.error(e.getMessage(), e);
-	  }
-	  catch(IOException e)
-	  {
-		  log.error(e.getMessage(), e);
-	  }
-
-	  if (result == null) {
-		  result = new ArrayList();
-	  }
-	  return result;
+	  return XPathHelper.selectNodes(xpath, this.document);
   }
   
 	public String getValueOf(String xpath) {
-		try {
-			XPath path = new DOMXPath(xpath);
-			return path.stringValueOf(this.getDocument());
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return null;
-		}
+		return XPathHelper.getNodeValue(xpath, this.document);
 	}
 
   /**

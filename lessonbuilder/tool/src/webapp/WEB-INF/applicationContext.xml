@@ -6,7 +6,7 @@
    <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
         we are adding our HBM files to the Sakai session factory instead of creating
         our own copy of it -->
-  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.lessonbuildertool"
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.lessonbuildertool"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
     <property name="mappingResources">
       <list>
@@ -40,14 +40,16 @@
 simplePageBean.addAssignment,
 simplePageBean.addBefore,
 simplePageBean.addBlti,
-simplePageBean.handleFileItem,
+simplePageBean.handleImportItem,
 simplePageBean.addChecklist,
 simplePageBean.addChecklistItemData,
 simplePageBean.addComment,
+simplePageBean.addCommentsSection,
 simplePageBean.addForum,
 simplePageBean.addMultimedia,
 simplePageBean.addOldPage,
 simplePageBean.addPages,
+simplePageBean.addStudentContentSection,
 simplePageBean.addQuiz,
 simplePageBean.alt,
 simplePageBean.anonymous,
@@ -57,6 +59,7 @@ simplePageBean.cancel,
 simplePageBean.comments,
 simplePageBean.contents,
 simplePageBean.copyPage,
+simplePageBean.createStudentPage,
 simplePageBean.createSubpage,
 simplePageBean.csrfToken,
 simplePageBean.customCssClass,
@@ -97,11 +100,15 @@ simplePageBean.isMultimedia,
 simplePageBean.isWebsite,
 simplePageBean.itemId,
 simplePageBean.maxPoints,
+simplePageBean.missingCommentsSetZero,
+simplePageBean.missingAnswersSetZero,
+simplePageBean.missingStudentSetZero,
 simplePageBean.mimetype,
 simplePageBean.mmUrl,
 simplePageBean.multimediaDisplayType,
 simplePageBean.multimediaMimeType,
 simplePageBean.name,
+simplePageBean.names,
 simplePageBean.nameHidden,
 simplePageBean.newPageTitle,
 simplePageBean.newWindow,
@@ -157,10 +164,24 @@ simplePageBean.width,
 simplePageBean.youtubeId,
 simplePageBean.youtubeURL,
 simplePageBean.selectPage,
+simplePageBean.announcementsHeight,
+simplePageBean.announcementsDropdown,
+simplePageBean.addAnnouncements,
 simplePageBean.peerEval,
 simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
-simplePageBean.peerEvalAllowSelfGrade
+simplePageBean.twitterDropDown,
+simplePageBean.twitterUsername,
+simplePageBean.twitterWidgetHeight,
+simplePageBean.addTwitterTimeline,
+simplePageBean.peerEvalAllowSelfGrade,
+simplePageBean.folderPickerSubmit,
+simplePageBean.folderPath,
+simplePageBean.newOwner,
+simplePageBean.forumSummaryHeight,
+simplePageBean.forumSummaryDropDown,
+simplePageBean.addCalendar,
+simplePageBean.addForumSummary
 </value>
 </property>
    </bean>
@@ -301,19 +322,34 @@ simplePageBean.peerEvalAllowSelfGrade
 		<constructor-arg>
 			<map>
 				<entry key="application/msword" value="fa-file-word-o"/>
+				<entry key="application/vnd.ms-word" value="fa-file-word-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="fa-file-word-o"/>
+				<entry key="application/ms-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/mspowerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/x-mspowerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/msppt" value="fa-file-powerpoint-o"/>
 				<entry key="application/vnd.ms-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/x-powerpoint" value="fa-file-powerpoint-o"/>
+				<entry key="application/powerpoint" value="fa-file-powerpoint-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="fa-file-powerpoint-o"/>
-				<entry key="application/vnd.ms-excel" value="file-excel-o"/>
+				<entry key="application/application/vnd.openxmlformats-officedocument.presentationml.slideshow" value="fa-file-powerpoint-o"/>
+				<entry key="application/ms-excel" value="fa-file-excel-o"/>
+				<entry key="application/excel" value="fa-file-excel-o"/>
+				<entry key="application/vnd.ms-excel" value="fa-file-excel-o"/>
+				<entry key="application/x-msexcel" value="fa-file-excel-o"/>
 				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="fa-file-excel-o"/>
 				<entry key="application/pdf" value="fa-file-pdf-o"/>
-				<entry key="application/x-shockwave-flash" value="fa-video-o"/>
-				<entry key="video/x-flv" value="fa-video-o"/>
-				<entry key="video/mp4" value="fa-video-o"/>
+				<entry key="application/x-pdf" value="fa-file-pdf-o"/>
+				<entry key="application/x-shockwave-flash" value="fa-video-camera"/>
+				<entry key="video/x-flv" value="fa-video-camera"/>
+				<entry key="video/mp4" value="fa-video-camera"/>
+				<entry key="video/x-mp4" value="fa-video-camera"/>
+				<entry key="video/x-m4v" value="fa-video-camera"/>
 				<entry key="text/plain" value="fa-file-text-o"/>
 				<entry key="text/rtf" value="fa-file-text-o"/>
 				<entry key="LBWEBSITE" value="fa-external-link"/>
 				<entry key="text/html" value="fa-external-link"/>
+				<entry key="application/xhtml+xml" value="fa-external-link"/>
     	</map>
     	</constructor-arg>
     	</bean>
@@ -435,6 +471,8 @@ simplePageBean.peerEvalAllowSelfGrade
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
       <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
       <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+      <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+      <property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
     </bean>
 
  </beans>

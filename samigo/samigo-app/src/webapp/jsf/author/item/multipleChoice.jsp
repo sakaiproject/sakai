@@ -46,6 +46,29 @@
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm" onsubmit="return editorCheck();">
 
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+  </h:commandButton>
+
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}"  styleClass="active">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+  </h:commandButton>
+
+
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
+  </h:commandButton>
+
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
+        <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
+ </h:commandButton>
+ 
   <!-- NOTE:  Had to call this.form.onsubmit(); when toggling between single  -->
   <!-- and multiple choice, or adding additional answer choices.  -->
   <!-- to invoke the onsubmit() function for htmlarea to save the htmlarea contents to bean -->
@@ -79,15 +102,17 @@
   </div>
 
   <f:subview id="minPoints" rendered="#{itemauthor.allowMinScore}">
-    <div class="shorttext">
-      <h:outputLabel value="#{authorMessages.answer_min_point_value}" />
-        <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  styleClass="ConvertPoint">
-          <f:validateDoubleRange />
-        </h:inputText>
-        <small>
-          <h:outputText value="#{authorMessages.answer_min_point_info}" />
-        </small>
-        <h:message for="answerminptr" styleClass="validate"/>
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer_min_point_value}" styleClass="col-md-2" />
+        <div  class="col-md-2">          
+            <h:inputText id="answerminptr" value="#{itemauthor.currentItem.itemMinScore}" size="6"  onchange="toggleNegativePointVal(this.value);" styleClass=" form-control  ConvertPoint">
+              <f:validateDoubleRange />
+            </h:inputText>
+            <small>
+              <h:outputText value="#{authorMessages.answer_min_point_info}" />
+            </small>
+            <h:message for="answerminptr" styleClass="validate"/>
+        </div>
     </div>
   </f:subview>
 
@@ -107,16 +132,16 @@
                     onkeypress="this.form.onsubmit();this.form.submit();"
                     value="#{itemauthor.currentItem.itemType}"
 	                valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
-      <f:selectItem itemValue="1" itemLabel="&#160; #{commonMessages.multiple_choice_sin}" escape="false" />  
-      <f:selectItem itemValue="12" itemLabel="&#160; #{commonMessages.multipl_mc_ss}" escape="false" /> 
-      <f:selectItem itemValue="2"   itemLabel="&#160; #{commonMessages.multipl_mc_ms}" escape="false" />
+      <f:selectItem itemValue="1" itemLabel="#{commonMessages.multiple_choice_sin}" escape="false" />  
+      <f:selectItem itemValue="12" itemLabel="#{commonMessages.multipl_mc_ss}" escape="false" /> 
+      <f:selectItem itemValue="2"   itemLabel="#{commonMessages.multipl_mc_ms}" escape="false" />
     </h:selectOneRadio>
   </div>
 
   <!-- partial credit vs negative marking -->
-  <div id="partialCredit_toggle" class="tier3">
-    <h:panelGroup id="partialCredit_JSF_toggle" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
-      <h:selectOneRadio id="partialCreadit_NegativeMarking"
+  <h:panelGroup layout="block" id="partialCredit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 1 && itemauthor.currentItem.partialCreditEnabled==true}">
+    <h:panelGroup id="partialCredit_JSF_toggle">
+      <h:selectOneRadio id="partialCredit_NegativeMarking"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
@@ -136,11 +161,11 @@
         </h:commandLink><!-- TODO  Need to un-check all the radio buttons as well-->
       </h:panelGroup>
     </h:panelGroup>
-  </div>
+  </h:panelGroup>
 
 <!-- multiple choice, multiple selection: full or partial credit -->
-<div id="mcms_credit_toggle" class="tier3">
-  <h:panelGroup id="mcms_credit_JSF_toggle" rendered="#{itemauthor.currentItem.itemType == 2}">
+<h:panelGroup layout="block" id="mcms_credit_toggle" styleClass="tier3" rendered="#{itemauthor.currentItem.itemType == 2}">
+  <h:panelGroup id="mcms_credit_JSF_toggle">
     <h:selectOneRadio id="mcms_credit_partial_credit"
 					  layout="pageDirection"
 					  onclick="this.form.onsubmit();this.form.submit();"
@@ -150,22 +175,22 @@
       <f:selectItem itemValue="false" itemLabel="#{commonMessages.multipl_mc_ms_full_credit}"  />
     </h:selectOneRadio>
   </h:panelGroup>
-</div>
-
-<div id="discountDiv" class="longtext">
-  <h:panelGroup id="discountTable">
-  <h:outputText value="&nbsp;&nbsp;" escape="false" />
+</h:panelGroup>
+ 
+<h:panelGroup layout="block" id="discountDiv" styleClass="tier3">
+  <h:panelGroup id="discountTable"
+        rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
+        || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
-  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint" disabled="#{itemauthor.disableNegativePoints}">
+  <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" styleClass="ConvertPoint">
     <f:validateDoubleRange/>
   </h:inputText>
-  <small><h:outputText value="#{authorMessages.negative_point_value_note}" rendered="#{itemauthor.disableNegativePoints==true}"/></small>
   <f:verbatim> <script type="text/javascript" defer='defer'>
   		var itemType = "${itemauthor.currentItem.itemType}";
-  		var discDiv=document.getElementById('discountDiv');
+  		var discDiv=document.getElementById('itemForm:discountDiv');
 		
   		if(itemType == 1) {
-		  	var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
+		  	var toggleDiv=document.getElementById('itemForm:partialCredit_NegativeMarking');
 	    	if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
 	    		toggleDiv.rows[0].cells[0].appendChild(discDiv);
 	    	}else {
@@ -188,24 +213,29 @@
     </script>
   </f:verbatim>
 </h:panelGroup>
-</div>
+</h:panelGroup>
 
 
   <!-- 2 TEXT -->
-	<div class="multiple_editor">
-		<a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
- 	  <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
-	</a>
-	</div>
-   <div class="longtext"><h:outputLabel value="#{authorMessages.q_text}" />
-</div>
-  <!-- WYSIWYG -->
-   
-  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
-     <f:validateLength minimum="1" maximum="60000"/>
-   </samigo:wysiwyg>
-  </h:panelGrid>
+  
+   <div class="form-group row ">
+       <h:outputLabel value="#{authorMessages.q_text}" styleClass="col-md-2 form-control-label"/>
+       <div class="col-md-8 row">
+       <div class="col-md-12">
+            <a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
+                 <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
+            </a>
+       </div>
+       <div class="col-md-12">
+          <!-- WYSIWYG -->
+          <h:panelGrid>
+              <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
+                  <f:validateLength minimum="1" maximum="60000"/>
+              </samigo:wysiwyg>
+          </h:panelGrid>
+       </div>
+       </div>
+   </div>
 
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
@@ -362,7 +392,7 @@
 
     <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" value="#{authorMessages.correct_answer_opti}" />
-      <div class="col-md-10">
+      <div class="col-md-8">
         <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author">
           <f:validateLength maximum="60000"/>
         </samigo:wysiwyg>
@@ -370,7 +400,7 @@
     </div>
     <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" value="#{authorMessages.incorrect_answer_op}" />
-      <div class="col-md-10">
+      <div class="col-md-8">
      <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author">
        <f:validateLength maximum="60000"/>
      </samigo:wysiwyg>
@@ -390,6 +420,8 @@
   <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
 </h:panelGroup>
+
+    <%@ include file="/jsf/author/item/tags.jsp" %>
 
 <p class="act">
   <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
@@ -420,6 +452,40 @@
 <!-- end content -->
 </div>
 
+<f:verbatim> 
+	<script type="text/javascript" defer='defer'>
+	$(document).ready(function(){
+		var itemType = "${itemauthor.currentItem.itemType}";
+		var prefixId='#itemForm\\:';
+		var refId=prefixId+'chooseAnswerTypeForMC\\:';
+		var optionId=prefixId;
+		if(itemType == 1){
+			refId+='0';
+			var partialCredit=${itemauthor.currentItem.partialCreditEnabled==true};
+			if(partialCredit){  				
+				optionId+='partialCredit_toggle';
+				var showDiscountDiv=${itemauthor.currentItem.partialCreditFlag==false};
+				if(showDiscountDiv){
+					$(prefixId+'partialCredit_NegativeMarking\\:0').parent().append($(prefixId+'discountDiv'));
+				}
+			}else{
+				optionId+='discountDiv';
+			}
+		}else if (itemType == 12){
+			refId+='1';
+			optionId+='discountDiv';
+		}else if (itemType == 2) {
+ 			var showSecondOption= ${itemauthor.currentItem.mcmsPartialCredit==false};
+			if(showSecondOption){
+				$(prefixId+'mcms_credit_toggle').append($(prefixId+'discountDiv'));
+			}
+			refId+='2';
+			optionId+='mcms_credit_toggle';
+		}
+		$(refId).parent().append($(optionId));
+	});
+	</script>
+</f:verbatim>
     </body>
   </html>
 </f:view>

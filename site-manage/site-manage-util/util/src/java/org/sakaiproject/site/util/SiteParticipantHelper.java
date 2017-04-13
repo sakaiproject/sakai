@@ -551,7 +551,6 @@ public class SiteParticipantHelper {
 	/**
 	 * Get a list of restricted roles, taking into account the current site type
 	 * 
-	 * @author bjones86
 	 * @param siteType
 	 * 				the current site's type
 	 * @return a list of restricted role IDs for the given site type
@@ -576,7 +575,7 @@ public class SiteParticipantHelper {
 	 * If the properties are not found, just return all the roles.
 	 * If the user is an admin, return all the roles.
 	 * 
-	 * @author bjones86 - SAK-23257
+	 * SAK-23257
 	 * 
 	 * @param siteType
 	 * 				the current site's type

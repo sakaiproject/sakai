@@ -241,7 +241,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             edit.setEmail(u.getEmail());
             edit.setFirstName(u.getFirstName());
             edit.setLastName(u.getLastName());
-            edit.setPassword(u.getPassword());
+            if (u.getPassword() != null && !"".equals(u.getPassword())) {
+                edit.setPassword(u.getPassword());
+            }
             edit.setType(u.getType());
             // put in properties
             ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
@@ -400,6 +402,11 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
          */
         // ID only lookup so prefix with "id="
         User user = getUserByIdEid(ID_PREFIX+userId);
+
+        // It is possible the user is orphaned/unregistered; deleted from LDAP
+        if (user == null) {
+            return null;
+        }
         // convert
         EntityUser eu = convertUser(user);
         return eu;
@@ -592,40 +599,36 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     /**
-     * Attempt to get a user by EID or ID (if that fails)
+     * Attempt to get a user by AID, EID or ID
      * 
      * NOTE: can force this to only attempt the ID lookups if prefixed with "id=" using "user.explicit.id.only=true"
      * 
-     * @param userEid the user EID (could also be the ID)
+     * @param id the user EID, AID or ID
      * @return the populated User object
      */
-    private User getUserByIdEid(String userEid) {
+    User getUserByIdEid(String id) {
         User user = null;
-        if (userEid != null) {
+        if (id != null) {
             boolean doCheckForId = false;
-            boolean doCheckForEid = true;
-            String userId = userEid;
+            boolean doCheckForAid = true;
+            String userId = id;
             // check if the incoming param says this is explicitly an id
             if (userId.length() > ID_PREFIX.length() && userId.startsWith(ID_PREFIX) ) {
                 // strip the id marker out
-                userId = userEid.substring(ID_PREFIX.length());
-                doCheckForEid = false; // skip the EID check entirely
+                userId = id.substring(ID_PREFIX.length());
+                doCheckForAid = false; // skip the AID/EID check entirely
                 doCheckForId = true;
             }
             // attempt checking both with failover by default (override by property "user.id.failover.check=false")
-            if (doCheckForEid) {
+            if (doCheckForAid) {
                 try {
-                    user = userDirectoryService.getUserByEid(userEid);
+                    // AID check falls through to EID check.
+                    user = userDirectoryService.getUserByAid(id);
                 } catch (UserNotDefinedException e) {
                     user = null;
-                    //String msg = "Could not find user with eid="+userEid;
                     if (!userIdExplicitOnly()) {
-                        //msg += " (attempting check using user id="+userId+")";
                         doCheckForId = true;
                     }
-                    // SAK-22690 removed this log warning
-                    //msg += " :: " + e.getMessage();
-                    //log.warn(msg);
                 }
             }
             if (doCheckForId) {
@@ -633,13 +636,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     user = userDirectoryService.getUser(userId);
                 } catch (UserNotDefinedException e) {
                     user = null;
-                    // SAK-22690 removed this log warning
-                    //String msg = "Could not find user with id="+userId+" :: " + e.getMessage();
-                    //log.warn(msg);
                 }
-            }
-            if (user == null) {
-                throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId);
             }
         }
         return user;

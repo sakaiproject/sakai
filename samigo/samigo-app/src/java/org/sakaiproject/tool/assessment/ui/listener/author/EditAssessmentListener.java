@@ -67,7 +67,7 @@ public class EditAssessmentListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
       
-    // #1a - come from authorIndex.jsp, load the assessment
+    // #1a - come from authorIndex_content.jsp, load the assessment
     // goto editAssessment.jsp if successful
 	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     String editType = ContextUtil.lookupParam("editType");

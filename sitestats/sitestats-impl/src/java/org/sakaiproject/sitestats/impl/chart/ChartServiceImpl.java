@@ -886,7 +886,7 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private AbstractDataset getCategoryDataset(Report report) {
-		List<Stat> reportData = report.getReportData();
+		List<? extends Stat> reportData = report.getReportData();
 		
 		// fill dataset
 		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
@@ -939,7 +939,7 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private AbstractDataset getPieDataset(Report report) {
-		List<Stat> reportData = report.getReportData();
+		List<? extends Stat> reportData = report.getReportData();
 		
 		// fill dataset
 		DefaultPieDataset dataSet = new DefaultPieDataset();
@@ -1010,7 +1010,7 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private AbstractDataset getTimeSeriesCollectionDataset(Report report) {
-		List<Stat> reportData = report.getReportData();
+		List<? extends Stat> reportData = report.getReportData();
 		
 		// fill dataset
 		TimeSeriesCollection dataSet = new TimeSeriesCollection();

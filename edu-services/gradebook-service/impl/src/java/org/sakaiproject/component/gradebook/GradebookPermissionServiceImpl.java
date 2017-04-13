@@ -15,7 +15,6 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
@@ -24,7 +23,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.Permission;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 
 public class GradebookPermissionServiceImpl extends BaseHibernateManager implements GradebookPermissionService
 {
@@ -694,18 +693,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		
 		return getAvailableItemsForStudent(gradebookId, userId, studentId, courseSections);
 
-	}
-
-	private List getAssignments(final Long gradebookId) throws HibernateException 
-	{
-		return (List)getHibernateTemplate().execute(new HibernateCallback() 
-		{
-			public Object doInHibernate(Session session) throws HibernateException 
-			{
-				List assignments = getAssignments(gradebookId, session);
-				return assignments;
-			}
-		});
 	}
 
 	private Map filterPermissionForGrader(List perms, String studentId, List assignmentList, Map sectionIdStudentIdsMap)

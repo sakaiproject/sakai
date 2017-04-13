@@ -27,9 +27,9 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<h:outputLink value="#" styleClass="hasTooltip">
+<h:panelGroup styleClass="hasTooltip toolTipLink">
 	<h:outputText value="#{deliveryMessages.additional_instructions_label}" />
-</h:outputLink>
+</h:panelGroup>
 <h:panelGroup layout="block" id="div_accepted_instruction" style="display:none;">
 	<h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
 	<f:verbatim><br /></f:verbatim>
@@ -42,25 +42,25 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo3"/>
 <f:verbatim><br /></f:verbatim>
 
-<samigo:dataLine value="#{question.finArray}" var="answer"
-  separator=" " first="0" rows="100">
+<samigo:dataLine value="#{question.finArray}" var="answer" separator=" " first="0" rows="100">
   <h:column>
-      <h:outputText value="#{answer.text} " escape="false" />
-      <h:graphicImage alt="#{deliveryMessages.alt_correct}" id="image"
+      <h:outputLabel for="fillinnumeric" value="#{answer.text} " escape="false" />
+      <f:verbatim>&nbsp;</f:verbatim>
+      <h:panelGroup styleClass="icon-sakai--check feedBackCheck" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true' && 
-                    !delivery.isAnyInvalidFinInput}" url="/images/checkmark.gif">
-      </h:graphicImage>
-      <h:graphicImage alt="#{deliveryMessages.alt_correct}" id="ximage"
+                    !delivery.isAnyInvalidFinInput}" >
+      </h:panelGroup>
+      <h:panelGroup styleClass="icon-sakai--delete feedBackCross" id="ximage"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
-                    answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/crossmark.gif">
-      </h:graphicImage>
+                    answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}">
+      </h:panelGroup>
 	  <h:inputText size="10" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"
-		 value="#{answer.response}" onkeypress="return noenter()">
+		 value="#{answer.response}" onkeypress="return noenter()" id="fillinnumeric">
  	  </h:inputText>
 
       <h:outputText style="text-decoration: underline" 

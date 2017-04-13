@@ -120,12 +120,12 @@ public class PopupsHandler extends CrudHandler {
         if (CrudMode.CREATE.equals(mode)) {
             paSystem.getPopups().createCampaign(popupForm.toPopup(),
                     templateStream.get(),
-                    Optional.of(popupForm.getAssignToUsers()));
+                    Optional.of(popupForm.getAssignToEids()));
             flash("info", "popup_created");
         } else {
             paSystem.getPopups().updateCampaign(popupForm.toPopup(),
                     templateStream,
-                    popupForm.isOpenCampaign() ? Optional.empty() : Optional.of(popupForm.getAssignToUsers()));
+                    popupForm.isOpenCampaign() ? Optional.empty() : Optional.of(popupForm.getAssignToEids()));
             flash("info", "popup_updated");
         }
 

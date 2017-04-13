@@ -16,7 +16,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.CommandServiceImpl"
 	init-method="init" >
     <property name="eventTrackingService" ><ref bean="org.sakaiproject.event.api.EventTrackingService" /></property>
-    <property name="trackReads" ><value>false</value></property>
+    <property name="trackReads" ><value>true</value></property>
     <property name="commandMap">
       <map>
 	<entry key="save"><ref bean="saveCommand"/></entry>

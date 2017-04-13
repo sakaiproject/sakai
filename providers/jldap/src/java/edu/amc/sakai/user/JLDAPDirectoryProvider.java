@@ -436,17 +436,18 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		}
 		catch (LDAPException e)
 		{
-			if (e.getResultCode() == LDAPException.INVALID_CREDENTIALS) {
-				if ( M_log.isWarnEnabled() ) {
-					M_log.warn("authenticateUser(): invalid credentials [userLogin = "
-							+ userLogin + "]");
-				}
-				return false;
-			} else {
-				throw new RuntimeException(
-						"authenticateUser(): LDAPException during authentication attempt [userLogin = "
-						+ userLogin + "][result code = " + e.resultCodeToString() + 
-						"][error message = "+ e.getLDAPErrorMessage() + "]", e);
+			switch (e.getResultCode()) {
+				case LDAPException.INVALID_CREDENTIALS:
+					M_log.warn("authenticateUser(): invalid credentials [userLogin = " + userLogin + "]");
+					return false;
+				case LDAPException.UNWILLING_TO_PERFORM:
+					M_log.warn("authenticateUser(): ldap service is unwilling to authenticate [userLogin = " + userLogin + "][reason = " + e.getLDAPErrorMessage() + "]");
+					return false;
+				default:
+					throw new RuntimeException(
+							"authenticateUser(): LDAPException during authentication attempt [userLogin = " +
+									userLogin + "][result code = " + e.resultCodeToString() +
+									"][error message = " + e.getLDAPErrorMessage() + "]", e);
 			}
 		} catch ( Exception e ) {
 			throw new RuntimeException(

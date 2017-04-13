@@ -36,6 +36,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
@@ -68,7 +69,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -286,7 +287,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
             localMax = messagesMax;
         }
 
-        Criteria c = this.getSession().createCriteria(ChatMessage.class);
+        Criteria c = this.getSessionFactory().getCurrentSession().createCriteria(ChatMessage.class);
         c.add(Expression.eq("chatChannel", channel));      
         if (localDate != null) {
             c.add(Expression.ge("messageDate", localDate));
@@ -342,16 +343,13 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         }
         int count = 0;
         if (channel != null) {
-            Criteria c = this.getSession().createCriteria(ChatMessage.class);
+            Criteria c = this.getSessionFactory().getCurrentSession().createCriteria(ChatMessage.class);
             c.add(Expression.eq("chatChannel", channel));      
             if (date != null) {
                 c.add(Expression.ge("messageDate", date));
             }
             c.setProjection(Projections.rowCount());
-            Integer countInt = (Integer) c.uniqueResult();
-            if (countInt != null) {
-                count = countInt.intValue();
-            }
+            count = ((Long) c.uniqueResult()).intValue();
         }
         return count;
     }
@@ -598,7 +596,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     protected ChatMessage getMigratedMessage(String migratedMessageId) {
-        List<ChatMessage> messages = (List<ChatMessage>) getHibernateTemplate().findByNamedQuery("findMigratedMessage", migratedMessageId);
+        List<ChatMessage> messages = (List<ChatMessage>) getHibernateTemplate().findByNamedQueryAndNamedParam("findMigratedMessage", "messageId", migratedMessageId);
         ChatMessage message = null;
         if (messages.size() > 0)
             message = messages.get(0);
@@ -610,7 +608,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public List<ChatChannel> getContextChannels(String context, boolean lazy) {
-        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
+        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQueryAndNamedParam("findChannelsInContext", "context", context);
         if (!lazy) {
             for (Iterator<ChatChannel> i = channels.iterator(); i.hasNext();) {
                 ChatChannel channel = i.next();
@@ -625,7 +623,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public List<ChatChannel> getContextChannels(String context, String defaultNewTitle, String placement) {
-        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
+        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQueryAndNamedParam("findChannelsInContext", "context", context);
 
         if(channels.size() == 0) {
             try {
@@ -647,7 +645,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     @SuppressWarnings("unchecked")
     public ChatChannel getDefaultChannel(String contextId, String placement) {
-        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQuery("findDefaultChannelsInContext", new Object[] {contextId, placement});
+        List<ChatChannel> channels = (List<ChatChannel>) getHibernateTemplate().findByNamedQueryAndNamedParam("findDefaultChannelsInContext", new String[] {"context", "placement"}, new Object[] {contextId, placement});
         if (channels.size() == 0) {
             channels = getContextChannels(contextId, "", placement);
         }
@@ -934,43 +932,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
      */
     protected void resetPlacementDefaultChannel(String context, String placement) {
         Session session = null;
-        Connection conn = null;
-        PreparedStatement statement = null;
 
-
-        String query="update CHAT2_CHANNEL c set c.placementDefaultChannel=?, c.PLACEMENT_ID=? " +
-        "WHERE c.context=? and c.PLACEMENT_ID=?";
-
-        try{
-            session = getSession();
-            conn = session.connection();
-
-            statement = conn.prepareStatement(query);
-            statement.setBoolean(1, false);
-            statement.setString(2, null);
-            statement.setString(3, context);
-            statement.setString(4, placement);
-            statement.executeUpdate();
-        }
-        catch(Exception e){
+        try {
+            session = getSessionFactory().getCurrentSession();
+            Query query = session.createSQLQuery("update CHAT2_CHANNEL c set c.placementDefaultChannel = :channel, c.PLACEMENT_ID = NULL WHERE c.context = :context and c.PLACEMENT_ID = :placement");
+            query.setBoolean("channel", false);
+            query.setString("context", context);
+            query.setString("placement", placement);
+            query.executeUpdate();
+        } catch(Exception e) {
             logger.warn(e.getMessage());
-        }
-        finally{
-            if (statement != null) {
-                //ensure the statement is closed
-                try {
-                    statement.close();
-                } 
-                catch (Exception e) {
-                    logger.debug(e.getMessage());
-                }
-            }
-            try{
-                if (conn !=null) conn.close();
-            }
-            catch(Exception ex){
-                logger.warn(ex.getMessage());
-            }
         }
     }
 

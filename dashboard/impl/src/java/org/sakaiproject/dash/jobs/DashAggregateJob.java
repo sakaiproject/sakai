@@ -357,7 +357,7 @@ public class DashAggregateJob implements StatefulJob {
 						sessionId = rs.getString("SESSION_ID");
 						if(isEventContextSupported)
 							context = rs.getString("CONTEXT");
-						EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0);
+						EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0, null);
 						eventsQueue.add(eventcopy);
 						
 						counter++;					
@@ -530,7 +530,7 @@ public class DashAggregateJob implements StatefulJob {
 					sessionUser = rs.getString("SESSION_USER");
 					sessionId = rs.getString("SESSION_ID");
 					context = rs.getString("CONTEXT");
-					EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0);
+					EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0, null);
 					eventsQueue.add( eventcopy );					
 					counter++;				
 				}catch(Exception e){

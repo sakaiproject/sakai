@@ -21,100 +21,64 @@
 
 package org.sakaiproject.springframework.orm.hibernate;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
 import java.util.Collections;
+import java.util.List;
 
-import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.function.ClassicAvgFunction;
 import org.hibernate.dialect.function.ClassicCountFunction;
 import org.hibernate.dialect.function.ClassicSumFunction;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * AddableSessionFactoryBean is the way sakai configures hibernate with all the mappings that
+ * are configured implementing {@link AdditionalHibernateMappings}.
+ *
+ */
+@Slf4j
 public class AddableSessionFactoryBean extends LocalSessionFactoryBean implements ApplicationContextAware
 {
-	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
-
-	private ApplicationContext applicationContext;
+	@Setter private ApplicationContext applicationContext;
 
 	/**
-	 * To be implemented by subclasses that want to to perform custom post-processing of the Configuration object after this FactoryBean performed its default initialization.
-	 * 
-	 * @param config
-	 *        the current Configuration object
-	 * @throws org.hibernate.HibernateException
-	 *         in case of Hibernate initialization errors
+	 * This method is called after the LocalSessionFactory is instantiated
 	 */
-	protected void postProcessConfiguration(Configuration config) throws HibernateException
-	{
-		super.postProcessConfiguration(config);
+	public void init() {
+		// Provide backwards compatibility with Hibernate 3.1.x behavior for aggregate functions.
+		Configuration config = getConfiguration();
+		config.addSqlFunction("count", new ClassicCountFunction());
+		config.addSqlFunction("avg", new ClassicAvgFunction());
+		config.addSqlFunction("sum", new ClassicSumFunction());
+	}
 
+	@Override
+	protected SessionFactory buildSessionFactory(LocalSessionFactoryBuilder sfb) {
+		List<AdditionalHibernateMappings> mappings = new ArrayList<>();
 		String[] names = applicationContext.getBeanNamesForType(AdditionalHibernateMappings.class, false, false);
 
-		try
-		{
-			List beans = new ArrayList();
-			for (int i = 0; i < names.length; i++)
-			{
-				AdditionalHibernateMappings mappings = (AdditionalHibernateMappings) applicationContext.getBean(names[i]);
-
-				beans.add(mappings);
+		try {
+			for (String name : names) {
+				mappings.add((AdditionalHibernateMappings) applicationContext.getBean(name));
 			}
 
-			Collections.sort(beans);
+			Collections.sort(mappings);
 
-			for (Iterator i = beans.iterator(); i.hasNext();)
-			{
-				AdditionalHibernateMappings mappings = (AdditionalHibernateMappings) i.next();
-				mappings.processConfig(config);
+			for (AdditionalHibernateMappings mapping : mappings) {
+				mapping.processAdditionalMappings(sfb);
 			}
-
-		}
-		catch (IOException e)
-		{
-			logger.error(e.getMessage(), e);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
-	}
 
-	/**
-	 * Set the ApplicationContext that this object runs in. Normally this call will be used to initialize the object.
-	 * <p>
-	 * Invoked after population of normal bean properties but before an init callback like InitializingBean's afterPropertiesSet or a custom init-method. Invoked after ResourceLoaderAware's setResourceLoader.
-	 * 
-	 * @param applicationContext
-	 *        ApplicationContext object to be used by this object
-	 * @throws org.springframework.context.ApplicationContextException
-	 *         in case of applicationContext initialization errors
-	 * @throws org.springframework.beans.BeansException
-	 *         if thrown by application applicationContext methods
-	 * @see org.springframework.beans.factory.BeanInitializationException
-	 */
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
-	{
-		this.applicationContext = applicationContext;
-	}
-	
-	/**
-	 * Provide backwards compatibility with Hibernate 3.1.x behavior for
-	 * aggregate functions.
-	 */
-	@Override
-	protected Configuration newConfiguration() throws HibernateException 
-	{
-		final Configuration classicCfg = new Configuration();
-		classicCfg.addSqlFunction("count", new ClassicCountFunction());
-		classicCfg.addSqlFunction("avg", new ClassicAvgFunction());
-		classicCfg.addSqlFunction("sum", new ClassicSumFunction());
-		return classicCfg;
+		return sfb.buildSessionFactory();
 	}
 }

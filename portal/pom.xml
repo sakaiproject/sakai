@@ -20,28 +20,13 @@
         <module>portal-charon/charon</module>
         <module>portal-chat/tool</module>
         <module>portal-impl/impl</module>
-        <!-- Mercury portal retired as of 2.8, see http://jira.sakaiproject.org/browse/SAK-19001 -->
-        <!-- <module>portal-mercury/mercury</module> --> 
         <module>portal-render-api/api</module>
         <module>portal-render-impl/impl</module>
-        <module>portal-render-impl/pack</module>
         <module>portal-render-engine-impl/impl</module>
-        <module>portal-render-engine-impl/pack</module>
         <module>portal-service-impl/impl</module>
-        <module>portal-service-impl/pack</module>
-        <module>portal-shared-deploy</module>
         <module>portal-tool/tool</module>
         <module>portal-util/util</module>
     </modules>
-
-
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/portal/${project.version}</url>
-        </site>
-    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -79,12 +64,6 @@
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity</artifactId>
                 <version>${sakai.velocity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.8.5</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

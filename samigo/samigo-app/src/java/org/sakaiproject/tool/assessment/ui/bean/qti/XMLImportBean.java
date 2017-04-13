@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.application.FacesMessage;
@@ -288,7 +289,7 @@ public class XMLImportBean implements Serializable
 
     AssessmentService assessmentService = new AssessmentService();
     // Create an assessment based on the uploaded file
-    ArrayList failedMatchingQuestions = new ArrayList();
+    List failedMatchingQuestions = new ArrayList();
     AssessmentFacade assessment = createImportedAssessment(fileName, qtiVersion, isRespondus, failedMatchingQuestions);
     if (failedMatchingQuestions.size() > 0)
     {
@@ -345,7 +346,7 @@ public class XMLImportBean implements Serializable
 
     // update core AssessmentList: get the managed bean, author and set the list
     
-    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
+    List list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
 	TimeUtil tu = new TimeUtil();
 	String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
@@ -355,7 +356,7 @@ public class XMLImportBean implements Serializable
 		AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
 		assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 		try {
-			String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, assessmentFacade.getLastModifiedDate());
+			String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, assessmentFacade.getLastModifiedDate(), false);
 			assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
 		} catch (Exception ex) {
 			log.warn("Unable to format date: " + ex.getMessage());
@@ -398,7 +399,7 @@ public class XMLImportBean implements Serializable
    * @return
    */
   
-  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus, ArrayList failedMatchingQuestions) throws Exception
+  private AssessmentFacade createImportedAssessment(String fullFileName, int qti, boolean isRespondus, List failedMatchingQuestions) throws Exception
   {
     //trim = true so that xml processing instruction at top line, even if not.
     Document document = null;

@@ -3,12 +3,16 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -16,7 +20,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -30,29 +33,25 @@ import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
-public class SettingsCategoryPanel extends Panel {
+public class SettingsCategoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<GbSettings> model;
 
@@ -62,6 +61,8 @@ public class SettingsCategoryPanel extends Panel {
 	boolean expanded = false;
 
 	Radio<Integer> categoriesAndWeighting;
+
+	Map<Long, Boolean> categoryDropKeepAvailability = new HashMap<>();
 
 	public SettingsCategoryPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -78,10 +79,14 @@ public class SettingsCategoryPanel extends Panel {
 		// get categories, passed in
 		final List<CategoryDefinition> categories = this.model.getObject().getGradebookInformation().getCategories();
 
-		// parse the categories and see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
-		// also build a map that we can use to add/remove from
+		// parse the categories
+		// 1. see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
+		// 2. check the assignments in each category and see if there are assignments with differing point values.
+		// This means that drop/keep highest/lowest is not available for that category
+
 		for (final CategoryDefinition category : categories) {
 
+			// check settings
 			if (category.getDropHighest() != null && category.getDropHighest() > 0) {
 				this.isDropHighest = true;
 			}
@@ -91,6 +96,14 @@ public class SettingsCategoryPanel extends Panel {
 			if (category.getKeepHighest() != null && category.getKeepHighest() > 0) {
 				this.isKeepHighest = true;
 			}
+
+			// check points
+			final Set<Double> points = new HashSet<>();
+			final List<Assignment> assignments = category.getAssignmentList();
+			assignments.forEach(a -> points.add(a.getPoints()));
+
+			this.categoryDropKeepAvailability.put(category.getId(), (points.size() <= 1));
+
 		}
 
 		// if categories enabled but we don't have any yet, add a default one
@@ -132,6 +145,9 @@ public class SettingsCategoryPanel extends Panel {
 		this.categoriesAndWeighting = new Radio<>("categoriesAndWeighting",
 				new Model<>(GbCategoryType.WEIGHTED_CATEGORY.getValue()));
 
+		//on load, if course grade displayed and points selected, disable categories and weighting
+		updateCategoriesAndWeightingRadioState();
+
 		categoryType.add(none);
 		categoryType.add(categoriesOnly);
 		categoryType.add(this.categoriesAndWeighting);
@@ -145,10 +161,9 @@ public class SettingsCategoryPanel extends Panel {
 
 			@Override
 			public boolean isVisible() {
-				// don't show if 'no categories' OR if course points is set
+				// don't show if 'no categories'
 				final GradebookInformation settings = SettingsCategoryPanel.this.model.getObject().getGradebookInformation();
-				return (GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY
-						|| settings.isCoursePointsDisplayed());
+				return (GbCategoryType.valueOf(settings.getCategoryType()) != GbCategoryType.NO_CATEGORY);
 			}
 
 		};
@@ -258,11 +273,7 @@ public class SettingsCategoryPanel extends Panel {
 
 				// if categories and weighting, disable course grade points
 				final AjaxCheckBox points = settingsPage.getSettingsGradeReleasePanel().getPointsCheckBox();
-				if (type == GbCategoryType.WEIGHTED_CATEGORY) {
-					points.setEnabled(false);
-				} else {
-					points.setEnabled(true);
-				}
+				settingsPage.getSettingsGradeReleasePanel().updatePointsCheckboxState();
 				target.add(points);
 
 				// reinitialize any custom behaviour
@@ -299,6 +310,9 @@ public class SettingsCategoryPanel extends Panel {
 				final ListView<CategoryDefinition> lv = this; // reference to self
 
 				final CategoryDefinition category = item.getModelObject();
+
+				// get the config. If there are no categories, detault is that the settings are enabled.
+				final boolean dropKeepEnabled = BooleanUtils.toBooleanDefaultIfNull(SettingsCategoryPanel.this.categoryDropKeepAvailability.get(category.getId()), true);
 
 				// note that all of these fields must have an ajaxform behaviour attached
 				// so that their data is persisted into the model.
@@ -360,47 +374,157 @@ public class SettingsCategoryPanel extends Panel {
 				});
 				item.add(extraCredit);
 
-				// drop highest
-				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest",
-						new PropertyModel<Integer>(category, "dropHighest"));
+				// declare these here so we can work with the values. Config updated afterwards
+				// mutually exclusive rules apply here
+				final TextField<Integer> categoryDropHighest = new TextField<Integer>("categoryDropHighest", new PropertyModel<Integer>(category, "dropHighest"));
+				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest", new PropertyModel<Integer>(category, "drop_lowest"));
+				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest", new PropertyModel<Integer>(category, "keepHighest"));
+
+				boolean categoryDropHighestEnabled = true;
+				boolean categoryDropLowestEnabled = true;
+				boolean categoryKeepHighestEnabled = true;
+
+				if(category.getDropHighest() != null && category.getDropHighest().intValue() > 0) {
+					categoryKeepHighest.setModelValue(new String[]{"0"});
+					categoryKeepHighestEnabled = false;
+				}
+
+				if(category.getDrop_lowest() != null && category.getDrop_lowest().intValue() > 0) {
+					categoryKeepHighest.setModelValue(new String[]{"0"});
+					categoryKeepHighestEnabled = false;
+				}
+
+				if(category.getKeepHighest() != null && category.getKeepHighest().intValue() > 0) {
+					categoryDropHighest.setModelValue(new String[]{"0"});
+					categoryDropLowest.setModelValue(new String[]{"0"});
+					categoryDropHighestEnabled = false;
+					categoryDropLowestEnabled = false;
+				}
+
+				// drop highest config
 				categoryDropHighest.setOutputMarkupId(true);
 				categoryDropHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
+						// if drop highest is non zero, keep highest is to be unavailable
+						Integer value = categoryDropHighest.getModelObject();
+						if(value == null) {
+							value = 0;
+							categoryDropHighest.setModelValue(new String[]{"0"});
+						}
+
+						//remove tooltips and recalc
+						removeDropKeepDisabledToolTip(categoryDropHighest);
+						removeDropKeepDisabledToolTip(categoryDropLowest);
+						removeDropKeepDisabledToolTip(categoryKeepHighest);
+
+						categoryKeepHighest.setEnabled(true);
+						if(value.intValue() > 0) {
+							categoryKeepHighest.setModelValue(new String[]{"0"});
+							categoryKeepHighest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryKeepHighest);
+						}
+						target.add(categoryDropHighest);
+						target.add(categoryDropLowest);
+						target.add(categoryKeepHighest);
 					}
 				});
+				categoryDropHighest.setEnabled(dropKeepEnabled && categoryDropHighestEnabled);
+				if(!categoryDropHighest.isEnabled()) {
+					addDropKeepDisabledToolTip(categoryDropHighest);
+				}
 				item.add(categoryDropHighest);
 
-				// drop lowest
-				final TextField<Integer> categoryDropLowest = new TextField<Integer>("categoryDropLowest",
-						new PropertyModel<Integer>(category, "drop_lowest"));
+				// drop lowest config
 				categoryDropLowest.setOutputMarkupId(true);
 				categoryDropLowest.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
+						// if drop lowest is non zero, keep highest is to be unavailable
+						// however also need to check the drop highest value here also
+						Integer value1 = categoryDropLowest.getModelObject();
+						Integer value2 = categoryDropHighest.getModelObject();
+
+						if(value1 == null) {
+							value1 = 0;
+							categoryDropLowest.setModelValue(new String[]{"0"});
+						}
+						if(value2 == null) {
+							value2 = 0;
+							categoryDropHighest.setModelValue(new String[]{"0"});
+						}
+
+						//remove tooltips and recalc
+						removeDropKeepDisabledToolTip(categoryDropHighest);
+						removeDropKeepDisabledToolTip(categoryDropLowest);
+						removeDropKeepDisabledToolTip(categoryKeepHighest);
+
+						categoryKeepHighest.setEnabled(true);
+						if(value1.intValue() > 0 || value2.intValue() > 0) {
+							categoryKeepHighest.setModelValue(new String[]{"0"});
+							categoryKeepHighest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryKeepHighest);
+						}
+						target.add(categoryDropHighest);
+						target.add(categoryDropLowest);
+						target.add(categoryKeepHighest);
 					}
 				});
+				categoryDropLowest.setEnabled(dropKeepEnabled && categoryDropLowestEnabled);
+				if(!categoryDropLowest.isEnabled()) {
+					addDropKeepDisabledToolTip(categoryDropLowest);
+				}
 				item.add(categoryDropLowest);
 
-				// keep highest
-				final TextField<Integer> categoryKeepHighest = new TextField<Integer>("categoryKeepHighest",
-						new PropertyModel<Integer>(category, "keepHighest"));
+				// keep highest config
 				categoryKeepHighest.setOutputMarkupId(true);
 				categoryKeepHighest.add(new AjaxFormComponentUpdatingBehavior("blur") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
+						// if keep highest is non zero, drop highest AND drop lowest are to be unavailable
+						Integer value = categoryKeepHighest.getModelObject();
+
+						if(value == null) {
+							value = 0;
+							categoryKeepHighest.setModelValue(new String[]{"0"});
+						}
+
+						//remove tooltips and recalc
+						removeDropKeepDisabledToolTip(categoryDropHighest);
+						removeDropKeepDisabledToolTip(categoryDropLowest);
+						removeDropKeepDisabledToolTip(categoryKeepHighest);
+
+						categoryDropHighest.setEnabled(true);
+						categoryDropLowest.setEnabled(true);
+						if(value.intValue() > 0) {
+
+							categoryDropHighest.setModelValue(new String[]{"0"});
+							categoryDropHighest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryDropHighest);
+
+							categoryDropLowest.setModelValue(new String[]{"0"});
+							categoryDropLowest.setEnabled(false);
+							addDropKeepDisabledToolTip(categoryDropLowest);
+						}
+						target.add(categoryDropHighest);
+						target.add(categoryDropLowest);
+						target.add(categoryKeepHighest);
 					}
 				});
+				categoryKeepHighest.setEnabled(dropKeepEnabled && categoryKeepHighestEnabled);
+				if(!categoryKeepHighest.isEnabled()) {
+					addDropKeepDisabledToolTip(categoryKeepHighest);
+				}
 				item.add(categoryKeepHighest);
 
 				// remove button
-				final AjaxButton remove = new AjaxButton("remove") {
+				final GbAjaxButton remove = new GbAjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -476,7 +600,7 @@ public class SettingsCategoryPanel extends Panel {
 		settingsCategoriesPanel.add(categoriesWrap);
 
 		// add category button
-		final AjaxButton addCategory = new AjaxButton("addCategory") {
+		final GbAjaxButton addCategory = new GbAjaxButton("addCategory") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -507,6 +631,9 @@ public class SettingsCategoryPanel extends Panel {
 		cd.setExtraCredit(false);
 		cd.setWeight(new Double(0));
 		cd.setAssignmentList(Collections.<Assignment> emptyList());
+		cd.setDropHighest(0);
+		cd.setDrop_lowest(0);
+		cd.setKeepHighest(0);
 
 		final GbSettings settings = this.model.getObject();
 		cd.setCategoryOrder(settings.getGradebookInformation().getCategories().size());
@@ -564,16 +691,10 @@ public class SettingsCategoryPanel extends Panel {
 		@Override
 		public String convertToString(final Double value, final Locale locale) {
 
-			// set the decimal precision
-			final NumberFormat df = NumberFormat.getInstance();
-			df.setMinimumFractionDigits(0);
-			df.setMaximumFractionDigits(2);
-			df.setRoundingMode(RoundingMode.DOWN);
-
 			// convert to percentage representation
-			final Double rval = value * 100;
+			final Double percentage = value * 100;
 
-			return df.format(rval);
+			return FormatHelper.formatDoubleToDecimal(percentage);
 		}
 
 	}
@@ -640,5 +761,45 @@ public class SettingsCategoryPanel extends Panel {
 	// to enable inter panel comms
 	Radio<Integer> getCategoriesAndWeightingRadio() {
 		return this.categoriesAndWeighting;
+	}
+
+	
+	// helper to apply the rules for whether the categories and weighting radio should be enabled
+	// runs via data from the model
+	protected void updateCategoriesAndWeightingRadioState() {
+		final GradebookInformation settings = this.model.getObject().getGradebookInformation();
+
+		// if course grade is NOT being displayed, enable categories and weighting
+		if (!settings.isCourseGradeDisplayed()) {
+			this.categoriesAndWeighting.setEnabled(true);
+		} else {
+			this.categoriesAndWeighting.setEnabled(false);
+		}
+
+		// if points selected, disable categories and weighting
+		if (settings.isCourseGradeDisplayed() && settings.isCoursePointsDisplayed()) {
+			this.categoriesAndWeighting.setEnabled(false);
+		} else {
+			this.categoriesAndWeighting.setEnabled(true);
+		}
+
+	}
+	
+	/**
+	 * Helper to add the tooltip when drop/keep settings cause a field to be disabled.
+	 * @param textfield
+	 */
+	private void addDropKeepDisabledToolTip(final Component textfield) {
+		textfield.add(AttributeModifier.replace("title", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
+		textfield.add(AttributeModifier.replace("aria-label", new ResourceModel("settingspage.categories.hover.dropkeepusage")));
+	}
+
+	/**
+	 * Helper to remove the tooltip from above
+	 * @param textfield
+	 */
+	private void removeDropKeepDisabledToolTip(final Component textfield) {
+		textfield.add(AttributeModifier.remove("title"));
+		textfield.add(AttributeModifier.remove("aria-label"));
 	}
 }

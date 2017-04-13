@@ -21,6 +21,8 @@
 
 package org.sakaiproject.event.api;
 
+import java.util.List;
+
 /**
  * <p>
  * NotificationService is ...
@@ -169,6 +171,17 @@ public interface NotificationService
 	Notification findNotification(String function, String filter);
 
 	/**
+	 * Find a notification object.
+	 * 
+	 * @param function
+	 *        The function setting of the notification object.
+	 * @param filter
+	 *        The resourceFilter setting of the notification object.
+	 * @return A notification object matching the criteria, or null if none found.
+	 */
+	List<Notification> findNotifications(String function, String filter);
+
+	/**
 	 * Check if an email notification should be reply-able in the To: field
 	 * 
 	 * @return true if email notifications should be reply-able in the To: field, false if not.
@@ -181,4 +194,5 @@ public interface NotificationService
 	 * @return true if email notifications should be reply-able in the From: field, false if not.
 	 */
 	boolean isNotificationFromReplyable();
+	
 }

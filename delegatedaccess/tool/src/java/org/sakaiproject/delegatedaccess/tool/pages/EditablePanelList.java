@@ -33,6 +33,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -73,7 +74,7 @@ public class EditablePanelList  extends Panel
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='none';");
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='none';");
 				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
 				//since I don't want to expand or collapse, I just call whichever one the node is already
 				//Refreshing the tree will update all the models and information (like role) will be generated onClick
@@ -173,7 +174,7 @@ public class EditablePanelList  extends Panel
 						}else{
 							checkBox.setEnabled(true);
 						}
-						target.addComponent(checkBox, checkBoxId);
+						target.add(checkBox, checkBoxId);
 					}
 
 					private boolean isPublicChecked(){
@@ -209,9 +210,9 @@ public class EditablePanelList  extends Panel
 						listOptions = getNodeModelToolsList(nodeModel);
 					}
 					listView.setDefaultModelObject(listOptions);
-					target.addComponent(editableSpan);
+					target.add(editableSpan);
 				}
-				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
 			}
 		};
 		add(restrictToolsLink);
@@ -257,6 +258,54 @@ public class EditablePanelList  extends Panel
 			}
 		}
 		editableSpan.add(editToolsInstructions);
+
+		CheckBox toggleAllPublicCheckbox = new CheckBox("toggleAllPublicCheckboxes", Model.of(Boolean.FALSE));
+		toggleAllPublicCheckbox.setVisible(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType);
+		toggleAllPublicCheckbox.add(new AjaxFormComponentUpdatingBehavior("onClick")
+			{
+				protected void onUpdate(AjaxRequestTarget target){
+				Boolean checked = Strings.isTrue(getFormComponent().getValue());
+
+					List<ListOptionSerialized[]> options = listView.getModelObject();
+
+					for (ListOptionSerialized[] option : options) {
+						if(DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType){
+								nodeModel.setPublicToolRestricted(option[1].getId(), checked);
+							}
+						if (checked) {
+								if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+										nodeModel.setAuthToolRestricted(option[0].getId(), false);
+									}
+							}
+					}
+
+					target.add(editableSpan);
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
+			}
+		});
+		editableSpan.add(toggleAllPublicCheckbox);
+		CheckBox toggleAllAuthCheckboxes = new CheckBox("toggleAllAuthCheckboxes", Model.of(Boolean.FALSE));
+		toggleAllAuthCheckboxes.setVisible(true);
+		toggleAllAuthCheckboxes.add(new AjaxFormComponentUpdatingBehavior("onClick")
+			{
+				protected void onUpdate(AjaxRequestTarget target){
+				Boolean checked = Strings.isTrue(getFormComponent().getValue());
+
+					List<ListOptionSerialized[]> options = listView.getModelObject();
+
+					for (ListOptionSerialized[] option : options) {
+						if (!nodeModel.isPublicToolRestricted(option[1].getId())) {
+								if (DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS == fieldType) {
+										nodeModel.setAuthToolRestricted(option[0].getId(), checked);
+									}
+							}
+					}
+
+					target.add(editableSpan);
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
+			}
+		});
+		editableSpan.add(toggleAllAuthCheckboxes);
 
 	}
 

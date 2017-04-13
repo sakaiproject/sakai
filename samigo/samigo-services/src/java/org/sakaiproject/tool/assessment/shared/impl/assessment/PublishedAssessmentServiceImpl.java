@@ -231,26 +231,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
     }
   }
 
-  /**
-   * Publish an assessment.
-   * @param assessment
-   * @return
-   */
-  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment)
-  {
-    try
-    {
-      PublishedAssessmentService service = new PublishedAssessmentService();
-      AssessmentService assessmentService = new AssessmentService();
-      AssessmentFacade facade = assessmentService.getAssessment(
-        assessment.getAssessmentId().toString());
-      return service.publishAssessment(facade);
-    }
-    catch (Exception ex)
-    {
-      throw new AssessmentServiceException(ex);
-    }
-  }
+
 
   /**
    * Preview a published assessment.

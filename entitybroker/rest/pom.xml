@@ -26,6 +26,10 @@
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
         <!-- internal testing -->
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
@@ -63,10 +67,6 @@
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-servlet-tester</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
     <build>

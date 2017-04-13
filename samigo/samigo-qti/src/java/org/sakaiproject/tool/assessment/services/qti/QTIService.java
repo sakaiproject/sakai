@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.services.qti;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +100,7 @@ public class QTIService implements QTIServiceAPI
 	  return createImportedAssessment(document, qtiVersion, unzipLocation, false, null);
   }
   
-  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus, ArrayList failedMatchingQuestions)
+  public AssessmentFacade createImportedAssessment(Document document, int qtiVersion, String unzipLocation, boolean isRespondus, List failedMatchingQuestions)
   {
     testQtiVersion(qtiVersion);
 

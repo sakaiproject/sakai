@@ -935,15 +935,23 @@ public class GenericCalendarImporter implements CalendarImporterService
 								}else if (cellValue.equals("event.computer")){
 									mapCellValue="Computer Session"; 
 								}else if (cellValue.equals("event.deadline")){
-									mapCellValue="Deadline"; 
+									mapCellValue="Deadline";
+								}else if (cellValue.equals("event.formative")){
+									mapCellValue="Formative Assessment";
 								}else if (cellValue.equals("event.conference")){
 									mapCellValue="Multidisciplinary Conference"; 
 								}else if (cellValue.equals("event.quiz")){
 									mapCellValue="Quiz"; 
 								}else if (cellValue.equals("event.special")){
-									mapCellValue="Special event"; 
+									mapCellValue="Special event";
+								}else if (cellValue.equals("event.submission")){
+									mapCellValue="Submission Date";
+								}else if (cellValue.equals("event.tutorial")){
+									mapCellValue="Tutorial";
 								}else if (cellValue.equals("event.assignment")){
-									mapCellValue="Web Assignment"; 
+									mapCellValue="Web Assignment";
+								}else if (cellValue.equals("event.workshop")){
+									mapCellValue="Workshop"; 
 								}else{ 
 									mapCellValue = cellValue; 
 								}

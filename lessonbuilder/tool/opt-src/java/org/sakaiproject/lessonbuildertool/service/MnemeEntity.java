@@ -248,6 +248,10 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
     public LessonEntity getEntity(String ref) {
 	int i = ref.indexOf("/",1);
+	if (i < 1 && i < ref.length()) {
+		// We didn't find it.
+		return null;
+	}
 	String typeString = ref.substring(1, i);
 	String id = ref.substring(i+1);
 

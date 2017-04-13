@@ -72,11 +72,6 @@ public class RosterTool extends HttpServlet {
 
 		String userId = sakaiProxy.getCurrentUserId();
 
-		if (null == userId) {
-			// We are not logged in
-			throw new ServletException("getCurrentUser returned null.");
-		}
-
         String siteLanguage = sakaiProxy.getCurrentSiteLocale();
 
         Locale locale = null;
@@ -123,6 +118,7 @@ public class RosterTool extends HttpServlet {
 		request.setAttribute("superUser", sakaiProxy.isSuperUser());
 		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
         request.setAttribute("viewConnections", sakaiProxy.getViewConnections());
+        request.setAttribute("showVisits", sakaiProxy.getShowVisits());
 
         response.setContentType("text/html");
         request.getRequestDispatcher("/WEB-INF/bootstrap.jsp").include(request, response);	

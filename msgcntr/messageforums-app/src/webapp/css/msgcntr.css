@@ -144,15 +144,13 @@
 	padding: 1px 2px;
 	margin-right: 5px;
 }
-.markAsReadIcon{
+a.markAsReadIcon{
 	cursor: pointer;
 	margin-left:.5em;
-	background: #fff url(../images/silk/email.png) center left no-repeat;
-	padding-bottom: 2px;
-	padding-top: 2px;
+	background: #fff url(../images/silk/email.png) 5px 5px no-repeat;
 }
-.markAsReadIcon:hover{
-	background: #fff url(../images/silk/email_open.png) center left no-repeat
+a.markAsReadIcon:hover{
+	background: #fff url(../images/silk/email_open.png) 5px 3px no-repeat
 }
 .messagesFlat,.messagesThreaded{
 	width: 98% !important;
@@ -292,13 +290,20 @@ table.messageActions td{
 	background:#ffe;
 	position:absolute;
 	padding:5px;
+	z-index: 1;
 }
 
 #permalinkHolder a{
 	font-weight:bold;
 	top:0;right:4px;
 	outline:none;padding:0;
-	display:block;position:absolute;
+	display:block;
+	float:right;
+}
+
+#permalinkHolder textarea{
+	width: 100%;
+	height: 200px;
 }
 .messageActions td.otherOtherActions {
 	/*rightmost column of single message action links - not used*/
@@ -413,7 +418,7 @@ td div.title{
 .permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
 .permissionRow .ui-accordion-content { background: #eee; border: 1px solid #ccc; }
 .permissionRow span.ui-accordion-header {
-	margin-left: 4em;
+	margin: 0 0 0.5em 4em;
 	display:inline-block;
 }
 .permissionRow .ui-accordion-header.ui-state-active {
@@ -645,4 +650,27 @@ div.msgcntr-profile-qtip {
 }
 #msgForum\:assignment{
 	margin-right: 0.5em;
+}
+
+ /* Styles for synoptic */
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable{
+	width:auto;
+	table-layout:fixed;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable th{
+	white-space: normal;
+	vertical-align: initial;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .messagesHeader{
+	width:20%;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .forumsHeader{
+	width:20%;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .siteHeader{
+	width:60%;
 }

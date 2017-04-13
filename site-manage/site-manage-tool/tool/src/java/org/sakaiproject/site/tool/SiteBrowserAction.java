@@ -248,7 +248,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			template = buildVisitContext(state, context);
 		}
 		
-		// bjones86 - SAK-24423 - joinable site settings - join from site browser
+		// SAK-24423 - joinable site settings - join from site browser
 		else if( JoinableSiteSettings.SITE_BROWSER_JOIN_MODE.equalsIgnoreCase( mode ) )
 		{
 			if( JoinableSiteSettings.isJoinFromSiteBrowserEnabled() )
@@ -306,7 +306,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		state.setAttribute(STATE_SITES, sites);
 		context.put("sites", sites);
 		
-		// bjones86 - SAK-24423 - joinable site settings - put the necessary info into the context for the list interface
+		// SAK-24423 - joinable site settings - put the necessary info into the context for the list interface
 		JoinableSiteSettings.putSiteMapInContextForSiteBrowser( context, sites );
         JoinableSiteSettings.putCurrentUserInContextForSiteBrowser( context );
         JoinableSiteSettings.putIsSiteBrowserJoinEnabledInContext( context );
@@ -614,7 +614,7 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 
 			context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 			
-			// bjones86 - SAK-24423 - joinable site settings - put info into the context for the visit UI
+			// SAK-24423 - joinable site settings - put info into the context for the visit UI
 			JoinableSiteSettings.putIsSiteBrowserJoinEnabledInContext( context );
 			JoinableSiteSettings.putIsCurrentUserAlreadyMemberInContextForSiteBrowser( context, siteId );
 			JoinableSiteSettings.putIsSiteExcludedFromPublic( context, siteId );
@@ -676,8 +676,6 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	
 	/**
 	 * Handle a request to join a site.
-	 * 
-	 * @author bjones86
 	 * 
 	 * @param data
 	 * 				the state to get the settings from

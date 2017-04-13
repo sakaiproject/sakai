@@ -285,7 +285,7 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 }
 
 function reEnableCategoryDropInputs(component) {
-    if(component === null) {
+    if(component === null || component === undefined) {
         // Enable all of the category drop scores inputs on the page
         // This is required because of the lack of support for
         // disabled components in myfaces

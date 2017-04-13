@@ -61,9 +61,7 @@ public interface PublishedAssessmentServiceAPI {
   public PublishedAssessmentIfc getPublishedAssessment(String assessmentId);
 
   public Long getPublishedAssessmentId(String assessmentId);
-
-  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment);
-
+  
   public PublishedAssessmentIfc publishPreviewAssessment(AssessmentIfc
       assessment, String protocol);
 

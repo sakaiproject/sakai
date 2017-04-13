@@ -3,24 +3,29 @@ package org.sakaiproject.tool.gradebook.ui.helpers.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Data;
-
 import org.sakaiproject.site.api.Site;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
 public class GradeCourse {
 	
-	protected String siteId;
-	protected String siteName;
+	@Getter
+	@Setter
+	private String siteId;
 	
-	protected List<GradeAssignmentItem> assignments;
+	@Getter
+	@Setter
+	private String siteName;
 	
-	public GradeCourse (Site site)
-	{
-		siteId = site.getId();
-		siteName = site.getTitle();
-		
-		assignments = new ArrayList<GradeAssignmentItem> ();
+	@Getter
+	@Setter
+	private List<GradeAssignmentItem> assignments;
+	
+	public GradeCourse (Site site) {
+		this.siteId = site.getId();
+		this.siteName = site.getTitle();
+		this.assignments = new ArrayList<GradeAssignmentItem>();
 	}
 
 }

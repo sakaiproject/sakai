@@ -24,22 +24,19 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mockito.Mockito;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 
-public class FakeSessionManager implements SessionManager {
+public abstract class FakeSessionManager implements SessionManager {
 	private List<Session> sessions = new ArrayList<Session>();
-	private Session currentSession	= new FakeSession();
+	private Session currentSession	= Mockito.spy(FakeSession.class);
 
 	public FakeSessionManager() {
 		sessions.add(currentSession);
 	}
 	
-	public int getActiveUserCount(int arg0) {
-		return 0;
-	}
-
 	public Session getCurrentSession() {
 		return currentSession;
 	}
@@ -48,30 +45,8 @@ public class FakeSessionManager implements SessionManager {
 		return currentSession.getUserId();
 	}
 
-	public ToolSession getCurrentToolSession() {
-		return null;
-	}
-
 	public Session getSession(String arg0) {
 		return currentSession;
-	}
-
-	public String makeSessionId(HttpServletRequest req, Principal principal) {
-		return null;
-	}
-
-	public void setCurrentSession(Session arg0) {
-	}
-
-	public void setCurrentToolSession(ToolSession arg0) {
-	}
-
-	public Session startSession() {
-		return null;
-	}
-
-	public Session startSession(String arg0) {
-		return null;
 	}
 
 	public List<Session> getSessions() {

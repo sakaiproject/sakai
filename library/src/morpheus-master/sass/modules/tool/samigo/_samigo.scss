@@ -1,0 +1,231 @@
+.#{$namespace}sakai-samigo{
+	.samigo-inline-form {
+		td {
+			label{
+				display: inline;
+				margin: 0 0 0 0.3em;
+			}
+		}
+	}
+
+	#samigo-create-new-box, #samigo-create-import-box {
+		@extend .bs-callout-primary;
+		border-left-width: 1px;
+		margin-top: 0;
+	}
+
+	.samigo-question-callout {
+			border-left: 5px solid $tool-border-color;
+			margin: 2em 0;
+			padding: 1.5em 2.5em 1.5em 1.5em;
+			input[type="checkbox"], input[type="radio"] {
+				margin-right: 0.25em;
+			}
+	}
+
+	.listNav {
+		.inlineForm {
+			@extend .panel;
+			@extend .panel-default;
+			.pager-instruction {
+				@extend .panel-heading;
+				@extend .small;
+				text-align: center;
+			}
+			display: inline-block;
+			fieldset {
+				display: inline-block;
+			}
+			legend {
+				display: none;
+			}
+		}
+	}
+
+	.samigo-inline-radio {
+		label {
+			margin-right: 1em;
+		}
+	}
+	
+	.samigo-checkbox {
+		label {
+			margin: 0 0 0 0.5em;
+		}
+	}
+
+	.samigo-radio {
+		label {
+			margin: 0 0 0 0.5em;
+		}
+	}
+	
+	.matrixSurvey{
+		padding: 0 1em 0 1em;
+	}
+	
+	.feedBackCheck, .feedBackCross{
+		margin-right: 0.2em;
+	}
+	
+	.feedBackCheck{
+		color: $ok-color;
+	}
+	
+	.feedBackCross{
+		color: $error-color;
+	}
+	
+	.feedBackMultipleChoice{
+		width: 2em;
+	}
+	
+	.disabledField{
+		color: $error-color;
+		text-decoration: line-through;
+	}
+
+	#assessmentSettingsAction,#itemForm{
+		ul{
+			list-style: none;
+			padding: 0 0 0 0;
+		}
+	}
+	.mcscFixUp > ul,.question-wrapper{
+		list-style: none;
+		padding: 0 0 0 0;
+	}
+
+	#itemForm\:partialCredit_toggle.tier3,
+	#itemForm\:mcms_credit_toggle.tier3,
+	#itemForm\:discountDiv.tier3{
+		margin-left: 3em  !important;
+	}
+
+	.divContainer {
+		clear: right;
+	}
+
+	.divLeft {
+		margin-top: 0.5em;
+	}
+
+	.divRight{
+		text-align: right;
+		@media #{$phone}{
+			text-align: left;
+		}
+	}
+	
+	#itemForm\:discountDiv #itemForm\:answerdsc{
+		margin-left: 10px;
+		width: 45px;
+		@media #{$phone}{
+			margin-left: 0px;
+		}
+	}
+	
+	.indent1{
+		margin-left: 2em;
+	}
+	
+	//This is for jsf labels and checkboxes	
+	#itemForm\:chooseAnswerTypeForMC input[type="radio"]{
+		@media #{$phone}{
+			float:left;
+			& + label {
+				overflow:auto;
+				display:block;
+			}
+		}
+	}
+	
+	#assessmentSettingsAction .layout-navigation input[type="radio"]{
+		@media #{$nonPhone}{
+			float:left;
+			& + label {
+				overflow:auto;
+				display:block;
+				margin-left: 1.5em;
+			}
+		}
+	}
+	
+	#assessmentSettingsAction input[type="radio"],
+	#assessmentSettingsAction input[type="checkbox"]{
+		@media #{$tablet}{
+			float:left;
+			& + label {
+				overflow:auto;
+				display:block;
+			}
+		}
+	}
+
+	#assessmentSettingsAction input#assessmentSettingsAction\:selTimeAssess {
+		float: none;
+	}
+	
+	#assessmentSettingsAction input[type="checkbox"]{
+		@media #{$tablet}{
+			& + label {
+			margin-left: 1.5em;
+			}
+		}
+	}
+
+	table{
+	   	td{
+	   		input[type="checkbox"],input[type="radio"]{
+	   			margin-right: 5px;
+	   		}
+	   	}
+	}
+	
+	#samLiteEntryForm\:data{
+		margin-top: 1.2em;
+	}
+	
+	#templateCreateForm{
+		label[for="templateCreateForm:tempName"]{
+			margin-right: 1em;
+		}
+	}
+	
+	.toolTipLink{
+		color: $link-color;
+		background-color: $link-background-color;
+		text-decoration: underline;
+		cursor: pointer;
+		&:hover{
+			color: $link-hover-color;
+			background-color: $link-hover-background-color;
+			text-decoration:underline;
+		}
+	}
+
+	.extendedTimeDataTable {
+		margin-bottom: .5em;
+
+		select {
+			max-width: 150px;
+		}
+
+		thead tr th {
+			border-bottom: 1px solid black;
+		}
+
+		tr {
+			border-bottom: 1px solid lightgrey;
+		}
+
+		.extendedTime-user, .extendedTime-group {
+			max-width: 160px;
+		}
+
+		.extendedTime-mins {
+			min-width: 70px;
+		}
+	}
+
+}

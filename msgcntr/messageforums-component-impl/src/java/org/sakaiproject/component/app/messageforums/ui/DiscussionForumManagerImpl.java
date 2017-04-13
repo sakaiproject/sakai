@@ -85,7 +85,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 
 
@@ -2531,6 +2531,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   		  
   	  return usersAllowed;
     }
+
+	public List getRecentDiscussionForumThreadsByTopicIds(List<Long> topicIds, int numberOfMessages)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("getRecentDiscussionForumMessagesByContext( Size of list is " + topicIds.size() + ")");
+		}
+		return messageManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages);
+	}
 
 	public List<Attachment> getTopicAttachments(Long topicId) {
 		return forumManager.getTopicAttachments(topicId);

@@ -24,9 +24,13 @@
 
 package org.sakaiproject.pasystem.tool.handlers;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.pasystem.tool.forms.BannerForm;
@@ -40,9 +44,11 @@ public class BannersHandler extends CrudHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BannersHandler.class);
     private final PASystem paSystem;
+    private  final ClusterService clusterService;
 
-    public BannersHandler(PASystem pasystem) {
+    public BannersHandler(PASystem pasystem, ClusterService clusterService) {
         this.paSystem = pasystem;
+        this.clusterService = clusterService;
     }
 
     @Override
@@ -58,6 +64,7 @@ public class BannersHandler extends CrudHandler {
     protected void handleEdit(HttpServletRequest request, Map<String, Object> context) {
         String uuid = extractId(request);
         context.put("subpage", "banner_form");
+        context.put("hosts", clusterService.getServers().stream().sorted().collect(Collectors.toList()));
 
         Optional<Banner> banner = paSystem.getBanners().getForId(uuid);
 
@@ -73,6 +80,7 @@ public class BannersHandler extends CrudHandler {
     protected void showNewForm(Map<String, Object> context) {
         context.put("subpage", "banner_form");
         context.put("mode", "new");
+        context.put("hosts", clusterService.getServers().stream().sorted().collect(Collectors.toList()));
     }
 
     @Override

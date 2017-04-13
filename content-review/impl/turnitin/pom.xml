@@ -82,10 +82,6 @@
 		</dependency>
 		<!-- testing dependencies -->
 		<dependency>
-		  <groupId>junit</groupId>
-		  <artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>easymock</groupId>
 			<artifactId>easymock</artifactId>
 			<version>1.2_Java1.3</version>

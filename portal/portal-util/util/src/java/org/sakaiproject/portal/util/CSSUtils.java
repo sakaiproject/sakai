@@ -21,7 +21,6 @@
 
 package org.sakaiproject.portal.util;
 
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -196,22 +195,28 @@ public class CSSUtils
 	 * @return headCssToolBse
 	 */
 	public static String getCssToolBaseLink(String skin,boolean isInlineRequest) {
-		String headCssPortalSkin = "<link href=\"" 
-				+ getCssPortalSkinCDN(skin)
-				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"screen, tty, tv, handheld, projection\" />\n";
 
 		String headCssToolBase = "<link href=\""
 				+ getCssToolBaseCDN()
 				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"screen, tty, tv, handheld, projection\" />\n";
 
 		if ( ! isInlineRequest ) {
+			String headCssPortalSkin = "<link href=\"" 
+				+ getCssPortalSkinCDN(skin)
+				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"screen, tty, tv, handheld, projection\" />\n";
 			headCssToolBase = headCssPortalSkin + headCssToolBase;
 		}
 		return headCssToolBase;
 
 	}
 	
-	public static String getCssToolSkinLink(String skin) {
+	public static String getCssToolSkinLink(String skin, boolean isInlineRequest) {
+
+		if (isInlineRequest)
+		{
+			return "";
+		}
+
 		String headCssToolSkin = "<link href=\"" 
 				+ getCssToolSkinCDN(skin)
 				+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"screen, tty, tv, handheld, projection\" />\n";
@@ -226,9 +231,12 @@ public class CSSUtils
 	public static String getCssHead(String skin, boolean isInlineRequest) {
 		// setup html information that the tool might need (skin, body on load,
 		// js includes, etc).
-		String headCssToolBase = getCssToolBaseLink(skin,isInlineRequest);
-		String headCssToolSkin = getCssToolSkinLink(skin); 
-		return headCssToolBase + headCssToolSkin;
+		String headCss = getCssToolBaseLink(skin,isInlineRequest);
+		if (!isInlineRequest)
+		{
+			headCss += getCssToolSkinLink(skin, isInlineRequest);
+		}
+		return headCss;
 	}
 
 }

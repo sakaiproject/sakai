@@ -61,7 +61,7 @@ public class RemoveMediaListener implements ActionListener
     MediaService mediaService = new MediaService();
 
     // #0. check if we need to pause time 
-    if (delivery.isTimeRunning() && delivery.timeExpired()){
+    if (delivery.isTimeRunning() && delivery.getTimeExpired()){
       delivery.setOutcome("timeExpired");
     }
     else{
@@ -99,7 +99,7 @@ public class RemoveMediaListener implements ActionListener
     mediaService.remove(mediaId, itemGradingId);
 
     // #2. update time based on server
-    if (delivery.isTimeRunning() && delivery.timeExpired()){
+    if (delivery.isTimeRunning() && delivery.getTimeExpired()){
       delivery.setOutcome("timeExpired");
     }
     else{

@@ -73,7 +73,7 @@ public class SamLiteBean implements Serializable {
 	    authorBean.setAssessmentTemplateId(AssessmentTemplateFacade.DEFAULTTEMPLATE.toString());
 
 	    AssessmentService assessmentService = new AssessmentService();
-	    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
+	    List list = assessmentService.getBasicInfoOfAllActiveAssessments(
 	    		authorBean.getCoreAssessmentOrderBy(), authorBean.isCoreAscending());
 	    Iterator iter = list.iterator();
 		while (iter.hasNext()) {

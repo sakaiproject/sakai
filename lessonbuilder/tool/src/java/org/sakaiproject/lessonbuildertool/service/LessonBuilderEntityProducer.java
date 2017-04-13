@@ -79,6 +79,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.ToolApi;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -93,6 +94,7 @@ import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -532,6 +534,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       //prepare the buffer for the results log
        StringBuilder results = new StringBuilder();
 
+      // Orphaned pages need not apply!
+       SimplePageBean simplePageBean = makeSimplePageBean(siteId);
+       OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+
       try 
       {
 	 Site site = siteService.getSite(siteId);
@@ -543,11 +549,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
          Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
+	 int orphansSkipped = 0;
+
 	 List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 	 if (sitePages != null && !sitePages.isEmpty()) {
-	     for (SimplePage page: sitePages)
+	     for (SimplePage page: sitePages) {
+	       if (!orphanFinder.isOrphan(page.getPageId())) {
 		 addPage(doc, lessonbuilder, page, site);
+	       } else {
+		 orphansSkipped++;
+	       }
+	     }
 	 }
+
+	 logger.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
 
          Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 	 int count = 0;
@@ -1547,7 +1562,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  }
 
 	  for (Group group: delGroups) {
-	      site.removeGroup(group);      
+	      try {
+	        site.deleteGroup(group);
+	      } catch (IllegalStateException e) {
+	        logger.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
+	      }
 	  }
 	  try {
 	      siteService.save(site);
@@ -1688,7 +1707,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
     public final static String[] EVENT_KEYS= 
-	new String[] {"lessonbuilder.create", "lessonbuilder.delete", "lessonbuilder.update", "lessonbuilder.read"};
+	new String[] {LessonBuilderEvents.PAGE_CREATE,
+                    LessonBuilderEvents.PAGE_READ,
+                    LessonBuilderEvents.PAGE_UPDATE,
+                    LessonBuilderEvents.PAGE_DELETE,
+                    LessonBuilderEvents.ITEM_CREATE,
+                    LessonBuilderEvents.ITEM_READ,
+                    LessonBuilderEvents.ITEM_UPDATE,
+                    LessonBuilderEvents.ITEM_DELETE,
+                    LessonBuilderEvents.COMMENT_CREATE,
+                    LessonBuilderEvents.COMMENT_UPDATE,
+                    LessonBuilderEvents.COMMENT_DELETE};
 
     /**
      * Return an array of all the event keys which should be tracked for statistics
@@ -2084,7 +2113,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     
     public String deleteOrphanPages(String siteId) {
     	SimplePageBean spb = makeSimplePageBean(siteId);
-    	return spb.deleteOrphanPages();
+    	return spb.deleteOrphanPagesInternal();
     }
 
     SimplePageBean makeSimplePageBean(String siteId) {

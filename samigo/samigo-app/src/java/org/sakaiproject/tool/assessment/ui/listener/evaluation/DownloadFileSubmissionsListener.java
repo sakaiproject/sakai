@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -71,7 +72,7 @@ public class DownloadFileSubmissionsListener implements ActionListener {
 		}
 
 		downloadFileSubmissionsBean.setSectionsSelected(new ArrayList());
-		HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
+		Map publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 		Iterator iter = publishedAssessment.getSectionArraySorted().iterator();
 		HashMap<Long, ItemDataIfc> fileUploadQuestionMap = new HashMap<Long, ItemDataIfc>();
 		while (iter.hasNext()) {

@@ -1,12 +1,14 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -47,7 +49,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		    control.setAssessmentBase(assessment.getData());
 		}
 	    */
-		EventTrackingService.post(EventTrackingService.newEvent("sam.pubsetting.edit", "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
 		FacesContext context = FacesContext.getCurrentInstance();
 		//boolean error = savePublishedSettingsListener.setPublishedSettings(assessmentService, assessmentSettings, context, control, assessment, false);
 		/*
@@ -90,7 +92,7 @@ public class ConfirmRepublishAssessmentListener implements ActionListener {
 		Long publishedAssessmentId = publishedAssessmentSettings.getAssessmentId();
 		GradingService gradingService = new GradingService();
 
-		ArrayList al = gradingService.getHasGradingDataAndHasSubmission(publishedAssessmentId);
+		List<Boolean> al = gradingService.getHasGradingDataAndHasSubmission(publishedAssessmentId);
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
 		if (al.size() == 2) {

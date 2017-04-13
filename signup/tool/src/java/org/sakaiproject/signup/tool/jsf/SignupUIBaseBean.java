@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -642,7 +643,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * @return	List<String> of eids.
 	 */
 	public List<String> getEidsForEmail(String email) {
-		List<User> users = sakaiFacade.getUsersByEmail(email);
+		Collection<User> users = sakaiFacade.getUsersByEmail(email);
 		
 		List<String> eids = new ArrayList<String>();
 		for(User u:users) {
@@ -698,6 +699,14 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return uuids;
 	}
 
+	/**
+	 * Determines if user has a valid session
+	 * @return if user has a valid session
+	 */
+	public boolean isSessionValid() {
+		return getMeetingWrapper() == null;
+	}
+
 	
 	/**
 	 * Helper to get a formatted string of all attendee email addresses for all tineslots
@@ -709,11 +718,13 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		Set<String> emails = new HashSet<String>();
 		
 		StringBuilder sb = new StringBuilder();
-		for (TimeslotWrapper tsWrapper : timeslotWrappers) {
-			for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
-				String email = atWrapper.getAttendeeEmail();
-				if(StringUtils.isNotBlank(email)){
-					emails.add(email);
+		if (timeslotWrappers!=null){
+			for (TimeslotWrapper tsWrapper : timeslotWrappers) {
+				for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
+					String email = atWrapper.getAttendeeEmail();
+					if(StringUtils.isNotBlank(email)){
+						emails.add(email);
+					}
 				}
 			}
 		}

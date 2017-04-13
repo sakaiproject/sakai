@@ -1,9 +1,8 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.grading"
+                   default-lazy="false">
 
-<hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.MediaData" table="SAM_MEDIA_T">
     <id name="mediaId" column="MEDIAID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">
@@ -12,7 +11,7 @@
     </id>
     <many-to-one name="itemGradingData"
       class="org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData"
-      column="ITEMGRADINGID" index="SAM_MEDIA_ITEMGRADING_I" />
+      column="ITEMGRADINGID" />
     <property name="dbMedia">
       <column name="MEDIA" not-null="false" length="1000000000"/>
     </property>

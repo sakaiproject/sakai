@@ -1,0 +1,76 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_view.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+
+#css("/admin-tools/css/sakai-user-tool.css" 'media="screen"')
+#javascript("/library/js/spinner.js")
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		<h3>
+			$tlang.getString("usevie.revandmod")
+		</h3>
+		#if ($alertMessage)
+			<div class="alertMessage">
+				$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)
+			</div>
+		#end
+
+		<form name="$form-name" id="userViewForm" action="#toolForm("$action")" method="post">
+            <fieldset>
+            	<legend>
+					$tlang.getString("usevie.use")
+				</legend>	
+                <div class="shorttext">
+                    <label>$tlang.getString("useconrem.useid")</label>
+                    $validator.escapeHtml($user.Eid)
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("usecre.firnam")</label>
+                    $validator.escapeHtml($user.FirstName)
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("usecre.lasnam")</label>
+                    $validator.escapeHtml($user.LastName)
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("usevie.ema")</label>
+                    $validator.escapeHtml($user.Email)
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("usecre.typ")</label>
+                    $validator.escapeHtml($user.Type)
+                </div>
+			
+#if($enableEdit)
+               	<div class="shorttext">
+                    <label>$tlang.getString("disabled")</label>
+                    #set($disabled = $user.Properties.getProperty("disabled"))
+   					#if ($disabled != 'true')$tlang.getString("false") #else $tlang.getString("true") #end
+                </div>
+		        <div class="shorttext">
+                    <label>$tlang.getString("useedi.creby")</label>
+                    $validator.escapeHtml($user.CreatedBy.DisplayName)
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("useedi.cre")</label>
+                    $validator.escapeHtml($user.CreatedTime.toStringLocalFull())
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("useedi.modby")</label>
+                    $validator.escapeHtml($user.ModifiedBy.DisplayName)
+                </div>
+                <div class="shorttext">
+                    <label>$tlang.getString("useedi.mod")</label>
+                    $validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
+                </div>
+                           
+				<div class="act">
+					<input type="submit" id="eventSubmit_doModify" name="eventSubmit_doModify" class="active" value="$tlang.getString("usevie.mod2")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				</div>
+#end
+				<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            </fieldset>
+		</form>
+	</div>

@@ -8,10 +8,10 @@
        }
        $("input:radio").click(function(){
            if($(this).attr('class')=='siteTypeTerm') {
-               $('#selectTerm').attr('disabled','')
+               $('#selectTerm').prop('disabled',false)
            }
            else {
-               $('#selectTerm').attr('disabled','disabled');
+               $('#selectTerm').prop('disabled',true);
                $('#selectTerm  option')[0].selected = true;
                
            }

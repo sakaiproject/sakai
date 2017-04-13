@@ -218,7 +218,7 @@ function checkHowChartSelection() {
 
 function checkWhatSelection() {
 	var what = jQuery('#what').val();
-	if(what == 'what-visits') {
+	if(what == 'what-visits' || what == 'what-presences') {
 		jQuery('#what').css('width','300px');
 		jQuery('#what-selection-label').hide();
 		jQuery('#whatEventSelType').hide();
@@ -330,4 +330,15 @@ function checkReportDetails() {
 		jQuery('#whoSection').show();
 	}
 	setMainFrameHeightNoScroll(window.name);
+}
+
+function loadJQueryDatePicker(inputField, value){
+	localDatePicker({
+	  input: '#'+inputField,
+	  useTime: 1,
+	  parseFormat: 'YYYY-MM-DD HH:mm:ss',
+	  allowEmptyDate: false,
+	  val: value,
+	  ashidden: { iso8601: inputField+'ISO8601' }
+  });
 }

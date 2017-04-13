@@ -16,7 +16,7 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 	<form action="#toolForm("$action")" method="post" name="optionsForm">
  		<fieldset class="indnt2">
-            <legend><label>$tlang.getString("options_instruction")</label></legend>
+            <legend><h3>$tlang.getString("options_instruction")</h3></legend>
 			<div class="checkbox">
 				<label for="submission_list_option_default">
                 	<input type="radio" id="submission_list_option_default" name="submissions_search_only" #if(!$submissions_search_only)checked#end value="false"/>

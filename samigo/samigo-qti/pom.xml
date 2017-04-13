@@ -49,6 +49,10 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>samigo-hibernate</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
@@ -85,6 +89,10 @@
         <dependency>
             <groupId>OKI</groupId>
             <artifactId>OkiOSID</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>org.sakaiproject.common</groupId>
+        	<artifactId>import-impl</artifactId>
         </dependency>
 	</dependencies>
 	<build>

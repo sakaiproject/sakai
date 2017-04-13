@@ -33,6 +33,8 @@ import java.util.List;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.util.Map;
+
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
@@ -76,9 +78,9 @@ private String sectionId;
 private String noOfItems;
 private String sectionTitle;
 private String sectionDescription;
-private ArrayList assessmentSectionIdents;
-private ArrayList poolsAvailable;  // selectItems for pools
-private ArrayList items;
+private List assessmentSectionIdents;
+private List poolsAvailable;  // selectItems for pools
+private List items;
 private boolean random;
 private String randomPartScore;
 private String randomPartDiscount;
@@ -233,7 +235,7 @@ private List attachmentList;
   /**
    * @return
    */
-  public ArrayList getAssessmentSectionIdents()
+  public List getAssessmentSectionIdents()
   {
     return assessmentSectionIdents;
   }
@@ -241,7 +243,7 @@ private List attachmentList;
   /**
    * @param list
    */
-  public void setAssessmentSectionIdents(ArrayList list)
+  public void setAssessmentSectionIdents(List list)
   {
     assessmentSectionIdents = list;
   }
@@ -251,9 +253,9 @@ private List attachmentList;
    * Derived property.
    * @return String[] in format "1", "2", "3"... up to the number of parts
    */
-  public ArrayList getSectionNumberList()
+  public List getSectionNumberList()
   {
-    ArrayList list = new ArrayList();
+    List list = new ArrayList();
 
     if (assessmentSectionIdents==null) return list;
 
@@ -323,9 +325,9 @@ private List attachmentList;
    * returns a list of pools that have not been used by other random drawn parts 
    * @return ArrayList of QuestionPoolFacade objects
    */
-  public ArrayList getPoolsAvailable()
+  public List getPoolsAvailable()
   {
-    ArrayList resultPoolList= new ArrayList();  
+    List resultPoolList= new ArrayList();
 
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
@@ -333,9 +335,9 @@ private List attachmentList;
     
     String agentId = AgentFacade.getAgentString();
     
-    ArrayList allpoollist = delegate.getBasicInfoOfAllPools(agentId);
+    List allpoollist = delegate.getBasicInfoOfAllPools(agentId);
 
-    HashMap allPoolsMap= new HashMap();
+    Map allPoolsMap= new HashMap();
     for (int i=0; i<allpoollist.size();i++){
       QuestionPoolFacade apool = (QuestionPoolFacade) allpoollist.get(i);
       allPoolsMap.put(apool.getQuestionPoolId().toString(), apool);
@@ -370,7 +372,7 @@ private List attachmentList;
     }
     
     // SAM-2463: Fetch the count of questions for each pool in one query instead of hundreds
-    HashMap<Long, Integer> poolQuestionCounts = delegate.getCountItemsForUser(agentId);
+    Map<Long, Integer> poolQuestionCounts = delegate.getCountItemsForUser(agentId);
 
     Iterator pooliter = allPoolsMap.keySet().iterator();
     while (pooliter.hasNext()) {
@@ -478,7 +480,7 @@ private List attachmentList;
   /**List of available question pools.
    * @param list ArrayList of selectItems
    */
-  public void setPoolsAvailable(ArrayList list)
+  public void setPoolsAvailable(List list)
   {
     poolsAvailable = list;
   }
@@ -505,8 +507,8 @@ private List attachmentList;
  * @return String[] in format "1", "2", "3"... up to the number of questions
  */
 
-  public ArrayList getItemNumberList(){
-    ArrayList list = new ArrayList();
+  public List getItemNumberList(){
+    List list = new ArrayList();
 
     for (int i = 0; i < items.toArray().length; i++) {
       SelectItem selection = new SelectItem();
@@ -573,7 +575,7 @@ private List attachmentList;
     return random;
   }
 
-  public ArrayList getItems()
+  public List getItems()
   {
     return items;
   }
@@ -587,7 +589,7 @@ private List attachmentList;
     random = bool;
   }
 
-  public void setItems(ArrayList items)
+  public void setItems(List items)
   {
     this.items = items;
   }
@@ -898,19 +900,19 @@ private List attachmentList;
     return list;
   }
 
-  private HashMap resourceHash = new HashMap();
-  public HashMap getResourceHash() {
+  private Map resourceHash = new HashMap();
+  public Map getResourceHash() {
       return resourceHash;
   }
 
-  public void setResourceHash(HashMap resourceHash)
+  public void setResourceHash(Map resourceHash)
   {
       this.resourceHash = resourceHash;
   }
   
-  public ArrayList getRandomizationTypeList(){
+  public List getRandomizationTypeList(){
 
-	    ArrayList list = new ArrayList();
+	    List list = new ArrayList();
 
 	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	    

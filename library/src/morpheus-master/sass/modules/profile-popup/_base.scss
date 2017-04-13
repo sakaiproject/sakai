@@ -1,0 +1,35 @@
+.profile-popup {
+    background-color: $tool-tab-background-color;
+
+    .profile-connection-button {
+        background-color: $button-color-background-color;
+        font-weight: bold;
+        color: $button-color-text-color;
+        display: inline-block;
+        margin: auto;
+        width: 100%;
+    }
+
+    .profile-popup-table {
+        border-spacing: 3px;
+        border-collapse: separate;
+
+        .profile-popup-icon-cell {
+            padding-right: 3px;
+            div {
+                margin-bottom: 3px;
+                font-weight: bold;
+            }
+        }
+
+        td {
+            text-align: center;
+        }
+    }
+}
+
+.qtip.profile-popup-qtip {
+    border: 1px #E0E0E0 solid !important;
+    background-color: #F8F8F8 !important;
+    max-width: 310px;
+}

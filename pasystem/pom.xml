@@ -20,7 +20,6 @@
   <modules>
     <module>pasystem-api/api</module>
     <module>pasystem-impl/impl</module>
-    <module>pasystem-impl/pack</module>
     <module>pasystem-tool/tool</module>
   </modules>
 

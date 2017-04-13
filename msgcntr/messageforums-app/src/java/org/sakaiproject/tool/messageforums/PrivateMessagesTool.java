@@ -107,7 +107,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 public class PrivateMessagesTool
 {
@@ -1457,6 +1457,33 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  }
   }
   
+  public String getReceivedTopicForMessage(String msgId) {
+	  if (msgId!=null && getPvtAreaEnabled()) {
+		  for (Topic topic : pvtTopics) {
+			  String typeUuid = getPrivateMessageTypeFromContext(topic.getTitle());
+			  List<Message> topicMessages = prtMsgManager.getMessagesByType(typeUuid, PrivateMessageManager.SORT_COLUMN_DATE,PrivateMessageManager.SORT_DESC);
+			  for (Message dMsg : topicMessages) {
+				  if (dMsg.getId().equals(Long.valueOf(msgId))) {
+					  return topic.getUuid();
+				  }
+			  }
+		  }
+	  }
+	  return null;
+  }
+  
+  public String processPvtMsgTopicAndDetail() {
+	  try {
+		  processPvtMsgTopic();
+		  viewChanged = true;
+		  decoratedPvtMsgs = getDecoratedPvtMsgs();
+		  return processPvtMsgDetail();
+	  } catch (Exception ex) {
+		  setErrorMessage(getResourceBundleString("error_direct_access"));
+		  return null;
+	  }
+  }
+  
   public String processPvtMsgTopic()
   {
     LOG.debug("processPvtMsgTopic()");
@@ -2769,12 +2796,8 @@ private   int   getNum(char letter,   String   a)
     	for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {      
     		MembershipItem membershipItem = (MembershipItem) i.next();                
 
-    		if (MembershipItem.TYPE_USER.equals(membershipItem.getType())) {
-    			if (membershipItem.getUser() != null) {
-    				if (membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
-    					selectedComposeToList.add(membershipItem.getId());
-    				}
-    			}
+    		if (membershipItem.getUser() != null && membershipItem.getUser().getId().equals(currentMessage.getCreatedBy())) {
+    			selectedComposeToList.add(membershipItem.getId());
     		}
     	}
 
@@ -3892,7 +3915,7 @@ private   int   getNum(char letter,   String   a)
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
-      return MESSAGE_SETTING_PG;
+      return null;
     }
     else
     {
@@ -3908,7 +3931,7 @@ private   int   getNum(char letter,   String   a)
           // if this happens, there is likely something wrong in the UI that needs to be fixed
           LOG.warn("Non-numeric option for sending email to recipient email address on Message screen. This may indicate a UI problem.");
           setErrorMessage(getResourceBundleString("pvt_send_to_email_invalid"));
-          return MESSAGE_SETTING_PG;
+          return null;
       }
       
       
@@ -5004,9 +5027,9 @@ private   int   getNum(char letter,   String   a)
 			if(decoMessage.getIsSelected())
 			{
 				msgSelected = true;
-				if (readStatus) {
+				if (readStatus && !decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
-				} else {
+				} else if(!readStatus && decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsUnreadForUser(decoMessage.getMsg());
 				}
 

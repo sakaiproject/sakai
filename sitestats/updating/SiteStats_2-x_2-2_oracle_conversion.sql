@@ -11,7 +11,6 @@
 create table SST_PRESENCES (ID number(19,0) not null, SITE_ID varchar2(99 char) not null, USER_ID varchar2(99 char) not null, P_DATE date not null, DURATION number(19,0) default 0 not null, LAST_VISIT_START_TIME timestamp default null, primary key (ID));
 create index SST_PRESENCE_DATE_IX on SST_PRESENCES (P_DATE);
 create index SST_PRESENCE_USER_ID_IX on SST_PRESENCES (USER_ID);
-create index SST_PRESENCE_SITE_ID_IX on SST_PRESENCES (SITE_ID);
 create index SST_PRESENCE_SUD_ID_IX on SST_PRESENCES (SITE_ID, USER_ID, P_DATE);
 
 -- STAT-286: missing SiteStats sequence

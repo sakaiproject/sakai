@@ -21,6 +21,43 @@
 
 (function ($) {
 
+    roster.setupPrintButton = function () {
+
+        $('.roster-print-button').click(function (e) {
+
+            var button = $(this);
+
+            button.prop('disabled', true);
+
+            e.preventDefault();
+            roster.renderMembership({renderAll: true, callback: function () {
+
+                    var container = roster.picturesMode ? $('#roster-members-content') : $('#roster-members');
+
+                    container.waitForImages(function () {
+
+                        button.prop('disabled', false);
+                        window.print();
+                    });
+                }
+            });
+        });
+    };
+
+    roster.setupPicturesButton = function () {
+
+        $('#roster-pictures-only-button').click(function (e) {
+
+            if (this.checked) {
+                roster.picturesMode = true;
+                roster.renderMembership({ renderAll: true });
+            } else {
+                roster.picturesMode = false;
+                roster.renderMembership({ replace: true });
+            }
+        });
+    };
+
     /**
     *   Check if there is no scroll rendered and there are more pages
     */
@@ -50,7 +87,7 @@
 
     };
 
-    roster.switchState = function (state, arg, searchQuery) {
+    roster.switchState = function (state, arg) {
 
         roster.currentState = state;
 
@@ -87,6 +124,7 @@
         if (roster.STATE_OVERVIEW === state) {
 
             roster.enrollmentSetToView = null;
+            roster.enrollmentStatus = null;
             roster.groupToView = null;
             roster.nextPage = 0;
 
@@ -96,18 +134,13 @@
             $('#roster_section_filter').html('');
             $('#roster_search').html('');
 
-            var showOfficialPictures = false;
-
-            if ((arg && arg.forceOfficialPicture) || roster.rosterOfficialPictureMode) {
-                showOfficialPictures = true;
-            }
-
             roster.render('overview',
                 { siteGroups: roster.site.siteGroups,
                     membersTotal: roster.i18n.currently_displaying_participants.replace(/\{0\}/, roster.site.membersTotal),
                     roleFragments: roster.getRoleFragments(roster.site.roleCounts),
                     roles: roster.site.userRoles,
-                    checkOfficialPicturesButton: showOfficialPictures,
+                    checkOfficialPicturesButton: roster.officialPictureMode,
+                    viewGroup : roster.currentUserPermissions.viewGroup,
                     viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto },
                 'roster_content');
 
@@ -117,9 +150,9 @@
 
                     if (this.value === 'all') {
                         roster.groupToView = null;
-                        roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
+                        roster.renderMembership({ replace: true });
                     } else {
-                        roster.renderGroupMembership(this.value, showOfficialPictures);
+                        roster.renderGroupMembership(this.value);
                     }
                 });
 
@@ -127,25 +160,27 @@
 
                     if (this.value === 'all') {
                         roster.roleToView = null;
-                        roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
                     } else {
                         roster.roleToView = this.value;
-                        roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
                     }
+                    roster.renderMembership({ replace: true});
                 });
+
+                roster.setupPrintButton();
+                roster.setupPicturesButton();
 
                 if (roster.currentUserPermissions.viewOfficialPhoto) {
 
                     $('#roster_official_picture_button').click(function (e) {
 
-                        roster.rosterOfficialPictureMode = true;
-                        roster.renderMembership({ forceOfficialPicture: true, replace: true });
+                        roster.officialPictureMode = true;
+                        roster.renderMembership({ replace: true});
                     });
         
                     $('#roster_profile_picture_button').click(function (e) {
 
-                        roster.rosterOfficialPictureMode = false;
-                        roster.renderMembership({ forceOfficialPicture: false, replace: true });
+                        roster.officialPictureMode = false;
+                        roster.renderMembership({ replace: true });
                     });
                 }
 
@@ -156,21 +191,10 @@
                 // We don't want parallel membership requests
                 $('#navbar_overview_link > span > a').off('click');
 
-                roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
+                roster.renderMembership({ replace: true });
             });
 
-            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(showOfficialPictures));
-        } else if (roster.STATE_VIEW_PROFILE === state) {
-            
-            roster.sakai.getProfileMarkup(arg.userId, function (profileMarkup) {
-            
-                $('#roster_content').html(profileMarkup);
-                
-                if(window.frameElement) {
-                    setMainFrameHeight(window.frameElement.id);
-                }
-            });
-            
+            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction({}));
         } else if (roster.STATE_ENROLLMENT_STATUS === state) {
 
             roster.nextPage = 0;
@@ -181,12 +205,6 @@
             if (null === roster.enrollmentSetToView && null != roster.site.siteEnrollmentSets[0]) {
                 roster.enrollmentSetToView = roster.site.siteEnrollmentSets[0].id;
                 roster.groupToView = null;
-            }
-
-            var showOfficialPictures = false;
-
-            if ((arg && arg.forceOfficialPicture) || roster.rosterOfficialPictureMode) {
-                showOfficialPictures = true;
             }
 
             roster.render('enrollment_overview',
@@ -203,26 +221,30 @@
                     var option = this.options[this.selectedIndex];
                     roster.enrollmentSetToView = option.value;
                     roster.enrollmentSetToViewText = option.text;
-                    roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
+                    roster.renderMembership({ replace: true });
                 });
 
                 $('#roster-status-selector').change(function (e) {
 
-                    roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true, enrollmentStatus: this.value });
+                    roster.enrollmentStatus = this.value;
+                    roster.renderMembership({ replace: true });
                 });
+
+                roster.setupPrintButton();
+                roster.setupPicturesButton();
 
                 if (roster.currentUserPermissions.viewOfficialPhoto) {
 
                     $('#roster_official_picture_button').click(function (e) {
 
-                        roster.rosterOfficialPictureMode = true;
-                        roster.renderMembership({ forceOfficialPicture: true, replace: true });
+                        roster.officialPictureMode = true;
+                        roster.renderMembership({ replace: true });
                     });
         
                     $('#roster_profile_picture_button').click(function (e) {
 
-                        roster.rosterOfficialPictureMode = false;
-                        roster.renderMembership({ forceOfficialPicture: false, replace: true });
+                        roster.officialPictureMode = false;
+                        roster.renderMembership({ replace: true });
                     });
                 }
 
@@ -233,7 +255,7 @@
                 // We don't want parallel membership requests
                 $('#navbar_enrollment_status_link').off('click');
 
-                roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
+                roster.renderMembership({ replace: true });
             });
         } else if (roster.STATE_PERMISSIONS === state) {
 
@@ -250,7 +272,7 @@
                         return {name: role};
                     });
             
-                roster.render('permissions', { siteTitle: roster.site.title, roles: roles }, 'roster_content');
+                roster.render('permissions', { siteTitle: roster.site.title, showVisits: roster.showVisits, roles: roles }, 'roster_content');
                 
                 $(document).ready(function () {
 
@@ -266,41 +288,69 @@
         }
     };
 
-    roster.renderGroupMembership = function (groupId, showOfficialPictures) {
+    roster.renderGroupMembership = function (groupId) {
 
         if (groupId === roster.DEFAULT_GROUP_ID) {
             groupId = null;
-        } else {
-            $('#roster-members').empty();
         }
 
         $('#roster-search-field').val('');
 
         roster.groupToView = groupId;
 
-        roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
+        roster.renderMembership({ replace: true });
     };
 
     roster.renderMembership = function (options) {
 
-        var enrollmentsMode = (roster.enrollmentSetToView) ? true : false;
+        var enrollmentsMode = roster.currentState == roster.STATE_ENROLLMENT_STATUS;
+
+        if (roster.picturesMode) {
+            // Pictures are always rendered as one batch
+            options.renderAll = true;
+            options.replace = true;
+        }
 
         if (options.replace) {
-            $('#roster-members').empty();
             roster.nextPage = 0;
 
-            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture, options.enrollmentStatus));
+            if (!roster.picturesMode) {
+                // Render the table header
+                roster.render('members_header', {
+                    viewEmail: roster.viewEmail,
+                    viewUserDisplayId: roster.viewUserDisplayId,
+                    viewProfile: roster.currentUserPermissions.viewProfile,
+                    viewGroup : roster.currentUserPermissions.viewGroup,
+                    viewPicture: true,
+                    viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
+                    viewConnections: ((undefined != window.friendStatus) && roster.viewConnections),
+                    enrollmentsMode: enrollmentsMode,
+                    showVisits: roster.showVisits
+                    }, 'roster-members-content');
+            }
+
+            $(window).off('scroll.roster');
+        }
+
+        if (options.renderAll) {
+            $('#roster-members').empty();
+            $(window).off('scroll.roster');
         }
 
         var url = "/direct/roster-membership/" + roster.siteId;
         
-        if (options.userId) {
-            url += "/get-user.json?userId=" + options.userId;
+        if (options.userIds) {
+            url += "/get-users.json?userIds=" + options.userIds.join(',');
             if (roster.enrollmentSetToView) {
                 url += "&enrollmentSetId=" + roster.enrollmentSetToView;
             }
         } else {
-            url += "/get-membership.json?page=" + roster.nextPage;
+            url += '/get-membership.json?';
+            if (options.renderAll) {
+                url += 'all=true';
+            } else {
+                url += 'page=' + roster.nextPage;
+            }
             if (roster.groupToView) {
                 url += "&groupId=" + roster.groupToView;
             } else if (roster.enrollmentSetToView) {
@@ -308,12 +358,12 @@
             }
 
             if (roster.roleToView) {
-                url += "&roleId=" + roster.roleToView;
+                url += "&roleId=" + encodeURIComponent(roster.roleToView);
             }
         }
 
-        if (options.enrollmentStatus) {
-            url += '&enrollmentStatus=' + options.enrollmentStatus;
+        if (roster.enrollmentStatus) {
+            url += '&enrollmentStatus=' + roster.enrollmentStatus;
         }
 
         var loadImage = $('#roster-loading-image')
@@ -348,39 +398,43 @@
 
                 members.forEach(function (m) {
 
-                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + roster.siteId;
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
-                    if (options.forceOfficialPicture) {
+                    if (roster.officialPictureMode) {
                         m.profileImageUrl += "/official";
                     }
-                    m.profileImageUrl += "?siteId=" + roster.siteId;
+                    m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
+
                     var groupIds = Object.keys(m.groups);
                     m.hasGroups = groupIds.length > 0;
-
-                    m.singleGroup = null;
-                    if (groupIds.length == 1) {
-                        var singleGroupId = groupIds[0];
-                        m.singleGroup = { id: groupIds[0], title: m.groups[groupIds[0]] };
-                    }
+                    var groups = groupIds.map(function (id) { return {id: id, title: m.groups[id]} });
+                    m.groups = groups;
 
                     m.enrollmentStatusText = roster.site.enrollmentStatusCodes[m.enrollmentStatusId];
 
-                    if (m.totalSiteVisits > 0) {
-                        m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
-                    } else {
-                        m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                    if (roster.showVisits) {
+                        if (m.totalSiteVisits > 0) {
+                            m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
+                        } else {
+                            m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                        }
                     }
                 });
 
-                roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
+                if (roster.picturesMode) {
+                    roster.renderPictures(members, $('#roster-members-content'), enrollmentsMode);
+                } else {
+                    roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
+                }
 
                 $(document).ready(function () {
+
+                    roster.alignMobileLabels();
 
                     $('.roster-single-group-link').click(function (e) {
 
                         var value = $(this).attr('data-groupid');
 
-                        roster.renderGroupMembership(value, options.forceOfficialPicture);
+                        roster.renderGroupMembership(value);
 
                         $('#roster-group-option-' + value).prop('selected', true);
                     });
@@ -389,46 +443,45 @@
 
                         var value = this.value;
 
-                        roster.renderGroupMembership(this.value, options.forceOfficialPicture);
+                        roster.renderGroupMembership(this.value);
 
                         $('#roster-group-option-' + value).prop('selected', true);
                     });
 
-                    $('a.profile').cluetip({
-                        width: '640px',
-                        cluetipClass: 'roster',
-                        sticky: true,
-                        dropShadow: false,
-                        arrows: true,
-                        mouseOutClose: true,
-                        closeText: '<img src="/library/image/silk/cross.png" alt="close" />',
-                        closePosition: 'top',
-                        showTitle: false,
-                        hoverIntent: true
-                    });
+                    profile.attachPopups($('a.profile'));
+
+                    if (roster.nextPage === 0 || options.renderAll) {
+                        // We've just pulled the first page ...
+                        if (roster.currentState === roster.STATE_OVERVIEW) {
+                            // ... and are in OVERVIEW mode, so switch the link back on
+                            $('#navbar_overview_link > span > a').click(function (e) {
+                                return roster.switchState(roster.STATE_OVERVIEW);
+                            });
+                        } else if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
+                            // ... and are in ENROLLMENT_STATUS mode, so switch the link back on
+                            $('#navbar_enrollment_status_link > span > a').click(function (e) {
+                                return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
+                            });
+                        }
+                    }
+
+                    if (options.userIds) {
+                        $(window).off('scroll.roster');
+                    } else {
+                        if (!options.renderAll) {
+                            roster.nextPage += 1;
+                            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction({enrollmentsMode: enrollmentsMode}));
+                        }
+                    }
+
+                    loadImage.hide();
+
+                    if (options.callback) {
+                        options.callback();
+                    }
                 });
 
-                if (roster.nextPage === 0) {
-                    // We've just pulled the first page ...
-                    if (roster.currentState === roster.STATE_OVERVIEW) {
-                        // ... and are in OVERVIEW mode, so switch the link back on
-                        $('#navbar_overview_link > span > a').click(function (e) {
-                            return roster.switchState(roster.STATE_OVERVIEW);
-                        });
-                    } else if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
-                        // ... and are in ENROLLMENT_STATUS mode, so switch the link back on
-                        $('#navbar_enrollment_status_link > span > a').click(function (e) {
-                            return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
-                        });
-                    }
-                }
-
-                roster.nextPage += 1;
-
-                $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
-
-                loadImage.hide();
-            },
+                            },
             error: function (jqXHR, textStatus, errorThrown) {
 
                 console.log('Failed to get membership data. textStatus: ' + textStatus + '. errorThrown: ' + errorThrown);
@@ -448,8 +501,33 @@
     roster.search = function (query) {
 
         if (query !== roster.i18n.roster_search_text && query !== "") {
+            var userIds = [];
             var userId = roster.searchIndex[query];
-            roster.renderMembership({ forceOfficialPicture: false, replace: true, userId: userId });
+            if (!userId) {
+                roster.searchIndexKeys.forEach(function (displayName) {
+
+                    var regex = new RegExp(query, 'i');
+                    if (regex.test(displayName)) {
+                        userIds.push(roster.searchIndex[displayName]);
+                    }
+                });
+
+                if (userIds.length > 5) {
+                    // Limit to 5 users
+                    userIds = userIds.slice(0, 5);
+                }
+            } else {
+                userIds.push(userId);
+            }
+
+            if (userIds.length > 0) {
+                roster.renderMembership({ replace: true, userIds: userIds });
+            } else {
+                $('#roster-members').html('<div id="roster-information">' + roster.i18n.no_participants + '</div>');
+                $('#roster-members-total').hide();
+                $('#roster_type_selector').hide();
+                $('#summary').hide();
+            }
         }
     };
 
@@ -475,32 +553,52 @@
         });
     };
 
-    roster.renderMembers = function (members, target, enrollmentsMode) {
+    roster.renderMembers = function (members, target, enrollmentsMode, renderAll) {
 
         var templateData = {
-                'roster.language': roster.language,
-                'members': members,
-                'siteId': roster.siteId,
-                'groupToView' :roster.groupToView,
-                'firstNameLastName': roster.firstNameLastName,
-                'viewEmail': roster.viewEmail,
-                'viewUserDisplayId': roster.viewUserDisplayId,
-                'viewProfile': roster.currentUserPermissions.viewProfile,
-                'viewPicture': true,
-                'currentUserId': roster.userId,
-                'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
-                'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
-                'viewConnections': ((undefined != window.friendStatus) && roster.viewConnections)
+                members: members,
+                groupToView :roster.groupToView,
+                firstNameLastName: roster.firstNameLastName,
+                viewEmail: roster.viewEmail,
+                viewUserDisplayId: roster.viewUserDisplayId,
+                viewProfile: roster.currentUserPermissions.viewProfile,
+                viewGroup : roster.currentUserPermissions.viewGroup,
+                viewPicture: true,
+                currentUserId: roster.userId,
+                viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
+                enrollmentsMode: enrollmentsMode,
+                viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
+                viewConnections: ((undefined != window.friendStatus) && roster.viewConnections),
+                showVisits: roster.showVisits
             };
 
-        var templateName = (enrollmentsMode) ? 'enrollments' : 'members';
-        $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
-        var t = Handlebars.templates[templateName];
+        if (!renderAll) {
+            $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
+        }
+        var t = Handlebars.templates['members'];
         target.append(t(templateData));
-        $(window).trigger('scroll.roster.rendered');
+        if (!renderAll) {
+            $(window).trigger('scroll.roster.rendered');
+        }
     };
 
-    roster.getScrollFunction = function (showOfficialPictures, enrollmentStatus) {
+    roster.renderPictures = function (members, target, enrollmentsMode, renderAll) {
+
+        var templateData = {
+                members: members,
+                groupToView :roster.groupToView,
+                firstNameLastName: roster.firstNameLastName,
+                viewProfile: roster.currentUserPermissions.viewProfile,
+                viewPicture: true,
+                currentUserId: roster.userId,
+                viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto,
+                enrollmentsMode: enrollmentsMode
+            };
+        var t = Handlebars.templates['pictures'];
+        target.html(t(templateData));
+    };
+
+    roster.getScrollFunction = function (options) {
 
         var scroller = function () {
 
@@ -509,11 +607,7 @@
             if  ((wintop/(docheight-winheight)) > 0.95 || $("body").data("scroll-roster") === true) {
                 $("body").data("scroll-roster", false);
                 $(window).off('scroll.roster');
-                if (showOfficialPictures) {
-                    roster.renderMembership({ forceOfficialPicture: true, replace: false, enrollmentStatus: enrollmentStatus });
-                } else {
-                    roster.renderMembership({ forceOfficialPicture: false, replace: false, enrollmentStatus: enrollmentStatus });
-                }
+                roster.renderMembership(options);
             }
         };
 
@@ -522,13 +616,9 @@
 
     roster.getRoleFragments = function (roleCounts) {
 
-        console.log( roleCounts );
-
         return Object.keys(roleCounts).map(function (key) {
-
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            console.log( frag );
-            return frag.replace(/\{1\}/, '<strong>' +key + '</strong>');
+            return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
         }).join(", ");
     };
 
@@ -605,7 +695,7 @@
 
         roster.STATE_OVERVIEW = 'overview';
         roster.STATE_ENROLLMENT_STATUS = 'status';
-        roster.STATE_VIEW_PROFILE = 'profile';
+        roster.STATE_PRINT = 'print';
         roster.STATE_PERMISSIONS = 'permissions';
 
         roster.DEFAULT_GROUP_ID = 'all';
@@ -627,11 +717,8 @@
         roster.enrollmentSetToView = null;
         roster.enrollmentSetToViewText = null;
         roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
-        roster.rosterOfficialPictureMode = false;
         roster.nextPage = 0;
         roster.currentState = null;
-
-        roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
 
         // We need the toolbar in a template so we can swap in the translations
         roster.render('navbar', {}, 'roster_navbar');
@@ -642,6 +729,10 @@
 
         $('#navbar_enrollment_status_link > span > a').click(function (e) {
             return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
+        });
+
+        $('#navbar_print_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_PRINT);
         });
 
         $('#navbar_export_link > span > a').click(function (e) {
@@ -673,17 +764,16 @@
         
                 window.location.href = baseUrl + "&groupId=" + groupId + facetParams;
             } else if (roster.STATE_ENROLLMENT_STATUS === roster.currentState) {
-            
-                var enrollmentStatus = null;
+
                 if (roster.enrollmentStatusToViewText == roster_enrollment_status_all) {
-                    enrollmentStatus = roster.DEFAULT_ENROLLMENT_STATUS;
+                    roster.enrollmentStatus = roster.DEFAULT_ENROLLMENT_STATUS;
                 } else {
-                    enrollmentStatus = roster.enrollmentStatusToViewText;
+                    roster.enrollmentStatus = roster.enrollmentStatusToViewText;
                 }
                 
                 window.location.href = baseUrl + 
                     "&enrollmentSetId=" + roster.enrollmentSetToView +
-                    "&enrollmentStatus=" + enrollmentStatus +
+                    "&enrollmentStatus=" + roster.enrollmentStatus +
                     facetParams;
             }
         });
@@ -753,5 +843,21 @@
         callback: function () {
             roster.loadSiteDataAndInit();
         }
+    });
+
+    roster.alignMobileLabels = function () {
+
+        if (!roster.maxMobileLabelWidth) {
+            roster.maxMobileLabelWidth = 0;
+            $('.roster-mobile-label').each(function (l) {
+                var width = $(this).width();
+                if (width > roster.maxMobileLabelWidth) roster.maxMobileLabelWidth = width;
+            });
+        }
+        $('.roster-mobile-label').width(roster.maxMobileLabelWidth);
+    };
+
+    $(window).resize(function () {
+        roster.alignMobileLabels();
     });
 }) (jQuery);

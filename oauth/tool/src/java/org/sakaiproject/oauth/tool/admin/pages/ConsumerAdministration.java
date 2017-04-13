@@ -19,13 +19,17 @@
  */
 package org.sakaiproject.oauth.tool.admin.pages;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.*;
+import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.RequiredTextField;
+import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.oauth.domain.Consumer;
@@ -56,8 +60,7 @@ public class ConsumerAdministration extends SakaiPage {
 
     public ConsumerAdministration(PageParameters parameters) {
         super(parameters);
-
-        String consumerId = parameters.getString("consumer");
+        String consumerId = parameters.get("consumer").toString();
         consumer = oAuthAdminService.getConsumer(consumerId);
         init(true);
     }
@@ -86,7 +89,7 @@ public class ConsumerAdministration extends SakaiPage {
         TextField<String> idTextField;
         if (edit) {
             idTextField = new TextField<String>("id");
-            idTextField.add(new SimpleAttributeModifier("disabled", "disabled"));
+            idTextField.add(new AttributeModifier("disabled", "disabled"));
             idTextField.setModel(Model.of(consumer.getId()));
         } else {
             idTextField = new RequiredTextField<String>("id", new PropertyModel<String>(consumer, "id"));

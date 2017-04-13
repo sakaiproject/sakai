@@ -14,8 +14,7 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -51,7 +50,7 @@ import org.sakaiproject.util.FormattedText;
 /**
  * Entity provider for the Syllabus tool
  */
-@CommonsLog
+@Slf4j
 public class SyllabusEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable, RESTful, DescribePropertiesable
 {
 

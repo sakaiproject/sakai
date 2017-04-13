@@ -382,14 +382,16 @@
 		
 		var waiting=false;
 		function delayedRecalculateDateTime(){
-			if (!waiting){
-					waiting = true;
-					setEndtimeMonthDateYear();
-					getSignupDurationNoDecimal();
-					sakai.updateSignupBeginsExact();
-					sakai.updateSignupEndsExact(); 
-				  	setTimeout("waiting=false;", 1500);//1.5 sec
-				}			
+			$PBJQ( document ).ready(function() {
+				if (!waiting){
+						waiting = true;
+						setEndtimeMonthDateYear();
+						getSignupDurationNoDecimal();
+						sakai.updateSignupBeginsExact();
+						sakai.updateSignupEndsExact(); 
+						setTimeout("waiting=false;", 1500);//1.5 sec
+				}
+			});
 		}
 	
 //end

@@ -69,11 +69,6 @@ public class PageListProducer
             ComponentChecker checker) {
 
         if (handler.update) {
-            PageAddViewParameters addParam = new PageAddViewParameters();
-            addParam.viewID = PageAddProducer.VIEW_ID;
-
-            fullyDecorate(UIInternalLink.make(tofill, "add-link", UIMessage.make("show_add"), addParam), 
-                UIMessage.make("page_show_add"));
             UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
             
             UIForm pageForm = UIForm.make(content, "pages-form");
@@ -100,7 +95,7 @@ public class PageListProducer
                 if (tools.size() > 0) {
                     toolId = tools.get(0).getToolId().replaceAll("\\.", "-");
                 }
-                UIOutput.make(pagerow, "tool-icon").decorate(new UIFreeAttributeDecorator("class", String.format("tool-icon icon-%s", toolId)));
+                UIOutput.make(pagerow, "tool-icon").decorate(new UIFreeAttributeDecorator("class", String.format("tool-icon icon-sakai--%s", toolId)));
 
                 PageEditViewParameters param = new PageEditViewParameters();
                                 

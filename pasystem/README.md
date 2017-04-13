@@ -24,7 +24,7 @@ The Public Announcement system provides:
 You can control the Public Announcement system with the following
 properties:
 
-  * pasystem.enabled (default: false) -- Whether or not to show popups
+  * pasystem.enabled (default: true) -- Whether or not to show popups
     and banners to users.
 
   * pasystem.auto.ddl (default: false) -- Whether to automatically
@@ -39,6 +39,6 @@ properties:
   * pasystem.popup.temporary-timeout-ms (default: 86400000) -- The
     "later" in "Remind me later" when a popup is dismissed.
 
-  * pasystem.timezone-check (default: false) -- Whether to warn users
+  * pasystem.timezone-check (default: true) -- Whether to warn users
     via banner if their computer's timezone doesn't match their Sakai
     profile timezone.

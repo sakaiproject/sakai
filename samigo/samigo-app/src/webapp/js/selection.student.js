@@ -12,22 +12,19 @@ function selectionStudent(id_, className, anchor){
 	div.setAttribute('id', id);
 	div.className = className;
 	anchorJObj.append(div);
+	var img = anchorJObj.find('img');
 	
 	var divJObj = $(div);
 	divJObj.mousedown(function(e){ return false; });
 
 
 	// select frame (playground :D)
-	anchorJObj.mousedown(function(e) {
-		//alert('click : '+isActive);
+	img.mousedown(function(e) {
 		if(isActive) 
 		{
-			x = parseInt(e.pageX-anchorJObj.offset().left-(divJObj.width()/2));
-			y = parseInt(e.pageY-anchorJObj.offset().top-(divJObj.height()/2));
-			
-			//x = e.pageX-(divJObj.width()/2);
-			//y = e.pageY-(divJObj.height()/2);
-					
+			x = parseInt(e.pageX + anchorJObj.scrollLeft() - anchorJObj.offset().left - (divJObj.width()/2));
+			y = parseInt(e.pageY + anchorJObj.scrollTop() - anchorJObj.offset().top - (divJObj.height()/2));
+
 			move();
 		}
 	});
@@ -39,7 +36,6 @@ function selectionStudent(id_, className, anchor){
 	}
 	
 	this.setActive = function(val){
-		//alert('set to : '+val);
 		isActive = val;
 		div.className = className+((val) ? '_selected' : '');
 	}

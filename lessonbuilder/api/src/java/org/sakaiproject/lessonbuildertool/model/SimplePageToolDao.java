@@ -44,7 +44,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.SimpleChecklistItem;
 import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
 
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 public interface SimplePageToolDao {
 
@@ -60,6 +60,9 @@ public interface SimplePageToolDao {
 	public boolean canEditPage(long pageid);
 
     public HibernateTemplate getDaoHibernateTemplate();
+
+    // set refresh mode for the session, so all queries come from the database
+	public void setRefreshMode();
 
     // session flush
 	public void flush();
@@ -168,6 +171,9 @@ public interface SimplePageToolDao {
     //   the user doesn't have write permission. See saveitem in SimplePageBean for why we need
     //   to use this convoluted approach to getting back errors
 	public boolean saveItem(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
+
+    // like saveItem but uses saveOrUpdate
+	public boolean saveOrUpdate(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
 
     // just do the save, no permission checking and no logging
 	public boolean quickSaveItem(Object o);
@@ -296,7 +302,7 @@ public interface SimplePageToolDao {
 
     public Long maxChecklistItem(SimplePageItem checklist);
 
-    public Long addChecklistItem(SimplePageItem checklist, Long id, String name);
+	public Long addChecklistItem(SimplePageItem checklist, Long id, String name, Long linkedId);
 
     public boolean isChecklistItemChecked(long checklistId, long checklistItemId, String userId);
 

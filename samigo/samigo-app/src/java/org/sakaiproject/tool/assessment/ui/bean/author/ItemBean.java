@@ -39,7 +39,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
-import org.apache.commons.math.util.MathUtils;
+import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -74,7 +74,7 @@ public class ItemBean
   private String itemType;
   private double itemScore= 0.0d;
   private String itemScoreDisplayFlag= "true";
-  private double itemMinScore = 0.0d;
+  private Double itemMinScore;
   private double itemDiscount = 0.0d;
   private String partialCreditFlag = "Defualt";
   private String[] answers;
@@ -93,6 +93,8 @@ public class ItemBean
   private String emiAnswerOptionsPaste;
   private String answerOptionsRichCount = "0";
   private String answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString();
+
+  private List<ItemTagBean> itemTags;
   
   public static final int DEFAULT_MAX_NUMBER_EMI_OPTIONS_FOR_UI = 26; 
   public static final int DEFAULT_MAX_NUMBER_EMI_ITEMS_FOR_UI = 60; //Twice the actual number to allow for javascript add/delete 
@@ -249,7 +251,7 @@ public class ItemBean
    */
   public double getItemScore()
   {
-    return MathUtils.round(itemScore, 2);
+    return Precision.round(itemScore, 2);
   }
 
   /**
@@ -267,7 +269,7 @@ public class ItemBean
    */
   public double getItemDiscount()
   {
-    return MathUtils.round(itemDiscount, 2);
+    return Precision.round(itemDiscount, 2);
   }
 
   /**
@@ -2076,11 +2078,11 @@ public class ItemBean
 		this.mcmsPartialCredit = mcmsPartialCredit;
 	}
 
-	public double getItemMinScore() {
+	public Double getItemMinScore() {
 		return itemMinScore;
 	}
 
-	public void setItemMinScore(double itemMinScore) {
+	public void setItemMinScore(Double itemMinScore) {
 		this.itemMinScore = itemMinScore;
 	}
 
@@ -2091,4 +2093,8 @@ public class ItemBean
 	public void setItemScoreDisplayFlag(String itemScoreDisplayFlag) {
 		this.itemScoreDisplayFlag = itemScoreDisplayFlag;
 	}
+
+	public List<ItemTagBean> getItemTags() { return itemTags; }
+
+	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
 }

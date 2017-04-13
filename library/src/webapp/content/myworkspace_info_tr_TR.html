@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>Home Information</title>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		// -->
+		</script>
+	</head>
+
+	<body>
+		<div class="portletBody"> 
+		<h3> Kişisel Çalışma Alanınıza Hoşgeldiniz.</h3>
+			<p>Sakai İşbirliği ve Öğrenme Ortamında her bir katılımcının &quot;Çalışma Alanım&quot; isminde kişisel tercihlerine özgü olarak  bildirimlerini görüntüleyebileceği ve bu tercihlerini yönetebileceği  menüleri içeren bir çalışma alanıdır. </p>
+			<p class="instruction">Soldaki menüde yer alan &quot;Profil&quot; bölümünden kişisel bilgilerinizi güncelleyebilirsiniz. &quot;Üyelik&quot; bölümünden katılabileceğiniz ders ve proje sayfalarını listeleyebilir ve üyeliklerinize bağlı olarak &quot;Ders Programı&quot; bölümünden çalışma takviminize, &quot;Duyurular&quot; bölümü ile haber ve bildirimlere ulaşabilirsiniz. Kişisel bilgi ve belgelerinizi yönetmek için &quot;Kaynaklar&quot; bölümünü kullanabilirsiniz. Çalışma alanınızla ilgili ayarları &quot;Tercihler&quot; bölümünden yapabilirsiniz. &quot;Hesap&quot; bölümü sistemle ilgili olarak kullanıcı bilgilerinizi göstermektedir.Katıldığınız ders ve proje sitelerine üsteki sekmelerden ulaşabilirsiniz.</p>
+
+		</div>
+	</body>
+</html>

@@ -14,18 +14,14 @@ import org.quartz.TriggerListener;
 import java.util.Date;
 
 /**
- * Created by IntelliJ IDEA.
- * User: duffy
- * Date: Aug 26, 2010
- * Time: 11:41:57 AM
- * To change this template use File | Settings | File Templates.
+ * This just logs all the trigger and job events.
  */
 public class NavigableEventLogListener implements TriggerListener, JobListener
 {
     private final static Logger
         LOG = LoggerFactory.getLogger(NavigableEventLogListener.class.getName() + ".jobExecutions");
 
-    private static enum EVENTTYPE
+    private enum EVENTTYPE
     {
         JOB_EXECUTING, JOB_VETOED, JOB_EXECUTED, TRIGGER_FIRED, TRIGGER_MISFIRED, TRIGGER_COMPLETED
     };
@@ -124,8 +120,11 @@ public class NavigableEventLogListener implements TriggerListener, JobListener
 
                 if (exception != null)
                 {
-                    sb.append (", exception: ").append(exception.getMessage())
-                      .append(", exception cause: ").append(exception.getCause().getClass().getName());
+                    sb.append (", exception: ").append(exception.getMessage());
+                    if (exception.getCause() != null)
+                    {
+                      sb.append(", exception cause: ").append(exception.getCause().getClass().getName());
+                    }
                 }
                 sb.append("]");
 

@@ -1,0 +1,132 @@
+<dom-module id="sakai-rubric-criterion-preview">
+  <template>
+
+    <style include="sakai-rubrics-styles"></style>
+
+    <div class="criterion grading">
+      <template is="dom-repeat" id="criterion" items="{{criterions}}" as="criterionitem">
+        <div id="criterion_row_[[criterionitem.id]]" class="criterion-row">
+          <div class="criterion-detail">
+            <h4 class="criterion-title">
+              {{criterionitem.title}}
+            </h4>
+            <p>
+              {{criterionitem.description}}
+            </p>
+          </div>
+          <div class="criterion-ratings">
+            <div class="cr-table">
+              <div class="cr-table-row">
+                <template is="dom-repeat" id="ratingitems_[[criterionitem.id]]" items="{{criterionitem.ratings}}" as="ratingitem" index-as="rikey">
+                  <div class="rating-item" id="rating_item_{{ratingitem.id}}" on-tap="selectRating">
+                    <h5 class="criterion-item-title">
+                      {{ratingitem.title}}
+                    </h5>
+                    <p>
+                      {{ratingitem.description}}
+                    </p>
+                    <span class="points">
+                      {{ratingitem.points}} <sr-lang key="points">Points</sr-lang>
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </template>
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric-criterion-preview",
+      properties: {
+        rubric: {
+          type: Object,
+          observer: "rubricRady"
+        },
+        totalPoints: {
+          type: Number,
+          value: 0
+        },
+        pointsCalculation: {
+          type: String,
+        },
+        gradeFieldId: {
+          type: Number,
+        },
+        rubricAssociation: {
+          type: Object
+        }
+      },
+      listeners: {
+      },
+      finetuneRating: function(e) {
+        var cindex = this.$.criterion.indexForElement(e.target);
+        var citem = this.$.criterion.itemForElement(e.target);
+
+        this.set('criterions.' + cindex + '.pointoverride', e.target.value);
+        if (citem.selectedvalue) {
+          this.totalPoints = this.totalPoints - citem.selectedvalue + parseInt(citem.pointoverride);
+        } else {
+          this.totalPoints = this.totalPoints + parseInt(citem.pointoverride);
+        }
+        this.updateTotalPoints();
+
+      },
+      selectRating: function(e) {
+        var cindex = this.$.criterion.indexForElement(e.target);
+        var citem = this.$.criterion.itemForElement(e.target);
+        var critem = this.$$('#ratingitems_'+citem.id).itemForElement(e.target);
+
+        this.set('criterions.' + cindex + '.selectedvalue', critem.points);
+        
+        
+        
+        var items = this.$$('#criterion_row_'+citem.id).querySelectorAll('.rating-item');
+        var item = this.$$('#rating_item_'+critem.id);
+        if (hasClass(item, 'selected')) {
+          removeClass(item, 'selected');
+          // this.totalPoints = this.totalPoints - critem.points;
+        } else {
+          for (var i = items.length - 1; i >= 0; i--) {
+            // if (hasClass(items[i], 'selected')) {
+            //   this.totalPoints = this.totalPoints - this.$$('#ratingitems_'+citem.id).itemForElement(items[i]).points;
+            // }
+            removeClass(items[i], 'selected');  
+          }
+          addClass(item, 'selected');
+          // this.totalPoints = this.totalPoints + critem.points;
+        }
+        this.updateTotalPoints();
+      },
+      updateTotalPoints: function() {
+        var total = 0;
+        for (var i = this.criterions.length - 1; i >= 0; i--) {
+          if (this.criterions[i].pointoverride) {
+            total = total + parseInt(this.criterions[i].pointoverride);
+          } else if(this.criterions[i].selectedvalue) {
+            total = total + parseInt(this.criterions[i].selectedvalue);
+          }
+        }
+        this.totalPoints = total;
+        this.updateGradeField();
+      },
+      updateGradeField: function() {
+        setTimeout(function(){
+          if (this.gradeFieldId) {
+            document.querySelector('#' + this.gradeFieldId).value = this.totalPoints;
+          }
+        }.bind(this));
+      },
+      rubricRady: function() {
+          // this.options = this.rubricAssociation.configuration.parameters;
+          this.criterions = this.rubric.criterions;
+      },
+      ready: function() {
+        // nothing to do.
+      }
+    });
+  </script>
+</dom-module>

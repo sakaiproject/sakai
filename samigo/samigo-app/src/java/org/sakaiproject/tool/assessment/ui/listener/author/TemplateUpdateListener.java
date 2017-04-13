@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -212,7 +213,7 @@ public class TemplateUpdateListener
       aac.setAssessmentFormat(Integer.valueOf(templateBean.getDisplayChunking()));
       aac.setItemNumbering(Integer.valueOf(templateBean.getQuestionNumbering()));
       aac.setDisplayScoreDuringAssessments(Integer.valueOf(templateBean.getDisplayScoreDuringAssessments()));
-      
+      aac.setHonorPledge(templateBean.isHonorPledge());
       if (templateBean.getMarkForReview() != null && templateBean.getMarkForReview().equals(Boolean.TRUE)) {
     	  aac.setMarkForReview(1);
       }
@@ -351,15 +352,18 @@ public class TemplateUpdateListener
       delegate.deleteAllMetaData((AssessmentTemplateData)template);
 
       LOG.debug("**** after deletion of meta data");
-      HashSet set = new HashSet();
+      HashSet<AssessmentMetaData> set = new HashSet<>();
       Iterator iter = templateBean.getValueMap().keySet().iterator();
       while (iter.hasNext())
       {
         String label = (String) iter.next();
-        String value = (String) templateBean.getValueMap().get(label).toString();
-        //log.info("Label: " + label + ", Value: " + value);
-        AssessmentMetaData data =
-          new AssessmentMetaData(template, label, value);
+        
+        Object value = templateBean.getValueMap().get(label);
+        String metadata = Optional.ofNullable(value)
+                                  .map(Object::toString)
+                                  .orElse("");
+
+        AssessmentMetaData data = new AssessmentMetaData(template, label, metadata);
         set.add(data);
       }
       template.setAssessmentMetaDataSet(set);

@@ -190,7 +190,7 @@
 					</f:subview>
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 		 			<%--  <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/> --%>
-				
+					<div class="table-responsive">				
 							<h:dataTable styleClass="table table-hover table-striped table-bordered attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 					  <h:column>
 									<h:graphicImage url="/images/attachment.gif" alt="" />
@@ -201,6 +201,7 @@
 						</h:outputLink>				  
 					</h:column>
 			  </h:dataTable>
+			</div>
 			<f:verbatim></div></f:verbatim>
 			</f:subview>
 					</h:panelGroup>

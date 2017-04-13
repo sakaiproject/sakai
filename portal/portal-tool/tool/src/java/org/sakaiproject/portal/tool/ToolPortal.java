@@ -70,9 +70,10 @@ public class ToolPortal extends HttpServlet
     // SAK-22384
     private static final String MATHJAX_ENABLED = "mathJaxEnabled";
     private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
-    private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, "");
     private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
-    private static final boolean MATHJAX_ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(MATHJAX_ENABLED_SAKAI_PROP, false) && !MATHJAX_SRC_PATH.trim().isEmpty();
+    private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
+    private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP);
+    private static final boolean MATHJAX_ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(MATHJAX_ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !MATHJAX_SRC_PATH.trim().isEmpty();
     
 	/**
 	 * Access the Servlet's information display.
@@ -282,9 +283,10 @@ public class ToolPortal extends HttpServlet
 	protected void setupForward(HttpServletRequest req, HttpServletResponse res,
 			Placement p, String skin) throws ToolException
 	{
+		boolean isInlineReq = ToolUtils.isInlineRequest(req);
 		// setup html information that the tool might need (skin, body on load,
 		// js includes, etc).
-		String headCss = CSSUtils.getCssHead(skin, ToolUtils.isInlineRequest(req));
+		String headCss = CSSUtils.getCssHead(skin, isInlineReq);
 		String headJs = "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
         
         Site site=null;
@@ -337,8 +339,8 @@ public class ToolPortal extends HttpServlet
 
 		req.setAttribute("sakai.html.head", head);
 		req.setAttribute("sakai.html.head.css", headCss);
-		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(CSSUtils.getSkinFromSite(site),ToolUtils.isInlineRequest(req)));
-		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(CSSUtils.getSkinFromSite(site)));
+		req.setAttribute("sakai.html.head.css.base", CSSUtils.getCssToolBaseLink(CSSUtils.getSkinFromSite(site), isInlineReq));
+		req.setAttribute("sakai.html.head.css.skin", CSSUtils.getCssToolSkinLink(CSSUtils.getSkinFromSite(site), isInlineReq));
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
 	}

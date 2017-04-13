@@ -12,13 +12,7 @@ function selectionAuthor(id_, className, anchor){
 	var gMOUSEDOWN = false;
 	
 	var anchorJObj = $('#'+anchor);
-	//look for image and set container width and height	
-	/*if(anchorJObj.find('img').attr('src') != '/access/content')
-	{
-		anchorJObj.css('width', anchorJObj.find('img').width()+'px');
-		anchorJObj.css('height', anchorJObj.find('img').height()+'px');
-		anchorJObj.css('background-image', 'url("' + anchorJObj.find('img').attr('src') + '")');
-	}*/
+	var img = anchorJObj.find('img');
 				
 	var div = document.createElement('div');
 	div.setAttribute('id', id);
@@ -26,15 +20,13 @@ function selectionAuthor(id_, className, anchor){
 	anchorJObj.append(div);
 	
 	var divJObj = $(div);
-	//divJObj.draggable();
 	
 	var span = document.createElement('span');
-	//div.setAttribute('id', id);
+
 	span.className = className.textClass;
 	divJObj.append(span);
 	
 	var spanObj = $(span);
-	//spanObj.html(id);
 	
 	// Global Events if left mousebutton is pressed or nor (usability fix)
 	$(document).mouseup(function() {
@@ -51,15 +43,13 @@ function selectionAuthor(id_, className, anchor){
 	});
 
 	// select frame (playground :D)
-	anchorJObj.mousedown(function(e) {
+	img.mousedown(function(e) {
 		if(isActive) 
 		{
 			isSelect = true;
 			// store mouseX and mouseY
-			//x1 = e.pageX;
-			//y1 = e.pageY;
-			x1 = e.pageX-anchorJObj.offset().left;
-			y1 = e.pageY-anchorJObj.offset().top;
+			x1 = e.pageX - anchorJObj.offset().left + anchorJObj.scrollLeft();
+			y1 = e.pageY - anchorJObj.offset().top + anchorJObj.scrollTop();
 			x2 = x1;
 			y2 = y1;
 		}
@@ -67,22 +57,20 @@ function selectionAuthor(id_, className, anchor){
 
 	// If select is true (mousedown on select frame) the mousemove 
 	// event will draw the select div
-	anchorJObj.mousemove(function(e) {
+	img.mousemove(function(e) {
 		if(isActive) 
 		{
 			if (isSelect) {
 				// Store current mouseposition
-				//x2 = e.pageX;
-				//y2 = e.pageY;
-				x2 = e.pageX-anchorJObj.offset().left;
-				y2 = e.pageY-anchorJObj.offset().top;
+				x2 = e.pageX - anchorJObj.offset().left + anchorJObj.scrollLeft();
+				y2 = e.pageY - anchorJObj.offset().top + anchorJObj.scrollTop();
 
 				move();
 			}
 		}
 	});
 	// select complete, hide the select div (or fade it out)
-	anchorJObj.mouseup(function() {
+	img.mouseup(function() {
 		if(isActive) 
 		{
 			if (typeof x1 != 'undefined' && typeof y1 != 'undefined' && x1 == x2 && y1 == y2) {
@@ -92,11 +80,11 @@ function selectionAuthor(id_, className, anchor){
 				divJObj.hide();
 			}
 			isSelect = false;			
-			//divJObj.hide();
+
 		}
 	});
 	// Usability fix. If mouse leaves the select and enters the select frame again with mousedown
-	anchorJObj.mouseenter(function() {
+	img.mouseenter(function() {
 		if(isActive) 
 			isSelect = gMOUSEDOWN;
 	});
@@ -106,7 +94,7 @@ function selectionAuthor(id_, className, anchor){
 			isSelect = gMOUSEDOWN;
 	});
 	// Set select to false, to prevent further select outside of your select frame
-	anchorJObj.mouseleave(function() {
+	img.mouseleave(function() {
 		if(isActive) 
 			isSelect = false;
 	});
@@ -161,16 +149,11 @@ function selectionAuthor(id_, className, anchor){
 	}
 	
 	function move(){
-		// Calculate the div select rectancle for positive and negative values				
-		/*var TOP = (y1 < y2) ? y1 : y2;
-		var LEFT = (x1 < x2) ? x1 : x2;
-		var WIDTH = (x1 < x2) ? x2 - x1 : x1 - x2;
-		var HEIGHT = (y1 < y2) ? y2 - y1 : y1 - y2;*/
-	
+		// Calculate the div select rectancle for positive and negative values
 		var TOP = parseInt(Math.max(0, (y1 < y2) ? y1 : y2));
 		var LEFT = parseInt(Math.max(0, (x1 < x2) ? x1 : x2));
-		var WIDTH = parseInt((x1 < x2) ? Math.min(anchorJObj.width()-x1, x2-x1) : Math.min(anchorJObj.width()-x2, x1-x2));
-		var HEIGHT = parseInt((y1 < y2) ? Math.min(anchorJObj.height()-y1, y2-y1) : Math.min(anchorJObj.height()-y2, y1-y2));
+		var WIDTH = (x1 < x2) ? x2 - x1 : x1 - x2;
+		var HEIGHT = (y1 < y2) ? y2 - y1 : y1 - y2;
 			
 		// Use CSS to place your select div
 		divJObj.css({

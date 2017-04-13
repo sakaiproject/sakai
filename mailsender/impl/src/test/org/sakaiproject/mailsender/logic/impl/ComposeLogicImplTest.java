@@ -33,6 +33,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 @RunWith(MockitoJUnitRunner.class)
 public class ComposeLogicImplTest {
 	static final String REALM_ID = "composeLogicTest";
+	static final String SITE_ID = "testSiteId";
 
 	@Mock SiteService siteService;
 	@Mock Site site;
@@ -70,6 +71,7 @@ public class ComposeLogicImplTest {
 		when(toolManager.getCurrentPlacement().getPlacementConfig()).thenReturn(props);
 
 		// setup site service
+		when(externalLogic.getSiteID()).thenReturn(SITE_ID);
 		when(siteService.getSite(anyString())).thenReturn(site);
 
 		// setup site

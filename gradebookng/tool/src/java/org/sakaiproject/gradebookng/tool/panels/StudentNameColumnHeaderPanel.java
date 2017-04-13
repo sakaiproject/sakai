@@ -1,15 +1,15 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
@@ -20,12 +20,9 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class StudentNameColumnHeaderPanel extends Panel {
+public class StudentNameColumnHeaderPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	IModel<GbStudentNameSortOrder> model;
 
@@ -38,14 +35,48 @@ public class StudentNameColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final GradebookPage gradebookPage = (GradebookPage) getPage();
+
 		// setup model
 		final GbStudentNameSortOrder sortType = this.model.getObject();
 
 		// title
-		add(new Label("title", new ResourceModel("column.header.students")));
+		final Link<String> title = new Link<String>("title") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+
+				// toggle the sort direction on each click
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				// if null, set a default sort, otherwise toggle, save, refresh.
+				if (settings.getStudentSortOrder() == null) {
+					settings.setStudentSortOrder(SortDirection.getDefault());
+				} else {
+					final SortDirection sortOrder = settings.getStudentSortOrder();
+					settings.setStudentSortOrder(sortOrder.toggle());
+				}
+
+				// save settings
+				gradebookPage.setUiSettings(settings);
+
+				// refresh
+				setResponsePage(GradebookPage.class);
+			}
+		};
+
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+		title.add(new AttributeModifier("title", new ResourceModel("column.header.students")));
+		title.add(new Label("label", new ResourceModel("column.header.students")));
+		if (settings != null && settings.getStudentSortOrder() != null) {
+			title.add(
+				new AttributeModifier("class", "gb-sort-" + settings.getStudentSortOrder().toString().toLowerCase()));
+		}
+		add(title);
 
 		// sort by first/last name link
-		final AjaxLink<GbStudentNameSortOrder> sortByName = new AjaxLink<GbStudentNameSortOrder>("sortByName", this.model) {
+		final GbAjaxLink<GbStudentNameSortOrder> sortByName = new GbAjaxLink<GbStudentNameSortOrder>("sortByName", this.model) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -66,7 +97,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 
 			}
 		};

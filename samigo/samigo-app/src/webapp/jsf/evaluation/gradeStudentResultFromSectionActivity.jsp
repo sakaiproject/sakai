@@ -91,9 +91,9 @@ document.location='../evaluation/gradeStudentResult';
       <h:outputText value="#{evaluationMessages.title_total}" />
     </h:commandLink>
     
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}"  />
+    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}"  />
     <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
+      rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.stat_view}" />
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />

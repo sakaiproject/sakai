@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.oauth.domain.Consumer;
 import org.sakaiproject.oauth.service.OAuthAdminService;
@@ -51,8 +52,9 @@ public class ListConsumers extends SakaiPage {
                 components.add(new Label("name", components.getModelObject().getName()));
                 components.add(new Label("description", components.getModelObject().getDescription()));
 
-                components.add(new BookmarkablePageLink<Consumer>("edit", ConsumerAdministration.class)
-                        .setParameter("consumer", components.getModelObject().getId()));
+                components.add(new BookmarkablePageLink<Consumer>("edit", ConsumerAdministration.class,
+                        new PageParameters().add("consumer", components.getModelObject().getId())
+                ));
 
                 components.add(new Link<Consumer>("delete", components.getModel()) {
                     @Override

@@ -1,8 +1,8 @@
 ## version: $Id:  $
 <!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <!-- this is the reorder template -->
-<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
-<script type="text/javascript" src="/library/js/reorderer.js"></script>
+#javascript("/library/js/fluid/1.5/MyInfusion.js")
+#javascript("/library/js/reorderer.js")
 
 <div class="portletBody specialLink">
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">

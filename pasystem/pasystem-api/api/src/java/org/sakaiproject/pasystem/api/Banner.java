@@ -26,6 +26,7 @@ package org.sakaiproject.pasystem.api;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import lombok.Getter;
 
 import static org.sakaiproject.pasystem.api.ValidationHelper.*;
@@ -71,7 +72,7 @@ public class Banner implements Comparable<Banner> {
         this.isActive = active;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.type = BannerType.valueOf(type.toUpperCase());
+        this.type = BannerType.valueOf(type.toUpperCase(Locale.ROOT));
         this.isDismissed = isDismissed;
     }
 
@@ -79,7 +80,7 @@ public class Banner implements Comparable<Banner> {
      * The type of this banner (high, medium, low).
      */
     public String getType() {
-        return this.type.toString().toLowerCase();
+        return this.type.toString().toLowerCase(Locale.ROOT);
     }
 
     /**

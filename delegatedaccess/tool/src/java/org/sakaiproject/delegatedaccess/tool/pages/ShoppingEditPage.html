@@ -19,9 +19,6 @@
 
 <wicket:head>
     <style>
-    	div.my-tree{
-            overflow: -moz-scrollbars-horizontal;
-        }
         table.wicket-tree-content {
             width: 100%;
         }
@@ -38,7 +35,17 @@
         div.my-tree div.wicket-tree-table {
         }   
         div.wicket-tree-table{
-        	min-width: 950px;
+        	min-width: 95%;
+        }
+        div.my-tree div.wicket-tree-table-body {
+            height: 20em;
+        } 
+        div.wicket-tree-table a{
+        	float: none !important;
+        }
+        div.my-tree{
+        	width: 95%;
+        	overflow: auto;
         }
         
         div.my-tree div.wicket-tree-table-body {
@@ -99,6 +106,10 @@
 		.filterMatch{
 			background-color: yellow;
 		}
+		
+		.delegatedAccessTree .row {
+			margin: 0;
+		}
     </style>
 </wicket:head>
 
@@ -152,7 +163,7 @@
 	<br/>
 	</wicket:enclosure>
 	<form wicket:id="form">
-        <div wicket:id="treeTable" class="my-tree">
+        <div wicket:id="treeTable" class="my-tree delegatedAccessTree">
         </div>
         <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
     </form>
