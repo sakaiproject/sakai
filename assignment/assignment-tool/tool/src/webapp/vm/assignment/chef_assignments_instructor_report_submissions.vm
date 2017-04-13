@@ -12,9 +12,7 @@
 		</h1>
 	</div>
 
-	<div class="navPanel">
 		<div class="viewNav">
-			<br />
 			#if (!$hasAtLeastOneAnonAssignment)
 			<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="option" id="option" value="x" />
@@ -64,9 +62,8 @@
 			<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
 
 
-			</div>
-			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		</div>
+			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
