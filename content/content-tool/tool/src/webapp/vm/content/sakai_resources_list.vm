@@ -11,6 +11,10 @@
     vertical-align: middle !important;
     text-align:left !important;
   }
+  .table .attach {
+    width:1%;
+    white-space:nowrap;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
