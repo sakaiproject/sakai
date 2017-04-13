@@ -3,8 +3,13 @@ package org.sakaiproject.assignment.impl;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,11 +17,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -60,9 +67,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -182,11 +189,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public boolean allowAddAssignment(String context) {
-        return false;
-    }
-
-    @Override
     public boolean allowAddSiteAssignment(String context) {
         return false;
     }
@@ -222,7 +224,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public boolean allowAddAssignmentContent(String context) {
+    public boolean allowAddAssignment(String context) {
         String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "c" + Entity.SEPARATOR + context + Entity.SEPARATOR;
         log.debug("Allow assignment with resource string = {}", resourceString);
 
@@ -305,7 +307,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         log.debug("Start Add Assignment");
 
         // security check
-        if (!allowAddAssignmentContent(context)) {
+        if (!allowAddAssignment(context)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT, null);
         }
 
@@ -394,7 +396,16 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException {
-        return null;
+        log.debug("GET ASSIGNMENT : REF : {}", assignmentId);
+
+
+        Assignment assignment = assignmentRepository.findAssignment(assignmentId);
+        if (assignment == null) throw new IdUnusedException(assignmentId);
+
+        String currentUserId = sessionManager.getCurrentSessionUserId();
+        // check security on the assignment
+        checkAssignmentAccessibleForUser(assignment, currentUserId);
+        return assignment;
     }
 
     @Override
@@ -433,7 +444,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentSubmission getSubmission(String assignmentReference, String submitterId) {
+    public AssignmentSubmission getSubmission(String assignmentId, String submitterId) {
         return null;
     }
 
@@ -608,12 +619,12 @@ public class AssignmentServiceImpl implements AssignmentService {
             String gString = def.getGrade();
             if (StringUtils.isNotBlank(gString)) {
                 try {
-                        String decSeparator = FormattedText.getDecimalSeparator();
-                        rv = StringUtils.replace(gString, (",".equals(decSeparator) ? "." : ","), decSeparator);
-                        NumberFormat nbFormat = FormattedText.getNumberFormat(new Double(Math.log10(m.getScaleFactor())).intValue(), new Double(Math.log10(m.getScaleFactor())).intValue(), false);
-                        DecimalFormat dcformat = (DecimalFormat) nbFormat;
-                        Double dblGrade = dcformat.parse(rv).doubleValue();
-                        rv = nbFormat.format(dblGrade);
+                    String decSeparator = FormattedText.getDecimalSeparator();
+                    rv = StringUtils.replace(gString, (",".equals(decSeparator) ? "." : ","), decSeparator);
+                    NumberFormat nbFormat = FormattedText.getNumberFormat(new Double(Math.log10(m.getScaleFactor())).intValue(), new Double(Math.log10(m.getScaleFactor())).intValue(), false);
+                    DecimalFormat dcformat = (DecimalFormat) nbFormat;
+                    Double dblGrade = dcformat.parse(rv).doubleValue();
+                    rv = nbFormat.format(dblGrade);
                 } catch (Exception e) {
                     log.warn("Could not format grade [{}]", gString, e);
                     return null;
@@ -627,86 +638,69 @@ public class AssignmentServiceImpl implements AssignmentService {
     public String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor) {
         if (StringUtils.isBlank(grade)) return null;
 
-        if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE)
-        {
-            if (grade != null && grade.length() > 0 && !"0".equals(grade))
-            {
+        if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            if (grade != null && grade.length() > 0 && !"0".equals(grade)) {
                 int dec = new Double(Math.log10(scaleFactor)).intValue();
                 String decSeparator = FormattedText.getDecimalSeparator();
                 String decimalGradePoint = "";
-                try
-                {
+                try {
                     Integer.parseInt(grade);
                     // if point grade, display the grade with factor decimal place
                     int length = grade.length();
                     if (length > dec) {
                         decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
-                    }
-                    else {
+                    } else {
                         String newGrade = "0".concat(decSeparator);
                         for (int i = length; i < dec; i++) {
                             newGrade = newGrade.concat("0");
                         }
                         decimalGradePoint = newGrade.concat(grade);
                     }
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     try {
                         Float.parseFloat(grade);
                         decimalGradePoint = grade;
-                    }
-                    catch (Exception e1) {
+                    } catch (Exception e1) {
                         return grade;
                     }
                 }
                 // get localized number format
-                NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);
+                NumberFormat nbFormat = FormattedText.getNumberFormat(dec, dec, false);
                 DecimalFormat dcformat = (DecimalFormat) nbFormat;
                 // show grade in localized number format
                 try {
                     Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
                     decimalGradePoint = nbFormat.format(dblGrade);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     return grade;
                 }
                 return decimalGradePoint;
-            }
-            else
-            {
+            } else {
                 return StringUtils.trimToEmpty(grade);
             }
-        }
-        else if (typeOfGrade == Assignment.GradeType.UNGRADED_GRADE_TYPE) {
+        } else if (typeOfGrade == Assignment.GradeType.UNGRADED_GRADE_TYPE) {
             String ret = "";
             if (grade != null) {
                 if (grade.equalsIgnoreCase("gen.nograd")) ret = rb.getString("gen.nograd");
             }
             return ret;
-        }
-        else if (typeOfGrade == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+        } else if (typeOfGrade == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
             String ret = rb.getString("ungra");
             if (grade != null) {
                 if (grade.equalsIgnoreCase("Pass")) ret = rb.getString("pass");
                 else if (grade.equalsIgnoreCase("Fail")) ret = rb.getString("fail");
             }
             return ret;
-        }
-        else if (typeOfGrade == Assignment.GradeType.CHECK_GRADE_TYPE) {
+        } else if (typeOfGrade == Assignment.GradeType.CHECK_GRADE_TYPE) {
             String ret = rb.getString("ungra");
             if (grade != null) {
                 if (grade.equalsIgnoreCase("Checked")) ret = rb.getString("gen.checked");
             }
             return ret;
-        }
-        else
-        {
-            if (grade != null && grade.length() > 0)
-            {
+        } else {
+            if (grade != null && grade.length() > 0) {
                 return StringUtils.trimToEmpty(grade);
-            }
-            else
-            {
+            } else {
                 // return "ungraded" in stead
                 return rb.getString("ungra");
             }
@@ -719,6 +713,21 @@ public class AssignmentServiceImpl implements AssignmentService {
         return submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
     }
 
+    @Override
+    public Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission) {
+        Objects.requireNonNull(submission, "Submission cannot be null");
+        List<User> submitters = new ArrayList<>();
+        for (AssignmentSubmissionSubmitter submitter : submission.getSubmitters()) {
+            try {
+                User user = userDirectoryService.getUser(submitter.getSubmitter());
+                submitters.add(user);
+            } catch (UserNotDefinedException e) {
+                log.warn("Could not find user with id: {}", submitter.getSubmitter());
+            }
+        }
+        return submitters;
+    }
+
     private String getAccessPoint(boolean relative) {
         return (relative ? "" : serverConfigurationService.getAccessUrl()) + AssignmentServiceConstants.REFERENCE_ROOT;
     }
@@ -728,46 +737,78 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     private Collection<Group> getGroupsAllowFunction(String function, String context, String userId) {
-        Collection<Group> rv = new ArrayList<>();
-        try {
-            // get the site groups
-            Site site = siteService.getSite(context);
-            Collection<Group> groups = site.getGroups();
+        Collection<Group> rv = new HashSet<>();
 
-            if (securityService.isSuperUser()) {
-                // for super user, return all groups
-                return groups;
-            } else if (userId == null) {
-                // for current session user
+        try {
+            Site site = siteService.getSite(context);
+
+            if (StringUtils.isBlank(userId)) {
                 userId = sessionManager.getCurrentSessionUserId();
             }
 
+            Collection<Group> groups = site.getGroups();
             // if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
             if (securityService.unlock(userId, AssignmentServiceConstants.SECURE_ALL_GROUPS, siteService.siteReference(context))
                     && unlockCheck(function, siteService.siteReference(context))) {
                 return groups;
             }
 
-            // otherwise, check the groups for function
             // get a list of the group refs, which are authzGroup ids
-            Collection<String> groupRefs = new ArrayList<>();
-            for (Group group : groups) {
-                groupRefs.add(group.getReference());
-            }
+            Set<String> groupRefs = groups.stream().map(Group::getReference).collect(Collectors.toSet());
 
             // ask the authzGroup service to filter them down based on function
-            groupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId, function, groupRefs);
+            Set<String> allowedGroupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId, function, groupRefs);
 
-            // pick the Group objects from the site's groups to return, those that are in the groupRefs list
-            for (Group group : groups) {
-                if (groupRefs.contains(group.getReference())) {
-                    rv.add(group);
-                }
-            }
+            // pick the Group objects from the site's groups to return, those that are in the allowedGroupRefs list
+            rv = groups.stream().filter(g -> allowedGroupRefs.contains(g.getReference())).collect(Collectors.toSet());
         } catch (IdUnusedException e) {
-            log.debug("IdUnused : {} : {}", context, e.getMessage());
+            log.debug("site {} not found, {}", context, e.getMessage());
         }
 
         return rv;
+    }
+
+    private Assignment checkAssignmentAccessibleForUser(Assignment assignment, String currentUserId) throws PermissionException {
+
+        if (assignment.getAccess() == Assignment.Access.GROUPED) {
+            String context = assignment.getContext();
+            Collection<String> asgGroups = assignment.getGroups();
+            Collection<Group> allowedGroups = getGroupsAllowFunction(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, context, currentUserId);
+            // reject and throw PermissionException if there is no intersection
+            if (!assignment.getAuthors().contains(currentUserId) && !CollectionUtils.containsAny(asgGroups, allowedGroups.stream().map(Group::getReference).collect(Collectors.toSet()))) {
+                throw new PermissionException(currentUserId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignment.getId());
+            }
+        }
+
+        if (allowAddAssignment(assignment.getContext())) {
+            // always return for users can add assignent in the context
+            return assignment;
+        } else if (isAvailableOrSubmitted(assignment, currentUserId)) {
+            return assignment;
+        }
+        throw new PermissionException(currentUserId, AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignment.getId());
+    }
+
+    private boolean isAvailableOrSubmitted(Assignment assignment, String userId) {
+        String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+        if (StringUtils.isBlank(deleted)) {
+            // show not deleted, not draft, opened assignments
+            // TODO do we need to use time zone
+            Date openTime = assignment.getOpenDate();
+            Date visibleTime = assignment.getVisibleDate();
+            if ((openTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(openTime.toInstant(), ZoneId.systemDefault()))
+                        || (visibleTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(visibleTime.toInstant(), ZoneId.systemDefault()))))
+                    && !assignment.getDraft()) {
+                return true;
+            }
+        } else {
+            if (StringUtils.equalsIgnoreCase(deleted, Boolean.TRUE.toString())
+                    && (assignment.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+                    && getSubmission(assignment.getId(), userId) != null) {
+                // and those deleted but not non-electronic assignments but the user has made submissions to them
+                return true;
+            }
+        }
+        return false;
     }
 }

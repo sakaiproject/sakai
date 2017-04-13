@@ -1,14 +1,13 @@
 package org.sakaiproject.hibernate;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * This is modeled after Springs CrudRepsository
  * The idea here is using this api will make for an easier migration to
  * spring-data in the future.
  */
-public interface CrudRepository<T, ID extends Serializable> {
+public interface CrudRepository<T, ID extends Serializable> extends Repository<T, ID> {
 
     /**
      * Saves a given entity. Use the returned instance for further operations as the save operation might have changed the

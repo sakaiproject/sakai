@@ -94,7 +94,7 @@ public class AssignmentSubmission {
 	@ElementCollection
 	@Column(name = "FEEDBACK_ATTACHMENT")
 	@CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	private List feedbackAttachments;
+	private Set<String> feedbackAttachments;
 
 	@Lob
 	@Column(name = "TEXT")

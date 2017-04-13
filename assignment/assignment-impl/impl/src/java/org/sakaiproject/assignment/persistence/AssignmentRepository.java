@@ -6,13 +6,17 @@ import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.serialization.SerializableRepository;
 
 /**
- * Created by enietzel on 2/22/17.
+ * Created by enietzel on 4/12/17.
  */
 public interface AssignmentRepository extends SerializableRepository<Assignment, String> {
-
     Assignment findAssignment(String id);
+
+    @SuppressWarnings("unchecked")
     List<Assignment> findAssignmentsBySite(String siteId);
+
     void saveAssignment(Assignment assignment);
+
     void deleteAssignment(Assignment assignment);
+
     void softDeleteAssignment(Assignment assignment);
 }

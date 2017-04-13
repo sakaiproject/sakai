@@ -1,5 +1,7 @@
 package org.sakaiproject.hibernate;
 
+import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,8 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
     @SuppressWarnings("unchecked")
     public HibernateCrudRepository() {
 
-        this.domainClass = (Class<T>) GenericTypeResolver.resolveTypeArgument(this.getClass(), CrudRepository.class);
+        Class<?>[] classes = GenericTypeResolver.resolveTypeArguments(this.getClass(), Repository.class);
+        domainClass = (classes != null && classes.length == 2) ? (Class<T>) classes[0] : null;
     }
 
     @Override

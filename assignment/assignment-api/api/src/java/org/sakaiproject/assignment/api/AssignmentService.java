@@ -141,15 +141,6 @@ public interface AssignmentService extends EntityProducer {
     public boolean allowRemoveAssignment(String assignmentReference);
 
     /**
-     * Check permissions for adding an AssignmentContent.
-     *
-     * @param context -
-     *                Describes the portlet context - generated with DefaultId.getChannel().
-     * @return True if the current User is allowed to add an AssignmentContent, false if not.
-     */
-    public boolean allowAddAssignmentContent(String context);
-
-    /**
      * Check permissions for get AssignmentContent
      *
      * @param contentReference -
@@ -738,4 +729,6 @@ public interface AssignmentService extends EntityProducer {
     String getGradeDisplay(String grade, Assignment.GradeType typeOfGrade, Integer scaleFactor);
 
     Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
+
+    Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission);
 }

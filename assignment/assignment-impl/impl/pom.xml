@@ -139,10 +139,22 @@
         </dependency>
     	<dependency>
     	    <groupId>org.mockito</groupId>
-    	    <artifactId>mockito-all</artifactId>
-    	    <version>1.10.19</version>
-    	    <scope>test</scope>
+    	    <artifactId>mockito-core</artifactId>
     	</dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>0.13</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
