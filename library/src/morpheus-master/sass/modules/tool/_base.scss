@@ -34,6 +34,10 @@
 			border-bottom: 1px solid $overview-portlet-border-color;
 			padding: 0.6em;
   	}
+
+		.#{$namespace}toolBody {
+			border-bottom: none;
+		}
   }
 
 	.#{$namespace}toolTitleNav__button_container {
