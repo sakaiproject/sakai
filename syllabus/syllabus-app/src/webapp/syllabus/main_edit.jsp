@@ -258,12 +258,12 @@
 								<h:outputText value="" />
 							</f:facet>
 							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
-								<h:graphicImage url="/syllabus/moveup.gif" alt="#{msgs.mainEditLinkUpTitle}" />
+											<f:verbatim><span class="fa fa-long-arrow-up" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkUpTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 							<h:outputText value=" "/>
 							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink" rendered="#{SyllabusTool.editAble == 'true'}">
-								<h:graphicImage url="/syllabus/movedown.gif" alt="#{msgs.mainEditLinkDownTitle}" />
+															<f:verbatim><span class="fa fa-long-arrow-down" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkDownTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 						</h:column>

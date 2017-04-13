@@ -159,7 +159,7 @@
 a.editable-click, 
 a.editable-click:hover {
     text-decoration: none;
-    border-bottom: dashed 1px #0088cc;
+    /* border-bottom: dashed 1px #0088cc; */
 }
 
 .editable-click.editable-disabled, 
