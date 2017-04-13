@@ -10,6 +10,8 @@
 }
 
 .#{$namespace}multipleTools{
+	padding-top: 4px;
+
 	.#{$namespace}container {
 		border: 1px solid $overview-portlet-border-color;
 		box-shadow: $overview-portlet-shadow;
