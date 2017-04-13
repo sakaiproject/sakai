@@ -4,7 +4,6 @@ import java.math.RoundingMode;
 import java.security.Permission;
 import java.text.Format;
 import java.text.NumberFormat;
->>>>>>> 6e6a9e6... Issue #783 Issue #843 Change GBNG to recognize realm permissions as well as db permissions
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
