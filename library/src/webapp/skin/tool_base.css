@@ -914,8 +914,8 @@ ul.calendarLegend li{
 /*jQuery Datepicker button class*/
 .ui-datepicker-trigger{background:none;border:none;font-size:1em;}
 .ui-datepicker-trigger:hover{background:none;border:none;font-size:1em;}
-.ui-datepicker-trigger i{color:#000;}
-.ui-datepicker-trigger:hover i{color:#000;}
+.ui-datepicker-trigger span.fa{color:#000;}
+.ui-datepicker-trigger:hover span.fa{color:#000;}
 
 /* css for duplicate site alert*/
 #flashNotif  a.flashNotifClose {
