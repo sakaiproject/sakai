@@ -54,15 +54,12 @@ public class ResourceCopyController {
     RubricsConfiguration rubricsConfiguration;
 
     @Autowired
-    @Setter
     private RubricRepository rubricRepository;
 
     @Autowired
-    @Setter
     private CriterionRepository criterionRepository;
 
     @Autowired
-    @Setter
     private RatingRepository ratingRepository;
 
     @Autowired
