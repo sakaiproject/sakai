@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
@@ -233,6 +234,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	/* Used for populate the drop down box for the allowed number of meeting slots */
 	private List<SelectItem> slots;
 	
+	private String startTimeString;
+	private String endTimeString;
+	private String repeatUntilString;
+	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
+	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+	private static String HIDDEN_ISO_UNTILTIME = "untilISO8601";
+	
 	public int getMaxNumOfSlots() {
 		return maxNumOfSlots;
 	}
@@ -379,6 +387,30 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setRepeatUntil(Date repeatUntil) {
 		this.repeatUntil = repeatUntil;
+	}
+
+	public String getStartTimeString() {
+		return startTimeString;
+	}
+
+	public String getEndTimeString() {
+		return endTimeString;
+	}
+
+	public void setStartTimeString(String startTimeString) {
+		this.startTimeString = startTimeString;
+	}
+
+	public void setEndTimeString(String endTimeString) {
+		this.endTimeString = endTimeString;
+	}
+
+	public String getRepeatUntilString() {
+		return repeatUntilString;
+	}
+
+	public void setRepeatUntilString(String repeatUntilString) {
+		this.repeatUntilString = repeatUntilString;
 	}
 
 	/** Initialize all the default setting for creating new events. */
@@ -641,6 +673,26 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+			if(Utilities.isValidISODate(isoStartTime)){
+				this.signupMeeting.setStartTime(Utilities.parseISODate(isoStartTime));
+			}
+
+			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+			if(Utilities.isValidISODate(isoEndTime)){
+				this.signupMeeting.setEndTime(Utilities.parseISODate(isoEndTime));
+			}
+
+			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
+
+			if(Utilities.isValidISODate(isoUntilTime)){
+				setRepeatUntil(Utilities.parseISODate(isoUntilTime));
+			}
+
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
 			/*user defined own TS case*/
