@@ -22,6 +22,7 @@
 
 package org.sakaiproject.rubrics;
 
+import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -38,7 +39,7 @@ public class App extends SpringBootServletInitializer {
      */
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        SpringApplicationBuilder appBuilder = application.sources(App.class);
+        SpringApplicationBuilder appBuilder = application.bannerMode(Banner.Mode.OFF).sources(App.class);
         return appBuilder;
     }
 
