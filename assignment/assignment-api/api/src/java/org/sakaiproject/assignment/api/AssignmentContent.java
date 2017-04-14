@@ -245,6 +245,10 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	public boolean isStoreInstIndex();
 	
 	public void setStoreInstIndex(boolean m_storeInstIndex);
+
+	public boolean isStudentPreview();
+
+	public void setStudentPreview(boolean m_studentPreview);
 	
 	/**
 	 * Exclude type options:

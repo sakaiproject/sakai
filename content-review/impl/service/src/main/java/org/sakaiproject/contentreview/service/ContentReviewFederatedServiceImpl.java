@@ -162,8 +162,8 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return getSelectedProvider().getDateSubmitted(arg0);
 	}
 
-	public String getIconCssClassforScore(int score) {
-		return getSelectedProvider().getIconCssClassforScore(score);
+	public String getIconCssClassforScore(int score, String contentId) {
+		return getSelectedProvider().getIconCssClassforScore(score, contentId);
 	}
 
 	public String getLocalizedStatusMessage(String arg0) {

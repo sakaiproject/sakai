@@ -45,6 +45,9 @@ public class ReportScoreReponse   {
   @SerializedName("externalContentId")
   private String externalContentId = null;
 
+  @SerializedName("draft")
+  private Boolean draft = null;
+
   @SerializedName("score")
   private Integer score = null;
 
@@ -85,6 +88,24 @@ public class ReportScoreReponse   {
 
   public void setAssignment(String assignment) {
     this.assignment = assignment;
+  }
+
+  public ReportScoreReponse draft(Boolean draft) {
+    this.draft = draft;
+    return this;
+  }
+
+  /**
+   * Get draft
+   * @return draft
+   **/
+  @ApiModelProperty(example = "null", value = "")
+  public Boolean getDraft() {
+    return draft;
+  }
+
+  public void setDraft(Boolean draft) {
+    this.draft = draft;
   }
 
   public ReportScoreReponse externalContentId(String externalContentId) {
@@ -153,6 +174,7 @@ public class ReportScoreReponse   {
     ReportScoreReponse reportScoreReponse = (ReportScoreReponse) o;
     return Objects.equals(this.user, reportScoreReponse.user) &&
         Objects.equals(this.assignment, reportScoreReponse.assignment) &&
+        Objects.equals(this.draft, reportScoreReponse.draft) &&
         Objects.equals(this.externalContentId, reportScoreReponse.externalContentId) &&
         Objects.equals(this.score, reportScoreReponse.score) &&
         Objects.equals(this.preliminary, reportScoreReponse.preliminary);
@@ -160,7 +182,7 @@ public class ReportScoreReponse   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(user, assignment, externalContentId, score, preliminary);
+    return Objects.hash(user, assignment, draft, externalContentId, score, preliminary);
   }
 
   @Override
@@ -170,6 +192,7 @@ public class ReportScoreReponse   {
     
     sb.append("    user: ").append(toIndentedString(user)).append("\n");
     sb.append("    assignment: ").append(toIndentedString(assignment)).append("\n");
+    sb.append("    draft: ").append(toIndentedString(draft)).append("\n");
     sb.append("    externalContentId: ").append(toIndentedString(externalContentId)).append("\n");
     sb.append("    score: ").append(toIndentedString(score)).append("\n");
     sb.append("    preliminary: ").append(toIndentedString(preliminary)).append("\n");
