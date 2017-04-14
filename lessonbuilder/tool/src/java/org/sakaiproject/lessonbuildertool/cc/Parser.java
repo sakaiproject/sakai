@@ -197,7 +197,6 @@ public class Parser extends AbstractParser {
   private void 
   preProcessResources(Element the_manifest,
 		  DefaultHandler the_handler) {
-	  //MAYBE TRY XPATH
 	  XPath path;
 	  List<Attribute> results;
 	  try {
@@ -208,8 +207,7 @@ public class Parser extends AbstractParser {
 			  the_handler.preProcessFile(result.getValue()); 
 		  }
 	  } catch (JDOMException | ClassCastException e) {
-		  // TODO Auto-generated catch block
-		  log.info("Error processing xpath for files",e);
+		  log.info("Error processing xpath for files", e);
 	  }
   }
 
