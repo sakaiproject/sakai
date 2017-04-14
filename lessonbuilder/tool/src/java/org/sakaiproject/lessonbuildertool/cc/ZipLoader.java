@@ -57,6 +57,8 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * 
  * This is a simple example of a cartridge loader. This class needs to provide access to files within a cartridge. The 
