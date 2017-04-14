@@ -45,9 +45,11 @@ import java.util.Map;
  */
 public interface GradebookService {
 	// Application service hooks.
-	public static final int GRADE_TYPE_POINTS = 1;
-	public static final int GRADE_TYPE_PERCENTAGE = 2;
-	public static final int GRADE_TYPE_LETTER = 3;
+	
+	// These have been deprecated in favour of the {@link GradingType} enum
+	@Deprecated public static final int GRADE_TYPE_POINTS = 1;
+	@Deprecated public static final int GRADE_TYPE_PERCENTAGE = 2;
+	@Deprecated public static final int GRADE_TYPE_LETTER = 3;
 	
 	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
@@ -91,6 +93,11 @@ public interface GradebookService {
          */
         INVALID_DECIMAL
     }
+
+    /**
+     * Array of chars that are not allowed in a gb item title
+     */
+    public static final char[] INVALID_CHARS_IN_GB_ITEM_NAME = {'*', '#', '[', ']'};
 	
     /**
      * Comparator to ensure correct ordering of letter grades, catering for + and - in the grade
