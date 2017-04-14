@@ -404,16 +404,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  org.jsoup.select.Elements hrefs = doc.select("[href]");
 		  org.jsoup.select.Elements srcs = doc.select("[src]");
 
-		  log.debug("BaseURL is:"+baseUrl);
+		  log.debug("BaseURL is: {}", baseUrl);
 
-		  //Have to look for both href and src tags
+		  // Have to look for both href and src tags
 		  for (org.jsoup.nodes.Element element : srcs) {
 			  String src = element.attr("src");
 			  if (src != null && !src.startsWith("http")) {
 				  log.debug(String.format("Updating tag %s: <%s> to <%s>", element.tagName(), src, baseUrl+src));
 				  for (Map.Entry<String,String> entry : fileNames.entrySet()) {
 					  if (entry.getKey() != null && entry.getValue() != null && entry.getValue().contains(src)) {
-						  //Found key, set it and stop looking
+						  // Found key, set it and stop looking
 						  element.attr("src",baseUrl+entry.getValue());
 						  break;
 					  }
@@ -427,7 +427,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  if(href != null && !href.startsWith("http")) {
 				  for (Map.Entry<String,String> entry : fileNames.entrySet()) {
 					  if (entry.getKey() != null && entry.getValue() != null && entry.getValue().contains(href)) {
-						  //Found key, set it and stop looking
+						  // Found key, set it and stop looking
 						  element.attr("href",baseUrl+entry.getValue());
 						  break;
 					  }
