@@ -35,7 +35,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.EmailNotificat
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -53,6 +53,8 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 	protected UserDirectoryService userDirectoryService;
 
 	private EventTrackingService eventTrackingService;
+	
+	private ToolManager toolManager;
 
 	public void init() {
 		log.info("init()");
@@ -60,6 +62,10 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 
 	public EventTrackingService getEventTrackingService() {
 		return eventTrackingService;
+	}
+	
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
 	}
 
 	public void setEventTrackingService(
@@ -139,7 +145,7 @@ public class EmailNotificationManagerImpl extends HibernateDaoSupport implements
 		if (TestUtil.isRunningTests()) {
 			return "test-context";
 		}
-		Placement placement = ToolManager.getCurrentPlacement();
+		Placement placement = toolManager.getCurrentPlacement();
 		String presentSiteId = placement.getContext();
 		return presentSiteId;
 	}

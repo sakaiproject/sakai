@@ -20,18 +20,14 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.hibernate.collection.internal.PersistentSet;
-import org.hibernate.type.StringType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.collection.internal.PersistentSet;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -47,8 +43,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -75,6 +73,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private Boolean DEFAULT_AUTO_MARK_READ = false;    
 
     private SiteService siteService;
+    private ToolManager toolManager;
     
     /**
      * sakai.property for setting the default Messages tool option for sending a copy of a message
@@ -90,6 +89,10 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
+	}
+
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
 	}
 
 	public void init() {
@@ -310,7 +313,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         if (TestUtil.isRunningTests()) {
             return "test-context";
         }
-        Placement placement = ToolManager.getCurrentPlacement();
+        Placement placement = toolManager.getCurrentPlacement();
         String presentSiteId = placement.getContext();
         return presentSiteId;
     }
