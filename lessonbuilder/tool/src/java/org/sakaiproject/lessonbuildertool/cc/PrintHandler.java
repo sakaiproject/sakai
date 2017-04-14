@@ -51,6 +51,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.XMLOutputter;
+import org.jsoup.Jsoup;
 import org.jdom.filter.ElementFilter;
 import java.util.List;
 import java.util.ArrayList;
@@ -70,7 +71,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.StringWriter;
 import java.net.URLEncoder;
-import org.w3c.dom.Document;
 import org.jdom.output.DOMOutputter;
 
 import org.sakaiproject.util.FormattedText;
@@ -102,7 +102,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
@@ -185,6 +184,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
+    // This keeps track of what files are added to what (possibly truncated) name, this is pre-populated
+  private Map<String,String> fileNames = new HashMap<String,String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
   private Map<String,String> assignsAdded = new HashMap<String,String>();
@@ -365,6 +366,78 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  log.debug("Unable to create group " + role);
 	  return null;
       }
+  }
+
+  //Fix external references in an htmlString to point to the correct location
+  public String fixupInlineReferences(String htmlString) {
+	  // and fix relative URLs to absolute, since this is going to be inserted inline
+	  // in a page that's not in resources.
+	  // These fixups are inserted as identified by the lessons exporter
+	  if (htmlString.startsWith("<!--fixups:")) {
+		  int fixend = htmlString.indexOf("-->");
+		  String fixString = htmlString.substring(11, fixend);
+		  htmlString = htmlString.substring(fixend + 3);
+		  String[] fixups = fixString.split(",");
+		  // iterate backwards since once we fix something, offsets
+		  // further in the string are bad
+		  for (int i = (fixups.length-1); i >= 0; i--) {
+			  String fixup = fixups[i];
+			  // these are offsets of a URL. The URL is for a file in attachments, so we need
+			  // to map it to a full URL. The file should be attachments/item-xx.html in the
+			  // package. relFixup will have added ../ to it to get to the base.
+			  try {
+				  int offset = Integer.parseInt(fixup);
+				  htmlString = htmlString.substring(0, offset) + baseUrl + htmlString.substring(offset+3);
+			  } catch (Exception e) {
+				  log.info("exception " + e);
+			  }
+		  }
+	  //Otherwise try jsoup to do the fixups
+	  } else {
+		  /*
+			Now we need to go through the string looking for other references that weren't identified by the fixups
+			Using full class names here because of conflict in names
+			I think the ideal here would be that this only updates resources that are in the manifest, but really any
+			relative resources are going to be incorrect pulled out of a package and need an update.
+		   */
+		  org.jsoup.nodes.Document doc = Jsoup.parse(htmlString);
+		  org.jsoup.select.Elements hrefs = doc.select("[href]");
+		  org.jsoup.select.Elements srcs = doc.select("[src]");
+
+		  log.debug("BaseURL is:"+baseUrl);
+
+		  //Have to look for both href and src tags
+		  for (org.jsoup.nodes.Element element : srcs) {
+			  String src = element.attr("src");
+			  if (src != null && !src.startsWith("http")) {
+				  log.debug(String.format("Updating tag %s: <%s> to <%s>", element.tagName(), src, baseUrl+src));
+				  for (Map.Entry<String,String> entry : fileNames.entrySet()) {
+					  if (entry.getKey() != null && entry.getValue() != null && entry.getValue().contains(src)) {
+						  //Found key, set it and stop looking
+						  element.attr("src",baseUrl+entry.getValue());
+						  break;
+					  }
+				  }
+			  }
+		  }
+
+		  for (org.jsoup.nodes.Element element : hrefs) {
+			  String href = element.attr("href");
+			  log.debug(String.format("Updating a: <%s> to <%s> (%s)", href, baseUrl+href, element.text()));
+			  if(href != null && !href.startsWith("http")) {
+				  for (Map.Entry<String,String> entry : fileNames.entrySet()) {
+					  if (entry.getKey() != null && entry.getValue() != null && entry.getValue().contains(href)) {
+						  //Found key, set it and stop looking
+						  element.attr("href",baseUrl+entry.getValue());
+						  break;
+					  }
+				  }
+			  }
+		  }
+		  htmlString = doc.toString();
+	  }
+	  
+	  return htmlString;
   }
 
   public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader, boolean nopage) {
@@ -570,28 +643,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      if (off > 0)
 			  htmlString = htmlString.substring(0, off);
 
-		      // and fix relative URLs to absolute, since this is going to be inserted inline
-		      // in a page that's not in resources.
-		      if (htmlString.startsWith("<!--fixups:")) {
-			  int fixend = htmlString.indexOf("-->");
-			  String fixString = htmlString.substring(11, fixend);
-			  htmlString = htmlString.substring(fixend + 3);
-			  String[] fixups = fixString.split(",");
-			  // iterate backwards since once we fix something, offsets
-			  // further in the string are bad
-			  for (int i = (fixups.length-1); i >= 0; i--) {
-			      String fixup = fixups[i];
-			      // these are offsets of a URL. The URL is for a file in attachments, so we need
-			      // to map it to a full URL. The file should be attachments/item-xx.html in the
-			      // package. relFixup will have added ../ to it to get to the base.
-			      try {
-				  int offset = Integer.parseInt(fixup);
-				  htmlString = htmlString.substring(0, offset) + baseUrl + htmlString.substring(offset+3);
-			      } catch (Exception e) {
-				  log.info("exception " + e);
-			      }
-			  }
-		      }
+		      htmlString = fixupInlineReferences(htmlString);
 		      
 		  }
 
@@ -857,7 +909,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
 		      builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 		      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-		      Document document = documentBuilder.parse(inputStream);
+		      org.w3c.dom.Document document = documentBuilder.parse(inputStream);
 
 		      QuizEntity q = (QuizEntity)quiztool;
 
@@ -1106,6 +1158,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  log.debug("weblink xml: "+the_link);
   }
 
+  public void preProcessFile(String the_file_id) {
+	  String original_file_id = the_file_id;
+	  //Restrict file length to 250
+	  if ((baseName + original_file_id).length() > 250) {
+		 the_file_id = original_file_id.substring(0,250-baseName.length()); 
+		 log.debug("Length restricted, new file name" + baseName + the_file_id);
+	  }
+	  fileNames.put(original_file_id,the_file_id);
+  }
+
   public void addFile(Element elem) {
 	  //These are processed as standard text
 	  String href = elem.getAttributeValue(HREF);
@@ -1116,6 +1178,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  return;
 	  addFile(href);
   }
+
+
 
   public void addFile(String the_file_id) {
 
@@ -1132,13 +1196,20 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      name = name.substring(slash+1);
 	  String extension = Validator.getFileExtension(name);
 	  String type = ContentTypeImageService.getContentType(extension);
+	  
+	  //Now the new truncated name from the map
+	  if (fileNames.containsKey(the_file_id)) {
+		  the_file_id = fileNames.get(the_file_id);
+		  log.debug("Found " + the_file_id + " in pre-load map");
+	  }
+	  else {
+		  log.info("Could not find " + the_file_id + " in preload map, File may not work.");
+	  }
 
+	  log.debug("Preparing to add file" + baseName + the_file_id);
 	  log.debug("Length of baseName is:" + baseName.length());
 	  log.debug("Length of the_file_id is:" + the_file_id.length());
-	  //Restrict file length to 250
-	  if ((baseName + the_file_id).length() > 250) {
-		 the_file_id = the_file_id.substring(0,250-baseName.length()); 
-	  }
+	  
 	  ContentResourceEdit edit = ContentHostingService.addResource(baseName + the_file_id);
 
 	  edit.setContentType(type);
