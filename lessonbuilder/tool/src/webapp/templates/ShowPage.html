@@ -141,7 +141,7 @@
 		 <span rsf:id="gradingSpan" class="gradingarea">
 		     <a role="button" href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a role="button" class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a role="button" style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
 		 </span>
-		 <span class=""> <a role="button" style="" href="#" rsf:id="prev" class="nexprev menuitem button">next</a> <a role="button" href="#" rsf:id="next" class="nextprev menuitem button">next</a> </span>
+
 		   <a role="button" aria-haspopup="dialog" aria-controls="direct-dialog" href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
 		       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 		   </a>
@@ -390,6 +390,12 @@
 		<ul id="error-list" rsf:id="error-list:" role="alert">
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
+
+		<ul class="top-next-prev navIntraTool">
+                    <li>
+                        <span><a role="button" href="#" rsf:id="prev" class="nexprev prev menuitem button">prev</a> <a role="button" href="#" rsf:id="next" class="nextprev next menuitem button">next</a> </span>
+                    </li>
+                </ul>
 
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 

@@ -2011,3 +2011,19 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     margin: .5em 0;
     border: 1px solid #ccc;
 }
+
+.Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
+    margin-top: 20px;
+}
+
+.top-next-prev.navIntraTool > li {
+    display: block;
+}
+
+.top-next-prev .nextprev.prev {
+    float: left;
+}
+
+.top-next-prev .nextprev.next {
+    float: right;
+}
