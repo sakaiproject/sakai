@@ -398,17 +398,22 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 
 		//convert input to uuid
 		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
+		if (StringUtils.isBlank(uuid)) {
 			throw new EntityNotFoundException("Invalid user.", ref.getId());
 		}
+		
+		final List<BasicPerson> requests = connectionsLogic.getConnectionRequestsForUser(uuid).stream().map(p -> {
+				BasicPerson bp = new BasicPerson();
+				bp.setUuid(p.getUuid());
+				bp.setDisplayName(p.getDisplayName());
+				bp.setType(p.getType());
+				return bp;
+			}).collect(Collectors.toList());
 
-		//get list of connection requests
-		List<Person> requests = connectionsLogic.getConnectionRequestsForUser(uuid);
-		if(requests == null) {
+		if (requests == null) {
 			throw new EntityException("Error retrieving connection requests for " + ref.getId(), ref.getReference());
 		}
-		ActionReturn actionReturn = new ActionReturn(requests);
-		return actionReturn;
+		return new ActionReturn(requests);
 	}
 
 	@EntityCustomAction(action="outgoingConnectionRequests", viewKey=EntityView.VIEW_SHOW)
