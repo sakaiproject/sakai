@@ -15078,7 +15078,7 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * scale the point value by "factor" if there is a valid point grade
 	 */
-	private String scalePointGrade(SessionState state, String point, int factor)
+	protected String scalePointGrade(SessionState state, String point, int factor)
 	{
 		String decSeparator = FormattedText.getDecimalSeparator();
 		int dec = (int)Math.log10(factor);
