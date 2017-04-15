@@ -29,7 +29,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
-import org.mockito.internal.matchers.Or;
+
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tags.api.MissingUuidException;
 import org.sakaiproject.tags.api.Tag;
@@ -41,15 +41,19 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.hasProperty;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.matchers.Null.NULL;
 
 public abstract class BaseStorageTest {
 
@@ -264,5 +268,37 @@ public abstract class BaseStorageTest {
 
     protected long now() {
         return new Date().getTime();
+    }
+    
+    //This was changed in https://github.com/mockito/mockito/pull/833, using old implementation
+    @SuppressWarnings("unchecked")
+    public class Or implements ArgumentMatcher, Serializable {
+
+        private final List<ArgumentMatcher> matchers;
+
+        public Or(List<ArgumentMatcher> matchers) {
+            this.matchers = matchers;
+        }
+
+        public boolean matches(Object actual) {
+            for (ArgumentMatcher matcher : matchers) {
+                if (matcher.matches(actual)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public String toString() {
+            //TODO SF here and in other places we should reuse ValuePrinter
+            StringBuilder sb = new StringBuilder("or(");
+            for (Iterator<ArgumentMatcher> it = matchers.iterator(); it.hasNext();) {
+                sb.append(it.next().toString());
+                if (it.hasNext()) {
+                    sb.append(", ");
+                }
+            }
+            return sb.append(")").toString();
+        }
     }
 }
