@@ -437,7 +437,9 @@ public interface UserDirectoryService extends EntityProducer
 	void removeUser(UserEdit user) throws UserPermissionException;
 
 	/**
-	 * Search all the users that match this criteria in id or email, first or last name, returning a subset of records within the record range given (sorted by sort name).
+	 * Search all the users that match this criteria in id or email, first or last name, returning a subset
+	 * of records within the record range given (sorted by sort name). Note: this method does not search among
+	 * external users, users provided by an institutional LDAP, for example.
 	 *
 	 * @param criteria
 	 *        The search criteria.
@@ -445,7 +447,8 @@ public interface UserDirectoryService extends EntityProducer
 	 *        The first record position to return. (Note: the first record is 1 not 0)
 	 * @param last
 	 *        The last record position to return.
-	 * @return A list (User) of all the aliases matching the criteria, within the record range given (sorted by sort name).
+	 * @return A list (User) of all the aliases matching the criteria, within the record range given
+	 *			(sorted by sort name).
 	 */
 	List<User> searchUsers(String criteria, int first, int last);
 
