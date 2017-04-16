@@ -130,8 +130,8 @@ public class SyllabusTool
       this.orig_endDate = en.getEndDate() == null ? null : (Date) en.getEndDate().clone();
       this.orig_isLinkCalendar= en.isLinkCalendar();
       this.orig_status = en.getStatus();
-      this.startDateString = DateUtil.format(en.getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
-      this.endDateString = DateUtil.format(en.getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+      this.startDateString = en.getStartDate() == null ? "" : DateUtil.format(en.getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+      this.endDateString = en.getEndDate() == null ? "" : DateUtil.format(en.getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
     }
 
     public SyllabusData getEntry()
