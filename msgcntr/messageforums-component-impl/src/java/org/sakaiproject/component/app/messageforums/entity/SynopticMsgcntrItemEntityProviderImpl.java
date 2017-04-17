@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 public class SynopticMsgcntrItemEntityProviderImpl 
 implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable, RequestStorable, RESTful, RequestAware{
 
-	private SynopticMsgcntrManager synopticMsgcntrManager;
-	
-	
-	private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrItemEntityProviderImpl.class);
+    private SynopticMsgcntrManager synopticMsgcntrManager;
+
+    private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrItemEntityProviderImpl.class);
 
     private RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {
@@ -38,10 +37,10 @@ implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEn
     
     private UserDirectoryService userDirectoryService;	
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
+        this.userDirectoryService = userDirectoryService;
+    }
 
-	private RequestGetter requestGetter;
+    private RequestGetter requestGetter;
     public void setRequestGetter(RequestGetter requestGetter){
     	this.requestGetter = requestGetter;
     }
