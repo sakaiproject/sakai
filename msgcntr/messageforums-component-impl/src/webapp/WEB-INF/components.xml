@@ -56,13 +56,13 @@
             <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>
         <property name="entityManager">
-        	<ref bean="org.sakaiproject.entity.api.EntityManager"/>
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
         </property>
         <property name="siteService">
-        	<ref bean="org.sakaiproject.site.api.SiteService"/>
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
         </property>
         <property name="toolManager">
-        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+            <ref bean="org.sakaiproject.tool.api.ToolManager"/>
         </property>
     </bean>
 	    
@@ -128,9 +128,9 @@
          <property name="authzGroupService">
            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>
-		<property name="toolManager">
-			<ref bean="org.sakaiproject.tool.api.ToolManager" />
-		</property>
+        <property name="toolManager">
+           <ref bean="org.sakaiproject.tool.api.ToolManager" />
+        </property>
     </bean>
      
     <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl" init-method="init">
