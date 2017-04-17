@@ -22,9 +22,9 @@ package org.sakaiproject.component.app.messageforums.exception;
 
 public class LockedException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public LockedException() {
+    public LockedException() {
         super("Generic Message & Forums Locked Exception");
     }
 
