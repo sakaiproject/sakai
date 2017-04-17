@@ -116,16 +116,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   }
 
   public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-	this.userDirectoryService = userDirectoryService;
-}
+    this.userDirectoryService = userDirectoryService;
+  }
 
-public void setSiteService(SiteService siteService) {
-	this.siteService = siteService;
-}
+  public void setSiteService(SiteService siteService) {
+    this.siteService = siteService;
+  }
 
-public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-	this.threadLocalManager = threadLocalManager;
-}
+  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+    this.threadLocalManager = threadLocalManager;
+  }
 
 /**
    * @param sessionManager
