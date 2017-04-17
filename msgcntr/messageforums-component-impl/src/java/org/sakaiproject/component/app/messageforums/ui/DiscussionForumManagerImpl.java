@@ -133,8 +133,8 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
   
   public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
+	  this.contentHostingService = contentHostingService;
+  }
 
   public void setAuthzGroupService(AuthzGroupService authzGroupService) {
     this.authzGroupService = authzGroupService;
@@ -144,13 +144,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	this.eventTrackingService = eventTrackingService;
   }
 
-	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
-		this.threadLocalManager = threadLocalManager;
-	}
+  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+	this.threadLocalManager = threadLocalManager;
+  }
 
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
+  public void setToolManager(ToolManager toolManager) {
+	this.toolManager = toolManager;
+  }
 
   public List searchTopicMessages(Long topicId, String searchText)
   {
