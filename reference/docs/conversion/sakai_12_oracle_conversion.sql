@@ -476,3 +476,11 @@ CREATE OR REPLACE TRIGGER bullhorn_alerts_bir
 
 -- SAK-32417 Forums permission composite index
 CREATE INDEX MFR_COMPOSITE_PERM ON MFR_PERMISSION_LEVEL_T (TYPE_UUID, NAME);
+
+-- SAK-32442 - LTI Column cleanup
+-- These conversions may fail if you started Sakai at newer versions that didn't contain these columns/tables
+alter table lti_tools drop column enabled_capability;
+alter table lti_deploy drop column allowlori;
+alter table lti_tools drop column allowlori;
+drop table lti_mapping
+-- END SAK-32442

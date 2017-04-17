@@ -416,3 +416,11 @@ CREATE TABLE BULLHORN_ALERTS
 
 -- SAK-32417 Forums permission composite index
 ALTER TABLE MFR_PERMISSION_LEVEL_T ADD INDEX MFR_COMPOSITE_PERM (TYPE_UUID, NAME);
+
+-- SAK-32442 - LTI Column cleanup
+-- These conversions may fail if you started Sakai at newer versions that didn't contain these columns/tables
+alter table lti_tools drop column enabled_capability;
+alter table lti_deploy drop column allowlori;
+alter table lti_tools drop column allowlori;
+drop table lti_mapping;
+-- END SAK-32442
