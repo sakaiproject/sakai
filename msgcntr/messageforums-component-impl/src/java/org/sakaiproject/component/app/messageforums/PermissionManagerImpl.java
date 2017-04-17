@@ -98,10 +98,10 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     }
 
     public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
+        this.toolManager = toolManager;
+    }
 
-	public MessageForumsTypeManager getTypeManager() {
+    public MessageForumsTypeManager getTypeManager() {
         return typeManager;
     }
 
