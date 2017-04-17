@@ -66,13 +66,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	private static final Logger LOG = LoggerFactory.getLogger(TopicEntityProviderImpl.class);
 	public static final String PVTMSG_MODE_DRAFT = "Drafts";
 	
-    private UserDirectoryService userDirectoryService;	
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	private UserDirectoryService userDirectoryService;	
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
 
-    private EntityManager entityManager;
-    public void setEntityManager(EntityManager entityManager) {
+	private EntityManager entityManager;
+	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
 	}
 
