@@ -175,7 +175,7 @@
 														#if ($noEvent == "false")
 																#foreach ($m in $eventsn)  ##foreach--6
 																		<tr>
-																		<td #if ($counter == 1) style="white-space:nowrap;vertical-align:top" #else #if ($dayShown == "false") class="chefTopline" #end #end>
+																		<td #if ($counter == 1) style="white-space:nowrap;" #else #if ($dayShown == "false") class="chefTopline" #end #end>
 																		#if ($dayShown == "false")
 																				#set ($monthNumber = $m.Range.firstTime().breakdownLocal().Month - 1)
 				## (gsilver: not sure what this </a> is doing here, comment for now - as it does not validate </a>
