@@ -151,18 +151,17 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return sessionManager;
     }
     
-    
     public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
+        this.siteService = siteService;
+    }
 
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
+    }
 
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
+    public void setContentHostingService(ContentHostingService contentHostingService) {
+        this.contentHostingService = contentHostingService;
+    }
  
     /**
      * FOR SYNOPTIC TOOL:
