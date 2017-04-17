@@ -45,11 +45,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jdom.Element;
+import org.jdom.Attribute;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.xpath.XPath;
@@ -84,6 +86,7 @@ public class Parser extends AbstractParser {
   private static final String AUTH_QUERY="/ims:manifest/auth:authorizations";
   private static final String ORG_QUERY="/ims:manifest/ims:organizations/ims:organization";
   private static final String ITEM_QUERY="/ims:manifest/ims:organizations/ims:organization/ims:item";
+  private static final String FILE_QUERY="//ims:file/@href";
   
   private static final String AUTH_IMPORT="import";
   private static final String AUTH_ACCESS="access";
@@ -104,6 +107,7 @@ public class Parser extends AbstractParser {
   private static final String CC_ITEM_IDREF="identifierref";
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_RESOURCE="resource";
+  private static final String CC_FILE="file";
   private static final String QUESTION_BANK="question-bank";
   private static final String CC_RESOURCES="resources";
   private static final String CC_RES_TYPE="type";
@@ -160,6 +164,7 @@ public class Parser extends AbstractParser {
     if (processAuthorization(the_manifest, the_handler))
 	return; // don't process CCs with authorization
     processManifestMetadata(the_manifest, the_handler);
+    preProcessResources(the_manifest.getChild(CC_RESOURCES, ns.getNs()), the_handler);
     XPath path=null;
     Element org=null;
     try {
@@ -189,6 +194,23 @@ public class Parser extends AbstractParser {
     }
   }
   
+  private void 
+  preProcessResources(Element the_manifest,
+		  DefaultHandler the_handler) {
+	  XPath path;
+	  List<Attribute> results;
+	  try {
+		  path = XPath.newInstance(FILE_QUERY);
+		  path.addNamespace(ns.getNs());
+		  results = path.selectNodes(the_manifest);
+		  for (Attribute result : results) {
+			  the_handler.preProcessFile(result.getValue()); 
+		  }
+	  } catch (JDOMException | ClassCastException e) {
+		  log.info("Error processing xpath for files", e);
+	  }
+  }
+
   private void 
   processManifestMetadata(Element manifest,
                           DefaultHandler the_handler) {
