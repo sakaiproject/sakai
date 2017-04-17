@@ -184,10 +184,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
-	public IdManager getIdManager() {
+    public IdManager getIdManager() {
         return idManager;
     }
 
@@ -196,14 +196,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
     
     public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
+        this.toolManager = toolManager;
+    }
 
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
 
-	public void initializeTopicsForForum(BaseForum forum){
+    public void initializeTopicsForForum(BaseForum forum){
       
       getHibernateTemplate().initialize(forum);
       getHibernateTemplate().initialize(forum.getTopicsSet());
