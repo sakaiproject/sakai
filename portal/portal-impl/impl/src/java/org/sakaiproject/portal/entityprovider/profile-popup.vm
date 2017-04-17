@@ -3,7 +3,7 @@
     <table cols="2" class="profile-popup-table">
         <tr>
             <td class="profile-popup-icon-cell">
-                <div><a href="${profileUrl}" title="${i18n.profile_tooltip}"><span class="fa fa-user fa-3x" aria-hidden="true"></span></a></div>
+                <div><a href="${profileUrl}" target="_blank" title="${i18n.profile_tooltip}"><span class="fa fa-user fa-3x" aria-hidden="true"></span></a></div>
                 <div>${i18n.profile}</div>
             </td>
             <td class="profile-popup-icon-cell">
