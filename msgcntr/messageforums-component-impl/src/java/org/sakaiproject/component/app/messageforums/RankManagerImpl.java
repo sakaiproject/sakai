@@ -83,10 +83,10 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     }
 
     public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
+        this.toolManager = toolManager;
+    }
 
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
 
