@@ -4809,48 +4809,50 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UISelect.make(form, "cssDropdown", options, labels, "#{simplePageBean.dropDown}", currentCss);
 			
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
-			UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
-					.replace("{1}", messageLocator.getMessage("simplepage.permissions")).replace("{2}", messageLocator.getMessage("simplepage.more-tools")));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
 			UIBoundBoolean.make(form, "nodownloads", 
 					    "#{simplePageBean.nodownloads}", 
 					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
-
-			//Set the changeOwner dropdown in the settings dialog
-			UIOutput.make(form, "changeOwnerSection");
-			List<String> roleOptions = new ArrayList<>();
-			List<String> roleLabels = new ArrayList<>();
-			List<String> possOwners = new LinkedList<>();
-			boolean isOwned = page.isOwned();
-			String owner = page.getOwner();
-			possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
-			Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
-			possOwners.removeAll(siteUsersCanUpdate);
-			if (isOwned){
-				if (possOwners.contains(owner)){
-					int i = possOwners.indexOf(owner);
-					Collections.swap(possOwners, i, 0); // put owner top of list
+			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
+			if (showSetOwner){
+				//Set the changeOwner dropdown in the settings dialog
+				UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
+						.replace("{1}", messageLocator.getMessage("simplepage.permissions")).replace("{2}", messageLocator.getMessage("simplepage.more-tools")));
+				UIOutput.make(form, "changeOwnerSection");
+				List<String> roleOptions = new ArrayList<>();
+				List<String> roleLabels = new ArrayList<>();
+				List<String> possOwners = new LinkedList<>();
+				boolean isOwned = page.isOwned();
+				String owner = page.getOwner();
+				possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
+				Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
+				possOwners.removeAll(siteUsersCanUpdate);
+				if (isOwned){
+					if (possOwners.contains(owner)){
+						int i = possOwners.indexOf(owner);
+						Collections.swap(possOwners, i, 0); // put owner top of list
+					}
+					else {
+						roleOptions.add(owner);
+						roleLabels.add(getUserDisplayName(owner));
+					}
 				}
 				else {
-					roleOptions.add(owner);
-					roleLabels.add(getUserDisplayName(owner));
+					roleOptions.add(null);
+					roleLabels.add(messageLocator.getMessage("simplepage.default-user"));
 				}
+				for(String user : possOwners){
+					roleOptions.add(user);
+					roleLabels.add(getUserDisplayName(user));
+				}
+				if (isOwned){
+					roleOptions.add(null);
+					roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
+				}
+				UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
+				UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 			}
-			else {
-				roleOptions.add(null);
-				roleLabels.add(messageLocator.getMessage("simplepage.default-user"));
-			}
-			for(String user : possOwners){
-				roleOptions.add(user);
-				roleLabels.add(getUserDisplayName(user));
-			}
-			if (isOwned){
-				roleOptions.add(null);
-				roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
-			}
-			UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
-			UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 		}
 		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
 
