@@ -22,6 +22,7 @@ body {
 .rssIcon {
 	position: relative;
 	top: 6px;
+	text-decoration: none;
 }
 
 .podDelDescPosition {
