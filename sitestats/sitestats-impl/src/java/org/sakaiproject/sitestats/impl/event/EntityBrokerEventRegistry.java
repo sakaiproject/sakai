@@ -270,7 +270,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 			}
 			EventLocaleKey o = (EventLocaleKey) obj;
 			if(o.getEventId().equals(getEventId())
-					&& o.getLocale().equals(o.getLocale())) {
+					&& o.getLocale().equals(getLocale())) {
 				return true;
 			}
 			return false;
