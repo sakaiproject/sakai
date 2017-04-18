@@ -164,12 +164,12 @@
                         if (this.value === 'all') {
                             roster.groupToView = null;
                             if(roster.roleToView === null) {
-                                renderAll(showOfficialPictures);
+                                renderAll();
                             } else {
                                 roster.renderMembership({replace: true});
                             }
                         } else {
-                            roster.renderGroupMembership(this.value, showOfficialPictures);
+                            roster.renderGroupMembership(this.value);
                         }
                     });
 
@@ -177,7 +177,7 @@
                         if (this.value === 'all') {
                             roster.roleToView = null;
                             if(roster.groupToView === null) {
-                                renderAll(showOfficialPictures);
+                                renderAll();
                             } else {
                                 roster.renderMembership({replace: true});
                             }
@@ -206,7 +206,7 @@
                     roster.readySearchField();
                     roster.readyClearButton(state);
 
-                    renderAll(showOfficialPictures);
+                    renderAll();
                 });
             });
             $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction({}));
@@ -304,7 +304,7 @@
         }
     };
 
-    var renderAll = function(showOfficialPictures) {
+    var renderAll = function() {
         // We don't want parallel membership requests
         $('#navbar_overview_link').find('a').off('click');
 
@@ -313,7 +313,7 @@
             $("body").removeData(sortedRoles[item]);
         }
 
-        roster.renderMembership({showOfficialPictures: showOfficialPictures, replace: true, role: sortedRoles, overview: true});
+        roster.renderMembership({replace: true, role: sortedRoles, overview: true});
     };
 
     roster.renderButtons = function() {
@@ -804,7 +804,6 @@
                     if(itemData !== undefined) {
                         noRemaining = false;
                         roster.renderMembership({
-                            showOfficialPictures: options.showOfficialPictures,
                             replace: false,
                             enrollmentStatus: options.enrollmentStatus,
                             role: item,
@@ -814,7 +813,6 @@
                 }
                 if(noRemaining) {
                     roster.renderMembership({
-                        showOfficialPictures: options.showOfficialPictures,
                         replace: false,
                         enrollmentStatus: options.enrollmentStatus
                     });
