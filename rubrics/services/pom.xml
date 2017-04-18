@@ -11,10 +11,10 @@
     <description>Sakai Native Rubrics Service - Provides a REST API and Web Components for Rubrics</description>
 
     <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.1.RELEASE</version>
-        <relativePath/><!-- Disable local parent pom resolution https://issues.apache.org/jira/browse/MNG-5146 -->
+        <groupId>org.sakaiproject.rubrics</groupId>
+        <artifactId>rubrics</artifactId>
+        <version>12-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
@@ -25,41 +25,40 @@
         <rest.assured.version>2.9.0</rest.assured.version>
         <spring.security.version>4.2.1.RELEASE</spring.security.version>
         <spring.boot.version>1.5.2.RELEASE</spring.boot.version>
-        <hibernate.version>4.3.11.Final</hibernate.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>log4j-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
-
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>${spring.boot.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -67,14 +66,42 @@
             <version>${spring.security.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+            <version>1.13.1.RELEASE</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
             <version>${spring.security.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml</groupId>
+            <artifactId>classmate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bgee.log4jdbc-log4j2</groupId>
@@ -96,6 +123,7 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
+            <version>${jayway.jsonpath.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -105,36 +133,28 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.5</version>
         </dependency>
 
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.1.0</version>
+            <version>${sakai.java.jwt.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
+            <version>${sakai.org.json.version}</version>
         </dependency>
     </dependencies>
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/java</testSourceDirectory>
         <plugins>
-            <!--
-             | sakai plugin required to be explicitly defined in order to leverage the sakai:deploy goal at the root
-             | of Sakai, since this project does not inherit from Sakai master POM.
-             +-->
             <plugin>
-                <inherited>true</inherited>
-                <groupId>org.sakaiproject.maven.plugins</groupId>
-                <artifactId>sakai</artifactId>
-                <version>1.4.3</version>
-                <extensions>true</extensions>
+                <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <deployDirectory>${maven.tomcat.home}</deployDirectory>
-                    <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
             <plugin>

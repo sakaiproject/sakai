@@ -43,29 +43,6 @@
                 <artifactId>wicket-spring</artifactId>
                 <version>${sakai.wicket.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${sakai.spring.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache-core</artifactId>
-                <version>${sakai.ehcache.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-		<version>${sakai.commons.lang.version}</version>
-		<scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>${sakai.commons.configuration.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
