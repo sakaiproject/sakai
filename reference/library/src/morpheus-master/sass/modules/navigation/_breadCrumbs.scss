@@ -91,6 +91,9 @@
 		top: 6.3em;
 		width: 100%;
 		z-index: 2;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 		@include transition( top 0.25s linear 0s );
 		&.moving{
 			top: -22.2em;
