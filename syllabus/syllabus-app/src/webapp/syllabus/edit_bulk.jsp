@@ -198,14 +198,14 @@
 								<h:outputText value="#{msgs.starttimetitle}"/>
 							</h:outputLabel>
 							<h:inputText styleClass="timeInput timeInputStart" value="#{SyllabusTool.bulkEntry.startTimeString}" id="dataStartTime"/>
-							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.timeInputStart').focus();"/></f:verbatim>
+							<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputStart').focus();"></span></f:verbatim>
 						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel for="dataEndTime">
 								<h:outputText value="#{msgs.endtimetitle}"/>
 							</h:outputLabel>
 							<h:inputText styleClass="timeInput timeInputEnd" value="#{SyllabusTool.bulkEntry.endTimeString}" id="dataEndTime"/>
-							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.timeInputEnd').focus();"/></f:verbatim>
+							<f:verbatim><span class="fa fa-calendar-times-o" onclick="$('.timeInputEnd').focus();"></span></f:verbatim>
 						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
 							<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.bulkEntry.linkCalendar}" />

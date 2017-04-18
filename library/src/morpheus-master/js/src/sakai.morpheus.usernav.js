@@ -281,7 +281,6 @@ $PBJQ(document).ready( function(){
 		  $(".Mrphs-mainHeader").removeClass("is-fixed");
 		  $(header).data("sticked",false);
 		}
-		animateToolBar();
   });
   
   currentHeaderWidth = $(".Mrphs-mainHeader").width();

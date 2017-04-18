@@ -1,5 +1,46 @@
 body.active-more-sites{
-        overflow: hidden;
+  overflow: hidden;
+
+  @media #{$phone} {
+    overflow: auto;
+
+    // hide the tool body
+    .#{$namespace}pagebody {
+      #content {
+        display: none;
+      }
+    }
+
+    // make the banner stick to the top on scroll when the tool menu is visible
+    .#{$namespace}mainHeader {
+      position: absolute;
+      top: -$banner-height;
+
+      .#{$namespace}topHeader {
+        position: relative;
+        padding-top: 0 !important;
+
+        .#{$namespace}headerLogo {
+          position: relative;
+        }
+      }
+    }
+
+
+    #selectSiteModal {
+      width: 100% !important;
+      right: 0 !important;
+      top: ($banner-height - 4) !important;
+      height: auto !important;
+      min-height: 100% !important;
+      max-height: none !important;
+      position: absolute !important;
+
+      .tab-pane {
+        height: auto !important;
+      }
+    }
+  }
 }
 
 #portalMask{
@@ -721,9 +762,10 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	left: 50%;
 	transform: translateX(-50%);
 	top: 13px;
-	border: 1px solid $tool-border-color;
+	border: 1px solid #EAC276;
 	z-index: 1000;
 	display: inline-block;
+	box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 
 	-webkit-transition: background-color 0.2s, color 0.2s;
 	-moz-transition: background-color 0.2s, color 0.2s;
@@ -731,17 +773,17 @@ li.organizeFavorites:not(.active) .favoriteCountAndWarning.maxFavoritesReached {
 	-o-transition: background-color 0.2s, color 0.2s;
 	transition: background-color 0.2s, color 0.2s;
 
-	background-color: #f7e084;
+	background-color: #F9EDBE;
 	color: #000 !important;
 	text-align: center;
-	padding: 6px 8px;
-	border-radius: 3px;
+	padding: 0 8px;
 	text-decoration: none;
 
 	a
 	{
 		display: inline-block; // to override flex on login links
-		color: $primary-color;
+		color: #191919;
+		text-decoration: underline !important;
 	}
 
 	@media #{$phone}{

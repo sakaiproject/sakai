@@ -34,7 +34,7 @@ $header-font-weight: 700 !default;										// 400 or 700 as you wish
 $background-color: 			 #FFFFFF !default;
 $background-color-secondary: #3949AB !default;
 
-$primary-color:    			 #005875 !default;
+$primary-color:    			 #347EB2 !default;
 $primary-color-highContrast: darken( $primary-color, 4% ) !default;	// for use of primary on non-white light backgrounds, such as greys
 $primary-color-shadow:			 adjust-hue( $primary-color, 5 ) !default;	// To give primary a darker shadow
 $secondary-color:  			 #F00 !default;
@@ -50,7 +50,7 @@ $portal-background-color: $background-color !default;
 $tool-background-color:		 $background-color !default;
 $tool-menu-background-color:			 $body-background-color !default;
 $tool-menu-color: 			 #424242 !default;
-$tool-border-color:			 #F0F0F0 !default;
+$tool-border-color:			 #E5E5E5 !default;
 
 $tool-tab-height:                                         32px !default;
 $tool-tab-text-color:                                     $tool-menu-color !default;

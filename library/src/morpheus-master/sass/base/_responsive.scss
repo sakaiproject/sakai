@@ -190,3 +190,35 @@ body{
 		}
 	}
 }
+
+// Viewport Helpers
+// - these are hidden elements that the JavaScript can query
+//   to determine the current viewport breakpoint
+body {
+  ##{$namespace}viewport-helpers {
+    .phone, .tablet, .desktop {
+      display: none;
+
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+      position: absolute;
+      left: -1000000px;
+    }
+    @media #{$phone} {
+      .phone {
+        display: block;
+      }
+    }
+    @media #{$tablet} {
+      .tablet {
+        display: block;
+      }
+    }
+    @media #{$desktop} {
+      .desktop {
+        display: block;
+      }
+    }
+  }
+}
