@@ -212,6 +212,10 @@
         top: $banner-height;
     }
 
+    #roster_buttons_container {
+        margin-top: 1em;
+    }
+
     @media only screen and (max-width: 800px) {
         .roster-table-header-group {
             display: none !important;

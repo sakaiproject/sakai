@@ -58,7 +58,7 @@
         <div id="Mrphs-sakai-roster" class="portletBody container-fluid">
 
         <ul id="roster_navbar" class="navIntraTool actionToolBar" role="menu"></ul>
-        <div id="buttons-container" class="pull-right"></div>
+        <div id="roster_buttons_container" class="pull-right"></div>
 
         <div id="rosterMainContainer">
             <form id="roster_form">

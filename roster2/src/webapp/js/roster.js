@@ -317,7 +317,7 @@
     };
 
     roster.renderButtons = function() {
-        roster.render('buttons', {}, 'buttons-container');
+        roster.render('buttons', {}, 'roster_buttons_container');
 
         exportLink =  $('#export-link');
 
