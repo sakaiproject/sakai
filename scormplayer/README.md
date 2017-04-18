@@ -1,4 +1,10 @@
-README
+## Installation notes:
+
+For Sakai 11+, the following sakai.property needs to be set (as a result of Sakai going frameless):
+
+portal.iframesuppress=:all:sakai.scorm.singlepackage.tool:sakai.scorm.tool
+
+## Historical Info
 
 This project was originally developed and maintained by UC Davis and made available on an ECL 1 license.
 Since the project was moved to GitHub, the license has been updated to ECL 2.
