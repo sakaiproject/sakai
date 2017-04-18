@@ -12593,7 +12593,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		MathJaxEnabler.removeMathJaxToolsAttributeFromState(state);  // SAK-22384
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -12800,7 +12799,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
-			MathJaxEnabler.applyToolSettingsToState(state, site, params);  // SAK-22384
+			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
 
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
@@ -15550,7 +15549,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			// continue with site information edit
 
-			MathJaxEnabler.applyAllowedSettingsToState(state, params);  // SAK-22384
+			MathJaxEnabler.applySettingsToState(state, params);  // SAK-22384
 
 			doContinue(data);
 		}
