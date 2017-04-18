@@ -27,6 +27,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * The panel for the add grade item window
@@ -43,6 +44,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private boolean categoriesEnabled;
 
+	final static String DATEPICKER_FORMAT = "yyyy-MM-dd";
+
 	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
 		super(id, assignmentModel);
 
@@ -50,6 +53,11 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
 		final Assignment assignment = assignmentModel.getObject();
+
+		String dueDateString = "";
+		if (assignment.getDueDate() != null) {
+			dueDateString = DateFormatterUtil.format(assignment.getDueDate(), DATEPICKER_FORMAT, getSession().getLocale());
+		}
 
 		this.categoriesEnabled = true;
 		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
@@ -111,8 +119,7 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		// due date
 		// TODO date format needs to come from i18n
-		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"),
-				getString("format.date")) {
+		final TextField dueDate = new TextField("duedate", Model.of(dueDateString)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
