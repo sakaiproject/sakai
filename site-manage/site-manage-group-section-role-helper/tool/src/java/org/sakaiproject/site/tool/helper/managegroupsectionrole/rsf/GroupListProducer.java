@@ -133,7 +133,7 @@ public class GroupListProducer
 				String groupId = group.getId();
 				UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
 				
-				String groupTitle = Validator.escapeHtml(group.getTitle());
+				String groupTitle = group.getTitle();
 				if (group.isLocked()) {
 					UIOutput groupIcon = UIOutput.make(grouprow, "group-icon");
 					groupIcon.decorate(new UIStyleDecorator("fa-lock"));
