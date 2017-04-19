@@ -79,7 +79,6 @@ public class GradebookInformation implements Serializable {
 	 */
 	private boolean courseAverageDisplayed;
 	
-	
 	public String getSelectedGradingScaleUid() {
 		return selectedGradingScaleUid;
 	}
