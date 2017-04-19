@@ -82,11 +82,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setImageUrl(imageLogic.getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN));
 		p.setImageThumbUrl(imageLogic.getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL));
 			
-		//get SakaiPerson
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		if(sakaiPerson == null) {
-			//no profile, return basic info only.
-			return p;
+		if (sakaiPerson == null) {
+			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
+			if (sakaiPerson == null) {
+				return p;
+			}
 		}
 		
 		//transform
