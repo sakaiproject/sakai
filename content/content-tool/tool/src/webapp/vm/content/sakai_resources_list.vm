@@ -15,6 +15,9 @@
     width:1%;
     white-space:nowrap;
   }
+  .selectPageSize {
+    margin-right: 0.7em;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
@@ -598,7 +601,7 @@
     										#end
     									#end
     									<!-- $pagesize  "$pagesize" -->
-    									<select name="selectPageSize" onchange="document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
+    									<select name="selectPageSize" class="selectPageSize" onchange="document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
     										<option value="5"#if("$pagesize" == "5") selected="selected"#end>$tlang.getString("lis.show5")</option>
     										<option value="10"#if("$pagesize" == "10") selected="selected"#end>$tlang.getString("lis.show10")</option>
     										<option value="20"#if("$pagesize" == "20") selected="selected"#end>$tlang.getString("lis.show20")</option>
