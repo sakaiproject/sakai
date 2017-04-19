@@ -1693,8 +1693,9 @@ public class SakaiBLTIUtil {
 				assignmentObject.setName(assignment);
 				assignmentObject.setReleased(true);
 				assignmentObject.setUngraded(false);
-				g.addAssignment(siteId, assignmentObject);
-				M_log.info("Added assignment: "+assignment);
+				Long assignmentId = g.addAssignment(siteId, assignmentObject);
+				assignmentObject.setId(assignmentId);
+				M_log.info("Added assignment: " +assignment + " with Id: " + assignmentId);
 			}
 			catch (ConflictingAssignmentNameException e) {
 				M_log.warn("ConflictingAssignmentNameException while adding assignment" + e.getMessage());
@@ -1705,7 +1706,10 @@ public class SakaiBLTIUtil {
 				assignmentObject = null; // Just to make double sure
 			}
 		}
-
+		if (assignmentObject == null || assignmentObject.getId() == null) {
+			M_log.warn("assignmentObject or Id is null, cannot proceed with grading.");
+			return "Grade failure siteId="+siteId;
+		}
 		// Now read, set, or delete the grade...
 		Session sess = SessionManager.getCurrentSession();
 		String message = null;
