@@ -5119,6 +5119,23 @@ public class SimplePageBean {
 		return false;
 	}
 		
+    private boolean arePageItemsComplete(long pageId) {
+
+	int sequence = 1;
+	SimplePageItem i = simplePageToolDao.findNextItemOnPage(pageId, sequence);
+
+	while (i != null) {
+	    if (i.isRequired() && !isItemComplete(i) && isItemVisible(i)) 
+		return false; 
+
+	    sequence++; 
+	    i = simplePageToolDao.findNextItemOnPage(pageId, sequence); 
+	}
+
+	return true;
+    }
+
+
     // this is called in a loop to see whether items are available. Since computing it can require
     // database transactions, we cache the results
 	public boolean isItemComplete(SimplePageItem item) {
@@ -5148,8 +5165,9 @@ public class SimplePageBean {
 				completeCache.put(itemId, true);
 				return true;
 			} else {
-				completeCache.put(itemId, false);
-				return false;
+			        boolean apic = arePageItemsComplete(Long.parseLong(item.getSakaiId())); 
+				completeCache.put(itemId, apic);
+				return apic;
 			}
 		} else if (item.getType() == SimplePageItem.ASSIGNMENT) {
 			try {
