@@ -174,7 +174,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final Long assignmentId) throws AssessmentNotFoundException {
 		if (assignmentId == null || gradebookUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignment");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are assignmentId:" 
+				+ assignmentId + " gradebookUid:" + gradebookUid);
 		}
 		if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignment with id " + assignmentId);
@@ -200,7 +201,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Deprecated
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final String assignmentName) throws AssessmentNotFoundException {
 		if (assignmentName == null || gradebookUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignment");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are assignmentName:" 
+					+ assignmentName + " gradebookUid:" + gradebookUid);
 		}
 		if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignment " + assignmentName);
@@ -2396,7 +2398,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
 	  
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreString");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are gradebookUid:" 
+					+ gradebookUid + " assignmentId:" + assignmentId + " studentUid:" + studentUid);
 		}	
 
 	  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
@@ -2447,7 +2450,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   			throws GradebookNotFoundException, AssessmentNotFoundException {
 	  
 		if (gradebookUid == null || assignmentName == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreString");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are gradebookUid:" 
+					+ gradebookUid + " assignmentName:" + assignmentName + " studentUid:" + studentUid);
 		}	
 
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
