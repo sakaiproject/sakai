@@ -20,58 +20,58 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.AreaManager;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.api.app.messageforums.DBMembershipItem;
-import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -120,7 +120,22 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private PermissionLevelManager permissionManager;
 	private ContentHostingService contentHostingService;
 	private AuthzGroupService authzGroupService;
+	private EntityManager entityManager;
+	private SiteService siteService;
+	private ToolManager toolManager;
 	
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
@@ -134,7 +149,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	public void init() throws Exception
 	{
       LOG.info("init()");
-		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);	
+		entityManager.registerEntityProducer(this, REFERENCE_ROOT);	
 	}
 
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
@@ -497,8 +512,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						String gradebookUid = null;
 						// if this code is called from a quartz job, like SIS, then getCurrentPlacement() will return null.
 						// so just use the fromContext which gives the site id.
-						if (ToolManager.getCurrentPlacement() != null)
-							gradebookUid = ToolManager.getCurrentPlacement().getContext();
+						if (toolManager.getCurrentPlacement() != null)
+							gradebookUid = toolManager.getCurrentPlacement().getContext();
 						else
 							gradebookUid = fromContext;
 
@@ -1069,7 +1084,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 			ContentResource oldAttachment = contentHostingService.getResource(attachmentId);
 			ContentResource attachment = contentHostingService.addAttachmentResource(
 				oldAttachment.getProperties().getProperty(
-						ResourceProperties.PROP_DISPLAY_NAME), toContext, ToolManager.getTool(
+						ResourceProperties.PROP_DISPLAY_NAME), toContext, toolManager.getTool(
 						"sakai.forums").getTitle(), oldAttachment.getContentType(),
 						oldAttachment.getContent(), oldAttachment.getProperties());
 			Attachment thisDFAttach = dfManager.createDFAttachment(
@@ -1181,7 +1196,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 			}
 			
 			// get any groups/sections in site
-			Site currentSite = SiteService.getSite(contextId); 
+			Site currentSite = siteService.getSite(contextId); 
 			  Collection groups = currentSite.getGroups();
 			  for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
 		      {

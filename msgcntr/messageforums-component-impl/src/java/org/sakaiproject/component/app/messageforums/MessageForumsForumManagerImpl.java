@@ -29,8 +29,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.hibernate.Query;
 import org.hibernate.collection.internal.PersistentSet;
@@ -66,10 +66,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateCallback;
@@ -150,6 +150,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private EventTrackingService eventTrackingService;
     
+    private SiteService siteService;
+    private ToolManager toolManager;
+    
     public void init() {
        LOG.info("init()");
        DEFAULT_AUTO_MARK_READ = serverConfigurationService.getBoolean("msgcntr.forums.default.auto.mark.threads.read", false);
@@ -181,10 +184,10 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
-	public IdManager getIdManager() {
+    public IdManager getIdManager() {
         return idManager;
     }
 
@@ -192,6 +195,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         return sessionManager;
     }
     
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
     public void initializeTopicsForForum(BaseForum forum){
       
       getHibernateTemplate().initialize(forum);
@@ -1254,11 +1265,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             return "test-context";
         }
         String presentSiteId = null;
-        Placement placement = ToolManager.getCurrentPlacement();
+        Placement placement = toolManager.getCurrentPlacement();
         if(placement == null){
         	//current placement is null.. let's try another approach to getting the site id
         	if(sessionManager.getCurrentToolSession() != null){
-        		ToolConfiguration toolConfig = SiteService.findTool(sessionManager.getCurrentToolSession().getId());
+        		ToolConfiguration toolConfig = siteService.findTool(sessionManager.getCurrentToolSession().getId());
         		if(toolConfig != null){
         			presentSiteId = toolConfig.getSiteId();
         		}
@@ -1266,6 +1277,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }else{
         	presentSiteId = placement.getContext();
         }
+        LOG.debug("site: " + presentSiteId);
         return presentSiteId;
     }
 
@@ -1295,9 +1307,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     	
     	try {
     		// TODO: How to determine what prefix to put on event message
-    		if (isToolInSite(SiteService.getSite(context), DiscussionForumService.MESSAGE_CENTER_ID))
+    		if (isToolInSite(siteService.getSite(context), DiscussionForumService.MESSAGE_CENTER_ID))
     			eventMessagePrefix = "/messages&forums/site/";
-    		else if (isToolInSite(SiteService.getSite(context), DiscussionForumService.MESSAGES_TOOL_ID))
+    		else if (isToolInSite(siteService.getSite(context), DiscussionForumService.MESSAGES_TOOL_ID))
     			eventMessagePrefix = "/messages/site/";
     		else
     			eventMessagePrefix = "/forums/site/";

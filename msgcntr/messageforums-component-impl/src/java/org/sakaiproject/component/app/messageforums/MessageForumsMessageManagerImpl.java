@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,9 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -63,10 +60,10 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateCallback;
@@ -113,6 +110,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     private ContentHostingService contentHostingService;
 
+    private SiteService siteService;
+    
+    private ToolManager toolManager;
+    
     public void init() {
        LOG.info("init()");
         ;
@@ -150,9 +151,17 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return sessionManager;
     }
     
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
+    }
+
     public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
+        this.contentHostingService = contentHostingService;
+    }
  
     /**
      * FOR SYNOPTIC TOOL:
@@ -1008,7 +1017,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId)
     {
-    	markMessageReadForUser(topicId, messageId, read, userId, ToolManager.getCurrentPlacement().getContext(), ToolManager.getCurrentTool().getId());
+    	markMessageReadForUser(topicId, messageId, read, userId, toolManager.getCurrentPlacement().getContext(), toolManager.getCurrentTool().getId());
     }
     
     public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId, String context, String toolId)
@@ -1266,11 +1275,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public void saveMessage(Message message, boolean logEvent) {
-    	saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    	saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
     }
     
     public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
-        saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+        saveMessage(message, logEvent, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
     }
     
     public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
@@ -1575,7 +1584,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     private String getEventMessage(Object object) {
-    	return getEventMessage(object, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    	return getEventMessage(object, toolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
     }
     
     private String getEventMessage(Object object, String toolId, String userId, String contextId) {
@@ -1635,7 +1644,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
           q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
           q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
           q.setParameter("userId", getCurrentUser());
-          q.setParameter("contextId", ToolManager.getCurrentPlacement().getContext());
+          q.setParameter("contextId", toolManager.getCurrentPlacement().getContext());
           q.setParameter("typeUuid", typeUuid);
           return q.list();
       };
@@ -1652,7 +1661,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       if (TestUtil.isRunningTests()) {
           return "test-context";
       }
-      Placement placement = ToolManager.getCurrentPlacement();
+      Placement placement = toolManager.getCurrentPlacement();
       String presentSiteId = placement.getContext();
       return presentSiteId;
   }
@@ -1694,10 +1703,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	 * 			TRUE if tool exists, FALSE otherwise.
 	 */
 	public boolean currentToolMatch(String toolId) {
-		String curToolId = ToolManager.getCurrentTool().getId();
+		String curToolId = toolManager.getCurrentTool().getId();
 		
 		if (curToolId.equals(MESSAGECENTER_HELPER_TOOL_ID)) {
-			curToolId = ToolManager.getCurrentPlacement().getTool().getId();
+			curToolId = toolManager.getCurrentPlacement().getTool().getId();
 		}
 
 		if (toolId.equals(curToolId)) {
@@ -1721,7 +1730,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 	public boolean isToolInSite(String siteId, String toolId) {
 		Site thisSite;
 		try {
-			thisSite = SiteService.getSite(siteId);
+			thisSite = siteService.getSite(siteId);
 			
 			Collection toolsInSite = thisSite.getTools(toolId);
 
