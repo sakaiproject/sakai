@@ -43,6 +43,12 @@ dl.defList dd{
     margin-right: 20px;
     float: right;
 }
+.indnt3 .row {
+    margin: 10px 0 0 0;
+}
+.indnt3 .row:first-child {
+    margin-top: 0;
+}
 
 #templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
