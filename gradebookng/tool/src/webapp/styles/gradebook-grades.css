@@ -1188,3 +1188,10 @@ and (max-device-width : 736px) {
   font-family: "gradebook-icons";
   content: "\f071";
 }
+
+/* GradeSummayTablePanel - comments column */
+.gb-summary-grade-comments div{
+  overflow-y: scroll;
+  overflow-x: hidden;
+  max-height:100px;
+}
