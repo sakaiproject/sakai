@@ -1001,6 +1001,8 @@ extends VelocityPortletStateAction
 			sstate.setAttribute(
 									  CalendarAction.SSTATE_ATTRIBUTE_MERGED_CALENDARS,
 									  calendarList);
+
+			buildMenu(portlet, context, runData, state);
 		}
 		
 		/**
@@ -1241,6 +1243,8 @@ extends VelocityPortletStateAction
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(true));
 			else
 				context.put(ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY, Boolean.valueOf(false));
+
+			buildMenu(portlet, context, runData, state);
 			
 		} //buildCustomizeCalendarContext
 		
@@ -1649,6 +1653,7 @@ extends VelocityPortletStateAction
 			sstate.setAttribute(SSTATE_ATTRIBUTE_SUBSCRIPTIONS,
 					institutionalSubscriptions);
 			sstate.setAttribute(SSTATE_ATTRIBUTE_ADDSUBSCRIPTIONS, userSubscriptions);
+			buildMenu(portlet, context, runData, state);
 		}
 
 		/**
@@ -2556,6 +2561,8 @@ extends VelocityPortletStateAction
 			{
 				context.put("groups", groups);
 			}
+
+			buildMenu(portlet, context, runData, state);
 		}
 		catch(IdUnusedException e)
 		{
@@ -3025,32 +3032,6 @@ extends VelocityPortletStateAction
 			}
 		}
 		
-		buildMenu(
-			portlet,
-			context,
-			runData,
-			state,
-			CalendarPermissions.allowCreateEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference()),
-			CalendarPermissions.allowDeleteEvent(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowReviseEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowModifyCalendarProperties(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowImport(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribe(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribeThis(
-					state.getPrimaryCalendarReference()));
 		
 		context.put(
 				"allowDelete",
@@ -3169,32 +3150,7 @@ extends VelocityPortletStateAction
 		context.put("date",dateObj1);
 		state.setState("year");
 		
-		buildMenu(
-			portlet,
-			context,
-			runData,
-			state,
-			CalendarPermissions.allowCreateEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference()),
-			CalendarPermissions.allowDeleteEvent(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowReviseEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowModifyCalendarProperties(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowImport(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribe(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribeThis(
-				state.getPrimaryCalendarReference()));
+		buildMenu(portlet, context, runData, state);
 		
 		// added by zqian for toolbar
 		context.put("allow_new", Boolean.valueOf(allowed));
@@ -3281,32 +3237,7 @@ extends VelocityPortletStateAction
 		context.put("date",dateObj1);
 		context.put("realDate", TimeService.newTime());
 		
-		buildMenu(
-			portlet,
-			context,
-			runData,
-			state,
-			CalendarPermissions.allowCreateEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference()),
-			CalendarPermissions.allowDeleteEvent(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowReviseEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowModifyCalendarProperties(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowImport(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribe(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribeThis(
-				state.getPrimaryCalendarReference()));
+		buildMenu(portlet, context, runData, state);
 		
 		state.setState("month");
 		
@@ -3608,32 +3539,7 @@ extends VelocityPortletStateAction
 		
 		state.setPrevState("");
 		
-		buildMenu(
-			portlet,
-			context,
-			runData,
-			state,
-			CalendarPermissions.allowCreateEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference()),
-			CalendarPermissions.allowDeleteEvent(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowReviseEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowModifyCalendarProperties(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowImport(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribe(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribeThis(
-				state.getPrimaryCalendarReference()));
+		buildMenu(portlet, context, runData, state);
 		
 		context.put("permissionallowed",Boolean.valueOf(allowed));
 		context.put("tlang",rb);
@@ -3845,32 +3751,7 @@ extends VelocityPortletStateAction
 			context.put("endWeek", calObj.getTodayDate());
 		}
 		
-		buildMenu(
-			portlet,
-			context,
-			runData,
-			state,
-			CalendarPermissions.allowCreateEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference()),
-			CalendarPermissions.allowDeleteEvent(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowReviseEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowModifyCalendarProperties(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowImport(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribe(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribeThis(
-				state.getPrimaryCalendarReference()));
+		buildMenu(portlet, context, runData, state);
 		
 		calObj.setDay(yearObj.getYear(),monthObj1.getMonth(),dayObj.getDay());
 		
@@ -4001,13 +3882,14 @@ extends VelocityPortletStateAction
 		context.put("savedData",state.getNewData());
 		context.put("helper",new Helper());
 		context.put("realDate", TimeService.newTime());
-		
+
+		buildMenu(portlet, context, runData, state);
 	} // buildNewContext
 	
 	/**
 	 * Setup for iCal Export.
 	 */
-	public String buildIcalExportPanelContext(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
+	public String buildIcalExportPanelContext(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state)
 	{
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
@@ -4059,8 +3941,10 @@ extends VelocityPortletStateAction
 		boolean exportEnabled = CalendarService.getExportEnabled(calId);
 		context.put("enable_export", String.valueOf(exportEnabled) );
 
+		buildMenu(portlet, context, runData, state);
+
 		// pick the "export" template based on the standard template name
-		String template = (String) getContext(rundata).get("template");
+		String template = (String) getContext(runData).get("template");
 		return template + "_icalexport";
 
 	} // buildIcalExportPanelContext
@@ -4068,7 +3952,7 @@ extends VelocityPortletStateAction
 	/**
 	 * Setup for Opaque URL Export ("No URL").
 	 */
-	protected void buildOpaqueUrlCleanContext(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
+	protected void buildOpaqueUrlCleanContext(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state)
 	{
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-generate", BUTTON + "doOpaqueUrlGenerate");
@@ -4077,12 +3961,13 @@ extends VelocityPortletStateAction
 			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
+		buildMenu(portlet, context, runData, state);
 	}
 	
 	/**
 	 * Setup for Opaque URL Export ("URL exists").
 	 */
-	protected void buildOpaqueUrlExistingContext(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
+	protected void buildOpaqueUrlExistingContext(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state)
 	{
 		String calId = state.getPrimaryCalendarReference();
 		Reference calendarRef = EntityManager.newReference(calId);
@@ -4100,6 +3985,7 @@ extends VelocityPortletStateAction
 		context.put("form-regenerate", BUTTON + "doOpaqueUrlRegenerate");
 		context.put("form-delete", BUTTON + "doOpaqueUrlDelete");
 		context.put("form-cancel", BUTTON + "doCancel");
+		buildMenu(portlet, context, runData, state);
 	}
 	
 	/**
@@ -4624,7 +4510,7 @@ extends VelocityPortletStateAction
 		state.setfromAttachmentFlag("false");
 		sstate.setAttribute(FREQUENCY_SELECT, null);
 		sstate.setAttribute(CalendarAction.SSTATE__RECURRING_RULE, null);
-		
+
 		state.clearData();
 		
 		try
@@ -7423,32 +7309,7 @@ extends VelocityPortletStateAction
 		context.put("SiteService", SiteService.getInstance());
 		context.put("Context", ToolManager.getCurrentPlacement().getContext());
 		
-		buildMenu(
-			portlet,
-			context,
-			runData,
-			state,
-			CalendarPermissions.allowCreateEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference()),
-			CalendarPermissions.allowDeleteEvent(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowReviseEvents(
-				state.getPrimaryCalendarReference(),
-				state.getSelectedCalendarReference(),
-				state.getCalendarEventId()),
-			CalendarPermissions.allowMergeCalendars(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowModifyCalendarProperties(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowImport(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribe(
-				state.getPrimaryCalendarReference()),
-			CalendarPermissions.allowSubscribeThis(
-					state.getPrimaryCalendarReference()));
+		buildMenu(portlet, context, runData, state);
 		
 		// added by zqian for toolbar
 		context.put("allow_new", Boolean.valueOf(allowed));
@@ -7639,34 +7500,48 @@ extends VelocityPortletStateAction
 		
 		String status = state.getState();
 		
-		
+		boolean viewing = false;
+
 		if ((status.equals("day"))
 		||(status.equals("week"))
 		||(status.equals("month"))
 		||(status.equals("year"))
 		||(status.equals("list")))
 		{
+			viewing = true;
 			allow_revise = false;
 			allow_delete = false;
 		}
+
+		MenuEntry home = new MenuEntry(rb.getString("java.view"), "doWeek");
+		home.setIsCurrent(viewing);
+		bar.add(home);
 		
-		bar.add( new MenuEntry(rb.getString("java.new"), rb.getString("java.new.title"), null, allow_new, MenuItem.CHECKED_NA, "doNew") );
+		MenuEntry add = new MenuEntry(rb.getString("java.new"), rb.getString("java.new.title"), null, allow_new, MenuItem.CHECKED_NA, "doNew");
+		add.setIsCurrent(status.equals(STATE_NEW));
+		bar.add(add);
 		
 		// See if we are allowed to import items.
 		if ( allow_import_export )
 		{
-			bar.add( new MenuEntry(rb.getString("java.import"), rb.getString("java.import.title"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
+			MenuEntry importEntry = new MenuEntry(rb.getString("java.import"), rb.getString("java.import.title"), null, allow_new, MenuItem.CHECKED_NA, "doImport");
+			importEntry.setIsCurrent(status.equals(STATE_SCHEDULE_IMPORT));
+			bar.add(importEntry);
 		}
 		
 		//
 		// See if we are allowed to merge items.
 		//
-		bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
+		MenuEntry merge = new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID());
+		merge.setIsCurrent(status.equals(STATE_MERGE_CALENDARS));
+		bar.add(merge);
 		
 		// See if we are allowed to configure external calendar subscriptions
 		if ( allow_subscribe && ServerConfigurationService.getBoolean(ExternalCalendarSubscriptionService.SAK_PROP_EXTSUBSCRIPTIONS_ENABLED,true))
 			{
-				bar.add( new MenuEntry(rb.getString("java.subscriptions"), rb.getString("java.subscriptions.title"), null, allow_subscribe, MenuItem.CHECKED_NA, "doSubscriptions") );
+				MenuEntry subscriptions = new MenuEntry(rb.getString("java.subscriptions"), rb.getString("java.subscriptions.title"), null, allow_subscribe, MenuItem.CHECKED_NA, "doSubscriptions");
+				subscriptions.setIsCurrent(status.equals(STATE_CALENDAR_SUBSCRIPTIONS));
+				bar.add(subscriptions);
 			}
 		
 		// See if we are allowed to export items.
@@ -7674,7 +7549,9 @@ extends VelocityPortletStateAction
 		if ( (allow_import_export || CalendarService.getExportEnabled(calId)) && 
 			  ServerConfigurationService.getBoolean("ical.public.userdefined.subscribe",ServerConfigurationService.getBoolean("ical.experimental",true)))
 		{
-			bar.add( new MenuEntry(rb.getString("java.export"), rb.getString("java.export.title"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
+			MenuEntry export = new MenuEntry(rb.getString("java.export"), rb.getString("java.export.title"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName");
+			export.setIsCurrent(status.equals("icalEx"));
+			bar.add(export);
 		}
 		
 		
@@ -7682,7 +7559,9 @@ extends VelocityPortletStateAction
 		if ( sessionManager.getCurrentSessionUserId() != null &&
 				(ServerConfigurationService.getBoolean("ical.public.secureurl.subscribe", ServerConfigurationService.getBoolean("ical.opaqueurl.subscribe", true))) )
 		{
-			bar.add( new MenuEntry(rb.getString("java.opaque_subscribe"), rb.getString("java.opaque_subscribe.title"), null, allow_subscribe_this, MenuItem.CHECKED_NA, "doOpaqueUrl") );
+			MenuEntry privateExport = new MenuEntry(rb.getString("java.opaque_subscribe"), rb.getString("java.opaque_subscribe.title"), null, allow_subscribe_this, MenuItem.CHECKED_NA, "doOpaqueUrl");
+			privateExport.setIsCurrent(status.equals("opaqueUrlClean") || status.equals("opaqueUrlExisting"));
+			bar.add(privateExport);
 		}
 		
 		//2nd menu bar for the PDF print only
@@ -7694,7 +7573,9 @@ extends VelocityPortletStateAction
 			bar_print.add( new MenuEntry(rb.getString("java.default_view"), "doDefaultview") );
 		}
 					
-		bar.add( new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID()) );
+		MenuEntry customize = new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID());
+		customize.setIsCurrent(status.equals(STATE_CUSTOMIZE_CALENDAR));
+		bar.add(customize);
 		
 		// add permissions, if allowed
 		//SAK-21684 don't show in myworkspace site unless super user.
@@ -7714,6 +7595,36 @@ extends VelocityPortletStateAction
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		
 	}	 // buildMenu
+
+	private void buildMenu(VelocityPortlet portlet, Context context, RunData runData, CalendarActionState state) {
+
+		buildMenu(
+			portlet,
+			context,
+			runData,
+			state,
+			CalendarPermissions.allowCreateEvents(
+				state.getPrimaryCalendarReference(),
+				state.getSelectedCalendarReference()),
+			CalendarPermissions.allowDeleteEvent(
+				state.getPrimaryCalendarReference(),
+				state.getSelectedCalendarReference(),
+				state.getCalendarEventId()),
+			CalendarPermissions.allowReviseEvents(
+				state.getPrimaryCalendarReference(),
+				state.getSelectedCalendarReference(),
+				state.getCalendarEventId()),
+			CalendarPermissions.allowMergeCalendars(
+				state.getPrimaryCalendarReference()),
+			CalendarPermissions.allowModifyCalendarProperties(
+				state.getPrimaryCalendarReference()),
+			CalendarPermissions.allowImport(
+				state.getPrimaryCalendarReference()),
+			CalendarPermissions.allowSubscribe(
+				state.getPrimaryCalendarReference()),
+			CalendarPermissions.allowSubscribeThis(
+				state.getPrimaryCalendarReference()));
+	}
 	
 	/**
 	 * Align the edit's fields with these values.
