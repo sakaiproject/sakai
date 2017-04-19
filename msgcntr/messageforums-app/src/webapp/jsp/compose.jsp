@@ -92,7 +92,7 @@
 
 		  <h:outputText style="display:block;" styleClass="messageConfirmation" value="#{msgs.pvt_hiddenGroupsBccMsg}" rendered="#{PrivateMessagesTool.displayHiddenGroupsMsg}" />
 
-		  <h:panelGrid styleClass="jsfFormTable" columns="2">
+		  <h:panelGrid styleClass="jsfFormTable composeFormTable" columns="2">
 			  <h:panelGroup styleClass="shorttext required">
 					 <h:outputLabel for="list1"><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_to}"/></h:outputLabel>
 			  </h:panelGroup>
