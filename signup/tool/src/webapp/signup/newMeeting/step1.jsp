@@ -178,34 +178,35 @@
                 
                 <%-- description, rich text --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-12 form-control-label"  escape="false"/>
-                    <div class="col-lg-12">
+                    <h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-2 form-control-label"  escape="false"/>
+                    <div class="col-lg-10">
                         <sakai:rich_text_area value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" columns="80" />
                     </div>
                 </div>
 
                 <%-- attachments --%>
-                <div>
-                    <h:panelGroup>
-                        <t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
-                            <t:column>
-                                    <%@ include file="/signup/common/mimeIcon.jsp" %>
-                                    </t:column>
-                            <t:column>
-                                <h:outputLink  value="#{attach.location}" target="new_window">
-                                    <h:outputText value="#{attach.filename}"/>
-                                </h:outputLink>
-                            </t:column>
-                            <t:column>
-                                <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
-                            </t:column>
-                        </t:dataTable>
+                <div class="form-group row">
+                    <div class="col-lg-10 col-lg-offset-2">
+                        <h:panelGroup>
+                            <t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
+                                <t:column>
+                                        <%@ include file="/signup/common/mimeIcon.jsp" %>
+                                        </t:column>
+                                <t:column>
+                                    <h:outputLink  value="#{attach.location}" target="new_window">
+                                        <h:outputText value="#{attach.filename}"/>
+                                    </h:outputLink>
+                                </t:column>
+                                <t:column>
+                                    <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+                                </t:column>
+                            </t:dataTable>
 
-                        <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>        
-                        <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>                            
-                    </h:panelGroup>
+                            <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>        
+                            <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>                            
+                        </h:panelGroup>
+                    </div>
                 </div>
-
                 <%-- Start time --%>
                 <div class="form-group row ">
                     <h:outputLabel value="#{msgs.event_start_time}" for="startTime"  escape="false" styleClass="col-lg-2 form-control-label form-required"/>
