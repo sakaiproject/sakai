@@ -50,6 +50,17 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		autoHeight: false,
 		collapsible: true,
 		heightStyle: "content",
+		activate: function( event, ui ) {
+			if(ui.newHeader[0]){
+				if($("#" + iframId, window.parent.document).parents('html, body').size() > 0){
+					//we are in the portal, grab parent
+					$("#" + iframId, window.parent.document).parents('html, body').animate({scrollTop: $(ui.newHeader[0]).offset().top});
+				}else{
+					//we are in tool view w/o portal, grab html/body
+					$('html, body').animate({scrollTop: $(ui.newHeader[0]).offset().top});
+				}
+			}
+		}
 	});
 	if(isInstructor){
 		$( "#accordion span" ).sortable({
@@ -234,11 +245,9 @@ function setupEditable(msgs, iframId){
 					$(".editable-submit").click(function(event) {
 						editorClick(event);
 					});
-					var toolTipLeft = $("#loading").closest(".ui-tooltip").position().left;
-					var accordionLeft = $( "#accordion" ).position().left;
-					var moveLeft = toolTipLeft - accordionLeft - 50;
-					$("#loading").closest(".ui-tooltip").animate({left: "-=" + moveLeft, top: (topOffset)}, 10);
-					var width = $( "#accordion" ).width() - 100;
+					$(".ui-tooltip").addClass('positionModal');
+					$("#loading").closest(".ui-tooltip").animate({left: 0, top: 0}, 10);
+					var width = $( ".positionModal" ).width();
 					sakai.editor.launch("textAreaWysiwyg" + editorIndex, {}, width, 300);
 					editorIndex++;
 					$(".editable-buttons").css({"display":"block", "margin-left":"0px","margin-top":"7px"});
@@ -374,12 +383,12 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 		if(action === "publish"){
 			//toggle the draft class
 			if(status){
-				$(this).closest('.ui-accordion-header').find(".editItemTitle").parent().removeClass("draft");
-				$(this).closest('.ui-accordion-header').find( ".draftTitlePrefix " ).remove();
+				$(this).parent().find(".editItemTitle").parent().removeClass("draft");
+				$(this).parent().find( ".draftTitlePrefix " ).remove();
 			}else{
-				$(this).closest('.ui-accordion-header').find(".editItemTitle").parent().addClass("draft");
+				$(this).parent().find(".editItemTitle").parent().addClass("draft");
 				var span = "<span class='draftTitlePrefix'>" + msgs.draftTitlePrefix + "</span>";
-				$(this).closest('.ui-accordion-header').find(".editItemTitle").parent().prepend( span );
+				$(this).parent().find(".editItemTitle").parent().prepend( span );
 			}
 		}
 		
