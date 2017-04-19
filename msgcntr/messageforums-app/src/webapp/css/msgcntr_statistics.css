@@ -5,3 +5,7 @@
 {
 	font-size: 1em !important;
 }
+.itemNav.specialLink input[type="submit"]:last-child
+{
+	margin-right: 0;
+}
