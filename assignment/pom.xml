@@ -24,12 +24,12 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>${project.groupId}</groupId>
+        <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>sakai-assignment-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>${project.groupId}</groupId>
+        <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>sakai-assignment-bundles</artifactId>
         <version>${project.version}</version>
       </dependency>

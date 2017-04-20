@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -90,7 +91,7 @@ public class GradeSheetExporter {
 
         // does current user allowed to grade any assignment?
         boolean allowGradeAny = false;
-        List<Assignment> assignmentsList = assignmentService.getListAssignmentsForContext(idSite);
+        Collection<Assignment> assignmentsList = assignmentService.getAssignmentsForContext(idSite);
         for (Assignment assignment : assignmentsList) {
             if (assignmentService.allowGradeSubmission(new AssignmentEntity(assignment).getReference())) {
                 allowGradeAny = true;

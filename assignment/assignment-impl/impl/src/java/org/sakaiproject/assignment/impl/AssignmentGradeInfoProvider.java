@@ -136,7 +136,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
 
     public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
         List<String> externalIds = new ArrayList<String>();
-        List<Assignment> assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
+        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(gradebookUid);
         for (Assignment a : assignments) {
             externalIds.add(new AssignmentEntity(a).getReference());
         }
@@ -151,7 +151,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider, 
         // the AssignmentService interface.
 
         List<String> externalIds = new ArrayList<String>();
-        List<Assignment> assignments = assignmentService.getListAssignmentsForContext(gradebookUid);
+        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(gradebookUid);
         for (Assignment a : assignments) {
             externalIds.add(new AssignmentEntity(a).getReference());
         }

@@ -23,6 +23,7 @@ package org.sakaiproject.assignment.impl;
 
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import org.junit.Assert;
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -53,7 +55,6 @@ import lombok.extern.slf4j.Slf4j;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {AssignmentTestConfiguration.class})
 public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
-
     @Mock SecurityService securityService;
     @Mock SessionManager sessionManager;
 
@@ -98,7 +99,45 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(assignmentId, assignment.getId());
     }
 
+    @Test
+    public void getAssignmentsForContext() {
+        String context = createNewAssignment();
+        Collection assignments = assignmentService.getAssignmentsForContext(context);
+        Assert.assertNotNull(assignments);
+        Assert.assertEquals(1, assignments.size());
+    }
+
+    @Test
+    public void getAssignmentStatus() {
+        String context = createNewAssignment();
+        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(context);
+        Assert.assertEquals(1, assignments.size());
+        Assignment assignment = assignments.toArray(new Assignment[]{})[0];
+        String assignmentId = assignment.getId();
+        assignment.setDraft(Boolean.TRUE);
+
+        AssignmentConstants.Status status = null;
+        try {
+            assignmentService.updateAssignment(assignment);
+            status = assignmentService.getAssignmentCannonicalStatus(assignmentId);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertEquals(AssignmentConstants.Status.DRAFT, status);
+    }
+
+    private String createNewAssignment() {
+        String context = UUID.randomUUID().toString();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, getTestAccessPoint(context))).thenReturn(true);
+        try {
+            assignmentService.addAssignment(context);
+        } catch (PermissionException e) {
+            Assert.fail(e.getMessage());
+        }
+        return context;
+    }
+
     private String getTestAccessPoint(String context) {
-        return AssignmentServiceConstants.REFERENCE_ROOT + Entity.SEPARATOR + "c" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+        return AssignmentServiceConstants.REFERENCE_ROOT + Entity.SEPARATOR + context;
     }
 }

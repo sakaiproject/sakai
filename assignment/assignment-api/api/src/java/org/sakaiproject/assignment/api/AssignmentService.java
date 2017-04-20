@@ -378,6 +378,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public AssignmentSubmission editSubmission(String id) throws IdUnusedException, PermissionException, InUseException;
 
+    void updateAssignment(Assignment assignment) throws IdUnusedException, PermissionException;
+
     /**
      * Commit the changes made to a AssignmentSubmission object, and release the lock. The AssignmentSubmission is disabled, and not to be used after this call.
      *
@@ -419,7 +421,7 @@ public interface AssignmentService extends EntityProducer {
      * @throws IdUnusedException
      * @throws PermissionException
      */
-    public String getAssignmentStatus(String assignmentId) throws IdUnusedException, PermissionException;
+    public AssignmentConstants.Status getAssignmentCannonicalStatus(String assignmentId) throws IdUnusedException, PermissionException;
 
     /**
      * Access the AssignmentSubmission with the specified id.
@@ -433,32 +435,13 @@ public interface AssignmentService extends EntityProducer {
     public AssignmentSubmission getSubmission(String submissionId) throws IdUnusedException, PermissionException;
 
     /**
-     * Access all the Assignemnts associated with the context.
-     *
-     * @param context -
-     *                Describes the portlet context - generated with DefaultId.getChannel().
-     * @return Iterable over all the Assignments associated with a group.
-     */
-    public Iterable<Assignment> getAssignmentsForContext(String context);
-
-    /**
-     * Access all the Assignemnts associated with the context and accesible by the user
-     *
-     * @param context -
-     *                Describes the portlet context - generated with DefaultId.getChannel().
-     * @param userId  The user id
-     * @return Iterator over all the Assignments associated with a group.
-     */
-    public Iterator getAssignmentsForContext(String context, String userId);
-
-    /**
      * Access all the Assignemnts that are not deleted and self-drafted ones
      *
      * @param context -
      *                Describes the portlet context - generated with DefaultId.getChannel().
      * @return List All the Assignments will be listed
      */
-    public List<Assignment> getListAssignmentsForContext(String context);
+    public Collection<Assignment> getAssignmentsForContext(String context);
 
     /**
      * Retrieve a map of Assignments to a list of User IDs of those who

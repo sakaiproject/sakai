@@ -199,9 +199,13 @@ public final class AssignmentConstants {
 	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION_LOW = "assignment_opendate_notification_low";
 	public static final String ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH = "assignment_opendate_notification_high";
 
-
-
-
+	public enum Status {
+		DRAFT,
+		NOT_OPEN,
+		OPEN,
+		CLOSED,
+		DUE
+	}
 
 	/** number of times that the submission is allowed to resubmit */
 	public static final String ALLOW_RESUBMIT_NUMBER = "allow_resubmit_number";

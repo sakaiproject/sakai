@@ -87,6 +87,7 @@ public class AssignmentTestConfiguration {
     public AssignmentService assignmentService() {
         AssignmentServiceImpl assignmentService = new AssignmentServiceImpl();
         assignmentService.setAssignmentRepository(assignmentRepository());
+        // Add default mocks which can be overidden in the Test
         assignmentService.setSecurityService(Mockito.mock(SecurityService.class));
         assignmentService.setEventTrackingService(Mockito.mock(EventTrackingService.class));
         assignmentService.setSessionManager(Mockito.mock(SessionManager.class));

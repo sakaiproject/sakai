@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.taggable.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -101,8 +102,7 @@ public class AssignmentActivityProducerImpl implements
 			TaggingProvider provider) {
 		// We aren't picky about the provider, so ignore that argument.
 		List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
-		List<Assignment> assignments = assignmentService
-				.getListAssignmentsForContext(context);
+		Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(context);
 		for (Assignment assignment : assignments) {
 			activities.add(getActivity(assignment));
 		}

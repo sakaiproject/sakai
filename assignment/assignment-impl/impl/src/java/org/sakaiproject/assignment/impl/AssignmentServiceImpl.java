@@ -60,6 +60,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -70,6 +71,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -225,11 +227,11 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public boolean allowAddAssignment(String context) {
-        String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "c" + Entity.SEPARATOR + context + Entity.SEPARATOR;
-        log.debug("Allow assignment with resource string = {}", resourceString);
+        String reference = getAccessPoint(true) + Entity.SEPARATOR + context;
+        log.debug("Allow assignment with context = {}", reference);
 
         // check security (throws if not permitted)
-        if (unlockCheck(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT, resourceString)) {
+        if (unlockCheck(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT, reference)) {
             return true;
         }
 
@@ -380,6 +382,23 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public void updateAssignment(Assignment assignment) throws IdUnusedException, PermissionException {
+        Assert.notNull(assignment, "Assignment cannot be null");
+        Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
+
+        // security check
+        if (!allowAddAssignment(assignment.getContext())) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT, null);
+        }
+
+        if (assignmentRepository.exists(assignment.getId())) {
+            assignmentRepository.save(assignment);
+        } else {
+            throw new IdUnusedException(assignment.getId());
+        }
+    }
+
+    @Override
     public void commitEdit(AssignmentSubmission submission) {
 
     }
@@ -396,8 +415,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException {
-        log.debug("GET ASSIGNMENT : REF : {}", assignmentId);
-
+        log.debug("GET ASSIGNMENT : ID : {}", assignmentId);
 
         Assignment assignment = assignmentRepository.findAssignment(assignmentId);
         if (assignment == null) throw new IdUnusedException(assignmentId);
@@ -409,8 +427,22 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public String getAssignmentStatus(String assignmentId) throws IdUnusedException, PermissionException {
-        return null;
+    public AssignmentConstants.Status getAssignmentCannonicalStatus(String assignmentId) throws IdUnusedException, PermissionException {
+        Assignment assignment = getAssignment(assignmentId);
+        ZonedDateTime currentTime = ZonedDateTime.now();
+
+        // TODO these status's should be an enum and translation should occur in tool
+        if (assignment.getDraft()) {
+            return AssignmentConstants.Status.DRAFT;
+        } else if (assignment.getOpenDate().toInstant().isAfter(currentTime.toInstant())) {
+            return AssignmentConstants.Status.NOT_OPEN;
+        } else if (assignment.getDueDate().toInstant().isAfter(currentTime.toInstant())) {
+            return AssignmentConstants.Status.OPEN;
+        } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().toInstant().isBefore(currentTime.toInstant()))) {
+            return AssignmentConstants.Status.CLOSED;
+        } else {
+            return AssignmentConstants.Status.DUE;
+        }
     }
 
     @Override
@@ -419,18 +451,27 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public Iterable<Assignment> getAssignmentsForContext(String context) {
-        return null;
-    }
+    public Collection<Assignment> getAssignmentsForContext(String context) {
+        log.debug("GET ASSIGNMENTS : CONTEXT : {}", context);
+        List<Assignment> assignments = new ArrayList<>();
+        if (StringUtils.isBlank(context)) return assignments;
 
-    @Override
-    public Iterator getAssignmentsForContext(String context, String userId) {
-        return null;
-    }
+        for (Assignment assignment : assignmentRepository.findAssignmentsBySite(context)) {
+            String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+            if (StringUtils.isBlank(deleted)) {
+                // not deleted, show it
+                if (assignment.getDraft()) {
+                    if (isDraftAssignmentVisible(assignment, context)) {
+                        // only those who can see a draft assignment
+                        assignments.add(assignment);
+                    }
+                } else {
+                    assignments.add(assignment);
+                }
+            }
+        }
 
-    @Override
-    public List<Assignment> getListAssignmentsForContext(String context) {
-        return null;
+        return assignments;
     }
 
     @Override
@@ -580,17 +621,67 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception {
-        return null;
+        Assignment a = getAssignment(assignmentId);
+
+        String assignmentContext = a.getContext(); // assignment context
+        if (allowReadAssignment && a.getOpenDate().toInstant().isBefore(ZonedDateTime.now().toInstant())) {
+            // this checks if we want to display an assignment link
+            try {
+                Site site = siteService.getSite(assignmentContext);
+                // site id
+                ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+                // Three different urls to be rendered depending on the
+                // user's permission
+                if (allowAddAssignment) {
+                    return serverConfigurationService.getPortalUrl()
+                            + "/directtool/"
+                            + fromTool.getId()
+                            + "?assignmentId=" + assignmentId + "&assignmentReference="
+                            + new AssignmentEntity(a).getReference()
+                            + "&panel=Main&sakai_action=doView_assignment";
+                } else if (allowSubmitAssignment) {
+                    return serverConfigurationService.getPortalUrl()
+                            + "/directtool/"
+                            + fromTool.getId()
+                            + "?assignmentId=" + assignmentId + "&assignmentReference="
+                            + new AssignmentEntity(a).getReference()
+                            + "&panel=Main&sakai_action=doView_submission";
+                } else {
+                    // user can read the assignment, but not submit, so
+                    // render the appropriate url
+                    return serverConfigurationService.getPortalUrl()
+                            + "/directtool/"
+                            + fromTool.getId()
+                            + "?assignmentId=" + assignmentId + "&assignmentReference="
+                            + new AssignmentEntity(a).getReference()
+                            + "&panel=Main&sakai_action=doView_assignment_as_student";
+                }
+            } catch (IdUnusedException e) {
+                // No site found
+                throw new IdUnusedException("No site found while creating assignment url");
+            }
+        }
+        return "";
     }
 
     @Override
     public String getDeepLink(String context, String assignmentId) throws Exception {
-        return null;
+        boolean allowReadAssignment = allowGetAssignment(context);
+        boolean allowAddAssignment = allowAddAssignment(context);
+        boolean allowSubmitAssignment = allowAddSubmission(context);
+
+        return getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment);
     }
 
     @Override
     public String getCsvSeparator() {
-        return null;
+        String defaultSeparator  = ",";
+        //If the decimal separator is a comma
+        if (",".equals(FormattedText.getDecimalSeparator())) {
+            defaultSeparator = ";";
+        }
+
+        return serverConfigurationService.getString("csv.separator", defaultSeparator);
     }
 
     @Override
@@ -781,7 +872,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
 
         if (allowAddAssignment(assignment.getContext())) {
-            // always return for users can add assignent in the context
+            // always return for users that can add assignment in the context
             return assignment;
         } else if (isAvailableOrSubmitted(assignment, currentUserId)) {
             return assignment;
@@ -797,7 +888,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             Date openTime = assignment.getOpenDate();
             Date visibleTime = assignment.getVisibleDate();
             if ((openTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(openTime.toInstant(), ZoneId.systemDefault()))
-                        || (visibleTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(visibleTime.toInstant(), ZoneId.systemDefault()))))
+                    || (visibleTime != null && LocalDateTime.now().isAfter(LocalDateTime.ofInstant(visibleTime.toInstant(), ZoneId.systemDefault()))))
                     && !assignment.getDraft()) {
                 return true;
             }
@@ -810,5 +901,10 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         }
         return false;
+    }
+
+    private boolean isDraftAssignmentVisible(Assignment assignment, String context) {
+        return assignment.getAuthors().contains(userDirectoryService.getCurrentUser().getId()) // the creator can see it
+                || (unlockCheck(AssignmentServiceConstants.SECURE_SHARE_DRAFTS, siteService.siteReference(context))); // any role user with share draft permission
     }
 }

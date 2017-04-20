@@ -71,15 +71,15 @@ public class Assignment {
     @Column(name = "INSTRUCTIONS")
     private String instructions;
 
-    @Column(name = "CONTEXT")
+    @Column(name = "CONTEXT", nullable = false)
 	private String context;
 
     @Column(name = "SECTION")
 	private String section;
 
-    @Column(name = "CREATE_DATE")
+    @Column(name = "CREATE_DATE", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated;
+    private Date dateCreated = new Date();
 
     @Column(name = "MODIFIED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
@@ -110,14 +110,14 @@ public class Assignment {
     @Column(name = "AUTHOR")
 	private Set<String> authors = new HashSet<>();
 
-    @Column(name = "DRAFT")
-	private Boolean draft;
+    @Column(name = "DRAFT", nullable = false)
+	private Boolean draft = Boolean.FALSE;
 
     @Column(name = "HIDE_DUE_DATE")
-	private Boolean hideDueDate;
+	private Boolean hideDueDate = Boolean.FALSE;
 
     @Column(name = "IS_GROUP")
-	private Boolean isGroup;
+	private Boolean isGroup = Boolean.FALSE;
 
     @Column(name = "POSITION")
 	private Integer position;
@@ -142,11 +142,11 @@ public class Assignment {
     private Set<String> attachments = new HashSet<>();
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "ACCESS")
+    @Column(name = "ACCESS", nullable = false)
 	private Access access = Access.SITE;
 
     @Column(name = "HONOR_PLEDGE")
-    private Boolean honorPledge;
+    private Boolean honorPledge = Boolean.FALSE;
 
     @Enumerated
     @Column(name = "SUBMISSION_TYPE")
@@ -169,13 +169,13 @@ public class Assignment {
     private Boolean individuallyGraded;
 
     @Column(name = "RELEASE_GRADES")
-    private Boolean releaseGrades;
+    private Boolean releaseGrades = Boolean.FALSE;
 
     @Column(name = "ALLOW_ATTACHMENTS")
     private Boolean allowAttachments;
 
     @Column(name = "ALLOW_PEER_ASSESSMENT")
-	private Boolean allowPeerAssessment;
+	private Boolean allowPeerAssessment = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
     @Temporal(TemporalType.TIMESTAMP)
@@ -185,7 +185,7 @@ public class Assignment {
 	private Boolean peerAssessmentAnonEval;
 
     @Column(name = "PEER_ASSESSMENT_STUDENT_VIEW_REVIEW")
-	private Boolean peerAssessmentStudentViewReview;
+	private Boolean peerAssessmentStudentViewReview = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
 	private Integer peerAssessmentNumberReviews;

@@ -17859,7 +17859,7 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			Session session = sessionManager.getCurrentSession();
-			rv = assignmentService.getAssignmentStatus(assignmentId);
+			rv = assignmentService.getAssignmentCannonicalStatus(assignmentId);
 		}
 		catch (IdUnusedException e)
 		{
