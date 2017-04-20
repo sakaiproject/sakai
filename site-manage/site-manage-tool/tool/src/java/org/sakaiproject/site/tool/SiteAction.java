@@ -11668,6 +11668,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		boolean homeSelected = false;
 		// lti tool selection
 		boolean needsLtiConfig = false;
+		String siteId = getStateSite(state) == null? UUID.randomUUID().toString(): getStateSite(state).getId();
 
 		// Add new pages and tools, if any
 		if (params.getStrings("selectedTools") == null && params.getStrings("selectedLtiTools") == null) {
@@ -11687,8 +11688,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				else if (toolId.startsWith(LTITOOL_ID_PREFIX))
 				{
 					String ltiToolId = toolId.substring(LTITOOL_ID_PREFIX.length());
-					Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
-					String[] contentToolModel = m_ltiService.getContentModel(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
+					Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(ltiToolId), siteId);
+					String[] contentToolModel = m_ltiService.getContentModel(Long.valueOf(ltiToolId), siteId);
 					// whether there is any lti tool been selected
 					if (existingLtiIds == null)
 					{
