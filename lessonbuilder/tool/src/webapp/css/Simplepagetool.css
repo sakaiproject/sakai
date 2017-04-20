@@ -1458,7 +1458,7 @@ position:absolute;
 background-color:#eee;
 top:-5px;
 right:-8px;
-z-index: 900;
+z-index: 15;
 -webkit-border-radius: 3px;
 -moz-border-radius: 3px;
 border-radius: 3px;
@@ -1572,7 +1572,7 @@ background: none !important;
 .sectionedit {
    display:inline-block;
    background-color:#ddd;
-   z-index: 900;
+   z-index: 15;
    -webkit-border-radius: 3px;
    -moz-border-radius: 3px;
    border-radius: 3px;
