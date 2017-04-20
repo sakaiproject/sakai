@@ -1,7 +1,7 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody specialLink">
 	<h3>
-		$tlang.getString("create.urls")
+		$tlang.getString("create.url")
 	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>

@@ -82,7 +82,7 @@ public class UrlResourceType extends BaseResourceType
 	
 	public UrlResourceType()
 	{		
-		actions.put(CREATE, new BaseInteractionAction(CREATE, ActionType.NEW_URLS, typeId, helperId, localizer("create.urls")));
+		actions.put(CREATE, new BaseInteractionAction(CREATE, ActionType.NEW_URLS, typeId, helperId, localizer("create.url")));
 		actions.put(REVISE_CONTENT, new BaseInteractionAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
 		actions.put(ACCESS_PROPERTIES, new BaseServiceLevelAction(ACCESS_PROPERTIES, ActionType.VIEW_METADATA, typeId, false, localizer("action.access")));
 		actions.put(REVISE_METADATA, new BaseServiceLevelAction(REVISE_METADATA, ActionType.REVISE_METADATA, typeId, false, localizer("action.props")));

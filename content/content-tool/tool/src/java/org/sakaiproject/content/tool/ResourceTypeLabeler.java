@@ -51,7 +51,7 @@ public class ResourceTypeLabeler
 					label = ResourcesAction.trb.getString("create.folder");
 					break;
 				case NEW_URLS:
-					label = ResourcesAction.trb.getString("create.urls");
+					label = ResourcesAction.trb.getString("create.url");
 					break;
 				case CREATE:
 					ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
