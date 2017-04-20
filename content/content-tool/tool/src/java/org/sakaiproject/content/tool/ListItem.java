@@ -370,6 +370,7 @@ public class ListItem
 	protected String expandLabel;
 	protected String accessUrl;
 	protected String iconLocation;
+	protected String iconClass;
 	protected String mimetype;
 	protected String resourceType;
 	protected ResourceType resourceTypeDef = null;
@@ -617,9 +618,11 @@ public class ListItem
 		{
 			this.hoverText = typeDef.getLocalizedHoverText(entity);
 			this.iconLocation = typeDef.getIconLocation(entity);
+			this.iconClass = typeDef.getIconClass(entity);
 			if(typeDef.isExpandable())
 			{
 				this.expandIconLocation = ((ExpandableResourceType) typeDef).getIconLocation(this.entity, this.isExpanded);
+				this.iconClass = ((ExpandableResourceType) typeDef).getIconClass(this.entity, this.isExpanded);
 				this.expandLabel = ((ExpandableResourceType) typeDef).getLocalizedHoverText(this.entity, this.isExpanded);
 			}
 			String[] args = { typeDef.getLabel() };
@@ -728,6 +731,10 @@ public class ListItem
 			else if(this.iconLocation == null)
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+			}
+			if(this.iconClass == null && this.mimetype != null)
+			{ 
+				this.iconClass = ContentTypeImageService.getContentTypeImageClass(this.mimetype);
 			}
 			if (SecurityService.isSuperUser())
 			{
@@ -1015,6 +1022,7 @@ public class ListItem
 		{
 			this.hoverText = resourceTypeDef.getLocalizedHoverText(null);
 			this.iconLocation = resourceTypeDef.getIconLocation(this.entity);
+			this.iconClass = resourceTypeDef.getIconClass(this.entity);
 			String[] args = { resourceTypeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 			// NOTE: Don't do this at home kids, this is hackery of the worst order!
@@ -1057,6 +1065,10 @@ public class ListItem
 			else if(this.iconLocation == null)
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+			}
+			if(this.iconClass == null && this.mimetype != null)
+			{ 
+				this.iconClass = ContentTypeImageService.getContentTypeImageClass(this.mimetype);
 			}
 			String size = "";
 			if(pipe.getContent() != null)
@@ -2344,6 +2356,14 @@ public class ListItem
 	{
 		return this.iconLocation;
 	}
+	
+	/**
+	 * @return the iconClass
+	 */
+	public String getIconClass()
+	{
+		return this.iconClass;
+	}
 
 	/**
 	 * @return
@@ -2948,6 +2968,7 @@ public class ListItem
     	if(this.resourceTypeDef != null && this.resourceTypeDef instanceof ExpandableResourceType)
     	{
  			this.expandIconLocation = ((ExpandableResourceType) resourceTypeDef).getIconLocation(this.entity, this.isExpanded);
+ 			this.iconClass = ((ExpandableResourceType) resourceTypeDef).getIconClass(this.entity, this.isExpanded);
 			this.expandLabel = ((ExpandableResourceType) resourceTypeDef).getLocalizedHoverText(this.entity, this.isExpanded);
 		}
     }
@@ -3007,6 +3028,14 @@ public class ListItem
 	public void setIconLocation(String iconLocation)
 	{
 		this.iconLocation = iconLocation;
+	}
+	
+	/**
+	 * @param iconClass the iconClass to set
+	 */
+	public void setIconClass(String iconClass)
+	{
+		this.iconClass = iconClass;
 	}
 
 	/**

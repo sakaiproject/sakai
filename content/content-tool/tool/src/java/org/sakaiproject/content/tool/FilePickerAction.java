@@ -484,6 +484,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					ResourceType typedef = registry.getType(typeId);
 					item.setHoverText(typedef.getLocalizedHoverText(resource));
 					item.setIconLocation(typedef.getIconLocation(resource));
+					item.setIconClass(typedef.getIconClass(resource));
 					new_items.add(item);
 				}
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
@@ -1039,6 +1040,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				ResourceType typedef = registry.getType(typeId);
 				item.setHoverText(typedef.getLocalizedHoverText(res));
 				item.setIconLocation(typedef.getIconLocation(res));
+				item.setIconClass(typedef.getIconClass(res));
 				
 				new_items.add(item);
             }
@@ -1320,6 +1322,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					ResourceType typedef = registry.getType(typeId);
 					item.setHoverText(typedef.getLocalizedHoverText(attachment));
 					item.setIconLocation(typedef.getIconLocation(attachment));
+					item.setIconClass(typedef.getIconClass(attachment));
 					new_items.add(item);
 					disableSecurityAdvisors();
 					
@@ -1444,6 +1447,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			ResourceType typedef = registry.getType(typeId);
 			item.setHoverText(typedef.getLocalizedHoverText(attachment));
 			item.setIconLocation(typedef.getIconLocation(attachment));
+			item.setIconClass(typedef.getIconClass(attachment));
 			new_items.add(item);
 			disableSecurityAdvisors();
 			toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
@@ -1748,6 +1752,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				item.setResourceType(typeId);
 				item.setHoverText(typedef.getLocalizedHoverText(resource));
 				item.setIconLocation(typedef.getIconLocation(resource));
+				item.setIconClass(typedef.getIconClass(resource));
 				new_items.add(item);
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 				disableSecurityAdvisors();
@@ -1888,6 +1893,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				ResourceType typedef = registry.getType(typeId);
 				item.setHoverText(typedef.getLocalizedHoverText(res));
 				item.setIconLocation(typedef.getIconLocation(res));
+				item.setIconClass(typedef.getIconClass(res));
 				
 				new_items.add(item);
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
@@ -2144,6 +2150,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					ResourceType typedef = registry.getType(typeId);
 					new_item.setHoverText(typedef.getLocalizedHoverText(resource));
 					new_item.setIconLocation(typedef.getIconLocation(resource));
+					new_item.setIconClass(typedef.getIconClass(resource));
 					
 					List new_items = (List) toolSession.getAttribute(STATE_ADDED_ITEMS);
 					if(new_items == null)
@@ -2644,6 +2651,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		protected String m_resourceType;
 		protected String hoverText;
 		protected String iconLocation;
+		protected String iconClass;
 
 		/**
 		 * @param id
@@ -2808,6 +2816,28 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
         	this.iconLocation = iconLocation;
         }
+		
+		public String getIconClass()
+		{
+			return iconClass;
+		}
+
+		public void setIconClass(String iconClass)
+		{
+			if(iconClass == null)
+			{
+				ContentTypeImageService imageService = (ContentTypeImageService) ComponentManager.get("org.sakaiproject.content.api.ContentTypeImageService");
+				if(this.m_contentType == null)
+				{
+					iconClass = imageService.getContentTypeImageClass("application/binary");
+				}
+				else
+				{
+					iconClass = imageService.getContentTypeImageClass(this.m_contentType);
+				}
+			}
+			this.iconClass = iconClass;
+		}
 
 	}	// Inner class AttachItem
 	

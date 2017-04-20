@@ -83,7 +83,17 @@ public interface ResourceType
 	 * @return A path to the icon relative to the root of the image library in
 	 * "/reference/library/src/webapp/image/", or null
 	 */
+	@Deprecated
 	public String getIconLocation(ContentEntity entity);
+	
+	/**
+	 * Same as getIconLocation, but retrieves its font-awesome icon class
+	 * 
+	 * @param entity The entity for which the class is needed, or null, especially in
+	 * cases where a specific entity has not yet been created. 
+	 * @return A font-awesome icon class, or null
+	 */
+	public String getIconClass(ContentEntity entity);
 	
 	// TODO: types should be able to opt-out of some "properties"
 	// "property" categories: title (always required), description, copyright/licensing, access (groups, public), email-notification, availability  

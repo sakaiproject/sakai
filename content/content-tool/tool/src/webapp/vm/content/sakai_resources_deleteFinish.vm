@@ -27,11 +27,8 @@
 					<tr>
 						<td headers="title">
 							<h4>
-								#if($member.isCollection())
-									<img src = "#imageLink("sakai/dir_closed.gif")" alt="$member.label" />
-								#else
-									<img src = "#imageLink($member.iconLocation)" alt="$member.label" />
-								#end
+								<span class="$member.iconClass" aria-hidden="true"></span>
+								<span class="sr-only">$!member.label</span>
 								<a href="$member.accessUrl" target="_blank">
 									$validator.escapeHtml($member.name)
 								</a>
