@@ -46,7 +46,7 @@ public class AssignmentActionTestTools {
     @Mock
     private AssignmentService assignmentService;
 
-	@Before
+    @Before
     public void setUp() {
         BasicConfigurator.configure();
         PowerMockito.mockStatic(ComponentManager.class);
@@ -63,17 +63,17 @@ public class AssignmentActionTestTools {
         when(ComponentManager.get(SessionManager.class).getCurrentSession()).thenReturn(mock(Session.class));
         when(FormattedText.getDecimalSeparator()).thenReturn(".");
         
-		when(FormattedText.getNumberFormat()).thenReturn(NumberFormat.getInstance(Locale.ENGLISH));
+        when(FormattedText.getNumberFormat()).thenReturn(NumberFormat.getInstance(Locale.ENGLISH));
         assignmentAction = new AssignmentAction();
 
         Mockito.when(ComponentManager.get(AssignmentService.class)).thenReturn(assignmentService);
 
     }
 	
-	//This probably should also be moved from AssignmentAction to a util or something
-	public Integer getScaleFactor(Integer decimals) {		
-		return (int)Math.pow(10.0, decimals);
-	}
+    //This probably should also be moved from AssignmentAction to a util or something
+    public Integer getScaleFactor(Integer decimals) {		
+        return (int)Math.pow(10.0, decimals);
+    }
 
     @Test
     public void testScalePointGrade() {
