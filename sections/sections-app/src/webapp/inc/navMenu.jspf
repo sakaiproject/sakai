@@ -29,7 +29,7 @@
     </h:panelGroup>
 
 	<f:verbatim><li></f:verbatim>
-		<h:panelGroup rendered="#{viewName ne 'roster'}">
+		<h:panelGroup rendered="#{viewName ne 'roster' and viewName ne 'editSection'}">
 			<f:verbatim><span></f:verbatim>
     			<h:commandLink action="roster" immediate="true" >
         			<h:outputText value="#{msgs.student_member}"/>
@@ -37,7 +37,7 @@
     		<f:verbatim></span></f:verbatim>
     	</h:panelGroup>
 
-    	<h:panelGroup styleClass="current" rendered="#{viewName eq 'roster'}">
+    	<h:panelGroup styleClass="current" rendered="#{viewName eq 'roster' or viewName eq 'editSection'}">
     		<h:outputText value="#{msgs.nav_roster}" />
     	</h:panelGroup>
  	<f:verbatim></li></f:verbatim>
