@@ -674,3 +674,10 @@ div.msgcntr-profile-qtip {
 #synopticForm\:myWorkspaceUnread\:myWorkspaceTable .siteHeader{
 	width:60%;
 }
+
+/* Styles for modal */
+.close-button {
+	float: right;
+	cursor: pointer;
+	font-size: 20px !important;
+}
