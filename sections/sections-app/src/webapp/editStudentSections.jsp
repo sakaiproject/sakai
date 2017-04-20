@@ -15,7 +15,7 @@
             </h:outputFormat>
         </h3>
 
-		<t:div styleClass="borderBox">
+		<t:div styleClass="instruction">
             <h:outputFormat value="#{msgs.edit_student_sections_current_sections}">
                 <f:param value="#{editStudentSectionsBean.studentName}"/>
             </h:outputFormat>
