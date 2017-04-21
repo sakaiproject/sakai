@@ -59,9 +59,11 @@
 				</div>
 			#end
 		</div>
+		<!-- Disabled See SAK-32136
 		<p class="act">
 			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
 		</p>
+		-->
 #*
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			<p class="shorttext">
