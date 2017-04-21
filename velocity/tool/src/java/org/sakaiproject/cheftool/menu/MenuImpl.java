@@ -292,6 +292,11 @@ public class MenuImpl implements Menu
 
 	} // getIsField
 
+	public boolean getIsCurrent()
+	{
+		return false;
+	}
+
 	/**
 	 * Adjust by removing any dividers at the start or end.
 	 */

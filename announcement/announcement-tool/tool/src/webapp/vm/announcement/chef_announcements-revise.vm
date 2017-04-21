@@ -54,14 +54,29 @@ function resizeFrame(){
 	});
 </script>	
 <div class="portletBody container-fluid">
+    #if ($isOnWorkspaceTab.equals("false"))
+		#if($menu && $EnabledMenuItemExists)
+			#if ($toolId == "sakai.synoptic.announcement")
+				<ul class="navIntraTool actionToolBar" role="menu">
+					<li class="firstToolBarItem" role="menuitem"><span><a href="#" title="$tlang.getString("gen.recopt")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+						$tlang.getString("custom.options")
+						<span class="skip">$toolTitle</span>
+					</a></span></li>
+				</ul>
+			#else
+				#toolbar($menu)
+			#end
+		#end
+	#end
+
 	<div class="page-header">
-		<h1>
+		<h3>
 		#if ( $newAnn =="true")
 			$tlang.getString("revise.add")
 		#else
 			$tlang.getString("revise.revise")
 		#end
-		</h1>
+		</h3>
 	</div>
 	
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end

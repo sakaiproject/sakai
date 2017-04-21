@@ -1429,16 +1429,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private boolean isOkToShowOptionsButton(String statusName)
 	{
-		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab())
-		{
-			return (statusName == null || statusName.equals(CANCEL_STATUS) || statusName.equals(POST_STATUS)
-					|| statusName.equals(DELETE_ANNOUNCEMENT_STATUS) || statusName.equals(FINISH_DELETING_STATUS)
-					|| statusName.equals("noSelectedForDeletion") || statusName.equals(NOT_SELECTED_FOR_REVISE_STATUS));
-		}
-		else
-		{
-			return false;
-		}
+		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab();
 	}
 
 	/*
@@ -1456,16 +1447,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		if(displayMerge != null && !displayMerge.equals("1"))
 			return false;
 		
-		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab())
-		{
-			return (statusName == null || statusName.equals(CANCEL_STATUS) || statusName.equals(POST_STATUS)
-					|| statusName.equals(DELETE_ANNOUNCEMENT_STATUS) || statusName.equals(FINISH_DELETING_STATUS)
-					|| statusName.equals("noSelectedForDeletion") || statusName.equals(NOT_SELECTED_FOR_REVISE_STATUS));
-		}
-		else
-		{
-			return false;
-		}
+		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()) && !isOnWorkspaceTab();
 	}
 
 	/**
@@ -1473,16 +1455,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 */
 	private boolean isOkToShowPermissionsButton(String statusName)
 	{
-		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
-		{
-			return (statusName == null || statusName.equals(CANCEL_STATUS) || statusName.equals(POST_STATUS)
-					|| statusName.equals(DELETE_ANNOUNCEMENT_STATUS) || statusName.equals(FINISH_DELETING_STATUS)
-					|| statusName.equals("noSelectedForDeletion") || statusName.equals(NOT_SELECTED_FOR_REVISE_STATUS));
-		}
-		else
-		{
-			return false;
-		}
+		return SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext());
 	}
 
 	/**
@@ -3988,10 +3961,11 @@ public class AnnouncementAction extends PagedResourceActionII
 		Properties placementProperties = ToolManager.getCurrentPlacement().getPlacementConfig();
 		String sakaiReorderProperty= serverConfigurationService.getString("sakai.announcement.reorder", "true");
 
+        String statusName = state.getStatus();
+
 		//if (!displayOptions.isShowOnlyOptionsButton()) ##SAK-13434
 		if (displayOptions != null && !displayOptions.isShowOnlyOptionsButton())
 		{
-			String statusName = state.getStatus();
 			if (statusName != null)
 			{
 				if (statusName.equals("showMetadata"))
@@ -4013,40 +3987,51 @@ public class AnnouncementAction extends PagedResourceActionII
 							"doDeleteannouncement"));
 					buttonRequiringCheckboxesPresent = true;
 				}
-				else if (statusName.equals("reorder"))
-				{
-					bar.add(new MenuEntry(rb.getString("java.refresh"), REFRESH_BUTTON_HANDLER));
-				}
 				else
 				{
-					bar.add(new MenuEntry(rb.getString("gen.new"), null, menu_new, MenuItem.CHECKED_NA, "doNewannouncement"));
 					buttonRequiringCheckboxesPresent = true;
 
 				} // if (statusName.equals("showMetadata"))
 			}
 			else
 			{
-				bar.add(new MenuEntry(rb.getString("gen.new"), null, menu_new, MenuItem.CHECKED_NA, "doNewannouncement"));
 				buttonRequiringCheckboxesPresent = true;
 			} // if-else (statusName != null)
-
-			// add merge button, if allowed
-			if (menu_merge)
-			{
-				bar.add(new MenuEntry(rb.getString("java.merge"), MERGE_BUTTON_HANDLER));
-			}
 		} // if-else (!displayOptions.isShowOnlyOptionsButton())
+
+		if (statusName == null) statusName = "view";
+
+		MenuEntry home = new MenuEntry(rb.getString("java.refresh"), REFRESH_BUTTON_HANDLER);
+		if (statusName.equals("view") || statusName.equals(CANCEL_STATUS)) home.setIsCurrent(true);
+		bar.add(home);
+
+		if (menu_new) {
+			MenuEntry add = new MenuEntry(rb.getString("gen.new"), null, menu_new, MenuItem.CHECKED_NA, "doNewannouncement");
+			if (statusName.equals("new")) add.setIsCurrent(true);
+			bar.add(add);
+		}
+
+		if (menu_merge) {
+			MenuEntry merge = new MenuEntry(rb.getString("java.merge"), MERGE_BUTTON_HANDLER);
+			if (statusName.equals(MERGE_STATUS)) merge.setIsCurrent(true);
+			bar.add(merge);
+		}
 		
 		//re-orderer link in the announcementlist view
-		if ((placementProperties.containsKey("enableReorder") && placementProperties.getProperty("enableReorder").equalsIgnoreCase("true")) 
-				&& menu_new && state.getStatus()!="reorder" && state.getStatus()!="showMetadata")
+		MenuEntry reorder = new MenuEntry(rb.getString("java.reorder"), REORDER_BUTTON_HANDLER);
+		if (statusName.equals(REORDER_STATUS)) reorder.setIsCurrent(true);
+		if ((placementProperties.containsKey("enableReorder")
+				&& placementProperties.getProperty("enableReorder").equalsIgnoreCase("true")) 
+				&& menu_new && state.getStatus()!="showMetadata")
 		{
-			bar.add(new MenuEntry(rb.getString("java.reorder"), REORDER_BUTTON_HANDLER));
+			bar.add(reorder);
 		}
-		else if ((!placementProperties.containsKey("enableReorder")|| !placementProperties.getProperty("enableReorder").equalsIgnoreCase("false")) && menu_new && state.getStatus()!="reorder" && state.getStatus()!="showMetadata")
+		else if ((!placementProperties.containsKey("enableReorder")
+					|| !placementProperties.getProperty("enableReorder").equalsIgnoreCase("false"))
+						&& menu_new && state.getStatus() != "showMetadata")
 		{			
 			if (sakaiReorderProperty.equalsIgnoreCase("true")){
-				bar.add(new MenuEntry(rb.getString("java.reorder"), REORDER_BUTTON_HANDLER));
+				bar.add(reorder);
 			}
 		}
 
@@ -4054,6 +4039,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		if (menu_options)
 		{
 			addOptionsMenu(bar, (JetspeedRunData) rundata);
+			MenuEntry options = (MenuEntry) bar.getItem(bar.size() - 1);
+			if (statusName.equals(OPTIONS_STATUS)) options.setIsCurrent(true);
 		}
 
 		// let the permissions button to be the last one in the toolbar
@@ -4065,7 +4052,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				bar.add(new MenuEntry(rb.getString("java.permissions"), PERMISSIONS_BUTTON_HANDLER));
 			}
 		}
-		
+
 		// Set menu state attribute
 		SessionState stateForMenus = ((JetspeedRunData) rundata).getPortletSessionState(portlet.getID());
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);

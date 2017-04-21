@@ -138,6 +138,13 @@ public interface MenuItem
 	 * @return True if the item is a field, false if not.
 	 */
 	boolean getIsField();
+
+	/**
+	 * Access the is-current flag.
+	 * 
+	 * @return True if the item is the currently selected one, false if not.
+	 */
+	boolean getIsCurrent();
 	
 	/**
 	 * Get the optional label that may be set by components to provide accessiblity information, eg alt tags, title attributes etc
