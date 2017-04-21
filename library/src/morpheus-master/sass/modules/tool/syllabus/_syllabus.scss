@@ -81,6 +81,11 @@
     color: grey !important;
   }
 
+  .accordion-items-container {
+    display: block;
+    margin: 20px 0;
+  }
+
   .ui-accordion .ui-accordion-header {
     overflow: auto !important;
     background-color: #D9EEF7;

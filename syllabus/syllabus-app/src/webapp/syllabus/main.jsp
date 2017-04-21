@@ -205,12 +205,9 @@
 							<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
 							<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
 						</div>
-						<br/>
-						<br/>
-						<br/>
 						<div id="accordion">
 					</f:verbatim>
-					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple">
+					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple" styleClass="accordion-items-container">
 						<f:verbatim><div><div class="group" syllabusItem="</f:verbatim>
 						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
 						<f:verbatim>"><h3></f:verbatim>
