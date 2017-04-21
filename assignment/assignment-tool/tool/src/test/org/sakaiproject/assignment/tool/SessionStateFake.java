@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Simple SessionState that just uses a map.
+ * Fake SessionState that just uses a map.
  */
-public class SessionStateMap implements SessionState {
+public class SessionStateFake implements SessionState {
     private Map<String, Object> map = new HashMap<>();
 
     @Override
