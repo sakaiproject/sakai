@@ -29,7 +29,7 @@ public class SpringBeanLocator
   // This is needed because this bean allows the service to get at beans in the tool
   // The job scheduler can run before the webapp has been started and therefore can
   // attempt to get beans out of the tool before the tool has been started up.
-  private static Object waitLock = new Object();
+  private static final Object waitLock = new Object();
   private static ApplicationContext context = null;
 
   public static SpringBeanLocator getInstance()
@@ -56,8 +56,11 @@ public class SpringBeanLocator
       try {
           synchronized (waitLock)
           {
-            // Will release the lock while we are waiting.
-            waitLock.wait();
+              // Should always wait in a loop.
+              while (context == null) {
+                // Will release the lock while we are waiting.
+                waitLock.wait();
+              }
           }
       } catch (InterruptedException e) {
         throw new RuntimeException("Got interrupted waiting for bean to be setup.", e);
