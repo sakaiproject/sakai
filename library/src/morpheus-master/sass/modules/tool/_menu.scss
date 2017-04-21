@@ -114,7 +114,6 @@
 	.inlineForm{
 		display: inline-block;
 		@media #{$phone}{
-			display: table-cell;
 			padding: 0.1em !important;
 			&[name="pagesizeForm"]{
 				text-align: center;
