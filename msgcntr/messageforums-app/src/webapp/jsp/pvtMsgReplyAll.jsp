@@ -218,7 +218,7 @@
   					<h:outputText value="#{msgs.pvt_subject}"  /></h:outputLabel>
   			</h:panelGroup>
   			<h:panelGroup styleClass="shorttext">
-					<h:inputText value="#{PrivateMessagesTool.forwardSubject}" id="subject" size="45">
+					<h:inputText value="#{PrivateMessagesTool.forwardSubject}" id="subject" size="45" styleClass="form-control">
 						<f:validateLength minimum="1" maximum="255"/>
 					</h:inputText>
 				</h:panelGroup>
