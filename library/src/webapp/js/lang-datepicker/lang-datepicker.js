@@ -2359,28 +2359,35 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 			// If we have hidden fields, set them.
 			if(o.ashidden !== undefined) {
 				jQuery.each(o.ashidden, function(i, h) {
+					var oldValue = jQuery('#' + h).val();
+					var newValue = '';
 					switch(i) {
 						case "month":
-						  jQuery('#' + h).val(d.getMonth() + 1);
+						  newValue = d.getMonth() + 1;
 						  break;
 						case "day":
-						  jQuery('#' + h).val(d.getDate());
+						  newValue = d.getDate();
 						  break;
 						case "year":
-						  jQuery('#' + h).val(d.getFullYear());
+						  newValue = d.getFullYear();
 						  break;
 						case "hour":
-						  jQuery('#' + h).val((o.ampm == true) ? moment(d).format('hh') : moment(d).format('HH'));
+						  newValue = (o.ampm == true) ? moment(d).format('hh') : moment(d).format('HH');
 						  break;
 						case "minute":
-						  jQuery('#' + h).val(moment(d).format('mm'));
+						  newValue = moment(d).format('mm');
 						  break;
 						case "ampm":
-						  jQuery('#' + h).val(moment(d).format('A').toLowerCase());
+						  newValue = moment(d).format('A').toLowerCase();
 						  break;
 						case "iso8601":
-						  jQuery('#' + h).val(moment(d).format());
+						  newValue = moment(d).format();
 						  break;
+					}
+					jQuery('#' + h).val(newValue);
+					// If new value is different from the previous one, launch change event on hidden input
+					if (oldValue != newValue) {
+						jQuery('#' + h).change();
 					}
 				});
 			}
