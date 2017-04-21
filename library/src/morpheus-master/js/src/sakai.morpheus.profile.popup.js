@@ -85,7 +85,7 @@ profile.ignoreFriendRequest = function (removerId, friendId) {
  */
 profile.attachPopups = function (jqArray) {
 
-    if (!(jqArray instanceof jQuery)) {
+    if (!(jqArray instanceof $PBJQ)) {
         console.log('profile.attachPopups takes a jQuery object array, from a selector');
         return;
     }
@@ -94,7 +94,7 @@ profile.attachPopups = function (jqArray) {
 
         var userId = this.dataset.userId;
 
-        $(this).qtip({
+        $PBJQ(this).qtip({
             position: { viewport: $(window), adjust: { method: 'flipinvert none'} },
             show: { event: 'click', delay: 0 },
             style: { classes: 'profile-popup-qtip qtip-shadow' },
@@ -102,7 +102,7 @@ profile.attachPopups = function (jqArray) {
             content: {
                 text: function (event, api) {
 
-                    return $.ajax( { url: "/direct/portal/" + userId + "/formatted", cache: false })
+                    return $PBJQ.ajax( { url: "/direct/portal/" + userId + "/formatted", cache: false })
                         .then(function (html) {
                                 return html;
                             }, function (xhr, status, error) {
