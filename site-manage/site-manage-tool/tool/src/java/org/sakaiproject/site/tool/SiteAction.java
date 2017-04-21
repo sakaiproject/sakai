@@ -2901,7 +2901,7 @@ public class SiteAction extends PagedResourceActionII {
 					 String toolId = entry.getKey();
 					// get the proper html for tool input
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
+					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
 					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
 					for(int k=0; k<contentToolModel.length;k++)
 					{
@@ -3943,8 +3943,9 @@ public class SiteAction extends PagedResourceActionII {
 	private void buildLTIToolContextForTemplate(Context context,
 			SessionState state, Site site, boolean updateToolRegistration) {
 		List<Map<String, Object>> visibleTools, allTools;
+		String siteId = site == null? UUID.randomUUID().toString(): site.getId();
 		// get the visible and all (including stealthed) list of lti tools
-		visibleTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
+		visibleTools = m_ltiService.getTools(null,null,0,0, siteId);
 		if (site == null) {
 			allTools = visibleTools;
 		} else {
@@ -3959,16 +3960,16 @@ public class SiteAction extends PagedResourceActionII {
 				List<Map<String, Object>> contents = m_ltiService.getContentsDao(null, null, 0, 0, site.getId(), m_ltiService.isAdmin(site.getId()));
 				for (Map<String, Object> content : contents) {
 					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-					String siteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
+					String ltiSiteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
 					if (siteId != null) {
 						// whether the tool is already enabled in site
 						String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
 						if (StringUtils.trimToNull(pstr) != null) {
 							// the lti tool is enabled in the site
 							ToolConfiguration toolConfig = SiteService.findTool(pstr);
-							if (toolConfig != null && toolConfig.getSiteId().equals(siteId)) {
+							if (toolConfig != null && toolConfig.getSiteId().equals(ltiSiteId)) {
 								Map<String, Object> m = new HashMap<>();
-								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId), siteId);
+								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId), ltiSiteId);
 								if (ltiToolValues != null) {
 									m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
 									m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
@@ -3985,9 +3986,9 @@ public class SiteAction extends PagedResourceActionII {
          // First search list of visibleTools for those not selected (excluding stealthed tools)
 			for (Map<String, Object> toolMap : visibleTools ) {
 				String ltiToolId = toolMap.get("id").toString();
-				String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
-				toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
-				if ( siteId == null || (site != null && siteId.equals(site.getId())))
+				String ltiSiteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
+				toolMap.put("selected", linkedLtiContents.containsKey(ltiSiteId));
+				if ( ltiSiteId == null || (site != null && siteId.equals(site.getId())))
 				{
 					// only show the system-range lti tools (siteId = null)
 					// or site-range lti tools for current site (siteId != null), and current siteId equals to current site's id
