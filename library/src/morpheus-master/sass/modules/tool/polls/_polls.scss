@@ -8,10 +8,11 @@
 	thead{
 		tr{
 			th{
-				background: #A0A0A0;
+				background: #F9F9F9;
+				font-weight: bold;
+				text-decoration: none;
 				a{
-					color: #FFF;
-					text-decoration: none;
+					color: #347EB2;
 				}
 			}
 			.header{
@@ -52,6 +53,7 @@
 			display: table-row;
 			td{
 				display: table-cell;
+				padding: 8px;
 			}
 		}
 		.reset-order {
@@ -116,6 +118,18 @@
 	 				@media #{$phone}{
 						font-size: 12px;
 					}
+		 		}
+		 		&:nth-child(odd) {
+		 			background: #FFFFFF;
+		 			&:hover {
+		 				background-color: #f5f5f5 ;
+		 			}
+		 		}
+		 		&:nth-child(even) {
+		 			background: #F9F9F9;
+		 			&:hover {
+		 				background-color: #f5f5f5 ;
+		 			}
 		 		}
 		 	}
 		 }
