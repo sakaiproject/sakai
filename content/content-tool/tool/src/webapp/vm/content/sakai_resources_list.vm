@@ -407,8 +407,13 @@
 										<span class="$iconDecor">
 										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 									#else
-										<span class="$iconDecor visible-sm-inline visible-xs-inline">
-										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
+										<a class="$iconDecor visible-sm-inline visible-xs-inline" href="#"
+											#if($item.isExpanded())
+												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+											#else
+												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+											#end
+											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a></span>
 										<a class="hidden-sm hidden-xs $iconDecor" href="#"
 											#if($item.isExpanded())
 												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
