@@ -364,10 +364,10 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			this.total++;
 		}
 
-		// build the data with x-axis inverted
-		final ListIterator<String> iter = new ArrayList<>(counts.keySet()).listIterator(counts.size());
-		while(iter.hasPrevious()) {
-			final String c = iter.previous();
+		// build the data
+		final ListIterator<String> iter = new ArrayList<>(counts.keySet()).listIterator(0);
+		while(iter.hasNext()) {
+			final String c = iter.next();
 			data.addValue(counts.get(c), "count", c);
 		}
 
@@ -376,7 +376,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				getString("settingspage.gradingschema.chart.xaxis"), // the label for the category (x) axis
 				getString("label.statistics.chart.yaxis"), // the label for the value (y) axis
 				data, // the dataset for the chart
-				PlotOrientation.VERTICAL, // the plot orientation
+				PlotOrientation.HORIZONTAL, // the plot orientation
 				false, // show legend
 				true, // show tooltips
 				false); // show urls
