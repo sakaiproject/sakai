@@ -1056,7 +1056,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("timeoutDialogWarningSeconds", Integer.valueOf(ServerConfigurationService.getInt("timeoutDialogWarningSeconds", 600)));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
-		
+
+		// Get timestamp of user's last profile update to invalidate old profile pictures in the browser cache
+		String profileLastUpdate = (String) s.getAttribute("profileLastUpdate");
+		rcontext.put("profileLastUpdate", StringUtils.isBlank(profileLastUpdate) ? Long.toString(s.getCreationTime()/1000L) : profileLastUpdate);
+
 		//SAK-29457 Add warning about cookie use
 		String cookieNoticeText = rloader.getFormattedMessage("cookie_notice_text", ServerConfigurationService.getString("portal.cookie.policy.warning.url","/library/content/cookie_policy.html"));
 		rcontext.put("cookieNoticeEnabled", ServerConfigurationService.getBoolean("portal.cookie.policy.warning.enabled",false));
@@ -1864,6 +1868,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				
 				logoutWarningMessage = ServerConfigurationService.getBoolean("portal.logout.confirmation",false)?rloader.getString("sit_logout_warn"):"";
 			}
+			
+			//Set UCT login and peoplsoft links based on user type, e.g. staff, student, thirdparty
+			String userType = UserDirectoryService.getCurrentUser().getType();
+
+			String passwdKey = "passwordUrl." + userType;
+			String psKey = "peoplesoftUrl." + userType;
+			
+			String passwordURL = ServerConfigurationService.getString(passwdKey);
+			String peoplesoftURL = ServerConfigurationService.getString(psKey);
+
+			if (passwordURL != null && !passwordURL.equals("")) {
+				rcontext.put("passwordURL", passwordURL);
+			}
+			if (peoplesoftURL != null && !peoplesoftURL.equals("")) {
+				rcontext.put("peoplesoftURL", peoplesoftURL);
+			}
+
 			rcontext.put("userIsLoggedIn", session.getUserId() != null);
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
 			rcontext.put("logoutWarningMessage", logoutWarningMessage);

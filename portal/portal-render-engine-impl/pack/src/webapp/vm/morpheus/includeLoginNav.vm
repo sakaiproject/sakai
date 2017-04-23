@@ -43,7 +43,6 @@
                     <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
-        #end
 
         <ul id="loginLinks" class="Mrphs-userNav">
 
@@ -58,7 +57,7 @@
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
                                         <div id="loginUser" role="menuitem" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)" tabindex="-1"></a>
+                                            <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profileClassic/${loginUserDispId}/image?_=${profileLastUpdate})" tabindex="-1"></a>
                                             <a href="javascript:void(0);" class="Mrphs-userNav__drop-btn Mrphs-userNav__submenuitem--username">${loginUserFirstName}</a>
                                         </div>
 
@@ -80,7 +79,7 @@
                                         #if (${tabsSites.mrphs_profileToolUrl})
                                             <div class="has-avatar">
                                                 <a class="Mrphs-userNav__submenuitem--profilelink" href="${tabsSites.mrphs_profileToolUrl}">
-                                                    <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserId}/image/thumb)" tabindex="-1"></span>
+                                                    <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profileClassic/${loginUserDispId}/image?_=${profileLastUpdate})" tabindex="-1"></span>
                                                 </a>
                                             </div>
                                             <div class="Mrphs-userNav__submenuitem--profile">
@@ -134,6 +133,26 @@
 
                                     #end ## END of IF (${tabsSites.tutorial})
 
+##Link for password changing
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                    #if (${passwordURL})
+                                            <a role="menuitem" href="${passwordURL}" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
+                                                <span>Change Password</span>
+                                            </a>
+                                    #else
+                                            <a role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--prefs">   ##TODO: determine if tabsSites is accessible in SkinnableCharonPortal.java
+                                                <span>Change Password</span>
+                                            </a>
+                                    #end ## END of IF (${passwordURL})
+                                        </li>
+                                    #if (${peoplesoftURL})
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented Mrphs-userData">
+                                            <a role="menuitem" href="${peoplesoftURL}" target="_blank" class="Mrphs-userNav__submenuitem--prefs">
+                                                <span>PeopleSoft</span>
+                                            </a>
+                                        </li>
+                                    #end  ## END of IF (${peoplesoftURL})
+
                             #end ## END of IF (${site.isMyWorkspace})
 
                         #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
@@ -148,7 +167,10 @@
 
         </ul> <!-- end of nav#loginLinks-->
 
-        ## parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+        #else
+           #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+        #end ## END of Logged In
+
     #else ## ELSE of IF (!${loginTopLogin})
 
         #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
