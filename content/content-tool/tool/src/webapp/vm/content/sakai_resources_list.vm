@@ -241,7 +241,7 @@
             #end
             #if (!$dropboxMode)
               <span class="hidden-sm hidden-xs pull-right">
-                <button style="margin:0" type="button" class="btn btn-default btn-sm dropdown-toggle colPicker" data-toggle="dropdown">
+                <button style="margin:0" type="button" class="btn btn-default btn-sm resources-dropdown colPicker" data-toggle="dropdown">
                   $clang.getString('list.cols.columns')
                   <span class="caret"></span>
                 </button>
@@ -501,7 +501,7 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn resources-dropdown btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>

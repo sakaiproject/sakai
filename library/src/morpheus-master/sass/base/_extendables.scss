@@ -162,6 +162,10 @@
 		color: $button-icon-color;
 	}
 
+	&:focus {
+		outline-color: darken( $button-border-color, 50% ) !important;
+	}
+
 	&:hover{
 		color: $button-hover-text-color !important;
 		text-decoration: none;
