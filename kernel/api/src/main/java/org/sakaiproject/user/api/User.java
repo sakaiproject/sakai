@@ -45,7 +45,7 @@ public interface User extends Entity, Comparable
 
 	/**
 	 * @return the time created.
-	 * @deprecated see {link {@link #getCreatedDate()}
+	 * @deprecated see {@link #getCreatedDate()}
 	 * 
 	 */
 	Time getCreatedTime();
@@ -57,7 +57,7 @@ public interface User extends Entity, Comparable
 
 	/**
 	 * @return the time last modified.
-	 * @deprecated see {link {@link #getModifiedDate()}
+	 * @deprecated see {@link #getModifiedDate()}
 	 */
 	Time getModifiedTime();
 
