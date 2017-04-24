@@ -60,6 +60,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	ListView<GbGradingSchemaEntry> schemaView;
 	List<GradeMappingDefinition> gradeMappings;
 	private boolean expanded;
+	String gradingSchemaName;
 
 	/**
 	 * This is the currently PERSISTED grade mapping id that is persisted for this gradebook
@@ -200,7 +201,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		});
 
-		//get the courser grade map as we are about to use it a lot
+		//get the course grade map as we are about to use it a lot
 		this.courseGradeMap = getCourseGrades();
 
 		// chart
@@ -213,12 +214,18 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		final DescriptiveStatistics stats = calculateStatistics();
 
 		if (this.total > 0) {
+			settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
+				public boolean isVisible() {
+					return StringUtils.equals(gradingSchemaName, "Grade Points");
+				}
+			});
 			settingsGradingSchemaPanel.add(new Label("average", stats.getMean()));
 			settingsGradingSchemaPanel.add(new Label("median", stats.getPercentile(50)));
 			settingsGradingSchemaPanel.add(new Label("lowest", stats.getMin()));
 			settingsGradingSchemaPanel.add(new Label("highest", stats.getMax()));
 			settingsGradingSchemaPanel.add(new Label("deviation", stats.getStandardDeviation()));
 		} else {
+			settingsGradingSchemaPanel.add(new Label("averagegpa", "-"));
 			settingsGradingSchemaPanel.add(new Label("average", "-"));
 			settingsGradingSchemaPanel.add(new Label("median", "-"));
 			settingsGradingSchemaPanel.add(new Label("lowest", "-"));
@@ -298,7 +305,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		Map<String, Double> bottomPercents = new LinkedHashMap<>();
 
 		// note that we sort based on name so we need to pull the right name out of the list of mappings, for both cases
-		final String gradingSchemaName = this.gradeMappings.stream()
+		this.gradingSchemaName = this.gradeMappings.stream()
 				.filter(gradeMapping -> StringUtils.equals(gradeMapping.getId(), this.currentGradeMappingId))
 				.findFirst()
 				.get()
@@ -464,9 +471,37 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		return stats;
 	}
-
-
-
+	
+	/**
+	 * Calculates the average GPA for the course
+	 * @return the average GPA
+	 */
+	private Double getAverageGPA() {
+		
+		if (StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
+			Map<String, Double> gpaScoresMap = new HashMap<>();
+			gpaScoresMap.put("A (4.0)", Double.valueOf("4.0"));
+			gpaScoresMap.put("A- (3.67)", Double.valueOf("3.67"));
+			gpaScoresMap.put("B+ (3.33)", Double.valueOf("3.33"));
+			gpaScoresMap.put("B (3.0)", Double.valueOf("3.0"));
+			gpaScoresMap.put("B- (2.67)", Double.valueOf("2.67"));
+			gpaScoresMap.put("C+ (2.33)", Double.valueOf("2.33"));
+			gpaScoresMap.put("C (2.0)", Double.valueOf("2.0"));
+			gpaScoresMap.put("C- (1.67)", Double.valueOf("1.67"));
+			gpaScoresMap.put("D (1.0)", Double.valueOf("1.0"));
+			gpaScoresMap.put("F (0)", Double.valueOf("0"));	
+			
+			final List<String> mappedGrades = this.courseGradeMap.values().stream().map(c -> (c.getMappedGrade())).collect(Collectors.toList());
+			Double averageGPA = 0.0;
+			for (String mappedGrade : mappedGrades) {
+				averageGPA += gpaScoresMap.get(mappedGrade);
+			}
+			averageGPA /= mappedGrades.size();
+			
+			return averageGPA;
+		} 
+		return null;
+	}
 }
 
 
