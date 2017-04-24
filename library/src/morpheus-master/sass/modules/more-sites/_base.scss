@@ -207,6 +207,7 @@ body.active-more-sites{
 				font-weight: $tool-tab-text-weight;
 				font-size: $tool-tab-text-size;
 				line-height: $tool-tab-height;
+				text-decoration: none;
 				padding: 0;
 				margin: 0;
 			}
@@ -221,12 +222,11 @@ body.active-more-sites{
 		}
 	}
 
-
-        #selectSite-navbar{
+	#selectSite-navbar{
 		overflow: hidden;
 		margin: 0;
 		padding: 0;
-        }
+	}
 
 	.favorites-term-header {
 		color: $all-sites-title-text-color;
