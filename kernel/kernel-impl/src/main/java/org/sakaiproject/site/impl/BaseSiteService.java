@@ -2311,6 +2311,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 							+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 					out.println("<link href=\"" + skinRepo + "/" + skin
 							+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+					out.println(serverConfigurationService().getString("portal.include.extrahead", ""));
+
 					out.println("<title>");
 					out.println(site.getTitle());
 					out.println("</title>");
