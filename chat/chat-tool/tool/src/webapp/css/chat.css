@@ -35,6 +35,28 @@ LABEL.chat-date-label {
     margin-left: 0.5em;
     margin-right: 0.5em;
 }
+.viewoptions-grp {
+    width: 224px;
+    display: block;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 0.5em;
+}
+.msgoptions-grp {
+    width: 360px;
+    display: block;
+    float: left;
+    margin-bottom: 0.5em;
+}
+@media only screen and (max-width: 680px){
+    .msgoptions-grp{
+        width: 100%;
+    }
+    .viewoptions-grp{
+        width: 100%;
+    }
+}
+
 h3 {
    padding-top: 0px;
 }
@@ -44,8 +66,7 @@ h3 {
 .chatListHeadWrapper {
     padding:0px !important;
     margin:0px !important;
-    margin-bottom:0.25em !important;
-    margin-left:0.5em !important;
+    margin-bottom:0.5em !important;
 }
 #chatPresenceWrapper{
    background-image:none;

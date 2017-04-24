@@ -32,18 +32,22 @@
          <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
            <sakai:instruction_message value="#{ChatTool.datesMessage}" rendered="#{ChatTool.datesMessage ne null}" />
            <h:panelGroup styleClass="chat-block">
-              <h:outputLabel for="viewOptions" value="#{msgs.view}" />
-              <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" onchange="this.form.submit();">
-                  <f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
-                  <f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
-                  <f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
-                  <f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
-                  <f:selectItem itemValue="4" itemLabel="#{msgs.uniqueid}" />
-              </h:selectOneMenu> 
-              <h:outputLabel for="messageOptions" value="#{msgs['combox.viewfrom']}" />
-              <h:selectOneMenu id="messageOptions" value="#{ChatTool.messageOptions}" onchange="this.form.submit();">
-                  <f:selectItems value="#{ChatTool.messageOptionsList}" />
-              </h:selectOneMenu>
+              <h:panelGroup styleClass="viewoptions-grp">
+                  <h:outputLabel for="viewOptions" value="#{msgs.view}" />
+                  <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" onchange="this.form.submit();">
+                      <f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
+                      <f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
+                      <f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
+                      <f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
+                      <f:selectItem itemValue="4" itemLabel="#{msgs.uniqueid}" />
+                  </h:selectOneMenu> 
+              </h:panelGroup>
+              <h:panelGroup styleClass="msgoptions-grp">
+                  <h:outputLabel for="messageOptions" value="#{msgs['combox.viewfrom']}" />
+                  <h:selectOneMenu id="messageOptions" value="#{ChatTool.messageOptions}" onchange="this.form.submit();">
+                      <f:selectItems value="#{ChatTool.messageOptionsList}" />
+                  </h:selectOneMenu>
+              </h:panelGroup>
            </h:panelGroup>
 	   <div id="chatLeft">
 			<div id="chatListWrapper" class="chatListWrapper">
