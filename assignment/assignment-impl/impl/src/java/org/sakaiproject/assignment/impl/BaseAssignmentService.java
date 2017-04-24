@@ -11961,7 +11961,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					
 					else if(m_gradeReleased)
 					{
-						Site site = siteService.getSite(m.getContext());
+						Site site = SiteService.getSite(m.getContext());
 						if (site.getGroup(userId)==null)
 						{
 							rv="";
