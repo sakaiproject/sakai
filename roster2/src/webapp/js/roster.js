@@ -430,20 +430,11 @@
 
                     roster.alignMobileLabels();
 
-                    $('.roster-single-group-link').click(function (e) {
+                    $('.roster-group-link').click(function (e) {
 
                         var value = $(this).attr('data-groupid');
 
                         roster.renderGroupMembership(value);
-
-                        $('#roster-group-option-' + value).prop('selected', true);
-                    });
-
-                    $('.roster-groups-selector').off('change').on('change', function (e) {
-
-                        var value = this.value;
-
-                        roster.renderGroupMembership(this.value);
 
                         $('#roster-group-option-' + value).prop('selected', true);
                     });
@@ -651,30 +642,6 @@
 
     Handlebars.registerHelper('getName', function (firstNameLastName) {
         return (firstNameLastName) ? this.displayName : this.sortName;
-    });
-
-    Handlebars.registerHelper('isMe', function (myUserId) {
-        return this.userId === myUserId;
-    });
-
-    Handlebars.registerHelper('profileDiv', function () {
-        return 'profile_friend_' + this.userId;
-    });
-
-    Handlebars.registerHelper('unconnected', function () {
-        return this.connectionStatus === CONNECTION_NONE;
-    });
-
-    Handlebars.registerHelper('confirmed', function () {
-        return this.connectionStatus === CONNECTION_CONFIRMED;
-    });
-
-    Handlebars.registerHelper('requested', function () {
-        return this.connectionStatus === CONNECTION_REQUESTED;
-    });
-
-    Handlebars.registerHelper('incoming', function () {
-        return this.connectionStatus === CONNECTION_INCOMING;
     });
 
     Handlebars.registerHelper('roleAllowed', function (options) {
