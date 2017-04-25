@@ -11,6 +11,14 @@ body {
     left: 18px;
 }
 
+.feedUrl {
+	padding-left: 30px;
+}
+
+.podTitle {
+	margin-left: 30px;
+}
+
 .podDateFormat {
 	font-size: 13pt;
 }
