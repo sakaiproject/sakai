@@ -604,7 +604,6 @@ public class ReportsEditPage extends BasePage {
 			protected void onUpdate(AjaxRequestTarget target) {
 				if(ReportManager.WHO_CUSTOM.equals(getReportParams().getWho())) {
 					addUsers(selectOptionsRV);
-					whoUserIds.add(new AttributeModifier("style", new Model("width: 300px")));
 					who.remove(this);
 					whoUserIds.add(new AttributeModifier("onchange", new Model("checkWhoSelection();")));
 					target.add(who);

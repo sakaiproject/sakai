@@ -219,7 +219,6 @@ function checkHowChartSelection() {
 function checkWhatSelection() {
 	var what = jQuery('#what').val();
 	if(what == 'what-visits' || what == 'what-presences') {
-		jQuery('#what').css('width','300px');
 		jQuery('#what-selection-label').hide();
 		jQuery('#whatEventSelType').hide();
 		jQuery('#what-tools-select').hide();
@@ -241,7 +240,6 @@ function checkWhatSelection() {
 		jQuery('#what-resources-options').hide();
 		jQuery('#what-resources-select').hide();
 	}else if(what == 'what-resources') {
-		jQuery('#what').css('width','300px');
 		jQuery('#what-selection-label').show();
 		jQuery('#whatEventSelType').hide();
 		jQuery('#what-tools-select').hide();
