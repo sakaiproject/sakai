@@ -400,7 +400,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			I think the ideal here would be that this only updates resources that are in the manifest, but really any
 			relative resources are going to be incorrect pulled out of a package and need an update.
 		   */
-		  org.jsoup.nodes.Document doc = Jsoup.parse(htmlString);
+		  org.jsoup.nodes.Document doc = Jsoup.parseBodyFragment(htmlString);
 		  org.jsoup.select.Elements hrefs = doc.select("[href]");
 		  org.jsoup.select.Elements srcs = doc.select("[src]");
 
@@ -434,7 +434,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 				  }
 			  }
 		  }
-		  htmlString = doc.toString();
+		  htmlString = doc.body().html();
 	  }
 	  
 	  return htmlString;
