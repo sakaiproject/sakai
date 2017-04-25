@@ -151,6 +151,9 @@
 	text-decoration: none !important;
 	@include appearance(none);
 	@include border-radius(3px);
+	&:focus {
+		outline-color: darken( $button-border-color, 50% ) !important;
+	}
 	&:hover{
 		text-decoration: none;
 		background: linear-gradient( $button-background-secondary-color, $button-background-color );
