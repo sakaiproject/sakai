@@ -77,9 +77,7 @@ public class TimedAssessmentQueue {
   // Add a timed assessment to the queue
   public void add(TimedAssessmentGradingModel timedAG){
           // Add grading data to the queue
-          synchronized (queue) {
-                  queue.put(timedAG.getAssessmentGradingId(),timedAG);
-          }
+          queue.put(timedAG.getAssessmentGradingId(),timedAG);
           try {
               // Repeat the task until stopped or an exception is thrown
               // Store the resulting ScheduledFuture for the task
@@ -105,9 +103,7 @@ public class TimedAssessmentQueue {
     tasks.get(timedAG).cancel(true);
     tasks.remove(timedAG);
     // Remove the grading data from the queue
-    synchronized (queue) {
-      queue.remove(timedAG);
-    }
+    queue.remove(timedAG);
   }
 
 
