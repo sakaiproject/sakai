@@ -40,6 +40,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.business.FirstNameComparator;
 import org.sakaiproject.gradebookng.business.LetterGradeComparator;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -260,8 +261,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		if (StringUtils.equals(gradingScaleName, "Pass / Not Pass")) {
 			rval = new TreeMap<>(Collections.reverseOrder()); // P before NP.
-		} else {
+		} else if (StringUtils.contains(gradingScaleName, "Letter Grades") || StringUtils.contains(gradingScaleName, "Grade Points")) {
 			rval = new TreeMap<>(new LetterGradeComparator()); // letter grade mappings
+		} else{
+			//Order by percent.
+			DoubleComparator doubleComparator = new DoubleComparator(percents);
+			rval = new TreeMap<String, Double>(doubleComparator);
 		}
 		rval.putAll(percents);
 
@@ -468,5 +473,3 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 
 }
-
-
