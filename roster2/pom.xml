@@ -222,7 +222,7 @@
             <plugin>
                 <groupId>com.github.jknack</groupId>
                 <artifactId>handlebars-maven-plugin</artifactId>
-                <version>2.0.0</version>
+                <version>4.0.5</version>
                 <executions>
                     <execution>
                         <id>precompile</id>
@@ -234,9 +234,7 @@
                             <output>${project.build.directory}/${project.build.finalName}/templates.js</output>
                             <prefix>${basedir}/src/handlebars</prefix>
                             <suffix>.handlebars</suffix>
-                            <handlebarsJsFile>/handlebars-v2.0.0.js</handlebarsJsFile>
                             <amd>false</amd>
-                            <encoding>UTF-8</encoding>
                         </configuration>
                     </execution>
                 </executions>

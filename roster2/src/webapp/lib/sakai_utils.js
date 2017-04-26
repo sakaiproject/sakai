@@ -20,20 +20,6 @@
 (function ($) {
 
     roster.sakai = {
-        getProfileMarkup: function (userId, callback) {
-
-            $.ajax( {
-                url: "/direct/profile/" + userId + "/formatted",
-                dataType: "html",
-                cache: false,
-                success: function(p) {
-                    callback(p);
-                },
-                error: function(xmlHttpRequest,stat,error) {
-                    alert("Failed to get profile markup. Status: " + stat + ". Error: " + error);
-                }
-            });
-        },
         setCurrentUserPermissions: function (siteId, callback) {
 
             $.ajax( {
@@ -57,23 +43,7 @@
                 dataType: "json",
                 cache: false,
                 success: function (p) {
-                    
                     callback(p.data);
-                    /*
-                    var perms = [];
-
-                    for (role in p.data) {
-                        var rolePerms = {role: role};
-
-                        p.data[role].forEach(function (perm) {
-                            rolePerms[perm.replace(/\./g,"_")] = true;
-                        });
-
-                        perms.push(rolePerms);
-                    }
-
-                    callback(perms);
-                    */
                 },
                 error: function (xmlHttpRequest, stat, error) {
                     alert("Failed to get permissions. Status: " + stat + ". Error: " + error);
