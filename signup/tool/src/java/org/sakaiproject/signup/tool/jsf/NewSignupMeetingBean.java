@@ -60,6 +60,7 @@ import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * <p>
@@ -677,20 +678,20 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
-			if(Utilities.isValidISODate(isoStartTime)){
-				this.signupMeeting.setStartTime(Utilities.parseISODate(isoStartTime));
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
 			}
 
 			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
-			if(Utilities.isValidISODate(isoEndTime)){
-				this.signupMeeting.setEndTime(Utilities.parseISODate(isoEndTime));
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
 			}
 
 			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
 
-			if(Utilities.isValidISODate(isoUntilTime)){
-				setRepeatUntil(Utilities.parseISODate(isoUntilTime));
+			if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+				setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
 			}
 
 			Date eventEndTime = signupMeeting.getEndTime();

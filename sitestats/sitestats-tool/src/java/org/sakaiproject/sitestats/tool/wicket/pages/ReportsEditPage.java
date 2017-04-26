@@ -90,9 +90,9 @@ import org.sakaiproject.sitestats.tool.wicket.components.StylableSelectOptionsGr
 import org.sakaiproject.sitestats.tool.wicket.models.EventModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
-import org.sakaiproject.sitestats.tool.wicket.util.DateUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -210,8 +210,8 @@ public class ReportsEditPage extends BasePage {
         onDomReady.append("checkHowSelection();");
         onDomReady.append("checkReportDetails();");
         onDomReady.append("checkHowChartSelection();");
-        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenFrom", DateUtil.format(getReportParams().getWhenFrom(), DATEPICKER_FORMAT, getSession().getLocale())));
-        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenTo", DateUtil.format(getReportParams().getWhenTo(), DATEPICKER_FORMAT, getSession().getLocale())));
+        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenFrom", DateFormatterUtil.format(getReportParams().getWhenFrom(), DATEPICKER_FORMAT, getSession().getLocale())));
+        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenTo", DateFormatterUtil.format(getReportParams().getWhenTo(), DATEPICKER_FORMAT, getSession().getLocale())));
 		response.render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
 	}
 	
@@ -1366,12 +1366,12 @@ public class ReportsEditPage extends BasePage {
 	private void setISODates(){
 		String whenFrom = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENFROM_ISO8601).toString("");
 		String whenTo = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENTO_ISO8601).toString("");
-		if(DateUtil.isValidISODate(whenFrom)){
-			getReportParams().setWhenFrom(DateUtil.parseISODate(whenFrom));
+		if(DateFormatterUtil.isValidISODate(whenFrom)){
+			getReportParams().setWhenFrom(DateFormatterUtil.parseISODate(whenFrom));
 		}
 
-		if(DateUtil.isValidISODate(whenTo)){
-			getReportParams().setWhenTo(DateUtil.parseISODate(whenTo));
+		if(DateFormatterUtil.isValidISODate(whenTo)){
+			getReportParams().setWhenTo(DateFormatterUtil.parseISODate(whenTo));
 		}
 	}
 }

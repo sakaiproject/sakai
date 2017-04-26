@@ -39,6 +39,7 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.util.DateFormatterUtil;
 
 
 public class UserDefineTimeslotBean implements SignupBeanConstants {
@@ -394,14 +395,14 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 
 			String isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
 
-			if(Utilities.isValidISODate(isoStartTime)){
-				tsWrp.getTimeSlot().setStartTime(Utilities.parseISODate(isoStartTime));
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				tsWrp.getTimeSlot().setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
 			}
 			
 			String isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
 
-			if(Utilities.isValidISODate(isoEndTime)){
-				tsWrp.getTimeSlot().setEndTime(Utilities.parseISODate(isoEndTime));
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				tsWrp.getTimeSlot().setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
 			}
 			Date endTime = tsWrp.getTimeSlot().getEndTime();
 			Date startTime = tsWrp.getTimeSlot().getStartTime();

@@ -74,8 +74,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.syllabus.util.DateUtil;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -130,8 +130,8 @@ public class SyllabusTool
       this.orig_endDate = en.getEndDate() == null ? null : (Date) en.getEndDate().clone();
       this.orig_isLinkCalendar= en.isLinkCalendar();
       this.orig_status = en.getStatus();
-      this.startDateString = en.getStartDate() == null ? "" : DateUtil.format(en.getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
-      this.endDateString = en.getEndDate() == null ? "" : DateUtil.format(en.getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+      this.startDateString = en.getStartDate() == null ? "" : DateFormatterUtil.format(en.getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+      this.endDateString = en.getEndDate() == null ? "" : DateFormatterUtil.format(en.getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
     }
 
     public SyllabusData getEntry()
@@ -344,10 +344,10 @@ public class SyllabusTool
 	public void setStartDateString(String startDateString) {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String startISODate = params.get((getEntry().getPosition() - new Integer(1)) + HIDDEN_START_ISO_DATE);
-		if(DateUtil.isValidISODate(startISODate)){
-			 getEntry().setStartDate(DateUtil.parseISODate(startISODate));
+		if(DateFormatterUtil.isValidISODate(startISODate)){
+			 getEntry().setStartDate(DateFormatterUtil.parseISODate(startISODate));
 		}
-		this.startDateString = DateUtil.format(getEntry().getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+		this.startDateString = DateFormatterUtil.format(getEntry().getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 	}
 
 	public String getEndDateString() {
@@ -357,10 +357,10 @@ public class SyllabusTool
 	public void setEndDateString(String endDateString) {
 		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 		String endISODate = params.get((getEntry().getPosition() - new Integer(1)) + HIDDEN_END_ISO_DATE);
-		if(DateUtil.isValidISODate(endISODate)){
-			 getEntry().setEndDate(DateUtil.parseISODate(endISODate));
+		if(DateFormatterUtil.isValidISODate(endISODate)){
+			 getEntry().setEndDate(DateFormatterUtil.parseISODate(endISODate));
 		}
-		this.endDateString = DateUtil.format(getEntry().getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+		this.endDateString = DateFormatterUtil.format(getEntry().getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 	}
   }
 
@@ -2796,7 +2796,7 @@ public class SyllabusTool
 		  {
 			  Date rvDate = syllabusData.getStartDate();
 			  if(rvDate != null){
-				  rv = DateUtil.format(rvDate, DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+				  rv = DateFormatterUtil.format(rvDate, DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 			  }
 			  alert = false;
 		  }
@@ -2827,8 +2827,8 @@ public class SyllabusTool
 			  }else{
 					Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 					String startISODate = params.get(HIDDEN_START_ISO_DATE);
-					if(DateUtil.isValidISODate(startISODate)){
-					     syllabusData.setStartDate(DateUtil.parseISODate(startISODate));
+					if(DateFormatterUtil.isValidISODate(startISODate)){
+					     syllabusData.setStartDate(DateFormatterUtil.parseISODate(startISODate));
 					}
 			  }
 		  }
@@ -2852,7 +2852,7 @@ public class SyllabusTool
 		  {
 			  Date rvDate = syllabusData.getEndDate();
 			  if(rvDate != null){
-				  rv = DateUtil.format(rvDate, DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+				  rv = DateFormatterUtil.format(rvDate, DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 			  }
 			  alert = false;
 		  }
@@ -2883,8 +2883,8 @@ public class SyllabusTool
 			  }else{
 					Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 					String endISODate = params.get(HIDDEN_END_ISO_DATE);
-					if(DateUtil.isValidISODate(endISODate)){
-					     syllabusData.setEndDate(DateUtil.parseISODate(endISODate));
+					if(DateFormatterUtil.isValidISODate(endISODate)){
+					     syllabusData.setEndDate(DateFormatterUtil.parseISODate(endISODate));
 					}
 			  }
 		  }
@@ -3076,7 +3076,7 @@ public class SyllabusTool
 	  {
 		String rv = "";
 		if(getStartDate() != null){
-			rv = DateUtil.format(getStartDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
+			rv = DateFormatterUtil.format(getStartDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
 		}
 		return rv;
 	  }
@@ -3088,8 +3088,8 @@ public class SyllabusTool
 		}else{
 			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 			String startISODate = params.get(HIDDEN_START_ISO_DATE);
-			if(DateUtil.isValidISODate(startISODate)){
-					setStartDate(DateUtil.parseISODate(startISODate));
+			if(DateFormatterUtil.isValidISODate(startISODate)){
+					setStartDate(DateFormatterUtil.parseISODate(startISODate));
 			}
 		}
 	}
@@ -3098,7 +3098,7 @@ public class SyllabusTool
 	  {
 		String rv = "";
 		if(getEndDate() != null){
-			rv = DateUtil.format(getEndDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
+			rv = DateFormatterUtil.format(getEndDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
 		}
 		return rv;
 	  }
@@ -3110,8 +3110,8 @@ public class SyllabusTool
 		}else{
 			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
 			String endISODate = params.get(HIDDEN_END_ISO_DATE);
-			if(DateUtil.isValidISODate(endISODate)){
-					setEndDate(DateUtil.parseISODate(endISODate));
+			if(DateFormatterUtil.isValidISODate(endISODate)){
+					setEndDate(DateFormatterUtil.parseISODate(endISODate));
 			}
 		}
 	}

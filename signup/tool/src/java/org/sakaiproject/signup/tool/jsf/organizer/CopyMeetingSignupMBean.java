@@ -47,6 +47,7 @@ import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.util.DateFormatterUtil;
 //import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 /**
@@ -344,20 +345,20 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
 
-		if(Utilities.isValidISODate(isoStartTime)){
-			this.signupMeeting.setStartTime(Utilities.parseISODate(isoStartTime));
+		if(DateFormatterUtil.isValidISODate(isoStartTime)){
+			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
 		}
 
 		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
 
-		if(Utilities.isValidISODate(isoEndTime)){
-			this.signupMeeting.setEndTime(Utilities.parseISODate(isoEndTime));
+		if(DateFormatterUtil.isValidISODate(isoEndTime)){
+			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
 		}
 
 		String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
 
-		if(Utilities.isValidISODate(isoUntilTime)){
-			setRepeatUntil(Utilities.parseISODate(isoUntilTime));
+		if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+			setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
 		}
 		Date eventEndTime = signupMeeting.getEndTime();
 		Date eventStartTime = signupMeeting.getStartTime();
