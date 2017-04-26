@@ -29,6 +29,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.DoubleComparator;
 import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
@@ -190,8 +191,12 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 
 		if (StringUtils.equals(gradingScaleName, "Pass / Not Pass")) {
 			rval = new TreeMap<>(Collections.reverseOrder()); // P before NP.
-		} else {
+		} else if (StringUtils.contains(gradingScaleName, "Letter Grades") || StringUtils.contains(gradingScaleName, "Grade Points")) {
 			rval = new TreeMap<>(new LetterGradeComparator()); // letter grade mappings
+		} else{
+			//Order by percent.
+			DoubleComparator doubleComparator = new DoubleComparator(percents);
+			rval = new TreeMap<String, Double>(doubleComparator);
 		}
 		rval.putAll(percents);
 
