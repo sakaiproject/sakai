@@ -59,10 +59,9 @@ body{
 					list-style: none;
 					padding: 0 0 0 0;
 					li{
-						border-left: 2px solid darken( $tool-menu-background-color, 10% );
 						display: inline-block;
 						margin: -4px -4px 0px 0; //FIX for inline-block extra space.
-						width: calc( 25% - 1px );
+						width: calc( 25% );
 						&.#{$namespace}collapseTools{
 							display: none;
 						}
