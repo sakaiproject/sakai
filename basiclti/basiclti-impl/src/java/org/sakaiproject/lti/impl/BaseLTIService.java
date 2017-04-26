@@ -295,6 +295,18 @@ public abstract class BaseLTIService implements LTIService {
 		return false;
 	}
 
+	public Properties defaultConfig(Map<String, Object> tool, String[] fieldInfos) {
+		Properties props = new Properties();
+		for (String fieldInfo: fieldInfos) {
+			Properties info = foorm.parseFormString(fieldInfo);
+			if ("true".equals(info.getProperty("required", null))) {
+				String field = info.getProperty("field");
+				props.put(field, tool.get(field));
+			}
+		}
+		return props;
+	}
+
 	@Override
 	public boolean hideConfig(Map<String, Object> tool, String[] contentToolModel) {
 		Object hideconfig = tool.get("hideconfig");

@@ -523,4 +523,14 @@ public interface LTIService {
 	 * @return <code>true</code> if the user has to provide some more configuration.
 	 */
 	boolean needsConfig(Map<String, Object> tool, String[] contentToolModel);
+
+    /**
+     * This returns the default properties that an instance of the tool should have.
+     * This is useful when you want to create an instance of the tool, but don't want to prompt the user to confirm
+     * any of the configuration.
+     * @param ltiTool The LTI tool.
+     * @param contentToolModel The model for the tool.
+     * @return The default required values.
+     */
+    Properties defaultConfig(Map<String, Object> ltiTool, String[] contentToolModel);
 }

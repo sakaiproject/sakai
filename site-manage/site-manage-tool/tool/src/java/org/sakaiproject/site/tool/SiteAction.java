@@ -11415,9 +11415,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (!oldLtiTools.containsKey(ltiToolId))
 				{
 					Map<String, Object> toolValues = ltiTool.getValue();
-					Properties reqProperties = (Properties) toolValues.get("reqProperties");
-					if (reqProperties==null) {
-						reqProperties = new Properties();
+					// Need to copy in default required.
+					String[] contentModel = m_ltiService.getContentModel(new Long(ltiToolId), site.getId());
+					Properties reqProperties = m_ltiService.defaultConfig(ltiTool.getValue(), contentModel);
+					// This holds any properties that have come back from the form if shown
+					Properties editedProperties = (Properties) toolValues.get("reqProperties");
+					if (editedProperties!=null) {
+						// Overwrite with anything that's come back from the form
+						reqProperties.putAll(editedProperties);
 					}
 					Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
