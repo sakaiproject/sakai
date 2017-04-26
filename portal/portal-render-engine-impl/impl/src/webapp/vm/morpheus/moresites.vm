@@ -55,7 +55,7 @@
                 </li>
             </ul>
 
-            <div class="tab-pane" role="tabpanel">
+            <div class="tab-pane">
                 <div class="tab-box" id="otherSitesCategorWrap" aria-labelledby="tab-othersites" role="tabpanel">
 
                     <p style="display: none" class="favorites-help-text autofavorite-enabled">${rloader.sit_star_sites_with_autofav_description}</p>
