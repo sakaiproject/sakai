@@ -65,6 +65,9 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class PermissionsHelperAction extends VelocityPortletPaneledAction
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/** Our logger. */
 	private static Logger M_log = LoggerFactory.getLogger(PermissionsHelperAction.class);
 

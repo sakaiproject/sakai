@@ -1,7 +1,5 @@
 package org.sakaiproject.archive.tool.model;
 
-import java.util.Date;
-
 import lombok.Data;
 
 /**

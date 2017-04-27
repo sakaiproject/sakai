@@ -25,6 +25,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
@@ -38,6 +39,7 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.util.DateFormatterUtil;
 
 
 public class UserDefineTimeslotBean implements SignupBeanConstants {
@@ -75,6 +77,9 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	private boolean putInMultipleCalendarBlocks = true;
 	
 	String errorStyleValue = "background: #EEF3F6;";
+
+	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
+	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
 
 	public void init(SignupMeeting sMeeting, String backPageURL,
 			List<TimeslotWrapper> origTSwrpList, String whoPlaceOrder) {
@@ -212,6 +217,8 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		newTs.setId(old.getId());
 		newTs.setStartTime(old.getStartTime());
 		newTs.setEndTime(old.getEndTime());
+		newTs.setStartTimeString(old.getStartTimeString());
+		newTs.setEndTimeString(old.getEndTimeString());
 		newTs.setCanceled(old.isCanceled());
 		newTs.setLocked(old.isLocked());
 		newTs.setDisplayAttendees(old.isDisplayAttendees());
@@ -384,6 +391,19 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 			if(tsWrp.getDeleted())
 				continue;//skip
 			
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+			String isoStartTime = params.get((position - 1) + HIDDEN_ISO_STARTTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				tsWrp.getTimeSlot().setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			}
+			
+			String isoEndTime = params.get((position - 1) + HIDDEN_ISO_ENDTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				tsWrp.getTimeSlot().setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			}
 			Date endTime = tsWrp.getTimeSlot().getEndTime();
 			Date startTime = tsWrp.getTimeSlot().getStartTime();
 			if (endTime.before(startTime) || endTime.equals(startTime)) {

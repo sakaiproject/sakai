@@ -25,22 +25,27 @@
                 ## Header
                 <div class="Mrphs-topHeader">
                     #parse("/vm/morpheus/snippets/header-snippet.vm")
-                    #if (${tabsSites})
-                        ## tabs
-                        #parse("/vm/morpheus/includeTabs.vm")
-
-                    #end ## END of IF (${tabsSites})
-                    #parse("/vm/morpheus/includeLoginNav.vm")
                 </div>
-                
+
+                #if (${tabsSites})
+                    ## tabs
+                    #parse("/vm/morpheus/includeTabs.vm")
+                #end ## END of IF (${tabsSites})
+
             </div>
 
             #parse("/vm/morpheus/moresites.vm")
-
             #parse("/vm/morpheus/includePageWithNav.vm")
 
         </div> <!-- end Mrphs-portalWrapper -->
         <!-- END VM site.vm -->
+
+        <!-- Viewport helpers -->
+        <div id='Mrphs-viewport-helpers' aria-hidden='true'>
+          <div class='phone'></div>
+          <div class='tablet'></div>
+          <div class='desktop'></div>
+        </div>
 
         ## Make sure we at least have a jQuery 1.11 or higher, log messages
     #set ( $d = "$")
@@ -188,7 +193,9 @@
         <!--[if lt IE 9]>
         <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
 <![endif]-->
- 
+
+        <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+
         #parse("/vm/morpheus/includeAnalytics.vm")
         #parse("/vm/morpheus/includePASystem.vm")
 

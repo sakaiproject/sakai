@@ -203,27 +203,7 @@ public class CalendarBean {
 	
 	private List getCalendarReferences() {
 		// get merged calendars channel refs
-		String initMergeList = null;
-		try{
-			ToolConfiguration tc = M_ss.getSite(getSiteId()).getToolForCommonId(SCHEDULE_TOOL_ID);
-			if(tc != null) {
-				initMergeList = tc.getPlacementConfig().getProperty(MERGED_CALENDARS_PROP);
-			}
-		}catch(IdUnusedException e){
-			initMergeList = null;
-		}
-		
-		// load all calendar channels (either primary or merged calendars)
-		String primaryCalendarReference = M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER);
- 		MergedList mergedCalendarList = loadChannels(primaryCalendarReference, initMergeList, null);
- 		
-		// add external calendar subscriptions
-        List referenceList = mergedCalendarList.getReferenceList();
-        Set subscriptionRefList = M_ecs.getCalendarSubscriptionChannelsForChannels(
-        		primaryCalendarReference,
-        		referenceList);
-        referenceList.addAll(subscriptionRefList);
-				
+		List referenceList = M_ca.getCalendarReferences(getSiteId());
 		return referenceList;
 	}
 	

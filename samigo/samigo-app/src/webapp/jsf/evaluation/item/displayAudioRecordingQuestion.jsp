@@ -25,4 +25,5 @@ include file for delivering file upload questions
 should be included in file importing DeliveryMessages
 --%>
 <h:outputText value="#{question.text} "  escape="false"/>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
 <f:verbatim><br /></f:verbatim>

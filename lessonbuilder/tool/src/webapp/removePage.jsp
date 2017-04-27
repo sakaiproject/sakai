@@ -79,7 +79,7 @@
 	return;
     }
 
-    if(SimplePageBean.isStudentPage(simplePage)) {
+    if(simplePage.getOwner()!=null && !simplePage.isOwned()) {
 	out.println("Can't remove student pages this way");
 	return;
     }

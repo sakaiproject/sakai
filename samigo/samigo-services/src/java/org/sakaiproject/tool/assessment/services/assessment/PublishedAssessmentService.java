@@ -248,10 +248,20 @@ public class PublishedAssessmentService extends AssessmentService{
         getBasicInfoOfAllActivePublishedAssessments(orderBy, siteAgentId, ascending); // signalling all & no paging
   }
 
+  public List getBasicInfoOfAllActivePublishedAssessmentsByAgentId(String orderBy,boolean ascending,String siteAgentId ) {
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+            getBasicInfoOfAllActivePublishedAssessments(orderBy, siteAgentId, ascending); // signalling all & no paging
+  }
+
   public List getBasicInfoOfAllInActivePublishedAssessments(String orderBy,boolean ascending) {
     String siteAgentId = AgentFacade.getCurrentSiteId();
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
         getBasicInfoOfAllInActivePublishedAssessments(orderBy, siteAgentId, ascending); // signalling all & no paging
+  }
+
+  public List getBasicInfoOfAllInActivePublishedAssessmentsByAgentId(String orderBy,boolean ascending, String siteAgentId) {
+    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+            getBasicInfoOfAllInActivePublishedAssessments(orderBy, siteAgentId, ascending); // signalling all & no paging
   }
 
   public PublishedAssessmentFacade getSettingsOfPublishedAssessment(String
@@ -617,10 +627,6 @@ public class PublishedAssessmentService extends AssessmentService{
    
    public void saveOrUpdateSection(SectionFacade section) {
 	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().saveOrUpdateSection(section);
-	}
-   
-   public void removeItemAttachment(String itemAttachmentId) {
-	   PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().removeItemAttachment(Long.valueOf(itemAttachmentId));
 	}
 
    public PublishedSectionFacade addSection(Long publishedAssessmentId) {

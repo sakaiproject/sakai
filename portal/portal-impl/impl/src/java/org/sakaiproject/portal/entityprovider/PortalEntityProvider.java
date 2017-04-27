@@ -32,6 +32,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
+import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -237,22 +238,23 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 		String connectionUserId = userProfile.getUserUuid();
 
 		VelocityContext context = new VelocityContext();
-		context.put("displayName", userProfile.getDisplayName());
+		context.put("i18n", rl);
 		context.put("profileUrl", profileLinkLogic.getInternalDirectUrlToUserProfile(connectionUserId));
 
+		SocialNetworkingInfo socialInfo = userProfile.getSocialInfo();
+		String facebookUrl = socialInfo.getFacebookUrl();
+		if (StringUtils.isEmpty(facebookUrl)) facebookUrl = "";
+		context.put("facebookUrl", facebookUrl);
+		String twitterUrl = socialInfo.getTwitterUrl();
+		if (StringUtils.isEmpty(twitterUrl)) twitterUrl = "";
+		context.put("twitterUrl", twitterUrl);
+
 		String email = userProfile.getEmail();
-        if (StringUtils.isEmpty(email)) email = "";
+		if (StringUtils.isEmpty(email)) email = "";
 		context.put("email", email);
 
 		context.put("currentUserId", currentUserId);
 		context.put("connectionUserId", connectionUserId);
-		context.put("requestMadeLabel", rl.getString("connection.requested"));
-		context.put("cancelLabel", rl.getString("connection.cancel"));
-		context.put("incomingRequestLabel", rl.getString("connection.incoming.request"));
-		context.put("removeConnectionLabel", rl.getString("connection.remove"));
-		context.put("acceptLabel", rl.getString("connection.accept"));
-		context.put("rejectLabel", rl.getString("connection.reject"));
-		context.put("addConnectionLabel", rl.getString("connection.add"));
 
 		boolean connectionsEnabled = serverConfigurationService.getBoolean("profile2.connections.enabled",
 					ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);

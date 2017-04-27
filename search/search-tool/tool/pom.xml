@@ -100,6 +100,12 @@
         <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>${sakai.elasticsearch.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>jmock</groupId>
       <artifactId>jmock</artifactId>
       <version>1.1.0</version>

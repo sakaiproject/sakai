@@ -64,6 +64,8 @@ public class DelegatedAccessSampleDataLoader {
 	private List<String> subjs = Arrays.asList("SUBJ1", "SUBJ2","SUBJ3");
 	
 	public void init(){
+		log.info("init()");
+		
 		if(siteService == null || securityService == null || delegatedAccessSiteHierarchyJob == null){
 			return;
 		}
@@ -134,7 +136,7 @@ public class DelegatedAccessSampleDataLoader {
 									//Gradebook
 									page = siteEdit.addPage();
 									page.setTitle("Gradebook");
-									page.addTool("sakai.gradebook.tool");
+									page.addTool("sakai.gradebookng");
 									
 									//Schedule
 									page = siteEdit.addPage();
@@ -185,6 +187,9 @@ public class DelegatedAccessSampleDataLoader {
 
 							} catch (IdInvalidException | PermissionException e) {
 								log.warn(e.getMessage(), e);
+							} catch (IdUsedException e) {
+								log.debug("IdUsedException: " + e.getId(), e);
+								return;
 							} catch (Exception e) {
 								log.warn(e.getMessage(), e);
 								return;
@@ -200,8 +205,7 @@ public class DelegatedAccessSampleDataLoader {
 			} catch (JobExecutionException e) {
 				log.warn(e.getMessage(), e);
 			}
-		
-		}catch(Exception e){
+		} catch(Exception e){
 			log.warn(e.getMessage(), e);
 		}finally{
 			securityService.popAdvisor(yesMan);

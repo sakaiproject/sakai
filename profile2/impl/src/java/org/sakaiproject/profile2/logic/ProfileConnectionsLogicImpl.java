@@ -94,6 +94,15 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		List<User> users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
 		return profileLogic.getPersons(users);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Person> getOutgoingConnectionRequestsForUser(final String userId) {
+
+		List<User> users = sakaiProxy.getUsers(dao.getOutgoingConnectionUserIdsForUser(userId));
+		return profileLogic.getPersons(users);
+	}
 	
 	/**
  	 * {@inheritDoc}

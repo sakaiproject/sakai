@@ -11,6 +11,13 @@
     vertical-align: middle !important;
     text-align:left !important;
   }
+  .table .attach {
+    width:1%;
+    white-space:nowrap;
+  }
+  .selectPageSize {
+    margin-right: 0.7em;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
@@ -234,7 +241,7 @@
             #end
             #if (!$dropboxMode)
               <span class="hidden-sm hidden-xs pull-right">
-                <button style="margin:0" type="button" class="btn btn-default btn-sm dropdown-toggle colPicker" data-toggle="dropdown">
+                <button style="margin:0" type="button" class="btn btn-default btn-sm resources-dropdown colPicker" aria-expanded="false" data-toggle="dropdown">
                   $clang.getString('list.cols.columns')
                   <span class="caret"></span>
                 </button>
@@ -400,8 +407,13 @@
 										<span class="$iconDecor">
 										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
 									#else
-										<span class="$iconDecor visible-sm-inline visible-xs-inline">
-										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
+										<a class="$iconDecor visible-sm-inline visible-xs-inline" href="#"
+											#if($item.isExpanded())
+												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+											#else
+												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
+											#end
+											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a></span>
 										<a class="hidden-sm hidden-xs $iconDecor" href="#"
 											#if($item.isExpanded())
 												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
@@ -489,7 +501,7 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn resources-dropdown btn-xs" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
@@ -594,7 +606,7 @@
     										#end
     									#end
     									<!-- $pagesize  "$pagesize" -->
-    									<select name="selectPageSize" onchange="document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
+    									<select name="selectPageSize" class="selectPageSize" onchange="document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
     										<option value="5"#if("$pagesize" == "5") selected="selected"#end>$tlang.getString("lis.show5")</option>
     										<option value="10"#if("$pagesize" == "10") selected="selected"#end>$tlang.getString("lis.show10")</option>
     										<option value="20"#if("$pagesize" == "20") selected="selected"#end>$tlang.getString("lis.show20")</option>
@@ -763,7 +775,7 @@
 					#end ## foreach $root in $other_sites
 	
 				#else
-					<tr class="hidden-xs hidden-sm">
+					<tr class="hidden-xs">
 						<th colspan="10">
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"

@@ -1,14 +1,18 @@
 package org.sakaiproject.calendar.entityproviders;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.io.IOException;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
@@ -29,6 +33,8 @@ import org.sakaiproject.time.api.TimeService;
 
 import lombok.Setter;
 
+import org.sakaiproject.util.CalendarUtil;
+
 /**
  * The sakai entity used to access calendar events.
  *
@@ -40,6 +46,18 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		ActionsExecutable, Outputable, Sampleable {
 
 	String ENTITY_PREFIX = "calendar";
+	Properties config = new Properties();
+	Map<String, String> eventImageMap = Collections.emptyMap();
+	private static Log log = LogFactory.getLog(CalendarEventEntityProvider.class);
+
+	public void init(){
+		try {
+			config.load(getClass().getResourceAsStream("/org/sakaiproject/calendar/tool/calendar.config"));
+		} catch (IOException e) {
+			//config file is missing
+			log.warn("Calendar.config file is missing for CalendarEventEntityProvider.class : " + e.getMessage());
+		}
+	}
 
 	/**
 	 * Calendar service.
@@ -58,6 +76,8 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 */
 	@Setter
 	private transient TimeService timeService;
+	@Setter
+	private EntityManager entityManager;
 
 	/**
 	 * @return prefix
@@ -118,6 +138,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 					"siteId must be set in order to get the calendar feeds for a site, via the URL /calendar/site/siteId");
 		}
 
+		eventImageMap = new CalendarUtil().getEventImageMap(config);
 		// optional timerange
 		final TimeRange range = buildTimeRangeFromRequest(params);
 		
@@ -126,9 +147,15 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		if (params.containsKey("detailed")) {
 			detailed = BooleanUtils.toBoolean((String) params.get("detailed"));
 		}
-
-		// user being logged in and having access to the site is handled in the API
-		rv.addAll(getEventsForSite(siteId, range, detailed));
+		//check if request is for merged calendars, used by lessons widget
+		if(params.containsKey("merged") && (params.get("merged")).equals("true")){
+			//get all events from the merged calendars
+			rv.addAll(getMergedCalendarEventsForSite(siteId, range));
+		}
+		else{
+			// user being logged in and having access to the site is handled in the API
+			rv.addAll(getEventsForSite(siteId, range, detailed));
+		}
 		return rv;
 	}
 
@@ -297,4 +324,26 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		return range;
 	}
 
+	/**
+	 * get events for all the internal merged calendars for a given site
+	 * @param siteId
+	 * @param range
+	 * @return
+	 */
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private List getMergedCalendarEventsForSite(final String siteId, final TimeRange range) {
+		final List mergeCal = new ArrayList<>();
+		CalendarEventVector calendarEventVector = calendarService.getEvents(calendarService.getCalendarReferences(siteId), range);
+		for (Object o : calendarEventVector) {
+			CalendarEvent event = (CalendarEvent) o;
+
+			CalendarEventDetails eventDetails = new CalendarEventDetails(event);
+			eventDetails.setEventImage(eventImageMap.get(event.getType()));
+			//as event can be from different site , find sitId for the event
+			Reference reference = entityManager.newReference(event.getCalendarReference());
+			eventDetails.setSiteId(reference.getContext());
+			mergeCal.add(eventDetails);
+		}
+		return mergeCal;
+	}
 }

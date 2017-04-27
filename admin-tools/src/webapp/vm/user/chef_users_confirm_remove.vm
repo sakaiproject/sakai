@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_confirm_remove.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
-#css("/sakai-user-tool/css/sakai-user-tool.css" 'media="screen"')
+#css("/admin-tools/css/sakai-user-tool.css" 'media="screen"')
 #javascript("/library/js/spinner.js")
 <div class="portletBody">
 #if($menu)

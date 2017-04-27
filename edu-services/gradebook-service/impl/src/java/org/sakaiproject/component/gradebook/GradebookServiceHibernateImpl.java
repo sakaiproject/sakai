@@ -167,7 +167,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final Long assignmentId) throws AssessmentNotFoundException {
 		if (assignmentId == null || gradebookUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignment");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are assignmentId:" 
+				+ assignmentId + " gradebookUid:" + gradebookUid);
 		}
 		if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignment with id " + assignmentId);
@@ -193,7 +194,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Deprecated
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final String assignmentName) throws AssessmentNotFoundException {
 		if (assignmentName == null || gradebookUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignment");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are assignmentName:" 
+					+ assignmentName + " gradebookUid:" + gradebookUid);
 		}
 		if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignment " + assignmentName);
@@ -395,9 +397,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
 		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
 		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
-		
-		rval.setFinalGradeMode(gradebook.isFinalGradeMode());
-				
+						
 		return rval;
 	}
 	
@@ -2373,7 +2373,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
 	  
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreString");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are gradebookUid:" 
+					+ gradebookUid + " assignmentId:" + assignmentId + " studentUid:" + studentUid);
 		}	
 
 	  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
@@ -2424,7 +2425,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   			throws GradebookNotFoundException, AssessmentNotFoundException {
 	  
 		if (gradebookUid == null || assignmentName == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreString");
+			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are gradebookUid:" 
+					+ gradebookUid + " assignmentName:" + assignmentName + " studentUid:" + studentUid);
 		}	
 
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
@@ -3285,15 +3287,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		Map<String,Double> bottomPercents = gbInfo.getSelectedGradingScaleBottomPercents();
 		
 		//Before we do any work, check if any existing course grade overrides might be left in an unmappable state
-		// this is NOT done when in final grade mode as the course grade field is now arbitrary.
-		if(!gbInfo.isFinalGradeMode()) {
-			List<CourseGradeRecord> courseGradeOverrides = getHibernateTemplate().execute(session -> getCourseGradeOverrides(gradebook));
-			courseGradeOverrides.forEach(cgr -> {
-				if(!bottomPercents.containsKey(cgr.getEnteredGrade())) {
-					throw new UnmappableCourseGradeOverrideException("The grading schema could not be updated as it would leave some course grade overrides in an unmappable state.");
-				}
-			});
-		}
+		List<CourseGradeRecord> courseGradeOverrides = getHibernateTemplate().execute(session -> getCourseGradeOverrides(gradebook));
+		courseGradeOverrides.forEach(cgr -> {
+			if(!bottomPercents.containsKey(cgr.getEnteredGrade())) {
+				throw new UnmappableCourseGradeOverrideException("The grading schema could not be updated as it would leave some course grade overrides in an unmappable state.");
+			}
+		});
 		
 		//iterate all available grademappings for this gradebook and set the one that we have the ID and bottomPercents for
 		Set<GradeMapping> gradeMappings = gradebook.getGradeMappings();
@@ -3320,9 +3319,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebook.setCourseLetterGradeDisplayed(gbInfo.isCourseLetterGradeDisplayed());
 		gradebook.setCoursePointsDisplayed(gbInfo.isCoursePointsDisplayed());
 		gradebook.setCourseAverageDisplayed(gbInfo.isCourseAverageDisplayed());
-		
-		gradebook.setFinalGradeMode(gbInfo.isFinalGradeMode());
-		
+				
 		List<CategoryDefinition> newCategoryDefinitions = gbInfo.getCategories();
 		
 		//if we have categories and they are weighted, check the weightings sum up to 100% (or 1 since it's a fraction)

@@ -52,6 +52,14 @@ public interface ProfileDao {
 	 * @param userId		uuid of the user to retrieve the list of friends for
 	 */
 	public List<String> getRequestedConnectionUserIdsForUser(final String userId);
+
+	/**
+	 * Get a list of unconfirmed outgoing Friend requests for a given user.
+	 * Returns: A list of userids that userId has sent requests to
+	 *
+	 * @param userId		uuid of the user to retrieve the list of friends for
+	 */
+	public List<String> getOutgoingConnectionUserIdsForUser(final String userId);
 	
 	/**
 	 * Get a list of confirmed connections for a given user. Uses a native SQL query so we can use unions
@@ -569,6 +577,7 @@ public interface ProfileDao {
 	final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";
 	
 	final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
+	final String QUERY_GET_OUTGOING_FRIEND_REQUESTS_FOR_USER = "getOutgoingFriendRequestsForUser"; 
 	final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; 
 	final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; 
 	final String QUERY_GET_FRIEND_RECORD = "getFriendRecord"; 

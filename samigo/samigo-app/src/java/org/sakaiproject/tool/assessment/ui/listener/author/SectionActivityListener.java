@@ -171,16 +171,8 @@ implements ActionListener, ValueChangeListener
         while (it.hasNext()) {
             EnrollmentRecord enr = (EnrollmentRecord) it.next();
             String uid = enr.getUser().getUserUid();
-            String firstName ="";
-            String lastName="";
-            String displayName="";
-            try {
-                firstName = UserDirectoryService.getUser(uid).getFirstName();
-                lastName = UserDirectoryService.getUser(uid).getLastName();
-                displayName = lastName + ", " + firstName;
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
+            String displayName = enr.getUser().getDisplayName();
+
             nameMap.put(uid, displayName);         
         }
         Map sortedMap = sortByValue(nameMap);

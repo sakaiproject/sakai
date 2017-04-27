@@ -29,6 +29,9 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.hamcrest.HamcrestArgumentMatcher;
+
+import org.mockito.internal.matchers.Any;
+import org.mockito.internal.matchers.Not;
 import org.mockito.internal.matchers.Or;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.tags.api.MissingUuidException;
@@ -48,7 +51,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.hasProperty;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
 
 public abstract class BaseStorageTest {
@@ -258,11 +261,15 @@ public abstract class BaseStorageTest {
     }
 
     protected <T> T argThatMatchesAnyOf(ArgumentMatcher<?>... matchers) {
-        final Or or = new Or(Lists.newArrayList(matchers));
+        ArgumentMatcher or = new Not(Any.ANY);
+        for (ArgumentMatcher<?> matcher : matchers) {
+            or = new Or(matcher, or);
+        }
         return (T) argThat(or);
     }
 
     protected long now() {
         return new Date().getTime();
     }
+    
 }

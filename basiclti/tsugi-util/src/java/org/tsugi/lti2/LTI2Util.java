@@ -436,8 +436,8 @@ public class LTI2Util {
 			String capStr = property2Capability(keyStr);
 			String mapStr = mapping.getProperty(keyStr, null);
 			if ( enabledCapabilities.contains(keyStr) || 
-			     enabledCapabilities.contains(capStr) || 
-			     enabledCapabilities.contains(mapStr) ) {
+			     (capStr != null && enabledCapabilities.contains(capStr) ) || 
+			     (mapStr != null && enabledCapabilities.contains(mapStr) ) ) {
 				// Allowed to stay...
 			} else {
 				ltiProps.remove(keyStr);
@@ -488,6 +488,7 @@ public class LTI2Util {
 		Properties mapping = new Properties();
 		mapping.setProperty("context_title", "CourseSection.title");
 		mapping.setProperty("context_label", "CourseSection.label");
+		mapping.setProperty("context_type", "Context.type");
 		mapping.setProperty("lis_course_section_sourcedid", "CourseSection.sourcedId");
 		mapping.setProperty("resource_link_id", "ResourceLink.id");
 		mapping.setProperty("resource_link_title", "ResourceLink.title");

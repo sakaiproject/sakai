@@ -21,7 +21,6 @@
 
 package org.sakaiproject.calendar.tool;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -53,6 +52,7 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
@@ -215,6 +215,8 @@ extends VelocityPortletStateAction
 	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
+	//Map for event icons
+	private Map<String, String> eventIconMap;
 
 	public CalendarAction() {
 		super();
@@ -2495,6 +2497,7 @@ extends VelocityPortletStateAction
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
 		context.put("config",configProps);
+		context.put("eventIconMap", eventIconMap);
 		context.put("dateFormat", getDateFormatString());
 		context.put("timeFormat", getTimeFormatString());
       
@@ -4724,7 +4727,7 @@ extends VelocityPortletStateAction
 			// Do the import and send us to the confirm page
 			FileItem importFile = data.getParameters().getFileItem(WIZARD_IMPORT_FILE);
 			
-			try
+			try (InputStream stream = importFile.getInputStream())
 			{
 				Map columnMap = CalendarImporterService.getDefaultColumnMap(CalendarImporterService.CSV_IMPORT);
 				
@@ -4741,13 +4744,13 @@ extends VelocityPortletStateAction
 							addFieldsCalendarArray[i]);
 					}
 				}
-						
+
 				state.setWizardImportedEvents(
-					CalendarImporterService.doImport(
-						CalendarImporterService.CSV_IMPORT,
-						new ByteArrayInputStream(importFile.get()),
-						columnMap,
-						addFieldsCalendarArray));
+						CalendarImporterService.doImport(
+								CalendarImporterService.CSV_IMPORT,
+								stream,
+								columnMap,
+								addFieldsCalendarArray));
 
 				importSucceeded = true;
 			}
@@ -4755,7 +4758,11 @@ extends VelocityPortletStateAction
 			{
 				addAlert(sstate, e.getMessage());
 			}
-			
+			catch (IOException e)
+			{
+				M_log.warn("Failed to close stream.", e);
+			}
+
 			if ( importSucceeded )
 			{
 				// If all is well, go on to the confirmation page. 
@@ -4777,12 +4784,12 @@ extends VelocityPortletStateAction
 			
 			String [] addFieldsCalendarArray = getCustomFieldsArray(state, sstate);
 			
-			try
+			try (InputStream stream = importFile.getInputStream())
 			{
 				state.setWizardImportedEvents(
 					CalendarImporterService.doImport(
 						state.getImportWizardType(),
-						new ByteArrayInputStream(importFile.get()),
+						stream,
 						null,
 						addFieldsCalendarArray));
 						
@@ -4791,7 +4798,11 @@ extends VelocityPortletStateAction
 			catch (ImportException e)
 			{
 				addAlert(sstate, e.getMessage());
-			} 
+			}
+			catch (IOException e)
+			{
+				M_log.warn("Failed to close stream.", e);
+			}
 				
 			if ( importSucceeded )
 			{
@@ -8086,6 +8097,8 @@ extends VelocityPortletStateAction
 				inConfig = this.getClass().getResourceAsStream("calendar.config");
 				configProps.load(inConfig);
 			}
+			//get map with key as event and value as image, if empty then create one.
+			eventIconMap = new CalendarUtil().getEventImageMap(configProps);
 		}
 		catch ( IOException e )
 		{

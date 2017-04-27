@@ -31,6 +31,12 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-component-manager</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <scope>provided</scope>
+            <version>${sakai.elasticsearch.version}</version>
+        </dependency>
 		<!-- Samigo Lite -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>

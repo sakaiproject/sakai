@@ -64,3 +64,4 @@ should be included in file importing DeliveryMessages
   
 </h:panelGrid>
 
+<%@ include file="/jsf/author/preview_item/tags.jsp" %>

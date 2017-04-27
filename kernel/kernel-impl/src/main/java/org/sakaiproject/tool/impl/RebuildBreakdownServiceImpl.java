@@ -21,7 +21,7 @@
 package org.sakaiproject.tool.impl;
 
 import com.google.common.collect.MapMaker;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.azeckoski.reflectutils.ConstructorUtils;

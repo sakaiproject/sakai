@@ -43,6 +43,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
@@ -292,7 +293,7 @@ public class DeliveryActionListener
               eventRef.append(delivery.getAssessmentId());
               eventRef.append(", submissionId=");
               eventRef.append(agData.getAssessmentGradingId());
-              event = eventTrackingService.newEvent("sam.assessment.review", eventRef.toString(), true);
+              event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVIEW, eventRef.toString(), true);
               eventTrackingService.post(event);
               break;
  
@@ -458,7 +459,7 @@ public class DeliveryActionListener
             			  eventRef.append(timeRemaining);
             		  }
             		  
-                      event = eventTrackingService.newEvent("sam.assessment.take",
+                      event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE,
                               "siteId=" + site_id + ", " + eventRef.toString(), "samigo",true,0,SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
                       eventTrackingService.post(event);
             	  }
@@ -474,7 +475,7 @@ public class DeliveryActionListener
             			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
             			  eventRef.append(timeRemaining);
             		  }
-                      event = eventTrackingService.newEvent("sam.assessment.take.via_url",
+                      event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE_VIAURL,
                                 "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), true));
                       eventTrackingService.post(event);
             	  }
@@ -501,7 +502,7 @@ public class DeliveryActionListener
             		  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
             		  eventRef.append(timeRemaining);
             	  }
-                  event = eventTrackingService.newEvent("sam.assessment.resume",
+                  event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_RESUME,
                                 "siteId=" + site_id + ", " + eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED);
                   eventTrackingService.post(event);
               }

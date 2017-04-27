@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.business;
 
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
@@ -122,9 +120,6 @@ public class GradebookNgBusinessService {
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	public static final String ICON_SAKAI = "icon-sakai--";
-
-
-	private Collator collator = Collator.getInstance();
 
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -424,7 +419,7 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = this.getGradebook();
 		if (gradebook != null) {
-			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), this.getGradeableUsers());
+			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
 		}
 		return rval;
 	}
@@ -511,6 +506,11 @@ public class GradebookNgBusinessService {
 		String newGradeAdjusted = newGrade;
 		String oldGradeAdjusted = oldGrade;
 		String storedGradeAdjusted = storedGrade;
+		if(StringUtils.isNotBlank(storedGradeAdjusted)){
+			//Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same separator
+			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",", newGradeAdjusted.contains(",") ? "," : ".");
+			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",", newGradeAdjusted.contains(",") ? "," : ".");
+		}
 
 		if (gradingType == GradingType.PERCENTAGE) {
 			// the passed in grades represents a percentage so the number needs to be adjusted back to points
@@ -683,20 +683,19 @@ public class GradebookNgBusinessService {
 		// this gives us our base list and will be sorted as per our desired
 		// sort method
 		final List<User> students = getUsers(studentUuids);
-		if (settings.getStudentSortOrder() != null || settings.getNameSortOrder() != null) {
+		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
+		if (settings.getStudentSortOrder() != null) {
 
-			if (settings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME) {
-				Collections.sort(students, new FirstNameComparator());
-			} else {
-				Collections.sort(students, new LastNameComparator());
+			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ?
+					new FirstNameComparator() : new LastNameComparator();
+
+			if (SortDirection.DESCENDING == settings.getStudentSortOrder()) {
+
+				comp = Collections.reverseOrder(comp);
 			}
-
-			if (settings.getStudentSortOrder() != null &&
-					settings.getStudentSortOrder().equals(SortDirection.DESCENDING)) {
-
-				Collections.reverse(students);
-			}
+			Collections.sort(students, comp);
 		}
+		stopwatch.timeWithContext("buildGradeMatrix", "sortUsers", stopwatch.getTime());
 
 		// get course grades
 		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
@@ -988,46 +987,42 @@ public class GradebookNgBusinessService {
 
 		// sort the matrix based on the supplied assignment sort order (if any)
 		if (settings.getAssignmentSortOrder() != null) {
-			final AssignmentGradeComparator comparator = new AssignmentGradeComparator();
-			comparator.setAssignmentId(settings.getAssignmentSortOrder().getAssignmentId());
+			Comparator<GbStudentGradeInfo> comparator = new AssignmentGradeComparator(settings.getAssignmentSortOrder().getAssignmentId());
 
 			final SortDirection direction = settings.getAssignmentSortOrder().getDirection();
-
-			// sort
-			Collections.sort(items, comparator);
-
 			// reverse if required
 			if (direction == SortDirection.DESCENDING) {
-				Collections.reverse(items);
+				comparator = Collections.reverseOrder(comparator);
 			}
+			// sort
+			Collections.sort(items, comparator);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
 
 		// sort the matrix based on the supplied category sort order (if any)
 		if (settings.getCategorySortOrder() != null) {
-			final CategorySubtotalComparator comparator = new CategorySubtotalComparator();
-			comparator.setCategoryId(settings.getCategorySortOrder().getCategoryId());
+			Comparator comparator = new CategorySubtotalComparator(settings.getCategorySortOrder().getCategoryId());
 
 			final SortDirection direction = settings.getCategorySortOrder().getDirection();
-
+			// reverse if required
+			if (direction == SortDirection.DESCENDING) {
+				comparator = Collections.reverseOrder(comparator);
+			}
 			// sort
 			Collections.sort(items, comparator);
 
-			// reverse if required
-			if (direction == SortDirection.DESCENDING) {
-				Collections.reverse(items);
-			}
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
 
 		if (settings.getCourseGradeSortOrder() != null) {
-			// sort
-			Collections.sort(items, new CourseGradeComparator(getGradebookSettings()));
 
+			Comparator<GbStudentGradeInfo> comp = new CourseGradeComparator(getGradebookSettings());
 			// reverse if required
 			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
-				Collections.reverse(items);
+				comp = Collections.reverseOrder(comp);
 			}
+			// sort
+			Collections.sort(items, comp);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
@@ -1252,32 +1247,6 @@ public class GradebookNgBusinessService {
 			final Long assignmentId, final int order) {
 		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId,
 				new Integer(order));
-	}
-
-	/**
-	 * Comparator class for sorting a list of users by last name Secondary sort is on first name to maintain consistent order for those with
-	 * the same last name
-	 */
-	class LastNameComparator implements Comparator<User> {
-		@Override
-		public int compare(final User u1, final User u2) {
-			collator.setStrength(Collator.PRIMARY);
-			return new CompareToBuilder().append(u1.getLastName(), u2.getLastName(), collator)
-					.append(u1.getFirstName(), u2.getFirstName(), collator).toComparison();
-		}
-	}
-
-	/**
-	 * Comparator class for sorting a list of users by first name Secondary sort is on last name to maintain consistent order for those with
-	 * the same first name
-	 */
-	class FirstNameComparator implements Comparator<User> {
-		@Override
-		public int compare(final User u1, final User u2) {
-			collator.setStrength(Collator.PRIMARY);
-			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName(), collator)
-					.append(u1.getLastName(), u2.getLastName(), collator).toComparison();
-		}
 	}
 
 	/**
@@ -1988,117 +1957,6 @@ public class GradebookNgBusinessService {
 			iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
 		}
 		return iconClass;
-	}
-
-	/**
-	 * Is final grade mode enabled in sakai.properties? To control this set:
-	 * <code>gradebook.enable.finalgrade=true<code> in sakai.properties.
-	 *
-	 * Note that this does not check the actual setting for <em>this</em> gradebook.
-	 *
-	 * @return true or false if enabled or not
-	 */
-	public boolean isFinalGradeModeEnabled() {
-		return this.serverConfigurationService.getBoolean("gradebook.enable.finalgrade", false);
-	}
-
-
-	/**
-	 * Comparator class for sorting an assignment by the grades.
-	 *
-	 * Note that this must have the assignmentId set into it so we can extract the appropriate grade entry from the map that each student
-	 * has.
-	 *
-	 */
-	class AssignmentGradeComparator implements Comparator<GbStudentGradeInfo> {
-
-		@Setter
-		private long assignmentId;
-
-		@Override
-		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
-
-			final GbGradeInfo info1 = g1.getGrades().get(this.assignmentId);
-			final GbGradeInfo info2 = g2.getGrades().get(this.assignmentId);
-
-			// for proper number ordering, these have to be numerical
-			final Double grade1 = (info1 != null) ? NumberUtils.toDouble(info1.getGrade()) : null;
-			final Double grade2 = (info2 != null) ? NumberUtils.toDouble(info2.getGrade()) : null;
-
-			return new CompareToBuilder().append(grade1, grade2).toComparison();
-
-		}
-	}
-
-	/**
-	 * Comparator class for sorting a category by the subtotals
-	 *
-	 * Note that this must have the categoryId set into it so we can extract the appropriate grade entry from the map that each student has.
-	 *
-	 */
-	class CategorySubtotalComparator implements Comparator<GbStudentGradeInfo> {
-
-		@Setter
-		private long categoryId;
-
-		@Override
-		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
-
-			final Double subtotal1 = g1.getCategoryAverages().get(this.categoryId);
-			final Double subtotal2 = g2.getCategoryAverages().get(this.categoryId);
-
-			return new CompareToBuilder().append(subtotal1, subtotal2).toComparison();
-
-		}
-	}
-
-	/**
-	 * Comparator class for sorting by course grade, first by the letter grade's index in the gradebook's grading scale and then by the
-	 * number of points the student has earned.
-	 *
-	 */
-	class CourseGradeComparator implements Comparator<GbStudentGradeInfo> {
-
-		private List<String> ascendingGrades;
-
-		public CourseGradeComparator(final GradebookInformation gradebookInformation) {
-			final Map<String, Double> gradeMap = gradebookInformation.getSelectedGradingScaleBottomPercents();
-			this.ascendingGrades = new ArrayList<>(gradeMap.keySet());
-			this.ascendingGrades.sort(new Comparator<String>() {
-				@Override
-				public int compare(final String a, final String b) {
-					return new CompareToBuilder()
-							.append(gradeMap.get(a), gradeMap.get(b))
-							.toComparison();
-				}
-			});
-		}
-
-		@Override
-		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
-			final CourseGrade cg1 = g1.getCourseGrade().getCourseGrade();
-			final CourseGrade cg2 = g2.getCourseGrade().getCourseGrade();
-
-			String letterGrade1 = cg1.getMappedGrade();
-			if (cg1.getEnteredGrade() != null) {
-				letterGrade1 = cg1.getEnteredGrade();
-			}
-			String letterGrade2 = cg2.getMappedGrade();
-			if (cg2.getEnteredGrade() != null) {
-				letterGrade2 = cg2.getEnteredGrade();
-			}
-
-			final int gradeIndex1 = this.ascendingGrades.indexOf(letterGrade1);
-			final int gradeIndex2 = this.ascendingGrades.indexOf(letterGrade2);
-
-			final Double calculatedGrade1 = cg1.getCalculatedGrade() == null ? null : Double.valueOf(cg1.getCalculatedGrade());
-			final Double calculatedGrade2 = cg2.getCalculatedGrade() == null ? null : Double.valueOf(cg2.getCalculatedGrade());
-
-			return new CompareToBuilder()
-					.append(gradeIndex1, gradeIndex2)
-					.append(calculatedGrade1, calculatedGrade2)
-					.toComparison();
-		}
 	}
 
 }

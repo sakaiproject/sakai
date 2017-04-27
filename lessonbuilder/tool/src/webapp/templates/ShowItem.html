@@ -21,7 +21,7 @@
         .Mrphs-toolTitleNav{margin-top:-10px !important}
         span.siteTitle{background-color:red;display:none !important;}
         .Mrphs-toolTitleNav .Mrphs-toolTitleNav__button_container {
-           top:5px !important;
+           top: 12px !important;
         }
 </style>
 <script type="text/javascript">
@@ -69,13 +69,6 @@ setMainFrameHeight(window.name);
 <link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
 
 <script type="text/javascript" language="JavaScript">
-function resizeContent() {
-  if (window.matchMedia("only screen and (max-width: 800px)").matches) {
-    jQuery("#content").css('margin-top',jQuery(".Mrphs-siteHierarchy").height() + 60);
-  } else {
-    jQuery("#content").css('margin-top','0px');
-  }
-}
 $(function() {
          if ($(".showItemMorpheus").size() != 0) {
          // inline, move action (next/prev buttons) to top area
@@ -99,12 +92,6 @@ $(function() {
 	   $(".Mrphs-siteHierarchy").children().wrapAll('<div class="hierarchyWrap" />');
 	   $(".Mrphs-siteHierarchy").append($(".action").children().first());
            $(".Mrphs-siteHierarchy .nextprev").removeClass("usebutton returnheader");
-	   // the top is position:fixed. The rest of the page is position static, put below the
-	   // fixed by a magic margin. However if the siteHierarchy is large, the magic margin
-	   // has to be adjusted.
-           resizeContent();
-	   jQuery(window).load(resizeContent);
-	   jQuery(window).resize(resizeContent);
          }
         
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {

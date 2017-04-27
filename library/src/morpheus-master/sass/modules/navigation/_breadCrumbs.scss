@@ -1,18 +1,16 @@
 .#{$namespace}siteHierarchy{
-	$svg-gradient-shim-threshold: 1 !global;
-	background: linear-gradient( to right, $header-gradient-a, $header-gradient-b, $header-gradient-c, $header-gradient-d);
-	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
+	background: $tool-background-color;
 	min-height: $hierarchy-size;
 
 	h1{
 		color: $background-color;
 		font-weight: 300;
-		margin: 0 0 0 0;
+		margin: 0;
 	}
 	a{
 		color: $breadcrumbs-color;
-		margin: 0 0.5em 0 0.5em;
-		padding: 0em 0em 0.2em 0em;
+		margin: 0 0.5em;
+		padding: 0 0 0.2em;
 		text-decoration: none;
 		&:hover{
 			text-decoration: none;
@@ -25,8 +23,11 @@
 
 	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
 	@media #{$nonPhone}{
+		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator{
+			display: none;
+		}
+
 		min-height: initial;
-		padding: 0.75em 0 0.75em 1em;
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
 			/* Since we'll start on our own line, don't pad */
@@ -53,24 +54,26 @@
 			text-transform: uppercase;
 			font-size: 110%;
 			font-weight: bold;
-			margin-left: 0;
+			display: inline-block;
+			margin: 0.75em 0.75em 0.25em 1.25em;
+			border-bottom: 1px solid transparent;
+
+			&:hover{
+				border-bottom: 1px solid $breadcrumbs-hover-color;
+
+				.#{$namespace}breadcrumb--icon{
+					display: none;
+				}
+
+				.#{$namespace}breadcrumb--reset-icon{
+					width: 24px;
+					text-align: right;
+					display: inline-block;
+				}
+			}
 
 			.#{$namespace}breadcrumb--reset-icon{
 				display: none;
-			}
-		}
-
-		a.#{$namespace}hierarchy--toolName:hover{
-			border-bottom: 1px solid $breadcrumbs-hover-color;
-
-			.#{$namespace}breadcrumb--icon{
-				display: none;
-			}
-
-			.#{$namespace}breadcrumb--reset-icon{
-				width: 24px;
-				text-align: right;
-				display: inline-block;
 			}
 		}
 
@@ -83,39 +86,27 @@
 	}
 
 	@media #{$phone}{
-		padding: 1em;
-		background-color: $primary-color;
-		background-image: none;
-		color: $background-color;
-		position: fixed;
-		top: 6.3em;
-		width: 100%;
-		z-index: 2;
-		@include transition( top 0.25s linear 0s );
-		&.moving{
-			top: -22.2em;
-		}
+		background-color: transparent;
+		box-shadow: none;
+		position: absolute;
+		top: $banner-height - 4;
+		height: $banner-height - 4;
+		line-height: $banner-height - 4;
+		width: calc(100% - 80px); // leave space for the Tool menu toggle
+		white-space: nowrap;
+		left: 80px;
+
 		h1{
-			color: $background-color;
+			color: $breadcrumbs-tool-color;
 		}
-		a{
-			border-bottom: 0px none;
-			color: $background-color;
-			font-size: 0.9em;
-			.#{$namespace}breadcrumb--icon{
-				font-size: 0.95em;
-				vertical-align: 15%;
-			}
-			&:hover{
-				color: $background-color;
-			}			
-		}
-		.#{$namespace}hierarchy--siteName a:hover{
+
+		.#{$namespace}hierarchy--siteName a:hover .#{$namespace}hierarchy--siteName-label {
 			text-decoration: underline;
 		}
 		
 		a.#{$namespace}hierarchy--toolName:hover{
-			border-bottom: 1px solid  $background-color;
+			color: $breadcrumbs-tool-color;
+			border-bottom: 1px solid $breadcrumbs-hover-color;
 		}
 		
 		.#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
@@ -124,6 +115,41 @@
 
 		.#{$namespace}breadcrumb--reset-icon{
 			display: none;
+		}
+
+		.#{$namespace}hierarchy--siteName {
+			position: absolute;
+			top: - ($banner-height - 4);
+			height: $banner-height - 4;
+			left: -80px;
+			padding: 0 10px;
+			line-height: $banner-height - 4;
+			overflow: hidden;
+			white-space: nowrap;
+			width: 100%;
+
+			a {
+				color: $sites-nav-menu-item-color;
+				display: inline-block;
+				margin: 0;
+				padding: 0;
+				text-overflow: ellipsis;
+				max-width: 100%;
+				width: auto;
+				overflow: hidden;
+			}
+		}
+
+		.#{$namespace}hierarchy-item {
+			color: $breadcrumbs-tool-color;
+		}
+
+		.#{$namespace}hierarchy--siteNameSeparator {
+			display: none;
+		}
+
+		&.moving {
+			top: -22.2em;
 		}
 	}
 

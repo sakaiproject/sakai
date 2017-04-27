@@ -1257,4 +1257,12 @@ public interface SiteService extends EntityProducer
 	 * @return the site or section title
 	 */
 	public String getUserSpecificSiteTitle( Site site, String userID );
-} 
+
+	/**
+	 * Similar to getUserSpecificSiteTitle(Site site, String userId), but consumes the specified siteProviders (for performance savings)
+	 *
+	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param siteProviders the site providers corresponding to the specified site; if null, they will be looked up
+	 */
+	public String getUserSpecificSiteTitle(Site site, String userID, List<String> siteProviders);
+}

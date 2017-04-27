@@ -19,7 +19,7 @@ In doing so this will can serve as a guide for updating sakai contrib tools whic
 - [ ] New Database comparison between H3 and H4
 - [ ] Performance impact
   - need to analyze if there was any impact (positive/negative) to queries and make adjustments.
-- [ ] JMX Support
+- [X] JMX Support via Spring MBean
 
 ## Notes
 While performing the changes there were some unplanned changes which will list here.

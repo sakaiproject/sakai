@@ -40,11 +40,20 @@
     background: #F8F8F8;
 }
 
-.roster-picture {
-    width: 80px;
+.roster-picture .roster-pictureview-picture {
+    width: 60px;
     padding: 5px 0px 5px 5px;
 }
 
+.roster-pictureview {
+    display: inline-block;
+}
+
+.roster-name {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 
 .roster-mobile-label {
     display: none;
@@ -55,6 +64,18 @@
     font-size: 0.9em;
 }
 
-.roster-picture {
-    width: 50px;
+#roster-pictures-only-label {
+    display: none;
+}
+
+#roster-role-totals {
+    display: none;
+}
+
+#roster-members-total {
+    display: none;
+}
+
+#profileImageUpload {
+    display: none;
 }

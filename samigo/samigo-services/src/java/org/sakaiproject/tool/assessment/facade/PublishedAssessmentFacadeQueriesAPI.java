@@ -280,8 +280,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void saveOrUpdateSection(SectionFacade section);
   
-  public void removeItemAttachment(Long itemAttachmentId);
-  
   public PublishedSectionFacade addSection(Long publishedAssessmentId);
 
   public PublishedSectionFacade getSection(Long sectionId);

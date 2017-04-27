@@ -26,14 +26,16 @@ public class SimpleChecklistItemImpl implements SimpleChecklistItem {
 
     private long id; // Basic ID
     private String name; // Name to be displayed
+    private long link; // ID of item if linked, -1 otherwise
 
     public SimpleChecklistItemImpl() {
         name = "";
     }
 
-    public SimpleChecklistItemImpl(long id, String name) {
+    public SimpleChecklistItemImpl(long id, String name, Long link) {
         this.id = id;
         this.name = name;
+        this.setLink(link);
     }
 
     public long getId() {
@@ -50,6 +52,17 @@ public class SimpleChecklistItemImpl implements SimpleChecklistItem {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getLink() {
+        return link;
+    }
+
+    public void setLink(Long link) {
+        if(link == null) {
+            link = -1L;
+        }
+        this.link = link;
     }
 
 }

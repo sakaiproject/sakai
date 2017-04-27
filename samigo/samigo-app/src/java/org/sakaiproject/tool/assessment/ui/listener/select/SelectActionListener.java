@@ -570,10 +570,12 @@ public class SelectActionListener
 			if (extendedTimeDeliveryService.hasExtendedTime()) {
 				f.setStartDate(extendedTimeDeliveryService.getStartDate());
 				f.setDueDate(extendedTimeDeliveryService.getDueDate());
-				f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
-				if (extendedTimeDeliveryService.getTimeLimit() != 0) {
-					f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
+				//Override late handling here, availability check done later
+				if (extendedTimeDeliveryService.getRetractDate() != null) {
+					f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
+					f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 				}
+				f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
 			}
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && !f.getReleaseTo().contains("Anonymous Users") ) {
@@ -594,7 +596,7 @@ public class SelectActionListener
     Date dueDate = f.getDueDate();
     Date retractDate = f.getRetractDate();
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
-    
+
     if (!Integer.valueOf(1).equals(status)) {
     	return false;
     }

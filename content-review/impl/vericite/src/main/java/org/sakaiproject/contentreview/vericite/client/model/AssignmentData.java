@@ -57,6 +57,9 @@ public class AssignmentData   {
   @SerializedName("assignmentDueDate")
   private Long assignmentDueDate = null;
 
+  @SerializedName("assignmentEnableStudentPreview")
+  private Boolean assignmentEnableStudentPreview = null;
+
   @SerializedName("assignmentGrade")
   private Integer assignmentGrade = null;
 
@@ -171,6 +174,25 @@ public class AssignmentData   {
     this.assignmentDueDate = assignmentDueDate;
   }
 
+  public AssignmentData assignmentEnableStudentPreview(Boolean assignmentEnableStudentPreview) {
+    this.assignmentEnableStudentPreview = assignmentEnableStudentPreview;
+    return this;
+  }
+
+  /**
+   * set status for enableStudentPreview
+   * @return assignmentEnableStudentPreview
+   **/
+  @ApiModelProperty(example = "null", value = "set status for enableStudentPreview")
+  public Boolean getAssignmentEnableStudentPreview() {
+    return assignmentEnableStudentPreview;
+  }
+
+  public void setAssignmentEnableStudentPreview(Boolean assignmentEnableStudentPreview) {
+    this.assignmentEnableStudentPreview = assignmentEnableStudentPreview;
+  }
+
+
   public AssignmentData assignmentGrade(Integer assignmentGrade) {
     this.assignmentGrade = assignmentGrade;
     return this;
@@ -224,6 +246,7 @@ public class AssignmentData   {
     AssignmentData assignmentData = (AssignmentData) o;
     return Objects.equals(this.assignmentTitle, assignmentData.assignmentTitle) &&
         Objects.equals(this.assignmentInstructions, assignmentData.assignmentInstructions) &&
+        Objects.equals(this.assignmentEnableStudentPreview, assignmentData.assignmentEnableStudentPreview) &&
         Objects.equals(this.assignmentExcludeQuotes, assignmentData.assignmentExcludeQuotes) &&
         Objects.equals(this.assignmentExcludeSelfPlag, assignmentData.assignmentExcludeSelfPlag) &&
         Objects.equals(this.assignmentStoreInIndex, assignmentData.assignmentStoreInIndex) &&
@@ -234,7 +257,7 @@ public class AssignmentData   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(assignmentTitle, assignmentInstructions, assignmentExcludeQuotes, assignmentExcludeSelfPlag, assignmentStoreInIndex, assignmentDueDate, assignmentGrade, assignmentAttachmentExternalContent);
+    return Objects.hash(assignmentTitle, assignmentInstructions, assignmentExcludeQuotes, assignmentExcludeSelfPlag, assignmentStoreInIndex, assignmentEnableStudentPreview, assignmentDueDate, assignmentGrade, assignmentAttachmentExternalContent);
   }
 
   @Override
@@ -248,6 +271,7 @@ public class AssignmentData   {
     sb.append("    assignmentExcludeSelfPlag: ").append(toIndentedString(assignmentExcludeSelfPlag)).append("\n");
     sb.append("    assignmentStoreInIndex: ").append(toIndentedString(assignmentStoreInIndex)).append("\n");
     sb.append("    assignmentDueDate: ").append(toIndentedString(assignmentDueDate)).append("\n");
+    sb.append("    assignmentEnableStudentPreview: ").append(toIndentedString(assignmentEnableStudentPreview)).append("\n");
     sb.append("    assignmentGrade: ").append(toIndentedString(assignmentGrade)).append("\n");
     sb.append("    assignmentAttachmentExternalContent: ").append(toIndentedString(assignmentAttachmentExternalContent)).append("\n");
     sb.append("}");

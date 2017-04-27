@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.UrlValidator;

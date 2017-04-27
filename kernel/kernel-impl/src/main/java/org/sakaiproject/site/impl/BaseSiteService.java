@@ -21,7 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
@@ -3557,11 +3557,19 @@ public abstract class BaseSiteService implements SiteService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getUserSpecificSiteTitle( Site site, String userID )
+	public String getUserSpecificSiteTitle(Site site, String userID)
+	{
+		return getUserSpecificSiteTitle(site, userID, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserSpecificSiteTitle(Site site, String userID, List<String> siteProviders)
 	{
 		if( m_siteTitleAdvisor != null )
 		{
-			return m_siteTitleAdvisor.getUserSpecificSiteTitle( site, userID );
+			return m_siteTitleAdvisor.getUserSpecificSiteTitle( site, userID, siteProviders );
 		}
 		else
 		{

@@ -1567,14 +1567,14 @@ public class DeliveryBean
 		  return "editAssessment";
 	  }	  
 	  
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.click_sub", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_CLICKSUB, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
 	  if (!submitFromTimeoutPopup) {
 
 		  String nextAction = checkBeforeProceed(true, isFromTimer);
 		  log.debug("***** next Action="+nextAction);
 
-		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.checked", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+		  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_CHECKED, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
 
 		  if (!("safeToProceed").equals(nextAction)){
@@ -1621,20 +1621,20 @@ public class DeliveryBean
 		  if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
 		  {
 			  returnValue="anonymousThankYou";
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.via_url", resource, siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_VIA_URL, resource, siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit", resource, true));
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, resource, true));
 		  }
 	  }
 	  else {
 		  if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
 		  {
 			  returnValue="anonymousThankYou";
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit.url", resource , siteId, true, NotificationService.NOTI_REQUIRED));
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_VIA_URL, resource , siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit", resource, true));
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER, resource, true));
 		  }
 	  }
 	  forGrade = false;
@@ -1733,10 +1733,10 @@ public class DeliveryBean
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
 		  if (adata != null) {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE, "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 	  }
 	  
@@ -1776,10 +1776,10 @@ public class DeliveryBean
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
 		  if (adata != null) {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_TOC, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_TOC, "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 	  }
 	  
@@ -2666,10 +2666,14 @@ public class DeliveryBean
     return publishedAssessment;
   }
 
-  public void setPublishedAssessment(PublishedAssessmentFacade
-                                     publishedAssessment)
+  public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment)
   {
-    this.publishedAssessment = publishedAssessment;
+	  this.publishedAssessment = publishedAssessment;
+	  //Setup extendedTimeDeliveryService
+	  if (extendedTimeDeliveryService == null && 
+			  (publishedAssessment != null && publishedAssessment.getPublishedAssessmentId() != null)) {
+		  extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
+	  }
   }
 
   public java.util.Date getFeedbackDate()
@@ -3205,8 +3209,7 @@ public class DeliveryBean
       return "error";
     }
 
-    boolean acceptLateSubmission = AssessmentAccessControlIfc.
-            ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+    boolean acceptLateSubmission = isAcceptLateSubmission();
 
     if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "safeToProceed";
@@ -3217,8 +3220,6 @@ public class DeliveryBean
     if (adata!=null){
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
-    
-    extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
     
     // log.debug("check 0");
     if (isRemoved()){
@@ -3405,6 +3406,16 @@ public class DeliveryBean
         pastDue = false;
     }
     return pastDue;
+  }
+
+  private boolean isAcceptLateSubmission() {
+	  boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+	  //If using extended Time Delivery, the late submission setting is based on retracted
+	  if (extendedTimeDeliveryService.hasExtendedTime()) {
+		  //Accept it if it's not retracted on the extended time entry
+		  acceptLateSubmission = !isRetracted(false);
+	  }
+	  return acceptLateSubmission;
   }
 
   private boolean isRetracted(boolean isSubmitForGrade){
@@ -3618,8 +3629,7 @@ public class DeliveryBean
 	  
 	  public void setDeadline() {
 		  if (this.firstTimeTaking) {
-			  boolean acceptLateSubmission = AssessmentAccessControlIfc.
-					  ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+			  boolean acceptLateSubmission = isAcceptLateSubmission();
 
 			  if (dueDate != null) {
 				  if (!acceptLateSubmission) {
@@ -3659,8 +3669,7 @@ public class DeliveryBean
 
 	  
 	  public String getTimeBeforeDueRetract(String timeLimit) {
-		  boolean acceptLateSubmission = AssessmentAccessControlIfc.
-				  ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+		  boolean acceptLateSubmission = isAcceptLateSubmission();
 		  
 		  String finalTimeLimit = timeLimit;
 		  if (dueDate != null) {

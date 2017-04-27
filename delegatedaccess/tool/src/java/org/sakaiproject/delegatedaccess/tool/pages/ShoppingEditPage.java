@@ -40,8 +40,8 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
-import org.apache.wicket.extensions.markup.html.repeater.tree.AbstractTree;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -79,9 +79,17 @@ public class ShoppingEditPage extends BaseTreePage{
 	private List<ListOptionSerialized> blankRestrictedTools;
 	private boolean modifiedAlert = false;
 
+	public static final String SCRIPT_DATEPICKER = "javascript/init-datepicker.js";
+
 	@Override
 	protected DefaultAbstractTree getTree() {
 		return  tree;
+	}
+
+	@Override
+	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
+		response.render(JavaScriptHeaderItem.forUrl(SCRIPT_DATEPICKER));
 	}
 
 	public ShoppingEditPage(){

@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
@@ -62,6 +62,8 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class RealmsAction extends PagedResourceActionII
 {
+
+	private static final long serialVersionUID = 1L;
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");

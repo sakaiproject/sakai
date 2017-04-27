@@ -35,6 +35,12 @@
 				## figure the link
 				#set ($base=$sakai_ActionURL.reset().setParameter("sakai_action", $item.Action).toString())
 
+				#if ($item.IsCurrent)
+					#set ($current= "current")
+				#else
+					#set ($current= "")
+				#end
+
 				#if ($item.IsEnabled)
 					#if(!$item.IsDivider)
 					
@@ -51,20 +57,20 @@
 								#if($item.IsChecked)
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
 									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-										<span class="chefToolBarToggle $prevItemWasField"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+										<span class="chefToolBarToggle $prevItemWasField $current"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
 									</li>
 								## unchecked item support
 								#else
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
 									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-										<span class="$prevItemWasField"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+										<span class="$prevItemWasField $current"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
 									</li>
 								#end
 							## url support (i.e. to another place, another window)
 							#else
 								#set( $toolbaritemCount=$toolbaritemCount + 1)
 								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-									<span class="externalLink $prevItemWasField"><a href="$item.Url" title="$item.AccessibilityLabel" target="_blank">$item.Title</a></span>
+									<span class="externalLink $prevItemWasField $current"><a href="$item.Url" title="$item.AccessibilityLabel" target="_blank">$item.Title</a></span>
 								</li>	
 							#end
 							#set ($formItem=0)
@@ -89,12 +95,12 @@
 			## not enabled - could be checked
 			#elseif ($item.IsChecked)
 				#set( $toolbaritemCount=$toolbaritemCount + 1)
-				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="current $prevItemWasField">$item.Title</span></li>
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="current $prevItemWasField $current">$item.Title</span></li>
 
 			## not enabled - not checked - show if we are showing disabled
 			#elseif ($mnu.Showdisabled)
 				#set( $toolbaritemCount=$toolbaritemCount + 1)
-				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="disabled $prevItemWasField">$item.Title</span></li>
+				<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end><span class="disabled $prevItemWasField $current">$item.Title</span></li>
 			#end
 		## end of foreach loop
 		#end

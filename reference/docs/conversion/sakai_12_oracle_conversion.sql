@@ -254,9 +254,6 @@ ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY ( "USERNAME" VARCHAR2(99 CHAR) ) ;
 CREATE UNIQUE INDEX POSTEM_USERNAME_SURROGATE ON SAKAI_POSTEM_STUDENT ("USERNAME" ASC, "SURROGATE_KEY" ASC);
 -- END SAK-15708
 
--- #3431 Add final grade mode setting
-ALTER TABLE gb_gradebook_t ADD final_grade_mode NUMBER(1,0) DEFAULT '0' NOT NULL;
-
 -- BEGIN SAK-32083 TAGS
 
 CREATE TABLE tagservice_collection (
@@ -476,3 +473,31 @@ CREATE OR REPLACE TRIGGER bullhorn_alerts_bir
         INTO   :new.id
         FROM   dual;
     END;
+
+-- SAK-32417 Forums permission composite index
+CREATE INDEX MFR_COMPOSITE_PERM ON MFR_PERMISSION_LEVEL_T (TYPE_UUID, NAME);
+
+-- SAK-32442 - LTI Column cleanup
+-- These conversions may fail if you started Sakai at newer versions that didn't contain these columns/tables
+alter table lti_tools drop column enabled_capability;
+alter table lti_deploy drop column allowlori;
+alter table lti_tools drop column allowlori;
+drop table lti_mapping
+-- END SAK-32442
+
+-- SAM-3012 - Update samigo events
+-- Update camel case events
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit' WHERE EVENT = 'sam.assessmentSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.graded.auto' WHERE EVENT = 'sam.assessmentAutoGraded';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.auto"' WHERE EVENT = 'sam.assessmentAutoSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.thread' WHERE EVENT = 'sam.assessmentTimedSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.pubassessment.remove' WHERE EVENT = 'sam.pubAssessment.remove';
+
+-- Update name of submission events
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.from_last' WHERE EVENT = 'sam.submit.from_last_page';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.from_toc' WHERE EVENT = 'sam.submit.from_toc';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.thread' WHERE EVENT = 'sam.assessment.thread_submit';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer' WHERE EVENT = 'sam.assessment.timer_submit';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.url' WHERE EVENT = 'sam.assessment.timer_submit.url';
+
+-- END SAM-3012

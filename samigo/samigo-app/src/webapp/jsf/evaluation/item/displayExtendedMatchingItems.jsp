@@ -83,5 +83,5 @@ include file for displaying Extended Matching Items questions
           </h:panelGroup>
         </h:column>
       </h:dataTable>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
       
-  

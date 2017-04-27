@@ -63,5 +63,6 @@
     	</script>
     	<script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
     	<script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
+    	<script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
     </body>
 </html>

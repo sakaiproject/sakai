@@ -68,7 +68,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "id")
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "messages")
 public class ChatChannel implements org.sakaiproject.entity.api.Entity {
    
    /** Message filter names */

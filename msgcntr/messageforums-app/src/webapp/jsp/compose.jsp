@@ -92,12 +92,12 @@
 
 		  <h:outputText style="display:block;" styleClass="messageConfirmation" value="#{msgs.pvt_hiddenGroupsBccMsg}" rendered="#{PrivateMessagesTool.displayHiddenGroupsMsg}" />
 
-		  <h:panelGrid styleClass="jsfFormTable" columns="2">
+		  <h:panelGrid styleClass="jsfFormTable composeFormTable" columns="2">
 			  <h:panelGroup styleClass="shorttext required">
 					 <h:outputLabel for="list1"><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_to}"/></h:outputLabel>
 			  </h:panelGroup>
 			  <h:panelGroup styleClass="shorttext">
-					<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;">
+					<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 		         <f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 		      </h:selectManyListbox>
 		      <f:verbatim>
@@ -153,7 +153,7 @@
 	       		</h:outputLabel>
 		  	</h:panelGroup>
 		  	<h:panelGroup styleClass="shorttext bcc" style="display:none">
-				<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;">
+				<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;" title="#{msgs.recipient_placeholder}">
 	         		<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 	       		</h:selectManyListbox>
 	       		<f:verbatim>

@@ -98,14 +98,12 @@ public class CourseGradeOverridePanel extends BasePanel {
 				// Note: validation is not enforced for final grade mode
 				final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings();
 
-				if(!gbInfo.isFinalGradeMode()) {
-					if (StringUtils.isNotBlank(newGrade)) {
-						final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
-						if (!schema.containsKey(newGrade)) {
-							error(new ResourceModel("message.addcoursegradeoverride.invalid").getObject());
-							target.addChildren(form, FeedbackPanel.class);
-							return;
-						}
+				if (StringUtils.isNotBlank(newGrade)) {
+					final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
+					if (!schema.containsKey(newGrade)) {
+						error(new ResourceModel("message.addcoursegradeoverride.invalid").getObject());
+						target.addChildren(form, FeedbackPanel.class);
+						return;
 					}
 				}
 

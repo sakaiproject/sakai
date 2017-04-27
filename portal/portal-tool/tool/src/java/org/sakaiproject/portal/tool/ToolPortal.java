@@ -68,7 +68,7 @@ public class ToolPortal extends HttpServlet
 	private static Logger M_log = LoggerFactory.getLogger(ToolPortal.class);
 
     // SAK-22384
-    private static final String MATHJAX_ENABLED = "mathJaxEnabled";
+    private static final String MATHJAX_ENABLED = "mathJaxAllowed";
     private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;

@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 /**
- * StackIterator is both a java.util.Iterator and a stack (though not a java.util.Collection)
+ * StackIterator is both a {@link java.util.Iterator} and a stack (though not a {@link java.util.Collection})
  * 
  * @deprecated use commons-collection instead, this will be removed after 2.9 - Dec 2011
  */

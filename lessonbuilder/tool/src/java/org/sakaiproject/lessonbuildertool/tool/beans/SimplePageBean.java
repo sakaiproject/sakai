@@ -25,11 +25,17 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.text.SimpleDateFormat;
-import java.text.Format;
 import java.math.BigDecimal;
+
+import org.apache.commons.lang.StringUtils;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -63,7 +69,6 @@ import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -87,7 +92,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URI;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -137,6 +141,11 @@ public class SimplePageBean {
     // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
         public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
 
+	public final Integer FILTER_DEFAULT=0;
+	public final Integer FILTER_HIGH=1;
+	public final Integer FILTER_LOW=2;
+	public final Integer FILTER_NONE=3;
+
 	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_]([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
 	public static final Pattern YOUTUBE2_PATTERN = Pattern.compile("embed/([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
 	public static final Pattern SHORT_YOUTUBE_PATTERN = Pattern.compile("([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
@@ -148,6 +157,8 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static final String CALENDAR_TOOL_ID = "sakai.schedule";
+	public static final String TWITTER_WIDGET_DEFAULT_HEIGHT = "300";
 	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
 	public static final String FORUMS_TOOL_ID = "sakai.forums";
 
@@ -284,7 +295,7 @@ public class SimplePageBean {
 
 	public Map<String, MultipartFile> multipartMap;
 
-	private HashMap<Integer, String> checklistItems = new HashMap<>();
+	private HashMap<Long, String> checklistItems = new HashMap<>();
 	
 	public String rubricSelections;
 	
@@ -304,7 +315,10 @@ public class SimplePageBean {
 	//variables used for announcements widget
 	private String announcementsHeight;
 	private String announcementsDropdown;
-
+	//variables used for twitter setting used in the widget
+	private String twitterDropDown;
+	private String twitterUsername;
+	private String twitterWidgetHeight;
     // almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
     //        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	SimpleDateFormat isoDateFormat = getIsoDateFormat();
@@ -914,6 +928,9 @@ public class SimplePageBean {
 		    mimetype = mimetype.toLowerCase().trim();
 		this.mimetype = mimetype;
 	}
+	public void setTwitterDropDown(String twitterDropDown) {
+		this.twitterDropDown = twitterDropDown;
+	}
 
 	public String getPageTitle() {
 		return getCurrentPage().getTitle();
@@ -987,6 +1004,14 @@ public class SimplePageBean {
 	}
 	public void setAnnouncementsDropdown(String announcementsDropdown) {
 		this.announcementsDropdown = announcementsDropdown;
+	}
+
+	public void setTwitterUsername(String twitterUsername) {
+		this.twitterUsername = twitterUsername;
+	}
+
+	public void setTwitterWidgetHeight(String twitterWidgetHeight) {
+		this.twitterWidgetHeight = twitterWidgetHeight;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -1097,6 +1122,44 @@ public class SimplePageBean {
 		}
 		return true;
 	}
+	
+	public Integer getFilterLevel(Placement placement) {
+		if (placement == null) {
+			placement = toolManager.getCurrentPlacement();
+		}
+
+	    Integer filter = FILTER_DEFAULT;
+        if (getCurrentPage().getOwner() != null) {
+            filter = FILTER_DEFAULT; // always filter student content
+        } else {
+            // this is instructor content.
+            // see if specified
+            String filterSpec = placement.getPlacementConfig().getProperty("filterHtml");
+            if (filterSpec == null)
+            filterSpec = filterHtml;
+            // no, default to LOW. That will allow embedding but not Javascript
+            if (filterSpec == null) // should never be null. unspeciifed should give ""
+            filter = FILTER_DEFAULT;
+            // old specifications
+            else if (filterSpec.equalsIgnoreCase("true"))
+            filter = FILTER_HIGH; // old value of true produced the same result as missing
+            else if (filterSpec.equalsIgnoreCase("false"))
+            filter = FILTER_NONE;
+            // new ones
+            else if (filterSpec.equalsIgnoreCase("default"))
+            filter = FILTER_DEFAULT;
+            else if (filterSpec.equalsIgnoreCase("high"))
+            filter = FILTER_HIGH;
+            else if (filterSpec.equalsIgnoreCase("low"))
+            filter = FILTER_LOW;
+            else if (filterSpec.equalsIgnoreCase("none"))
+            filter = FILTER_NONE;
+            // unspecified
+            else
+            filter = FILTER_DEFAULT;
+        }
+        return filter;
+	}
 
     // called by the producer that uses FCK to update a text block
 	public String submit() {
@@ -1118,44 +1181,12 @@ public class SimplePageBean {
 			// a lot of people feel users shouldn't be able to add javascript, etc
 			// to their HTML. I think enforcing that makes Sakai less than useful.
 			// So check config options to see whether to do that check
-			final Integer FILTER_DEFAULT=0;
-			final Integer FILTER_HIGH=1;
-			final Integer FILTER_LOW=2;
-			final Integer FILTER_NONE=3;
 
 			String html = contents;
 
 			// figure out how to filter
-			Integer filter = FILTER_DEFAULT;
-			if (isStudentPage(getCurrentPage())) {
-			    filter = FILTER_DEFAULT; // always filter student content
-			} else {
-			    // this is instructor content.
-			    // see if specified
-			    String filterSpec = placement.getPlacementConfig().getProperty("filterHtml");
-			    if (filterSpec == null)
-				filterSpec = filterHtml;
-			    // no, default to LOW. That will allow embedding but not Javascript
-			    if (filterSpec == null) // should never be null. unspeciifed should give ""
-				filter = FILTER_DEFAULT;
-			    // old specifications
-			    else if (filterSpec.equalsIgnoreCase("true"))
-				filter = FILTER_HIGH; // old value of true produced the same result as missing
-			    else if (filterSpec.equalsIgnoreCase("false"))			    
-				filter = FILTER_NONE;
-			    // new ones
-			    else if (filterSpec.equalsIgnoreCase("default"))			    
-				filter = FILTER_DEFAULT;
-			    else if (filterSpec.equalsIgnoreCase("high")) 
-				filter = FILTER_HIGH;
-			    else if (filterSpec.equalsIgnoreCase("low")) 
-				filter = FILTER_LOW;
-			    else if (filterSpec.equalsIgnoreCase("none")) 
-				filter = FILTER_NONE;
-			    // unspecified
-			    else
-				filter = FILTER_DEFAULT;
-			}			    
+			Integer filter = getFilterLevel(placement);
+
 			if (filter.equals(FILTER_NONE)) {
 			    html = FormattedText.processHtmlDocument(contents, error);
 			} else if (filter.equals(FILTER_DEFAULT)) {
@@ -1240,6 +1271,12 @@ public class SimplePageBean {
 			return "failure";
 		}
 
+		final String checklistName = StringUtils.trimToEmpty(name);
+		if(checklistName.isEmpty()) {
+			setErrMessage(messageLocator.getMessage("simplepage.checklist-empty-name"));
+			return "failure";
+		}
+
 		SimplePageItem item;
 		if (itemId != null && itemId != -1) {
 			item = findItem(itemId);
@@ -1248,7 +1285,7 @@ public class SimplePageBean {
 			item = appendItem("", messageLocator.getMessage("simplepage.checklistName"), SimplePageItem.CHECKLIST);
 		}
 
-		item.setName(name);
+		item.setName(checklistName);
 		item.setDescription(description);
 		setItemGroups(item, selectedGroups);
 
@@ -1271,24 +1308,41 @@ public class SimplePageBean {
 
 		simplePageToolDao.clearChecklistItems(item);
 
-		for(int i = 0; checklistItems.get(i) != null; i++) {
-			// get data sent from post operation for this answer
-			String data = checklistItems.get(i);
-			// split the data into the actual fields
-			String[] fields = data.split(":", 2);
-			String itemName = fields[1];
-			// Don't save checklist items with a blank name
-			if(!"".equals(itemName)) {
-				Long checklistItemId;
-				if (fields[0].equals(""))
-					checklistItemId = -1L;
-				else
-					checklistItemId = Long.valueOf(fields[0]);
-				if (checklistItemId <= 0L)
-					checklistItemId = ++max;
-				// Remove checklistItemId from list of those to be cleaned up
-				previousIds.remove(checklistItemId);
-				Long id = simplePageToolDao.addChecklistItem(item, checklistItemId, itemName);
+		final JSONParser jsonParser = new JSONParser();
+
+		for(long i = 0; checklistItems.get(i) != null; i++) {
+			// get data sent from post operation for this checklist item
+			final String data = checklistItems.get(i);
+			try {
+				final JSONObject checklistItem = (JSONObject) jsonParser.parse(data);
+
+				final String itemName = (String) checklistItem.get("text");
+
+				// Don't save checklist items with a blank name
+				if (StringUtils.isNotBlank(itemName)) {
+					Long checklistItemId;
+					if (StringUtils.isBlank((String) checklistItem.get("id"))) {
+						checklistItemId = -1L;
+					} else {
+						checklistItemId = Long.valueOf((String) checklistItem.get("id"));
+					}
+					if (checklistItemId <= 0L) {
+						checklistItemId = ++max;
+					}
+					Long linkedId;
+					if (StringUtils.isBlank((String) checklistItem.get("link"))) {
+						linkedId = -1L;
+					} else {
+						linkedId = Long.valueOf((String) checklistItem.get("link"));
+					}
+					// Remove checklistItemId from list of those to be cleaned up
+					previousIds.remove(checklistItemId);
+					simplePageToolDao.addChecklistItem(item, checklistItemId, itemName, linkedId);
+				}
+			} catch (ClassCastException e) {
+				log.error("Parser returned a non-JSONObject. ", e);
+			} catch (ParseException e) {
+				log.error("ParseException occurred while trying to save checklist item.", e);
 			}
 		}
 
@@ -1309,19 +1363,22 @@ public class SimplePageBean {
 			return;
 		}
 
-		int separator = data.indexOf(":");
-		String indexString = data.substring(0, separator);
-		Integer index = Integer.valueOf(indexString);
-		data = data.substring(separator+1);
+		final JSONParser parser = new JSONParser();
 
-		if(checklistItems == null) {
-			checklistItems = new HashMap<Integer, String>();
-			log.debug("setAddChecklistItemData: it was null");
+		try {
+			final JSONObject checklistItem = (JSONObject) parser.parse(data);
+			final Long index = (Long) checklistItem.get("index");
+
+			// We store with the index so that we can maintain the order
+			// in which the instructor inputted the checklist items
+			checklistItems.put(index, data);
+
+		} catch (ClassCastException e) {
+			log.error("Parser returned a non-JSONObject. ", e);
+			checklistItems = new HashMap<>();
+		} catch (ParseException e) {
+			checklistItems = new HashMap<>();
 		}
-
-		// We store with the index so that we can maintain the order
-		// in which the instructor inputted the checklist items
-		checklistItems.put(index, data);
 	}
 
 	public String cancel() {
@@ -3454,6 +3511,7 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.QUESTION
+		         && i.getType() != SimplePageItem.TWITTER
 			 && i.getType() != SimplePageItem.BREAK
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
@@ -3495,6 +3553,7 @@ public class SimplePageBean {
 	       case SimplePageItem.PAGE:
 	       case SimplePageItem.COMMENTS:
 	       case SimplePageItem.QUESTION:
+	       case SimplePageItem.TWITTER:
 	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
@@ -3727,6 +3786,7 @@ public class SimplePageBean {
 	   case SimplePageItem.PAGE:
 	   case SimplePageItem.BLTI:
 	   case SimplePageItem.COMMENTS:
+	   case SimplePageItem.TWITTER:
 	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
@@ -5059,6 +5119,23 @@ public class SimplePageBean {
 		return false;
 	}
 		
+    private boolean arePageItemsComplete(long pageId) {
+
+	int sequence = 1;
+	SimplePageItem i = simplePageToolDao.findNextItemOnPage(pageId, sequence);
+
+	while (i != null) {
+	    if (i.isRequired() && !isItemComplete(i) && isItemVisible(i)) 
+		return false; 
+
+	    sequence++; 
+	    i = simplePageToolDao.findNextItemOnPage(pageId, sequence); 
+	}
+
+	return true;
+    }
+
+
     // this is called in a loop to see whether items are available. Since computing it can require
     // database transactions, we cache the results
 	public boolean isItemComplete(SimplePageItem item) {
@@ -5088,8 +5165,9 @@ public class SimplePageBean {
 				completeCache.put(itemId, true);
 				return true;
 			} else {
-				completeCache.put(itemId, false);
-				return false;
+			        boolean apic = arePageItemsComplete(Long.parseLong(item.getSakaiId())); 
+				completeCache.put(itemId, apic);
+				return apic;
 			}
 		} else if (item.getType() == SimplePageItem.ASSIGNMENT) {
 			try {
@@ -6401,7 +6479,7 @@ public class SimplePageBean {
 	}
 
 	public List<Map<String, Object>> getToolsImportItem() {
-		return ltiService.getToolsImportItem();
+		return ltiService.getToolsImportItem(getCurrentSiteId());
 	}
 
 	public void handleImportItem() {
@@ -6418,7 +6496,7 @@ public class SimplePageBean {
                         return;
                 }
 
-                Map<String, Object> tool = ltiService.getTool(toolKey);
+                Map<String, Object> tool = ltiService.getTool(toolKey, getCurrentSiteId());
                 if ( tool == null ) {
 			setErrKey("simplepage.lti-import-error-id", toolId);
                         return;
@@ -8522,10 +8600,9 @@ public class SimplePageBean {
 	 * To add latest conversations in a div on Lessons Page
 	 */
 	public String addForumSummary(){
-		if (!itemOk(itemId))
+		if (!itemOk(itemId) || !checkCsrf()) {
 			return "permission-failed";
-		if (!checkCsrf())
-			return "permission-failed";
+		}
 		String status = "success";
 		if (canEditPage()) {
 			SimplePageItem item;
@@ -8578,6 +8655,78 @@ public class SimplePageBean {
 				item = appendItem("", "", SimplePageItem.RESOURCE_FOLDER);
 			}
 			item.setAttribute("dataDirectory", dataDirectory);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
+	/**
+	 * Method to add calendar component in the Lessons Page
+	 * @return
+	 */
+	public String addCalendar(String ab){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		String result = "success";
+		if (canEditPage()) {
+			//set addBefore value which will be used by append item to place calendar item at correct place
+			addBefore = ab;
+			SimplePageItem item;
+			if (itemId != null && itemId != -1) {
+				//existing item, need to update
+				item = findItem(itemId);
+			}else{
+				//new item,add it
+				item = appendItem("", "", SimplePageItem.CALENDAR);
+			}
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+			// Must clear the cache so that the calendar appears on the page as soon as it's added
+			itemsCache.remove(getCurrentPage().getPageId());
+		}
+		else{
+			result = "cancel";
+		}
+		return result;
+	}
+	/**
+	 * To add twitter timeline with given parameters in a Lessons page
+	 */
+	public String addTwitterTimeline(){
+		if (!itemOk(itemId) || !checkCsrf()){
+			return "permission-failed";
+		}
+		//if username is not provided return
+		if(StringUtils.isBlank(twitterUsername)){
+			return "failure";
+		}
+		//Check if height is supplied if not then set to default
+		if(StringUtils.isBlank(twitterWidgetHeight)){
+			twitterWidgetHeight = TWITTER_WIDGET_DEFAULT_HEIGHT;
+		}
+		//if user has added @ symbol with the username, remove it
+		if( twitterUsername.contains("@")){
+			twitterUsername = StringUtils.remove(twitterUsername, "@");
+		}
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.TWITTER);
+			}
+			//setting height , username and number of tweets as attributes for the twitter item.
+			item.setAttribute("height", twitterWidgetHeight);
+			item.setAttribute("username", twitterUsername);
+			item.setAttribute("numberOfTweets", twitterDropDown );
 			item.setPrerequisite(this.prerequisite);
 			setItemGroups(item, selectedGroups);
 			update(item);

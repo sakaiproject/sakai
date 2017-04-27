@@ -66,9 +66,7 @@
           <ref
             bean="org.sakaiproject.component.common.manager.PersistableHelper" />
         </property>
-        <property name="serverConfigurationService">
-        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-        </property>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
         <property name="userDirectoryService">
 		   <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
 		</property>

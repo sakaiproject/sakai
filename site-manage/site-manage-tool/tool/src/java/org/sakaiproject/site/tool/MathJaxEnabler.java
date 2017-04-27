@@ -47,19 +47,14 @@ public class MathJaxEnabler
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
     private static final boolean ENABLED_SAKAI_NEW_SITE_DEFAULT = false;
     
-    private static final String SITE_PROP_MATHJAX_ENABLED = "mathJaxEnabled";
-    private static final String SITE_PROP_MATHJAX_ALLOWED = "mathJaxAllowed";
-    private static final String STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST = "toolRegistrationMathJaxEnabledList";
-    private static final String STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE = "isMathJaxAllowedInSite";
+    private static final String SITE_PROP_MATHJAX_ENABLED = "mathJaxAllowed";
+    private static final String STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE = "isMathJaxEnabledForSite";
     private static final String CONTEXT_IS_MATHJAX_INSTALLED_KEY = "isMathJaxInstalled";
     private static final String CONTEXT_SAKAI_SERVICE_KEY = "sakaiService";
     private static final String CONTEXT_DO_ENABLE_MATHJAX_KEY = "doEnableMathJax";
     private static final String CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_KEY = "mathJaxToolIdSuffix";
     private static final String CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_VALUE = "-jax";
-    private static final String CONTEXT_CONFIRM_MATHJAX_ENABLED_TOOLS = "confirmMathJaxEnabledTools";
-    private static final String PARAM_MATHJAX_ENABLED_TOOLS_KEY = "mathJaxEnabledTools";
-    private static final String PARAM_MATHJAX_ALLOWED_KEY = "allowMathJax";
-    private static final String TOOL_DELIM = ",";
+    private static final String PARAM_MATHJAX_ENABLED_KEY = "isMathJaxEnabledForSite";
         
     private static final String SRC_PATH = ServerConfigurationService.getString(SRC_PATH_SAKAI_PROP);
     private static final boolean ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(ENABLED_SAKAI_PROP, ENABLED_SAKAI_PROP_DEFAULT) && !SRC_PATH.trim().isEmpty();
@@ -75,16 +70,13 @@ public class MathJaxEnabler
      */
     public static boolean addMathJaxSettingsToEditToolsContext(Context context, Site site, SessionState state)
     {
-        if (!ENABLED_AT_SYSTEM_LEVEL  || context == null || site == null || state == null || !isMathJaxAllowedForSite(site, state))
+        if (!ENABLED_AT_SYSTEM_LEVEL  || context == null || site == null || state == null || !isMathJaxEnabledForSite(site, state))
         {
             return false;
         }
 
-        Set<String> mathJaxEnabledTools = getMathJaxEnabledToolsForSite(site, state);
-        
         context.put(CONTEXT_IS_MATHJAX_INSTALLED_KEY, Boolean.TRUE);
         context.put(CONTEXT_SAKAI_SERVICE_KEY, SAKAI_SERVICE);
-        context.put(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST, mathJaxEnabledTools);
         context.put(CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_KEY, CONTEXT_MATHJAX_ENABLED_TOOL_ID_SUFFIX_VALUE);
         
         return true;
@@ -99,34 +91,17 @@ public class MathJaxEnabler
      */
     public static boolean addMathJaxSettingsToEditToolsConfirmationContext(Context context, Site site, SessionState state, String toolTitleListKey)
     {
-        if (!ENABLED_AT_SYSTEM_LEVEL || site == null || context == null || state == null || !isMathJaxAllowedForSite(site, state))
+        if (!ENABLED_AT_SYSTEM_LEVEL || site == null || context == null || state == null || !isMathJaxEnabledForSite(site, state))
         {
             return false;
         }
-                        
-        if (state.getAttribute(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST) != null)
-        {
-            Set<String> mathJaxEnabledTools = getMathJaxEnabledToolsForSite(site, state);
-            if (!mathJaxEnabledTools.isEmpty())
-            {  
-                Map<String, String> toolTitleMap = (Map<String, String>) state.getAttribute(toolTitleListKey);
-                if (toolTitleMap != null)
-                {
-                    List<String> titleList = new ArrayList<String>();
-                    for (String toolId : toolTitleMap.keySet())
-                    {
-                        if (mathJaxEnabledTools.contains(toolId) && site.getToolForCommonId(toolId) != null)
-                        {
-                            titleList.add(toolTitleMap.get(toolId));
-                        }
-                    }
-                    Collections.sort(titleList);
 
-                    context.put(CONTEXT_DO_ENABLE_MATHJAX_KEY, !titleList.isEmpty());
-                    context.put(CONTEXT_IS_MATHJAX_INSTALLED_KEY, Boolean.TRUE);
-                    context.put(CONTEXT_CONFIRM_MATHJAX_ENABLED_TOOLS, StringUtils.join(titleList, ", "));
-                }
-            }
+        // show a message on the confirmation screen if MathJax is enabled for the site
+        boolean isMathJaxEnabledForSite = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
+
+        if (isMathJaxEnabledForSite) {
+            context.put(CONTEXT_IS_MATHJAX_INSTALLED_KEY, Boolean.TRUE);
+            context.put(CONTEXT_DO_ENABLE_MATHJAX_KEY, Boolean.TRUE);
         }
         return true;
     }
@@ -146,7 +121,7 @@ public class MathJaxEnabler
         }
         
         context.put(CONTEXT_IS_MATHJAX_INSTALLED_KEY, Boolean.TRUE);
-        context.put(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE, Boolean.valueOf(isMathJaxAllowedForSite(site, state)));
+        context.put(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(isMathJaxEnabledForSite(site, state)));
         
         return true;
     }
@@ -159,21 +134,19 @@ public class MathJaxEnabler
      */
     public static boolean prepareMathJaxToolSettingsForSave(Site site, SessionState state)
     {   
-        if (!ENABLED_AT_SYSTEM_LEVEL || site == null || state == null || !isMathJaxAllowedForSite(site, state))
+        if (!ENABLED_AT_SYSTEM_LEVEL || site == null || state == null)
         {
             return false;
         }
 
-        Set<String> mathJaxEnabledTools = (Set<String>) state.getAttribute(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST);
-        String mathJaxEnabledToolString = StringUtils.join(mathJaxEnabledTools, TOOL_DELIM);
-        ResourcePropertiesEdit props = site.getPropertiesEdit();
-        if (mathJaxEnabledTools != null && !mathJaxEnabledTools.isEmpty())
-        {
-            props.addProperty(SITE_PROP_MATHJAX_ENABLED, mathJaxEnabledToolString);
-        }
-        else
-        {
-            props.removeProperty(SITE_PROP_MATHJAX_ENABLED);
+        if (state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE) != null) {
+            boolean isMathJaxEnabledForSite = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
+            ResourcePropertiesEdit props = site.getPropertiesEdit();
+            if (isMathJaxEnabledForSite) {
+                props.addProperty(SITE_PROP_MATHJAX_ENABLED, Boolean.TRUE.toString());
+            } else {
+                props.removeProperty(SITE_PROP_MATHJAX_ENABLED);
+            }
         }
 
         return true;
@@ -189,9 +162,9 @@ public class MathJaxEnabler
 
     	if (ENABLED_AT_SYSTEM_LEVEL && site != null && state != null) {
     		
-    		String allowed = String.valueOf(ENABLED_AT_NEW_SITE_CREATION_LEVEL);
-        	site.getProperties().addProperty(SITE_PROP_MATHJAX_ALLOWED, allowed);
-        	state.setAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE, Boolean.valueOf(allowed));
+    		String enabled = String.valueOf(ENABLED_AT_NEW_SITE_CREATION_LEVEL);
+        	site.getProperties().addProperty(SITE_PROP_MATHJAX_ENABLED, enabled);
+        	state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(enabled));
     		
     		return true;
     	}
@@ -212,42 +185,22 @@ public class MathJaxEnabler
             return false;
         }
 
-        Boolean mathJaxAllowed = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE);
-        if (mathJaxAllowed == null)
+        Boolean mathJaxEnabled = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
+        if (mathJaxEnabled == null)
         {
             return false;
         }
 
-        if (mathJaxAllowed.booleanValue())
+        if (mathJaxEnabled.booleanValue())
         {
-            site.getPropertiesEdit().addProperty(SITE_PROP_MATHJAX_ALLOWED, Boolean.toString(true));
+            site.getPropertiesEdit().addProperty(SITE_PROP_MATHJAX_ENABLED, Boolean.toString(true));
         }
         else
         {
-            site.getPropertiesEdit().removeProperty(SITE_PROP_MATHJAX_ALLOWED);
-            
-            // clear any mathjax enabled tools
-            site.getPropertiesEdit().removeProperty(SITE_PROP_MATHJAX_ENABLED); 
-            removeMathJaxToolsAttributeFromState(state);
+            site.getPropertiesEdit().removeProperty(SITE_PROP_MATHJAX_ENABLED);
         }
 
         return true;
-    }
-
-    /**
-     * Removes the mathjax enabled (list of tools) attribute from the given state
-     * @param state the state
-     * @return true if the state was modified
-     */
-    public static boolean removeMathJaxToolsAttributeFromState(SessionState state)
-    {
-        if (ENABLED_AT_SYSTEM_LEVEL && state != null)
-        {
-            state.removeAttribute(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST);
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -259,7 +212,7 @@ public class MathJaxEnabler
     {
         if (ENABLED_AT_SYSTEM_LEVEL && state != null)
         {
-            state.removeAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE);
+            state.removeAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
             return true;
         }
 
@@ -267,71 +220,30 @@ public class MathJaxEnabler
     }
 
     /**
-     * Applies the current mathjax tool settings defined in the given params to the given state
+     * Applies the current mathjax settings defined in the given params to the given state
      * @param state the state
      * @param params the params
      * @return true if the state was modified
      */
-    public static boolean applyToolSettingsToState(SessionState state, Site site, ParameterParser params)
-    {
-        if (!ENABLED_AT_SYSTEM_LEVEL || state == null || params == null || !isMathJaxAllowedForSite(site, state))
-        {
-            return false;
-        }
-
-        Set<String> mathJaxEnabledTools = new HashSet<String>();
-        String[] mathJaxEnabledToolsArray = params.getStrings(PARAM_MATHJAX_ENABLED_TOOLS_KEY);
-        if (mathJaxEnabledToolsArray != null)
-        {
-            mathJaxEnabledTools.addAll(Arrays.asList(mathJaxEnabledToolsArray)); 
-        }
-        state.setAttribute(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST, mathJaxEnabledTools);
-
-        return true;
-    }
-
-    /**
-     * Applies the current mathjax allowed setting defined in the given params to the given state
-     * @param state the state
-     * @param params the params
-     * @return true if the state was modified
-     */
-    public static boolean applyAllowedSettingsToState(SessionState state, ParameterParser params)
+    public static boolean applySettingsToState(SessionState state, ParameterParser params)
     {
         if (!ENABLED_AT_SYSTEM_LEVEL || state == null || params == null)
         {
             return false;
         }
 
-        state.setAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE, Boolean.valueOf(params.getString(PARAM_MATHJAX_ALLOWED_KEY)));
+        // Allow checkbox to set the isMathJaxAllowedInSite site property
+        // If checked, add this to the state
+        if ("on".equals(params.getString(PARAM_MATHJAX_ENABLED_KEY)))
+        {
+            state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, true);
+        } else {
+            state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, false);
+        }
+
         return true;
     }
 
-    /**
-     * Check the current state of MathJax Tool Support in the given site. Looks at the state first,
-     * and if the information cannot be found, reads from site properties
-     * @param site The site to enable or disable MathJax Support on, should not be null
-     * @param state the session state, should not be null
-     * @return returns comma-separated list of tool ids, or empty string if mathjax not enabled in site
-     */
-    private static Set<String> getMathJaxEnabledToolsForSite(Site site, SessionState state)
-    {
-        Set<String> mathJaxEnabledTools = (Set<String>) state.getAttribute(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST);
-
-        if (mathJaxEnabledTools == null)  // no state information, read from site properties instead
-        {
-            mathJaxEnabledTools = new HashSet<String>();
-
-            String strMathJaxEnabled = site.getProperties().getProperty(SITE_PROP_MATHJAX_ENABLED);
-            if (!StringUtils.isBlank(strMathJaxEnabled))
-            {
-                mathJaxEnabledTools.addAll(Arrays.asList(strMathJaxEnabled.split(TOOL_DELIM)));
-                state.setAttribute(STATE_KEY_TOOL_REGISTRATION_MATHJAX_ENABLED_LIST, mathJaxEnabledTools);
-            }
-        }
-
-        return mathJaxEnabledTools;
-    }
 
     /**
      * Returns whether or not mathjax is allowed in the given site. Checks the state first, if setting
@@ -340,18 +252,23 @@ public class MathJaxEnabler
      * @param state the state
      * @return true if mathjax is allowed in the site
      */
-    private static boolean isMathJaxAllowedForSite(Site site, SessionState state)
+    private static boolean isMathJaxEnabledForSite(Site site, SessionState state)
     {
-        Boolean mathJaxAllowed = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE);
-
-        if (mathJaxAllowed == null) // no state information, read from site properties instead
+        if (!ENABLED_AT_SYSTEM_LEVEL || state == null)
         {
-            boolean allowed = Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_MATHJAX_ALLOWED));
-            state.setAttribute(STATE_KEY_IS_MATHJAX_ALLOWED_IN_SITE, Boolean.valueOf(allowed));
-            return allowed;
+            return false;
         }
 
-        return mathJaxAllowed.booleanValue();
+        Boolean mathJaxEnabled = (Boolean) state.getAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE);
+
+        if (mathJaxEnabled == null) // no state information, read from site properties instead
+        {
+            boolean enabled = Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_MATHJAX_ENABLED));
+            state.setAttribute(STATE_KEY_IS_MATHJAX_ENABLED_FOR_SITE, Boolean.valueOf(enabled));
+            return enabled;
+        }
+
+        return mathJaxEnabled.booleanValue();
     }
         
 } // end class

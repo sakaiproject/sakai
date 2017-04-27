@@ -887,4 +887,8 @@ public class PublishedAssessmentFacade
   public void setLastModifiedDateForDisplay(String lastModifiedDateForDisplay) {
 	  this.lastModifiedDateForDisplay = lastModifiedDateForDisplay;
   }
+
+  public void setLateHandling(Integer lateHandling) {
+	  this.lateHandling = lateHandling;
+  }
 }

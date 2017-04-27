@@ -7,11 +7,9 @@ body{
 	font-weight: $default-font-weight;
 	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
 	&.#{$namespace}portalBody{
-		background-color:  $footer-background-color;
+		background-color: $body-background-color;
 		@media #{$phone}{
-			background: linear-gradient( to bottom, #b6c3d4, #d9cdcd, #c4ccd7, #a6c2df ) fixed;
-			background-size: auto 100%;
-			padding: 2.8em 0 0 0;
+			padding: $banner-height 0 0 0;
 		}
 	}
 }
@@ -96,11 +94,13 @@ h4{
 
 .skip{
 	position: absolute !important;
-	height: 1px; width: 1px;
+	height: 0px; width: 0px;
 	overflow: hidden;
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
 	clip-path: polygon(0px 0px, 0px 0px,0px 0px, 0px 0px);
+	margin: 0;
+	padding: 0;
 }
 
 input[type="submit"],input[type="button"]{

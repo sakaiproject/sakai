@@ -70,6 +70,14 @@ public interface ProfileConnectionsLogic {
 	 * @return
 	 */
 	public List<Person> getConnectionRequestsForUser(final String userId);
+
+	/**
+	 * Gets a list of Persons's that have unconfirmed connection requests from this person
+	 *
+	 * @param userId		the user whose outgoing outgoing connections will be retrieved
+	 * @return A list of Persons who have had a request from the supplied user
+	 */
+	public List<Person> getOutgoingConnectionRequestsForUser(final String userId);
 	
 	/**
 	 * Gets a count of the number of unconfirmed incoming connection requests

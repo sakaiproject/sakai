@@ -17,6 +17,7 @@ public class CalendarEventSummary {
 	private String creator;
 	private Time firstTime;
 	private long duration;
+	private String description;
 	private RecurrenceRule recurrenceRule;
 
 	/**
@@ -28,6 +29,8 @@ public class CalendarEventSummary {
 	 * Set externally after object creation, signals the site the event came from (not part of CalendarEvent)
 	 */
 	private String siteId;
+	//icon used for specific eventType
+	private String eventImage;
 
 	public CalendarEventSummary() {
 	}
@@ -42,6 +45,9 @@ public class CalendarEventSummary {
 		this.firstTime = event.getRange().firstTime();
 		this.duration = event.getRange().duration();
 		this.recurrenceRule = event.getRecurrenceRule();
+		this.duration = event.getRange().duration();
+		this.recurrenceRule = event.getRecurrenceRule();
+		this.description = event.getDescriptionFormatted();
 		this.assignmentId = event.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 	}
 

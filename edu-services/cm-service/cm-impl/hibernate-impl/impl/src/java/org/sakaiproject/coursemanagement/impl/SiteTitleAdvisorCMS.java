@@ -21,8 +21,10 @@
 
 package org.sakaiproject.coursemanagement.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -80,7 +82,7 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
     /**
      * {@inheritDoc}
      */
-    public String getUserSpecificSiteTitle( Site site, String userID )
+    public String getUserSpecificSiteTitle( Site site, String userID, List<String> siteProviders )
     {
         // Short circuit - only continue if sakai.property set to true
         if( portalUseSectionTitle )
@@ -108,8 +110,14 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
             // Short circuit - only continue if user is not null and user does not have the site.upd permission in the given site
             if( currentUser != null && !ss.unlock( currentUser, SITE_UPDATE_PERMISSION, site.getReference() ) )
             {
+                Collection<String> providerIDs = siteProviders;
+                if( providerIDs == null )
+                {
+                    String realmID = site.getReference();
+                    providerIDs = azgs.getProviderIDsForRealms( ((List<String>) Arrays.asList( new String[] {realmID} )) ).get( realmID );
+                }
+
                 // Short circuit - only continue if there are more than one provider ID (cross listed site)
-                Set<String> providerIDs = azgs.getProviderIds( site.getReference() );
                 if( CollectionUtils.isNotEmpty( providerIDs ) )
                 {
                     // Get the current user's section membership/role map

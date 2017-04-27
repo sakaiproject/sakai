@@ -170,12 +170,17 @@ simplePageBean.addAnnouncements,
 simplePageBean.peerEval,
 simplePageBean.peerEvalDueDate,
 simplePageBean.peerEvalOpenDate,
+simplePageBean.twitterDropDown,
+simplePageBean.twitterUsername,
+simplePageBean.twitterWidgetHeight,
+simplePageBean.addTwitterTimeline,
 simplePageBean.peerEvalAllowSelfGrade,
 simplePageBean.folderPickerSubmit,
 simplePageBean.folderPath,
 simplePageBean.newOwner,
 simplePageBean.forumSummaryHeight,
 simplePageBean.forumSummaryDropDown,
+simplePageBean.addCalendar,
 simplePageBean.addForumSummary
 </value>
 </property>

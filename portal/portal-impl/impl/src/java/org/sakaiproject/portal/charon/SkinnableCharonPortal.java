@@ -194,7 +194,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private static final String INCLUDE_TITLE = "include-title";
 
     // SAK-22384
-    private static final String MATHJAX_ENABLED = "mathJaxEnabled";
+    private static final String MATHJAX_ENABLED = "mathJaxAllowed";
     private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
     private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
     private static final boolean ENABLED_SAKAI_PROP_DEFAULT = true;
@@ -1326,13 +1326,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
                 if (site != null)
                 {                           
-                    String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);                    
-                    if (!StringUtils.isBlank(strMathJaxEnabled))
+                    String strMathJaxEnabledForSite = site.getProperties().getProperty(MATHJAX_ENABLED);
+                    if (!StringUtils.isBlank(strMathJaxEnabledForSite))
                     {
-                        String[] mathJaxTools = strMathJaxEnabled.split(",");
-                        
-                        String toolId = toolConfig.getTool().getId();
-                        if (toolId != null && ArrayUtils.contains(mathJaxTools, toolId))
+                        if (Boolean.valueOf(strMathJaxEnabledForSite))
                         {
                             // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
                             headJs.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n");

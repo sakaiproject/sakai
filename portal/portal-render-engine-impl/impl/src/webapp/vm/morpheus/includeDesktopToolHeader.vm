@@ -1,0 +1,26 @@
+<!-- START VM includeDesktopToolHeader.vm -->
+
+## Purely for desktop visual users.  The original and more useful breadcrumb is in the page but hidden.
+#if ( $sitePages.hideToolHeaderOnDesktop )
+<header class="sakai-hide-tool-header-on-desktop sakai-desktop-only" aria-hidden="true">
+#else
+<header class="sakai-desktop-only" aria-hidden="true">
+#end
+
+    #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
+
+    <nav class="Mrphs-siteHierarchy">
+        #foreach( $page in $sitePages.pageNavTools )
+            #if (${page.current})
+            <a href="${page.pageResetUrl}" title="$rloader.sit_reset" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
+                <span class="Mrphs-breadcrumb--reset-icon icon-sakai fa fa-share" aria-hidden="true"></span>
+                <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+                <span>${page.pageTitle}</span>
+            </a>
+            #end
+        #end
+    </nav>
+
+</header>
+<!-- END VM includeDesktopToolHeader.vm -->
+

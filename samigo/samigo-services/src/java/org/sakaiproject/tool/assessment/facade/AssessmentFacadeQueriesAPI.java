@@ -149,6 +149,8 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public int getQuestionSize(final Long assessmentId);
 
+	public List getQuestionsIdList(final Long assessmentId);
+
 	public void deleteAllSecuredIP(AssessmentIfc assessment);
 
 	public void saveOrUpdate(AssessmentFacade assessment);
@@ -195,12 +197,8 @@ public interface AssessmentFacadeQueriesAPI {
 	public ItemAttachmentIfc createItemAttachment(ItemDataIfc item,
 			String resourceId, String filename, String protocolboolean, boolean isEditPendingAssessmentFlow);
 
-	public void removeItemAttachment(Long itemAttachmentId);
-
 	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
 			String resourceId, String filename, String protocolboolean, boolean isEditPendingAssessmentFlow);
-
-	public void removeItemTextAttachment(Long itemTextAttachmentId);
 	
 	public void updateAssessmentLastModifiedInfo(
 			AssessmentFacade assessment);
@@ -232,5 +230,18 @@ public interface AssessmentFacadeQueriesAPI {
 	public List getAllActiveAssessmentsByAgent(String fromContext);
 
 	public Set copyItemAttachmentSet(ItemData newItem, Set itemAttachmentSet);
+
+	public Set prepareItemSet(SectionData newSection, Set itemSet, String protocol, String toContext);
+
+	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet, String protocol, String toContext);
+
+	public Set prepareItemMetaDataSet(ItemData newItem, Set itemMetaDataSet);
+
+	public Set prepareItemTagSet(ItemData newItem, Set itemTagSet);
+
+	public Set prepareItemFeedbackSet(ItemData newItem, Set itemFeedbackSet);
+
+	public Set prepareItemAttachmentSet(ItemData newItem,
+										Set itemAttachmentSet, String protocol, String toContext);
 
 }

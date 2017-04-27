@@ -400,7 +400,13 @@ public interface CalendarService
 	 * @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
 	 */
 	public String calendarOpaqueUrlReference(Reference ref);
-	
+
+	/**
+	 * Returns all calendar references for a given siteId
+	 * @param siteId Id of the site
+	 * @return List object is returned with all calendar references
+	 */
+	public List<String> getCalendarReferences(String siteId);
 	/**
 	 * Returns the tool id value (i.e. sakai.schedule)
 	 * @return

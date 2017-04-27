@@ -64,7 +64,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 		final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
 		final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
 		final List<ProcessedGradeItem> itemsToModify = importWizardModel.getItemsToModify();
-		final ProcessedGradeItem courseGradeOverrideItem = importWizardModel.getCourseGradeOverride();
 
 		// note these are sorted alphabetically for now.
 		// This may be changed to reflect the original order however any sorting needs to take into account that comments have the same title as the item
@@ -190,20 +189,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 					});
 				}
 
-				// update course grade override
-				if(courseGradeOverrideItem != null){
-
-					if (!GradeImportConfirmationStep.this.errors) {
-
-						final List<ProcessedGradeItemDetail> courseGradeItemDetails = courseGradeOverrideItem.getProcessedGradeItemDetails();
-
-						courseGradeItemDetails.forEach(courseGradeItemDetail -> {
-							log.debug("Processing course grade detail: " + courseGradeItemDetail);
-							saveCourseGradeOverride(courseGradeItemDetail);
-						});
-					}
-				}
-
 				if (!GradeImportConfirmationStep.this.errors) {
 					getSession().success(getString("importExport.confirmation.success"));
 					setResponsePage(GradebookPage.class);
@@ -311,18 +296,6 @@ public class GradeImportConfirmationStep extends BasePanel {
 			gradesModifyContainer.add(modifyList);
 		}
 
-		// render items to be modified
-		final boolean courseGradeOverrideImport = !(courseGradeOverrideItem == null);
-		final WebMarkupContainer courseGradeOverrideContainer = new WebMarkupContainer("course_grade_override_container") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean isVisible() {
-				return courseGradeOverrideImport;
-			}
-		};
-		add(courseGradeOverrideContainer);
-
 	}
 
 	/**
@@ -375,15 +348,4 @@ public class GradeImportConfirmationStep extends BasePanel {
 			processedGradeItemDetail.getStudentUuid(),
 			processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 	}
-
-	private void saveCourseGradeOverride(final ProcessedGradeItemDetail processedGradeItemDetail) {
-		final boolean success = GradeImportConfirmationStep.this.businessService.updateCourseGrade(processedGradeItemDetail.getStudentUuid(), processedGradeItemDetail.getGrade());
-		log.info("Saving course grade override: " + success + ", "+ processedGradeItemDetail.getStudentUuid() + ", " + processedGradeItemDetail.getGrade());
-		if (!success) {
-			getSession().error(new ResourceModel("importExport.error.coursegradeoverride").getObject());
-			this.errors = true;
-		}
-	}
-
-
 }

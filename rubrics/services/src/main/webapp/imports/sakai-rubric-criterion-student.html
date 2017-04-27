@@ -1,0 +1,262 @@
+<dom-module id="sakai-rubric-criterion-student">
+  <template>
+
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+
+    <div class="criterion grading">
+      <template is="dom-repeat" id="criterion" items="{{criterions}}" as="criterionitem">
+        <div id="criterion_row_[[criterionitem.id]]" class="criterion-row">
+          <div class="criterion-detail">
+            <h4 class="criterion-title">
+              {{criterionitem.title}}
+            </h4>
+            <p>
+              {{criterionitem.description}}
+            </p>
+          </div>
+          <div class="criterion-ratings">
+            <div class="cr-table">
+              <div class="cr-table-row">
+                <template is="dom-repeat" id="ratingitems_[[criterionitem.id]]" items="{{criterionitem.ratings}}" as="ratingitem" index-as="rikey">
+                  <div class="rating-item student" id="rating_item_{{ratingitem.id}}">
+                    <h5 class="criterion-item-title">
+                      {{ratingitem.title}}
+                    </h5>
+                    <p>
+                      {{ratingitem.description}}
+                    </p>
+                    <span class="points">
+                      {{ratingitem.points}} Points
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+          <div class="criterion-actions">
+            <template is="dom-if" if="[[!preview]]">
+              <sakai-rubric-student-comment on-update-comment="updateStateDetails" criterion="{{criterionitem}}"></sakai-rubric-student-comment>
+              
+              <strong class$="points-display {{isOverridden(criterionitem.pointoverride)}}">
+                &nbsp;
+                {{criterionitem.selectedvalue}}
+                <template is="dom-if" if="[[!criterionitem.selectedvalue]]">0</template>
+                &nbsp;
+              </strong>
+
+              
+              
+              <template is="dom-if" if="[[options.fineTunePoints]]">
+                <strong class="points-display">[[criterionitem.pointoverride]]</strong>
+              </template>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+    <template is="dom-if" if="[[!preview]]">
+    <div class="rubric-totals">
+      <div class="total-points">
+        Total: <strong>{{totalPoints}}</strong>
+      </div>
+    </div>
+    </template>
+    <input name="rbcs-state-details" id="rbcs-state-details" type="hidden" value="[[stateDetails]]">
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric-criterion-student",
+      properties: {
+        rubric: {
+          type: Object,
+          observer: "rubricReady"
+        },
+        preview: {
+          type: Boolean,
+        },
+        totalPoints: {
+          type: Number,
+          value: 0
+        },
+        pointsCalculation: {
+          type: String,
+        },
+        gradeFieldId: {
+          type: Number,
+        },
+        rubricAssociation: {
+          type: Object
+        },
+        configurationOptions: {
+          type: Array,
+          value: []
+        },
+        stateDetails: {
+          type: String,
+        },
+        evaluationDetails: {
+          type: Array,
+        },
+        preview: {
+          type: Boolean,
+          value: false
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        'state-details': 'updateStateDetails'
+      },
+      updateStateDetails: function() {
+        var stateDetails = [];
+        for (var i = this.criterions.length - 1; i >= 0; i--) {
+          stateDetails.push({
+            cid: this.criterions[i].id,
+            pval: this.criterions[i].selectedvalue || "",
+            rid: this.criterions[i].selectedRadingId || "",
+            povrd: this.criterions[i].pointoverride || "",
+            comments: this.criterions[i].comments || ""
+          });
+        }
+
+        this.stateDetails = escape(JSON.stringify(stateDetails));
+        // this.stateDetailsJson = JSON.stringify(stateDetails);
+        // console.log(this.stateDetails);
+      },
+      handleStateDetails: function() {
+        var stateDetails = JSON.parse(unescape(this.stateDetails));
+        for (var i = stateDetails.length - 1; i >= 0; i--) {
+          for (var c = this.criterions.length - 1; c >= 0; c--) {
+            if (stateDetails[i].cid === this.criterions[c].id && (stateDetails[i].povrd || stateDetails[i].pval)) {
+              this.set('criterions.' + c + '.selectedvalue', stateDetails[i].pval);
+              this.set('criterions.' + c + '.selectedRadingId', stateDetails[i].rid);
+              this.set('criterions.' + c + '.pointoverride', stateDetails[i].povrd);
+              this.set('criterions.' + c + '.comments', stateDetails[i].comments);
+            }
+          }
+          if (stateDetails[i].rid) {
+            addClass(this.$$('#rating_item_'+stateDetails[i].rid), 'selected');  
+          }
+        }
+        this.updateTotalPoints();
+      },
+      handleEvaluationDetails: function() {
+        for (var i = this.evaluationDetails.length - 1; i >= 0; i--) {
+          for (var c = this.criterions.length - 1; c >= 0; c--) {
+            if (this.evaluationDetails[i].criterionId === this.criterions[c].id) {
+              // console.log(this.$.criterion);
+              var ratingItem = this.$$('#ratingitems_'+this.evaluationDetails[i].criterionId).itemForElement(this.$$('#rating_item_'+this.evaluationDetails[i].selectedRatingId));
+
+              this.set('criterions.' + c + '.selectedRadingId', this.evaluationDetails[i].selectedRatingId);
+              if (this.evaluationDetails[i].pointsAdjusted) {
+                this.set('criterions.' + c + '.pointoverride', this.evaluationDetails[i].points);
+                this.set('criterions.' + c + '.selectedvalue', ratingItem.points);
+              } else {
+                this.set('criterions.' + c + '.pointoverride', "");
+                this.set('criterions.' + c + '.selectedvalue', this.evaluationDetails[i].points);
+              }
+              
+              this.set('criterions.' + c + '.comments', this.evaluationDetails[i].comments);
+            }
+          }
+          addClass(this.$$('#rating_item_'+this.evaluationDetails[i].selectedRatingId), 'selected');
+        }
+
+        this.updateTotalPoints();
+      },
+      finetuneRating: function(e) {
+        var cindex = this.$.criterion.indexForElement(e.target);
+        var citem = this.$.criterion.itemForElement(e.target);
+
+        this.set('criterions.' + cindex + '.pointoverride', e.target.value);
+        if (citem.selectedvalue) {
+          this.totalPoints = this.totalPoints - citem.selectedvalue + parseInt(citem.pointoverride);
+        } else {
+          this.totalPoints = this.totalPoints + parseInt(citem.pointoverride);
+        }
+        this.updateTotalPoints();
+
+      },
+      isOverridden: function(ovrdvl) {
+        if (ovrdvl || ovrdvl === 0) {
+          return 'strike';
+        } else {
+          return '';
+        }
+        
+      },
+      selectRating: function(e) {
+        var cindex = this.$.criterion.indexForElement(e.target);
+        var citem = this.$.criterion.itemForElement(e.target);
+        var critem = this.$$('#ratingitems_'+citem.id).itemForElement(e.target);
+
+        this.set('criterions.' + cindex + '.selectedvalue', critem.points);
+        this.set('criterions.' + cindex + '.selectedRadingId', critem.id);
+        
+        
+        
+        var items = this.$$('#criterion_row_'+citem.id).querySelectorAll('.rating-item');
+        var item = this.$$('#rating_item_'+critem.id);
+        if (hasClass(item, 'selected')) {
+          removeClass(item, 'selected');
+          
+          this.set('criterions.' + cindex + '.selectedvalue', "");
+          this.set('criterions.' + cindex + '.selectedRadingId', "");
+
+        } else {
+          for (var i = items.length - 1; i >= 0; i--) {
+            // if (hasClass(items[i], 'selected')) {
+            //   this.totalPoints = this.totalPoints - this.$$('#ratingitems_'+citem.id).itemForElement(items[i]).points;
+            // }
+            removeClass(items[i], 'selected');  
+          }
+          addClass(item, 'selected');
+
+          this.set('criterions.' + cindex + '.selectedvalue', critem.points);
+          this.set('criterions.' + cindex + '.selectedRadingId', critem.id);
+        }
+        this.updateTotalPoints();
+      },
+      updateTotalPoints: function() {
+        var total = 0;
+        for (var i = this.criterions.length - 1; i >= 0; i--) {
+          if (this.criterions[i].pointoverride) {
+            total = total + parseInt(this.criterions[i].pointoverride);
+          } else if(this.criterions[i].selectedvalue) {
+            total = total + parseInt(this.criterions[i].selectedvalue);
+          }
+        }
+        this.totalPoints = total;
+        this.updateGradeField();
+        this.fire('state-details');
+      },
+      updateGradeField: function() {
+        setTimeout(function(){
+          var field = document.querySelector('#' + this.gradeFieldId);
+          if (this.gradeFieldId && field) {
+            field.value = this.totalPoints;
+          }
+        }.bind(this));
+      },
+      rubricReady: function() {
+          this.options = this.rubricAssociation.parameters;
+          this.criterions = this.rubric.criterions;
+          setTimeout(function(){
+            if (this.stateDetails) {
+              this.handleStateDetails();
+            } else if (this.evaluationDetails) {
+              this.handleEvaluationDetails();
+            } else {
+              this.fire('state-details');
+            }
+          }.bind(this))
+      },
+      ready: function() {
+        // nothing to do.
+      }
+    });
+  </script>
+</dom-module>

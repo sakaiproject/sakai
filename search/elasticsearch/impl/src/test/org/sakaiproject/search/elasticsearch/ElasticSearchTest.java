@@ -170,7 +170,6 @@ public class ElasticSearchTest {
         when(serverConfigurationService.getServerName()).thenReturn("clusterName");
 
         when(serverConfigurationService.getSakaiHomePath()).thenReturn(System.getProperty("java.io.tmpdir") + "/" + new Date().getTime());
-        when(notificationService.addTransientNotification()).thenReturn(notificationEdit);
         siteIds.add(siteId);
         when(siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)).thenReturn(sites);
         when(siteService.isSpecialSite(siteId)).thenReturn(false);

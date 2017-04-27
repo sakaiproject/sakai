@@ -238,7 +238,7 @@ public class PublishedSectionData
       this.sectionMetaDataMap= new HashMap();
     }
     this.sectionMetaDataMap.put(label, entry);
-    this.sectionMetaDataSet.add(new SectionMetaData(this, label, entry));
+    this.sectionMetaDataSet.add(new PublishedSectionMetaData(this, label, entry));
   }
 
   public ArrayList getItemArray() {
@@ -265,7 +265,7 @@ public class PublishedSectionData
   public void addItem(ItemDataIfc item) {
     if (itemSet == null)
       itemSet = new HashSet();
-    itemSet.add((ItemData) item);
+    itemSet.add(item);
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {

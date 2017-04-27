@@ -21,9 +21,14 @@
 
 package org.sakaiproject.memory.tool;
 
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.cheftool.*;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.cheftool.Context;
+import org.sakaiproject.cheftool.JetspeedRunData;
+import org.sakaiproject.cheftool.RunData;
+import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.memory.cover.MemoryServiceLocator;
 import org.sakaiproject.util.ResourceLoader;
@@ -39,7 +44,14 @@ public class MemoryAction extends VelocityPortletPaneledAction
 
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("memory");
-
+	/** Kernel api **/
+	private SecurityService securityService;
+	
+	
+	public MemoryAction() {
+		super();
+		securityService = ComponentManager.get(SecurityService.class);
+	}
 	/**
 	 * build the context
 	 */
@@ -48,7 +60,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		
 		// if not logged in as the super user, we won't do anything
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			return (String) getContext(rundata).get("template") + "_noaccess";
 		}

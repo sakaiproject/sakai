@@ -117,6 +117,14 @@
     <h:outputText value="#{authorMessages.fib_note_1}<br /><br />" escape="false"/>
     <h:outputText value="#{authorMessages.fib_note_2}<br /><br />" escape="false"/>
     <h:outputText value="#{authorMessages.fib_note_3}<br /><br />" escape="false"/>
+
+    <div class="mathjax-warning" style="display: none;">
+      <h:outputText value="#{authorMessages.accepted_characters}" escape="false"/>
+      <div class="alert alert-warning">
+          <h:outputText value="#{authorMessages.mathjax_usage_warning}" escape="false"/>
+      </div>
+    </div>
+
     <h:panelGrid>
         <samigo:wysiwyg
                  rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
@@ -175,7 +183,7 @@
             </h:selectOneMenu>
        </div>
     </h:panelGroup>
-    
+
     <%-- 5 POOL --%>
     <h:panelGroup styleClass="form-group row" layout="block" 
                     rendered="#{itemauthor.target == 'assessment' && author.isEditPendingAssessmentFlow}">
@@ -240,6 +248,8 @@
             </div>
         </div>
     </h:panelGroup>
+
+    <%@ include file="/jsf/author/item/tags.jsp" %>
 
 <%-- BUTTONS --%>
 <p class="act">

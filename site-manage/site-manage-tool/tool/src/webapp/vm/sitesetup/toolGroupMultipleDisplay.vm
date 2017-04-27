@@ -1,14 +1,4 @@
 <script type="text/javascript">
-      // SAK-22384
-      #if ($isMathJaxInstalled)
-      MATHJAX.isInstalled = true;
-      MATHJAX.initialEnabledTools = [
-      #foreach ($toolId in $toolRegistrationMathJaxEnabledList)
-          "$toolId",
-      #end
-      ];
-      #end
-
       $(document).ready(function() {
             setupCategTools();
             setLTIPrefix("$ltitool_id_prefix");
@@ -140,17 +130,26 @@
         </ol>
     </div>
     <div class="col-md-1 separator"></div>
-    <div id="toolSelectionList" class="col-md-4">
+    <div class="col-md-4">
+    <div id="toolSelectionList">
     <div id="toolSelectionListMessage" style="display:none" class="instruction">$tlang.getString("feat.selected.tools.none")</div>
     <ul>
         <li id="toolSelectionListHeader">
           <h3 id="toolSelectionListToolHeader">$tlang.getString("feat.selected.tools")</h3>
-          #if ($isMathJaxInstalled)
-          <h3 id="toolSelectionListMathJaxHeader">$tlang.getString("sinfo.mathjax.name")</h3>
-          #end
           <h3 id="toolSelectionListRemoveHeader">$tlang.getString("feat.removeHeading")</h3>
         </li>
     </ul>
+    </div>
+    <div class="mathJaxToggleArea">
+      <p>$tlang.getString("sinfo.mathjax.allowForSite")</p>
+      <div class="onoffswitch">
+          <input type="checkbox" name="isMathJaxEnabledForSite" class="onoffswitch-checkbox" id="isMathJaxEnabledForSite" #if($isMathJaxEnabledForSite)checked="checked"#end>
+          <label class="onoffswitch-label" for="isMathJaxEnabledForSite">
+              <span class="onoffswitch-inner"></span>
+              <span class="onoffswitch-switch"></span>
+          </label>
+      </div>
+    </div>
     </div>
   </div> <!-- row -->
 </div> <!-- toolHolderWW -->

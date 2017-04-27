@@ -27,6 +27,10 @@
 				<fieldentry />
 			</qtimetadatafield>
 			<qtimetadatafield>
+				<fieldlabel>ITEM_TAGS</fieldlabel>
+				<fieldentry/>
+			</qtimetadatafield>
+			<qtimetadatafield>
 				<fieldlabel>ATTACHMENT</fieldlabel>
 				<fieldentry />
 			</qtimetadatafield>
