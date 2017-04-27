@@ -29,7 +29,8 @@
 					<tr>
 						<td headers="title">
 							<h4>
-								<img src = "#imageLink($member.iconLocation)" alt ="$member.label" />
+								<span class="$member.iconClass" aria-hidden="true"></span>
+								<span class="sr-only">$!member.label</span>
 								<a href="$member.url" target="_blank">
 									$validator.escapeHtml($member.name)
 								</a>

@@ -38,7 +38,7 @@
 						#if($statusMap.containsKey($type.id))
 							<input type="checkbox" name="types" id="types_${type.id}" title="" value="$type.id" #if($statusMap.get("$type.id").booleanValue()) checked="checked"#end />
 						#else
-							<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+							<span class="fa fa-check" aria-hidden="true"></span>
 						#end
 					</td>
 					<td>

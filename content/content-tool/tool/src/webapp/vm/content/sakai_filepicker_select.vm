@@ -165,8 +165,8 @@ $(document).ready(function() {
 						<tr>
 							<td headers="item">
 								<h4>
-									<img src="#imageLink($att_item.iconLocation)" border= "0" alt="$att_item.hoverText" hspace="0" />
-									##<img src="#imageLink($contentTypeImageService.getContentTypeImage($att_item.contentType))" border= "0" alt ="$contentTypeImageService.getContentTypeDisplayName($att_item.contentType) icon" hspace="0" />
+									<span class="$att_item.iconClass" aria-hidden="true"></span>
+									<span class="sr-only">$!att_item.hoverText</span>
 									<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText  [$tlang.getString('gen.newwin')]">$att_item.displayName</a>
 								</h4>	
 							</td>
@@ -191,13 +191,15 @@ $(document).ready(function() {
 		<h3>
 			<span class ="chefBreadCrumb">
 				$tlang.getString("gen.location")
-				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder1')" />
+				<span class="$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
+				<span class="sr-only">$tlang.getString('gen.folder1')</span>
 				#foreach ($item in $collectionPath)
 					#if($item.isLast())
 						$validator.escapeHtml("$item.name")
 						#if($upOneLevel)
 							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
-								<img src="/library/image/sakai/onelevelup.gif" border="0" alt ="$tlang.getString('sh.one')"/>
+							<span class="fa fa-level-up" aria-hidden="true"></span>
+							<span class="sr-only">$tlang.getString('sh.one')</span>
 							</a>
 						#end
 					#else
@@ -218,20 +220,23 @@ $(document).ready(function() {
 				<th id="title">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapse.all')">
-							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$tlang.getString('collapse.all')" alt="$tlang.getString('collapse.all')" hspace="0" />
+						<span class="fa fa-compress" aria-hidden="true"></span>
+						<span class="sr-only">$tlang.getString('collapseall')</span>
 						</a>								 
 					#else
 						<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$stlang.getString('label.expand.all')">
-							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$stlang.getString('label.expand.all')" alt="$stlang.getString('label.expand.all')" hspace="0" />
+						<span class="fa fa-expand" aria-hidden="true"></span>
+						<span class="sr-only">$tlang.getString('label.expand.all')</span>
 						</a>								 
 					#end
-					## <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="%%%" />
 					<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
 						$tlang.getString("gen.title1")
 						#if ($currentSortAsc.equals("true")) 
-							<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('sh.sorttitas')" alt ="$tlang.getString('sh.sorttitas')" /> 
+							<span class="fa fa-chevron-up" aria-hidden="true"></span>
+							<span class="sr-only">$tlang.getString('sh.sorttitas')</span>
 						#else 
-							<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sorttitdesc')" alt ="$tlang.getString('sh.sorttitdesc')" /> 
+							<span class="fa fa-chevron-down" aria-hidden="true"></span>
+							<span class="sr-only">$tlang.getString('sh.sorttitdesc')</span>
 						#end 
 					</a>
 				</th>
@@ -268,29 +273,21 @@ $(document).ready(function() {
 					<td headers="title" style="text-indent:$width">
 						<h$headerDepth title="$validator.escapeHtml(${item.name})">
 						#if ($item.isCollection())
-							#if ($item.isEmpty())
-								<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+							#if ($item.isEmpty() || !$item.canRead())
+								<span class="$item.iconClass" aria-hidden="true"></span>
+								<span class="sr-only">$tlang.getString('gen.folder1')</span>
 								$validator.escapeHtml(${item.name})
-							#elseif ($item.canRead())
+							#else
 								#if (!$item.isExpanded())
 									<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
-										<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-										$validator.escapeHtml(${item.name})
-									</a>
+									<span class="sr-only">$tlang.getString('sh.open')</span>
 								#else
 									<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
-										<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+									<span class="sr-only">$tlang.getString('sh.close')</span>
+								#end
+										<span class="$item.iconClass" aria-hidden="true"></span>
 										$validator.escapeHtml(${item.name})
 									</a>
-								#end
-#*
-								<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
-									$validator.escapeHtml(${item.name})
-								</a>
-*#
-							#else
-								<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-								$validator.escapeHtml(${item.name})
 							#end
 						#else
 							#if ($item.canRead())
@@ -304,8 +301,8 @@ $(document).ready(function() {
 										title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 									>
 								#end
-								<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
-								##<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
+								<span class="$item.iconClass" aria-hidden="true"></span>
+								<span class="sr-only">$!item.hoverText</span>
 								</a>
 								#if ($item.hasCopyrightAlert())
 									## if there is a copyright alert, show the alert page first
@@ -323,8 +320,8 @@ $(document).ready(function() {
 									</a>
 								#end
 							#else
-								<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
-								## <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
+								<span class="$item.iconClass" aria-hidden="true"></span>
+								<span class="sr-only">$!item.hoverText</span>
 								$validator.escapeHtml($item.name)
 								#if ($item.hasCopyrightAlert())
 									&#169;
@@ -341,7 +338,8 @@ $(document).ready(function() {
 									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
 										<li class="menuOpen" id="$actionCount">
 		    							&nbsp;$tlang.getString('gen.add')
-											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("gen.add")" class="dropdn"/> 
+											<span class="fa fa-caret-square-o-down" aria-hidden="true"></span>
+											<span class="sr-only">$tlang.getString('gen.add')</span>
 											<ul  id="menu-$actionCount" class="makeMenuChild">
 							        	#foreach($action in $item.addActions)
 													<li>
@@ -379,7 +377,7 @@ $(document).ready(function() {
 						<h4>
 							<a href="#"
 								onclick="document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doHideOtherSites")';submitform('attachForm');" title= "$tlang.getString('list.hide')">
-								<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString('list.hide')" border="0" align="top" /> $validator.escapeHtml("$tlang.getString('list.hide')")
+								<span class="fa fa-caret-down" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.hide')</span> $validator.escapeHtml("$tlang.getString('list.hide')")
 							</a>
 						</h4>
 						</th>
@@ -456,29 +454,21 @@ $(document).ready(function() {
 							<td headers="title" style="text-indent:$width">
 								<h$headerDepth title="$validator.escapeHtml(${item.name})">
 								#if ($item.isCollection())
-									#if ($item.isEmpty())
-										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+									#if ($item.isEmpty() || !$item.canRead())
+										<span class="$item.iconClass" aria-hidden="true"></span>
+										<span class="sr-only">$tlang.getString('gen.folder1')</span>
 										$validator.escapeHtml(${item.name})
-									#elseif ($item.canRead())
+									#else
 										#if (!$item.isExpanded())
 											<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
-												<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-												$validator.escapeHtml(${item.name})
-											</a>
+											<span class="sr-only">$tlang.getString('sh.open')</span>
 										#else
 											<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
-												<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+											<span class="sr-only">$tlang.getString('sh.close')</span>
+										#end
+												<span class="$item.iconClass" aria-hidden="true"></span>
 												$validator.escapeHtml(${item.name})
 											</a>
-										#end
-#*
-										<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
-											$validator.escapeHtml(${item.name})
-										</a>
-*#
-									#else
-										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-										$validator.escapeHtml(${item.name})
 									#end
 								#else
 									#if ($item.canRead())
@@ -492,8 +482,8 @@ $(document).ready(function() {
 												title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 											>
 										#end
-										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
-										##<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
+										<span class="$item.iconClass" aria-hidden="true"></span>
+										<span class="sr-only">$!item.hoverText</span>
 										</a>
 										#if ($item.hasCopyrightAlert())
 											## if there is a copyright alert, show the alert page first
@@ -511,8 +501,8 @@ $(document).ready(function() {
 											</a>
 										#end
 									#else
-										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
-										## <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
+										<span class="$item.iconClass" aria-hidden="true"></span>
+										<span class="sr-only">$!item.hoverText</span>
 										$validator.escapeHtml($item.name)
 										#if ($item.hasCopyrightAlert())
 											&#169;
@@ -530,7 +520,8 @@ $(document).ready(function() {
 											<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
 												<li class="menuOpen" id="$actionCount">
 												&nbsp;$tlang.getString('gen.add')
-													<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")" class="dropdn"/> 
+													<span class="fa fa-caret-square-o-down" aria-hidden="true"></span>
+													<span class="sr-only">$tlang.getString('button.add')</span>
 													<ul  id="menu-$actionCount" class="makeMenuChild">
 													#foreach($action in $item.addActions)
 															<li>
@@ -579,7 +570,7 @@ $(document).ready(function() {
 						<th colspan="3">
 						<h4>
 							<a href="#toolLink("ResourcesAction" "doShowOtherSites")" title= "$tlang.getString('list.show')">
-								<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('list.show')" border="0" align="top" /> $validator.escapeHtml("$tlang.getString('list.show')")
+								<span class="fa fa-caret-right" aria-hidden="true"></span><span class="sr-only">$tlang.getString('list.show')</span> $validator.escapeHtml("$tlang.getString('list.show')")
 							</a>
 						</h4>
 						</th>
