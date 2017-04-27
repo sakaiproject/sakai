@@ -141,6 +141,11 @@ public class SimplePageBean {
     // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
         public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
 
+	public final Integer FILTER_DEFAULT=0;
+	public final Integer FILTER_HIGH=1;
+	public final Integer FILTER_LOW=2;
+	public final Integer FILTER_NONE=3;
+
 	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_]([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
 	public static final Pattern YOUTUBE2_PATTERN = Pattern.compile("embed/([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
 	public static final Pattern SHORT_YOUTUBE_PATTERN = Pattern.compile("([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
@@ -1117,6 +1122,44 @@ public class SimplePageBean {
 		}
 		return true;
 	}
+	
+	public Integer getFilterLevel(Placement placement) {
+		if (placement == null) {
+			placement = toolManager.getCurrentPlacement();
+		}
+
+	    Integer filter = FILTER_DEFAULT;
+        if (getCurrentPage().getOwner() != null) {
+            filter = FILTER_DEFAULT; // always filter student content
+        } else {
+            // this is instructor content.
+            // see if specified
+            String filterSpec = placement.getPlacementConfig().getProperty("filterHtml");
+            if (filterSpec == null)
+            filterSpec = filterHtml;
+            // no, default to LOW. That will allow embedding but not Javascript
+            if (filterSpec == null) // should never be null. unspeciifed should give ""
+            filter = FILTER_DEFAULT;
+            // old specifications
+            else if (filterSpec.equalsIgnoreCase("true"))
+            filter = FILTER_HIGH; // old value of true produced the same result as missing
+            else if (filterSpec.equalsIgnoreCase("false"))
+            filter = FILTER_NONE;
+            // new ones
+            else if (filterSpec.equalsIgnoreCase("default"))
+            filter = FILTER_DEFAULT;
+            else if (filterSpec.equalsIgnoreCase("high"))
+            filter = FILTER_HIGH;
+            else if (filterSpec.equalsIgnoreCase("low"))
+            filter = FILTER_LOW;
+            else if (filterSpec.equalsIgnoreCase("none"))
+            filter = FILTER_NONE;
+            // unspecified
+            else
+            filter = FILTER_DEFAULT;
+        }
+        return filter;
+	}
 
     // called by the producer that uses FCK to update a text block
 	public String submit() {
@@ -1138,44 +1181,12 @@ public class SimplePageBean {
 			// a lot of people feel users shouldn't be able to add javascript, etc
 			// to their HTML. I think enforcing that makes Sakai less than useful.
 			// So check config options to see whether to do that check
-			final Integer FILTER_DEFAULT=0;
-			final Integer FILTER_HIGH=1;
-			final Integer FILTER_LOW=2;
-			final Integer FILTER_NONE=3;
 
 			String html = contents;
 
 			// figure out how to filter
-			Integer filter = FILTER_DEFAULT;
-			if (isStudentPage(getCurrentPage())) {
-			    filter = FILTER_DEFAULT; // always filter student content
-			} else {
-			    // this is instructor content.
-			    // see if specified
-			    String filterSpec = placement.getPlacementConfig().getProperty("filterHtml");
-			    if (filterSpec == null)
-				filterSpec = filterHtml;
-			    // no, default to LOW. That will allow embedding but not Javascript
-			    if (filterSpec == null) // should never be null. unspeciifed should give ""
-				filter = FILTER_DEFAULT;
-			    // old specifications
-			    else if (filterSpec.equalsIgnoreCase("true"))
-				filter = FILTER_HIGH; // old value of true produced the same result as missing
-			    else if (filterSpec.equalsIgnoreCase("false"))			    
-				filter = FILTER_NONE;
-			    // new ones
-			    else if (filterSpec.equalsIgnoreCase("default"))			    
-				filter = FILTER_DEFAULT;
-			    else if (filterSpec.equalsIgnoreCase("high")) 
-				filter = FILTER_HIGH;
-			    else if (filterSpec.equalsIgnoreCase("low")) 
-				filter = FILTER_LOW;
-			    else if (filterSpec.equalsIgnoreCase("none")) 
-				filter = FILTER_NONE;
-			    // unspecified
-			    else
-				filter = FILTER_DEFAULT;
-			}			    
+			Integer filter = getFilterLevel(placement);
+
 			if (filter.equals(FILTER_NONE)) {
 			    html = FormattedText.processHtmlDocument(contents, error);
 			} else if (filter.equals(FILTER_DEFAULT)) {
@@ -5108,6 +5119,23 @@ public class SimplePageBean {
 		return false;
 	}
 		
+    private boolean arePageItemsComplete(long pageId) {
+
+	int sequence = 1;
+	SimplePageItem i = simplePageToolDao.findNextItemOnPage(pageId, sequence);
+
+	while (i != null) {
+	    if (i.isRequired() && !isItemComplete(i) && isItemVisible(i)) 
+		return false; 
+
+	    sequence++; 
+	    i = simplePageToolDao.findNextItemOnPage(pageId, sequence); 
+	}
+
+	return true;
+    }
+
+
     // this is called in a loop to see whether items are available. Since computing it can require
     // database transactions, we cache the results
 	public boolean isItemComplete(SimplePageItem item) {
@@ -5137,8 +5165,9 @@ public class SimplePageBean {
 				completeCache.put(itemId, true);
 				return true;
 			} else {
-				completeCache.put(itemId, false);
-				return false;
+			        boolean apic = arePageItemsComplete(Long.parseLong(item.getSakaiId())); 
+				completeCache.put(itemId, apic);
+				return apic;
 			}
 		} else if (item.getType() == SimplePageItem.ASSIGNMENT) {
 			try {
@@ -6450,7 +6479,7 @@ public class SimplePageBean {
 	}
 
 	public List<Map<String, Object>> getToolsImportItem() {
-		return ltiService.getToolsImportItem();
+		return ltiService.getToolsImportItem(getCurrentSiteId());
 	}
 
 	public void handleImportItem() {
@@ -6467,7 +6496,7 @@ public class SimplePageBean {
                         return;
                 }
 
-                Map<String, Object> tool = ltiService.getTool(toolKey);
+                Map<String, Object> tool = ltiService.getTool(toolKey, getCurrentSiteId());
                 if ( tool == null ) {
 			setErrKey("simplepage.lti-import-error-id", toolId);
                         return;

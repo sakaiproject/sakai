@@ -1,7 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<%@ taglib uri="http://www.sakaiproject.org/podcasts" prefix="podcasts" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -13,7 +12,21 @@
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view toolCssHref="./css/podcaster.css">
-  <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js"></script> 
+      <script type="text/javascript">includeLatestJQuery("podRevise");</script>
+      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+      <script type="text/javascript">
+        $(document).ready(function() {
+           localDatePicker({
+              input: '#podRev\\:poddate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: false,
+              val: '<h:outputText value="#{podHomeBean.selectedPodcast.displayDateRevise}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              ashidden: { iso8601: 'podReviseISO8601' }
+          });
+        });
+      </script>
 
   <h:form id="podRev" enctype="multipart/form-data">
 
@@ -44,8 +57,7 @@
       <tr>  <!-- ****** Date ****** --> 
         <td><h:outputText value="#{msgs.date_prompt}" />&nbsp;&nbsp;&nbsp;</td>
         <td>
-	      <podcasts:datePicker value="#{podHomeBean.selectedPodcast.displayDateRevise}" id="poddate" size="28" />
-		  <h:outputText value="#{msgs.date_picker_format_string}" />
+	      <h:inputText value="#{podHomeBean.selectedPodcast.displayDateRevise}" size="28" id="poddate" />
 		</td>
      </tr>
      <tr>

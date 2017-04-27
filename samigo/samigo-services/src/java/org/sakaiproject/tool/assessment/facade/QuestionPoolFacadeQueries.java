@@ -38,6 +38,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -1079,7 +1080,7 @@ public class QuestionPoolFacadeQueries
         Iterator<QuestionPoolItemData> qpItemsIterator = qpItems.iterator();
         while (qpItemsIterator.hasNext()){
             QuestionPoolItemData qpItem = qpItemsIterator.next();
-            EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + qpItem.getItemId(), true));
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/copied, itemId=" + qpItem.getItemId(), true));
         }
 
       // Get the SubPools of oldPool

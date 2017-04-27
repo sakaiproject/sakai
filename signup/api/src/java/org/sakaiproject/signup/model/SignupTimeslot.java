@@ -60,6 +60,10 @@ public class SignupTimeslot implements Comparable{
 
 	private List<SignupAttendee> waitingList;
 	
+	private String startTimeString;
+
+	private String endTimeString;
+
 	/**
 	 * ICS VEvent created for this timeslot, not persisted
 	 */

@@ -42,6 +42,7 @@ import javax.faces.event.ActionListener;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -213,7 +214,7 @@ public class PublishAssessmentListener
        ExtendedTimeFacade extendedTimeFacade = PersistenceService.getInstance().getExtendedTimeFacade();
        extendedTimeFacade.copyEntriesToPub(pub.getData(), assessmentSettings.getExtendedTimes());
 
-       EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.publish", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+       EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
 
 		Iterator<PublishedSectionData> sectionDataIterator = pub.getSectionSet().iterator();
 		while (sectionDataIterator.hasNext()){
@@ -221,7 +222,7 @@ public class PublishAssessmentListener
 			Iterator<ItemDataIfc> itemDataIfcIterator = sectionData.getItemSet().iterator();
 			while (itemDataIfcIterator.hasNext()){
 				ItemDataIfc itemDataIfc = itemDataIfcIterator.next();
-				EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemDataIfc.getItemIdString(), true));
+				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/publish, publishedItemId=" + itemDataIfc.getItemIdString(), true));
 			}
 		}
 

@@ -81,7 +81,7 @@
 							<h:outputText  value="#{msgs.delConfHeaderRemove}" />
 						</f:facet>
 						<f:subview id="deleteImg" rendered="#{eachEntry.selected}">
-							<f:verbatim><img src="/library/image/silk/cancel.png" onclick="$('.datInputStart').focus();"/></f:verbatim>
+							<f:verbatim><span class="fa fa-times" onclick="$('.datInputStart').focus();"></span></f:verbatim>
 						</f:subview>
 					</h:column>
 				</h:dataTable>

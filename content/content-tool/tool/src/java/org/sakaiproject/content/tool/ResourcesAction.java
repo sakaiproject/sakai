@@ -2078,8 +2078,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/**
 	 * @param state
-	 * @param homeCollectionId
-	 * @param currentCollectionId
 	 * @return
 	 */
 	public static List getCollectionPath(SessionState state)
@@ -3151,8 +3149,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}	// getListView
 	
 	/**
+     * @param id
 	 * @param inheritedPermissions TODO
-	 * @param context
 	 * @return
 	 */
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
@@ -3608,7 +3606,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	/**
 	 * @param pipe
-	 * @param action
 	 */
 	public static void reviseContent(ResourceToolActionPipe pipe)
 	{
@@ -5854,7 +5851,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	/**
 	 * @param state
-	 * @param deleteIdSet
+	 * @param itemId
 	 */
 	protected void deleteItem(SessionState state, String itemId)
 	{
@@ -5956,7 +5953,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * @param state
 	 * @param deleteIdSet
-	 * @param deleteIds
 	 */
 	protected void deleteItems(SessionState state, Set deleteIdSet)
 	{
@@ -8175,8 +8171,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/**
 	* Find the resource with this id in the list.
-	* @param messages The list of messages.
 	* @param id The message id.
+	* @param resources list of resources.
 	* @return The index position in the list of the message with this id, or -1 if not found.
 	*/
 	protected int findResourceInList(List resources, String id)
@@ -9587,7 +9583,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * Handle a request to upload a file in multiple folders.
 	 * SAK-5350
-	 * @param runData
+	 * @param data
 	 */
 	public void doDropboxMultipleFoldersUpload(RunData data) {
 		
@@ -9647,12 +9643,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        } else if ("".equals(displayName)) {
 	            displayName = filename;
 	        }
-	        InputStream stream;
 	        String SEPARATOR = "/";
 	        String COLLECTION_DROPBOX = "/group-user/";
-	        stream = fileitem.getInputStream();
 	        String contentType = fileitem.getContentType();
-	        byte[] body = fileitem.get();
 	        ContentResourceEdit cr = null;
 	        String extension = "";
 	        String basename = filename.trim();
@@ -9711,31 +9704,36 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        }
 
 	        try {
-	            for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
-	                // A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
-	                String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
-	                cr = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
-	                        Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				for (Iterator it = usersCollectionIds.iterator(); it.hasNext();) {
+					try (InputStream stream = params.getFileItem("MultipleFolderContent").getInputStream()) {
+						// A site Dropbox Collection ID will be /group-user/SITE_ID/USER_ID/
+						String collectionId = COLLECTION_DROPBOX + siteId + SEPARATOR + it.next() + SEPARATOR;
+						cr = contentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),
+								Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 
-	                // Add the actual contents of the file and content type
-	                cr.setContent(body);
-	                cr.setContentType(contentType);
+						// Add the actual contents of the file and content type
+						// We need a new inputstream because our internal FileItem doesn't re-create the
+						// input stream on each call.
+						cr.setContent(stream);
+						cr.setContentType(contentType);
 
-	                // fill up its properties
-	                ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
-	                resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
-	                resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
-	                resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
+						// fill up its properties
+						ResourcePropertiesEdit resourceProperties = cr.getPropertiesEdit();
+						resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
+						resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 
-	                // now to commit the changes
-	                boolean notification = params.getBoolean("notify_dropbox");
-	                int noti = NotificationService.NOTI_NONE;
+						// now to commit the changes
+						boolean notification = params.getBoolean("notify_dropbox");
+						int noti = NotificationService.NOTI_NONE;
 
-	                if (notification) {
-	                    noti = NotificationService.NOTI_REQUIRED;
-	                }
-	                contentHostingService.commitResource(cr, noti);
-	            }
+						if (notification) {
+							noti = NotificationService.NOTI_REQUIRED;
+						}
+						contentHostingService.commitResource(cr, noti);
+					} catch (IOException e) {
+						logger.warn("Failed to close stream.", e);
+					}
+				}
 	        } catch (PermissionException e) {
 	            addAlert(state, trb.getString("alert.perm"));
 	            logger.warn("PermissionException " + e);
@@ -9941,7 +9939,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * @param state
 	 * @param hideIdSet
-	 * @param hideIds
 	 */
 	protected void hideItems(SessionState state, Set hideIdSet)
 	{
@@ -10464,7 +10461,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	/**
 	 * @param state
-	 * @param showIdSet
+	 * @param zipDownloadIdSet
 	 */
 	protected void zipDownloadItems(SessionState state, Set<String> zipDownloadIdSet)
 	{

@@ -33,6 +33,7 @@ import javax.faces.event.ActionListener;
 
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
@@ -67,7 +68,7 @@ public class RemoveAssessmentListener implements ActionListener
     s.removeAssessment(assessmentId);
 
     final String context = s.getAssessmentSiteId(assessmentId);
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.remove", "assessmentId=" + assessmentId, context, true, NotificationService.NOTI_NONE));
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, context, true, NotificationService.NOTI_NONE));
     try{
       AssessmentFacade assessmentFacade = s.getAssessment(assessmentId);
 
@@ -77,7 +78,7 @@ public class RemoveAssessmentListener implements ActionListener
       Iterator<ItemFacade> itemFacadeIterator = sectionFacade.getItemFacadeSet().iterator();
       while (itemFacadeIterator.hasNext()){
         ItemFacade itemFacade = itemFacadeIterator.next();
-        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.unindexitem", "/sam/" + context + "/unindexed, itemId=" + itemFacade.getItemIdString(), true));
+        EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + context + "/unindexed, itemId=" + itemFacade.getItemIdString(), true));
       }
     }
     }catch(Exception ex){

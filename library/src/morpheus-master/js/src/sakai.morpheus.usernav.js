@@ -270,7 +270,6 @@ $PBJQ(document).ready( function(){
   });
  
   $PBJQ(window).scroll(function(){
-	if(currentHeaderWidth > 799) {
 		var size = 0;
 		var stick = (($(document).height() - $(window).height()) > $(header).height()) === true;
 		if($(window).scrollTop() > 0) {
@@ -282,10 +281,15 @@ $PBJQ(document).ready( function(){
 		  $(".Mrphs-mainHeader").removeClass("is-fixed");
 		  $(header).data("sticked",false);
 		}
-		animateToolBar();
-	} else $(".Mrphs-mainHeader").removeClass("is-fixed");
   });
   
   currentHeaderWidth = $(".Mrphs-mainHeader").width();
-  
+
+
+	$PBJQ('.Mrphs-headerLogo').on('click', function() {
+		// scroll to top on banner click/touch
+		document.body.scrollTop = 0;
+		document.body.scrollLeft = 0;
+		$PBJQ(window).trigger('scroll');
+	});
 });

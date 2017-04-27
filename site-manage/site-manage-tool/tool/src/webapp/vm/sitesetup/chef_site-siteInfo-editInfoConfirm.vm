@@ -196,7 +196,7 @@
                     $tlang.getString("sinfo.mathjax.name")
                 </label>
                 <div class="col-sm-8">
-                #if ($isMathJaxAllowedInSite)
+                #if ($isMathJaxEnabledForSite)
                     $tlang.getString("sinfo.mathjax.allowed")
                 #else
                     $tlang.getString("sinfo.mathjax.notAllowed")

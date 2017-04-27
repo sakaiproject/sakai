@@ -28,6 +28,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -81,12 +82,12 @@ public class RemovePartListener implements ActionListener
       assessmentService.moveAllItems(sectionId,destSectionId);
     }
     assessmentService.removeSection(sectionId);
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", removed sectionId=" + sectionId, true));
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVISE, "siteId=" + AgentFacade.getCurrentSiteId() + ", removed sectionId=" + sectionId, true));
     if (("1").equals(removeAllQuestions)){
       Iterator<ItemFacade> iterator = itemList.iterator();
       while (iterator.hasNext()){
         ItemFacade item = iterator.next();
-        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.unindexitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, itemId=" + item.getItemIdString(), true));
+        EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_UNINDEXITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/unindexed, itemId=" + item.getItemIdString(), true));
       }
     }
     // #2 - goto editAssessment.jsp, so reset assessmentBean

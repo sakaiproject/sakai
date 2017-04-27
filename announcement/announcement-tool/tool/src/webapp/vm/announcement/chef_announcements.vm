@@ -74,7 +74,7 @@
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
 		
 		<div class="page-header">
-		  <h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
+		  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
 		</div>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
@@ -355,7 +355,7 @@
 			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 
 			<div class="page-header">
-			  <h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
+			  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
 			</div>
 			
 			<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
@@ -421,7 +421,7 @@
 					## <h3>$tlang.getString("gen.announcements")</h3>
 
 					<div class="page-header">
-					  <h1>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h1>
+					  <h3>$tlang.getString("gen.announcements") <br /><small>$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</small></h3>
 					</div>
 
 					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end

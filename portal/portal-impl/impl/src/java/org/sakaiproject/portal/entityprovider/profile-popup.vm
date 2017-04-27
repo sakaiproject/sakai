@@ -3,11 +3,11 @@
     <table cols="2" class="profile-popup-table">
         <tr>
             <td class="profile-popup-icon-cell">
-                <div><a href="${profileUrl}" title="${i18n.profile_tooltip}"><span class="fa fa-user fa-3x"></span></a></div>
+                <div><a href="${profileUrl}" target="_blank" title="${i18n.profile_tooltip}"><span class="fa fa-user fa-3x" aria-hidden="true"></span></a></div>
                 <div>${i18n.profile}</div>
             </td>
             <td class="profile-popup-icon-cell">
-                <div><a href="mailto:${email}" title="${i18n.email_tooltip}"><span class="fa fa-envelope fa-3x"></span></a></div>
+                <div><a href="mailto:${email}" title="${i18n.email_tooltip}"><span class="fa fa-envelope fa-3x" aria-hidden="true"></span></a></div>
                 <div>${i18n.email}</div>
             </td>
         </tr>
@@ -15,7 +15,7 @@
             <td class="profile-popup-icon-cell">
                 <div>
                 #if ($facebookUrl != "")
-                <a href="${facebookUrl}" target="_blank" title="${i18n.facebook_tooltip}"><span class="fa fa-facebook fa-3x"></span></a>
+                <a href="${facebookUrl}" target="_blank" title="${i18n.facebook_tooltip}"><span class="fa fa-facebook fa-3x" aria-hidden="true"></span></a>
                 #else
                 <span class="fa fa-facebook fa-3x" title="${i18n.no_facebook_tooltip}"></span>
                 #end
@@ -25,7 +25,7 @@
             <td class="profile-popup-icon-cell">
                 <div>
                 #if ($twitterUrl != "")
-                <a href="${twitterUrl}" target="_blank" title="${i18n.twitter_tooltip}"><span class="fa fa-twitter fa-3x"></span></a>
+                <a href="${twitterUrl}" target="_blank" title="${i18n.twitter_tooltip}"><span class="fa fa-twitter fa-3x" aria-hidden="true"></span></a>
                 #else
                 <span class="fa fa-twitter fa-3x" title="${i18n.no_twitter_tooltip}"></span>
                 #end

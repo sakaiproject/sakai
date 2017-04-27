@@ -1,44 +1,32 @@
 	function setEndtimeMonthDateYear(){
-		    var yearTag = document.getElementById("meeting:startTime.year");
-		    var monthTag = document.getElementById("meeting:startTime.month");
+		    var yearTag = document.getElementById("meeting_startTime_year");
+		    var monthTag = document.getElementById("meeting_startTime_month");
 		    if(!yearTag || !monthTag)
 		    	return;
 		    	
 			var year = yearTag.value;
 			var month = monthTag.value;
-			var day = document.getElementById("meeting:startTime.day").value;
+			var day = document.getElementById("meeting_startTime_day").value;
 			var diff = getSignupDateTime('endTime').getTime() - getSignupDateTime('startTime').getTime();
 			
 			if (diff >= 0)
 				return;//don't modify
 				
-			document.getElementById("meeting:endTime.year").value=year;	
-			document.getElementById("meeting:endTime.month").value=month;
-			document.getElementById("meeting:endTime.day").value=day;
+			document.getElementById("meeting_endTime_year").value=year;	
+			document.getElementById("meeting_endTime_month").value=month;
+			document.getElementById("meeting_endTime_day").value=day;
 		}
 	
-	function getSignupDateTime(tagValue){						
-			var year = document.getElementById("meeting:"+ tagValue+ ".year").value;
-			var month = document.getElementById("meeting:"+ tagValue + ".month").value -1;
-			var day = document.getElementById("meeting:"+ tagValue + ".day").value;
-			var hours = document.getElementById("meeting:"+ tagValue + ".hours").value;
-			var minutes= document.getElementById("meeting:"+ tagValue + ".minutes").value;
-			var ampm = document.getElementById("meeting:"+ tagValue + ".ampm").value;
-			
+	function getSignupDateTime(tagValue){
+			var year = document.getElementById("meeting_"+ tagValue+ "_year").value;
+			var month = document.getElementById("meeting_"+ tagValue + "_month").value -1;
+			var day = document.getElementById("meeting_"+ tagValue + "_day").value;
+			var hours = document.getElementById("meeting_"+ tagValue + "_hours").value;
+			var minutes= document.getElementById("meeting_"+ tagValue + "_minutes").value;
+			var ampm = document.getElementById("meeting_"+ tagValue + "_ampm").value;
 			var dateTime = new Date(year,month,day,hours,minutes,0,0);
-			if (ampm == 1){
-				if (hours =='12')
-					hours = 12;
-				else
-					hours = dateTime.getHours() + 12;
-
-				dateTime.setHours(hours);				
-			}else if (hours == '12'){				
-				dateTime.setHours(0);
-			}
-			
-			return dateTime;			
-		}	
+			return dateTime;
+	}	
 	
 	function showDetails(imageFolderName1,imagefolderName2,ContentTagName){
 				var detailsTag = document.getElementById(ContentTagName);
@@ -479,19 +467,19 @@
 	}
 
 	function showDTimeInputFields(opt){
-		var yearTag = document.getElementById("meeting:startTime.year");
-		var monthTag = document.getElementById("meeting:startTime.month");
-		var dayTag = document.getElementById("meeting:startTime.day");
-	    var hoursTag = document.getElementById("meeting:startTime.hours");
-		var minutesTag = document.getElementById("meeting:startTime.minutes");
-		var ampmTag = document.getElementById("meeting:startTime.ampm");
+		var yearTag = document.getElementById("meeting_startTime_year");
+		var monthTag = document.getElementById("meeting_startTime_month");
+		var dayTag = document.getElementById("meeting_startTime_day");
+	    var hoursTag = document.getElementById("meeting_startTime_hours");
+		var minutesTag = document.getElementById("meeting_startTime_minutes");
+		var ampmTag = document.getElementById("meeting_startTime_ampm");
 
-		var yearTag2 = document.getElementById("meeting:endTime.year");
-		var monthTag2 = document.getElementById("meeting:endTime.month");
-		var dayTag2 = document.getElementById("meeting:endTime.day");
-	    var hoursTag2 = document.getElementById("meeting:endTime.hours");
-		var minutesTag2 = document.getElementById("meeting:endTime.minutes");
-		var ampmTag2 = document.getElementById("meeting:endTime.ampm");
+		var yearTag2 = document.getElementById("meeting_endTime_year");
+		var monthTag2 = document.getElementById("meeting_endTime_month");
+		var dayTag2 = document.getElementById("meeting_endTime_day");
+	    var hoursTag2 = document.getElementById("meeting_endTime_hours");
+		var minutesTag2 = document.getElementById("meeting_endTime_minutes");
+		var ampmTag2 = document.getElementById("meeting_endTime_ampm");
 		
 		if(!yearTag || !yearTag2)
 			return;

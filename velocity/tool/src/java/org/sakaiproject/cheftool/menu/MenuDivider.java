@@ -196,6 +196,11 @@ public class MenuDivider implements MenuItem
 		return false;
 
 	} // getIsField
+
+	public boolean getIsCurrent()
+	{
+		return false;
+	}
 	
 	@Override
 	public String getAccessibilityLabel() {

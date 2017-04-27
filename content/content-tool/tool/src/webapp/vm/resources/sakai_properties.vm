@@ -137,535 +137,529 @@
 	
 #end
 
+<p class="form-group">
+	<label for="description${DOT}$i">
+		$tlang.getString("edit.descr")
+	</label>
+	<textarea id="description${DOT}$i" name="description${DOT}$i" class="form-control" rows="5" wrap="virtual">$!{model.description}</textarea>
+</p>
 
-
-
-##
-	<p class="form-group">
-		<label for="description${DOT}$i">
-			$tlang.getString("edit.descr") 
+#if($model.canSetQuota())
+	<p class="shorttext">
+		<label for="hasQuota${DOT}$i">
+			$tlang.getString("edit.quota")
 		</label>
-		<textarea id="description${DOT}$i" name="description${DOT}$i" class="form-control" rows="5" wrap="virtual">$!{model.description}</textarea>
+		<span>
+			<input type="hidden" name="setQuota${DOT}$i" value="true" />
+			<input type="checkbox" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end />
+			<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
+		</span>
 	</p>
-	
-	#if($model.canSetQuota())
-		<p class="shorttext">
-			<label for="hasQuota${DOT}$i">
-				$tlang.getString("edit.quota")
+#end
+
+#if ($model.isAdmin())
+	<div class="form-group">
+		<label for="allowHtmlInline${DOT}$i">
+			$tlang.getString("edit.renderHtml")
+		</label>
+		<span>
+			#if ($model.isAllowHtmlInlineInherited())
+				## if the value of this property is inherited from the collection, we need to display a static value so it doesn't get unintentionally persisted with a new value.
+				<input
+					type="hidden"
+					id="allowHtmlInline${DOT}$i"
+					name="allowHtmlInline${DOT}$i"
+					#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
+
+				## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
+				<input type="checkbox" disabled="disabled" checked="checked" />
+
+			#else
+				<input
+					type="checkbox"
+					name="allowHtmlInline${DOT}$i"
+					id="allowHtmlInline${DOT}$i"
+					value="true"
+					#if ($model.isAllowHtmlInline()) checked="checked" #end
+					 />
+			#end
+			<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
+		</span>
+	</div>
+#end
+
+#if($model.resourceTypeDef.hasRightsDialog())
+	#if ($!copyrightTypes.size() > 0)
+		<p class="form-group">
+			<span class="reqStar">*</span>
+			<label for="copyright${DOT}$i">
+				$tlang.getString("cright.status") (<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</label>
-			<span>	
-				<input type="hidden" name="setQuota${DOT}$i" value="true" />
-				<input type="checkbox" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end />
-				<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
-			</span>
-		</p>	
-	#end
-	
-	#if ($model.isAdmin())
-		<div class="form-group">
-			<label for="allowHtmlInline${DOT}$i">
-				$tlang.getString("edit.renderHtml")
-			</label>
-			<span>
-				#if ($model.isAllowHtmlInlineInherited())
-					## if the value of this property is inherited from the collection, we need to display a static value so it doesn't get unintentionally persisted with a new value.
-					<input
-						type="hidden"
-						id="allowHtmlInline${DOT}$i"
-						name="allowHtmlInline${DOT}$i"
-						#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
-					
-					## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
-					<input type="checkbox" disabled="disabled" checked="checked" />
-					
-				#else
-					<input
-						type="checkbox"
-						name="allowHtmlInline${DOT}$i"
-						id="allowHtmlInline${DOT}$i"
-						value="true"
-						#if ($model.isAllowHtmlInline()) checked="checked" #end
-						 />
+			<select name="copyright${DOT}$i" id ="copyright${DOT}$i" class="form-control">
+				#set ($noOneSelected=true)
+				#foreach ($copyright in $copyrightTypes)
+					<option value="$copyright.getType()"#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText()) selected="selected"#end #if ($!copyright.getLicenseUrl()) title="${copyright.getLicenseUrl()}"#end>$copyright.getText()</option>
+					#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText())
+						#set ($noOneSelected=false)
+					#end
 				#end
-				<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
-			</span>
+				#if ($noOneSelected && $!model.copyrightStatus)
+					<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
+				#end
+			</select>
+		</p>
+		<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group" style="display:block;"#else style="display:none;"#end>
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="newcopyright${DOT}$i">
+					$tlang.getString("cright.info")
+				</label>
+				<textarea class="form-control" name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
+			</p>
+		</div>
+		<div class="form-group">
+			<label for="copyrightAlert${DOT}$i" style="width:15.5em;display:block">
+				$tlang.getString("cright.alert")
+			</label>
+			<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
+			$tlang.getString("cright.display")
+			(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
 		</div>
 	#end
-	
-	#if($model.resourceTypeDef.hasRightsDialog()) 
-		#if ($!copyrightTypes.size() > 0)
-			<p class="form-group">
-				<span class="reqStar">*</span>
-				<label for="copyright${DOT}$i">
-					$tlang.getString("cright.status") (<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
-				</label>	
-				<select name="copyright${DOT}$i" id ="copyright${DOT}$i" class="form-control">
-					#set ($noOneSelected=true)
-					#foreach ($copyright in $copyrightTypes)
-						<option value="$copyright.getType()"#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText()) selected="selected"#end #if ($!copyright.getLicenseUrl()) title="${copyright.getLicenseUrl()}"#end>$copyright.getText()</option>
-						#if($model.copyrightStatus == $copyright.getType() || $model.copyrightStatus == $copyright.getText())
-							#set ($noOneSelected=false)
-						#end
-					#end
-					#if ($noOneSelected && $!model.copyrightStatus)
-						<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
-					#end
-				</select>
-			</p>
-			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) class="form-group" style="display:block;"#else style="display:none;"#end>
-				<p class="shorttext">
-					<span class="reqStar">*</span>
-					<label for="newcopyright${DOT}$i">
-						$tlang.getString("cright.info")
-					</label>	
-					<textarea class="form-control" name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
-				</p>	
-			</div>
-			<div class="form-group">
-				<label for="copyrightAlert${DOT}$i" style="width:15.5em;display:block">
-					$tlang.getString("cright.alert")
-				</label>
-				<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end />
-				$tlang.getString("cright.display") 
-				(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
-			</div>
-		#end
-	#end
+#end
 
-	#if(!$model.isDropbox() && ! $model.isSiteCollection())
-		<h4>
-			$tlang.getString("props.access")
-		</h4>
-	#end
-	
-	######### begin access section ##########
-	#if(!$model.isDropbox() && ! $model.isSiteCollection())
-		<p class="instruction">$model.getAccessInstruction()</p>
-		<div  class="form-group">
-			#set ($listDisplay="none")
-			#if($model.isSiteOnly())
-				##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
-				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
-			#elseif($model.isSingleGroupInherited())
-				##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
-				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
-			#elseif($model.isGroupInherited() && "$model.accessMode" == "grouped")	
-				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-				#set ($listDisplay="block")
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="access_mode_inherited${DOT}$i">
-							<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" />
-							$tlang.getString("access.inherit")
-						</label>
+########## Begin Accordion Panel ##########
+<div id="properties-accordion" class="panel-group">
+	######### Begin Access Panel ##########
+	<div id="access-panel" class="panel panel-default">
+		<div class="panel-heading container-fluid">
+			<a data-toggle="collapse" data-target="#collapseAccess" href="#collapseAccess">
+				<h4 class="panel-title">$tlang.getString("props.access")</h4>
+            </a>
+		</div>
+		<div id="collapseAccess" class="panel-collapse collapse in">
+			<div class="panel-body">
+				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox() && ! $model.isSiteCollection())
+					<p class="instruction">
+						#if($model.isCollection())
+							$tlang.getString("instr.access.fldr")
+						#else
+							$tlang.getString("instr.access")
+						#end
+					</p>
+					<div class="row">
+						<div class="form-inline">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<label for="hidden_false${DOT}$i">
+									<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden())checked="checked" #end/>
+									#if($model.isCollection())
+										$tlang.getString("avail.show2")
+									#else
+										$tlang.getString("avail.show1")
+									#end
+								</label>
+								<div class="form-group">
+									<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
+									<label for="use_start_date${DOT}$i">
+										$tlang.getString("avail.start1")
+									</label>
+								</div>
+								<div class="form-group">
+									#set($release_year = $model.getReleaseDate().breakdownLocal().year)
+									#set($release_month = $model.getReleaseDate().breakdownLocal().month)
+									#set($release_day = $model.getReleaseDate().breakdownLocal().day)
+									#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
+									#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
+									<input type="text" id="releaseDatePicker" name="releaseDatePicker" class="datepicker" value="">
+									<script type="text/javascript">
+										localDatePicker({
+											input:'#releaseDatePicker',
+											useTime:1,
+											val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
+											parseFormat: 'YYYY-MM-DD HH:mm',
+											ashidden:{
+												month:"release_month${DOT}$i",
+												day:"release_day${DOT}$i",
+												year:"release_year${DOT}$i",
+												hour:"release_hour${DOT}$i",
+												minute:"release_minute${DOT}$i",
+												ampm:"release_ampm${DOT}$i"
+											}
+										});
+									</script>
+								</div>
+								<div class="form-group">
+									<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
+									<label for="use_end_date${DOT}$i">
+										$tlang.getString("avail.end1")
+									</label>
+								</div>
+								<div class="form-group">
+									#set($retract_year = $model.getRetractDate().breakdownLocal().year)
+									#set($retract_month = $model.getRetractDate().breakdownLocal().month)
+									#set($retract_day = $model.getRetractDate().breakdownLocal().day)
+									#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
+									#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
+									<input type="text" id="retractDatePicker" name="retractDatePicker" class="datepicker" value="">
+									<script type="text/javascript">
+										localDatePicker({
+											input:'#retractDatePicker',
+											useTime:1,
+											val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
+											parseFormat: 'YYYY-MM-DD HH:mm',
+											ashidden:{
+												month:"retract_month${DOT}$i",
+												day:"retract_day${DOT}$i",
+												year:"retract_year${DOT}$i",
+												hour:"retract_hour${DOT}$i",
+												minute:"retract_minute${DOT}$i",
+												ampm:"retract_ampm${DOT}$i"
+											}
+										});
+									</script>
+								</div>
+							</div>
+						</div>
 					</div>
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="access_mode_groups${DOT}$i">
-							<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"  />
-							$tlang.getString("access.groups.choice")
-						</label>
-					</div>
-				</div>
-			#elseif($model.isGroupInherited())	
-				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="access_mode_inherited${DOT}$i">
-							<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked" />
-							$tlang.getString("access.inherit")
-						</label>
-					</div>
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="access_mode_groups${DOT}$i">
-							<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" />
-							$tlang.getString("access.groups.choice")
-						</label>
-					</div>
-				</div>
-			#else
-				## Site is possible; group and additional roles (including pubview) may be possible.
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="access_mode_inherited${DOT}$i">
-							<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end />
-							#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end
-						</label>
-					</div>
-				</div>
-				#if($model.rolesAreAvailable())
-				<h4>$tlang.getString("access.additional")</h4>
-				<ul style="list-style: none;">
-					#foreach ($roleId in $model.availableRoleIds())
-						<li>
-							<input type="checkbox" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
-							       #if($model.hasRoleEnabled($roleId) || $model.inheritsRole($roleId)) checked="checked"#end
-							       #if($model.inheritsRole($roleId))   disabled="disabled"#end />
-							<label for="access_mode_$roleId${DOT}$i">
-								#if($model.inheritsRole($roleId))$tlang.getString("access.inherited")#end
-								#if($model.isCollection())$tlang.getString("access.role${roleId}.fldr")#else$tlang.getString("access.role${roleId}.choice")#end
-							</label>
-						</li>
-					#end
-				</ul>
-				#end
-				#if($model.isGroupPossible())
-					## Group is possible
-					#if("$!model.accessMode" == "$GROUP_ACCESS")
-						#set ($listDisplay="block")
-					#else
-						#set ($listDisplay="none")
-					#end
 					<div class="row">
 						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-							<label for="access_mode_groups${DOT}$i">
-								<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end />
-								#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end
+							#if($model.isCollection())
+								<label for="hidden_with_accessible_content_true${DOT}$i">
+									<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
+									$tlang.getString("avail.hide30")
+								</label>
+							#end
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+							<label for="hidden_true${DOT}$i">
+								<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
+								#if($model.isCollection())
+									$tlang.getString("avail.hide20")
+								#else
+									$tlang.getString("avail.hide10")
+								#end
 							</label>
 						</div>
 					</div>
-				#end
-			#end
-		</div>
-
-		#if($model.groupsAreMissing())2
-			<div class="labelindnt">
-				<p class="alertMessageInline">
-					$tlang.getString("access.groups.missing")
-				</p>
-			</div>
-		#end
-
-		#if($model.isGroupPossible())
-			<table id="groupTable${DOT}$i" class="table table-condensed table-hover" border="0" style="display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
-				<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
-				<tr>
-					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
- 						<input type="checkbox" id="selectall${DOT}$i" name="selectall${DOT}$i" title="$tlang.getString("group.select.title")" />
-					</th>
-					<th id="groupname${DOT}$i">
-						$tlang.getString("edit.group1")
-					</th>
-					<th id ="groupdescription${DOT}$i">
-						$tlang.getString("edit.group2")
-					</th>
-				</tr>
-				#set($theGroups = $model.possibleGroups)
-				#foreach ($group in $!{theGroups})
-					#if($model.isPossible($group))
-						<tr>
-							<td headers="selected${DOT}$i" style="padding-bottom:0;" style="width:2em">
-								#if($model.isLocal($group) && $model.allowedRemove($group))
-									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" checked="checked" />
-								#elseif($model.isLocal($group))
-									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+					#if($conditions_enabled)
+						<div class="form-group">
+							#if($resourceSelections.size() == 0)
+								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" disabled>
+							#else
+								#if($item.isUseConditionalRelease())
+									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" checked="checked">
 								#else
-									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" />
+									<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox">
 								#end
-							</td>
-							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
-								<label for="access_groups_${group.Id}${DOT}$i">
-									$validator.escapeHtml($group.title)
-								</label>	
-							</td>
-							<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
-								#set($description = "")
-								#if($group.description)
-									#set($description = $group.Description)
-								#end
-								$validator.escapeHtml($!description)
-							</td>
-						</tr>
-					#end
-				#end
-			</table>
-		#end
-	#end
-
-	######### end access section ##########
-
-	######### begin availability section ##########
-	#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox() && ! $model.isSiteCollection())
-		<p class="instruction">
-			#if($model.isCollection())
-				$tlang.getString("instr.access.fldr")
-			#else
-				$tlang.getString("instr.access")
-			#end
-		</p>
-		<div class="panel panel-default">
-  			<div class="panel-heading container-fluid">
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="hidden_false${DOT}$i">
-							<input type="radio" name="hidden${DOT}$i" id="hidden_false${DOT}$i" value="false" #if(!$model.isHidden())checked="checked" #end/>
-							#if($model.isCollection())
-								$tlang.getString("avail.show2")
-							#else
-								$tlang.getString("avail.show1")
 							#end
-						</label>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						#if($model.isCollection())
-							<label for="hidden_with_accessible_content_true${DOT}$i">
-								<input type="radio" name="hidden${DOT}$i" id="hidden_with_accessible_content_true${DOT}$i" value="hidden_with_accessible_content" #if($model.isHiddenWithAccessibleContent())checked="checked" #end/>
-								$tlang.getString("avail.hide30")
-							</label>
-						#end
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<label for="hidden_true${DOT}$i">
-							<input type="radio" name="hidden${DOT}$i" id="hidden_true${DOT}$i" value="true" #if($model.isHidden())checked="checked" #end/>
-							#if($model.isCollection())
-								$tlang.getString("avail.hide20")
+							<label for="cbCondition${DOT}$i">$tlang.getString("conditional.only_if_condition_is_met")</label>
+						</div>
+						<div class="form-group">
+							#if($resourceSelections.size() == 0)
+								$tlang.getString("no.gradebook.assignments")
 							#else
-									$tlang.getString("avail.hide10")
-							#end
-						</label>
-					</div>
-				</div>
-			</div>
-			<div class="panel-body">
-				<div class="form-inline">
-					<div class="form-group">
-						<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
-						<label for="use_start_date${DOT}$i">
-							$tlang.getString("avail.start1")
-						</label>
-					</div>
-					<div class="form-group">
-						#set($release_year = $model.getReleaseDate().breakdownLocal().year)
-						#set($release_month = $model.getReleaseDate().breakdownLocal().month)
-						#set($release_day = $model.getReleaseDate().breakdownLocal().day)
-						#set($release_hour = $model.getReleaseDate().breakdownLocal().hour)
-						#set($release_minute = $model.getReleaseDate().breakdownLocal().min)
-						<input type="text" id="releaseDatePicker" name="releaseDatePicker" class="datepicker" value="">
-						<script type="text/javascript">
-							localDatePicker({
-								input:'#releaseDatePicker',
-								useTime:1,
-								val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
-								parseFormat: 'YYYY-MM-DD HH:mm',
-								ashidden:{
-									month:"release_month${DOT}$i",
-									day:"release_day${DOT}$i",
-									year:"release_year${DOT}$i",
-									hour:"release_hour${DOT}$i",
-									minute:"release_minute${DOT}$i",
-									ampm:"release_ampm${DOT}$i"
-								}
-							});
-						</script>
-					</div>
-				</div><br/>
-				<div class="form-inline">
-					<div class="form-group">
-						<input type="checkbox" name="use_end_date${DOT}$i" id="use_end_date${DOT}$i" value="true" #if($model.useRetractDate())checked="checked" #end/>
-						<label for="use_end_date${DOT}$i">
-							$tlang.getString("avail.end1")
-						</label>
-					</div>
-					<div class="form-group">
-						#set($retract_year = $model.getRetractDate().breakdownLocal().year)
-						#set($retract_month = $model.getRetractDate().breakdownLocal().month)
-						#set($retract_day = $model.getRetractDate().breakdownLocal().day)
-						#set($retract_hour = $model.getRetractDate().breakdownLocal().hour)
-						#set($retract_minute = $model.getRetractDate().breakdownLocal().min)
-						<input type="text" id="retractDatePicker" name="retractDatePicker" class="datepicker" value="">
-						<script type="text/javascript">
-							localDatePicker({
-								input:'#retractDatePicker',
-								useTime:1,
-								val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
-								parseFormat: 'YYYY-MM-DD HH:mm',
-								ashidden:{
-									month:"retract_month${DOT}$i",
-									day:"retract_day${DOT}$i",
-									year:"retract_year${DOT}$i",
-									hour:"retract_hour${DOT}$i",
-									minute:"retract_minute${DOT}$i",
-									ampm:"retract_ampm${DOT}$i"
-								}
-							});
-						</script>
-					</div>
-				</div>
-				#if($conditions_enabled)
-					<div class="form-group">
-						#if($resourceSelections.size() == 0)
-							<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" disabled>
-						#else
-							#if($item.isUseConditionalRelease())
-								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox" checked="checked">
-							#else
-								<input name="cbCondition${DOT}$i" id="cbCondition${DOT}$i" value="true" type="checkbox">
-							#end
-						#end	
-						<label for="cbCondition${DOT}$i">
-							$tlang.getString("conditional.only_if_condition_is_met")
-						</label>
-					</div>				
-	  				<div class="form-group">
-						#if($resourceSelections.size() == 0)
-							$tlang.getString("no.gradebook.assignments")
-						#else
-							$tlang.getString("conditional.gradebook_tool_name") 
-							<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
+								$tlang.getString("conditional.gradebook_tool_name")
+								<select name="selectResource${DOT}$i" id="selectResource${DOT}$i">
 								#foreach ($key in $resourceSelections.keySet())
-						    	#if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease()) 
+									#if($key.startsWith("${item.getSubmittedResourceFilter()}/") && $item.isUseConditionalRelease())
 										<option value="${key.replaceAll("\"","&quot;")}" selected="selected">${resourceSelections.get(${key})}</option>
 									#else
 										<option value="${key.replaceAll("\"","&quot;")}">${resourceSelections.get(${key})}</option>
 									#end
 								#end
-							</select>
-							<select name="selectCondition${DOT}$i"
-						  	id="selectCondition${DOT}$i"
-						  	onchange="changeCondition(this.options[this.selectedIndex].value, '${DOT}$i');">
-									#foreach ($key in $conditionSelections.keySet())							
+								</select>
+								<select name="selectCondition${DOT}$i"
+										id="selectCondition${DOT}$i"
+										onchange="changeCondition(this.options[this.selectedIndex].value, '${DOT}$i');">
+									#foreach ($key in $conditionSelections.keySet())
 										#if($key.equals($item.getSelectedConditionKey()) && $item.isUseConditionalRelease())
-											<option value="${key}" selected="selected">${conditionSelections.get(${key})}</option>							
+											<option value="${key}" selected="selected">${conditionSelections.get(${key})}</option>
 										#else
-											<option value="${key}">${conditionSelections.get(${key})}</option>							
+											<option value="${key}">${conditionSelections.get(${key})}</option>
 										#end
 									#end
-							</select>
-							#if($item.getSelectedConditionKey().startsWith("9") || $item.getSelectedConditionKey().startsWith("10"))
-								<span id="grade_argument_span${DOT}$i" style="display:inline;">
-									<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" value="$item.getConditionArgument()" />
-								</span>
-							#else
-								<span id="grade_argument_span${DOT}$i" style="display:none;">
-									<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
-								</span>
+								</select>
+								#if($item.getSelectedConditionKey().startsWith("9") || $item.getSelectedConditionKey().startsWith("10"))
+									<span id="grade_argument_span${DOT}$i" style="display:inline;">
+										<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" value="$item.getConditionArgument()" />
+									</span>
+								#else
+									<span id="grade_argument_span${DOT}$i" style="display:none;">
+										<input type="text" size="3" name="assignment_grade${DOT}$i" id="assignment_grade${DOT}$i" />
+									</span>
+								#end
+							#end
+						</div>
+					#end
+				#end
+				#if(!$model.isDropbox() && !$model.isSiteCollection())
+					<p class="instruction">$model.getAccessInstruction()</p>
+
+					<div  class="form-group">
+						#set ($listDisplay="none")
+						#if($model.isSiteOnly())
+							##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
+							<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
+						#elseif($model.isSingleGroupInherited())
+							##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
+							<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
+						#elseif($model.isGroupInherited() && "$model.accessMode" == "grouped")
+							##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
+							#set ($listDisplay="block")
+							<div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<label for="access_mode_inherited${DOT}$i">
+										<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" />
+										$tlang.getString("access.inherit")
+									</label>
+								</div>
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<label for="access_mode_groups${DOT}$i">
+										<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"  />
+										$tlang.getString("access.groups.choice")
+									</label>
+								</div>
+							</div>
+						#elseif($model.isGroupInherited())
+							##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
+							<div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<label for="access_mode_inherited${DOT}$i">
+										<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked" />
+										$tlang.getString("access.inherit")
+									</label>
+								</div>
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<label for="access_mode_groups${DOT}$i">
+										<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" />
+										$tlang.getString("access.groups.choice")
+									</label>
+								</div>
+							</div>
+						#else
+							## Site is possible; group and additional roles (including pubview) may be possible.
+							<div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<label for="access_mode_inherited${DOT}$i">
+										<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if("$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end />
+										#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end
+									</label>
+								</div>
+							</div>
+							#if($model.rolesAreAvailable())
+								<ul style="list-style: none;">
+									#foreach ($roleId in $model.availableRoleIds())
+										<li>
+											<input type="checkbox" name="access_roles${DOT}$i" id="access_role_$roleId${DOT}$i" value="$roleId"
+												#if($model.hasRoleEnabled($roleId) || $model.inheritsRole($roleId)) checked="checked"#end
+												#if($model.inheritsRole($roleId))   disabled="disabled"#end />
+											<label for="access_mode_$roleId${DOT}$i">
+												#if($model.inheritsRole($roleId))$tlang.getString("access.inherited")#end
+												#if($model.isCollection())$tlang.getString("access.role${roleId}.fldr")#else$tlang.getString("access.role${roleId}.choice")#end
+											</label>
+										</li>
+									#end
+								</ul>
+							#end
+							#if($model.isGroupPossible())
+								## Group is possible
+								#if("$!model.accessMode" == "$GROUP_ACCESS")
+									#set ($listDisplay="block")
+								#else
+									#set ($listDisplay="none")
+								#end
+								<div class="row">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+										<label for="access_mode_groups${DOT}$i">
+											<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end />
+											#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end
+										</label>
+									</div>
+								</div>
+								<table id="groupTable${DOT}$i" class="table table-condensed table-hover" border="0" style="display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
+									<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
+									<tr>
+										<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
+											<input type="checkbox" id="selectall${DOT}$i" name="selectall${DOT}$i" title="$tlang.getString("group.select.title")" />
+										</th>
+										<th id="groupname${DOT}$i">
+											$tlang.getString("edit.group1")
+										</th>
+										<th id ="groupdescription${DOT}$i">
+											$tlang.getString("edit.group2")
+										</th>
+									</tr>
+									#set($theGroups = $model.possibleGroups)
+									#foreach ($group in $!{theGroups})
+										#if($model.isPossible($group))
+											<tr>
+												<td headers="selected${DOT}$i" style="padding-bottom:0;" style="width:2em">
+													#if($model.isLocal($group) && $model.allowedRemove($group))
+														<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" checked="checked" />
+													#elseif($model.isLocal($group))
+														<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+													#else
+														<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$validator.escapeHtml($group.title)" value="$group.Id" />
+													#end
+												</td>
+												<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
+													<label for="access_groups_${group.Id}${DOT}$i">
+														$validator.escapeHtml($group.title)
+													</label>
+												</td>
+												<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
+											#set($description = "")
+											#if($group.description)
+													#set($description = $group.Description)
+												#end
+											$validator.escapeHtml($!description)
+												</td>
+											</tr>
+										#end
+									#end
+								</table>
 							#end
 						#end
-	  				</div>
+					</div>
+
+					#if($model.groupsAreMissing())
+						<div class="labelindnt">
+							<p class="alertMessageInline">
+								$tlang.getString("access.groups.missing")
+							</p>
+						</div>
+					#end
 				#end
 			</div>
 		</div>
-	#end
-
-	######### end availability section ##########	
-	
+	</div>
+	######### End Access Panel ##########
 	#if($showItemSummary)
-		<h4>
-			#if($item.isCollection())
-				$tlang.getString("props.fldr")
-			#else
-				$tlang.getString("props.file")
-			#end
-		</h4>
-
-		<table class="itemSummary" border="0" style="clear:both;">
-			#if (!($dropboxMode && $collectionId==$homeCollectionId))
-				<tr> 
-					<th> 
-						#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creator.upl")#else$tlang.getString("props.creator")#end
-					</th>
-					<td>
-						$validator.escapeHtml("$model.createdBy")
-					</td>
-				</tr>
-				<tr> 
-					<th> 
-						#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creatime.upl")#else$tlang.getString("props.creatime")#end
-					</th>
-					<td>
-						$validator.escapeHtml("$model.createdTime")
-					</td>
-				</tr>
-			#end
-			<tr>
-				<th> 
-					$tlang.getString("props.modby")
-				</th>
-				<td>
-					$validator.escapeHtml("$model.modifiedBy")
-				</td>
-			</tr>
-			<tr> 
-				<th> 
-					$tlang.getString("props.modtime")
-				</th>
-				<td>
-					$validator.escapeHtml("$model.modifiedTime")
-				</td>
-			</tr>
-			<tr> 
-				<th> 
-					$tlang.getString("props.url")
-				</th>
-				<td>
-					<div class="form-group">
-						<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
-						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
-						|
-						<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
-						#if($shortUrlEnabled)
-						|
-						<span class="textPanelFooter">
-							<input type="checkbox" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
-							<span>$tlang.getString("props.shorturl")</span>
-						</span>
+		######### Begin Summary Panel ##########
+		<div id="summary-panel" class="panel panel-default">
+			<div class="panel-heading container-fluid">
+                <a data-toggle="collapse" data-target="#collapseSummary" href="#collapseSummary">
+					<h4 class="panel-title">
+						#if($item.isCollection())
+							$tlang.getString("props.fldr")
+						#else
+							$tlang.getString("props.file")
 						#end
-					</div>
-					<textarea class="form-control" id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>						
-				</td>
-			</tr>
-			#if(! $item.isCollection())
-				<tr> 
-					<th>
-						$tlang.getString("props.size")
-					</th>
-					<td>
-						$model.sizzle 
-					</td>
-				</tr>
-			#end
-			#if(! $model.isUrl() && ! $model.isCollection() && "$!{model.mimetype}" != "")
-				<tr> 
-					<th>
-						$tlang.getString("props.mime")
-					</th>
-					<td>
-						<span id="mime_warning${DOT}$i"></span>
-						<span id="mime_widget${DOT}$i">
-							$model.mimetype
-							<input type="hidden" name="mime_category${DOT}$i" id="mime_category${DOT}$i" value="$model.mimeCategory" />  
-							<input type="hidden" name="mime_subtype${DOT}$i" id="mime_subtype${DOT}$i" value="$model.mimeSubtype" />
-							<input type="button" name="changeMimetype${DOT}$i" id="changeMimetype${DOT}$i" value="$tlang.getString("change.filetype")" />
-						</span>
-					</td>
-				</tr>
-			#end
-			#if ($showFilter && ${item.html})
-				<tr>
-					<th>
-						$tlang.getFormattedMessage("props.html_filter", $model.serviceName)
-					</th>
-					<td>
-						<select name="html_filter${DOT}$i" size="1">
-							<option value="auto" #if($item.htmlFilter == "auto")selected="yes"#end>$tlang.getString("props.automatic")</option>
-							#if ($showQuirks)
-							<option value="yes" #if($item.htmlFilter == "yes")selected="yes"#end>$tlang.getString("props.always")</option>
-							#end
-							<option value="no" #if($item.htmlFilter == "no")selected="yes"#end>$tlang.getString("props.never")</option>
-						</select>
-					</td>
-				</tr>
-			#end
-			
-			#if ($showMountPointProperty)
-				<tr>
-					<th>$tlang.getString("props.mountpoint")</th>
-          <td><input type="textbox" name="sakai:handler-bean-id" id="sakai:handler-bean-id" value="$CHHmountpoint" /></td>
-				</tr>
-			#end
-		</table> 
+					</h4>
+                </a>
+			</div>
+			<div id="collapseSummary" class="panel-collapse collapse">
+				<div class="panel-body">
+					<table class="itemSummary" border="0" style="clear:both;">
+						#if (!($dropboxMode && $collectionId==$homeCollectionId))
+							<tr>
+								<th>
+									#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creator.upl")#else$tlang.getString("props.creator")#end
+								</th>
+								<td>
+									$validator.escapeHtml("$model.createdBy")
+								</td>
+							</tr>
+							<tr>
+								<th>
+									#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creatime.upl")#else$tlang.getString("props.creatime")#end
+								</th>
+								<td>
+									$validator.escapeHtml("$model.createdTime")
+								</td>
+							</tr>
+						#end
+						<tr>
+							<th>
+								$tlang.getString("props.modby")
+							</th>
+							<td>
+								$validator.escapeHtml("$model.modifiedBy")
+							</td>
+						</tr>
+						<tr>
+							<th>
+								$tlang.getString("props.modtime")
+							</th>
+							<td>
+								$validator.escapeHtml("$model.modifiedTime")
+							</td>
+						</tr>
+						<tr>
+							<th>
+								$tlang.getString("props.url")
+							</th>
+							<td>
+								<div class="form-group">
+									<a class="textPanelFooter" href="#fileURLHolder" onclick="document.getElementById('fileURLHolder').style.overflow='auto';document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
+									<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
+									#if($shortUrlEnabled)
+										<span class="textPanelFooter">
+											<input type="checkbox" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
+											<span>$tlang.getString("props.shorturl")</span>
+										</span>
+									#end
+								</div>
+								<textarea class="form-control" id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>
+							</td>
+						</tr>
+						#if(! $item.isCollection())
+							<tr>
+								<th>
+									$tlang.getString("props.size")
+								</th>
+								<td>
+									$model.sizzle
+								</td>
+							</tr>
+						#end
+						#if(! $model.isUrl() && ! $model.isCollection() && "$!{model.mimetype}" != "")
+							<tr>
+								<th>
+									$tlang.getString("props.mime")
+								</th>
+								<td>
+									<span id="mime_warning${DOT}$i"></span>
+									<span id="mime_widget${DOT}$i">
+										$model.mimetype
+										<input type="hidden" name="mime_category${DOT}$i" id="mime_category${DOT}$i" value="$model.mimeCategory" />
+										<input type="hidden" name="mime_subtype${DOT}$i" id="mime_subtype${DOT}$i" value="$model.mimeSubtype" />
+										<input type="button" name="changeMimetype${DOT}$i" id="changeMimetype${DOT}$i" value="$tlang.getString("change.filetype")" />
+									</span>
+								</td>
+							</tr>
+						#end
+						#if ($showFilter && ${item.html})
+							<tr>
+								<th>
+									$tlang.getFormattedMessage("props.html_filter", $model.serviceName)
+								</th>
+								<td>
+									<select name="html_filter${DOT}$i" size="1">
+										<option value="auto" #if($item.htmlFilter == "auto")selected="yes"#end>$tlang.getString("props.automatic")</option>
+										#if ($showQuirks)
+										<option value="yes" #if($item.htmlFilter == "yes")selected="yes"#end>$tlang.getString("props.always")</option>
+										#end
+										<option value="no" #if($item.htmlFilter == "no")selected="yes"#end>$tlang.getString("props.never")</option>
+									</select>
+								</td>
+							</tr>
+						#end
+						#if ($showMountPointProperty)
+							<tr>
+								<th>$tlang.getString("props.mountpoint")</th>
+								<td><input type="textbox" name="sakai:handler-bean-id" id="sakai:handler-bean-id" value="$CHHmountpoint" /></td>
+							</tr>
+						#end
+					</table>
+				</div>
+			</div>
+		</div>
+		######### End Summary Panel ##########
 	#end
-#parse("/vm/resources/sakai_metadata-edit.vm")
+	######### Metadata Panels are constructed in meta_edit_group.vm ##########
+	#parse("/vm/resources/sakai_metadata-edit.vm")
+</div>
+########## End Accordion Panel ##########

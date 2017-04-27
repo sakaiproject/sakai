@@ -243,7 +243,7 @@ public class TurnitinReviewServiceImpl implements ContentReviewService {
 		return true;
 	}
 
-	public String getIconCssClassforScore(int score) {
+	public String getIconCssClassforScore(int score, String contentId) {
 		if (score == 0) {
 			return "contentReviewIconThreshold-5";
 		} else if (score < 25) {

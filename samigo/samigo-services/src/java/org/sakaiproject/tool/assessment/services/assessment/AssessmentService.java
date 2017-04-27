@@ -43,6 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -451,7 +452,7 @@ public class AssessmentService {
 						// System.out.println("not in pool " + item.getItemId());
 						Long deleteId = item.getItemId();
 						itemService.deleteItem(deleteId, agentId);
-						EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.item.delete", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
+						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
 						itemIter.remove();
 					} // else System.out.println("in pool " + item.getItemId());
 				}
@@ -529,7 +530,7 @@ public class AssessmentService {
 						}
 //					}
 					section.addItem(item);
-					EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.saveitem", "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
 					i = i + 1;
 				}
 

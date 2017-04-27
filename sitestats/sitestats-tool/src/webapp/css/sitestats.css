@@ -337,6 +337,14 @@ table.formContainer  {
     margin: 0.1em 0.3em;
     border:1px solid #888888;
 }
+.formContainer .responsive-form {
+    width: 300px;
+} 
+@media screen  and (max-width: 580px) {
+    .formContainer .responsive-form {
+        width: 100%;
+    }
+}
 
 
 /** Summary Table */

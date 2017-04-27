@@ -10,6 +10,9 @@ import org.jdom.Namespace;
 
 public class Ns  {
     private int version = 0;
+    //Default namespace
+    private Namespace ns = CP_NS[0];
+	private Namespace lom = LOMIMSCC_NS[0];
 
     private static final Namespace LOM_NS[] = {Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/LOM"),
 					       Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource"),
@@ -22,10 +25,19 @@ public class Ns  {
 						    Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest"),
 						    Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest")};
 
+    private static final Namespace LOMIMSCP_NS[] = {Namespace.getNamespace("lom", "http://www.imsglobal.org/xsd/imsmd_v1p2"),
+						    Namespace.getNamespace("lom", "http://www.imsglobal.org/xsd/imsmd_v1p2"),
+						    Namespace.getNamespace("lom", "http://www.imsglobal.org/xsd/imsmd_v1p2")};
+
+    	
     private static final Namespace CC_NS[] = {Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1"),
 					      Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1"),
 					      Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1"),
 					      Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1")};
+
+    private static final Namespace CP_NS[] = {Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscp_v1p1"),
+					      Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscp_v1p1"),
+					      Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscp_v1p1")};
 
     private static final Namespace TOPIC_NS[] = {Namespace.NO_NAMESPACE,
 						 Namespace.getNamespace("dt", "http://www.imsglobal.org/xsd/imsccv1p1/imsdt_v1p1"),
@@ -82,6 +94,24 @@ public class Ns  {
 	return 4;
     }
 
+    public void setNs(Namespace ns) {
+    	this.ns = ns;
+    }
+
+    public Namespace getNs() {
+   	return ns;
+    }
+
+    public void setLom(Namespace ns) {
+    	this.lom  = ns;
+    }
+
+    public Namespace getLom() {
+   	return lom;
+    }
+
+
+
     public Namespace lom_ns() {
 	return LOM_NS[version];
     }
@@ -90,9 +120,18 @@ public class Ns  {
 	return LOMIMSCC_NS[version];
     }
 
+    public Namespace lomimscp_ns() {
+	return LOMIMSCP_NS[version];
+    }
+
     public Namespace cc_ns() {
 	return CC_NS[version];
     }
+
+	public Namespace cp_ns() {
+	return CP_NS[version];
+    }
+
 
     public Namespace topic_ns() {
 	return TOPIC_NS[version];

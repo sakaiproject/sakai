@@ -13,59 +13,34 @@
 
 <script>includeLatestJQuery('edit.jsp');</script>
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
-<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 
 <script type="text/javascript">
-  $(function() {
-    $('.dateInput').datetimepicker({
-    	hour: 8,
-		timeFormat: "hh:mm tt",
-		currentText: "<h:outputText value="#{msgs.now}"/>",
-		closeText: "<h:outputText value="#{msgs.done}"/>",
-		amNames: ['<h:outputText value="#{msgs.am}"/>', '<h:outputText value="#{msgs.am2}"/>'],
-		pmNames: ['<h:outputText value="#{msgs.pm}"/>', '<h:outputText value="#{msgs.pm2}"/>'],
-		timeText: "<h:outputText value="#{msgs.time}"/>",
-		hourText: "<h:outputText value="#{msgs.hour}"/>",
-		minuteText: "<h:outputText value="#{msgs.minute}"/>",
-		monthNames: ["<h:outputText value="#{msgs.jan}"/>",
-					  "<h:outputText value="#{msgs.feb}"/>",
-					  "<h:outputText value="#{msgs.mar}"/>",
-					  "<h:outputText value="#{msgs.apr}"/>",
-					  "<h:outputText value="#{msgs.may}"/>",
-					  "<h:outputText value="#{msgs.jun}"/>",
-					  "<h:outputText value="#{msgs.jul}"/>",
-					  "<h:outputText value="#{msgs.aug}"/>",
-					  "<h:outputText value="#{msgs.sep}"/>",
-					  "<h:outputText value="#{msgs.oct}"/>",
-					  "<h:outputText value="#{msgs.nov}"/>",
-					  "<h:outputText value="#{msgs.dec}"/>"],
-		dayNames: ["<h:outputText value="#{msgs.sunday}"/>",
-							"<h:outputText value="#{msgs.monday}"/>",
-							"<h:outputText value="#{msgs.tuesday}"/>",
-							"<h:outputText value="#{msgs.wednesday}"/>",
-							"<h:outputText value="#{msgs.thursday}"/>",
-							"<h:outputText value="#{msgs.friday}"/>",
-							"<h:outputText value="#{msgs.saturday}"/>"],
-		dayNamesMin: ["<h:outputText value="#{msgs.sun}"/>",
-							"<h:outputText value="#{msgs.mon}"/>",
-							"<h:outputText value="#{msgs.tue}"/>",
-							"<h:outputText value="#{msgs.wed}"/>",
-							"<h:outputText value="#{msgs.thu}"/>",
-							"<h:outputText value="#{msgs.fri}"/>",
-							"<h:outputText value="#{msgs.sat}"/>"],
-		beforeShow: function (textbox, instance) {
-			            instance.dpDiv.css({
-			                    marginLeft: textbox.offsetWidth + 'px'
-			          });
-		
-	}
+	jQuery(document).ready(function() {
+		localDatePicker({
+			input: '#syllabusEdit\\:dataStartDate',
+			useTime: 1,
+			parseFormat: 'YYYY-MM-DD HH:mm:ss',
+			allowEmptyDate: true,
+			val: '<h:outputText value="#{SyllabusTool.syllabusDataStartDate}"/>',
+			ashidden: {
+					iso8601: 'dataStartDateISO8601'}
+		});
+		localDatePicker({
+			input: '#syllabusEdit\\:dataEndDate',
+			useTime: 1,
+			parseFormat: 'YYYY-MM-DD HH:mm:ss',
+			allowEmptyDate: true,
+			val: '<h:outputText value="#{SyllabusTool.syllabusDataEndDate}"/>',
+			ashidden: {
+					iso8601: 'dataEndDateISO8601'}
+		});
 	});
-  });
  </script>
 			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
-			<h:form>
+			<h:form id="syllabusEdit">
 		  	<sakai:tool_bar_message value="#{msgs.add_sylla}" /> 
  			<sakai:doc_section>
  				<h:outputText value="#{msgs.newSyllabusForm1}"/>
@@ -161,15 +136,13 @@
 							<h:outputLabel for="dataStartDate">
 								<h:outputText value="#{msgs.startdatetitle}"/>
 							</h:outputLabel>
-							<h:inputText styleClass="dateInput datInputStart" value="#{SyllabusTool.syllabusDataStartDate}" id="dataStartDate"/>
-							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.datInputStart').focus();"/></f:verbatim>
+							<h:inputText styleClass="datInputStart" value="#{SyllabusTool.syllabusDataStartDate}" id="dataStartDate"/>
 						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel for="dataEndDate">
 								<h:outputText value="#{msgs.enddatetitle}"/>
 							</h:outputLabel>
-							<h:inputText styleClass="dateInput datInputEnd" value="#{SyllabusTool.syllabusDataEndDate}" id="dataEndDate"/>
-							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$('.datInputEnd').focus();"/></f:verbatim>
+							<h:inputText styleClass="datInputEnd" value="#{SyllabusTool.syllabusDataEndDate}" id="dataEndDate"/>
 						</h:panelGroup>
 						<h:panelGroup styleClass="shorttext" rendered="#{SyllabusTool.calendarExistsForSite}">
 							<h:selectBooleanCheckbox id="linkCalendar" value="#{SyllabusTool.syllabusDataLinkCalendar}" />

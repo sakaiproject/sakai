@@ -123,7 +123,7 @@ public class NoOpContentReviewService implements ContentReviewService {
 	}
 
 	@Override
-	public String getIconCssClassforScore(int score) {
+	public String getIconCssClassforScore(int score, String contentId) {
 		return "contentReviewIconNoService";
 	}
 

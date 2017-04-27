@@ -1551,11 +1551,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							UIOutput.make(tableRow, "item-groups", itemGroupString);
 							SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
-							Date rDate = sPage.getReleaseDate();
-							String rDateString = "";
-							if(rDate != null)
-								rDateString = rDate.toString();
-							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
+							if (sPage != null) {
+								Date rDate = sPage.getReleaseDate();
+								String rDateString = "";
+								if(rDate != null)
+									rDateString = rDate.toString();
+								UIOutput.make(tableRow, "subpagereleasedate", rDateString);
+							}
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
@@ -4106,11 +4108,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
-		    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-		    eParams.addTool = GeneralViewParameters.CALENDAR;
-		    UIOutput.make(tofill, "calendar-li");
-		    UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
-		    calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+		    boolean showEmbedCalendarLink = ServerConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
+		    if (showEmbedCalendarLink){
+			    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
+			    eParams.addTool = GeneralViewParameters.CALENDAR;
+			    UIOutput.make(tofill, "calendar-li");
+			    UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
+			    calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+		    }
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
@@ -4143,10 +4148,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    makeCsrf(form, "csrf26");
 		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
-			//Adding 'Embed twitter timeline' component
-			UIOutput.make(tofill, "twitter-li");
-			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
-			twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
+			boolean showEmbedTwitterLink = ServerConfigurationService.getBoolean("lessonbuilder.show.twitter.link", false);
+			if (showEmbedTwitterLink){
+				//Adding 'Embed twitter timeline' component
+				UIOutput.make(tofill, "twitter-li");
+				UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
+				twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
+			}
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
@@ -4475,7 +4483,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "import-cc-form");
 		makeCsrf(form, "csrf11");
 
-		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.importCc}");
+		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.import_message"), "#{simplePageBean.importCc}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 
 		UIBoundBoolean.make(form, "import-toplevel", "#{simplePageBean.importtop}", false);
@@ -4801,48 +4809,50 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UISelect.make(form, "cssDropdown", options, labels, "#{simplePageBean.dropDown}", currentCss);
 			
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
-			UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
-					.replace("{1}", messageLocator.getMessage("simplepage.permissions")).replace("{2}", messageLocator.getMessage("simplepage.more-tools")));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
 			UIBoundBoolean.make(form, "nodownloads", 
 					    "#{simplePageBean.nodownloads}", 
 					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
-
-			//Set the changeOwner dropdown in the settings dialog
-			UIOutput.make(form, "changeOwnerSection");
-			List<String> roleOptions = new ArrayList<>();
-			List<String> roleLabels = new ArrayList<>();
-			List<String> possOwners = new LinkedList<>();
-			boolean isOwned = page.isOwned();
-			String owner = page.getOwner();
-			possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
-			Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
-			possOwners.removeAll(siteUsersCanUpdate);
-			if (isOwned){
-				if (possOwners.contains(owner)){
-					int i = possOwners.indexOf(owner);
-					Collections.swap(possOwners, i, 0); // put owner top of list
+			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
+			if (showSetOwner){
+				//Set the changeOwner dropdown in the settings dialog
+				UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
+						.replace("{1}", messageLocator.getMessage("simplepage.permissions")).replace("{2}", messageLocator.getMessage("simplepage.more-tools")));
+				UIOutput.make(form, "changeOwnerSection");
+				List<String> roleOptions = new ArrayList<>();
+				List<String> roleLabels = new ArrayList<>();
+				List<String> possOwners = new LinkedList<>();
+				boolean isOwned = page.isOwned();
+				String owner = page.getOwner();
+				possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
+				Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
+				possOwners.removeAll(siteUsersCanUpdate);
+				if (isOwned){
+					if (possOwners.contains(owner)){
+						int i = possOwners.indexOf(owner);
+						Collections.swap(possOwners, i, 0); // put owner top of list
+					}
+					else {
+						roleOptions.add(owner);
+						roleLabels.add(getUserDisplayName(owner));
+					}
 				}
 				else {
-					roleOptions.add(owner);
-					roleLabels.add(getUserDisplayName(owner));
+					roleOptions.add(null);
+					roleLabels.add(messageLocator.getMessage("simplepage.default-user"));
 				}
+				for(String user : possOwners){
+					roleOptions.add(user);
+					roleLabels.add(getUserDisplayName(user));
+				}
+				if (isOwned){
+					roleOptions.add(null);
+					roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
+				}
+				UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
+				UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 			}
-			else {
-				roleOptions.add(null);
-				roleLabels.add(messageLocator.getMessage("simplepage.default-user"));
-			}
-			for(String user : possOwners){
-				roleOptions.add(user);
-				roleLabels.add(getUserDisplayName(user));
-			}
-			if (isOwned){
-				roleOptions.add(null);
-				roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
-			}
-			UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
-			UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 		}
 		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
 

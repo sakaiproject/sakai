@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
@@ -47,6 +48,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.jsf.organizer.action.EditMeeting;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * <p>
@@ -132,6 +134,11 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
  	private List<SelectItem> categories = null;
  	private List<SelectItem> locations=null;
 		
+	private String startTimeString;
+	private String endTimeString;
+	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
+	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+
 	/**
 	 * This method will reset everything to orignal value and also initialize
 	 * the value to the variables in this UIBean, which lives in a session
@@ -577,6 +584,20 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 *            an ActionEvent object.
 	 */
 	public void validateModifyMeeting(ActionEvent e) {
+
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+		if(DateFormatterUtil.isValidISODate(isoStartTime)){
+			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+		}
+
+		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+		if(DateFormatterUtil.isValidISODate(isoEndTime)){
+			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+		}
 
 		Date eventEndTime = this.signupMeeting.getEndTime();
 		Date eventStartTime = this.signupMeeting.getStartTime();
@@ -1119,4 +1140,19 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.sendEmailByOwner = sendEmailByOwner;
 	}
 		
+	public String getStartTimeString() {
+		return startTimeString;
+	}
+
+	public String getEndTimeString() {
+		return endTimeString;
+	}
+
+	public void setStartTimeString(String startTimeString) {
+		this.startTimeString = startTimeString;
+	}
+
+	public void setEndTimeString(String endTimeString) {
+		this.endTimeString = endTimeString;
+	}
 }

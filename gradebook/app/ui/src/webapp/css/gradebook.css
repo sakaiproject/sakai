@@ -117,7 +117,12 @@ td.gbMessageAbove {vertical-align:top;}
 td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em !important;}
 
 /* Offset to better match icon and input heights. */
-.gbTextOnRow {margin-top:2px;}
+.gbTextOnRow {
+	margin-top: 2px;
+	max-height: 100px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
 
 /* Try to make the standard message formatting work with other cell content. */
 .gbMessageAdjustForContent {margin-left:1px; margin-bottom:.5em;}

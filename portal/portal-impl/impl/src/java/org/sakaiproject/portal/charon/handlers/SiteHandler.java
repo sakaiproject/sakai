@@ -125,7 +125,7 @@ public class SiteHandler extends WorksiteHandler
 
 	// SAK-27774 - We are going inline default but a few tools need a crutch 
 	// This is Sakai 11 only so please do not back-port or merge this default value
-	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.melete";
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.gradebook.gwt.rpc:com.rsmart.certification:sakai.melete:sakai.rsf.evaluation";
 
 	private static final long AUTO_FAVORITES_REFRESH_INTERVAL_MS = 30000;
 
@@ -537,9 +537,11 @@ public class SiteHandler extends WorksiteHandler
 		if (SiteService.isUserSite(siteId)){
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
 			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
+			rcontext.put("isUserSite", true);
 		}else{
 			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
 			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers));
+			rcontext.put("isUserSite", false);
 		}
 		
 		addLocale(rcontext, site, session.getUserId());

@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -43,9 +43,12 @@ public class DefaultPermissionsManagerImpl
   //Dependency injected
   private FunctionManager functionManager;
   private AuthzGroupService authzGroupService;
+  private ToolManager toolManager;
 
   
-  public void init()
+  
+
+public void init()
   {
      LOG.info("init()");
      
@@ -104,6 +107,10 @@ public class DefaultPermissionsManagerImpl
   public void setAuthzGroupService(AuthzGroupService authzGroupService)
   {
     this.authzGroupService = authzGroupService;
+  }
+  
+  public void setToolManager(ToolManager toolManager) {
+	this.toolManager = toolManager;
   }
   /* (non-Javadoc)
    * @see org.sakaiproject.api.app.messageforums.DefaultPermissionsManager#isNewForum(java.lang.String)
@@ -240,6 +247,6 @@ public class DefaultPermissionsManagerImpl
   private String getContextSiteId()
   {
     LOG.debug("getContextSiteId()");
-    return ("/site/" + ToolManager.getCurrentPlacement().getContext());
+    return ("/site/" + toolManager.getCurrentPlacement().getContext());
   }
 }

@@ -68,6 +68,12 @@
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
+    <jaxrs:server id="SakaiI18nRS" address="/rest/i18n">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiI18n"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
     <jaxrs:server id="SakaiReportRS" address="/rest/report">
         <jaxrs:serviceBeans>
             <ref bean="org.sakaiproject.webservices.SakaiReport"/>
@@ -109,6 +115,10 @@
     <jaxws:endpoint id="SakaiPortalLogin"
                     implementor="#org.sakaiproject.webservices.SakaiPortalLogin"
                     address="/soap/portallogin"/>
+
+    <jaxws:endpoint id="SakaiI18n"
+                    implementor="#org.sakaiproject.webservices.SakaiI18n"
+                    address="/soap/i18n"/>
 
     <jaxws:endpoint id="SakaiScript"
                     implementor="#org.sakaiproject.webservices.SakaiScript"
@@ -194,6 +204,7 @@
     <bean id="org.sakaiproject.webservices.SakaiJob" class="org.sakaiproject.webservices.SakaiJob" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiPortalLogin" class="org.sakaiproject.webservices.SakaiPortalLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiI18n" class="org.sakaiproject.webservices.SakaiI18n" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.ShortenedUrl" class="org.sakaiproject.webservices.ShortenedUrl" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.TestsAndQuizzes" class="org.sakaiproject.webservices.TestsAndQuizzes" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />

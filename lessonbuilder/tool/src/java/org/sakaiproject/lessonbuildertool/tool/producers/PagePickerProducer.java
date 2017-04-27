@@ -565,7 +565,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 
 		    
-		    if (canEditPage && entry != null && entry.pageId != null) {
+		    if (canEditPage && entry != null && entry.pageId != null && entry.itemId != null) {
 			String text = null;
 			if (sharedPages.contains(entry.pageId))
 			    text = messageLocator.getMessage("simplepage.sharedpage");

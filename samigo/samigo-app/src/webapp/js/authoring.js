@@ -756,3 +756,9 @@ function clickInsertLink(field){
   $(hiddenSelector).click();
 }
 
+// Show MathJax warning messages if applicable
+if (typeof MathJax != 'undefined') {
+  $(document).ready(function() {
+    $(".mathjax-warning").show();
+  });
+}

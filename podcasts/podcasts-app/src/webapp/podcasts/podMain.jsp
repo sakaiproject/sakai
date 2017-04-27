@@ -38,7 +38,6 @@
  	      		</h:panelGroup>
  	  		</h:panelGrid>
  	    </h:panelGroup>
-   		<f:verbatim><br /></f:verbatim>
 
 			<h:panelGroup styleClass="instruction indnt1" rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}">
 		  		<h:outputText value="#{msgs.podcast_home_sub} " />
@@ -47,13 +46,10 @@
 						<h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
 	      		</h:outputLink>
 	  		</h:panelGroup>
- 	  		<f:verbatim><br /><br /></f:verbatim>
 
 		<h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}" styleClass="indnt1"> 
 			<h:outputText value="#{podHomeBean.URL}" />
-			<h:outputLink value="#{podHomeBean.URL}" styleClass="active indnt2 rssIcon" target="_blank">
- 	       		<h:graphicImage value="/../library/image/feed.png" />
-      		</h:outputLink>
+			<h:outputLink value="#{podHomeBean.URL}" styleClass="active indnt2 rssIcon fa fa-rss" target="_blank" />
 	  		<f:verbatim><br /></f:verbatim> 
 
 			<h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
@@ -103,9 +99,7 @@
     	          <h:outputText value="#{msgs.posted_by}" />
         	      <h:outputText value="#{eachPodcast.author} " />
             	  <h:outputText value="#{msgs.at}" />
-	              <h:outputText value="#{eachPodcast.postedTime} " />
-    	          <h:outputText value="#{msgs.on}" />
-        	      <h:outputText value="#{eachPodcast.postedDate}" />
+	              <h:outputText value="#{eachPodcast.postedDatetime} " />
             	</h:panelGroup>
               </h:panelGrid>
             </h:column>

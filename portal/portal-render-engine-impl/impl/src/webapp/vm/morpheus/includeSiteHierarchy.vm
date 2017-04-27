@@ -26,7 +26,7 @@
                         #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
                     </span></a>
                 </span>
-                <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+                <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span>
 
             #end ## END of FOREACH ( $pwd in $portalPwd )
         </div>
@@ -47,9 +47,16 @@
     #foreach( $page in $sitePages.pageNavTools )
         #if ( $index == 0 )
             <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
-                <a href="${page.pageResetUrl}">${siteTitleTruncated}</a>
+                <a href="${page.pageResetUrl}">
+                    #if (${isUserSite})
+                        <i class='fa fa-home' aria-hidden="true"></i>
+                    #end
+                    <span class="Mrphs-hierarchy--siteName-label">
+                        ${siteTitleTruncated}
+                    </span>
+                </a>
             </span>
-            <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+            <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right" aria-hidden="true"></i></span>
         #end
         #set($index = $index + 1 )
     #end

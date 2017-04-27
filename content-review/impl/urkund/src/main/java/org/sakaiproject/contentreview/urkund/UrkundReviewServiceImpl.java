@@ -574,7 +574,7 @@ public class UrkundReviewServiceImpl implements ContentReviewService {
 	}
 
 	@Override
-	public String getIconCssClassforScore(int score) {
+	public String getIconCssClassforScore(int score, String contentId) {
 		if (score == 0) {
 			return "contentReviewIconThreshold-4";
 		} else if (score <= 39) {

@@ -106,6 +106,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
+	private static final String OVERVIEW_TOOL_TITLE = "overview";
+	private static final String SAK_PROP_FORCE_OVERVIEW_TO_TOP = "portal.forceOverviewToTop";
+	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = false;
+
 	private Portal portal;
 
 	private AliasService aliasService;
@@ -1176,18 +1180,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	public List getPermittedPagesInOrder(Site site)
 	{
 		// Get all of the pages
-		List pages = site.getOrderedPages();
- 		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
+		List<SitePage> pages = site.getOrderedPages();
+		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 
-		List newPages = new ArrayList();
+		List<SitePage> newPages = new ArrayList<>();
 
-		for (Iterator i = pages.iterator(); i.hasNext();)
+		for (SitePage p : pages)
 		{
 			// check if current user has permission to see page
-			SitePage p = (SitePage) i.next();
 			List pTools = p.getTools();
 			Iterator iPt = pTools.iterator();
-
 			boolean allowPage = false;
 			while (iPt.hasNext())
 			{
@@ -1206,6 +1208,29 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		{
 			newPages = pageFilter.filter(newPages, site);
 		}
+
+		// Force "Overview" to the top at all times if enabled
+		if (ServerConfigurationService.getBoolean(SAK_PROP_FORCE_OVERVIEW_TO_TOP, SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT))
+		{
+			List<SitePage> newPagesCopy = new ArrayList<>(newPages);
+			for (SitePage page : newPages)
+			{
+				if (OVERVIEW_TOOL_TITLE.equalsIgnoreCase(page.getTitle()))
+				{
+					int index = newPages.indexOf(page);
+					if (index >= 0)
+					{
+						newPagesCopy = new ArrayList<>(newPages.size());
+						newPagesCopy.addAll(newPages.subList(0, index));
+						newPagesCopy.add(0, (SitePage) newPages.get(index));
+						newPagesCopy.addAll(newPages.subList(index + 1, newPages.size()));
+					}
+				}
+			}
+
+			return newPagesCopy;
+		}
+
 		return newPages;
 	}
 

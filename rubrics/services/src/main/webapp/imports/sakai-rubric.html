@@ -1,0 +1,174 @@
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html"/>
+<link rel="import" href="sakai-rubric-criterion.html">
+
+<dom-module id="sakai-rubric">
+  <template>
+
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+    <div class="rubric-title" on-tap="toggleRubric">
+      <iron-a11y-keys id="a11y" target="[[getNode('.rubric-name')]]" keys="space" on-keys-pressed="toggleRubric"></iron-a11y-keys>
+      <span class="rubric-name" id$="rubric_toggle_[[rubric.id]]" aria-expanded$="[[rubricExpanded]]" role="tab" title="[[lang('toggle_details', 'Toggle details for')]] [[rubric.title]]" tabindex="0" >
+        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+        {{rubric.title}}
+      </span>
+
+      <template is="dom-if" if="{{rubric.metadata.locked}}">
+        <iron-icon tabindex="0" role="display" title="[[rubric.title]] [[lang('is_locked', 'is locked')]]" class="locked" icon="rubrics-icons:lock"></iron-icon>
+      </template>
+      <template is="dom-if" if="[[!rubric.metadata.locked]]">
+        <sakai-rubric-edit rubric="{{rubric}}"></sakai-rubric-edit>
+      </template>
+
+      <div class="actions">
+        <iron-icon role="button" title="[[lang(shareTitleKey, shareTitle)]] [[rubric.title]]" tabindex="0" class="share" icon$="rubrics-icons:{{shareicon}}" on-tap="sharingChange"></iron-icon>
+        <iron-icon role="button" title="[[lang('clone', 'Clone')]] [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="cloneRubric"></iron-icon>
+        <template is="dom-if" if="[[!rubric.metadata.locked]]">
+          <sakai-rubric-delete rubric="{{rubric}}"></sakai-rubric-delete>
+        </template>
+      </div>
+    </div>
+
+    <iron-collapse role="tabpanel" aria-labelledby$="rubric_toggle_[[rubric.id]]" id="collapse_[[rubric.id]]">
+      <div class="rubric-details">
+        <template is="dom-if" if="{{rubric.metadata.locked}}">
+          <sakai-rubric-criterion-readonly rubric="[[rubric]]"></sakai-rubric-criterion-readonly>
+        </template>
+        <template is="dom-if" if="{{!rubric.metadata.locked}}">
+          <sakai-rubric-criterion rubric="[[rubric]]"></sakai-rubric-criterion>
+        </template>
+
+      </div>
+    </iron-collapse>
+
+    <iron-ajax
+         id="updateRubric"
+         url$="/rubrics-service/rest/rubrics/[[rubric.id]]?projection=inlineRubric"
+         headers$='{"authorization": "[[token]]"}'
+         method="PATCH"
+         handle-as="json"
+         content-type="application/json-patch+json"
+         on-response="handleRubricUpdate"
+         debounce-duration="300">
+    </iron-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric",
+      properties: {
+        rubric: {
+          type: Object
+        },
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        }
+      },
+      listeners: {
+        'new-rubric': 'handleNew',
+        'update-rubric-title': 'updateRubricTitle',
+        'hide-tooltip': 'hideToolTip',
+        'show-tooltip': 'showToolTip'
+      },
+      behaviors: [rubrics.behaviors],
+      hideToolTip: function(e) {
+        e.stopPropagation();
+        removeClass(this.$$('.rubric-title'), 'active');
+      },
+      showToolTip: function(e) {
+        e.stopPropagation();
+        addClass(this.$$('.rubric-title'), 'active');
+      },
+      handleNew: function(nr) {
+          var elem = this.$$('.rubric-title');
+          elem.click();
+          addClass(elem, 'active');
+      },
+      canEdit: function(rubric) {
+        if (rubric.metadata.locked || rubric.metadata.public) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+      handleRubricUpdate: function(request) {
+          console.log(request.detail.response);
+          this.rubric = request.detail.response;
+          this.notifyShareChange();
+          this.handleShareLink();
+          this.fire('sharing-change');
+      },
+      activate: function(e) {
+        addClass(e.target, 'active');
+        this.fire('active-title', this.rubric.id);
+      },
+      toggleRubric: function(e){
+        // var item = this.$.rubricslist.itemForElement(e.target);
+        var titlecontainer = this.$$('.rubric-title');
+
+        this.$$('#collapse_'+this.rubric.id).toggle();
+
+        var icon = this.$$('.collpase-icon');
+
+        if (this.$$('#collapse_'+this.rubric.id).opened) {
+          this.rubricExpanded = "true";
+          addClass(titlecontainer, 'active');
+          icon.setAttribute('icon','rubrics-icons:expand-more');
+        } else {
+          this.rubricExpanded = "false";
+          removeClass(titlecontainer, 'active');
+          icon.setAttribute('icon','rubrics-icons:chevron-right');
+        };
+      },
+      criterionResponse: function(request){
+        this.criterion = request.detail.response;
+      },
+      cloneRubric: function(e) {
+        e.stopPropagation();
+        this.fire('clone-rubric', this.rubric);
+      },
+      deactivate: function(e, id) {
+        if (!this.$$('#collapse_'+this.rubric.id).opened && this.rubric.id !== id) {
+          var titlecontainer = this.$$('.rubric-title');
+          removeClass(titlecontainer, 'active');
+        };
+      },
+      updateRubricTitle: function(e, newTitle) {
+        this.$.updateRubric.body = JSON.stringify([
+            {"op":"replace","path":"/title","value": newTitle }
+        ]);
+        this.$.updateRubric.generateRequest();
+      },
+      sharingChange: function(e) {
+        e.stopPropagation();
+        this.set('rubric.metadata.public', !this.rubric.metadata.public);
+        this.$.updateRubric.body = JSON.stringify([
+            {"op":"replace","path":"/metadata/shared","value": this.rubric.metadata.public }
+        ]);
+        this.$.updateRubric.generateRequest();
+      },
+      notifyShareChange: function() {
+        // Polymer.dom(this.root).activeElement.fire('sharing-change');
+        this.fire('sharing-change');
+      },
+      handleShareLink: function() {
+        if (this.rubric.metadata.public) {
+          this.shareTitle = "Revoke sharing for"
+          this.shareTitleKey = "revoke"
+          this.shareicon = "unshare";
+        } else {
+          this.shareTitle = "Share"
+          this.shareTitleKey = "Share"
+          this.shareicon = "share";
+        }
+      },
+      ready: function() {
+        this.rubricExpanded = "false";
+        this.handleShareLink();
+      }
+    });
+  </script>
+</dom-module>

@@ -255,8 +255,8 @@
 		</h:form>
 		
 		<sakai:view_content>
-
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
+			<h:outputText value="#{msgs.invalid_session}" styleClass="alertMessage" escape="false" rendered="#{OrganizerSignupMBean.sessionValid}"/>
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
 			<h:outputText value="#{messageUIBean.infoMessage}" styleClass="success" escape="false" rendered="#{messageUIBean.info}"/>      			
 			
 			<h:form id="meeting">
@@ -677,10 +677,10 @@
 					   					<h:panelGroup id="addAttendee" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
 					   						<%-- TODO add spacer only if the attendees exist in atleast one timeslot --%>
 					   						<h:graphicImage value="/images/spacer.gif" width="20" height="16" alt="spacer" style="border:none"/>
-						   					<h:outputLabel onclick="showHideAddPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addAttendee">
+						   					<h:outputLink value="javascript:showHideAddPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addAttendee">
 						   						<h:graphicImage value="/images/add.png"  alt="add an attendee" title="#{msgs.event_tool_tips_add}" style="border:none" styleClass="openCloseImageIcon"/>
 						   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />
-						   					</h:outputLabel>	
+						   					</h:outputLink>
 						   				</h:panelGroup>
 							   				
 						   				<h:panelGroup id="addPanel" style="display: none;" >
@@ -779,11 +779,11 @@
 									   			</h:dataTable>
 									   			
 									   			<h:panelGroup id="addWaiter" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">
-									   				<h:outputLabel rendered="#{!timeSlotWrapper.timeSlot.available}" onclick="showHideAddWaiterPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addWaiter">
+									   				<h:outputLink rendered="#{!timeSlotWrapper.timeSlot.available}" value="javascript:showHideAddWaiterPanel('#{timeSlotWrapper.positionInTSlist}');" styleClass="addWaiter">
 									   					<h:graphicImage value="/images/spacer.gif" width="4" height="16" alt="spacer" style="border:none"/>
 								   						<h:graphicImage value="/images/add.png"  alt="add an waiter"  title="#{msgs.event_tool_tips_add}" style="border:none"  styleClass="openCloseImageIcon"/>
 								   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" />	
-								   					</h:outputLabel>
+								   					</h:outputLink>
 								   					<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.available}" style="margin-left: 2px;">
 								   						<h:graphicImage value="/images/addDisabled.png"  alt="add an waiter" title="#{msgs.event_tool_tips_action_disabled_label}" style="border:none" />
 								   						<h:outputText value="#{msgs.event_add_attendee}" escape="false" styleClass="disabledAddAttendee"/>

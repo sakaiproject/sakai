@@ -110,9 +110,6 @@
 	background-color: #eee;
 	padding: 5px;
 }
-.nextprev {
-	font-size: 95% !important
-}
 .Mrphs-siteHierarchy {
 	display:flex
 }
@@ -301,9 +298,6 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	background-color: #ddd;
 	border: 1px solid #bbb;
 }
-#edit-title {
-	margin-left: 1em
-}
 .ui-button-text {
 	padding: 0.25em 0.8em !important
 }
@@ -362,7 +356,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 
 /* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
 .column {
-    margin: 7px 15px;
+    margin: 7px 0;
     padding: 15px 7px;
     padding-top: 25px;
     list-style:none;
@@ -932,23 +926,12 @@ a.peer-eval-stats {
 
 /* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
 #toolbar {
-  padding:2px;
-  margin:0px;
+  margin: 0;
   margin-bottom:-10px;
-  display:inline-block !important;
+  display: inline-block;
 }
 
 /* Dropdown Menu */
-ul#toolbar li {
-	display: inline;
-	position: relative;
-}
-ul#toolbar li.dropdown a {
-    text-decoration:none
-}
-ul#toolbar li em {
-    font-style:normal;
-}
 .dropDownDiv {
 	position: absolute;
 	width: 350px;
@@ -1013,7 +996,6 @@ span.nextprev {
   margin-right: 0.5em;
 }
 a.nextprev {
-	margin-left: 5px !important;
 	margin-right: 0px !important;
 }
 img {
@@ -1284,12 +1266,11 @@ div[role="dialog"] {
     height: 100%;
 }
 .action {
-  display:inline-block;
-  float:right !important;
+  float: right;
 }
-.action {
-  margin-top: 5px;
-}			      
+.action a {
+  margin-top: 0;
+}
 .Mrphs-siteHierarchy {
     height: auto !important;
 }
@@ -1764,6 +1745,10 @@ div.portletBody[sakaiversion="12"] {
   padding-left: 7px;
   padding-right: 7px;
 }
+/* Give the repositioned button container some room */
+#toolbar {
+  margin-top: 20px;
+}
 }
 /* 480 is boundary of most phones */
 @media only screen and (max-width: 480px) {
@@ -1803,11 +1788,6 @@ span.nextprev {
 .fa-button-text{
   font-size:125%;
 }
-.navIntraTool li.contentButton a, .topaction a {
-  padding-top:2px !important;
-  padding-bottom:2px !important;
-  text-transform: uppercase;
-}
 .navIntraTool li.contentButton a .fa-button-text, .fa-fw {
   font-family:FontAwesome;
   font-size: 0.8em;
@@ -1844,15 +1824,6 @@ span.nextprev {
 
 .Mrphs-siteHierarchy span:last-child {
   margin-left: 6px;
-}
-.contentButton span a {
-  height: 24px;
-}
-.contentButton {
-  height: 26px;
-  line-height: 21px;
-  margin-top: 3px !important;
-  z-index:900;
 }
 .Mrphs-siteHierarchy .action .lessonsToolButton {
   background-color: transparent;
@@ -1993,13 +1964,8 @@ body > .portletBody > .action {
    elements of Morpheus. */
 
 /* directURL popup */
-nav.Mrphs-container--toolTitleNav {
+nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
         z-index: 100001 !important;
-}
-/* menu off user icon, site menu in narrow, site menu in  wide mode */
-.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal, #toolMenuWrap {
-        z-index: 100002 !important;
-	position:relative;
 }
 /* chat open button */
 #Mrphs-footerApp__chat {
@@ -2044,4 +2010,20 @@ nav.Mrphs-container--toolTitleNav {
     padding: .5em;
     margin: .5em 0;
     border: 1px solid #ccc;
+}
+
+.Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
+    margin-top: 20px;
+}
+
+.top-next-prev.navIntraTool > li {
+    display: block;
+}
+
+.top-next-prev .nextprev.prev {
+    float: left;
+}
+
+.top-next-prev .nextprev.next {
+    float: right;
 }

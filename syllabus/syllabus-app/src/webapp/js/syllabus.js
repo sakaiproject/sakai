@@ -50,17 +50,6 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		autoHeight: false,
 		collapsible: true,
 		heightStyle: "content",
-		activate: function( event, ui ) {
-			if(ui.newHeader[0]){
-				if($("#" + iframId, window.parent.document).parents('html, body').size() > 0){
-					//we are in the portal, grab parent
-					$("#" + iframId, window.parent.document).parents('html, body').animate({scrollTop: $(ui.newHeader[0]).offset().top});
-				}else{
-					//we are in tool view w/o portal, grab html/body
-					$('html, body').animate({scrollTop: $(ui.newHeader[0]).offset().top});
-				}
-			}
-		}
 	});
 	if(isInstructor){
 		$( "#accordion span" ).sortable({
@@ -385,12 +374,12 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 		if(action === "publish"){
 			//toggle the draft class
 			if(status){
-				$(this).parent().find(".editItemTitle").parent().removeClass("draft");
-				$(this).parent().find( ".draftTitlePrefix " ).remove();
+				$(this).closest('.ui-accordion-header').find(".editItemTitle").parent().removeClass("draft");
+				$(this).closest('.ui-accordion-header').find( ".draftTitlePrefix " ).remove();
 			}else{
-				$(this).parent().find(".editItemTitle").parent().addClass("draft");
+				$(this).closest('.ui-accordion-header').find(".editItemTitle").parent().addClass("draft");
 				var span = "<span class='draftTitlePrefix'>" + msgs.draftTitlePrefix + "</span>";
-				$(this).parent().find(".editItemTitle").parent().prepend( span );
+				$(this).closest('.ui-accordion-header').find(".editItemTitle").parent().prepend( span );
 			}
 		}
 		

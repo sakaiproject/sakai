@@ -1,5 +1,9 @@
 .#{$namespace}sakai-resources {
 
+	ul, ol {
+		padding-top: 0;
+	}
+
 	input, textarea{
 		max-width: 100%;
 	}
@@ -7,6 +11,11 @@
 	label {
 		vertical-align: top;
 	}
+
+	label[for="hidden_false_0"] {
+		padding-right: 2em;
+	}
+
 
 	input[type="checkbox"] + label{
         display: inline;
@@ -23,6 +32,14 @@
 			input[type="text"], textarea {
 				width: 100%;
 			}
+		}
+	}
+
+	table#groupTable_0 td {
+		margin-top: 0;
+		border-top: 0;
+		label {
+			padding-left: 0;
 		}
 	}
 
@@ -213,5 +230,9 @@
 	}
 	fieldset .form-group {
 		padding-top: 0.5em;
+	}
+
+	.instruction {
+		margin-top: 0;
 	}
 }

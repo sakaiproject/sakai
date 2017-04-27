@@ -43,7 +43,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Validator;
@@ -71,13 +71,19 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
     private ContentHostingService contentHostingService;
 
     private ServerConfigurationService serverConfigurationService;
-
+    
+    private ToolManager toolManager;
+    
     public void init() {
         LOG.info("init()");
     }
 
     public EventTrackingService getEventTrackingService() {
         return eventTrackingService;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
     }
 
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
@@ -105,7 +111,7 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
         if (TestUtil.isRunningTests()) {
             return "test-context";
         }
-        Placement placement = ToolManager.getCurrentPlacement();
+        Placement placement = toolManager.getCurrentPlacement();
         String presentSiteId = placement.getContext();
         return presentSiteId;
     }

@@ -25,14 +25,14 @@
             <ul id="quickLinks" class="Mrphs-quickLinksNav">
                 <li class="Mrphs-quickLinksNav__popup" aria-haspopup="true">
                     <a href="javascript:void(0);" class="js-toggle-quick-links-nav" title="${rloader.sit_quick_links_title}" role="menuitem"  aria-haspopup="true">
-                        <i class="fa fa-th fa-external-link-square"></i><span class="quicklinks-label">${rloader.sit_quick_links}</span>
+                        <i class="fa fa-th fa-external-link-square" aria-hidden="true"></i><span class="quicklinks-label">${rloader.sit_quick_links}</span>
                     </a>
                 </li>
 
                 <ul class="Mrphs-quickLinksNav__subnav is-hidden" role="menu">
                     <li id="quickLinks-header" class="Mrphs-quickLinksNav__submenuitem">
                         <span class="Mrphs-quickLinks-header--info">${quickLinksInfo}</span>
-                        <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times"></i></a>
+                        <a id="quickLinks-close" href="javascript:void(0);"><i class="fa fa-times" aria-hidden="true"></i></a>
                     </li>
                     <div id="selectQuickLink">
                         <div class="tab-box">
@@ -57,7 +57,7 @@
         #if (${userIsLoggedIn})
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
                 <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">
-                    <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
+                    <i class="fa fa-th all-sites-icon" aria-hidden="true"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
                 </a>
             </div>
         #end

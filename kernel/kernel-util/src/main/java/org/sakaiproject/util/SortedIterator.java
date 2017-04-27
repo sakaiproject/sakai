@@ -34,7 +34,7 @@ import java.util.Collections;
  * @deprecated use commons-collection instead, this will be removed after 2.9 - Dec 2011
  */
 @Deprecated 
-public class SortedIterator implements Iterator
+public class SortedIterator<E> implements Iterator<E>
 {
 	/** The sorted iterator. */
 	protected Iterator m_iterator = null;
@@ -78,9 +78,9 @@ public class SortedIterator implements Iterator
 	 * 
 	 * @return The next element in the iteration
 	 */
-	public Object next()
+	public E next()
 	{
-		return m_iterator.next();
+		return (E) m_iterator.next();
 	}
 
 	/**
