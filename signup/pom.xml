@@ -119,8 +119,7 @@
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi</artifactId>
-				<!-- SAK-31980 -->
-				<version>3.14</version>
+				<version>${sakai.poi.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
