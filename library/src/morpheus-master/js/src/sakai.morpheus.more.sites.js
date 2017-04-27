@@ -671,7 +671,9 @@ $PBJQ(document).ready(function($){
 
   $PBJQ(container).on('click', '.tab-btn', function () {
     $PBJQ('.tab-btn', container).removeClass('active');
+    $PBJQ('.tab-btn', container).attr('aria-selected', 'false');
     $PBJQ(this).addClass('active');
+    $PBJQ(this).attr('aria-selected', 'true');
 
     var panel = $PBJQ(this).data('tab-target');
 
