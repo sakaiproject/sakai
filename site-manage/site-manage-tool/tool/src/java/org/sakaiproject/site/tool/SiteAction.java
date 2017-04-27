@@ -2872,6 +2872,7 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 			boolean existingSite = site != null ? true : false;
+			String siteId = site != null ? site.getId() : UUID.randomUUID().toString();
 			if (existingSite) {
 				// revising a existing site's tool
 				context.put("existingSite", Boolean.TRUE);
@@ -2900,8 +2901,8 @@ public class SiteAction extends PagedResourceActionII {
 				for (Map.Entry<String, Map<String, Object>> entry : currentLtiTools.entrySet() ) {
 					Map<String, Object> toolMap = entry.getValue();
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
-					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
+					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), siteId);
+					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), siteId);
 
 					if (!m_ltiService.hideConfig(ltiTool, contentToolModel) && m_ltiService.needsConfig(ltiTool, contentToolModel)) {
 						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
@@ -12963,6 +12964,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 		{
 			Site site = getStateSite(state);
+			String siteId = site != null? site.getId(): UUID.randomUUID().toString();
 			Properties reqProps = params.getProperties();
 			// remember the reqProps may contain multiple lti inputs, so we need to differentiate those inputs and store one tool specific input into the map
 			HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
@@ -12970,7 +12972,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			{
 				String ltiToolId = ltiToolEntry.getKey();
 				Map<String, Object> ltiToolAttributes = ltiToolEntry.getValue();
-				String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
+				String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), siteId);
 				Properties reqForCurrentTool = new Properties();
 				// the input page contains attributes prefixed with lti tool id, need to look for those attribute inut values
 				for (int k=0; k< contentToolModel.length;k++)
