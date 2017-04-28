@@ -38,6 +38,7 @@ import java.util.SortedSet;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -252,7 +253,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 									//upload this attachment
 									ContentResource res = attachmentsMap.get(info.getExternalContentId());
 									try {
-										uploadExternalContent(info.getUrlPost(), res.getContent());
+										uploadExternalContent(info.getUrlPost(), res.getContent(), info.getHeaders());
 									} catch (ServerOverloadException e) {
 										log.error(e.getMessage(), e);
 									}
@@ -738,7 +739,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 				for(ExternalContentUploadInfo info : uploadInfo){
 					if(externalContentId.equals(info.getExternalContentId())){
 							try {
-								uploadExternalContent(info.getUrlPost(), resource.getContent());
+								uploadExternalContent(info.getUrlPost(), resource.getContent(), info.getHeaders());
 							} catch (Exception e) {
 								log.warn("ServerOverloadException: " + item.getContentId(), e);
 								item.setLastError(e.getMessage());
@@ -900,7 +901,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 		return "/" + consumer + resourceid;
 	}
 	
-	private void uploadExternalContent(String urlString, byte[] data){
+	private void uploadExternalContent(String urlString, byte[] data, Object headers){
 		URL url = null;
 		HttpURLConnection connection = null;
 		DataOutputStream out = null;
@@ -910,6 +911,20 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			connection=(HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
 			connection.setRequestMethod("PUT");
+
+			String headerString = ObjectUtils.toString(headers);
+			log.debug("Headers: " + headerString);
+			//{x-amz-server-side-encryption=AES256}
+			headerString = headerString.replace("{", "").replace("}", "");
+			String[] headerPairs = headerString.split(",");
+			for (String headerPair : headerPairs) {
+				headerPair = headerPair.trim();
+				String[] pairKeyValue = headerPair.split("=");
+				if (pairKeyValue.length == 2) {
+					connection.setRequestProperty(pairKeyValue[0].trim(), pairKeyValue[1].trim());
+				}
+			}
+
 			out = new DataOutputStream(connection.getOutputStream());
 			out.write(data);
 			out.close();
