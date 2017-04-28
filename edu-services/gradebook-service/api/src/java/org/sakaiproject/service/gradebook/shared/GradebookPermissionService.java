@@ -269,5 +269,4 @@ public interface GradebookPermissionService
 	  * @return list of {@link org.sakaiproject.service.gradebook.shared.PermissionDefinition PermissionDefinitions} or empty list if none
 	  */	
 	 public List<PermissionDefinition> getRealmsPermissionsForUser(String userUuid,String siteId, Role role);
-	 
 }

@@ -120,7 +120,7 @@ public class GradebookPage extends BasePage {
 				PageParameters params = new PageParameters();
 				params.add("message", getString("ta.roleswapped"));
 				throw new RestartResponseException(AccessDeniedPage.class, params);
-			}		
+			}
 			
 			// no perms
 			permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);

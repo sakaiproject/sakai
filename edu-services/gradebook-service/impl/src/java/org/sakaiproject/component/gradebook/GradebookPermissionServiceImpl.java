@@ -29,7 +29,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class GradebookPermissionServiceImpl extends BaseHibernateManager implements GradebookPermissionService
 {
-	private SectionAwareness sectionAwareness;	
+	private SectionAwareness sectionAwareness;
 	private GradebookService gradebookService;
 	
 	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList) throws IllegalArgumentException
@@ -44,7 +44,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		else
 		{
-			
 			List<Long> returnCatIds = new ArrayList<Long>();
 			List<Permission> permList = getPermissionsForUserForCategory(gradebookId, userId, categoryIdList);
 			for(Iterator<Permission> iter = permList.iterator(); iter.hasNext();)
@@ -1162,21 +1161,8 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		List groupIds = new ArrayList(sectionIdStudentIdsMap.keySet());
 		List permsForGroupsAnyCategory = getPermissionsForUserForGroup(gradebookId, userId, groupIds);
 		
-		//FIXME: based on our realms checks earlier, sections should already be filtered to one that the
-		//User has access to. May need to make sure they have TA role in those sections
-		if (permsForGroupsAnyCategory.isEmpty()){
-			if(!sections.isEmpty()) {
-				for(Object obj: sections){
-					Permission perm = new Permission();
-					CourseSection section = (CourseSection) obj;
-					perm.setFunction(GraderPermission.GRADE.toString());
-					perm.setUserId(userId);
-					perm.setGroupId(section.getUuid());
-					permsForGroupsAnyCategory.add(perm);
-				}
-			}else{
-				return viewableStudents;
-			}
+		if (permsForGroupsAnyCategory.isEmpty()) {
+			return viewableStudents;
 		}
 		
 		for (Iterator permsIter = permsForGroupsAnyCategory.iterator(); permsIter.hasNext();) {

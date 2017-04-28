@@ -29,6 +29,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
@@ -183,12 +184,30 @@ public class GradebookNgBusinessService {
 
 					// get list of sections and groups this TA has access to
 					final List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
+										
+					//for each section TA has access to, grab student Id's
+					List<String> viewableStudents = new ArrayList();
+					
+					//iterate through sections available to the TA and build a list of the student members of each section
+					if(courseSections != null && !courseSections.isEmpty()){
+						for(Object sectionObj:courseSections){
+							CourseSection section = (CourseSection) sectionObj;
+							Set<Membership> members = this.courseManagementService.getSectionMemberships(section.getEid());
+								for(Membership member:members){
+									if(member.getRole().equals("S")){
+										try{
+											//The userId in membership is the eid in user table, use userId to get userId :/
+											String userId = this.userDirectoryService.getUserId(member.getUserId());
+											viewableStudents.add(userId);
+										}catch (UserNotDefinedException nde){
+											Log.error("User not defined "+member.getUserId());
+										}
+									}
+								}
+						}
+					}
 
-					// get viewable students.
-					final List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(
-							gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
-
-					if (viewableStudents != null) {
+					if (!viewableStudents.isEmpty()) {
 						userUuids.retainAll(viewableStudents); // retain only
 																// those that
 																// are visible
