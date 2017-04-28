@@ -307,9 +307,10 @@
 												$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))
 												#if ($!allowSubmit)
 													<div class="itemAction">
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );">
 															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</span>
 														</a>
+														<div id="subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 													</div>
 												#end
 											#end
