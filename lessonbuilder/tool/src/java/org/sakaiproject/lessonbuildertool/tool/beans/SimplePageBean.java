@@ -7045,7 +7045,7 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return;
 
-		if(getCurrentPage().getOwner() == null) {
+		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);

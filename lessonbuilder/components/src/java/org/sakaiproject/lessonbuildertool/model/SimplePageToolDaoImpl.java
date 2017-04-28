@@ -909,7 +909,11 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePage> getSitePages(String siteId) {
-	    DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("siteId", siteId)).add(Restrictions.isNull("owner"));
+	    DetachedCriteria d = DetachedCriteria.forClass(SimplePage.class).add(Restrictions.eq("siteId", siteId))
+		    .add(Restrictions.disjunction()
+				    .add(Restrictions.isNull("owner"))
+				    .add(Restrictions.eq("owned", true))
+		    );
 
 		List<SimplePage> l = (List<SimplePage>) getHibernateTemplate().findByCriteria(d);
 
