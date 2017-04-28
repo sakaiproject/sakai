@@ -4,6 +4,7 @@
   focus_path = [ "textfield" ];
 </script>
 <div class="portletBody"> 
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("java.importcal")
 	</h3>
