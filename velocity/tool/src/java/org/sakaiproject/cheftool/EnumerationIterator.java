@@ -28,21 +28,23 @@ import java.util.Iterator;
  * <p>
  * EnumerationIterator is an iterator over an enumeration.
  * </p>
+ * @deprecated use {@link org.apache.commons.collections4.iterators.EnumerationIterator} instead, this will be removed after 12.0 - May 2017
  */
-public class EnumerationIterator implements Iterator
+@Deprecated
+public class EnumerationIterator<E> implements Iterator<E>
 {
 	/** The enumeration over which this iterates. */
-	protected Enumeration m_enum = null;
+	protected Enumeration<E> m_enum = null;
 
-	public EnumerationIterator(Enumeration e)
+	public EnumerationIterator(Enumeration<E> e)
 	{
 		m_enum = e;
 
 	} // EnumerationIterator
 
-	public Object next()
+	public E next()
 	{
-		return m_enum.nextElement();
+		return (E) m_enum.nextElement();
 	}
 
 	public boolean hasNext()
