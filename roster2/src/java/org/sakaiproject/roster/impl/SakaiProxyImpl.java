@@ -741,6 +741,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 }
             }
 
+            // Sort by site roles
+            roles.forEach(role -> Collections.sort((List<RosterMember>) cache.get(siteId + "#" + role.getId()), memberComparator));
+
             // Sort the main site list
             Collections.sort(siteMembers, memberComparator);
 
@@ -1140,6 +1143,13 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean get12HrClock() {
+		return serverConfigurationService.getBoolean("roster.12HrClock", DEFAULT_12_HR_CLOCK);
+	}
 
     public void update(Observable o, Object arg) {
 
