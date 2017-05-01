@@ -1443,10 +1443,6 @@ div.navIntraTool {
 .edit-col {
   padding-top: 0px !important;
 }
-.mainList > li {
-  margin-top: 0px !important;
-  margin-bottom: 0px !important;
-}
 .image-col {
  display: inline-block;
 }
