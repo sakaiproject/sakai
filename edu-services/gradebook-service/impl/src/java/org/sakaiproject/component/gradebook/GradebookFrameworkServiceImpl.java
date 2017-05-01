@@ -141,6 +141,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 
 				//SAK-29740 make backwards compatible
 				gradebook.setCourseLetterGradeDisplayed(true);
+
+				gradebook.setCourseAverageDisplayed(true);
 				
 				// Update the gradebook with the new selected grade mapping
 				session.update(gradebook);
