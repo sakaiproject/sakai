@@ -400,7 +400,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			I think the ideal here would be that this only updates resources that are in the manifest, but really any
 			relative resources are going to be incorrect pulled out of a package and need an update.
 		   */
-		  org.jsoup.nodes.Document doc = Jsoup.parse(htmlString);
+		  org.jsoup.nodes.Document doc = Jsoup.parseBodyFragment(htmlString);
 		  org.jsoup.select.Elements hrefs = doc.select("[href]");
 		  org.jsoup.select.Elements srcs = doc.select("[src]");
 
@@ -410,10 +410,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  for (org.jsoup.nodes.Element element : srcs) {
 			  String src = element.attr("src");
 			  if (src != null && !src.startsWith("http")) {
-				  log.debug(String.format("Updating tag %s: <%s> to <%s>", element.tagName(), src, baseUrl+src));
 				  for (Map.Entry<String,String> entry : fileNames.entrySet()) {
 					  if (entry.getKey() != null && entry.getValue() != null && entry.getValue().contains(src)) {
 						  // Found key, set it and stop looking
+						  log.debug(String.format("Updating tag %s: <%s> to <%s>", element.tagName(), src, baseUrl+src));
 						  element.attr("src",baseUrl+entry.getValue());
 						  break;
 					  }
@@ -423,18 +423,18 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		  for (org.jsoup.nodes.Element element : hrefs) {
 			  String href = element.attr("href");
-			  log.debug(String.format("Updating a: <%s> to <%s> (%s)", href, baseUrl+href, element.text()));
 			  if(href != null && !href.startsWith("http")) {
 				  for (Map.Entry<String,String> entry : fileNames.entrySet()) {
 					  if (entry.getKey() != null && entry.getValue() != null && entry.getValue().contains(href)) {
 						  // Found key, set it and stop looking
+						  log.debug(String.format("Updating a: <%s> to <%s> (%s)", href, baseUrl+href, element.text()));
 						  element.attr("href",baseUrl+entry.getValue());
 						  break;
 					  }
 				  }
 			  }
 		  }
-		  htmlString = doc.toString();
+		  htmlString = doc.body().html();
 	  }
 	  
 	  return htmlString;
@@ -487,8 +487,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  // if we recognize the type, use the variant. By definition the variant is preferred, so we'll use
 		  // it if we recognize it.
 		  if (!UNKNOWN.equals(variantType)) {
+			  log.debug("Using variant {} of type {} for resource {}",variantResource,variantType,resource);
 		      type = variantType;
 		      resource = variantResource;
+		  }
+		  else {
+			  log.debug("NOT using variant {} of type {} for resource {}",variantResource,variantType,resource);
 		  }
 		  // next step for loop. want to check next one even if the source was unusable
 		  variant = variantResource.getChild(VARIANT, ns.cpx_ns());			      
@@ -609,7 +613,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      title = the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns());
 
 	      boolean nofile = false;
-	      if (inline) {
+	      //Only text type files can be inlined
+	      if (inline && mime != null && mime.startsWith("text/")) {
 		  StringBuilder html = new StringBuilder();
 		  String htmlString = null;
 

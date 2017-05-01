@@ -3,12 +3,19 @@
 body{
 	@media #{$phone}{
 		&.toolsNav--displayed{
+			overflow:hidden;
 			#toolMenuWrap{
 				width: 100%;
 				top: 6.3em;
 				left: 0px;
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
-				height:95%;
+				@if $tool-menu-icon-on-left {
+					background-color: $tool-background-color;
+				}
+				#toolSubsitesContainer{
+					overflow-y:auto;
+					height:100%;
+				}
 				&:after {
 					bottom: 100%;
 					left: 25%;
@@ -25,7 +32,7 @@ body{
 					outline: 0;
 				}
 				.Mrphs-toolsNav__menuitem--title{
-					display: inline;
+					display: inline-block;
 					letter-spacing: 0px;
 					border: 0px none;
 					@include border-radius( 0 );
@@ -48,7 +55,6 @@ body{
 				}
 			}
 			#toolMenu, #subSites{
-				overflow: auto;
 				ul{
 					list-style: none;
 					padding: 0 0 0 0;
