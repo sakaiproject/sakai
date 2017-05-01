@@ -107,6 +107,12 @@
             .roster-last-visit-time-cell {
                 font-size: 0.9em;
             }
+
+            .roster-name-cell {
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
         }
         .roster-member:nth-child(odd){
             background: $tool-tab-background-color;
@@ -148,13 +154,6 @@
     #roster-filters {
         div {
             display: inline-block;
-        }
-
-        #roster-group-selector-wrapper {
-            margin-right: 20px;
-        }
-
-        #roster-set-selector-wrapper {
             margin-right: 20px;
         }
     }
@@ -165,7 +164,7 @@
         }
     }
 
-    @media only screen and (max-width: 800px) {
+    @media #{$phone} {
         .roster-table-header-group {
             display: none !important;
         }
@@ -183,13 +182,18 @@
             border-radius: 5px;
             padding: 5px;
             margin-bottom: 5px;
+            max-width: 400px;
 
             .roster-table-cell {
                 display: block !important;
+                max-width: 400px;
 
                 .roster-picture {
                     width: 160px !important;
                 }
+            }
+            .roster-name-cell {
+                max-width: 250px !important;
             }
         }
     }
