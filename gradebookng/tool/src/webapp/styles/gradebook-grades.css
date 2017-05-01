@@ -507,6 +507,10 @@
   display: inline-block;
   vertical-align: middle;
   margin-left: 4px;
+  line-height: 40px;
+}
+#gradebookGradesToolbar > ul > li > * {
+  line-height: initial;
 }
 #toggleGradeItemsToolbarItem:after {
   font-family: 'gradebook-icons';
