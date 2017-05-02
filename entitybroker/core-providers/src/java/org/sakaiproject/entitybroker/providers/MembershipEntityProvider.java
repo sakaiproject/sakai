@@ -33,6 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -64,6 +68,8 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -79,7 +85,10 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
 RESTful, ActionsExecutable {
 
     private static Logger log = LoggerFactory.getLogger(MembershipEntityProvider.class);
-
+    private static final UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+    private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
+    private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
+    
     private SiteService siteService;
     private AuthzGroupService authzGroupService;
 
@@ -182,6 +191,13 @@ RESTful, ActionsExecutable {
         checkSiteSecurity(siteId);
         try {
             siteService.unjoin(siteId);
+            //String user = sessionManager().getCurrentSessionUserId();
+            String currentUserEid = userEntityProvider.getCurrentUser(view).getEid(); //userDirectoryService.getCurrentUser().getEid();
+            String roleId = siteService.getSite(siteId).getJoinerRole();
+            String[] userAuditString = {siteId,currentUserEid,roleId,UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};
+            List<String[]> userAuditList = new ArrayList<>();
+                    userAuditList.add(userAuditString);
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
                     + ") could not be found: " + e, e);
@@ -840,11 +856,16 @@ RESTful, ActionsExecutable {
 
         checkSiteSecurity(sg.site.getId());
 
+        String[] userAuditString;
+        List<String[]> userAuditList = new ArrayList<>();
+        
         // check for a batch add
         String[] userIds = checkForBatch(params, userId);
-        // now add all the memberships
         String memberId = "";
         String currentUserId = developerHelperService.getCurrentUserId();
+        User user = null;
+        
+        // now add all the memberships
         for (int i = 0; i < userIds.length; i++) {
             if (sg.group == null) {
                 // site only
@@ -862,6 +883,16 @@ RESTful, ActionsExecutable {
                     sg.site.addMember(userIds[i], roleId, active, false);
                     saveSiteMembership(sg.site);
                 }
+                // Add change to user_audits_log table.
+                try {
+                    user = userDirectoryService.getUser(userIds[i]);
+                }
+                catch (UserNotDefinedException e) {
+                    log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
+                }
+                userAuditString = new String[]{sg.site.getId(),user.getDisplayId(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+                                               userAuditRegistration.getDatabaseSourceKey(), currentUserId};
+                userAuditList.add(userAuditString);
             } else {
                 // group and site
                 try {
@@ -877,6 +908,11 @@ RESTful, ActionsExecutable {
                 memberId = em.getId();
             }
         }
+
+        if (userAuditList.size() > 0) {
+            userAuditRegistration.addToUserAuditing(userAuditList);
+        }
+
         if (userIds.length > 1) {
             log.info("Batch add memberships: siteId="
                     + ((sg.site == null) ? "none" : sg.site.getId()) + ",groupId="
@@ -908,13 +944,26 @@ RESTful, ActionsExecutable {
         }
         String userId = parts[0];
         SiteGroup sg = findLocationByReference(parts[1]);
+
+        String[] userAuditString;
+        List<String[]> userAuditList = new ArrayList<>();
+        
         // check for a batch
         String[] userIds = checkForBatch(params, userId);
         for (int i = 0; i < userIds.length; i++) {
             if (sg.group == null) {
                 // site only
-                sg.site.removeMember(userIds[i]);
-                saveSiteMembership(sg.site);
+                Site site = sg.site;
+
+                // Add change to user_audits_log table.
+                EntityMember member = (EntityMember)getEntity(ref);
+                userAuditString = new String[]{site.getId(), member.getUserDisplayId(), member.getRole().getId(), UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                                               userAuditRegistration.getDatabaseSourceKey(), developerHelperService.getCurrentUserId()};
+                userAuditList.add(userAuditString);
+
+                site.removeMember(userIds[i]);
+                saveSiteMembership(site);
+
             } else {
                 // group and site
                 try {
@@ -925,6 +974,11 @@ RESTful, ActionsExecutable {
                 }
             }
         }
+
+        if (userAuditList.size() > 0) {
+            userAuditRegistration.addToUserAuditing(userAuditList);
+        }
+
         if (userIds.length > 1) {
             log.info("Batch remove memberships: siteId="
                     + ((sg.site == null) ? "none" : sg.site.getId()) + ",groupId="
