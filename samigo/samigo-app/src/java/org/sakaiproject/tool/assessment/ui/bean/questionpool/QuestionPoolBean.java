@@ -3148,16 +3148,22 @@ String poolId = ContextUtil.lookupParam("qpid");
 		QuestionPoolService delegate = new QuestionPoolService();
 		List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(AgentFacade.getAgentString());
 
+		log.debug("transferPoolIds {}", transferPoolIds);
 		String[] poolIds = transferPoolIds.split(",");
 		List<Long> transferPoolIdLong = new ArrayList<Long>();
 		for (int i = 0; i < poolIds.length; i++) {
 			if (StringUtils.isNotBlank(poolIds[i])) {
-				Long poolId = new Long(poolIds[i]);
-				if (poolsWithAccess.contains(poolId)) {
-					transferPoolIdLong.add(poolId);
+				try {
+					Long poolId = new Long(poolIds[i]);
+					if (poolsWithAccess.contains(poolId)) {
+						transferPoolIdLong.add(poolId);
+					}
+					else {
+						throw new IllegalArgumentException("Cannot transfer pool: userId " + AgentFacade.getAgentString() + " does not have access to pool id " + poolId);
+					}
 				}
-				else {
-					throw new IllegalArgumentException("Cannot transfer pool: userId " + AgentFacade.getAgentString() + " does not have access to pool id " + poolId);
+				catch (NumberFormatException e) {
+					log.warn("transferPoolContinue: Format Exception, skipping poolId {}. Check javascript passSelectedPoolIds for issues.", poolIds[i]);
 				}
 			}
 		}
