@@ -250,6 +250,9 @@ public class TotalScoreListener
     {
       throw new RuntimeException("failed to call totalScores.");
     }
+    // http://stackoverflow.com/questions/1590484/updating-jsf-datatable-based-on-selectonemenu-values
+    FacesContext.getCurrentInstance().getApplication().getNavigationHandler().handleNavigation(
+            FacesContext.getCurrentInstance(), null, "totalScores");
   }
 
   /**
