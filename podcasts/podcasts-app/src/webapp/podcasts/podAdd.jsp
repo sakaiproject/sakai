@@ -1,7 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<%@ taglib uri="http://www.sakaiproject.org/podcasts" prefix="podcasts" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -12,7 +11,21 @@
     <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view>
-      <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js"></script> 
+      <script type="text/javascript">includeLatestJQuery("podAdd");</script>
+      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+      <script type="text/javascript">
+        $(document).ready(function() {
+           localDatePicker({
+              input: '#podAdd\\:addDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '',
+              ashidden: { iso8601: 'podAddISO8601' }
+          });
+        });
+      </script>
       
   <h:form id="podAdd" enctype="multipart/form-data">
 
@@ -20,12 +33,12 @@
        <h3><h:outputText value="#{msgs.add_title}" /></h3>
 		<%-- SAK-9822: added error message when too large file was attempted to be uploaded  --%>
 	    <h:outputText value="#{podHomeBean.maxSizeExceededAlert}" styleClass="alertMessage" rendered="#{podHomeBean.uploadStatus}" />
-       <h:outputText value="#{msgs.add_directions}" styleClass="indnt1 instruction" /><br />
-       <h:outputText value="#{msgs.required_prompt}" styleClass="indnt1 instruction" />
+       <h:outputText value="#{msgs.add_directions}" styleClass="indnt1" /> <br />
+       <h:outputText value="#{msgs.required_prompt}" styleClass="indnt1" />
        <span class="reqStarInline indnt1">*</span>
        <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
     </div>
-    <br /><br />
+    <br />
     
     	<table class="indnt1 nolines">
     	  <tr>
@@ -51,8 +64,7 @@
       		<td class="reqStarInline">*</td>
 	      	<td><label for="podAdd:addDate"><h:outputText value="#{msgs.date_prompt}" /></label>&nbsp;&nbsp;&nbsp;</td>
 			<td>
-	      		<podcasts:datePicker value="#{podHomeBean.date}" id="addDate" size="28" />
-	  			<h:outputText value="#{msgs.date_picker_format_string}" />
+				<h:inputText value="#{podHomeBean.date}" size="28" id="addDate" />
 	  		</td>
 	  	  </tr>
 	  	  <tr>

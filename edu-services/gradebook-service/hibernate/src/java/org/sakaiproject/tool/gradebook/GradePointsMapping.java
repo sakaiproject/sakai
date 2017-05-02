@@ -51,6 +51,7 @@ public class GradePointsMapping extends GradeMapping {
     public GradePointsMapping() {
         super.setGradeMap(new LinkedHashMap<String, Double>());
 
+        // If these values change, they also need to be updated in GradebookNG SettingsGradingSchemaPanel 
         grades = new ArrayList<String>();
         grades.add("A (4.0)");
         grades.add("A- (3.67)");

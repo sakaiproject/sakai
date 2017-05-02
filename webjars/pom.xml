@@ -26,5 +26,18 @@
               <module>ckeditor-wordcount</module>
           </modules>
       </profile>
+      <profile>
+          <id>ckeditor-extras</id>
+          <activation>
+              <activeByDefault>false</activeByDefault>
+              <property>
+                  <name>ckeditor-extras</name>
+              </property>
+          </activation>
+          <modules>
+              <module>ckeditor-balloonpanel</module>
+              <module>ckeditor-a11ychecker</module>
+          </modules>
+      </profile>
   </profiles>
 </project>

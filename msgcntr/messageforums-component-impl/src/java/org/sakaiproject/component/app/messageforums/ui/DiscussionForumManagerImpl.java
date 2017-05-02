@@ -31,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -59,11 +57,11 @@ import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
@@ -72,19 +70,21 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entitybroker.EntityBroker;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 
@@ -116,6 +116,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private EntityBroker entityBroker;
   private MemoryService memoryService;
   private Cache allowedFunctionsCache;
+  private EventTrackingService eventTrackingService;
+  private ThreadLocalManager threadLocalManager;
+  private ToolManager toolManager;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
@@ -130,11 +133,23 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   }
   
   public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
+	  this.contentHostingService = contentHostingService;
+  }
 
   public void setAuthzGroupService(AuthzGroupService authzGroupService) {
     this.authzGroupService = authzGroupService;
+  }
+  
+  public void setEventTrackingService(EventTrackingService eventTrackingService) {
+	this.eventTrackingService = eventTrackingService;
+  }
+
+  public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+	this.threadLocalManager = threadLocalManager;
+  }
+
+  public void setToolManager(ToolManager toolManager) {
+	this.toolManager = toolManager;
   }
 
   public List searchTopicMessages(Long topicId, String searchText)
@@ -247,7 +262,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	  {
 		  LOG.debug("getModeratedTopicsInSite()");
 	  }
-	  return forumManager.getModeratedTopicsInSite(ToolManager.getCurrentPlacement().getContext());
+	  return forumManager.getModeratedTopicsInSite(toolManager.getCurrentPlacement().getContext());
   }
 
   // start injection
@@ -390,7 +405,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    */
   public Area getDiscussionForumArea()
   {
-	return getDiscussionForumArea(ToolManager.getCurrentPlacement().getContext());  
+	return getDiscussionForumArea(toolManager.getCurrentPlacement().getContext());  
   }
   
   public Area getDiscussionForumArea(String siteId)
@@ -1003,7 +1018,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @return the current context without the "/site/" prefix
    */
   private String getCurrentContext() {
-      return ToolManager.getCurrentPlacement().getContext();
+      return toolManager.getCurrentPlacement().getContext();
   }
   
   private String getCurrentUser() {
@@ -1156,7 +1171,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     forumManager.saveDiscussionForum(forum, draft, logEvent, currentUser);
     //set flag to false since permissions could have changed.  This will force a clearing and resetting
     //of the permissions cache.
-    ThreadLocalManager.set("message_center_permission_set", Boolean.valueOf(false));
+    threadLocalManager.set("message_center_permission_set", Boolean.valueOf(false));
     if (saveArea)
     {
       //Area area = getDiscussionForumArea();
@@ -1228,9 +1243,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     
     if(logEvent){
     	if (saveForum) {
-    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
+    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
     	} else {
-    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
+    		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
     	}
     }
 
@@ -2417,7 +2432,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     private String getEventMessage(Object object) {
     	String eventMessagePrefix = "";
-    	final String toolId = ToolManager.getCurrentTool().getId();
+    	final String toolId = toolManager.getCurrentTool().getId();
     	
     		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
     			eventMessagePrefix = "/messagesAndForums";
@@ -2469,7 +2484,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   	  Set<Group> groupsInSite = new HashSet<Group>();
 
   	  Site currentSite;
-  	  String siteId = ToolManager.getCurrentPlacement().getContext();
+  	  String siteId = toolManager.getCurrentPlacement().getContext();
   	  try {
   		  currentSite = siteService.getSite(siteId);
 

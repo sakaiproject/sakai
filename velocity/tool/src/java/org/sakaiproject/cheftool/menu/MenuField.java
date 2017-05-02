@@ -249,6 +249,11 @@ public class MenuField implements MenuItem
 		return true;
 
 	} // getIsField
+
+	public boolean getIsCurrent()
+	{
+		return false;
+	}
 	
 	@Override
 	public String getAccessibilityLabel() {

@@ -699,6 +699,14 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return uuids;
 	}
 
+	/**
+	 * Determines if user has a valid session
+	 * @return if user has a valid session
+	 */
+	public boolean isSessionValid() {
+		return getMeetingWrapper() == null;
+	}
+
 	
 	/**
 	 * Helper to get a formatted string of all attendee email addresses for all tineslots
@@ -710,11 +718,13 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		Set<String> emails = new HashSet<String>();
 		
 		StringBuilder sb = new StringBuilder();
-		for (TimeslotWrapper tsWrapper : timeslotWrappers) {
-			for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
-				String email = atWrapper.getAttendeeEmail();
-				if(StringUtils.isNotBlank(email)){
-					emails.add(email);
+		if (timeslotWrappers!=null){
+			for (TimeslotWrapper tsWrapper : timeslotWrappers) {
+				for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
+					String email = atWrapper.getAttendeeEmail();
+					if(StringUtils.isNotBlank(email)){
+						emails.add(email);
+					}
 				}
 			}
 		}

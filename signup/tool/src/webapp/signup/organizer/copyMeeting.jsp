@@ -12,10 +12,10 @@
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+        <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
     	<script type="text/javascript">
-    		 jQuery.noConflict();//this requried by calendar dropdown tomhawk
     		 
 		     var timeslotTag; 
 		     var maxAttendeeTag;
@@ -30,6 +30,52 @@
 			 var signupBeginTag;
     	 	//initialization of the page
     	 	jQuery(document).ready(function() {
+
+                localDatePicker({
+                    input: '#meeting\\:startTime',
+                    useTime: 1,
+                    parseFormat: 'YYYY-MM-DD HH:mm:ss',
+                    allowEmptyDate: false,
+                    val: '<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    ashidden: {
+                            iso8601: 'startTimeISO8601',
+                            month:"meeting_startTime_month",
+                            day:"meeting_startTime_day",
+                            year:"meeting_startTime_year",
+                            hour:"meeting_startTime_hours",
+                            minute:"meeting_startTime_minutes",
+                            ampm:"meeting_startTime_ampm"}
+                });
+
+                localDatePicker({
+                    input: '#meeting\\:endTime',
+                    useTime: 1,
+                    parseFormat: 'YYYY-MM-DD HH:mm:ss',
+                    allowEmptyDate: false,
+                    val: '<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    ashidden: {
+                            iso8601: 'endTimeISO8601',
+                            month:"meeting_endTime_month",
+                            day:"meeting_endTime_day",
+                            year:"meeting_endTime_year",
+                            hour:"meeting_endTime_hours",
+                            minute:"meeting_endTime_minutes",
+                            ampm:"meeting_endTime_ampm"}
+                });
+
+                localDatePicker({
+                    input: '#meeting\\:until',
+                    useTime: 0,
+                    parseFormat: 'YYYY-MM-DD',
+                    allowEmptyDate: false,
+                    val: '<h:outputText value="#{CopyMeetingSignupMBean.repeatUntilString}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+                    ashidden: {
+                            iso8601: 'untilISO8601',
+                            month:"meeting_until_month",
+                            day:"meeting_until_day",
+                            year:"meeting_until_year"}
+                });
+
     	 		timeslotTag = document.getElementById("meeting:numberOfSlot");
    	         	maxAttendeeTag = document.getElementById("meeting:numberOfAttendees");
    	         	originalTsVal = timeslotTag? timeslotTag.value : 0;
@@ -46,7 +92,6 @@
    	 		
 				 currentSiteSelection();
 	   	         otherUserSitesSelection();	         
-	   	         replaceCalendarImageIcon();
 	   	         initGroupTypeRadioButton();
 	   	         userDefinedTsChoice();
 	   	         isShowEmailChoice();
@@ -258,9 +303,9 @@
 					<div class="form-group row ">
 						<h:outputLabel value="#{msgs.event_start_time}"  styleClass="col-lg-2 form-control-label form-required" escape="false"/>
 						<h:panelGroup styleClass="editText col-lg-10" rendered="#{!CopyMeetingSignupMBean.customTsType}" layout="block" >
-							<t:inputDate id="startTime" type="both"  ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
-										style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();sakai.updateSignupBeginsExact();return false;"
-										onchange="sakai.updateSignupBeginsExact();"/>
+							<h:inputText value="#{CopyMeetingSignupMBean.startTimeString}" size="28" id="startTime" 
+								onkeyup="setEndtimeMonthDateYear();getSignupDuration();sakai.updateSignupBeginsExact();return false;"
+								onchange="sakai.updateSignupBeginsExact();"/>
 							<h:message for="startTime" errorClass="alertMessageInline"/>
 						</h:panelGroup>
 						<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" layout="block" styleClass="col-lg-6">
@@ -280,7 +325,7 @@
 					<div class="form-group row ">
 						<h:outputLabel value="#{msgs.event_end_time}" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
 						<h:panelGroup styleClass="editText col-lg-10" rendered="#{!CopyMeetingSignupMBean.customTsType}" layout="block">
-							<t:inputDate id="endTime" type="both" ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}" style="color:black;" popupCalendar="true" 
+							<h:inputText value="#{CopyMeetingSignupMBean.endTimeString}" size="28" id="endTime" 
 								onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
 							<h:message for="endTime" errorClass="alertMessageInline"/>
 						</h:panelGroup>
@@ -329,7 +374,7 @@
 												</h:panelGroup>
 												<h:panelGroup id="endOfDate" style="margin-left:3px;">
 													<!-- t:inputCalendar id="ex" value=""  renderAsPopup="true" monthYearRowClass="" renderPopupButtonAsImage="true" dayCellClass=""   styleClass="untilCalendar"/ -->             					
-													<t:inputDate id="until" type="date"  value="#{CopyMeetingSignupMBean.repeatUntil}"  popupCalendar="true"   styleClass="untilCalendar"/>
+												<h:inputText value="#{CopyMeetingSignupMBean.repeatUntilString}" size="28" id="until" />
 													<h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
 												</h:panelGroup>
 											</h:panelGrid>

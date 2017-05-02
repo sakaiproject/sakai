@@ -33,33 +33,12 @@ $PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
 
 var collapsed = false;
 
-var $window = $PBJQ(window),
-	$tools	= $("#toolMenu"),
-	padding	= $(".Mrphs-siteHierarchy").height() + $(".Mrphs-topHeader").height();
-
 $PBJQ(document).ready(function(){
 	if(getCookieVal('sakai_nav_minimized') === 'true') {
 		$PBJQ(".js-toggle-nav").click();
 		collapsed = true;
 	}
 });
-
-function animateToolBar() {
-	if($("#toolMenuWrap").attr("scrollingToolbarEnabled") != undefined){
-		var topPad = $(".pasystem-banner-alerts").height();
-		var follow = ($window.height()- (padding + topPad)) > $tools.height();
-		if($("#toolMenuWrap").css('position') !== 'fixed'
-			&& follow && $window.scrollTop() > 0) {
-			$("#toolMenu,#subSites").stop().animate({
-				top: $window.scrollTop() + topPad
-			});
-		} else {
-			$("#toolMenu,#subSites").stop().animate({
-				top: 0
-			});
-		}
-	}
-}
 
 function getCookieVal(cookieName) {
 	var cks = document.cookie.split(';');

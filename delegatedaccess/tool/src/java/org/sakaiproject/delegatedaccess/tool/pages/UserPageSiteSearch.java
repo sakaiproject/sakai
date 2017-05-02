@@ -46,6 +46,7 @@ import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
@@ -57,6 +58,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.resource.FileResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
@@ -692,7 +694,7 @@ public class UserPageSiteSearch extends BasePage {
 					public void onClick(AjaxRequestTarget target) {
 						if(siteSearchResult.getSiteUrl() != null){
 							//redirect the user to the site
-							target.appendJavaScript("popupWindow('" + siteSearchResult.getSiteUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
+							getRequestCycle().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(siteSearchResult.getSiteUrl()));
 						}
 					}
 				};

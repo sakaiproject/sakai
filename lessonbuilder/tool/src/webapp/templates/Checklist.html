@@ -64,16 +64,21 @@
                 <legend class="no-border"><h3 rsf:id="msg=simplepage.add-checklist-item"></h3></legend>
                 <div id="checklistItems">
                     <li id="copyableChecklistItemDiv" style="display: none;" class="ui-state-default">
-                        <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+                        <span class="fa fa-sort handle checklist-icons"></span>
                         <input type="hidden" rsf:id="checklist-item-complete" />
                         <input type="hidden" rsf:id="checklist-item-id" class="checklist-item-id" />
+                        <input type="hidden" rsf:id="checklist-item-link" class="checklist-item-link" id="checklist-item-link-" />
                         <label for="checklist-item-name" ></label><span rsf:id="msg=simplepage.checklist-item-name" id="checklist-item-name" class="offscreen"></span>
                         <input type="text" rsf:id="checklist-item-name" name="checklist-item-name" class="checklist-item-name" />
-                        <a href="#" onclick="checklist.deleteChecklistItem($(this)); return false;" class="deleteItemLink"><img src="$context/images/delete.png" rsf:id="checklist-item-del"></img></a>
+                        <div class="actionContainer">
+                            <a href="#" id="external-link-" class="external-link"><span class="fa fa-link"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.link" /></span></a>
+                            <a href="#" id="external-link-unlink-" class="external-unlink"><span class="fa fa-chain-broken"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.unlink" /></span></a>
+                            <a href="#" class="deleteItemLink"><img src="$context/images/delete.png" rsf:id="checklist-item-del" /></a>
+                        </div>
                     </li>
                     <ul id="createdChecklistItems"></ul>
                 </div>
-                <button onclick="checklist.addChecklistItem(); return false;" id="addChecklistItemButton" class="button_color">
+                <button id="addChecklistItemButton" class="button_color">
                     <span aria-hidden="true" class="fa fa-plus-circle"></span>
                     <span rsf:id="msg=simplepage.addChecklistItem"></span>
                 </button>
@@ -94,7 +99,7 @@
                     <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
                 </p>
             </div>
-            <h3><span rsf:id="msg=simplepage.group.settings" /></h3>
+            <h3 id="groupHeader"><span rsf:id="msg=simplepage.group.settings" /></h3>
             <div id="grouplist" rsf:id="grouplist">
                 <span rsf:id="group-list-span"/>
                 <p rsf:id="msg=simplepage.select-group"></p>
@@ -106,11 +111,30 @@
 
         <span style="display:none;" id="confirmDeleteLangSupp" rsf:id="msg=simplepage.delete_page_confirm"></span>
         <p class="act">
-            <input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" onclick="return checklist.validateChecklistForm();" />
+            <input id="submitButton" accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
             <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
             <input type="submit" rsf:id="delete" class="deleteButton" />
         </p>
     </form>
+</div>
+<div rsf:id="dialogDiv" class="dialogs">
+    <div id="externalLink-dialog" rsf:id="externalLink-dialog" class="lessonsDialog">
+        <div class="information" rsf:id="msg=simplepage.checklist.external.link.info"></div>
+        <form action="#" rsf:id="item-picker">
+            <div id="list" border="0" role="list" class="checklistList" >
+                <h6 rsf:id="msg=simplepage.checklist.external.heading"></h6>
+                <div class="hierFlexList checklistList-item" rsf:id="item:" role="listitem" >
+                    <div class="hierFlex1" ><input class="checklistList-radio" name="external-link-radios" type="radio" rsf:id="select" id="select"/> <span rsf:id="name"/></div>
+                </div>
+            </div>
+
+            <input type="hidden" id="item-id" />
+            <p class="act">
+                <input type="button" id="externalLink-dialog-submit" class="bold" rsf:id="msg=simplepage.submit" />
+                <input type="button" id="externalLink-dialog-close" rsf:id="msg=simplepage.cancel" />
+            </p>
+        </form>
+    </div>
 </div>
 <div id="messages" style="display:none;">
     <p rsf:id="msg=simplepage.checklist-name-required" id="simplepage.checklist-name-required"></p>

@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -136,8 +137,10 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
    String nextpage= null;
    ItemBean item = new ItemBean();
-   
-   AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+      //This needs to happen in any case
+   itemauthorbean.setTagsTempListToJson("[]");
+
+      AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
    try{
     // check to see if we arrived here from question pool
 
@@ -164,6 +167,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
         itemauthorbean.setItemTypeString("");
         itemauthorbean.setAttachmentList(null);
         itemauthorbean.setResourceHash(null);
+        itemauthorbean.setTagsList(null);
 
         int itype=0; //
 log.debug("item.getItemType() = " + item.getItemType());
@@ -255,6 +259,28 @@ log.debug("after getting item.getItemType() ");
                     }
 
                     break;
+                case 17:
+                    SearchQuestionBean searchQuestionBean= (SearchQuestionBean) ContextUtil.lookupBean("searchQuestionBean");
+                    nextpage = "searchQuestion";
+
+                    if(itemauthorbean.getTarget().equals("questionpool")) {
+                        searchQuestionBean.setComesFromPool(true);
+                        searchQuestionBean.setSelectedQuestionPool(itemauthorbean.getQpoolId());
+                        break;
+                    }else {
+                        searchQuestionBean.setComesFromPool(false);
+                        String partNoQS = itemauthorbean.getInsertToSection();
+                        List<SectionContentsBean> sectionsQS = assessmentBean.getSections();
+                        for (SectionContentsBean content : sectionsQS)
+                        {
+                            if (partNoQS != null && partNoQS.equals(content.getNumber()))
+                            {
+                                searchQuestionBean.setSelectedSection(content.getSectionId());
+                                break;
+                            }
+                        }
+                    }
+                break;
                 case 100:
 				ToolSession currentToolSession = SessionManager.getCurrentToolSession();
 				currentToolSession.setAttribute("QB_insert_possition", itemauthorbean.getInsertPosition());

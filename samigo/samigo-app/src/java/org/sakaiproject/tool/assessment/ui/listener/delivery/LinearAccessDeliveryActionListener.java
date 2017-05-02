@@ -36,6 +36,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +213,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     			  int timeRemaining = Integer.parseInt(delivery.getTimeLimit()) - Integer.parseInt(delivery.getTimeElapse());
     			  eventRef.append(timeRemaining);
     		  }
-    		  Event event = eventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
+    		  Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE, eventRef.toString(), site_id, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), false));
     		  eventTrackingService.post(event);
     	  }
     	  else if (action == DeliveryBean.TAKE_ASSESSMENT_VIA_URL) {
@@ -229,7 +230,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
     		  }
     		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.valueOf(delivery.getAssessmentId()));
-    		  Event event = eventTrackingService.newEvent("sam.assessment.take", eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), true));
+    		  Event event = eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TAKE, eventRef.toString(), siteId, true, NotificationService.NOTI_REQUIRED, SamigoLRSStatements.getStatementForTakeAssessment(delivery.getAssessmentTitle(), delivery.getPastDue(), publishedAssessment.getReleaseTo(), true));
     		  eventTrackingService.post(event);
     	  }    	  
       }

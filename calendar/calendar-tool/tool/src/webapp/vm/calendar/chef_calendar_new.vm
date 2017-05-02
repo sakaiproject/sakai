@@ -323,6 +323,7 @@ $(function() {
 </script>
 
 <div class="portletBody">
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString("new.adding")
 	</h3>
@@ -382,7 +383,8 @@ $(function() {
 					ashidden:{
 						month:"month",
 						day:"day",
-						year:"yearSelect"
+						year:"yearSelect",
+						iso8601: 'newCalendarDateISO8601'
 					}
 				});
 			</script>

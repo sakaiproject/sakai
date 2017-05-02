@@ -8,10 +8,9 @@ import java.util.Map;
 
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.entity.ForumTopicEntityProvider;
 import org.sakaiproject.api.app.messageforums.entity.ForumMessageEntityProvider;
+import org.sakaiproject.api.app.messageforums.entity.ForumTopicEntityProvider;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 

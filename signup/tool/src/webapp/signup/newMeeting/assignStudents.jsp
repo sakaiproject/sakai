@@ -151,10 +151,10 @@
 								</h:column>
 							</h:dataTable>
 							<h:panelGroup id="addAttendee">
-								<h:outputLabel onclick="showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
+								<h:outputLink value="javascript:showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
 						   			<h:graphicImage value="/images/add.png"  alt="add an attendee" title="#{msgs.event_tool_tips_add}" styleClass="addButton" style="border:none" />
 						   			<h:outputText value="#{msgs.event_add_attendee}" escape="false"/>
-						   		</h:outputLabel>
+						   		</h:outputLink>
 						   	</h:panelGroup>
 						   	
 				   			<h:panelGroup id="addPanel" style="display: none;" >

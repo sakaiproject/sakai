@@ -22,7 +22,7 @@ $PBJQ( document ).ready(function() {
 	   	   $PBJQ(".Mrphs-toolsNav__title--current-site").addClass('moving');
 	   	   $PBJQ(".Mrphs-skipNav__menu").addClass('moving');
 	   	   $PBJQ(".Mrphs-sitesNav__menuitem--myworkspace").addClass('moving');
-	   } else if( st > 90 ) {
+	   } else if( st > 90 || st == 0) {
 	   	    $PBJQ(".Mrphs-topHeader").removeClass('moving');
 	   	   	$PBJQ(".Mrphs-siteHierarchy").removeClass('moving');
 	   	   	$PBJQ(".Mrphs-toolsNav__title--current-site").removeClass('moving');

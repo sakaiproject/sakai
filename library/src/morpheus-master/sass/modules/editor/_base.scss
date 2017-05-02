@@ -1,0 +1,25 @@
+// Preview plugin
+.cke {
+	.cke_button__sakaipreview {
+		.cke_button__sakaipreview_icon {
+			background: url(/library/webjars/ckeditor/4.5.7/full/skins/moono/icons_hidpi.png) no-repeat 0 -1632px !important;
+			background-size: 16px !important;
+		}
+	}
+}
+#ckeditorPreview.modal {
+	.modal-dialog {
+		width: 94%;
+		max-width: 1200px;
+	}
+
+	.sakaipreview-print {
+		@extend .fa;
+		@extend .fa-print;
+	}
+
+	.sakaipreview-close {
+		@extend .fa;
+		@extend .fa-times;
+	}
+}

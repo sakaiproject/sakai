@@ -2,12 +2,6 @@
 
 //.#{$namespace}
 .is-logged-out{
-	#content, .#{$namespace}container--footer{
-		margin: 0 0 0 0;
-		@media #{$phone}{
-			margin: 6.5em 0 0 0;
-		}
-	}
 	.#{$namespace}topHeader {
 		@media #{$phone}{
 			&.moving{
@@ -19,6 +13,7 @@
 
 .#{$namespace}portalWrapper {
 	position: relative;
+	background: $main-content-background;
 }
 
 #pageBody{
@@ -33,10 +28,6 @@
 #content, .#{$namespace}container--footer{
 	margin: 0;
 	width: 100%;
-
-	@media #{$phone}{
-		margin: 6.5em 0 0;
-	}
 
 	@media #{$nonPhone} {
 		#col1of2, #col2of2{
@@ -54,11 +45,19 @@
 }
 
 .#{$namespace}mainContent{
-  background: $main-content-background;
+	background: $main-content-background;
+	padding-top: 1em;
+}
+
+#content {
+	@media #{$phone}{
+		margin: 0;
+		padding-top: 2em; // make way for the button container
+	}
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
-	margin: 0 1em 1em;
+	margin: 0 1em;
 	clear: both;
 	@media #{$phone}{
 		margin: 0;
@@ -68,7 +67,6 @@
 .#{$namespace}container--footer{
 	background-color: $footer-background-color;
 	border-top: 1px solid $footer-border-color;
-	border-left: 1px solid $footer-border-color;
 }
 
 .#{$namespace}footer{

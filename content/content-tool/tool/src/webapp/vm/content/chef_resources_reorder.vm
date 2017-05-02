@@ -12,7 +12,8 @@
 		<div class ="breadCrumb specialLink">
 			<h3>
 				$tlang.getString("sort.title")
-				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+				<span class = "$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
+				<span class="sr-only">$tlang.getString('gen.folder1')</span>
 				#foreach ($item in $collectionPath)
 					$validator.escapeHtml("$item.name")
 					#if(! $item.isLast()) / #end
@@ -58,9 +59,9 @@
 						</span>
 						<div title="$member.name" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 								#if($member.isFolder())
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+									<span class = "$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
 								#else
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+									<span class = "$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
 								$validator.escapeHtml($member.name)
 						</div>

@@ -52,4 +52,4 @@ include file for displaying multiple choice questions
    </h:dataTable>
    </h:column>
   </h:dataTable>
-
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>

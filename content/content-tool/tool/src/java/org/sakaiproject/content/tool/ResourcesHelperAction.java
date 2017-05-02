@@ -46,8 +46,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
 
-import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.util.FileItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.Context;
@@ -81,7 +82,6 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -1130,42 +1130,29 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		else if (fileitem.getFileName().length() > 0)
 		{
 			String filename = Validator.getFileName(fileitem.getFileName());
-			InputStream stream;
-				stream = fileitem.getInputStream();
-				if(stream == null)
-				{
-					byte[] bytes = fileitem.get();
-					pipe.setRevisedContent(bytes);
-				}
-				else
-				{
-					 pipe.setRevisedContentStream(stream);
-				}
-				String contentType = fileitem.getContentType().replaceAll("\"", "");
-				//pipe.setRevisedContent(bytes);
-				pipe.setRevisedMimeType(contentType);
-				pipe.setFileName(filename);
-				
-				if(ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
-				{
-					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
-				}
-				else if(pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null)
-				{
-					pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
-				}
-				
+			InputStream stream = fileitem.getInputStream();
+			pipe.setRevisedContentStream(stream);
+			String contentType = fileitem.getContentType().replaceAll("\"", "");
+			pipe.setRevisedMimeType(contentType);
+			pipe.setFileName(filename);
+
+			if (ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType)) {
+				pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
+			} else if (pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null) {
+				pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
+			}
+
 			ListItem newFile = new ListItem(pipe.getContentEntity());
 			// notification
 			int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 			newFile.setNotification(noti);
-			
+
 			pipe.setRevisedListItem(newFile);
-			
+
 			pipe.setActionCanceled(false);
 			pipe.setErrorEncountered(false);
 			pipe.setActionCompleted(true);
-			
+
 			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 		}
 
@@ -1398,8 +1385,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	/**
 	 * @param params
-	 * @param newFile
-	 * @return
 	 */
 	protected int determineNotificationPriority(ParameterParser params, boolean contextIsDropbox, boolean userIsMaintainer) 
 	{
@@ -2056,7 +2041,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			//Now upload the received file
 			//Test that file has been sent in request 
-			DiskFileItem uploadFile = (DiskFileItem) request.getAttribute("file");
+			org.apache.commons.fileupload.FileItem uploadFile = (org.apache.commons.fileupload.FileItem) request.getAttribute("file");
 			
 			if(uploadFile != null)
 			{
@@ -2161,12 +2146,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		catch (OverQuotaException e) {
 			addAlert(state, rb.getString("alert.over-site-upload-quota"));
-			logger.warn("Drag and drop upload exceeded site quota: " + e, e);
 			return;
 		}
 		catch (ServerOverloadException e) {
 			addAlert(state,contentResourceBundle.getFormattedMessage("dragndrop.overload.error",new Object[]{uploadFileName}));
-			logger.warn("Drag and drop upload overloaded the server: " + e, e);
+			return;
+		}
+		catch (IdLengthException e) {
+			addAlert(state, contentResourceBundle.getFormattedMessage("dragndrop.length.error", e.getReference(), e.getLimit()));
 			return;
 		}
 		catch (Exception e) {

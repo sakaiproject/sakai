@@ -292,4 +292,13 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 	</bean>
 
+	<bean id="org.sakaiproject.profile2.logic.ProfileContentProducer"
+		class="org.sakaiproject.profile2.logic.ProfileContentProducer" init-method="init">
+		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+		<property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+	</bean>
+
 </beans>

@@ -195,7 +195,7 @@
     ## SAK-22384
     #if($!isMathJaxInstalled && $!doEnableMathJax)
     <p class="instruction">
-        $tlang.getString("sinfo.mathjax.confirmEnabled") $confirmMathJaxEnabledTools   
+        $tlang.getString("sinfo.mathjax.confirmEnabled")   
     </p>
     #end
 	

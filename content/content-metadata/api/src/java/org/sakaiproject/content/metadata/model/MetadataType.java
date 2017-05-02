@@ -31,6 +31,9 @@ import java.util.List;
  */
 public abstract class MetadataType<T> implements Serializable
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Unique name used to identify the Metadata field
 	 */

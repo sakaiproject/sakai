@@ -32,6 +32,8 @@ tr.paddedSectionRow td  table {padding-top:0 !important; padding-bottom:1em !imp
 .paddedMeetingRow {padding-top:0 !important; padding-bottom:3px !important; }
 .meetingFirstCol  {padding-top:10px !important; }
 .meetingSecondCol {padding-top:3px !important;}
+.meetingDay {display:inline-block;margin-right: 15px;}
+.meetingDay label {padding-left: 4px;}
 
 
 /* Form labels should be bold */

@@ -1,5 +1,9 @@
 .#{$namespace}sakai-resources {
 
+	ul, ol {
+		padding-top: 0;
+	}
+
 	input, textarea{
 		max-width: 100%;
 	}
@@ -7,6 +11,11 @@
 	label {
 		vertical-align: top;
 	}
+
+	label[for="hidden_false_0"] {
+		padding-right: 2em;
+	}
+
 
 	input[type="checkbox"] + label{
         display: inline;
@@ -26,6 +35,14 @@
 		}
 	}
 
+	table#groupTable_0 td {
+		margin-top: 0;
+		border-top: 0;
+		label {
+			padding-left: 0;
+		}
+	}
+
 	table.resourcesList{
 		tr{
 			&:first-child{
@@ -39,6 +56,10 @@
 					}
 				}
 			}
+		}
+
+		td.attach{
+			min-width: 32px;
 		}
 
 		@media #{$phone}{
@@ -209,5 +230,15 @@
 	}
 	fieldset .form-group {
 		padding-top: 0.5em;
+	}
+
+	.instruction {
+		margin-top: 0;
+	}
+	
+	.fa {
+		display : inline;
+		color : $primary-color;
+		text-decoration: none;
 	}
 }

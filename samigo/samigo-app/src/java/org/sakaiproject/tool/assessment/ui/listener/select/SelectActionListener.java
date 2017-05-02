@@ -575,9 +575,7 @@ public class SelectActionListener
 					f.setRetractDate(extendedTimeDeliveryService.getRetractDate());
 					f.setLateHandling(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION);
 				}
-				if (extendedTimeDeliveryService.getTimeLimit() != 0) {
-					f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
-				}
+				f.setTimeLimit(extendedTimeDeliveryService.getTimeLimit());
 			}
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && !f.getReleaseTo().contains("Anonymous Users") ) {

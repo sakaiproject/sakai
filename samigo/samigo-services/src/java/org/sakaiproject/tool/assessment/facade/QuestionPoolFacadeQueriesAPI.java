@@ -69,6 +69,8 @@ public interface QuestionPoolFacadeQueriesAPI
 
   public List getAllItems(Long questionPoolId);
 
+  public List getAllItemsIds(final Long questionPoolId);
+
   public List getAllItemFacadesOrderByItemText(Long questionPoolId,
 					       String orderBy, String ascending);
 

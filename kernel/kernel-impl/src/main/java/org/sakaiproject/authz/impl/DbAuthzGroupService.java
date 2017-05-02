@@ -1121,6 +1121,54 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * {@inheritDoc}
 		 */
+		public Map<String, List<String>> getProviderIDsForRealms(List<String> realmIDs)
+		{
+			Map<String, List<String>> realmProviderMap = new HashMap<>();
+			if (realmIDs != null && realmIDs.size() > 0)
+			{
+				// Custom reader to get only realm_id and provider_id
+				SqlReader reader = (result)-> {
+					try
+					{
+						String realmID = result.getString(1);
+						String providerIDs = result.getString(2);
+						List<String> retVal = new ArrayList<>();
+						retVal.add(realmID);
+						retVal.add(providerIDs);
+						return retVal;
+					}
+					catch (SQLException ex)
+					{
+						// Avoid nulls by returning an empty Colleciton<String>
+						M_log.warn("getProviderIDsForRealms.readSqlResultRecord: " + ex);
+						return Collections.<String>emptyList();
+					}
+				};
+
+				// Execute the SQL statement
+				String sql = dbAuthzGroupSql.getSelectRealmsProviderIDsSql(orInClause(realmIDs.size(), "r.realm_id"));
+				Object[] fields = realmIDs.toArray();
+				List<List<String>> results = (List<List<String>>) m_sql.dbRead(sql, fields, reader);
+
+				// Build the realm-provider map
+				for (List<String> list : results)
+				{
+					String realmID = list.get(0);
+					String providerIDs = list.get(1);
+
+					if (StringUtils.isNotBlank(realmID) && StringUtils.isNotBlank(providerIDs))
+					{
+						realmProviderMap.put(realmID, Arrays.asList(providerIDs.split("\\+")));
+					}
+				}
+			}
+
+			return realmProviderMap;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
 		public Set getAuthzGroupIds(String providerId)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmIdSql();

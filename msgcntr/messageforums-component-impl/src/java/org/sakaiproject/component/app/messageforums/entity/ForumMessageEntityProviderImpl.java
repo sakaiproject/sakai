@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -25,7 +23,7 @@ import org.sakaiproject.api.app.messageforums.entity.ForumMessageEntityProvider;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -40,8 +38,10 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvider,
@@ -52,6 +52,10 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
   private UIPermissionsManager uiPermissionsManager;
   private MessageForumsMessageManager messageManager;
   private ServerConfigurationService serverConfigurationService;
+  private SecurityService securityService;
+  private SiteService siteService;
+  private UserDirectoryService userDirectoryService;
+  
   private static final Logger LOG = LoggerFactory.getLogger(ForumMessageEntityProviderImpl.class);
   
 
@@ -269,7 +273,7 @@ private RequestStorage requestStorage;
 	  String topicId = "";
 	  String typeUuid = "";
 	  String siteId = "";
-	  String userId = UserDirectoryService.getCurrentUser().getId();
+	  String userId = userDirectoryService.getCurrentUser().getId();
 	  if (userId == null || "".equals(userId)){
 		  return null;
 	  }
@@ -299,7 +303,7 @@ private RequestStorage requestStorage;
 		  siteId = forumManager.getContextForForumById(dForum.getId());
 
 		  //make sure the user has access too this forum and topic and site:
-		  if(dForum.getDraft().equals(Boolean.FALSE) && dTopic.getDraft().equals(Boolean.FALSE) && SecurityService.unlock(userId, SiteService.SITE_VISIT, "/site/" + siteId)){
+		  if(dForum.getDraft().equals(Boolean.FALSE) && dTopic.getDraft().equals(Boolean.FALSE) && securityService.unlock(userId, SiteService.SITE_VISIT, "/site/" + siteId)){
 
 			  if (getUiPermissionsManager().isRead(dTopic.getId(), false, false, userId, siteId))
 			  {
@@ -505,7 +509,7 @@ private RequestStorage requestStorage;
         if("site".equals(view.getPathSegment(3))){
         	siteId = view.getPathSegment(4);
         }
-        String userId = UserDirectoryService.getCurrentUser().getId();
+        String userId = userDirectoryService.getCurrentUser().getId();
 		if (userId == null || "".equals(userId) || siteId == null
 				|| "".equals(siteId) || messageId == null
 				|| "".equals(messageId)) {
@@ -774,4 +778,18 @@ public void setMessageManager(MessageForumsMessageManager messageManager) {
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+	
+	
 }

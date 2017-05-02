@@ -1,0 +1,12 @@
+{
+  "name": "polymer-project",
+  "dependencies": {
+    "iron-ajax": "PolymerElements/iron-ajax#1.4.0",
+    "polymer": "1.7.0",
+    "iron-collapse": "1.2.1",
+    "iron-icons": "1.1.3",
+    "polymer-bootstrap": "0.1.2",
+    "polymer-sortablejs": "0.1.3",
+    "iron-a11y-keys": "PolymerElements/iron-a11y-keys#1.0.6"
+  }
+}

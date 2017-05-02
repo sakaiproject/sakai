@@ -580,6 +580,13 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		return rv;
 	}
 
+	public void setTitle(String title)
+	{
+		// This is needed so that on save we don't lose the title attribute.
+		m_custom_title = title != null;
+		super.setTitle(title);
+	}
+
 	/**
 	 * Replace tool title with its localized value
 	 * 

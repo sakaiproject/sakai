@@ -15,3 +15,7 @@
   width: 0;
   cursor: pointer
 }  
+
+.composeFormTable tr td:nth-child(2) {
+  width: 90%;
+}

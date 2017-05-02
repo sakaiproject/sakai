@@ -81,7 +81,8 @@
 						<td class="attach">
 						</td>
 						<td style="text-indent:$width">
-							<h4><img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+							<h4><span class="fa fa-folder" aria-hidden="true"></span>
+							<span class="sr-only">$tlang.getString('gen.folder1')</span>
 							$validator.escapeHtml($folderName)</h4>
 						</td>
 						<td colspan="2"></td>
@@ -99,9 +100,10 @@
 						<td headers="title" style="text-indent: $width" class="specialLink">
 							<h5>
 								#if($member.isFolder())
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder1')">
+									<span class="$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
+									<span class="sr-only">$tlang.getString('gen.folder1')</span>
 								#else
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0" alt="">
+									<span class="$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
 								$validator.escapeHtml($member.name)
 							</h5>	

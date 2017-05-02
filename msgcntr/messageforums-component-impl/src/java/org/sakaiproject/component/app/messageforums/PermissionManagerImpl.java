@@ -45,7 +45,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateCallback;
@@ -74,6 +74,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     
     private DefaultPermissionsManager defaultPermissionsManager;
     
+    private ToolManager toolManager;
+    
     public void init() {
        LOG.info("init()");
        ;
@@ -93,6 +95,10 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
 
     public void setAreaManager(AreaManager areaManager) {
         this.areaManager = areaManager;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
     }
 
     public MessageForumsTypeManager getTypeManager() {
@@ -956,7 +962,7 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
       if (TestUtil.isRunningTests()) {
           return "test-context";
       }
-      final Placement placement = ToolManager.getCurrentPlacement();
+      final Placement placement = toolManager.getCurrentPlacement();
       final String presentSiteId = placement.getContext();
       return presentSiteId;
     }

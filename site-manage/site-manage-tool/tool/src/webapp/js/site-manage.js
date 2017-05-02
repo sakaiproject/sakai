@@ -2,11 +2,7 @@ var sakai = sakai || {};
 var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
-// SAK-22384
-var MATHJAX = MATHJAX || {};
-MATHJAX.isInstalled = false;
-MATHJAX.checkBoxIdPrefix = "jax-";
- 
+
 $.ajaxSetup({
   cache: false
 });
@@ -794,13 +790,11 @@ var setupCategTools = function(){
                         
     		var selId = normalizedId($(this).attr('id'));
             var iconId = iconizedId($(this).attr('id'));
-            
-            // SAK-22384
-            var mathJaxCheckBox = buildMathJaxCheckBox(this);
+
             var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
             var newListItem = '<li id=\"' + thisToolId
                     + '\"><span class=\"selectedToolTitle \"><i class="icon-sakai--' + iconId + '"></i>' + safeLabelText + "</span>"
-                    + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
+                    + "<span>" + removeLink + '</span></li>';
             $('#toolSelectionList ul').append(newListItem);
             
             // append to selected tool list
@@ -820,36 +814,6 @@ var setupCategTools = function(){
         	var parentRow = $(this).closest('li');
         	$('#toolHolder').find('#' + thisToolCatEsc).find('ul').append(parentRow);
         }
-        
-        function buildMathJaxCheckBox(originalCheckBox)
-        {
-            var mathJaxCheckBox = "";
-                        
-            if (MATHJAX.isInstalled)
-            {
-                var baseToolId = originalCheckBox.id;
-                var mathJaxCheckBoxClasses = "mathJaxCheckBox";
-                var isCheckedStr = "";
-                
-                if (baseToolId.length > 37) // instance tool so we have to chop off the guid prefix to get the base toolId
-                {
-                    baseToolId = baseToolId.substring(36);
-                    mathJaxCheckBoxClasses += " mathJaxMultiTool";
-                }
-                
-                if ($.inArray(baseToolId, MATHJAX.initialEnabledTools) !== -1)
-                {
-                    isCheckedStr = " checked ";
-                }
-                mathJaxCheckBox = "<span><input type=\"checkbox\" name=\"mathJaxEnabledTools\" class=\""
-                        + mathJaxCheckBoxClasses + "\" id=\"" + MATHJAX.checkBoxIdPrefix + originalCheckBox.id + "\" value=\""
-                        + baseToolId + "\"" + isCheckedStr + "></input></span>";
-            }
-            
-            return mathJaxCheckBox;
-            
-        } // end buildMathJaxCheckBox()
-        
     });
     
     // set checked/unchecked for each in list
@@ -943,17 +907,6 @@ var setupCategTools = function(){
         $(this).closest('li').find('span.checkedCount').text($(this).closest('li').find(':checked').length).show(); 
     });
     
-    // SAK-22384
-    $(".mathJaxMultiTool").on("click", function(e)
-    {
-        // find the rest of the checkboxes that have the same value and select/deselect them
-        var sameToolMatches = $(".mathJaxCheckBox").filter("[value=\"" + this.value + "\"]");
-        for (i = 0; i < sameToolMatches.length; ++i)
-        {
-            sameToolMatches[i].checked = this.checked;
-        }
-    });
-    
     // Clicked red X on toolSelectionList
     $('.removeTool').click(function(e){
         e.preventDefault();
@@ -974,9 +927,6 @@ var setupCategTools = function(){
                 label.style.fontWeight = "normal";
             }
         }
-        
-        // SAK-22384
-        $('#' + MATHJAX.checkBoxIdPrefix + selectedId.replace("_", ".")).prop('checked',false);
         
         //$(this).closest('li').addClass('highlightTool').fadeOut('fast', function(){
         //    $(this).closest('li').remove();

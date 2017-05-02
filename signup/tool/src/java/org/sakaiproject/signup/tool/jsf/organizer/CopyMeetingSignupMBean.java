@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
@@ -45,6 +47,7 @@ import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.util.DateFormatterUtil;
 //import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 /**
@@ -134,6 +137,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	
  	private List<SelectItem> categories = null;
  	private List<SelectItem> locations=null;
+
+	private String startTimeString;
+	private String endTimeString;
+	private String repeatUntilString;
+	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
+	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+	private static String HIDDEN_ISO_UNTILTIME = "untilISO8601";
 
 	/**
 	 * this reset information which contains in this UIBean lived in a session
@@ -331,6 +341,25 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 *            an ActionEvent object.
 	 */
 	public void validateCopyMeeting(ActionEvent e) {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+		String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+		if(DateFormatterUtil.isValidISODate(isoStartTime)){
+			this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+		}
+
+		String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+		if(DateFormatterUtil.isValidISODate(isoEndTime)){
+			this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+		}
+
+		String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
+
+		if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+			setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+		}
 		Date eventEndTime = signupMeeting.getEndTime();
 		Date eventStartTime = signupMeeting.getStartTime();
 		
@@ -849,6 +878,30 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 
 	public void setRepeatUntil(Date repeatUntil) {
 		this.repeatUntil = repeatUntil;
+	}
+
+	public String getStartTimeString() {
+		return startTimeString;
+	}
+
+	public String getEndTimeString() {
+		return endTimeString;
+	}
+
+	public void setStartTimeString(String startTimeString) {
+		this.startTimeString = startTimeString;
+	}
+
+	public void setEndTimeString(String endTimeString) {
+		this.endTimeString = endTimeString;
+	}
+
+	public String getRepeatUntilString() {
+		return repeatUntilString;
+	}
+
+	public void setRepeatUntilString(String repeatUntilString) {
+		this.repeatUntilString = repeatUntilString;
 	}
 
 	public String getRepeatType() {

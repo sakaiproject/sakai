@@ -10,7 +10,7 @@
 	<div class ="breadCrumb specialLink">
 		<h3>
 			$tlang.getString("gen.location")
-			<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
+			<span class="$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
 			#foreach ($i in $item.collectionPath)
 				#if($velocityCount > 1)
 					/

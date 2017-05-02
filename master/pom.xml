@@ -75,11 +75,14 @@
   <properties>
     <sakai.version>12-SNAPSHOT</sakai.version>
     <!-- Standard dependency versions -->
+    <sakai.apache.httpcomponents.httpclient.version>4.1.1</sakai.apache.httpcomponents.httpclient.version>
     <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
     <sakai.commons.lang3.version>3.5</sakai.commons.lang3.version>
     <sakai.commons.fileupload.version>1.3.2</sakai.commons.fileupload.version>
     <sakai.commons-math3.version>3.6.1</sakai.commons-math3.version>
     <sakai.commons-validator.version>1.6</sakai.commons-validator.version>
+    <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
+    <sakai.commons.configuration.version>1.6</sakai.commons.configuration.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.11</sakai.ehcache.version>
@@ -87,11 +90,13 @@
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>4.3.11.Final</sakai.hibernate.version>
+    <sakai.jackson.version>2.8.6</sakai.jackson.version>
+    <sakai.java.jwt.version>3.1.0</sakai.java.jwt.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.lombok.version>1.16.8</sakai.lombok.version>
-    <sakai.jackson.version>2.8.6</sakai.jackson.version>
     <sakai.lucene.version>4.10.4</sakai.lucene.version>
+    <sakai.org.json.version>20160810</sakai.org.json.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>2.2.2</sakai.quartz.version>
     <sakai.opencsv.version>2.3</sakai.opencsv.version>
@@ -102,20 +107,24 @@
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
     <sakai.spring.version>4.3.6.RELEASE</sakai.spring.version>
     <sakai.spring.security.version>3.2.10.RELEASE</sakai.spring.security.version>
+    <sakai.spring.hateoas.version>0.22.0.RELEASE</sakai.spring.hateoas.version>
+    <sakai.spring.plugin.version>1.2.0.RELEASE</sakai.spring.plugin.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.3.6.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.14</sakai.tika.version>
     <sakai.tomcat.version>8.0.41</sakai.tomcat.version>
+    <sakai.wicket.version>6.16.0</sakai.wicket.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
-    <sakai.poi.version>3.14</sakai.poi.version>
-    <sakai.mockito.version>2.2.16</sakai.mockito.version>
-    <sakai.powermock.version>1.6.6</sakai.powermock.version>
+    <sakai.poi.version>3.15</sakai.poi.version>
+    <sakai.mockito.version>2.7.22</sakai.mockito.version>
+    <sakai.powermock.version>1.7.0RC4</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.9.7</joda.time.version>
+    <jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <json.simple.version>1.1.1</json.simple.version>
@@ -123,7 +132,6 @@
     <jdom.version>1.0</jdom.version>
     <hamcrest.all.version>1.3</hamcrest.all.version>
     <junit.version>4.11</junit.version>
-    <mockito.version>2.1.0</mockito.version>
 
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -141,6 +149,8 @@
     <ckeditor.autosave.version>8541f541d9985cfd0859c7d8eb6be404afe95a2d</ckeditor.autosave.version>
     <!-- Source at https://github.com/w8tcha/CKEditor-WordCount-Plugin -->
     <ckeditor.wordcount.version>4897cb23a9f2ca7fb6b792add4350fb9e2a1722c</ckeditor.wordcount.version>
+    <ckeditor.a11ychecker.version>1.1.0</ckeditor.a11ychecker.version>
+    <ckeditor.balloonpanel.version>4.6.2</ckeditor.balloonpanel.version>
   </properties>
   <distributionManagement>
     <snapshotRepository>
@@ -468,7 +478,19 @@
         <artifactId>spring-webmvc</artifactId>
         <version>${sakai.spring.version}</version>
       </dependency>
-	  <dependency>
+      <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>1.8.9</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml</groupId>
+        <artifactId>classmate</artifactId>
+        <version>1.3.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-core</artifactId>
 		<version>${sakai.jackson.version}</version>
@@ -560,7 +582,7 @@
       <dependency>
         <groupId>commons-pool</groupId>
         <artifactId>commons-pool</artifactId>
-        <version>1.5.7</version>
+        <version>1.6</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -692,6 +714,24 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${sakai.hibernate.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>1.1.0.Final</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>${sakai.hibernate.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>5.3.4.Final</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1445,6 +1485,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.rubrics</groupId>
+        <artifactId>rubrics-service-client-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.samigo</groupId>
         <artifactId>samigo-services</artifactId>
         <version>${sakai.version}</version>
@@ -1676,7 +1722,7 @@
       </dependency>
       <dependency>
           <groupId>org.powermock</groupId>
-          <artifactId>powermock-api-mockito</artifactId>
+          <artifactId>powermock-api-mockito2</artifactId>
           <version>${sakai.powermock.version}</version>
           <scope>test</scope>
       </dependency>
@@ -1701,7 +1747,7 @@
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.6.0</version>
+        <version>2.6.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1732,6 +1778,12 @@
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-terracotta</artifactId>
         <version>${sakai.ehcache.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jvnet.opendmk</groupId>
+        <artifactId>jmxremote_optional</artifactId>
+        <version>1.0_01-ea</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>
@@ -1857,13 +1909,15 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.10.3</version>
+          <version>2.10.4</version>
           <configuration>
             <debug>false</debug>
             <links>
-              <link>http://download.oracle.com/javase/6/docs/api/</link>
+              <link>http://docs.oracle.com/javase/8/docs/api/</link>
               <link>http://docs.oracle.com/javaee/5/api/</link>
               <link>http://junit.sourceforge.net/javadoc/</link>
+              <link>http://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
+              <link>http://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
             </links>
             <breakiterator>true</breakiterator>
             <verbose>false</verbose>

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -98,7 +99,7 @@ public interface PortalSiteHelper
 	Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
 			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn);
+			String toolContextPath, boolean loggedIn, List<String> siteProviders);
 
 	/**
 	 * SAK-29138 - Get the site or section title for the current user for the current site.
@@ -112,6 +113,23 @@ public interface PortalSiteHelper
 	 * @return the site or section title
 	 */
 	String getUserSpecificSiteTitle( Site site, boolean escaped );
+
+	/**
+	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but also takes truncated parameter
+	 *
+	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param truncated true if you want long titles to be truncated with an ellipses
+	 */
+	String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped);
+
+	/**
+	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but consumes the specified siteProviders (for performance savings)
+	 *
+	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param truncated true if you want long titles to be truncated with an ellipses
+	 * @param siteProviders the site providers corresponding to the specified site; if null, they will be looked up
+	 */
+	String getUserSpecificSiteTitle(Site site, boolean truncated, boolean escaped, List<String> siteProviders);
 
 	/**
 	 * Generates a SiteView object from the current request and location

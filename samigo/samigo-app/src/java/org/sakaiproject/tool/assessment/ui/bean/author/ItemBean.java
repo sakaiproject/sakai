@@ -93,6 +93,8 @@ public class ItemBean
   private String emiAnswerOptionsPaste;
   private String answerOptionsRichCount = "0";
   private String answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString();
+
+  private List<ItemTagBean> itemTags;
   
   public static final int DEFAULT_MAX_NUMBER_EMI_OPTIONS_FOR_UI = 26; 
   public static final int DEFAULT_MAX_NUMBER_EMI_ITEMS_FOR_UI = 60; //Twice the actual number to allow for javascript add/delete 
@@ -2091,4 +2093,8 @@ public class ItemBean
 	public void setItemScoreDisplayFlag(String itemScoreDisplayFlag) {
 		this.itemScoreDisplayFlag = itemScoreDisplayFlag;
 	}
+
+	public List<ItemTagBean> getItemTags() { return itemTags; }
+
+	public void setItemTags(List<ItemTagBean> itemTags) { this.itemTags = itemTags; }
 }

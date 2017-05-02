@@ -368,6 +368,10 @@
 	    <property-name>showImageMapQuestion</property-name>
 	    <value>true</value>
 	  </managed-property>
+      <managed-property>
+        <property-name>showSearchQuestion</property-name>
+        <value>true</value>
+      </managed-property>
   </managed-bean>
   <managed-bean>
     <description>For authorization</description>
@@ -454,6 +458,12 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+      <description>For author: Search Questions backing bean.</description>
+      <managed-bean-name>searchQuestionBean</managed-bean-name>
+      <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.author.SearchQuestionBean</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+    <managed-bean>
     <description>For delivery: Delivery backing bean.</description>
     <managed-bean-name>delivery</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean</managed-bean-class>
@@ -994,10 +1004,6 @@
       <to-view-id>/jsf/author/authorIndex_container.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
-      <from-outcome>confirmRemoveItemAttachment</from-outcome>
-      <to-view-id>/jsf/author/removeItemAttachment.jsp</to-view-id>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>confirmRemovePartAttachment</from-outcome>
       <to-view-id>/jsf/author/removePartAttachment.jsp</to-view-id>
     </navigation-case>
@@ -1066,6 +1072,10 @@
     <navigation-case>
       <from-outcome>matrixChoicesSurveyItem</from-outcome>
       <to-view-id>/jsf/author/item/matrixChoicesSurvey.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>searchQuestion</from-outcome>
+      <to-view-id>/jsf/author/searchQuestion.jsp</to-view-id>
     </navigation-case>
 
   <!-- QUESTION POOL	 -->

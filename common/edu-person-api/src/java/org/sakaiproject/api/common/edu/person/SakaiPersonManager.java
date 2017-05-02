@@ -33,6 +33,9 @@ import org.sakaiproject.api.common.type.Type;
  */
 public interface SakaiPersonManager
 {
+	public static final String PROFILE_UPDATE = "profile.update";
+	public static final String PROFILE_DELETE = "profile.delete";
+
 	/**
 	 * Creates a persistent SakaiPerson record.
 	 * 

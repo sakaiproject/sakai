@@ -45,7 +45,8 @@
 						<div class="col-sm-4 col-xs-12">
 							<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 							<a class="remove" style="display:none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
-								<img src="#imageLink("sakai/cross.png")"  alt="x" />
+								<span class="fa fa-times" aria-hidden="true"></span>
+								<span class="sr-only">x</span>
 							</a>
 						</div>
 						<br><br>
@@ -59,9 +60,11 @@
 				</div>
 			#end
 		</div>
+		<!-- Disabled See SAK-32136
 		<p class="act">
 			<a href="#" onclick="addFileInput();return false">$tlang.getString("label.addFolder")</a>
 		</p>
+		-->
 #*
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			<p class="shorttext">

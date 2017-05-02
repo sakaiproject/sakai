@@ -52,3 +52,4 @@ include file for displaying true false questions
    </h:dataTable>
    </h:column>
   </h:dataTable>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>

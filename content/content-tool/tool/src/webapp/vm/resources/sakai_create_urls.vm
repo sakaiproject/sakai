@@ -56,7 +56,8 @@
 						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" class="form-control" maxlength="512"/> 
 						<a href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="remove" style="display: none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")" >
-							<img src="#imageLink("sakai/cross.png")" alt="x" />
+							<span class="fa fa-times" aria-hidden="true"></span>
+							<span class="sr-only">x</span>
 						</a>
 						<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />
 						<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />

@@ -14,16 +14,61 @@
         </style>
         
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+        <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
         <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
         <script type="text/javascript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>  
         
     	<script type="text/javascript">
 	         //initialization of the page
-	         jQuery.noConflict(); //this requried by calendar dropdown tomhawk
 	         jQuery(document).ready(function() {
+
+                localDatePicker({
+                    input: '#meeting\\:startTime',
+                    useTime: 1,
+                    parseFormat: 'YYYY-MM-DD HH:mm:ss',
+                    allowEmptyDate: false,
+                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    ashidden: {
+                            iso8601: 'startTimeISO8601',
+                            month:"meeting_startTime_month",
+                            day:"meeting_startTime_day",
+                            year:"meeting_startTime_year",
+                            hour:"meeting_startTime_hours",
+                            minute:"meeting_startTime_minutes",
+                            ampm:"meeting_startTime_ampm"}
+                });
+
+                localDatePicker({
+                    input: '#meeting\\:endTime',
+                    useTime: 1,
+                    parseFormat: 'YYYY-MM-DD HH:mm:ss',
+                    allowEmptyDate: false,
+                    val: '<h:outputText value="#{NewSignupMeetingBean.signupMeeting.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+                    ashidden: {
+                            iso8601: 'endTimeISO8601',
+                            month:"meeting_endTime_month",
+                            day:"meeting_endTime_day",
+                            year:"meeting_endTime_year",
+                            hour:"meeting_endTime_hours",
+                            minute:"meeting_endTime_minutes",
+                            ampm:"meeting_endTime_ampm"}
+                });
+
+                localDatePicker({
+                    input: '#meeting\\:until',
+                    useTime: 0,
+                    parseFormat: 'YYYY-MM-DD',
+                    allowEmptyDate: false,
+                    val: '<h:outputText value="#{NewSignupMeetingBean.repeatUntil}"><f:convertDateTime pattern="yyyy-MM-dd"/></h:outputText>',
+                    ashidden: {
+                            iso8601: 'untilISO8601',
+                            month:"meeting_until_month",
+                            day:"meeting_until_day",
+                            year:"meeting_until_year"}
+                });
+
 	        	 initialLayoutsSetup();
 		         otherUserSitesSelection();
-		         replaceCalendarImageIcon(); 
 		         userDefinedTsChoice();
 		         //setIframeHeight_DueTo_Ckeditor();
 		         
@@ -133,41 +178,41 @@
                 
                 <%-- description, rich text --%>
                 <div class="form-group row">
-                    <h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-12 form-control-label"  escape="false"/>
-                    <div class="col-lg-12">
+                    <h:outputLabel value="#{msgs.event_description}" styleClass="col-lg-2 form-control-label"  escape="false"/>
+                    <div class="col-lg-10">
                         <sakai:rich_text_area value="#{NewSignupMeetingBean.signupMeeting.description}"  width="720" height="180" rows="8" columns="80" />
                     </div>
                 </div>
 
                 <%-- attachments --%>
-                <div>
-                    <h:panelGroup>
-                        <t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
-                            <t:column>
-                                    <%@ include file="/signup/common/mimeIcon.jsp" %>
-                                    </t:column>
-                            <t:column>
-                                <h:outputLink  value="#{attach.location}" target="new_window">
-                                    <h:outputText value="#{attach.filename}"/>
-                                </h:outputLink>
-                            </t:column>
-                            <t:column>
-                                <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
-                            </t:column>
-                        </t:dataTable>
+                <div class="form-group row">
+                    <div class="col-lg-10 col-lg-offset-2">
+                        <h:panelGroup>
+                            <t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
+                                <t:column>
+                                        <%@ include file="/signup/common/mimeIcon.jsp" %>
+                                        </t:column>
+                                <t:column>
+                                    <h:outputLink  value="#{attach.location}" target="new_window">
+                                        <h:outputText value="#{attach.filename}"/>
+                                    </h:outputLink>
+                                </t:column>
+                                <t:column>
+                                    <h:outputText escape="false" value="(#{attach.fileSize}kb)" rendered="#{!attach.isLink}"/>
+                                </t:column>
+                            </t:dataTable>
 
-                        <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>        
-                        <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>                            
-                    </h:panelGroup>
+                            <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_attachments}" rendered="#{NewSignupMeetingBean.attachmentsEmpty}"/>        
+                            <h:commandButton action="#{NewSignupMeetingBean.addRemoveAttachments}" value="#{msgs.add_remove_attachments}" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>                            
+                        </h:panelGroup>
+                    </div>
                 </div>
-
                 <%-- Start time --%>
                 <div class="form-group row ">
                     <h:outputLabel value="#{msgs.event_start_time}" for="startTime"  escape="false" styleClass="col-lg-2 form-control-label form-required"/>
                     <div class="col-lg-10">
-                       <t:inputDate id="startTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
-                           style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear(); getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();">
-                       </t:inputDate>
+                       <h:inputText value="#{NewSignupMeetingBean.startTimeString}" size="28" id="startTime" 
+                          onkeyup="getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();"/>
                        <h:message for="startTime" errorClass="alertMessageInline"/>
                     </div>
                 </div>
@@ -176,9 +221,8 @@
                 <div class="form-group row ">
                     <h:outputLabel value="#{msgs.event_end_time}" for="endTime" escape="false" styleClass="col-lg-2 form-control-label form-required"/>
                     <div class="col-lg-10">
-                        <t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
-                            style="color:black;" popupCalendar="true" onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();">
-                            </t:inputDate>
+                        <h:inputText value="#{NewSignupMeetingBean.endTimeString}" size="28" id="endTime" 
+                          onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
                         <h:message for="endTime" errorClass="alertMessageInline"/>
                     </div>
                 </div>
@@ -212,7 +256,7 @@
                                         </h:panelGroup>
                                         <h:panelGroup id="endOfDate" style="margin-left:3px;">
                                              <!-- t:inputCalendar id="ex" value=""  renderAsPopup="true" monthYearRowClass="" renderPopupButtonAsImage="true" dayCellClass=""   styleClass="untilCalendar"/ -->                                 
-                                            <t:inputDate id="until" type="date"  value="#{NewSignupMeetingBean.repeatUntil}"  popupCalendar="true"   styleClass="untilCalendar"/>
+                                            <h:inputText value="#{NewSignupMeetingBean.repeatUntilString}" size="28" id="until" />
                                             <h:message for="until" errorClass="alertMessageInline" style="margin-left:10px" /> 
                                         </h:panelGroup>
                                     </h:panelGrid>

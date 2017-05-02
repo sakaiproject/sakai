@@ -39,6 +39,7 @@ import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.util.ResourceLoader;
 
 
 
@@ -55,6 +56,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 public class BasePage extends WebPage implements IHeaderContributor {
 
 	private static final Logger log = LoggerFactory.getLogger(BasePage.class); 
+	private static ResourceLoader rloader = new ResourceLoader();
 
 	@SpringBean(name="org.sakaiproject.delegatedaccess.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
@@ -250,6 +252,16 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.render(CssHeaderItem.forUrl(toolCSS));
 		response.render(OnDomReadyHeaderItem.forScript("setMainFrameHeight( window.name )"));
 
+		StringBuilder headJs = new StringBuilder();
+		headJs.append("var sakai = sakai || {}; sakai.editor = sakai.editor || {}; " +
+		"sakai.editor.editors = sakai.editor.editors || {}; " +
+		"sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {}; " +
+		"sakai.locale = sakai.locale || {};\n");
+		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
+		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
+		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
+		response.render(JavaScriptHeaderItem.forScript(headJs, null));
+
 		//Tool additions (at end so we can override if required)
 		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 		//response.renderCSSReference("css/my_tool_styles.css");
@@ -261,9 +273,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		//for datepicker
 		response.render(CssHeaderItem.forUrl("/library/webjars/jquery-ui/1.11.3/jquery-ui.css"));
-		response.render(JavaScriptHeaderItem.forUrl("javascript/delegated-access.js"));
 		response.render(JavaScriptHeaderItem.forUrl("javascript/jquery.asmselect.js"));
 		response.render(CssHeaderItem.forUrl("css/jquery.asmselect.css"));
+		response.render(JavaScriptHeaderItem.forUrl("/library/js/lang-datepicker/lang-datepicker.js"));
 	}
 
 

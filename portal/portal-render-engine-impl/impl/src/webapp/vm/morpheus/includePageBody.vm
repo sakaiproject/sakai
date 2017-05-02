@@ -100,7 +100,7 @@
                                         <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
                                     </a>
                                     <div id="${tool.toolPlacementIDJS}_directurl" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
-                                        <i class="fa fa-times dropDown_close"></i>
+                                        <i class="fa fa-times dropDown_close" aria-hidden="true"></i>
                                         #if($toolShortUrlEnabled)
 
                                             <input type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
@@ -251,7 +251,7 @@
                                         <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
                                     </a>
                                     <div id="${tool.toolPlacementIDJS}_directurl" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
-                                        <i class="fa fa-times dropDown_close"></i>
+                                        <i class="fa fa-times dropDown_close" aria-hidden="true"></i>
                                         #if($toolShortUrlEnabled)
                                             <input type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
                                         #end ## END of IF ($toolShortUrlEnabled)

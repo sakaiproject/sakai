@@ -375,6 +375,18 @@ public class BeginDeliveryActionListener implements ActionListener
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
+
+    //Override time limit settings if there's values in extended time
+    if (extTimeService.hasExtendedTime()) {
+    	if (extTimeService.getTimeLimit() > 0) {
+    		control.setTimeLimit(extTimeService.getTimeLimit());
+    		hasTimeLimit = "true";
+    	}
+    	else {
+    		hasTimeLimit = "false";
+    	}
+    }
+    
     if (hasTimeLimit!=null && hasTimeLimit.equals("true") && control.getTimeLimit() != null){
 
     	delivery.setHasTimeLimit(true);
@@ -382,8 +394,6 @@ public class BeginDeliveryActionListener implements ActionListener
 
     	if (unSubmittedAssessmentGrading == null || unSubmittedAssessmentGrading.getAttemptDate() == null) {
     		try {
-    			if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0)
-    				control.setTimeLimit(extTimeService.getTimeLimit());
     			if (control.getTimeLimit() != null) {
     				Integer timeLimit = control.getTimeLimit();
     				if(timeLimit < 1) delivery.setHasTimeLimit(false); //TODO: figure out why I have to do this

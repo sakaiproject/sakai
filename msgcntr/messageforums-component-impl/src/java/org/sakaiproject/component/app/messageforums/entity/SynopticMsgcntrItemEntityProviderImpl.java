@@ -1,12 +1,9 @@
 package org.sakaiproject.component.app.messageforums.entity;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.entity.SynopticMsgcntrItemEntityProvider;
@@ -21,20 +18,28 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SynopticMsgcntrItemEntityProviderImpl 
 implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable, RequestStorable, RESTful, RequestAware{
 
-	private SynopticMsgcntrManager synopticMsgcntrManager;
-	private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrItemEntityProviderImpl.class);
+    private SynopticMsgcntrManager synopticMsgcntrManager;
+
+    private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrItemEntityProviderImpl.class);
 
     private RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {
         this.requestStorage = requestStorage;
     }
-	
+    
+    private UserDirectoryService userDirectoryService;	
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
+
     private RequestGetter requestGetter;
     public void setRequestGetter(RequestGetter requestGetter){
     	this.requestGetter = requestGetter;
@@ -98,7 +103,7 @@ implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEn
 		if (siteId == null) {
 			return null;
 		}
-		String userId = UserDirectoryService.getCurrentUser().getId();
+		String userId = userDirectoryService.getCurrentUser().getId();
 		if(userId == null || "".equals(userId)){
 			return null;
 		}
@@ -120,7 +125,7 @@ implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEn
 	}
 
 	public List<?> getEntities(EntityReference ref, Search search) {		
-		String userId = UserDirectoryService.getCurrentUser().getId();
+		String userId = userDirectoryService.getCurrentUser().getId();
 		if(userId == null){
 			return null;
 		}

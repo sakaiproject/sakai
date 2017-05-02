@@ -256,7 +256,6 @@ $PBJQ('.Mrphs-userNav__pic-changer').on("click", function (event) {
 
 var header = $(".Mrphs-topHeader");
 var currentHeaderWidth = -1;
-var mainHeaderSize  = $(header).height();
 
 $PBJQ(document).ready( function(){
 
@@ -268,35 +267,29 @@ $PBJQ(document).ready( function(){
  
   $PBJQ(window).resize(function() {
 	  currentHeaderWidth = $(".Mrphs-mainHeader").width();
-	  $(header).css('height', 'auto');
-	  mainHeaderSize = $(header).height();
   });
  
   $PBJQ(window).scroll(function(){
-	if(currentHeaderWidth > 799) {
 		var size = 0;
 		var stick = (($(document).height() - $(window).height()) > $(header).height()) === true;
 		if($(window).scrollTop() > 0) {
-		  if($(header).data("sticked") === false && stick === true) {
-		    $(header).data("sticked",true);
-			$(".Mrphs-mainHeader").addClass("is-fixed");
-			$(header).stop().animate({
-				height: $('.is-fixed').css('height')	
-			}, 200);
+			if($(header).data("sticked") === false && stick === true) {
+				$(header).data("sticked",true);
+				$(".Mrphs-mainHeader").addClass("is-fixed");
 		  }
 		} else {
 		  $(".Mrphs-mainHeader").removeClass("is-fixed");
 		  $(header).data("sticked",false);
-		  $(header).css('height', null);
-		  $(header).stop().animate({
-			 height: mainHeaderSize 
-		  }, 200);
 		}
-		animateToolBar();
-	} else $(".Mrphs-mainHeader").removeClass("is-fixed");
   });
   
   currentHeaderWidth = $(".Mrphs-mainHeader").width();
-  
-});
 
+
+	$PBJQ('.Mrphs-headerLogo').on('click', function() {
+		// scroll to top on banner click/touch
+		document.body.scrollTop = 0;
+		document.body.scrollLeft = 0;
+		$PBJQ(window).trigger('scroll');
+	});
+});

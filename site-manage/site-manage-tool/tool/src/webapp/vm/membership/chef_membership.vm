@@ -119,7 +119,7 @@
 
 		<form action="#toolForm("$action")" method="post">
 			<div class="table-responsive">
-				<table id="membership" class="table table-bordered table-hover table-striped" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
+				<table class="table table-bordered table-hover table-striped" summary ="$tlang.getString('joinable.list.summary')" id="currentSites">
 					<tr>
 						<th id="checkbox" scope="col" class="screenOnly attach">
 							<input title="$tlang.getString("mb.selectalltitle")" type="checkbox" name="selunselall" id="selunselallid"/>

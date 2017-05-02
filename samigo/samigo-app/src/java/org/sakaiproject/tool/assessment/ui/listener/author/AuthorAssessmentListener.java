@@ -32,6 +32,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -133,7 +134,7 @@ public class AuthorAssessmentListener
     try{
       assessment = createAssessment(
          assessmentTitle.trim(), description, typeId, templateId);
-      EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId(), true));
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_CREATE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId(), true));
     }
     catch(Exception e){
       // can't create assesment because gradebookService is not ready

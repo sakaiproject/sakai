@@ -359,6 +359,8 @@ public class DbCitationService extends BaseCitationService
 		*/
 		protected void commitCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
 		{
+			deleteCitationCollectionOrder(citationCollectionOrder);
+
 			String orderStatement = "insert into " + m_collectionOrderTableName + " (COLLECTION_ID, CITATION_ID, LOCATION, SECTION_TYPE, VALUE) VALUES(?,?,?,?,?)";
 
 			Object[] orderFields = new Object[5];
@@ -1108,6 +1110,23 @@ public class DbCitationService extends BaseCitationService
 				// process the insert
 				ok = m_sqlService.dbWrite(statement, fields);
 			}
+		}
+
+		/* (non-Javadoc)
+		* @see org.sakaiproject.citation.impl.BaseCitationService.Storage#deleteCitationCollectionOrder(rg.sakaiproject.citation.api.CitationCollectionOrder))
+		*/
+		protected void deleteCitationCollectionOrder(CitationCollectionOrder citationCollectionOrder)
+		{
+			String statement = "delete from " + m_collectionOrderTableName + " where (" + m_collectionTableId + " = ? AND " +
+					"LOCATION = ? AND SECTION_TYPE = ? AND VALUE = ? )";
+
+			Object fields[] = new Object[4];
+			fields[0] = citationCollectionOrder.getCollectionId();
+			fields[1] = citationCollectionOrder.getLocation();
+			fields[2] = citationCollectionOrder.getSectiontype();
+			fields[3] = citationCollectionOrder.getValue();
+
+			boolean ok = m_sqlService.dbWrite(statement, fields);
 		}
 
 		/* (non-Javadoc)

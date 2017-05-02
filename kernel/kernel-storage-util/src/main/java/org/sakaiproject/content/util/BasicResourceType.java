@@ -97,6 +97,7 @@ public class BasicResourceType implements ResourceType
 	protected String id;
 
 	protected String iconLocation;
+	protected String iconClass;
 	
 	protected Localizer localizer = null;
 	protected SizeLabeler sizeLabeler = null;
@@ -180,6 +181,14 @@ public class BasicResourceType implements ResourceType
 	public String getIconLocation(ContentEntity entity)
 	{
 		return iconLocation;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceType#getIconClass()
+	 */
+	public String getIconClass(ContentEntity entity)
+	{
+		return iconClass;
 	}
 
 	/* (non-Javadoc)
@@ -334,6 +343,14 @@ public class BasicResourceType implements ResourceType
     public void setIconLocation(String iconLocation)
     {
     	this.iconLocation = iconLocation;
+    }
+    
+	/**
+     * @param iconClass the iconClass to set
+     */
+    public void setIconClass(String iconClass)
+    {
+    	this.iconClass = iconClass;
     }
 
 	/**

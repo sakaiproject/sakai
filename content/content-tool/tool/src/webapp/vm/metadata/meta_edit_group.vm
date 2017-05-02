@@ -12,39 +12,28 @@
 
 $groupMetadataType.add($groupMetadataLevel, $metadataType)
 $groupMetadataValue.add($groupMetadataLevel, $metadataValue)
-<p class="discTria" id="metadataShown_${metadataType.uniqueName}${suffix}"
-   style="#if($metadataType.expanded)display:block;#else display:none;#end">
-  <a id="hideMetadata_${metadataType.uniqueName}${suffix}" href="#showMetadata_${metadataType.uniqueName}${suffix}"
-     title="$metaLang.getFormattedMessage("metadata.hide", $metadataType.name)">
-    <img id="hideMetadataImage_${metadataType.uniqueName}${suffix}" src="#imageLink("sakai/collapse.gif")"
-         alt="$metaLang.getFormattedMessage("metadata.hide", $metadataType.name)" border="0" width="13" height="13"
-         align="top"/>
-    #printMetadataName($metadataType)
-  </a>
-</p>
-<p class="discTria" id="metadataHidden_${metadataType.uniqueName}${suffix}"
-   style="#if($metadataType.expanded)display:none;#else display:block;#end">
-  <a id="showMetadata_${metadataType.uniqueName}${suffix}" href="#hideMetadata_${metadataType.uniqueName}${suffix}"
-     title="$metaLang.getFormattedMessage("metadata.show", $metadataType.name)">
-    <img id="showMetadataImage_${metadataType.uniqueName}${suffix}" src="#imageLink("sakai/expand.gif")"
-         alt="$metaLang.getFormattedMessage("metadata.show", $metadataType.name)" border="0" width="13" height="13"
-         align="top"/>
-    #printMetadataName($metadataType)
-  </a>
-</p>
-<div id="metadataDiv_${metadataType.uniqueName}${suffix}"
-     style="#if($metadataType.expanded)display:block;#else display:none;#end">
-  #foreach($metadataType in $groupMetadataType.get($groupMetadataLevel).metadataTypes)
-  ## The #set directive is ignored if the value given evaluates to null, to avoid keeping old values
-  ## an empty string is set.
-    #set($metadataValue = "")
-    #set($metadataValue = $groupMetadataValue.get($groupMetadataLevel).get($metadataType.uniqueName))
-    #set($groupMetadataLevel = $groupMetadataLevel + 1)
 
-    <p class="form-group">
-      #editMetadata($metadataType)
-    </p>
-
-    #set($groupMetadataLevel = $groupMetadataLevel - 1)
-  #end
+<div id="${metadataType.uniqueName}${suffix}-panel" class="panel panel-default">
+    <div class="panel-heading container-fluid">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-target="#metadataDiv_${metadataType.uniqueName}${suffix}" href="#metadataDiv_${metadataType.uniqueName}${suffix}">
+                #printMetadataName($metadataType)
+            </a>
+        </h4>
+    </div>
+    <div id="metadataDiv_${metadataType.uniqueName}${suffix}" class="panel-collapse collapse">
+        <div class="panel-body">
+            #foreach($metadataType in $groupMetadataType.get($groupMetadataLevel).metadataTypes)
+            ## The #set directive is ignored if the value given evaluates to null, to avoid keeping old values
+            ## an empty string is set.
+                #set($metadataValue = "")
+                #set($metadataValue = $groupMetadataValue.get($groupMetadataLevel).get($metadataType.uniqueName))
+                #set($groupMetadataLevel = $groupMetadataLevel + 1)
+                    <p class="form-group">
+                      #editMetadata($metadataType)
+                    </p>
+                #set($groupMetadataLevel = $groupMetadataLevel - 1)
+            #end
+        </div>
+    </div>
 </div>

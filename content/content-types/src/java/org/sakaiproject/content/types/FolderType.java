@@ -416,6 +416,52 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		return iconLocation;
 	}
 	
+	public String getIconClass(ContentEntity entity, boolean expanded)
+	{
+		String iconClass = "fa fa-folder-open-o";
+		if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconClass = "fa fa-folder-o";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconClass = "fa fa-folder";
+			}
+			else if(expanded) 
+			{
+				iconClass = "fa fa-folder-open";
+			}
+			else 
+			{
+				iconClass = "fa fa-folder";
+			}
+		}
+		return iconClass;
+	}
+	
+	public String getIconClass(ContentEntity entity) 
+	{
+		String iconClass = "fa fa-folder-open-o";
+		if(entity != null && entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconClass = "fa fa-folder-o";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconClass = "fa fa-folder";
+			}
+		}
+		return iconClass;
+	}
+	
 	public String getId() 
 	{
 		return typeId;

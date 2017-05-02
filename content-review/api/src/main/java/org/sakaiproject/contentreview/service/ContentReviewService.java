@@ -245,9 +245,10 @@ public interface ContentReviewService {
 	/**
 	 *  Get a icon URL that for a specific score
 	 * @param score
+	 * @param contentId
 	 * @return
 	 */
-	public String getIconCssClassforScore(int score);
+	public String getIconCssClassforScore(int score, String contentId);
 	
 	/**
 	 *  Does the service support resubmissions?
@@ -257,9 +258,9 @@ public interface ContentReviewService {
 	
 	/**
 	 *  Remove an item from the review Queue
-	 * @param ContentId
+	 * @param contentId
 	 */
-	public void removeFromQueue(String ContentId);
+	public void removeFromQueue(String contentId);
 	
 	/**
 	 * Get a status message for a submission in the locale of the specified user

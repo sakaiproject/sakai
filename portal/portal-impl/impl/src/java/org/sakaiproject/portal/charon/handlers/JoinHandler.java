@@ -1,6 +1,7 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +12,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -133,11 +135,12 @@ public class JoinHandler extends BasePortalHandler
 					String serviceName = ServerConfigurationService.getString("ui.service", "Sakai");
 					
 					// SAK-29138
-					String title = serviceName + " : "+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false );
+					List<String> siteProviders = (List<String>) PortalSiteHelperImpl.getProviderIDsForSite(site);
+					String title = serviceName + " : " + portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, siteProviders);
 					
 					String skin = site.getSkin();
 					PortalRenderContext context = portal.startPageContext(siteType, title, skin, req);
-					context.put("currentSite", portal.getSiteHelper().convertSiteToMap(req, site, null, site.getId(), null, false, false, false, false, null, true));
+					context.put("currentSite", portal.getSiteHelper().convertSiteToMap(req, site, null, site.getId(), null, false, false, false, false, null, true, siteProviders));
 					context.put("uiService", serviceName);
 					
 					boolean restrictedByAccountType = !SiteService.getInstance().isAllowedToJoin(siteId);

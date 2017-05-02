@@ -26,12 +26,12 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate4.HibernateCallback;
@@ -52,6 +52,23 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	private PrivateMessageManager pvtMessageManager;
 	private MessageForumsTypeManager typeManager;
 	private DiscussionForumManager forumManager;
+	
+	/* Kernel */
+	private SqlService sqlService;
+	private SecurityService securityService;
+	private SiteService siteService;
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
 	
 	private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
 
@@ -166,7 +183,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					//Statement statement = null;
 					PreparedStatement updateStatement = null;
 					try {
-						clConnection = SqlService.borrowConnection();
+						clConnection = sqlService.borrowConnection();
 						updateStatement = clConnection.prepareStatement(query);
 						updateStatement.execute();
 						//in case autosubmit isn't true, commit this right away
@@ -181,7 +198,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 								LOG.error(e.getMessage(), e);
 							}
 						}
-						SqlService.returnConnection(clConnection);
+						sqlService.returnConnection(clConnection);
 					}					
 					
 					subArrayIndex = subArrayIndex + subArraySize;
@@ -415,7 +432,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			Site site = getSite(siteId);
 			
 			
-			clConnection = SqlService.borrowConnection();
+			clConnection = sqlService.borrowConnection();
 						
 			//setup prepared statements:
 			newMessageCountForAllUsers = clConnection.prepareStatement(NEW_MESSAGE_COUNT_FOR_ALL_USERS_SQL);
@@ -467,7 +484,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			} catch (Exception e) {
 				LOG.warn(e.getMessage(), e);
 			}
-			SqlService.returnConnection(clConnection);
+			sqlService.returnConnection(clConnection);
 		}
 		
 	}
@@ -515,7 +532,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			
 			
 			
-			clConnection = SqlService.borrowConnection();
+			clConnection = sqlService.borrowConnection();
 			returnAllTopicsForForum = clConnection.prepareStatement(RETURN_ALL_TOPICS_FOR_FORUM_SQL);
 			returnAllTopicsForForum.setString(1, siteId);
 			returnAllTopicsForForum.setString(2, "" +forumId);
@@ -553,7 +570,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				LOG.warn(e.getMessage(), e);
 			}
 			
-			SqlService.returnConnection(clConnection);
+			sqlService.returnConnection(clConnection);
 		}
 		
 		return returnHM;
@@ -656,7 +673,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 			if(dfHM != null){
 				Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
 				for(String user : userIds){
-					boolean hasOverridingPermission = SecurityService.isSuperUser(user) || getForumManager().isInstructor(user, "/site/" + siteId);
+					boolean hasOverridingPermission = securityService.isSuperUser(user) || getForumManager().isInstructor(user, "/site/" + siteId);
 					overridingPermissionMap.put(user, hasOverridingPermission);
 				}
 
@@ -749,7 +766,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		Map<String, DecoratedCompiledMessageStats> stats = new HashMap<String, DecoratedCompiledMessageStats>();
 		Map<String, Integer> unreadMessagesHM = new HashMap<String, Integer>();
 		try{
-			clConnection = SqlService.borrowConnection();
+			clConnection = sqlService.borrowConnection();
 			
 			//First create the messages map:
 			String[] userIdsArr = userIds.toArray(new String[]{});
@@ -830,7 +847,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 				LOG.warn(e.getMessage(), e);
 			}	
 			
-			SqlService.returnConnection(clConnection);
+			sqlService.returnConnection(clConnection);
 		}
 		
 		return stats;
@@ -953,7 +970,7 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		}
 	
 		if (sitesMap.get(siteId) == null) {
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			sitesMap.put(site.getId(), site);
 			return site;
 		}

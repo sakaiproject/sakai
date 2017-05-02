@@ -44,3 +44,23 @@ $PBJQ(document).ready(function(){
 		}
 	});
 });
+
+// Viewport Helpers - used to better determine the current breakpoint
+var MorpheusViewportHelper = {
+  isPhone: function() {
+    return $PBJQ('#Mrphs-viewport-helpers .phone').is(':visible');
+  },
+
+  isTablet: function() {
+    return $PBJQ('#Mrphs-viewport-helpers .tablet').is(':visible');
+  },
+
+
+  isDesktop: function() {
+    return $PBJQ('#Mrphs-viewport-helpers .desktop').is(':visible');
+  },
+
+  isNonPhone: function() {
+    return (this.isDesktop() || this.isTablet()) && !this.isPhone();
+  },
+};

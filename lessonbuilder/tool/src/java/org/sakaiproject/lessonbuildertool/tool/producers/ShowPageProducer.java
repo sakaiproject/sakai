@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -53,7 +54,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
@@ -63,27 +63,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.lessonbuildertool.ChecklistItemStatus;
+import org.sakaiproject.lessonbuildertool.ChecklistItemStatusImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -110,6 +106,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParam
 import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
 import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.lessonbuildertool.util.SimplePageItemUtilities;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.util.PortalUtils;
@@ -118,7 +115,6 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -134,7 +130,6 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.builtin.UVBProducer;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
-import uk.org.ponder.rsf.components.UIBoundString;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIComponent;
@@ -143,7 +138,6 @@ import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIInputMany;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
@@ -164,7 +158,6 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -1558,11 +1551,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							UIOutput.make(tableRow, "item-groups", itemGroupString);
 							SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
-							Date rDate = sPage.getReleaseDate();
-							String rDateString = "";
-							if(rDate != null)
-								rDateString = rDate.toString();
-							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
+							if (sPage != null) {
+								Date rDate = sPage.getReleaseDate();
+								String rDateString = "";
+								if(rDate != null)
+									rDateString = rDate.toString();
+								UIOutput.make(tableRow, "subpagereleasedate", rDateString);
+							}
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
@@ -3208,6 +3203,38 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					for (SimpleChecklistItem checklistItem : checklistItems) {
 						values.add(String.valueOf(checklistItem.getId()));
+						if(checklistItem.getLink() > 0L) {
+							final SimplePageItem linkedItem = simplePageBean.findItem(checklistItem.getLink());
+							if(linkedItem != null) {
+								boolean available = simplePageBean.isItemAvailable(linkedItem);
+								Status linkedItemStatus = Status.NOT_REQUIRED;
+								if (available) {
+									UIBranchContainer empty = UIBranchContainer.make(tableRow, "non-existent:");
+									linkedItemStatus = handleStatusImage(empty, linkedItem);
+								}
+
+								ChecklistItemStatus status = simplePageToolDao.findChecklistItemStatus(i.getId(), checklistItem.getId(), simplePageBean.getCurrentUserId());
+								if (Status.COMPLETED.equals(linkedItemStatus)) {
+									if (status != null) {
+										if (!status.isDone()) {
+											status.setDone(true);
+											simplePageToolDao.saveChecklistItemStatus(status);
+										}
+									} else {
+										status = new ChecklistItemStatusImpl(i.getId(), checklistItem.getId(), simplePageBean.getCurrentUserId());
+										status.setDone(true);
+										simplePageToolDao.saveChecklistItemStatus(status);
+									}
+								} else {
+									if (status != null) {
+										if (status.isDone()) {
+											status.setDone(false);
+											simplePageToolDao.saveChecklistItemStatus(status);
+										}
+									}
+								}
+							}
+						}
 
 						boolean isDone = simplePageToolDao.isChecklistItemChecked(i.getId(), checklistItem.getId(), simplePageBean.getCurrentUserId());
 
@@ -3225,9 +3252,32 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						int index = 0;
 						for (SimpleChecklistItem checklistItem : checklistItems) {
 							UIBranchContainer row = UIBranchContainer.make(checklistForm, "select-checklistitem-list:");
-							UISelectChoice.make(row, "select-checklistitem", select.getFullID(), index).decorate(new UIStyleDecorator("checklist-checkbox"));
+							UIComponent input = UISelectChoice.make(row, "select-checklistitem", select.getFullID(), index).decorate(new UIStyleDecorator("checklist-checkbox"));
+							String checklistItemName = checklistItem.getName();
+							if(checklistItem.getLink() > 0L) {
+								SimplePageItem linkedItem = simplePageBean.findItem(checklistItem.getLink());
+								if(linkedItem != null) {
+									input.decorate(new UIDisabledDecorator(true));
 
-							UIOutput.make(row, "select-checklistitem-name", checklistItem.getName()).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+									UIOutput.make(row, "select-checklistitem-linked-icon");
+
+									String toolTipMessage = "simplepage.checklist.external.link.details.incomplete";
+									if (simplePageBean.isItemComplete(linkedItem)) {
+										toolTipMessage = "simplepage.checklist.external.link.details.complete";
+									}
+									String tooltipContent = messageLocator.getMessage(toolTipMessage).replace("{}", SimplePageItemUtilities.getDisplayName(linkedItem));
+
+									if (!simplePageBean.isItemVisible(linkedItem)) {
+										row.decorate(new UIStyleDecorator("checklist-blur"));
+										tooltipContent = messageLocator.getMessage("simplepage.checklist.external.link.details.notvisible");
+										checklistItemName = messageLocator.getMessage("simplepage.checklist.external.link.hidden");
+									}
+
+									UIVerbatim.make(row, "select-checklistitem-linked-details", tooltipContent);
+								}
+							}
+
+							UIOutput.make(row, "select-checklistitem-name", checklistItemName).decorate(new UIStyleDecorator("checklist-checkbox-label"));
 							index++;
 						}
 					}
@@ -4021,7 +4071,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-		createToolBarLink(FolderPickerProducer.VIEW_ID, tofill, "add-folder", "simplepage.folder", currentPage, "simplepage.addfolder.tooltip").setItemId(null);
+		boolean showAddResourceFolderLink = ServerConfigurationService.getBoolean("lessonbuilder.show.resource.folder.link", true);
+		if (showAddResourceFolderLink){
+			createToolBarLink(FolderPickerProducer.VIEW_ID, tofill, "add-folder", "simplepage.folder", currentPage, "simplepage.addfolder.tooltip").setItemId(null);
+		}
 		UIComponent subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
 
@@ -4055,11 +4108,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
-		    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-		    eParams.addTool = GeneralViewParameters.CALENDAR;
-		    UIOutput.make(tofill, "calendar-li");
-		    UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
-		    calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+		    boolean showEmbedCalendarLink = ServerConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
+		    if (showEmbedCalendarLink){
+			    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
+			    eParams.addTool = GeneralViewParameters.CALENDAR;
+			    UIOutput.make(tofill, "calendar-li");
+			    UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
+			    calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+		    }
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
@@ -4092,10 +4148,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    makeCsrf(form, "csrf26");
 		    UICommand.make(form, "add-student", "#{simplePageBean.addStudentContentSection}");
 
-			//Adding 'Embed twitter timeline' component
-			UIOutput.make(tofill, "twitter-li");
-			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
-			twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
+			boolean showEmbedTwitterLink = ServerConfigurationService.getBoolean("lessonbuilder.show.twitter.link", false);
+			if (showEmbedTwitterLink){
+				//Adding 'Embed twitter timeline' component
+				UIOutput.make(tofill, "twitter-li");
+				UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
+				twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
+			}
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
@@ -4424,7 +4483,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "import-cc-form");
 		makeCsrf(form, "csrf11");
 
-		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.importCc}");
+		UICommand.make(form, "import-cc-submit", messageLocator.getMessage("simplepage.import_message"), "#{simplePageBean.importCc}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 
 		UIBoundBoolean.make(form, "import-toplevel", "#{simplePageBean.importtop}", false);
@@ -4750,48 +4809,50 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UISelect.make(form, "cssDropdown", options, labels, "#{simplePageBean.dropDown}", currentCss);
 			
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
-			UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
-					.replace("{1}", messageLocator.getMessage("simplepage.permissions")).replace("{2}", messageLocator.getMessage("simplepage.more-tools")));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
 			UIBoundBoolean.make(form, "nodownloads", 
 					    "#{simplePageBean.nodownloads}", 
 					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
-
-			//Set the changeOwner dropdown in the settings dialog
-			UIOutput.make(form, "changeOwnerSection");
-			List<String> roleOptions = new ArrayList<>();
-			List<String> roleLabels = new ArrayList<>();
-			List<String> possOwners = new LinkedList<>();
-			boolean isOwned = page.isOwned();
-			String owner = page.getOwner();
-			possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
-			Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
-			possOwners.removeAll(siteUsersCanUpdate);
-			if (isOwned){
-				if (possOwners.contains(owner)){
-					int i = possOwners.indexOf(owner);
-					Collections.swap(possOwners, i, 0); // put owner top of list
+			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
+			if (showSetOwner){
+				//Set the changeOwner dropdown in the settings dialog
+				UIOutput.make(form, "ownerDefaultInstructions", messageLocator.getMessage("simplepage.owner-default-instructions")
+						.replace("{1}", messageLocator.getMessage("simplepage.permissions")).replace("{2}", messageLocator.getMessage("simplepage.more-tools")));
+				UIOutput.make(form, "changeOwnerSection");
+				List<String> roleOptions = new ArrayList<>();
+				List<String> roleLabels = new ArrayList<>();
+				List<String> possOwners = new LinkedList<>();
+				boolean isOwned = page.isOwned();
+				String owner = page.getOwner();
+				possOwners.addAll(simplePageBean.getCurrentSite().getUsers());
+				Set<String> siteUsersCanUpdate = simplePageBean.getCurrentSite().getUsersIsAllowed(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
+				possOwners.removeAll(siteUsersCanUpdate);
+				if (isOwned){
+					if (possOwners.contains(owner)){
+						int i = possOwners.indexOf(owner);
+						Collections.swap(possOwners, i, 0); // put owner top of list
+					}
+					else {
+						roleOptions.add(owner);
+						roleLabels.add(getUserDisplayName(owner));
+					}
 				}
 				else {
-					roleOptions.add(owner);
-					roleLabels.add(getUserDisplayName(owner));
+					roleOptions.add(null);
+					roleLabels.add(messageLocator.getMessage("simplepage.default-user"));
 				}
+				for(String user : possOwners){
+					roleOptions.add(user);
+					roleLabels.add(getUserDisplayName(user));
+				}
+				if (isOwned){
+					roleOptions.add(null);
+					roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
+				}
+				UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
+				UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 			}
-			else {
-				roleOptions.add(null);
-				roleLabels.add(messageLocator.getMessage("simplepage.default-user"));
-			}
-			for(String user : possOwners){
-				roleOptions.add(user);
-				roleLabels.add(getUserDisplayName(user));
-			}
-			if (isOwned){
-				roleOptions.add(null);
-				roleLabels.add( messageLocator.getMessage("simplepage.default-user"));
-			}
-			UIOutput.make(form, "changeOwnerDropdownLabel", messageLocator.getMessage("simplepage.change-owner-dropdown-label"));
-			UISelect.make(form, "changeOwnerDropdown", roleOptions.toArray(new String[roleOptions.size()]), roleLabels.toArray(new String[roleLabels.size()]), "#{simplePageBean.newOwner}", null);
 		}
 		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
 
@@ -5279,7 +5340,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    sessionTokenString = sessionToken.toString();
 			UIInput checklistCsrfInput = UIInput.make(saveChecklistForm, "saveChecklistForm-csrf", "checklistBean.csrfToken", sessionTokenString);
 
-			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistAjax.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, checklistCsrfInput, "checklistBean.results"});
+			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistDisplay.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, checklistCsrfInput, "checklistBean.results"});
 			saveChecklistFormNeeded = true;
 		}
 	}

@@ -215,6 +215,7 @@ SPNR.disableSelects = function( escapeList )
             newSelect.size = select.size;
             newSelect.className = select.className;
             newSelect.innerHTML = select.innerHTML;
+            newSelect.selectedIndex = select.selectedIndex;
 
             // Add the clone to the DOM where the original was
             var parent = select.parentNode;

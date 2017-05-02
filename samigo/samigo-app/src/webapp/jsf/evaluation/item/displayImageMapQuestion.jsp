@@ -95,3 +95,4 @@ include file for displaying fill in the numeric questions
 		<img id='img' src='</f:verbatim><h:outputText value="#{question.imageMapSrc}" /><f:verbatim>' />
 	</div>
 </f:verbatim>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>

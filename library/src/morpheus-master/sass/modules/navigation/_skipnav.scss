@@ -27,19 +27,13 @@
 		}
 	}
 	@media #{$phone}{
-		position: fixed;
-		z-index: 20;
-		top: 3.6em;
+		position: relative;
+		top: 0;
 		left: 0;
-		background: lighten($tool-menu-color, 15% );
 		width: 100%;
 		margin:  0 0 0 0;
 
-		@include align-items(center);
 		box-shadow: inset 0 0 5px rgba(0,0,0,0.25);
-		@include display-flex(inline-flex);
-		@include flex-direction(row);
-		@include justify-content(space-between);
 		@include transition( top 0.25s linear 0s );
 		&.moving{
 			top: -4.2em;
@@ -48,39 +42,78 @@
 			display: none;
 		}
 		li{
-			@include flex-basis( 50% );
-			border-right: 1px solid #999;
-			
-			&:last-of-type
-			{
-			    border-right: 0 none;
+			display: block;
+			min-height: $banner-height - 4;
+
+			// Sites row
+			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--worksite {
+				background: $sites-nav-background;
+				position: relative;
+				border-bottom: 1px solid $sites-nav-menu-item-border-color;
+
+				a {
+					float: right;
+					color: $sites-nav-menu-item-color;
+					padding: 0 10px 0 14px;
+					position: relative;
+					background: $sites-nav-background;
+					border-bottom: 1px solid $sites-nav-menu-item-border-color;
+
+					&:before {
+						content: '';
+						position: absolute;
+						height: 80%;
+						left: 0;
+						top: 10%;
+						border-left: 1px solid $sites-nav-menu-item-border-color;
+					}
+				}
 			}
-			
+
+			// Tool row
+			&.#{$namespace}skipNav__menuitem.#{$namespace}skipNav__menuitem--tools {
+				background: $portal-background-color;
+				box-shadow: $divider-shadow;
+
+				a {
+					float: left;
+					color: $sites-nav-menu-item-color;
+					padding: 0 14px 0 10px;
+					position: relative;
+
+					&:after {
+						content: '';
+						position: absolute;
+						height: 80%;
+						right: 0;
+						top: 10%;
+						border-right: 1px solid $tool-menu-item-separator-color;
+					}
+				}
+			}
+
 			&.#{$namespace}skipNav__menuitem--content,
-				&.#{$namespace}skipNav__menuitem--accessibility
+			&.#{$namespace}skipNav__menuitem--accessibility
 			{
 				display: none;
 			}
+
 			a{
-				@include display-flex( flex );
-				@include justify-content( center );
-				@include align-items( center );
-				color: $background-color;
-				text-align: center;
-				font-size: 12px;
-				padding: 0.7em 0.5em;
 				text-decoration: none;
-				text-transform: uppercase;
 				white-space: nowrap;
 				max-width: 100%;
 				overflow: hidden;
 				text-overflow: ellipsis;
+				height: $banner-height - 4;
+				line-height: $banner-height - 4;
 				
 				&:hover, &:active
 				{
-				    color: $background-color;
-				    text-decoration: none;
-				    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0.15) inset;
+					text-decoration: none;
+
+					i {
+						text-shadow: 0 0 5px rgba(165, 165, 165, 0.95);
+					}
 				}
 			}
 		}

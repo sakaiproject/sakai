@@ -60,3 +60,5 @@ should be included in file importing DeliveryMessages
   <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && !author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'}"
     value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGrid>
+
+<%@ include file="/jsf/author/preview_item/tags.jsp" %>

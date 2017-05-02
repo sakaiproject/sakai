@@ -31,7 +31,7 @@
 			    <tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
 					<td>
                     {{#if ../../viewProfile}}
-                        <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+                        <a href="javascript:;" class="profile" data-user-id="{{userId}}">
                     {{/if}}
                     {{#if ../../firstNameLastName}}
                         {{displayName}}

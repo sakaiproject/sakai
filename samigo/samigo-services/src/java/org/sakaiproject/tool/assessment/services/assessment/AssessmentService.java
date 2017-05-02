@@ -43,6 +43,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -75,6 +76,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,7 +290,12 @@ public class AssessmentService {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getQuestionSize(new Long(assessmentId));
 	}
-	
+
+	public List getQuestionsIdList(long assessmentId) {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getQuestionsIdList(assessmentId);
+	}
+
 	public void update(AssessmentFacade assessment) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.saveOrUpdate(assessment);
@@ -443,7 +450,9 @@ public class AssessmentService {
 							.toString());
 					if (poolIds.size() == 0) {
 						// System.out.println("not in pool " + item.getItemId());
-						itemService.deleteItem(item.getItemId(), agentId);
+						Long deleteId = item.getItemId();
+						itemService.deleteItem(deleteId, agentId);
+						EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_ITEM_DELETE, "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
 						itemIter.remove();
 					} // else System.out.println("in pool " + item.getItemId());
 				}
@@ -521,6 +530,7 @@ public class AssessmentService {
 						}
 //					}
 					section.addItem(item);
+					EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved  itemId=" + item.getItemId().toString(), true));
 					i = i + 1;
 				}
 
@@ -641,11 +651,6 @@ public class AssessmentService {
 		}
 		return attachment;
 	}
-	
-	public void removeItemAttachment(String attachmentId) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeItemAttachment(new Long(attachmentId));
-	}
 
 	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
 			String resourceId, String filename, String protocol) {
@@ -665,11 +670,6 @@ public class AssessmentService {
 			log.error(e.getMessage(), e);
 		}
 		return attachment;
-	}
-	
-	public void removeItemTextAttachment(String attachmentId) {
-		PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.removeItemTextAttachment(new Long(attachmentId));
 	}
 
 	public void updateAssessmentLastModifiedInfo(

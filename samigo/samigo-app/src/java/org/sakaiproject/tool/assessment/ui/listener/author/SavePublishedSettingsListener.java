@@ -122,7 +122,7 @@ implements ActionListener
 			retractNow = true;
 		}
 
-		EventTrackingService.post(EventTrackingService.newEvent("sam.pubsetting.edit", "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + assessmentId, true));
 		boolean error = checkPublishedSettings(assessmentService, assessmentSettings, context);
 		
 		if (error){
@@ -208,7 +208,7 @@ implements ActionListener
 	    assessmentService.saveAssessment(assessment);
 	    
 		saveAssessmentSettings.updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), false);
-		EventTrackingService.post(EventTrackingService.newEvent("sam.pubSetting.edit", "siteId=" + AgentFacade.getCurrentSiteId() + ", pubAssessmentId=" + assessmentSettings.getAssessmentId(), true));
+		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT, "siteId=" + AgentFacade.getCurrentSiteId() + ", pubAssessmentId=" + assessmentSettings.getAssessmentId(), true));
 	    
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		if ("editAssessment".equals(author.getFromPage())) {
