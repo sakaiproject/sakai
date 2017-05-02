@@ -33,12 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.SortedSet;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -912,7 +912,7 @@ public class ContentReviewServiceVeriCite implements ContentReviewService {
 			connection.setDoOutput(true);
 			connection.setRequestMethod("PUT");
 
-			String headerString = ObjectUtils.toString(headers);
+			String headerString = Objects.toString(headers, "");
 			log.debug("Headers: " + headerString);
 			//{x-amz-server-side-encryption=AES256}
 			headerString = headerString.replace("{", "").replace("}", "");
