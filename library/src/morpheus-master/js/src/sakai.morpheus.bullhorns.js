@@ -1,5 +1,10 @@
 (function ($) {
 
+    //Fail if dependencies aren't available
+    if (typeof qtip !== 'object' && typeof moment !== 'object' && typeof portal !== 'object') {
+        return;
+    }
+
     moment.locale(portal.locale);
 
     portal.socialBullhorn = $('#Mrphs-social-bullhorn');
