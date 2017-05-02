@@ -627,8 +627,12 @@ function checkChildrenCheckboxes(item) {
 }
 
 function getTierDigit(tierString) {
-	var classNameDigit = tierString.substr(4, tierString.length - 4);
-    return classNameDigit;
+	if (tierString !== undefined) {
+		return tierString.substr(4, tierString.length - 4);
+	}
+	else {
+		return -1;
+	}
 }
 
 function checkAllCheckboxes( selectAllCheckbox )
@@ -655,22 +659,13 @@ function checkAllCheckboxes( selectAllCheckbox )
 }
 
 function passSelectedPoolIds() {
-	var allCheckboxes = jQuery(':checkbox:checked');
+	var allCheckboxes = jQuery('#transferPool\\:TreeTable').find(':checkbox:checked');
 	var poolIds = new Array();
-	var checkAllChecked = jQuery('input[name$=checkAllCheckbox]').is(':checked');
 	var checkboxValue;
 	
-	// If check all checked, ignore the first value;
-	if (checkAllChecked) {
-		for (var index = 0; index < (allCheckboxes.length - 1); index++) {
-			checkboxValue = jQuery(allCheckboxes.get(index + 1)).val();
-			poolIds[index] = checkboxValue;
-		}
-	} else {
-		for (var index = 0; index < allCheckboxes.length; index++) {
-			checkboxValue = jQuery(allCheckboxes.get(index)).val();
-			poolIds[index] = checkboxValue;
-		}
+	for (var index = 0; index < allCheckboxes.length; index++) {
+		checkboxValue = jQuery(allCheckboxes.get(index)).val();
+		poolIds[index] = checkboxValue;
 	}
 	
 	var hideInput = jQuery('input[name$=transferPoolIds]');
@@ -680,12 +675,12 @@ function passSelectedPoolIds() {
 function checkChildrenCheckboxesDisable(item) {
 	var localItem = jQuery(item);
 	var itemChecked = localItem.is(':checked');
-	var itemParentTable = localItem.parent().parent().parent().parent().parent();
+	var itemParentTable = localItem.closest('table');
 
 	if (itemParentTable.length == 1) {
 		var itemTierClassName = itemParentTable.attr("class");
 		var itemCheckboxTierDigit = getTierDigit(itemTierClassName);
-		var itemParentTr = itemParentTable.parent().parent().parent();
+		var itemParentTr = itemParentTable.closest('tr');
 		var itemPeerTrs = itemParentTr.nextAll(); // Get all sibling tr's AFTER this tr.
 		var isKeepLooping = true;
 
