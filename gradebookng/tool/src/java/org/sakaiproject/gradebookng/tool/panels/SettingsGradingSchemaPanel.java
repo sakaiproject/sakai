@@ -213,28 +213,17 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		//TODO this could be in a panel/fragment of its own
 		final DescriptiveStatistics stats = calculateStatistics();
 
-		if (this.total > 0) {
-			settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
-				public boolean isVisible() {
-					return StringUtils.equals(gradingSchemaName, "Grade Points");
-				}
-			});
-			settingsGradingSchemaPanel.add(new Label("average", stats.getMean()));
-			settingsGradingSchemaPanel.add(new Label("median", stats.getPercentile(50)));
-			settingsGradingSchemaPanel.add(new Label("lowest", stats.getMin()));
-			settingsGradingSchemaPanel.add(new Label("highest", stats.getMax()));
-			settingsGradingSchemaPanel.add(new Label("deviation", stats.getStandardDeviation()));
-		} else {
-			settingsGradingSchemaPanel.add(new Label("averagegpa", "-"));
-			settingsGradingSchemaPanel.add(new Label("average", "-"));
-			settingsGradingSchemaPanel.add(new Label("median", "-"));
-			settingsGradingSchemaPanel.add(new Label("lowest", "-"));
-			settingsGradingSchemaPanel.add(new Label("highest", "-"));
-			settingsGradingSchemaPanel.add(new Label("deviation", "-"));
-		}
-
+		settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
+			public boolean isVisible() {
+				return StringUtils.equals(gradingSchemaName, "Grade Points");
+			}
+		});
+		settingsGradingSchemaPanel.add(new Label("average", getMean(stats)));
+		settingsGradingSchemaPanel.add(new Label("median", getMedian(stats)));
+		settingsGradingSchemaPanel.add(new Label("lowest", getMin(stats)));
+		settingsGradingSchemaPanel.add(new Label("highest", getMax(stats)));
+		settingsGradingSchemaPanel.add(new Label("deviation", getStandardDeviation(stats)));
 		settingsGradingSchemaPanel.add(new Label("graded", String.valueOf(this.total)));
-
 
 		//if there are course grade overrides, add the list of students
 		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
@@ -474,11 +463,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	
 	/**
 	 * Calculates the average GPA for the course
-	 * @return the average GPA
+	 * @return String average GPA
 	 */
-	private Double getAverageGPA() {
+	private String getAverageGPA() {
 		
-		if (StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
+		if (this.total < 1 && StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
+			return "-";
+		} else if (StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
 			Map<String, Double> gpaScoresMap = new HashMap<>();
 			gpaScoresMap.put("A (4.0)", Double.valueOf("4.0"));
 			gpaScoresMap.put("A- (3.67)", Double.valueOf("3.67"));
@@ -498,10 +489,52 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 			averageGPA /= mappedGrades.size();
 			
-			return averageGPA;
-		} 
-		return null;
+			return String.format("%.2f",averageGPA);
+		} else {
+			return null;
+		}
 	}
+	
+	/**
+	 * Calculates the mean grade for the course
+	 * @return String mean grade
+	 */
+	private String getMean(DescriptiveStatistics stats) {
+		return this.total > 0 ? String.format("%.2f",stats.getMean()) :  "-";
+	}
+	
+	/**
+	 * Calculates the median grade for the course
+	 * @return String median grade
+	 */
+	private String getMedian(DescriptiveStatistics stats) {
+		return this.total > 0 ? String.format("%.2f",stats.getPercentile(50)) :  "-";
+	}	
+	
+	/**
+	 * Calculates the min grade for the course
+	 * @return String min grade
+	 */
+	private String getMin(DescriptiveStatistics stats) {
+		return this.total > 0 ? String.format("%.2f",stats.getMin()) :  "-";
+	}
+	
+	/**
+	 * Calculates the max grade for the course
+	 * @return String max grade
+	 */
+	private String getMax(DescriptiveStatistics stats) {
+		return this.total > 0 ? String.format("%.2f",stats.getMax()) :  "-";
+	}
+	
+	/**
+	 * Calculates the standard deviation for the course
+	 * @return String standard deviation
+	 */
+	private String getStandardDeviation(DescriptiveStatistics stats) {
+		return this.total > 0 ? String.format("%.2f",stats.getStandardDeviation()) :  "-";
+	}
+	
 }
 
 
