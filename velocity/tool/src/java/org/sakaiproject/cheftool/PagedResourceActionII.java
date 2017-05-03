@@ -48,6 +48,9 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 {
+
+	private static final long serialVersionUID = 1L;
+
 	protected static ResourceLoader rb_praII = new ResourceLoader("velocity-tool");
 
 	/** The default number of messages per page. */
