@@ -487,7 +487,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			gpaScoresMap.put("D (1.0)", Double.valueOf("1.0"));
 			gpaScoresMap.put("F (0)", Double.valueOf("0"));	
 			
-			final List<String> mappedGrades = this.courseGradeMap.values().stream().map(c -> (c.getMappedGrade())).collect(Collectors.toList());
+			// get all of the non null mapped grades
+			// mapped grades will be null if the student doesn't have a course grade yet.
+			final List<String> mappedGrades = this.courseGradeMap.values().stream().filter(c -> c.getMappedGrade() != null).map(c -> (c.getMappedGrade())).collect(Collectors.toList());
 			Double averageGPA = 0.0;
 			for (String mappedGrade : mappedGrades) {
 				averageGPA += gpaScoresMap.get(mappedGrade);
