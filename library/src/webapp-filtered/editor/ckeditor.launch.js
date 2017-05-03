@@ -237,8 +237,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
             ckconfig.extraPlugins+="sakaipreview,image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,notification${ckeditor-a11y-extra-plugins}";
 
-            //SAK-29648
-            ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
+            // Load FontAwesome CSS in case a user wants to manually add FA markup
+            ckconfig.contentsCss = [webjars+'fontawesome/4.7.0/css/font-awesome.min.css'];
             //If the siteskin is defined, add the print.css
             if (sakai.editor.sitePrintSkin) {
                 ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
