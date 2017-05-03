@@ -320,6 +320,14 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 	boolean checkUpdate(RWikiObject rwo);
 
 	/**
+	 * check for create permission
+	 * 
+	 * @param rwo
+	 * @return
+	 */
+	boolean checkCreate(RWikiObject rwo);
+	
+	/**
 	 * check for admin permission
 	 * 
 	 * @param rwo
