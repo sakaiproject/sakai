@@ -1638,15 +1638,15 @@ public class SiteManageGroupSectionRoleHandler {
     	        group.setTitle(importedGroup.getGroupTitle());
 			}
 			
-			//add all of the imported members to the group
-    		for(String userId: importedGroup.getUserIds()){
-    			try {
-    					String internalUserId = userDirectoryService.getUserId(userId);
-    					this.addUserToGroup(internalUserId, group);
-    				} catch (UserNotDefinedException e) {
-    					M_log.error("The eid: " + userId + "is invalid.");
-    				}
-    		}
+		// Add all of the imported members to the group
+		for( String userId : importedGroup.getUserIds()) {
+			try {
+				String internalUserId = userDirectoryService.getUserId(userId);
+				this.addUserToGroup(internalUserId, group);
+			} catch (UserNotDefinedException e) {
+				M_log.error("The eid: " + userId + "is invalid.");
+			}
+		}
 
     		try {
     			siteService.saveGroupMembership(site);
