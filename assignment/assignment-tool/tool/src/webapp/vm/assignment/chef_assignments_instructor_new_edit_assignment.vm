@@ -502,6 +502,9 @@
 				/>
 			#end
 				$tlang.getString("displayto.site")
+				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group"))
+					$tlang.getString("gen.cant.change.setting.after.draft")
+				#end
 			</label>
 		</div>
 		#elseif( $allowAddAssignment )
@@ -1033,6 +1036,9 @@
 						#end
 					#end
 					</select>
+				#if(($!assignment && !$assignment.draft) && $!value_additionalOptions.equals("peerreview"))
+					$tlang.getString("gen.cant.change.setting.after.draft")
+				#end
 				</div>
 			</div>
 
