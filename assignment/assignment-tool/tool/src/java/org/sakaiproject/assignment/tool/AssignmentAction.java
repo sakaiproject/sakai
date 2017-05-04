@@ -385,6 +385,10 @@ public class AssignmentAction extends PagedResourceActionII
 	/** ******************** student's view assignment submission ****************************** */
 	/** the assignment object been viewing * */
 	private static final String VIEW_SUBMISSION_ASSIGNMENT_REFERENCE = "Assignment.view_submission_assignment_reference";
+	
+	/** the assignment object been viewing by instructor * */
+	/** SAK-32500 **/
+	private static final String VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR = "Assignment.view_submission_assignment_instructor";
 
 	/** the submission text to the assignment * */
 	private static final String VIEW_SUBMISSION_TEXT = "Assignment.view_submission_text";
@@ -5541,6 +5545,33 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		String submitterId = params.get("submitterId");
+		
+		// SAK-32500 START
+		
+		// From submit as student link chef_assignments_list_assignments.vm
+		String submitterIdInstructor = null;
+		submitterIdInstructor = params.getString("submitterIdInstructor");
+		
+		// From enter as student link chef_assignments_list_assignments.vm START
+		AuthzGroup group_aux = null;
+		try{
+			group_aux = authzGroupService.getAuthzGroup("/site/" + (String) state.getAttribute(STATE_CONTEXT_STRING));
+		} catch(Exception g){
+			M_log.error("Error getting authzgroup");
+		}
+		
+		if(group_aux!=null && (group_aux.isAllowed(u.getId(), "asn.revise") || group_aux.isAllowed(u.getId(), "asn.new") || m_securityService.isSuperUser(u.getId()))){
+			submitterIdInstructor = "instructor";
+		}		
+		// From enter as student link chef_assignments_list_assignments.vm END
+				
+		if ("instructor".equals(submitterIdInstructor)) 
+		{
+			state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR, submitterIdInstructor);
+		}
+		
+		// SAK-32500 END
+		
 		if (submitterId != null && (assignmentService.allowGradeSubmission(assignmentReference))) {
 		    try {
 		        u = userDirectoryService.getUser(submitterId);
@@ -6390,6 +6421,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		Assignment a  = getAssignment(aReference, "post_save_submission", state);
+		String assignmentId = ""; // SAK-32500
 		
 		if (a != null && assignmentService.canSubmit(contextString, a))
 		{
@@ -6433,6 +6465,13 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 
+			// SAK-32500 START
+			String instructor = null;
+			instructor = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);			
+			if(instructor == null)
+			{
+			// SAK-32500 END
+			
 			String group_id = null;
 			String original_group_id = null;
 
@@ -6472,7 +6511,7 @@ public class AssignmentAction extends PagedResourceActionII
 			            }
 			}
 
-			String assignmentId = "";
+			
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
 				assignmentId = a.getId();
@@ -6847,6 +6886,8 @@ public class AssignmentAction extends PagedResourceActionII
 				} // if-else
 	
 			} // if
+			
+			} // if - SAK-32500
 	
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
@@ -6854,7 +6895,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
             LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
                     .get("org.sakaiproject.event.api.LearningResourceStoreService");
-            if (null != lrss) {
+            if (null != lrss && !"".equals(assignmentId)) { // SAK-32500
                 Event event = m_eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, false);
                 lrss.registerStatement(
                         getStatementForSubmitAssignment(lrss.getEventActor(event), event, serverConfigurationService.getAccessUrl(),
@@ -12746,6 +12787,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(VIEW_SUBMISSION_TEXT);
 		state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "false");
 		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+		state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR); // SAK-32500
 
 	} // resetViewSubmission
 
