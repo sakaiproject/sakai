@@ -200,7 +200,7 @@ public class GradebookNgBusinessService {
 											String userId = this.userDirectoryService.getUserId(member.getUserId());
 											viewableStudents.add(userId);
 										}catch (UserNotDefinedException nde){
-											Log.error("User not defined "+member.getUserId());
+											log.error("User not defined "+member.getUserId());
 										}
 									}
 								}
