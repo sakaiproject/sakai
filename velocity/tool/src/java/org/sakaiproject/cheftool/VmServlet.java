@@ -33,6 +33,9 @@ import org.sakaiproject.util.Validator;
  */
 public abstract class VmServlet extends org.sakaiproject.vm.VmServlet
 {
+
+	private static final long serialVersionUID = 1L;
+	
 	/** A validator. */
 	protected final Validator m_validator = new Validator();
 

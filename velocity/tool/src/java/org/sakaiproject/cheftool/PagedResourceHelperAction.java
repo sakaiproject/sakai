@@ -46,6 +46,9 @@ import org.sakaiproject.util.ParameterParser;
 @Slf4j
 public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAction
 {
+
+	private static final long serialVersionUID = 1L;
+
 	protected static ResourceBundle rb = ResourceBundle.getBundle("velocity-tool");
 
 	/** The default number of messages per page. */
