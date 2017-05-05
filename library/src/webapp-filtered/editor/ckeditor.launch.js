@@ -156,8 +156,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
-                : ['AudioRecorder','Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']),
+                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                : ['AudioRecorder','Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -216,7 +216,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
             CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/4897cb23a9f2ca7fb6b792add4350fb9e2a1722c/', 'plugin.js');
             CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
-            CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js');
             // Accessibility checker has a dependency on balloonpanel
             CKEDITOR.plugins.addExternal('balloonpanel',webJars+'balloonpanel/4.6.2/', 'plugin.js');
             CKEDITOR.plugins.addExternal('a11ychecker',webJars+'a11ychecker/1.1.0/', 'plugin.js');
@@ -236,10 +235,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //ckconfig.extraPlugins+="atd-ckeditor,";
             //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-            ckconfig.extraPlugins+="sakaipreview,image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification${ckeditor-a11y-extra-plugins}";
+            ckconfig.extraPlugins+="sakaipreview,image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,notification${ckeditor-a11y-extra-plugins}";
 
-            //SAK-29648
-            ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
+            // Load FontAwesome CSS in case a user wants to manually add FA markup
+            ckconfig.contentsCss = [webjars+'fontawesome/4.7.0/css/font-awesome.min.css'];
             //If the siteskin is defined, add the print.css
             if (sakai.editor.sitePrintSkin) {
                 ckconfig.contentsCss.push(sakai.editor.sitePrintSkin);
