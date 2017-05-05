@@ -1644,7 +1644,7 @@ public class SiteManageGroupSectionRoleHandler {
 				String internalUserId = userDirectoryService.getUserId(userId);
 				this.addUserToGroup(internalUserId, group);
 			} catch (UserNotDefinedException e) {
-				M_log.error("The eid: " + userId + "is invalid.");
+				M_log.error("Could not find user with id = {}", userId);
 			}
 		}
 
