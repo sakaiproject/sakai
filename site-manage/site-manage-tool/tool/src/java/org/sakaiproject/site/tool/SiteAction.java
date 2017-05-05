@@ -12574,8 +12574,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List icons = new Vector();
 
 		String[] iconNames = {"*default*"};
-		String[] iconUrls = {""};
-		String[] iconSkins = {""};
+		String[] iconUrls = null;
+		String[] iconSkins = null;
 
 		// get icon information
 		if (ServerConfigurationService.getStrings("iconNames") != null) {
