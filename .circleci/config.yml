@@ -4,7 +4,6 @@ jobs:
     working_directory: ~/sakai/
     docker:
       - image: maven:3.5
-      - image: postgres:9.6
     steps:
       - checkout
       - run: sed -i.bak -e 's|https://nexus.codehaus.org/snapshots/|https://oss.sonatype.org/content/repositories/codehaus-snapshots/|g' ~/.m2/settings.xml
