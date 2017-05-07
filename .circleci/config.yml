@@ -18,3 +18,6 @@ jobs:
       - run: 
           name: Maven Test
           command: mvn test -B
+      - run:
+          name: SetUp Test Reports
+          command: mkdir -p $CIRCLE_TEST_REPORTS/junit/ && find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
