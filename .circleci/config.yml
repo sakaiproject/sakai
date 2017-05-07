@@ -11,13 +11,10 @@ jobs:
       - run:
           name: Maven Install
           command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      - run: 
-          name: Maven Test
-          command: mvn test -B
-      - run:
-          name: Clear Sakai Cache
-          command: find ~/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
       - save_cache:
           key: MAVEN
           paths:
             - ~/.m2/
+      - run: 
+          name: Maven Test
+          command: mvn test -B
