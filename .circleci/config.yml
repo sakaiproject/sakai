@@ -6,5 +6,15 @@ jobs:
       - image: maven:3.5
     steps:
       - checkout
-      - run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      - run: mvn test -B
+      - restore_cache:
+          key: MAVEN
+      - run:
+          name: Maven Install
+          command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - save_cache:
+          key: MAVEN
+          paths:
+            - ~/.m2/
+      - run: 
+          name: Maven Test
+          command: mvn test -B
