@@ -17,9 +17,6 @@ jobs:
       - run:
           name: Clear Sakai Cache
           command: find ~/.m2/repository/org/sakaiproject -name \*-SNAPSHOT.\*  -delete
-      - run:
-          name: SetUp Test Reports
-          command: mkdir -p $CIRCLE_TEST_REPORTS/junit/ && find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
       - save_cache:
           key: MAVEN
           paths:
