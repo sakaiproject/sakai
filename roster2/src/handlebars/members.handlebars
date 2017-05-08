@@ -3,7 +3,7 @@
     {{#if ../viewPicture}}
         <div class="roster-table-cell">
         {{#if ../viewProfile}}
-            <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
         <img class="roster-picture" src="{{profileImageUrl}}" title="{{translate 'profile_picture_alt'}} alt="{{translate 'profile_picture_alt'}} {{displayName}}" />
         {{#if ../viewProfile}}
@@ -13,10 +13,10 @@
     {{/if}}
 
     {{#unless ../hideNames}}
-        <div class="roster-table-cell">
-        <div class="roster-mobile-label">{{translate 'facet_name'}}</div>
+        <div class="roster-table-cell roster-name-cell">
+            <div class="roster-mobile-label">{{translate 'facet_name'}}</div>
         {{#if ../../viewProfile}}
-            <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+            <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
             <span title="{{getName firstNameLastName}}">{{getName firstNameLastName}}</span>
         {{#if ../../viewProfile}}
@@ -29,7 +29,7 @@
         <div class="roster-table-cell">
         <div class="roster-mobile-label">{{translate 'facet_userId'}}</div>
         {{#if ../../viewProfile}}
-        <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+        <a href="javascript:;" class="profile" data-user-id="{{userId}}">
         {{/if}}
         {{displayId}}
         {{#if ../../viewProfile}}
@@ -89,35 +89,6 @@
             <div class="roster-mobile-label">{{translate 'facet_email'}}</div>
             <a href="mailto:{{email}}" title="{{translate 'profile_email'}} {{email}}">{{email}}</a>
         </div>
-    {{/if}}
-    {{#if ../viewConnections}}
-        <div class="roster-table-cell roster-connections-cell">
-            <div class="roster-mobile-label">{{translate 'facet_connected_status'}}</div>
-            {{#if (isMe ../../currentUserId)}}
-                <span class="icon connection-self">{{translate 'profile_connection_self'}}</span>
-            {{else}}
-                {{#if (unconnected)}}
-                    <span id="{{profileDiv}}" class="icon connection-add">
-                        <a href="javascript:;" onclick="return requestFriend('{{../../../../currentUserId}}','{{userId}}')">{{translate 'profile_connection_add'}}</a>
-                    </span>
-                {{/if}}
-                {{#if (confirmed)}}
-                    <span id="{{profileDiv}}" class="icon connection-confirmed">
-                        <a href="javascript:;" onclick="return removeFriend('{{../../../../currentUserId}}','{{userId}}')">{{translate 'profile_connection_remove'}}</a>
-                    </span>
-                {{/if}}
-                {{#if (requested)}}
-                    <span class="icon connection-request">{{translate 'profile_connection_requested'}}</span>
-                {{/if}}
-                {{#if (incoming)}}
-                    <span id="{{profileDiv}}">
-                        <a href="javascript:;" onclick="return confirmFriendRequest('{{../../../../currentUserId}}','{{userId}}')"><img src="/library/image/silk/accept.png"></a>
-                        <a href="javascript:;" onclick="return ignoreFriendRequest('{{../../../../currentUserId}}','{{userId}}')"><img src="/library/image/silk/cancel.png"></a>
-                        <span class="rosterActionAlignment">{{translate 'profile_connection_accept'}}</span>
-                    </span>
-                {{/if}}
-            {{/if}}
-        </div> <!-- /roster-table-cell -->
     {{/if}}
     </div> <!-- /roster-table-row -->
 {{/each}}
