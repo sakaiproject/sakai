@@ -3,8 +3,8 @@ package org.sakaiproject.service.gradebook.shared;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * DTO to wrap the persistent GradeMapping
