@@ -46,8 +46,9 @@
 .results h4 {
     color:#555;
     font-size:110%;
-    margin:0;
+    margin:0 !important;
     padding:0 0 10px 0;
+    display: inline-block;
 }
 
 .results .block {
@@ -173,11 +174,10 @@ h3.withNav, #motdTextDiv h3, #motdTextDiv h4{
 }
 ul.moreInfo {
     list-style:none;
-    position:absolute;
-    top:15px;
-    right:10px;
     text-align: right;
     font-weight:bold;
+    float: right;
+    margin: 0 0 10px 10px !important;
 }
 .moreInfo a, .moreInfo a:visited{
     text-decoration:none;

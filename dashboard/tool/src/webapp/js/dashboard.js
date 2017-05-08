@@ -91,7 +91,9 @@ var setupLinks = function(){
                         var delimitLeft = "{";
                         var delimitRight = "}";
                         
-                        var results = '<div class=\"results\" tabindex=\"-1\" style=\"display:none\">';
+                        var resultsDiv = '<div class=\"results\" tabindex=\"-1\" style=\"display:none\">';
+                        var title = '';
+                        var results = '';
                         if (json.order.length !== 0) {
                             $(json.order).each(function(i){
                                 var o = this;
@@ -117,13 +119,13 @@ var setupLinks = function(){
                                     else 
                                         if (json[w + '-label']) {
                                             // a string with a label counterpart
-                                            results = results + '<h5>' + json[w + '-label'] + '</h5><div class="block muted">' + json[w] + '</div>';
+                                            title = '<h5>' + json[w + '-label'] + '</h5><div class="block muted">' + json[w] + '</div>';
                                             
                                         }
                                         else {
                                             if (w === 'title') {
                                                 // a title string
-                                                results = results + '<h4>' + json[w] + '</h4>';
+                                                title = '<h4>' + json[w] + '</h4>';
                                             }
                                             else {
                                                 //all other strings
@@ -160,15 +162,15 @@ var setupLinks = function(){
                                             moreinfo = moreinfo + '<li><a class=\"btn btn-small\"' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'' + dashEvent + '\');\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
                                             
                                         }
-                                        results = results + '<ul class=\"moreInfo\">' + moreinfo + ' </ul>';
+                                        results = '<ul class=\"moreInfo\">' + moreinfo + ' </ul>'  + '<div class="clearfix"></div>' + results;
                                     }
                                 }
                                 
                             });
-                            results = results + '</div>';
+                            results = resultsDiv + title + results + '</div>';
                         }
                         else {
-                            results = results + 'This item type has not specified an order :( </div>';
+                            results = resultsDiv + title + results + 'This item type has not specified an order :( </div>';
                         }
                         
                         if (isMobile) {
