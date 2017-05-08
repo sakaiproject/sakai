@@ -95,7 +95,7 @@ public interface ExternalCalendarSubscriptionService
 
 	/** Get list of calendar subscriptions for a given Calendar channel */
 	public Set<ExternalSubscriptionDetails> getSubscriptionsForChannel(String reference,
-																	   boolean loadCalendar);
+			boolean loadCalendar);
 
 	/** Set list of calendar subscriptions for a given Calendar channel */
 	public void setSubscriptionsForChannel(String reference,
