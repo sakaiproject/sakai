@@ -26,7 +26,7 @@
     -moz-border-radius-bottomleft: 10px;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
-    padding: 10px;
+    padding: 0 10px 10px 10px;
     margin-bottom: 5px;
     font-size: 100%;
     position:relative;
@@ -59,17 +59,42 @@ h3.withNav, #motdTextDiv h3, #motdTextDiv h4{
     font-size:16px;
 }
 
-.pagerCell {
-    position: absolute;
-    right: 3px;
-    top: 63px;
+.portletBody .row-fluid [class*="span"] {
+    min-height: initial !important;
+}
+.portletBody ul, .portletBody ol {
+    margin: 0 0 10px 0 !important;
 }
 
 .pagerCell .pager {
     width:100%;
     color: #aaa;
-    text-align: right;
-    margin:0;
+    float: right;
+    text-align: right !important;
+    margin: 5px 0 10px !important;
+}
+@media only screen and (min-width : 1031px) {
+    .pagerCell {
+        position: absolute;
+        right: 3px;
+        top: 63px;
+    }
+}
+@media only screen and (max-width: 767px) {
+    #schedPanel .itemList li, #newsPanel .itemList li {
+        border-bottom: 1px solid #e4e4e4;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+    #schedPanel .itemList li:last-of-type, #newsPanel .itemList li:last-of-type {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+}
+@media only screen and (max-width: 800px) {
+    .pagerCell .pager {
+        text-align: left !important;
+    }
 }
 .itemCount{
     font-size:80%
@@ -481,3 +506,11 @@ wrappers for all panels - receive the focus after a tab click
     border:2px solid #ACD0F5;
 }
 
+@media only screen and (max-width: 767px) {
+    #schedPanel .itemList > li, #newsPanel .itemList > li {
+        margin-top: -11px;
+    }
+    .results {
+        width: 100%;
+    }
+}
