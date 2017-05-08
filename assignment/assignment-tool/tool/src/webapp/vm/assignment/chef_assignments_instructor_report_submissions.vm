@@ -25,15 +25,15 @@
 				<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
 				<div class="spinnerBesideContainer">
-					<select id="view" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">nchange="ASN.disableControls(); ASN.disableLink( 'downloadAll' ); ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+					<select id="view" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
 
 					#if (!$showSubmissionByFilterSearchOnly)
-						<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+						<option value="all" #if($!viewString.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
 					#else
 						<option value="" >$tlang.getString('please_select_group')</option>
 					#end
 					#foreach($aGroup in $groups)
-						<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+						<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 					#end
 					</select>
 				</div>
