@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 
 public class GradingScale implements Serializable, Comparable<Object> {
