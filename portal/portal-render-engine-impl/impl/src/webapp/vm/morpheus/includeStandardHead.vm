@@ -31,7 +31,9 @@
             var portal = {
                 "bullhorns": {
                     "enabled": $!{useBullhornAlerts},
+                    #if ($useBullhornAlerts)
                     "pollInterval": $!{bullhornsPollInterval}
+                    #end
                 },
                 "chat": {
                     "enabled": $!{neoChat},
