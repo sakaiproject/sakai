@@ -1,5 +1,9 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.math.RoundingMode;
+import java.security.Permission;
+import java.text.Format;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +28,9 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.exception.GbAccessDeniedException;
@@ -189,11 +196,29 @@ public class GradebookNgBusinessService {
 					// get list of sections and groups this TA has access to
 					final List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
 
-					// get viewable students.
-					final List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(
-							gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
+					//for each section TA has access to, grab student Id's
+					List<String> viewableStudents = new ArrayList();
 
-					if (viewableStudents != null) {
+					//iterate through sections available to the TA and build a list of the student members of each section
+					if(courseSections != null && !courseSections.isEmpty()){
+						for(Object sectionObj:courseSections){
+							CourseSection section = (CourseSection) sectionObj;
+							Set<Membership> members = this.courseManagementService.getSectionMemberships(section.getEid());
+								for(Membership member:members){
+									if(member.getRole().equals("S")){
+										try{
+											//The userId in membership is the eid in user table, use userId to get userId :/
+											String userId = this.userDirectoryService.getUserId(member.getUserId());
+											viewableStudents.add(userId);
+										}catch (UserNotDefinedException nde){
+											log.error("User not defined "+member.getUserId());
+										}
+									}
+								}
+						}
+					}
+
+					if (!viewableStudents.isEmpty()) {
 						userUuids.retainAll(viewableStudents); // retain only
 																// those that
 																// are visible
@@ -387,8 +412,16 @@ public class GradebookNgBusinessService {
 			}
 
 			// get a list of category ids the user can actually view
-			final List<Long> viewableCategoryIds = this.gradebookPermissionService
+			List<Long> viewableCategoryIds = this.gradebookPermissionService
 					.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds);
+
+			//FIXME: this is a hack to implement the old style realms checks. The above method only checks the gb_permission_t table and not realms
+			//if categories is empty (no fine grain permissions enabled), Check permissions, if they are not empty then realms perms exist 
+			//and they don't filter to category level so allow all.
+			//This should still allow the gb_permission_t perms to override if the TA is restricted to certain categories
+			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId()).isEmpty()){
+				viewableCategoryIds = allCategoryIds;
+			}
 
 			// remove the ones that the user can't view
 			final Iterator<CategoryDefinition> iter = rval.iterator();
@@ -1075,8 +1108,20 @@ public class GradebookNgBusinessService {
 
 			// get the ones the TA can actually view
 			// note that if a group is empty, it will not be included.
-			final List<String> viewableGroupIds = this.gradebookPermissionService
+			List<String> viewableGroupIds = this.gradebookPermissionService
 					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
+
+			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
+			//need to check realms to see if user has privilege to grade any groups. This is already done in 
+			//getPermissionsForUser()
+			if(viewableGroupIds.isEmpty()){
+				List<PermissionDefinition> realmsPerms = this.getPermissionsForUser(user.getId());
+				if(!realmsPerms.isEmpty()){
+					for(PermissionDefinition permDef : realmsPerms){
+						viewableGroupIds.add(permDef.getGroupReference());
+					}
+				}
+			}
 
 			// remove the ones that the user can't view
 			final Iterator<GbGroup> iter = rval.iterator();
@@ -1734,11 +1779,15 @@ public class GradebookNgBusinessService {
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
-		final List<PermissionDefinition> permissions = this.gradebookPermissionService
+		List<PermissionDefinition> permissions = this.gradebookPermissionService
 				.getPermissionsForUser(gradebook.getUid(), userUuid);
-		if (permissions == null) {
-			return new ArrayList<>();
+
+		//if db permissions are null, check realms permissions.
+		if (permissions == null || permissions.isEmpty()) {
+			//This method should return empty arraylist if they have no realms perms
+			permissions = this.gradebookPermissionService.getRealmsPermissionsForUser(userUuid, siteId, Role.TA);
 		}
+
 		return permissions;
 	}
 

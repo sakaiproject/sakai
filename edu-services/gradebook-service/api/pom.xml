@@ -17,11 +17,18 @@
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
-    
+
     <dependencies>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <!-- Section Awareness -->
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
