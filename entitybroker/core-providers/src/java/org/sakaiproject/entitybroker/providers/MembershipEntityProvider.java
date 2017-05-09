@@ -21,19 +21,8 @@
 package org.sakaiproject.entitybroker.providers;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -85,9 +74,6 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
 RESTful, ActionsExecutable {
 
     private static Logger log = LoggerFactory.getLogger(MembershipEntityProvider.class);
-    private static final UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
-    private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
-    private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
     
     private SiteService siteService;
     private AuthzGroupService authzGroupService;
@@ -122,6 +108,16 @@ RESTful, ActionsExecutable {
     	this.securityService = securityService;
     }
 
+    private static UserDirectoryService userDirectoryService;
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
+
+    private static UserAuditRegistration userAuditRegistration;
+    public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
+        this.userAuditRegistration = userAuditRegistration;
+    }
+
     public static String PREFIX = "membership";
 
     public String getEntityPrefix() {
@@ -139,6 +135,7 @@ RESTful, ActionsExecutable {
 
     public void init() {
         allowAdminSiteChanges = developerHelperService.getConfigurationSetting(ADMIN_SITE_CHANGE_ALLOWED, false);
+        Objects.requireNonNull(userAuditRegistration);
     }
 
 
@@ -184,6 +181,7 @@ RESTful, ActionsExecutable {
         } else if ("site".equals(siteId)) {
             siteId = view.getPathSegment(3);
         }
+
         if (siteId == null) {
             throw new IllegalArgumentException(
                     "siteId must be set in order to unjoin sites, set in params or in the URL /unjoin/site/siteId");
@@ -956,8 +954,15 @@ RESTful, ActionsExecutable {
                 Site site = sg.site;
 
                 // Add change to user_audits_log table.
-                EntityMember member = (EntityMember)getEntity(ref);
-                userAuditString = new String[]{site.getId(), member.getUserDisplayId(), member.getRole().getId(), UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                String role = site.getUserRole(userIds[i]).getId();
+                String displayId = null;
+                try {
+                    displayId = userDirectoryService.getUser(userIds[i]).getDisplayId();
+                } catch (UserNotDefinedException e) {
+                    log.error(".deleteEntity: User with id {} not defined", userIds[i]);
+                }
+
+                userAuditString = new String[]{site.getId(), displayId, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
                                                userAuditRegistration.getDatabaseSourceKey(), developerHelperService.getCurrentUserId()};
                 userAuditList.add(userAuditString);
 
