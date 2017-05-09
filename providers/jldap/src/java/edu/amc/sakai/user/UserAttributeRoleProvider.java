@@ -1,18 +1,14 @@
 package edu.amc.sakai.user;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * This just uses attributes set on the user by the LDAP provider to determine role
@@ -51,6 +47,7 @@ public class UserAttributeRoleProvider implements RoleProvider {
 	public Set<String> getAdditionalRoles(String userId) {
 		if (userId != null) {
 			try {
+				// This should be cached.
 				User user = userDirectoryService.getUser(userId);
 				String status = (String) user.getProperties().get(statusAttribute);
 				if (status != null && status.length() > 0) {
@@ -60,8 +57,10 @@ public class UserAttributeRoleProvider implements RoleProvider {
 					}
 				}
 			} catch (UserNotDefinedException e) {
+				// TODO What about caching failed user lookups because the user isn't found.
 				// This really shouldn't happen as this should only be called for known users
-				log.warn("User couldn't be loaded to find additional roles: "+ userId, e);
+				// but it does as people load everyone in a site and then attempts to check if they can do something.
+				log.debug("User couldn't be loaded to find additional roles: "+ userId);
 			}
 		}
 		return Collections.emptySet();
