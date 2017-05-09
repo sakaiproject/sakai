@@ -177,6 +177,16 @@
 					<h:outputText value="#{msgs.events_attendee_download_instruction}" rendered="#{!DownloadEventBean.allowedToUpdate && DownloadEventBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="&nbsp;" escape="false"/>
 				</h:panelGrid>
+
+				<h:panelGrid columns="1">
+					<h:panelGroup>
+						<h:commandButton id="downloadEventsXlsTop"  action="#{DownloadEventBean.startXlsDownload}" value="#{msgs.event_download_xls_button}"  rendered="#{DownloadEventBean.meetingsAvailable}"/>
+						<h:commandButton id="downloadEventsCsvTop"  action="#{DownloadEventBean.startCsvDownload}" value="#{msgs.event_download_csv_button}"  rendered="#{DownloadEventBean.meetingsAvailable && DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"/>
+						<h:outputText value="&nbsp;&nbsp;&nbsp;" escape="false"/>
+						<h:commandButton id="goToMainTop" action="listMeetings" value="#{msgs.goback_button}"  />
+					</h:panelGroup>
+					<h:outputText value="&nbsp;" escape="false"/>
+				</h:panelGrid>
 				
 				<div class="form-group row">
 					<!-- view range dropdown -->
