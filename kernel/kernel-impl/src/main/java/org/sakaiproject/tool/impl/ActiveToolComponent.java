@@ -701,6 +701,8 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	         }
             // now attempt to autofix the URL
             uri += getURLSuffix(uri);
+	    // for wicket
+	    uri = uri.replace("%7E","~");
 	         return uri;
 	      }
 
