@@ -15783,29 +15783,32 @@ public class AssignmentAction extends PagedResourceActionII
 	                Group _checkGroup = _checkGroups.next();
 	                // exclude Sections from eligible groups
 	                //if (_checkGroup.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
-	                if (!specify_groups) {
-	                    _count++;
-	                    if (_count > 1) {
-	                        _sb.append(", ");
-	                    }
-	                    _sb.append(_checkGroup.getTitle());
-	                } else {
-	                    if (_assignmentGroups != null) {  
-	                        Iterator<String> _assgnRefs = _assignmentGroups.iterator();
-	                        while (_assgnRefs.hasNext()) {
-	                            String _ref = _assgnRefs.next();
-	                            Group _group = s.getGroup(_ref);
-	                            if (_group != null && _group.getId().equals(_checkGroup.getId())) {
-	                                _count++;
-	                                if (_count > 1) {
-	                                    _sb.append(", ");
-	                                }
-	                                _sb.append(_checkGroup.getTitle());
-	                            }
-	                        }
-	                    }
+                    //exclude sections created from lesson builder pre-req
+                    if (_checkGroup.getProperties().get("lessonbuilder_ref") == null) {
+                        if (!specify_groups) {
+                            _count++;
+                            if (_count > 1) {
+                                _sb.append(", ");
+                            }
+                            _sb.append(_checkGroup.getTitle());
+                        } else {
+                            if (_assignmentGroups != null) {
+                                Iterator<String> _assgnRefs = _assignmentGroups.iterator();
+                                while (_assgnRefs.hasNext()) {
+                                    String _ref = _assgnRefs.next();
+                                    Group _group = s.getGroup(_ref);
+                                    if (_group != null && _group.getId().equals(_checkGroup.getId())) {
+                                        _count++;
+                                        if (_count > 1) {
+                                            _sb.append(", ");
+                                        }
+                                        _sb.append(_checkGroup.getTitle());
+                                    }
+                                }
+                            }
+                        }
 	                }
-	                //}
+                    //}
 	            }
 	            if (_count > 1) {
 	                try {
