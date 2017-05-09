@@ -26,7 +26,7 @@
     -moz-border-radius-bottomleft: 10px;
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
-    padding: 0 10px 10px 10px;
+    padding: 10px;
     margin-bottom: 5px;
     font-size: 100%;
     position:relative;
@@ -433,17 +433,18 @@ wrappers for all panels - receive the focus after a tab click
     outline:none;
 }
 #messagePanel,#messageError{
-    position:absolute;
-    top:3px;
-    left:30%;
-    right:30%;
-    width:400px;
+    position:fixed;
+    top:64px;
+    left:10px;
+    right:10px;
+    max-width:400px;
     margin:auto;
     padding:5px 10px;
     background:#9cf;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    z-index: 1;
 }
 #messageError{
   background:#b11;
@@ -507,7 +508,7 @@ wrappers for all panels - receive the focus after a tab click
 }
 
 @media only screen and (max-width: 767px) {
-    #schedPanel .itemList > li, #newsPanel .itemList > li {
+    #schedPanel .itemList > li.newRow, #newsPanel .itemList > li.newRow {
         margin-top: -11px;
     }
     .results {

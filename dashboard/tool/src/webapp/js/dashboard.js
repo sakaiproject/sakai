@@ -50,161 +50,7 @@ var setupLinks = function(){
             reportEvent(e.target, entityReference, itemType, "dash.follow.site.link");
         }
     });
-    /*
-     * expand an item's contents
-     */
-    $(".itemLink").on("click", function(e){
 
-        var parentRow = $(this).closest('li');
-        var colCount = $(parentRow).find('div').length;
-        var parentCell = $(this).closest('div');
-        var itemType = $(this).closest('li').find('.itemType').text();
-        var entityReference = $(this).closest('li').find('.entityReference').text();
-        var itemCount = $(this).closest('li').find('.itemCount').text();
-        var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
-        
-        
-        //if disclosure in DOM, either hide or show, do not request data again
-        if ($(parentRow).next('li.newRow').length === 1) {
-            $(parentRow).next('li.newRow').find('.results').fadeToggle('fast', '', function(){
-                $(parentCell).toggleClass('activeCell');
-                $(parentRow).next('li.newRow').toggle();
-            });
-        }
-        else {
-            $(parentCell).attr('class', 'activeCell tab span6');
-            params = {
-                'entityType': itemType,
-                'entityReference': entityReference,
-                'itemCount': itemCount
-            };
-            // a single item we are retrieving data for    
-            if (itemCount == 1) {
-                jQuery.ajax({
-                    url: callBackUrl,
-                    type: 'post',
-                    cache: false,
-                    data: JSON.stringify(params),
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    success: function(json){
-                        var delimitLeft = "{";
-                        var delimitRight = "}";
-                        
-                        var resultsDiv = '<div class=\"results\" tabindex=\"-1\" style=\"display:none\">';
-                        var title = '';
-                        var results = '';
-                        if (json.order.length !== 0) {
-                            $(json.order).each(function(i){
-                                var o = this;
-                                var w = o.toString();
-                                
-                                if (get_type(json[w]) === "String") {
-                                    // a string
-                                    if (json[w].split(delimitLeft).length - 1 > 0) {
-                                        // a string that has substitions, replace them
-                                        var endString = json[w];
-                                        var arr = json[w].split(delimitRight);
-                                        for (i = 0; i < arr.length; i++) {
-                                            var arr2 = arr[i].split(delimitLeft);
-                                            if (arr2[1]) {
-                                                endString = endString.replace(delimitLeft + arr2[1] + delimitRight, json[arr2[1]]);
-                                            }
-                                        }
-                                        // should do a check here, to make sure that all the keys had a value
-                                        // increase a counter for each successful arr2[1] and compare in the end with
-                                        // the length of json[w].split('{').length - 1
-                                        results = results + '<div class="metadataLine">' + endString + '</div>';
-                                    }
-                                    else 
-                                        if (json[w + '-label']) {
-                                            // a string with a label counterpart
-                                            title = '<h5>' + json[w + '-label'] + '</h5><div class="block muted">' + json[w] + '</div>';
-                                            
-                                        }
-                                        else {
-                                            if (w === 'title') {
-                                                // a title string
-                                                title = '<h4>' + json[w] + '</h4>';
-                                            }
-                                            else {
-                                                //all other strings
-                                                results = results + '<div class="block muted">' + json[w] + '</div>';
-                                            }
-                                        }
-                                    
-                                }
-                                else {
-                                    // is an object, treat special
-                                    if (w === 'attachments' && json[w]) {
-                                        var atts = "";
-                                        for (i = 0; i < json[w].length; i++) {
-                                            atts = atts + '<li><a target=\"_blank\" href=\"' + json[w][i]['attachment-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'dash.view.attachment\');\">' + json[w][i]['attachment-title'] + '</a></li>';
-                                            
-                                        }
-                                        results = results + '<ul class=\"attachList\">' + atts + '</ul>';
-                                    }
-                                    if (w === 'more-info' && json[w]) {
-                                        var moreinfo = "";
-                                        for (i = 0; i < json['more-info'].length; i++) {
-                                            var target = "";
-                                            var size = "";
-                                            var dashEvent = "dash.access.url";
-                                            if (json['more-info'][i]['info_link-target']) {
-                                                target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
-                                                if (json['more-info'][i]['info_link-target'] === '_top') {
-                                                    dashEvent = "dash.follow.tool.link";
-                                                }
-                                            }
-                                            if (json['more-info'][i]['info_link-size']) {
-                                                size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
-                                            }
-                                            moreinfo = moreinfo + '<li><a class=\"btn btn-small\"' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'' + dashEvent + '\');\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
-                                            
-                                        }
-                                        results = '<ul class=\"moreInfo\">' + moreinfo + ' </ul>'  + '<div class="clearfix"></div>' + results;
-                                    }
-                                }
-                                
-                            });
-                            results = resultsDiv + title + results + '</div>';
-                        }
-                        else {
-                            results = resultsDiv + title + results + 'This item type has not specified an order :( </div>';
-                        }
-                        
-                        if (isMobile) {
-                            if ($(parentRow).closest('ul.itemCollection').length) {
-                                $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
-                                $(parentRow).next('li.newRow').find('.results').fadeIn('fast');
-                                resizeFrame('grow');
-                            }
-                            else {
-                                $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
-                                $('#itemEvent #itemHolder .results').fadeIn('fast');
-                            }
-                        }
-                        else {
-                        
-                            $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
-                            $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
-                                resizeFrame('grow');
-                                //$(parentRow).next('li.newRow').find('.results').focus();
-                            });
-                            
-                        }
-                    },
-                    error: function(xhr, status, error){
-                        reportError(error)
-                    }
-                });
-            }
-            else {
-                var initChunk = true;
-                renderCollection(callBackUrl, params, parentRow, colCount, initChunk);
-            }
-        }
-    });
     $('.getMore a').on("click", function(){
         var parentRow = '';
         var isMobile = "";
@@ -233,6 +79,158 @@ var setupLinks = function(){
         renderCollection(callBackUrl, params, parentRow, colCount, initChunk);
     });
 };
+
+var expandItemsContents = function(item) {
+    var parentRow = $(item).closest('li');
+    var colCount = $(parentRow).find('div').length;
+    var parentCell = $(item).closest('div');
+    var itemType = $(item).closest('li').find('.itemType').text();
+    var entityReference = $(item).closest('li').find('.entityReference').text();
+    var itemCount = $(item).closest('li').find('.itemCount').text();
+    var callBackUrl = $(item).closest('body').find('.callBackUrl').text();
+    
+    
+    //if disclosure in DOM, either hide or show, do not request data again
+    if ($(parentRow).next('li.newRow').length === 1) {
+        $(parentRow).next('li.newRow').find('.results').fadeToggle('fast', '', function(){
+            $(parentCell).toggleClass('activeCell');
+            $(parentRow).next('li.newRow').toggle();
+        });
+    }
+    else {
+        $(parentCell).attr('class', 'activeCell tab span6');
+        params = {
+            'entityType': itemType,
+            'entityReference': entityReference,
+            'itemCount': itemCount
+        };
+        // a single item we are retrieving data for    
+        if (itemCount == 1) {
+            jQuery.ajax({
+                url: callBackUrl,
+                type: 'post',
+                cache: false,
+                data: JSON.stringify(params),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function(json){
+                    var delimitLeft = "{";
+                    var delimitRight = "}";
+                    
+                    var resultsDiv = '<div class=\"results\" tabindex=\"-1\" style=\"display:none\">';
+                    var title = '';
+                    var results = '';
+                    if (json.order.length !== 0) {
+                        $(json.order).each(function(i){
+                            var o = this;
+                            var w = o.toString();
+                            
+                            if (get_type(json[w]) === "String") {
+                                // a string
+                                if (json[w].split(delimitLeft).length - 1 > 0) {
+                                    // a string that has substitions, replace them
+                                    var endString = json[w];
+                                    var arr = json[w].split(delimitRight);
+                                    for (i = 0; i < arr.length; i++) {
+                                        var arr2 = arr[i].split(delimitLeft);
+                                        if (arr2[1]) {
+                                            endString = endString.replace(delimitLeft + arr2[1] + delimitRight, json[arr2[1]]);
+                                        }
+                                    }
+                                    // should do a check here, to make sure that all the keys had a value
+                                    // increase a counter for each successful arr2[1] and compare in the end with
+                                    // the length of json[w].split('{').length - 1
+                                    results = results + '<div class="metadataLine">' + endString + '</div>';
+                                }
+                                else 
+                                    if (json[w + '-label']) {
+                                        // a string with a label counterpart
+                                        title = '<h5>' + json[w + '-label'] + '</h5><div class="block muted">' + json[w] + '</div>';
+                                        
+                                    }
+                                    else {
+                                        if (w === 'title') {
+                                            // a title string
+                                            title = '<h4>' + json[w] + '</h4>';
+                                        }
+                                        else {
+                                            //all other strings
+                                            results = results + '<div class="block muted">' + json[w] + '</div>';
+                                        }
+                                    }
+                                
+                            }
+                            else {
+                                // is an object, treat special
+                                if (w === 'attachments' && json[w]) {
+                                    var atts = "";
+                                    for (i = 0; i < json[w].length; i++) {
+                                        atts = atts + '<li><a target=\"_blank\" href=\"' + json[w][i]['attachment-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'dash.view.attachment\');\">' + json[w][i]['attachment-title'] + '</a></li>';
+                                        
+                                    }
+                                    results = results + '<ul class=\"attachList\">' + atts + '</ul>';
+                                }
+                                if (w === 'more-info' && json[w]) {
+                                    var moreinfo = "";
+                                    for (i = 0; i < json['more-info'].length; i++) {
+                                        var target = "";
+                                        var size = "";
+                                        var dashEvent = "dash.access.url";
+                                        if (json['more-info'][i]['info_link-target']) {
+                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
+                                            if (json['more-info'][i]['info_link-target'] === '_top') {
+                                                dashEvent = "dash.follow.tool.link";
+                                            }
+                                        }
+                                        if (json['more-info'][i]['info_link-size']) {
+                                            size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
+                                        }
+                                        moreinfo = moreinfo + '<li><a class=\"btn btn-small\"' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' + entityReference + '\',\'' + itemType + '\',\'' + dashEvent + '\');\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
+                                        
+                                    }
+                                    results = '<ul class=\"moreInfo\">' + moreinfo + ' </ul>'  + '<div class="clearfix"></div>' + results;
+                                }
+                            }
+                            
+                        });
+                        results = resultsDiv + title + results + '</div>';
+                    }
+                    else {
+                        results = resultsDiv + title + results + 'This item type has not specified an order :( </div>';
+                    }
+                    
+                    if (isMobile) {
+                        if ($(parentRow).closest('ul.itemCollection').length) {
+                            $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
+                            $(parentRow).next('li.newRow').find('.results').fadeIn('fast');
+                            resizeFrame('grow');
+                        }
+                        else {
+                            $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
+                            $('#itemEvent #itemHolder .results').fadeIn('fast');
+                        }
+                    }
+                    else {
+                    
+                        $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
+                        $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
+                            resizeFrame('grow');
+                            //$(parentRow).next('li.newRow').find('.results').focus();
+                        });
+                        
+                    }
+                },
+                error: function(xhr, status, error){
+                    reportError(error)
+                }
+            });
+        }
+        else {
+            var initChunk = true;
+            renderCollection(callBackUrl, params, parentRow, colCount, initChunk);
+        }
+    }
+}
 
 var renderCollection = function(callBackUrl, params, parentRow, colCount, initChunk){
     jQuery.ajax({
@@ -288,7 +286,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                 '</span>\n' +
                 '</div>\n' +
                 '<div class="tab three span6">\n' +
-                '<a href="#" class="itemLink">' +
+                '<a href="#" class="itemLink" onClick="expandItemsContents(this);">' +
                 icon +
                 ' ' +
                 this.title +
