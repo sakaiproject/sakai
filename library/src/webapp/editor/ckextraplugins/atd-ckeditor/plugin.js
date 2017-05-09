@@ -224,7 +224,9 @@ function post_to_AtD(url, data, callback) {
 /* Tell CKEditor we exist and life is never going to be the same */
 CKEDITOR.plugins.add('atd-ckeditor', {
 
-	requires : [ 'menubutton' ],
+	requires : [ 'menubutton', 'dialog' ],
+	icons: 'atd-ckeditor',
+	lang: 'en',
                                                                 
 	beforeInit : function(editor) {
         editor.addMenuGroup('AtD_description',90);
@@ -240,6 +242,20 @@ CKEDITOR.plugins.add('atd-ckeditor', {
                 cmd.modes   = { wysiwyg:1, source:1 };
                 cmd.canUndo = false;
 		editor.addCommand( 'atd_check', { 'exec': proofread_action });
-                editor.ui.addButton('atd-ckeditor', { label: 'Proofread writing', command: 'atd_check', icon: this.path + 'images/atdbuttontr.gif' });
+                editor.ui.addButton('atd-ckeditor', { 
+			label: editor.lang["atd-ckeditor"].toolbar, 
+			click: function(editor) {
+				var inlineMode = (editor.elementMode == CKEDITOR.ELEMENT_MODE_INLINE),
+				text = inlineMode ? editor.container.getText() : editor.document.getBody().getText();
+
+				text = text.replace(/\s/g, '');
+
+				if(text) {
+					editor.execCommand('atd_check');
+				} else {
+					alert(editor.lang["atd-ckeditor"].emptyalert);
+				}
+			},
+		});
         }
 });
