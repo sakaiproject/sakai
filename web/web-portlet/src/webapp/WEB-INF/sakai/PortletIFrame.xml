@@ -82,7 +82,7 @@
         <configuration name="height" value="600px" />
 
         <configuration name="special" value="worksite" type="final" />
-        <configuration name="reset.button" value="false" type="final" />
+        <configuration name="reset.button" value="true" type="final" />
 
         <!-- Allow this to be set -->
         <configuration name="functions.require" />
