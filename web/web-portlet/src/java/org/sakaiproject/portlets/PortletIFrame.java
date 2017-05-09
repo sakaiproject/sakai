@@ -323,7 +323,6 @@ public class PortletIFrame extends GenericPortlet {
 							siteInfo = StringUtils.trimToNull(s.getTitle());
 						}
 						StringBuilder alertMsg = new StringBuilder();
-						if ( siteInfo != null ) siteInfo = validator.processFormattedText(siteInfo, alertMsg);
 						context.put("siteInfo", siteInfo);
 						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
 						return;
@@ -890,9 +889,7 @@ public class PortletIFrame extends GenericPortlet {
                     }
                 }
                 String description = StringUtils.trimToNull(request.getParameter("description"));
-                //Need to save this processed
-                description = FormattedText.processFormattedText(description,new StringBuilder());
-    
+
                 // update the site info
                 try
                 {
