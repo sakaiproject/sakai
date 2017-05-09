@@ -46,6 +46,9 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 
 	/** The title string. */
 	protected String m_title = null;
+	
+	/** The TitleCustom property */
+	private boolean m_titleCustom = false;
 
 	/** Tool placed. */
 	protected Tool m_tool = null;
@@ -257,5 +260,13 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	 */
 	public void save()
 	{
+	}
+
+	public void setTitleCustom(boolean m_titleCustom) {
+		this.m_titleCustom = m_titleCustom;
+	}
+
+	public boolean isTitleCustom() {
+		return m_titleCustom;
 	}
 }
