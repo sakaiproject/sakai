@@ -94,6 +94,7 @@ public class FormattedTextTest {
 
         // add in the config so we can test it
         serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "return", "FormattedTextTest"));
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.referrer-policy", "noopener", "FormattedTextTest"));
 
         ComponentManager.testingMode = true;
         // instantiate what we are testing
@@ -114,26 +115,26 @@ public class FormattedTextTest {
     @Test
     public void testProcessAnchor() {
         // Check we add the target attribute
-    	Assert.assertEquals("<a  href=\"http://sakaiproject.org/\" target=\"_blank\">", formattedText
+    	Assert.assertEquals("<a  href=\"http://sakaiproject.org/\" target=\"_blank\" rel=\"noopener\">", formattedText
                 .processAnchor("<a href=\"http://sakaiproject.org/\">"));
     }
 
     @Test
     public void testProcessAnchorRelative() {
         // Check we add the target attribute
-    	Assert.assertEquals("<a  href=\"other.html\" target=\"_blank\">", formattedText
+    	Assert.assertEquals("<a  href=\"other.html\" target=\"_blank\" rel=\"noopener\">", formattedText
                 .processAnchor("<a href=\"other.html\">"));
     }
 
     @Test
     public void testProcessAnchorMailto() {
-    	Assert.assertEquals("<a  href=\"mailto:someone@example.com\" target=\"_blank\">", formattedText
+    	Assert.assertEquals("<a  href=\"mailto:someone@example.com\" target=\"_blank\" rel=\"noopener\">", formattedText
                 .processAnchor("<a href=\"mailto:someone@example.com\">"));
     }
 
     @Test
     public void testProcessAnchorName() {
-    	Assert.assertEquals("<a  href=\"#anchor\" target=\"_blank\">", formattedText
+    	Assert.assertEquals("<a  href=\"#anchor\" target=\"_blank\" rel=\"noopener\">", formattedText
                 .processAnchor("<a href=\"#anchor\">"));
     }
 
@@ -153,9 +154,9 @@ public class FormattedTextTest {
     public void testTargetNotOverridden() {
     	// KNL-526 - testing that targets are not destroyed or replaced
         // method 1 - processAnchor (kills all A attribs and only works on the first part of the tag
-    	Assert.assertEquals("<a  href=\"other.html\" target=\"_blank\">", 
+    	Assert.assertEquals("<a  href=\"other.html\" target=\"_blank\" rel=\"noopener\">",
                 formattedText.processAnchor("<a href=\"other.html\">") );
-    	Assert.assertEquals("<a  href=\"other.html\" target=\"_blank\">", 
+    	Assert.assertEquals("<a  href=\"other.html\" target=\"_blank\" rel=\"noopener\">",
                 formattedText.processAnchor("<a target=\"_blank\" href=\"other.html\">") );
 
     	Assert.assertEquals("<a  href=\"other.html\" target=\"_AZ\">", 
@@ -165,9 +166,9 @@ public class FormattedTextTest {
                 formattedText.processAnchor("<a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">"));
 
         // method 2 - escapeHtmlFormattedText (saves other A attribs)
-    	Assert.assertEquals("<a href=\"other.html\" target=\"_blank\">link</a>", 
+    	Assert.assertEquals("<a href=\"other.html\" target=\"_blank\" rel=\"noopener\">link</a>",
                 formattedText.escapeHtmlFormattedText("<a href=\"other.html\">link</a>") );
-    	Assert.assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\">link</a>", 
+    	Assert.assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\" rel=\"noopener\">link</a>",
                 formattedText.escapeHtmlFormattedText("<a href=\"other.html\" class=\"azeckoski\">link</a>") );
     	Assert.assertEquals("<b>simple</b><b class=\"AZ\">bold</b>", 
                 formattedText.escapeHtmlFormattedText("<b>simple</b><b class=\"AZ\">bold</b>") );
@@ -177,9 +178,9 @@ public class FormattedTextTest {
     	Assert.assertEquals("<a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>", 
                 formattedText.escapeHtmlFormattedText("<a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
 
-    	Assert.assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>", 
+    	Assert.assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\" rel=\"noopener\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>",
                 formattedText.escapeHtmlFormattedText("<a href=\"other.html\" class=\"azeckoski\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
-    	Assert.assertEquals("<b>simple</b><b class=\"AZ\">bold</b><a href=\"other.html\" class=\"azeckoski\" target=\"_blank\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>", 
+    	Assert.assertEquals("<b>simple</b><b class=\"AZ\">bold</b><a href=\"other.html\" class=\"azeckoski\" target=\"_blank\" rel=\"noopener\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>",
                 formattedText.escapeHtmlFormattedText("<b>simple</b><b class=\"AZ\">bold</b><a href=\"other.html\" class=\"azeckoski\">link</a><a href=\"other.html\" target=\"_AZ\" class=\"azeckoski\">link</a>") );
     }
 
@@ -210,7 +211,7 @@ public class FormattedTextTest {
         //Assert.assertFalse( result.contains("style=\"font-weight:bold;\"")); // strips this out
         //Assert.assertTrue( result.contains("target=\"_blank\"")); // adds target in
         Assert.assertTrue( result.contains("<div>hello there</div>"));
-        Assert.assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\" target=\"_blank\">blah</a><div>hello there</div>", result);
+        Assert.assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\" target=\"_blank\" rel=\"noopener\">blah</a><div>hello there</div>", result);
 
         strFromBrowser = TEST2;
         errorMessages = new StringBuilder();
