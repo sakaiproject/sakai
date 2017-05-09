@@ -539,6 +539,10 @@ public abstract class BasicSqlService implements SqlService
             } else {
                 conn = borrowConnection();
             }
+
+            // We're positive we are reading only so let's tell the JDBC connector in case this setup has a read-only slave to make use of
+            conn.setReadOnly(true);
+
             if (m_showSql) {
                 connectionTime = System.currentTimeMillis() - start;
             }
@@ -602,6 +606,16 @@ public abstract class BasicSqlService implements SqlService
                     pstmt.close();
                 } catch (SQLException e) {
                     LOG.warn("Sql.dbRead: sql: " + sql + debugFields(fields), e);
+                }
+            }
+
+            // Return the connection without read-only set
+            if (null != conn) {
+                try {
+                    conn.setReadOnly(false);
+                }
+                catch (SQLException e) {
+                    LOG.error("Could not set db conn back to read-only false", e);
                 }
             }
 
