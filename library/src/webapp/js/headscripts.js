@@ -277,6 +277,7 @@ var MainFrameHeightTimeOut = false;
 // pass -1 for no max
 function setMainFrameHeightWithMax(id, maxHeight)
 {
+	setInitialFocus();
 	if ( ! inIframe() ) return;
 	// some browsers need a moment to finish rendering so the height and scroll are correct
 	if ( MainFrameHeightTimeOut ) {
@@ -809,3 +810,12 @@ function maxZIndex(elems)
     return maxIndex;
 }
 
+
+//Funtion to try to improve a11y by changing where the focus is. I don't see setFocus ever called by anything
+function setInitialFocus() {
+    var errorMsg = document.querySelectorAll('table.messageSamigo');
+    if (errorMsg.length !=0) {
+        errorMsg.focus()
+        return;
+    }
+}
