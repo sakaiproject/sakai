@@ -70,11 +70,9 @@ Resolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable
 
     @EntityCustomAction(action = "courses", viewKey = EntityView.VIEW_LIST)
     public Object getInstructorCourses(EntityView view) {
-        String userId = externalLogic.getCurrentUserId();
-        if (userId == null) {
-            throw new SecurityException(
-                    "Only logged in users can access instructor courses listings");
-        }
+    	ensureExternalLogic();
+        ensureCurrentUser("Only logged in users can access instructor courses listings");
+        
         String courseId = view.getPathSegment(2);
         List<Course> courses = externalLogic.getCoursesForInstructor(courseId);
         if (courses.isEmpty()) {
@@ -94,57 +92,34 @@ Resolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable
 
     @EntityCustomAction(action = "students", viewKey = EntityView.VIEW_LIST)
     public List<Student> getCourseStudents(EntityView view) {
+    	ensureExternalLogic();
+        ensureEntityViewPathSegment(view, 2, "valid courseId must be included in the URL /grades/students/{courseId}");
+        ensureCurrentUser("Only logged in users can access student enrollment listings");
+        ensureCurrentUserIsAdminOrInstructor("Only instructors can access course students listing");
+        
         String courseId = view.getPathSegment(2);
-        if (courseId == null) {
-            throw new IllegalArgumentException(
-                    "valid courseId must be included in the URL /grades/students/{courseId}");
-        }
-        String userId = externalLogic.getCurrentUserId();
-        if (userId == null) {
-            throw new SecurityException(
-                    "Only logged in users can access student enrollment listings");
-        }
-        if (!externalLogic.isUserAdmin(userId) && !externalLogic.isUserInstructor(userId)) {
-            throw new SecurityException("Only instructors can access course students listing");
-        }
-        List<Student> students = externalLogic.getStudentsForCourse(courseId);
-        return students;
+        return externalLogic.getStudentsForCourse(courseId);
     }
 
     @EntityCustomAction(action = "gradebook", viewKey = EntityView.VIEW_LIST)
     public Gradebook getCourseGradebook(EntityView view) {
+    	ensureExternalLogic();
+        ensureEntityViewPathSegment(view, 2, "valid courseId must be included in the URL /grades/gradebook/{courseId}");
+        ensureCurrentUser("Only logged in users can access instructor courses listings");
+        ensureCurrentUserIsAdminOrInstructor("Only instructors can access course gradebook");
+        
         String courseId = view.getPathSegment(2);
-        if (courseId == null) {
-            throw new IllegalArgumentException(
-                    "valid courseId must be included in the URL /grades/gradebook/{courseId}");
-        }
-        String userId = externalLogic.getCurrentUserId();
-        if (userId == null) {
-            throw new SecurityException(
-                    "Only logged in users can access instructor courses listings");
-        }
-        if (!externalLogic.isUserAdmin(userId) && !externalLogic.isUserInstructor(userId)) {
-            throw new SecurityException("Only instructors can access course gradebook");
-        }
-        Gradebook gradebook = externalLogic.getCourseGradebook(courseId, null);
-        return gradebook;
+        return externalLogic.getCourseGradebook(courseId, null);
     }
 
     @EntityCustomAction(action = "gradeitem", viewKey = "")
     public GradebookItem handleGradeItem(EntityView view) {
+    	ensureExternalLogic();
+        ensureEntityViewPathSegment(view, 2, "valid courseId must be included in the URL /grades/gradeitem/{courseId}");
+        ensureCurrentUser("Only logged in users can access instructor courses listings");
+        ensureCurrentUserIsAdminOrInstructor("Only instructors can access course gradebook");
+        
         String courseId = view.getPathSegment(2);
-        if (courseId == null) {
-            throw new IllegalArgumentException(
-                    "valid courseId must be included in the URL /grades/gradeitem/{courseId}");
-        }
-        String userId = externalLogic.getCurrentUserId();
-        if (userId == null) {
-            throw new SecurityException(
-                    "Only logged in users can access instructor courses listings");
-        }
-        if (!externalLogic.isUserAdmin(userId) && !externalLogic.isUserInstructor(userId)) {
-            throw new SecurityException("Only instructors can access course gradebook");
-        }
         GradebookItem gbItemOut;
         if (Method.GET.toString().equalsIgnoreCase(view.getMethod())) {
             String gradeItemName = view.getPathSegment(3);
@@ -195,6 +170,39 @@ Resolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable
             throw new EntityException("Method ("+view.getMethod()+") not supported", "grades/gradeitem", HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         }
         return gbItemOut;
+    }
+    
+    // Author: Cannon Palms
+    // Improves testability
+    protected void ensureExternalLogic() {
+    	if (externalLogic == null) {
+    		throw new IllegalStateException("External logic module not configured");
+    	}
+    }
+    
+    // Author: Cannon Palms
+    // Improves testability
+    protected void ensureCurrentUser(String exceptionMsg) {
+    	if (externalLogic.getCurrentUserId() == null) {
+    		throw new SecurityException(exceptionMsg);
+    	}
+    }
+    
+    // Author: Cannon Palms
+    // Improves testability
+    protected void ensureEntityViewPathSegment(EntityView view, int position, String exceptionMsg) {
+    	if (view.getPathSegment(position) == null) {
+    		throw new IllegalArgumentException(exceptionMsg);
+    	}
+    }
+    
+    // Author: Cannon Palms
+    // Improves testability
+    protected void ensureCurrentUserIsAdminOrInstructor(String exceptionMsg) {
+    	String userId = externalLogic.getCurrentUserId();
+    	if (!externalLogic.isUserAdmin(userId) && !externalLogic.isUserInstructor(userId)) {
+    		throw new SecurityException(exceptionMsg);
+    	}
     }
 
     public static String readerToString(BufferedReader br) {
