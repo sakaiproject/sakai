@@ -1,6 +1,6 @@
 # Contributing to Sakai
 
-Contributions to Sakai from all comers are welcome and encouraged.
+Contributions to Sakai from all comers are very welcome and encouraged.
 
 Please use these guidelines and the information in [README.md](README.md) to assure that your contributions are compatible with our (evolving) workflow and practices.
 
