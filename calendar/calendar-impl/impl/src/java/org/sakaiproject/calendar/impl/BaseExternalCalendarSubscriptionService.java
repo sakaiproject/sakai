@@ -61,6 +61,7 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BaseExternalCalendarSubscriptionService implements
 		ExternalCalendarSubscriptionService
@@ -94,6 +95,9 @@ public class BaseExternalCalendarSubscriptionService implements
 
 	/** Cache map of user Calendars: <String url, Calendar cal> */
 	private SubscriptionCache usersSubscriptionCache = null;
+	
+	/** Map of each user's calendar references followed for avoiding ical circular references **/
+	private Map<String,String> externalCalRefs = new ConcurrentHashMap<>();
 
 	// ######################################################
 	// Spring services
@@ -314,10 +318,37 @@ public class BaseExternalCalendarSubscriptionService implements
 		m_log.debug("ExternalCalendarSubscriptionService.getCalendarSubscription("
 				+ reference + ")");
 		m_log.debug(" |-> subscriptionUrl: " + subscriptionUrl);
+		
+		String currentSessionUserId = m_sessionManager.getCurrentSessionUserId();
+		
+		//External references will not work for anonymous users, no idea how to track circular references for them.
+		if ((currentSessionUserId==null)||(currentSessionUserId.isEmpty()))
+		{
+			return null;
+		}
 
-		ExternalSubscription subscription = getExternalSubscription(subscriptionUrl,
-				_ref.getContext());
-
+		ExternalSubscription subscription = null;
+		String urlList = externalCalRefs.get(currentSessionUserId);
+		if (urlList==null)
+		{
+			externalCalRefs.put(currentSessionUserId, subscriptionUrl);
+			subscription = getExternalSubscription(subscriptionUrl, _ref.getContext());
+			externalCalRefs.remove(currentSessionUserId);
+		}
+		else
+		{
+			if (urlList.contains(subscriptionUrl))
+			{
+				m_log.debug("Reached circular reference for external calendar: "+subscriptionUrl);
+				return null;
+			}
+			else
+			{
+				urlList = urlList + ";" + subscriptionUrl;
+				externalCalRefs.replace(currentSessionUserId, urlList);
+				subscription = getExternalSubscription(subscriptionUrl, _ref.getContext());
+			}
+		}
 
 		m_log.debug(" |-> Subscription is " + subscription);
 		if (subscription != null)
@@ -666,7 +697,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			// connect
 			URLConnection conn = _url.openConnection();
 			// Must set user agent so we can detect loops.
-			conn.addRequestProperty("User-Agent", m_calendarService.getUserAgent());
+			conn.addRequestProperty("User-Agent", m_calendarService.getUserAgent(context));
 			conn.setConnectTimeout(TIMEOUT);
 			conn.setReadTimeout(TIMEOUT);
 			// Now make the connection.
