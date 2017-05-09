@@ -836,8 +836,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				realm.m_roles = roles;
 				realm.m_userGrants = userGrants;
 			} else {
-			    // KNL-1183
-			    refreshAuthzGroup(realm);
+				// KNL-1304
+				if (serverConfigurationService().getBoolean("authz.refresh.auto", true)) {
+					refreshAuthzGroup(realm);
+				}
 
 			    // read the roles and role functions
 			    String sql = dbAuthzGroupSql.getSelectRealmRoleFunctionSql();
