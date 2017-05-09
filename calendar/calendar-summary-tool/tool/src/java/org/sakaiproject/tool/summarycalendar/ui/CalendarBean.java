@@ -443,6 +443,10 @@ public class CalendarBean {
 	private void prevMonth(ActionEvent e) {
 		Calendar cal = Calendar.getInstance(getCurrentUserTimezone(),msgs.getLocale());
 		cal.setTime(viewingDate);
+		if(cal.get(Calendar.MONTH) == cal.getActualMinimum(Calendar.MONTH)) {
+		cal.set((cal.get(Calendar.YEAR) - 1),cal.getActualMaximum(Calendar.MONTH), 1);
+		}
+		else{cal.set(Calendar.MONTH,cal.get(Calendar.MONTH) -1);  }
 		cal.add(Calendar.MONTH, -1);
 		setViewingDate(cal.getTime());
 		selectedDay = null;
@@ -452,7 +456,10 @@ public class CalendarBean {
 	private void nextMonth(ActionEvent e) {
 		Calendar cal = Calendar.getInstance(getCurrentUserTimezone(),msgs.getLocale());
 		cal.setTime(viewingDate);
-		cal.add(Calendar.MONTH, +1);
+		if(cal.get(Calendar.MONTH) == cal.getActualMaximum(Calendar.MONTH)) {
+		cal.set((cal.get(Calendar.YEAR) +1),cal.getActualMinimum(Calendar.MONTH), 1);
+		}
+		else{cal.set(Calendar.MONTH,cal.get(Calendar.MONTH) -1);  }
 		setViewingDate(cal.getTime());
 		selectedDay = null;
 		selectedEventRef = null;
