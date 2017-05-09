@@ -464,17 +464,14 @@ function printFriendly(url) {
 var sakaiCKEditorName;
 $(document).ready(function () {
     if (typeof(CKEDITOR) != 'undefined') {
-        for (instance in CKEDITOR.instances) {
+        CKEDITOR.on("instanceReady", function(event){
             // there should only be one ckeditor per page
             // save the instance name for other functions to use
-            sakaiCKEditorName = instance;
-
+            sakaiCKEditorName = event.editor.name;
             // bind to the keyup and paste to update the word count
-            CKEDITOR.instances[instance].on("instanceReady", function () {
-                    this.document.on("keyup", ckeditor_word_count);
-                    this.document.on("paste", ckeditor_word_count);
-            });
-        }
+            event.editor.document.on("keyup", ckeditor_word_count);
+            event.editor.document.on("paste", ckeditor_word_count);
+       });
     }
 
 
