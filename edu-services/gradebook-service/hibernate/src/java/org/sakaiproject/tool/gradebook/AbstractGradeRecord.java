@@ -25,7 +25,7 @@ package org.sakaiproject.tool.gradebook;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * AbstractGradeRecord is the abstract base class for Grade Records, which are

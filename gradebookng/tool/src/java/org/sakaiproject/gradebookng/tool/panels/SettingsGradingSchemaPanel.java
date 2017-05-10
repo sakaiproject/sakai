@@ -31,6 +31,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberTickUnitSource;
@@ -208,13 +209,29 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// chart
 		final JFreeChart chartData = getChartData();
 		final JFreeChartImageWithToolTip chart = new JFreeChartImageWithToolTip("chart",  Model.of(chartData), "tooltip", 700, 400);
+		
+		// chart is only visible if there are grades
+		chart.setVisible(this.total > 0);
 		settingsGradingSchemaPanel.add(chart);
+		
+		// if there are no grades, display message instead of chart
+		settingsGradingSchemaPanel.add(new Label("noStudentsWithGradesMessage", new ResourceModel("settingspage.gradingschema.emptychart")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return SettingsGradingSchemaPanel.this.total == 0;
+			}
+		});
 
 		// other stats
 		//TODO this could be in a panel/fragment of its own
 		final DescriptiveStatistics stats = calculateStatistics();
 
 		settingsGradingSchemaPanel.add(new Label("averagegpa", getAverageGPA()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
 			public boolean isVisible() {
 				return StringUtils.equals(gradingSchemaName, "Grade Points");
 			}
@@ -487,7 +504,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			gpaScoresMap.put("D (1.0)", Double.valueOf("1.0"));
 			gpaScoresMap.put("F (0)", Double.valueOf("0"));	
 			
-			final List<String> mappedGrades = this.courseGradeMap.values().stream().map(c -> (c.getMappedGrade())).collect(Collectors.toList());
+			// get all of the non null mapped grades
+			// mapped grades will be null if the student doesn't have a course grade yet.
+			final List<String> mappedGrades = this.courseGradeMap.values().stream().filter(c -> c.getMappedGrade() != null).map(c -> (c.getMappedGrade())).collect(Collectors.toList());
 			Double averageGPA = 0.0;
 			for (String mappedGrade : mappedGrades) {
 				averageGPA += gpaScoresMap.get(mappedGrade);

@@ -385,6 +385,9 @@ public class DefaultApi {
         if (consumerSecret != null)
         localVarHeaderParams.put("consumerSecret", apiClient.parameterToString(consumerSecret));
 
+        //Always use encryption
+        localVarQueryParams.addAll(apiClient.parameterToPairs("", "encrypted", true));
+
         Map<String, Object> localVarFormParams = new HashMap<String, Object>();
 
         final String[] localVarAccepts = {
@@ -670,6 +673,9 @@ public class DefaultApi {
         .replaceAll("\\{" + "userID" + "\\}", apiClient.escapeString(userID.toString()));
 
         List<Pair> localVarQueryParams = new ArrayList<Pair>();
+
+        //Always use encryption
+        localVarQueryParams.addAll(apiClient.parameterToPairs("", "encrypted", true));
 
         Map<String, String> localVarHeaderParams = new HashMap<String, String>();
         if (consumer != null)

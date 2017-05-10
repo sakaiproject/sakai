@@ -149,6 +149,15 @@ public interface RWikiSecurityService
 	boolean checkUpdate(RWikiEntity rwe);
 
 	/**
+	 * check for create permission
+	 * 
+	 * @param rwo
+	 * @param user
+	 * @return
+	 */
+	boolean checkCreate(RWikiEntity rwe);
+
+	/**
 	 * check for admin permission
 	 * 
 	 * @param rwo

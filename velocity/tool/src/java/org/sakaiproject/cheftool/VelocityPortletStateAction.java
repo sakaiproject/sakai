@@ -32,6 +32,9 @@ import org.sakaiproject.event.api.SessionState;
 @Slf4j
 public abstract class VelocityPortletStateAction extends VelocityPortletPaneledAction
 {
+	
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Get the proper state for this instance (if portlet is not known, only context).
 	 * 

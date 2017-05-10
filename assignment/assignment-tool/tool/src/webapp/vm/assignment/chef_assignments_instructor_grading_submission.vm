@@ -409,7 +409,7 @@
 				</div>
 			#end
 			<h3>$tlang.getString("gen.subm")</h3>
-				#set($hasInline = $value_feedback.text.length() > 0)
+				#set($hasInline = $value_feedback_text.length() > 0)
 				#set($size = 0)
 				#if ($!submission.submitted || !$alertGradeDraft)
 					#set ($props = false)

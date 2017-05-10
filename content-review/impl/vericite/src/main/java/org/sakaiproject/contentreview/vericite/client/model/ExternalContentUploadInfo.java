@@ -39,6 +39,9 @@ public class ExternalContentUploadInfo   {
   @SerializedName("externalContentId")
   private String externalContentId = null;
 
+  @SerializedName("headers")
+  private Object headers = null;
+
   @SerializedName("urlPost")
   private String urlPost = null;
 
@@ -105,6 +108,24 @@ public class ExternalContentUploadInfo   {
     this.filePath = filePath;
   }
 
+  public ExternalContentUploadInfo headers(Object headers) {
+    this.headers = headers;
+    return this;
+  }
+
+   /**
+   * A map of required headers
+   * @return headers
+  **/
+  @ApiModelProperty(example = "null", value = "A map of required headers")
+  public Object getHeaders() {
+    return headers;
+  }
+
+  public void setHeaders(Object headers) {
+    this.headers = headers;
+  }
+
   public ExternalContentUploadInfo contentLength(Integer contentLength) {
     this.contentLength = contentLength;
     return this;
@@ -155,12 +176,13 @@ public class ExternalContentUploadInfo   {
         Objects.equals(this.urlPost, externalContentUploadInfo.urlPost) &&
         Objects.equals(this.filePath, externalContentUploadInfo.filePath) &&
         Objects.equals(this.contentLength, externalContentUploadInfo.contentLength) &&
+        Objects.equals(this.headers, externalContentUploadInfo.headers) &&
         Objects.equals(this.contentType, externalContentUploadInfo.contentType);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(externalContentId, urlPost, filePath, contentLength, contentType);
+    return Objects.hash(externalContentId, urlPost, filePath, contentLength, contentType, headers);
   }
 
   @Override
@@ -173,6 +195,7 @@ public class ExternalContentUploadInfo   {
     sb.append("    filePath: ").append(toIndentedString(filePath)).append("\n");
     sb.append("    contentLength: ").append(toIndentedString(contentLength)).append("\n");
     sb.append("    contentType: ").append(toIndentedString(contentType)).append("\n");
+    sb.append("    headers: ").append(toIndentedString(headers)).append("\n");
     sb.append("}");
     return sb.toString();
   }
