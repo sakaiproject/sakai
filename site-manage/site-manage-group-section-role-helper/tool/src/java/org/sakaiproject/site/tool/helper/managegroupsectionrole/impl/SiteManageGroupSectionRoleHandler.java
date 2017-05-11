@@ -1638,8 +1638,8 @@ public class SiteManageGroupSectionRoleHandler {
     	        group.setTitle(importedGroup.getGroupTitle());
 			}
 			
-			//add all of the imported members to the group
-    		for(String userId: importedGroup.getUserIds()){
+    		// add all of the imported members to the group
+    		for(String userId : importedGroup.getUserIds()) {
     			this.addUserToGroup(userId, group);
     		}
 
