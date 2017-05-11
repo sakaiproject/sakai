@@ -123,8 +123,8 @@ public class SubmitTimedAssessmentThread extends TimerTask
         	  eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
           }
 		  			
-			String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
-			eventLogData.setIpAddress(thisIp);
+            String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+            eventLogData.setIpAddress(thisIp);
 					  
             eventLogFacade.setData(eventLogData);
             eventService.saveOrUpdateEventLog(eventLogFacade);

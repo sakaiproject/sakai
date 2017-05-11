@@ -1712,8 +1712,8 @@ public class DeliveryBean
 			  eventLogData.setErrorMsg(eventLogMessages.getString("error_submit"));
 			  eventLogData.setEndDate(new Date());
 			  			  
-		  	  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
-		  	  eventLogData.setIpAddress(thisIp);
+			  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+			  eventLogData.setIpAddress(thisIp);
 		  	  			  
 			  eventLogFacade.setData(eventLogData);
 			  eventService.saveOrUpdateEventLog(eventLogFacade);
