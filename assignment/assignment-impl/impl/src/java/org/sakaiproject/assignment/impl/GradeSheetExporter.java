@@ -21,7 +21,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.WorkbookUtil;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -93,7 +92,7 @@ public class GradeSheetExporter {
         boolean allowGradeAny = false;
         Collection<Assignment> assignmentsList = assignmentService.getAssignmentsForContext(idSite);
         for (Assignment assignment : assignmentsList) {
-            if (assignmentService.allowGradeSubmission(new AssignmentEntity(assignment).getReference())) {
+            if (assignmentService.allowGradeSubmission(assignmentService.createAssignmentEntity(assignment.getId()).getReference())) {
                 allowGradeAny = true;
                 break;
             }
@@ -184,7 +183,7 @@ public class GradeSheetExporter {
 
 
                     // for column header, check allow grade permission based on each assignment
-                    if (!a.getDraft() && assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference())) {
+                    if (!a.getDraft() && assignmentService.allowGradeSubmission(assignmentService.createAssignmentEntity(a.getId()).getReference())) {
                         // put in assignment title as the column header
                         rowNum = headerRowNumber;
                         row = sheet.getRow(rowNum++);

@@ -12,11 +12,6 @@
     <name>sakai-assignment-impl</name>
     <groupId>org.sakaiproject.assignment</groupId>
     <artifactId>sakai-assignment-impl</artifactId>
-    <organization>
-        <name>University of Michigan</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
     <packaging>sakai-component</packaging>
 
     <dependencies>
@@ -137,7 +132,12 @@
     	    <groupId>commons-io</groupId>
     	    <artifactId>commons-io</artifactId>
         </dependency>
-    	<dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
     	    <groupId>org.mockito</groupId>
     	    <artifactId>mockito-core</artifactId>
     	</dependency>
@@ -178,5 +178,13 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/webapp</directory>
+            </testResource>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
     </build>
 </project>

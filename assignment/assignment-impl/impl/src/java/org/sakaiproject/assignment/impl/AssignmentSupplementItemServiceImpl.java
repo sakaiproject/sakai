@@ -21,34 +21,33 @@
 
 package org.sakaiproject.assignment.impl;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Date;
 import java.util.Set;
 
-import org.sakaiproject.assignment.api.AssignmentEntity;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
-
+import org.hibernate.Query;
 import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
-import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemAttachment;
-import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemWithAttachment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate4.HibernateCallback;
-import org.hibernate.Query;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -468,7 +467,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 			AssignmentModelAnswerItem m = getModelAnswer(a.getId());
 			if (m != null)
 			{
-				if (m_assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference()))
+				if (m_assignmentService.allowGradeSubmission(m_assignmentService.createAssignmentEntity(a.getId()).getReference()))
 				{
 					// model answer is viewable to all graders
 					return true;
@@ -514,7 +513,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 				{
 					return true;
 				}
-				else if (m_assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference()))
+				else if (m_assignmentService.allowGradeSubmission(m_assignmentService.createAssignmentEntity(a.getId()).getReference()))
 				{
 					// check whether the instructor type can view the note
 					int share = note.getShareWith();
@@ -558,7 +557,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					// being creator can edit
 					return true;
 				}
-				else if (note.getShareWith() == AssignmentConstants.NOTE_READ_AND_WRITE_BY_OTHER && m_assignmentService.allowGradeSubmission(new AssignmentEntity(a).getReference()))
+				else if (note.getShareWith() == AssignmentConstants.NOTE_READ_AND_WRITE_BY_OTHER && m_assignmentService.allowGradeSubmission(m_assignmentService.createAssignmentEntity(a.getId()).getReference()))
 				{
 					return true;
 				}		

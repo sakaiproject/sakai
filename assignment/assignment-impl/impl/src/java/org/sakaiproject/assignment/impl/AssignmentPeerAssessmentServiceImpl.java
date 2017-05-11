@@ -29,7 +29,6 @@ import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -93,7 +92,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 Map<String, Map<String, PeerAssessmentItem>> assignedAssessmentsMap = new HashMap<String, Map<String, PeerAssessmentItem>>();
                 //keep track of how many assessor's each student has
                 Map<String, Integer> studentAssessorsMap = new HashMap<String, Integer>();
-                List<User> submitterUsersList = assignmentService.allowAddSubmissionUsers(new AssignmentEntity(assignment).getReference());
+                List<User> submitterUsersList = assignmentService.allowAddSubmissionUsers(assignmentService.createAssignmentEntity(assignment.getId()).getReference());
                 List<String> submitterIdsList = new ArrayList<String>();
                 if (submitterUsersList != null) {
                     for (User u : submitterUsersList) {
@@ -453,17 +452,16 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                         changed = true;
                     }
                     if (changed) {
-                        AssignmentSubmission edit = assignmentService.editSubmission(submissionId);
-                        edit.setGrade(totleScoreStr);
-                        edit.setGraded(true);
-                        edit.setGradedBy(AssignmentPeerAssessmentService.class.getName());
-                        edit.setGradeReleased(false);
-                        assignmentService.commitEdit(edit);
+                        submission.setGrade(totleScoreStr);
+                        submission.setGraded(true);
+                        submission.setGradedBy(AssignmentPeerAssessmentService.class.getName());
+                        submission.setGradeReleased(false);
+                        assignmentService.updateSubmission(submission);
                         saved = true;
                     }
                 }
             }
-        } catch (IdUnusedException | InUseException | PermissionException e) {
+        } catch (IdUnusedException |  PermissionException e) {
             log.error(e.getMessage(), e);
         } finally {
             // remove advisor

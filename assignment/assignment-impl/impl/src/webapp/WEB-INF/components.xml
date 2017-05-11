@@ -7,11 +7,12 @@
           class="org.sakaiproject.assignment.impl.AssignmentServiceImpl"
           init-method="init"
           destroy-method="destroy">
-        <property name="allowGroupAssignments" value="true"/>
-        <property name="allowGroupAssignmentsInGradebook" value="true"/>
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
         <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
+        <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
         <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
+        <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
+        <property name="assignmentReferenceUtil" ref="org.sakaiproject.assignment.impl.AssignmentReferenceUtil"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
         <property name="candidateDetailProvider">
@@ -39,6 +40,23 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
+    <bean id="org.sakaiproject.assignment.api.AssignmentEntity"
+          class="org.sakaiproject.assignment.api.AssignmentEntity"
+          scope="prototype">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.api.AssignmentEntity.factory"
+          class="org.springframework.beans.factory.config.ObjectFactoryCreatingFactoryBean">
+        <property name="targetBeanName" value="org.sakaiproject.assignment.api.AssignmentEntity"/>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.impl.AssignmentReferenceUtil"
+          class="org.sakaiproject.assignment.impl.AssignmentReferenceUtil">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
     <!-- bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
@@ -80,6 +98,8 @@
             <list>
                 <value>org.sakaiproject.assignment.api.model.Assignment</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentSubmission</value>
+                <value>org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter</value>
+                <value>org.sakaiproject.assignment.api.model.AssessorSubmissionId</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess</value>
                 <value>org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem</value>
@@ -90,6 +110,11 @@
                 <value>org.sakaiproject.assignment.api.model.PeerAssessmentItem</value>
             </list>
         </property>
+    </bean>
+
+    <bean id="org.sakaiproject.assignment.persistence.AssignmentRepository"
+          class="org.sakaiproject.assignment.persistence.AssignmentRepositoryImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
     <!-- bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"

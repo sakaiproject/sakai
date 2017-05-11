@@ -25,10 +25,9 @@ import java.util.Date;
 import java.util.Set;
 
 import org.sakaiproject.assignment.api.AssignmentEntity;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -56,8 +55,8 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	protected AssignmentActivityProducerImpl producer;
 
-	@Setter
-	private UserDirectoryService userDirectoryService;
+	@Setter private UserDirectoryService userDirectoryService;
+	@Setter private AssignmentService assignmentService;
 
 	public AssignmentItemImpl(AssignmentActivityProducerImpl producer, AssignmentSubmission submission, String userId,
 			TaggableActivity activity) {
@@ -81,7 +80,7 @@ public class AssignmentItemImpl implements TaggableItem {
 
 	public String getReference() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(new AssignmentEntity(submission.getAssignment()).getReference());
+		sb.append(assignmentService.createAssignmentEntity(submission.getAssignment().getId()).getReference());
 		sb.append(ITEM_REF_SEPARATOR);
 		sb.append(userId);
 		return sb.toString();
@@ -108,14 +107,14 @@ public class AssignmentItemImpl implements TaggableItem {
 	
 	public String getItemDetailUrl()
 	{
-		String subRef = new AssignmentEntity(submission.getAssignment()).getReference().replaceAll("/", "_");
+		String subRef = assignmentService.createAssignmentEntity(submission.getAssignment().getId()).getReference().replaceAll("/", "_");
 		String url = producer.serverConfigurationService.getServerUrl() +
 			"/direct/assignment/" + submission.getAssignment().getId() + "/doView_grade/" + subRef;
 		return url;
 	}
 	
 	public String getItemDetailPrivateUrl(){
-		String subRef = new AssignmentEntity(submission.getAssignment()).getReference().replaceAll("/", "_");
+		String subRef = assignmentService.createAssignmentEntity(submission.getAssignment().getId()).getReference().replaceAll("/", "_");
 		String url = producer.serverConfigurationService.getServerUrl() +
 			"/direct/assignment/" + submission.getAssignment().getId() + "/doView_grade_private/" + subRef;
 		return url;

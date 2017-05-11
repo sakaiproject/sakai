@@ -110,7 +110,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public TaggableActivity getActivity(Assignment assignment) {
-		return new AssignmentActivityImpl(assignment, this);
+		return new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this);
 	}
 
 	public TaggableActivity getActivity(String activityRef,
@@ -121,7 +121,7 @@ public class AssignmentActivityProducerImpl implements
 			try {
 				Assignment assignment = assignmentService.getAssignment(activityRef);
 				if (assignment != null)
-					activity = new AssignmentActivityImpl(assignment, this);
+					activity = new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this);
 			} catch (IdUnusedException | PermissionException iue) {
 				logger.error(iue.getMessage(), iue);
 			}
@@ -137,11 +137,9 @@ public class AssignmentActivityProducerImpl implements
 		return PRODUCER_ID;
 	}
 
-	public TaggableItem getItem(AssignmentSubmission assignmentSubmission,
-			String userId) {
-		return new AssignmentItemImpl(this, assignmentSubmission, userId,
-				new AssignmentActivityImpl(
-						assignmentSubmission.getAssignment(), this));
+	public TaggableItem getItem(AssignmentSubmission assignmentSubmission, String userId) {
+		Assignment assignment = assignmentSubmission.getAssignment();
+		return new AssignmentItemImpl(this, assignmentSubmission, userId, new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()), this));
 	}
 
 	public TaggableItem getItem(String itemRef, TaggingProvider provider, boolean getMyItemsOnly, String taggedItem) {
@@ -149,11 +147,9 @@ public class AssignmentActivityProducerImpl implements
 		TaggableItem item = null;
 		if (checkReference(itemRef)) {
 			try {
-				AssignmentSubmission submission = assignmentService
-						.getSubmission(parseSubmissionRef(itemRef));
-				item = new AssignmentItemImpl(this, submission, parseAuthor(itemRef),
-						new AssignmentActivityImpl(submission.getAssignment(),
-								this));
+				AssignmentSubmission submission = assignmentService.getSubmission(parseSubmissionRef(itemRef));
+				Assignment assignment = submission.getAssignment();
+				item = new AssignmentItemImpl(this, submission, parseAuthor(itemRef), new AssignmentActivityImpl(assignment, assignmentService.createAssignmentEntity(assignment.getId()),this));
 			} catch (IdUnusedException | PermissionException iue) {
 				logger.error(iue.getMessage(), iue);
 			}
@@ -167,12 +163,9 @@ public class AssignmentActivityProducerImpl implements
 		List<TaggableItem> returned = new ArrayList<TaggableItem>();
 		try {
 			Assignment assignment = (Assignment) activity.getObject();
-			AssignmentSubmission submission = assignmentService.getSubmission(
-					new AssignmentEntity(assignment).getReference(), userDirectoryService
-							.getUser(userId));
+			AssignmentSubmission submission = assignmentService.getSubmission(assignment.getId(), userDirectoryService.getUser(userId));
 			if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
-				TaggableItem item = new AssignmentItemImpl(this, submission, userId,
-						activity);
+				TaggableItem item = new AssignmentItemImpl(this, submission, userId, activity);
 				returned.add(item);
 			}
 		} catch (UserNotDefinedException unde) {
@@ -191,9 +184,8 @@ public class AssignmentActivityProducerImpl implements
 		 * look at submission items. It seems that anybody is allowed to get any
 		 * submissions.
 		 */
-		if (assignmentService.allowGradeSubmission(new AssignmentEntity(assignment).getReference())) {
-			for (Iterator<AssignmentSubmission> i = assignmentService.getSubmissions(assignment).iterator(); i.hasNext();) {
-				AssignmentSubmission submission = i.next();
+		if (assignmentService.allowGradeSubmission(assignmentService.createAssignmentEntity(assignment.getId()).getReference())) {
+			for (AssignmentSubmission submission : assignmentService.getSubmissions(assignment)) {
 				if (submission != null && submission.getSubmitted() && submission.getDateSubmitted() != null) {
 					for (AssignmentSubmissionSubmitter submissionSubmitter : submission.getSubmitters()) {
 						items.add(new AssignmentItemImpl(this, submission, submissionSubmitter.getSubmitter(), activity));

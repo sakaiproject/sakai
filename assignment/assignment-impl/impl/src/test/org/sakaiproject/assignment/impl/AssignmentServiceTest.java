@@ -30,15 +30,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.SessionManager;
@@ -55,18 +54,19 @@ import lombok.extern.slf4j.Slf4j;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {AssignmentTestConfiguration.class})
 public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringContextTests {
-    @Mock SecurityService securityService;
-    @Mock SessionManager sessionManager;
 
-    @Autowired
-    @InjectMocks
-    private AssignmentService assignmentService;
+    private static final Faker faker = new Faker();
 
-    private Faker faker = new Faker();
+    @Autowired SecurityService securityService;
+    @Autowired SessionManager sessionManager;
+    @Autowired private AssignmentService assignmentService;
+    @Autowired private EntityManager entityManager;
+    @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private AssignmentReferenceUtil assignmentReferenceUtil;
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
     }
 
     @Test
@@ -78,8 +78,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void testAddAndGetAssignment() {
         String userId = UUID.randomUUID().toString();
         String context = UUID.randomUUID().toString();
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, getTestAccessPoint(context))).thenReturn(true);
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, getTestAccessPoint(context))).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
         when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
 
         String assignmentId = null;
@@ -101,7 +101,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void getAssignmentsForContext() {
-        String context = createNewAssignment();
+        String context = createNewAssignment().getContext();
         Collection assignments = assignmentService.getAssignmentsForContext(context);
         Assert.assertNotNull(assignments);
         Assert.assertEquals(1, assignments.size());
@@ -109,7 +109,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void getAssignmentStatus() {
-        String context = createNewAssignment();
+        String context = createNewAssignment().getContext();
         Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(context);
         Assert.assertEquals(1, assignments.size());
         Assignment assignment = assignments.toArray(new Assignment[]{})[0];
@@ -126,18 +126,44 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(AssignmentConstants.Status.DRAFT, status);
     }
 
-    private String createNewAssignment() {
+    @Test
+    public void parseEntityReference() {
         String context = UUID.randomUUID().toString();
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, getTestAccessPoint(context))).thenReturn(true);
+        String assignmentId = UUID.randomUUID().toString();
+
+        String refA = assignmentReferenceUtil.makeRelativeStringReference(context, "a", assignmentId, null);
+        FakeReference reference = new FakeReference(assignmentService, refA);
+        Assert.assertTrue(assignmentService.parseEntityReference(refA, reference));
+        Assert.assertEquals(AssignmentServiceConstants.APPLICATION_ID, reference.getType());
+        Assert.assertEquals("a", reference.getSubType());
+        Assert.assertEquals(context, reference.getContext());
+        Assert.assertEquals(assignmentId, reference.getId());
+        Assert.assertEquals(refA, reference.getReference());
+
+        // TODO test submission reference and others
+    }
+
+    @Test
+    public void createAssignmentEntity() {
+        Assignment assignment = createNewAssignment();
+        String stringRef = assignmentReferenceUtil.makeRelativeStringReference(assignment.getContext(), "a", assignment.getId(), null);
+        FakeReference reference = new FakeReference(assignmentService, stringRef);
+        assignmentService.parseEntityReference(stringRef, reference);
+        when(entityManager.newReference(stringRef)).thenReturn(reference);
+        Entity entity = assignmentService.createAssignmentEntity(assignment.getId());
+        Assert.assertEquals(assignment.getId(), entity.getId());
+        Assert.assertEquals(reference.getReference(), entity.getReference());
+    }
+
+    private Assignment createNewAssignment() {
+        String context = UUID.randomUUID().toString();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
+        Assignment assignment = null;
         try {
-            assignmentService.addAssignment(context);
+            assignment = assignmentService.addAssignment(context);
         } catch (PermissionException e) {
             Assert.fail(e.getMessage());
         }
-        return context;
-    }
-
-    private String getTestAccessPoint(String context) {
-        return AssignmentServiceConstants.REFERENCE_ROOT + Entity.SEPARATOR + context;
+        return assignment;
     }
 }

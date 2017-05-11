@@ -21,75 +21,72 @@
 
 package org.sakaiproject.assignment.taggable.impl;
 
-import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 
 public class AssignmentActivityImpl implements TaggableActivity {
 
-	protected Assignment assignment;
+    private Assignment assignment;
+    private Entity entity;
+    private AssignmentActivityProducerImpl producer;
 
-	protected AssignmentActivityProducerImpl producer;
+    public AssignmentActivityImpl(Assignment assignment, Entity entity, AssignmentActivityProducerImpl producer) {
+        this.assignment = assignment;
+        this.entity = entity;
+        this.producer = producer;
+    }
 
-	public AssignmentActivityImpl(Assignment assignment,
-			AssignmentActivityProducerImpl producer) {
-		this.assignment = assignment;
-		this.producer = producer;
-	}
+    public boolean equals(Object object) {
+        if (object instanceof TaggableActivity) {
+            TaggableActivity activity = (TaggableActivity) object;
+            return activity.getReference().equals(this.getReference());
+        }
+        return false;
+    }
 
-	public boolean equals(Object object) {
-		if (object instanceof TaggableActivity) {
-			TaggableActivity activity = (TaggableActivity) object;
-			return activity.getReference().equals(this.getReference());
-		}
-		return false;
-	}
+    public String getContext() {
+        return assignment.getContext();
+    }
 
-	public String getContext() {
-		return assignment.getContext();
-	}
+    public String getDescription() {
+        return assignment.getInstructions();
+    }
 
-	public String getDescription() {
-		return assignment.getInstructions();
-	}
+    public Object getObject() {
+        return assignment;
+    }
 
-	public Object getObject() {
-		return assignment;
-	}
+    public TaggableActivityProducer getProducer() {
+        return producer;
+    }
 
-	public TaggableActivityProducer getProducer() {
-		return producer;
-	}
+    public String getReference() {
+        return entity.getReference();
+    }
 
-	public String getReference() {
-		return new AssignmentEntity(assignment).getReference();
-	}
+    public String getTitle() {
+        return assignment.getTitle();
+    }
 
-	public String getTitle() {
-		return assignment.getTitle();
-	}
+    public String getActivityDetailUrl() {
+        //String url = assignment.getUrl();
+        String url = producer.serverConfigurationService.getServerUrl() +
+                "/direct/assignment/" + assignment.getId() + "/doView_assignment";
+        return url;
+    }
 
-	public String getActivityDetailUrl()
-	{
-		//String url = assignment.getUrl();
-		String url = producer.serverConfigurationService.getServerUrl() +
-			"/direct/assignment/" + assignment.getId() + "/doView_assignment";
-		return url;
-	}
+    public String getTypeName() {
+        return producer.getName();
+    }
 
-	public String getTypeName()
-	{
-		return producer.getName();
-	}
-	
-	public boolean getUseDecoration()
-	{
-		return true;
-	}
-	
-	public String getActivityDetailUrlParams() {
-		return "?TB_iframe=true";
-	}
+    public boolean getUseDecoration() {
+        return true;
+    }
+
+    public String getActivityDetailUrlParams() {
+        return "?TB_iframe=true";
+    }
 
 }

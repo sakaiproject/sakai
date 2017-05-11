@@ -3,6 +3,7 @@ package org.sakaiproject.assignment.persistence;
 import java.util.List;
 
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.serialization.SerializableRepository;
 
 /**
@@ -19,4 +20,8 @@ public interface AssignmentRepository extends SerializableRepository<Assignment,
     void deleteAssignment(Assignment assignment);
 
     void softDeleteAssignment(Assignment assignment);
+
+    AssignmentSubmission findSubmission(String submissionId);
+
+    void saveSubmission(AssignmentSubmission submission);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 
 /**
@@ -36,5 +37,16 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     public void softDeleteAssignment(Assignment assignment) {
         throw new NotImplementedException("Soft Delete is currently not implemented");
+    }
+
+    @Override
+    public AssignmentSubmission findSubmission(String submissionId) {
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class).add(Restrictions.eq("id", submissionId)).uniqueResult();
+    }
+
+    @Override
+    public void saveSubmission(AssignmentSubmission submission) {
+        Assignment assignment = submission.getAssignment();
+        saveAssignment(assignment);
     }
 }

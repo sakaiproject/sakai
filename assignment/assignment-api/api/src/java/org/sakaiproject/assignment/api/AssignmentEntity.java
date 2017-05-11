@@ -3,6 +3,7 @@ package org.sakaiproject.assignment.api;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 import java.util.Stack;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +16,8 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -32,17 +35,28 @@ public class AssignmentEntity implements Entity {
     @Setter private EntityManager entityManager;
     @Setter private ServerConfigurationService serverConfigurationService;
 
+    private String assignmentId;
     private Assignment assignment;
     private Reference reference;
 
-    public AssignmentEntity(Assignment assignment) {
-        this.assignment = assignment;
-        reference = entityManager.newReference(getAccessPoint(false));
+    public void initEntity(String assignmentId) {
+        Objects.requireNonNull(assignmentId, "Assignment id cannot be null");
+        this.assignmentId = assignmentId;
+        try {
+            assignment = assignmentService.getAssignment(assignmentId);
+        } catch (IdUnusedException | PermissionException e) {
+            log.warn("Could not fetch assignment with id = {}", reference.getId(), e);
+        }
+
+        if (assignment == null) {
+            throw new RuntimeException("Cannot instantiate AssignmentEntity without an assignment...");
+        }
+        reference = entityManager.newReference(buildAssignmentReference(true));
     }
 
     @Override
     public String getUrl() {
-        return getAccessPoint(false) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + assignment.getContext() + Entity.SEPARATOR + assignment.getId();
+        return buildAssignmentReference(false);
     }
 
     @Override
@@ -67,7 +81,7 @@ public class AssignmentEntity implements Entity {
 
     @Override
     public ResourceProperties getProperties() {
-        return null;
+        return reference.getProperties();
     }
 
     @Override
@@ -90,6 +104,10 @@ public class AssignmentEntity implements Entity {
             return document.getDocumentElement();
         }
         return null;
+    }
+
+    private String buildAssignmentReference(boolean relative) {
+        return getAccessPoint(relative) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + assignment.getContext() + Entity.SEPARATOR + assignment.getId();
     }
 
     private String getAccessPoint(boolean relative) {

@@ -119,6 +119,10 @@ public final class AssignmentConstants {
 	/** Calendar event field for assignment due dates */
 	public static final String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 
+	public static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
+
+	public static final String NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED = "new_assignment_open_date_announced";
+
 	/** the String for all choice in dropdown menu */
 	public static final String ALL = "all";
 	
@@ -219,4 +223,6 @@ public final class AssignmentConstants {
 	/** resource property that marks the attachment as being the inline submission (boolean) */
 	public static final String PROP_INLINE_SUBMISSION = "assignment_submission_attachment_is_inline";
 
+	public static final String ZIP_COMMENT_FILE_TYPE = ".txt";
+	public static final String ZIP_SUBMITTED_TEXT_FILE_TYPE = ".html";
 }
