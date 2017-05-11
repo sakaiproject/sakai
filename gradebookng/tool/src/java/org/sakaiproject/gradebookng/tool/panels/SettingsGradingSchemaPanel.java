@@ -34,6 +34,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberTickUnitSource;
 import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
@@ -50,11 +51,17 @@ import org.sakaiproject.gradebookng.tool.model.GbGradingSchemaEntry;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.tool.gradebook.GradebookArchive;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static Logger logger = LoggerFactory.getLogger(SettingsGradingSchemaPanel.class);
 
 	IModel<GbSettings> model;
 
@@ -399,6 +406,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				true, // show tooltips
 				false); // show urls
 
+	    chart.getCategoryPlot().setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
 		chart.setBorderVisible(false);
 		chart.setAntiAlias(false);
 
@@ -492,24 +500,21 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		if (this.total < 1 && StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
 			return "-";
 		} else if (StringUtils.equals(this.gradingSchemaName, "Grade Points")) {
-			Map<String, Double> gpaScoresMap = new HashMap<>();
-			gpaScoresMap.put("A (4.0)", Double.valueOf("4.0"));
-			gpaScoresMap.put("A- (3.67)", Double.valueOf("3.67"));
-			gpaScoresMap.put("B+ (3.33)", Double.valueOf("3.33"));
-			gpaScoresMap.put("B (3.0)", Double.valueOf("3.0"));
-			gpaScoresMap.put("B- (2.67)", Double.valueOf("2.67"));
-			gpaScoresMap.put("C+ (2.33)", Double.valueOf("2.33"));
-			gpaScoresMap.put("C (2.0)", Double.valueOf("2.0"));
-			gpaScoresMap.put("C- (1.67)", Double.valueOf("1.67"));
-			gpaScoresMap.put("D (1.0)", Double.valueOf("1.0"));
-			gpaScoresMap.put("F (0)", Double.valueOf("0"));	
+			Map<String, Double> gpaScoresMap = getGPAScoresMap();
 			
 			// get all of the non null mapped grades
 			// mapped grades will be null if the student doesn't have a course grade yet.
 			final List<String> mappedGrades = this.courseGradeMap.values().stream().filter(c -> c.getMappedGrade() != null).map(c -> (c.getMappedGrade())).collect(Collectors.toList());
 			Double averageGPA = 0.0;
 			for (String mappedGrade : mappedGrades) {
-				averageGPA += gpaScoresMap.get(mappedGrade);
+				// Note to developers. If you changed GradePointsMapping without changing gpaScoresMap, the average will be incorrect.
+				// As per GradePointsMapping, both must be kept in sync
+				Double grade = gpaScoresMap.get(mappedGrade);
+				if(grade != null) {
+					averageGPA += grade;
+				} else {
+					logger.debug("Grade skipped when calculating course average GPA: " + mappedGrade + ". Calculated value will be incorrect.");
+				}
 			}
 			averageGPA /= mappedGrades.size();
 			
@@ -559,4 +564,22 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		return this.total > 0 ? String.format("%.2f",stats.getStandardDeviation()) :  "-";
 	}
 	
+	/**
+	 * 
+	 */
+	private Map<String, Double> getGPAScoresMap() {
+		Map<String, Double> gpaScoresMap = new HashMap<>();
+		gpaScoresMap.put("A (4.0)", Double.valueOf("4.0"));
+		gpaScoresMap.put("A- (3.67)", Double.valueOf("3.67"));
+		gpaScoresMap.put("B+ (3.33)", Double.valueOf("3.33"));
+		gpaScoresMap.put("B (3.0)", Double.valueOf("3.0"));
+		gpaScoresMap.put("B- (2.67)", Double.valueOf("2.67"));
+		gpaScoresMap.put("C+ (2.33)", Double.valueOf("2.33"));
+		gpaScoresMap.put("C (2.0)", Double.valueOf("2.0"));
+		gpaScoresMap.put("C- (1.67)", Double.valueOf("1.67"));
+		gpaScoresMap.put("D (1.0)", Double.valueOf("1.0"));
+		gpaScoresMap.put("F (0)", Double.valueOf("0"));	
+		
+		return gpaScoresMap;
+	}
 }
