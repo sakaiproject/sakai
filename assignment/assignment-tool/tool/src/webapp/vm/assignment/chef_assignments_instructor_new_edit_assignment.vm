@@ -1036,9 +1036,9 @@
 						#end
 					#end
 					</select>
-				#if(($!assignment && !$assignment.draft) && $!value_additionalOptions.equals("peerreview"))
-					$tlang.getString("gen.cant.change.setting.after.draft")
-				#end
+					#if(($!assignment && !$assignment.draft) && $!value_additionalOptions.equals("peerreview"))
+						$tlang.getString("gen.cant.change.setting.after.draft")
+					#end
 				</div>
 			</div>
 
