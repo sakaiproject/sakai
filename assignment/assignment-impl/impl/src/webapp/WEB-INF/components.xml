@@ -12,7 +12,6 @@
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>
         <property name="assignmentPeerAssessmentService" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/>
         <property name="assignmentRepository" ref="org.sakaiproject.assignment.persistence.AssignmentRepository"/>
-        <property name="assignmentReferenceUtil" ref="org.sakaiproject.assignment.impl.AssignmentReferenceUtil"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
         <property name="candidateDetailProvider">
@@ -53,10 +52,6 @@
         <property name="targetBeanName" value="org.sakaiproject.assignment.api.AssignmentEntity"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.impl.AssignmentReferenceUtil"
-          class="org.sakaiproject.assignment.impl.AssignmentReferenceUtil">
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-    </bean>
     <!-- bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>

@@ -1,8 +1,9 @@
-package org.sakaiproject.assignment.impl;
+package org.sakaiproject.assignment.api;
 
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.ReferenceReckoner;
 import org.sakaiproject.entity.api.Entity;
 
 import lombok.AccessLevel;

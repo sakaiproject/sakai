@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -62,7 +63,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private AssignmentService assignmentService;
     @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
-    @Autowired private AssignmentReferenceUtil assignmentReferenceUtil;
 
     @Before
     public void setUp() {
@@ -78,8 +78,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void testAddAndGetAssignment() {
         String userId = UUID.randomUUID().toString();
         String context = UUID.randomUUID().toString();
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         when(sessionManager.getCurrentSessionUserId()).thenReturn(userId);
 
         String assignmentId = null;
@@ -133,7 +133,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         String context = UUID.randomUUID().toString();
         String assignmentId = UUID.randomUUID().toString();
 
-        String refA = assignmentReferenceUtil.makeRelativeStringReference(context, "a", assignmentId, null);
+        String refA = AssignmentReferenceReckoner.reckoner().context(context).subtype("a").id(assignmentId).reckon().getReference();
         FakeReference reference = new FakeReference(assignmentService, refA);
         Assert.assertTrue(assignmentService.parseEntityReference(refA, reference));
         Assert.assertEquals(AssignmentServiceConstants.APPLICATION_ID, reference.getType());
@@ -149,7 +149,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     public void createAssignmentEntity() {
         String context = UUID.randomUUID().toString();
         Assignment assignment = createNewAssignment(context);
-        String stringRef = assignmentReferenceUtil.makeRelativeStringReference(assignment.getContext(), "a", assignment.getId(), null);
+        String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
         FakeReference reference = new FakeReference(assignmentService, stringRef);
         assignmentService.parseEntityReference(stringRef, reference);
         when(entityManager.newReference(stringRef)).thenReturn(reference);
@@ -159,7 +159,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     private Assignment createNewAssignment(String context) {
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
         Assignment assignment = null;
         try {
             assignment = assignmentService.addAssignment(context);

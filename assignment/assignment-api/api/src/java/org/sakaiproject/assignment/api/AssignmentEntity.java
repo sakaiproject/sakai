@@ -51,12 +51,12 @@ public class AssignmentEntity implements Entity {
         if (assignment == null) {
             throw new RuntimeException("Cannot instantiate AssignmentEntity without an assignment...");
         }
-        reference = entityManager.newReference(buildAssignmentReference(true));
+        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).subtype("a").reckon().getReference());
     }
 
     @Override
     public String getUrl() {
-        return buildAssignmentReference(false);
+        return reference.getUrl();
     }
 
     @Override
@@ -104,13 +104,5 @@ public class AssignmentEntity implements Entity {
             return document.getDocumentElement();
         }
         return null;
-    }
-
-    private String buildAssignmentReference(boolean relative) {
-        return getAccessPoint(relative) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + assignment.getContext() + Entity.SEPARATOR + assignment.getId();
-    }
-
-    private String getAccessPoint(boolean relative) {
-        return (relative ? "" : serverConfigurationService.getAccessUrl()) + AssignmentServiceConstants.REFERENCE_ROOT;
     }
 }

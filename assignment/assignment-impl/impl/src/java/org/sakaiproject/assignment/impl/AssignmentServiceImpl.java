@@ -1,5 +1,6 @@
 package org.sakaiproject.assignment.impl;
 
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.APPLICATION_ID;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_ASSIGNMENT;
@@ -62,6 +63,7 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -170,7 +172,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private TimeService timeService;
     @Setter private ToolManager toolManager;
     @Setter private UserDirectoryService userDirectoryService;
-    @Setter private AssignmentReferenceUtil assignmentReferenceUtil;
 
     private DateTimeFormatter dateTimeFormatter;
 
@@ -205,7 +206,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public boolean parseEntityReference(String stringReference, Reference reference) {
         if (StringUtils.startsWith(stringReference, REFERENCE_ROOT)) {
-            assignmentReferenceUtil.updateReferenceWithStringReference(stringReference, reference);
+            AssignmentReferenceReckoner.AssignmentReference reckoner = AssignmentReferenceReckoner.reckoner().reference(stringReference).reckon();
+            reference.set(APPLICATION_ID, reckoner.getSubtype(), reckoner.getId(), reckoner.getContainer(), reckoner.getContext());
             return true;
         }
         return false;
@@ -409,33 +411,33 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public boolean allowReceiveSubmissionNotification(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         if (permissionCheck(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString, null)) return true;
         return false;
     }
 
     @Override
     public List allowReceiveSubmissionNotificationUsers(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return securityService.unlockUsers(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString);
     }
 
     @Override
     public boolean allowAddSiteAssignment(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return permissionCheck(SECURE_ADD_ASSIGNMENT, resourceString, null);
     }
 
     @Override
     public boolean allowAllGroups(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         if (permissionCheck(SECURE_ALL_GROUPS, resourceString, null)) return true;
         return false;
     }
 
     @Override
     public boolean allowGetAssignment(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return permissionCheck(SECURE_ACCESS_ASSIGNMENT, resourceString, null);
     }
 
@@ -466,7 +468,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public boolean allowAddAssignment(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         if (permissionCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString, null)) return true;
         // if not, see if the user has any groups to which adds are allowed
         return (!getGroupsAllowAddAssignment(context).isEmpty());
@@ -474,13 +476,13 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public boolean allowAddSubmission(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeStringReference(context, "s", null, null);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
         return permissionCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, null);
     }
 
     @Override
     public boolean allowAddSubmissionCheckGroups(String context, Assignment assignment) {
-        String resourceString = assignmentReferenceUtil.makeRelativeStringReference(context, "s", null, null);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
         return permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString, assignment);
     }
 
@@ -557,7 +559,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public List allowAddAssignmentUsers(String context) {
-        String resourceString = assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context);
+        String resourceString = AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference();
         return securityService.unlockUsers(SECURE_ADD_ASSIGNMENT, resourceString);
     }
 
