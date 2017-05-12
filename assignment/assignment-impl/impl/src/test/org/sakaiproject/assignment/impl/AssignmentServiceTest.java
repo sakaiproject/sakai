@@ -101,7 +101,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void getAssignmentsForContext() {
-        String context = createNewAssignment().getContext();
+        String context = UUID.randomUUID().toString();
+        createNewAssignment(context);
         Collection assignments = assignmentService.getAssignmentsForContext(context);
         Assert.assertNotNull(assignments);
         Assert.assertEquals(1, assignments.size());
@@ -109,7 +110,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void getAssignmentStatus() {
-        String context = createNewAssignment().getContext();
+        String context = UUID.randomUUID().toString();
+        createNewAssignment(context);
         Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(context);
         Assert.assertEquals(1, assignments.size());
         Assignment assignment = assignments.toArray(new Assignment[]{})[0];
@@ -145,7 +147,8 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     @Test
     public void createAssignmentEntity() {
-        Assignment assignment = createNewAssignment();
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
         String stringRef = assignmentReferenceUtil.makeRelativeStringReference(assignment.getContext(), "a", assignment.getId(), null);
         FakeReference reference = new FakeReference(assignmentService, stringRef);
         assignmentService.parseEntityReference(stringRef, reference);
@@ -155,8 +158,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(reference.getReference(), entity.getReference());
     }
 
-    private Assignment createNewAssignment() {
-        String context = UUID.randomUUID().toString();
+    private Assignment createNewAssignment(String context) {
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, assignmentReferenceUtil.makeRelativeAssignmentContextStringReference(context))).thenReturn(true);
         Assignment assignment = null;
         try {
