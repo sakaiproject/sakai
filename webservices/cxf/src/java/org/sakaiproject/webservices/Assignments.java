@@ -411,14 +411,14 @@ public class Assignments extends AbstractWebService {
     	return "success";
     }
 
-	@WebMethod
+    @WebMethod
     @Path("/shiftAssignmentDates")
     @Produces("text/plain")
     @GET
     public String shiftAssignmentDates(
             @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
-			@WebParam(name = "shiftDays", partName = "shiftDays") @QueryParam("shiftDays") int shiftDays,
-			@WebParam(name = "shiftHours", partName = "shiftHours") @QueryParam("shiftHours") int shiftHours,
+            @WebParam(name = "shiftDays", partName = "shiftDays") @QueryParam("shiftDays") int shiftDays,
+            @WebParam(name = "shiftHours", partName = "shiftHours") @QueryParam("shiftHours") int shiftHours,
             @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
         LOG.info("shifting all dates for assignment: " + assignmentId);
         try {
@@ -469,7 +469,7 @@ public class Assignments extends AbstractWebService {
 				aPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(cal.getTimeInMillis()));
 			}
 			assignmentService.commitEdit(assignment);
-    		LOG.debug("edit committed");			
+			LOG.debug("edit committed");			
     	}
     	catch (Exception e) {
     		LOG.error("WS shiftAssignmentDates(): " + e.getClass().getName() + " : " + e.getMessage()); 
