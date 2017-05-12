@@ -1244,7 +1244,7 @@
 			$tlang.getString("additionalOptionsName")
 		</h4>
 		<p class="text-muted small">
-		$tlang.getString("gen.cant.change.after.draft")
+			$tlang.getString("gen.cant.change.after.draft")
 		</p>
 		<div class="radio">
 			<label for="$name_noAdditionalOptionsName" class="$class">
