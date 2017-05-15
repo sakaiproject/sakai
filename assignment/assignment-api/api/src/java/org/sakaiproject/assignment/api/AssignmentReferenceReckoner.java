@@ -3,7 +3,6 @@ package org.sakaiproject.assignment.api;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.ReferenceReckoner;
 import org.sakaiproject.entity.api.Entity;
 
 import lombok.AccessLevel;
@@ -55,7 +54,7 @@ public class AssignmentReferenceReckoner {
             reference = reference + Entity.SEPARATOR + context;
 
             if (StringUtils.isNotBlank(id)) {
-                if ("s".equals(type)) {
+                if ("s".equals(subtype) && StringUtils.isNotBlank(container)) {
                     reference = reference + Entity.SEPARATOR + container;
                 }
                 reference = reference + Entity.SEPARATOR + id;
@@ -72,6 +71,7 @@ public class AssignmentReferenceReckoner {
 
     /**
      * This is a builder for an AssignmentReference
+     *
      * @param container
      * @param context
      * @param id
@@ -92,11 +92,9 @@ public class AssignmentReferenceReckoner {
                     if (context == null) context = parts[3];
 
                     // submissions have the assignment unique id as a container
-                    if ("s".equals(subtype)) {
-                        if (parts.length > 5) {
-                            if (container == null) container = parts[4];
-                            if (id == null) id = parts[5];
-                        }
+                    if ("s".equals(subtype) && parts.length > 5) {
+                        if (container == null) container = parts[4];
+                        if (id == null) id = parts[5];
                     } else {
                         // others don't
                         if (parts.length > 4) {
@@ -106,7 +104,9 @@ public class AssignmentReferenceReckoner {
                 }
             }
         }
-        return new AssignmentReference(
+        return new
+
+                AssignmentReference(
                 (container == null) ? "" : container,
                 (context == null) ? "" : context,
                 (id == null) ? "" : id,

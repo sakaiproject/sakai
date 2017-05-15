@@ -179,10 +179,6 @@ public class AssignmentServiceImpl implements AssignmentService {
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
     }
 
-    public void destroy() {
-
-    }
-
     @Override
     public String getLabel() {
         return "assignment";
@@ -589,7 +585,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     public Assignment addAssignment(String context) throws PermissionException {
         // security check
         if (!allowAddAssignment(context)) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_CONTENT, null);
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, null);
         }
 
         Assignment assignment = new Assignment();
@@ -643,21 +639,23 @@ public class AssignmentServiceImpl implements AssignmentService {
     public void removeAssignment(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
-        log.debug("attempting to delete assignment with id = {}", assignment.getId());
-        Entity entity = createAssignmentEntity(assignment.getId());
+        log.debug("Attempting to delete assignment with id = {}", assignment.getId());
+        String reference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).reckon().getReference();
 
-        if (permissionCheck(SECURE_REMOVE_ASSIGNMENT, entity.getReference(), null)) {
-            assignmentRepository.delete(assignment);
+        if (!allowRemoveAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
+        }
 
-            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, entity.getReference(), true));
+        assignmentRepository.delete(assignment);
 
-            // remove any realm defined for this resource
-            try {
-                authzGroupService.removeAuthzGroup(entity.getReference());
-                log.debug("successful delete for assignment with id = {}", assignment.getId());
-            } catch (AuthzPermissionException e) {
-                log.warn("deleting realm for assignment reference = {}", entity.getReference(), e);
-            }
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
+
+        // remove any realm defined for this resource
+        try {
+            authzGroupService.removeAuthzGroup(reference);
+            log.debug("successful delete for assignment with id = {}", assignment.getId());
+        } catch (AuthzPermissionException e) {
+            log.warn("deleting realm for assignment reference = {}", reference, e);
         }
     }
 

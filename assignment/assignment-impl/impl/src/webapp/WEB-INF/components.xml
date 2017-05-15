@@ -5,8 +5,7 @@
 
     <bean id="org.sakaiproject.assignment.api.AssignmentService"
           class="org.sakaiproject.assignment.impl.AssignmentServiceImpl"
-          init-method="init"
-          destroy-method="destroy">
+          init-method="init">
         <property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService"/>
         <property name="assignmentActivityProducer" ref="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/>
         <property name="assignmentEntityFactory" ref="org.sakaiproject.assignment.api.AssignmentEntity.factory"/>

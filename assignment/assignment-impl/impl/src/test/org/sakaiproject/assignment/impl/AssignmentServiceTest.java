@@ -141,8 +141,6 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Assert.assertEquals(context, reference.getContext());
         Assert.assertEquals(assignmentId, reference.getId());
         Assert.assertEquals(refA, reference.getReference());
-
-        // TODO test submission reference and others
     }
 
     @Test
@@ -156,6 +154,48 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         Entity entity = assignmentService.createAssignmentEntity(assignment.getId());
         Assert.assertEquals(assignment.getId(), entity.getId());
         Assert.assertEquals(reference.getReference(), entity.getReference());
+    }
+
+    @Test
+    public void removeAssignment() {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
+        Assignment removed = null;
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(true);
+        try {
+            assignmentService.removeAssignment(assignment);
+            removed = assignmentService.getAssignment(assignment.getId());
+        } catch (PermissionException e) {
+            Assert.fail("Assignment not removed");
+        } catch (IdUnusedException e) {
+            // tests pass if assignment doesn't exist
+            Assert.assertNull(removed);
+            return;
+        }
+        Assert.fail("Should never reach this line");
+    }
+
+    @Test
+    public void removeAssignmentPermissionDenied() {
+        String context = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(context);
+        String stringRef = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).subtype("a").id(assignment.getId()).reckon().getReference();
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT, stringRef)).thenReturn(false);
+        try {
+            assignmentService.removeAssignment(assignment);
+        } catch (PermissionException e) {
+            Assignment notRemoved = null;
+            try {
+                notRemoved = assignmentService.getAssignment(assignment.getId());
+            } catch (Exception e1) {
+                Assert.fail("Cannot verify if assignment exists");
+            }
+            Assert.assertNotNull(notRemoved);
+            Assert.assertEquals(assignment.getId(), notRemoved.getId());
+            return;
+        }
+        Assert.fail("Should never reach this line");
     }
 
     private Assignment createNewAssignment(String context) {
