@@ -268,6 +268,28 @@
         <random-source>-Djava.security.egd=file:/dev/./urandom</random-source>
       </properties>
     </profile>
+    <profile>
+        <id>snapshots</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+            <property>
+                <name>snapshots</name>
+            </property>
+        </activation>
+        <repositories>
+            <repository>
+                <id>sonatype-nexus-snapshots</id>
+                <name>Sonatype Nexus Snapshots</name>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                <releases>
+                    <enabled>false</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+        </repositories>
+    </profile>
   </profiles>
 
   <pluginRepositories>
@@ -304,17 +326,6 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
-    <repository>
-        <id>sonatype-nexus-snapshots</id>
-        <name>Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
     </repository>
     <repository>
       <id>sakai-maven</id>
