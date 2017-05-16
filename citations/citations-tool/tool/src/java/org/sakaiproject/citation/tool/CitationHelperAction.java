@@ -851,37 +851,56 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		jsonMap.put("timestamp", Long.toString(System.currentTimeMillis()));
 		
 		String citation_action = params.getString("citation_action");
-		if(citation_action != null && citation_action.trim().equals(UPDATE_RESOURCE)) {
-			Map<String,Object> result = this.updateCitationList(params, state, req, res);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(ADD_SECTION)) {
-			Map<String,Object> result = this.addSection(params, state);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(ADD_SUBSECTION)) {
-			Map<String,Object> result = this.addSubSection(params, state);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(DRAG_AND_DROP)) {
-			Map<String,Object> result = this.dragAndDrop(params, state);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(UPDATE_INTRODUCTION)) {
-			Map<String,Object> result = this.updateIntroduction(params, state);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(UPDATE_SECTION)) {
-			Map<String,Object> result = this.updateSection(params, state);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(REMOVE_SECTION)) {
-			Map<String,Object> result = this.removeSection(params, state);
-			jsonMap.putAll(result);
-		} else if(citation_action != null && citation_action.trim().equals(UPDATE_SAVED_SORT)) {
-			Map<String,Object> result = this.updateSavedSort(params, state, req, res);
-			jsonMap.putAll(result);
-		} else {
-			Map<String,Object> result = this.createCitationList(params, state, req, res);
-			jsonMap.putAll(result);			
+
+		// Validate list before you update it
+		CitationCollection collection = getCitationCollection(state, false);
+		String errorMessage = getCitationValidator().validateExistingDbStructure(collection);
+		if (errorMessage==null) {
+			if (citation_action != null && citation_action.trim().equals(UPDATE_RESOURCE)) {
+				Map<String, Object> result = this.updateCitationList(params, state, req, res);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(ADD_SECTION)) {
+				Map<String, Object> result = this.addSection(params, state);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(ADD_SUBSECTION)) {
+				Map<String, Object> result = this.addSubSection(params, state);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(DRAG_AND_DROP)) {
+				Map<String, Object> result = this.dragAndDrop(params, state);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(UPDATE_INTRODUCTION)) {
+				Map<String, Object> result = this.updateIntroduction(params, state);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(UPDATE_SECTION)) {
+				Map<String, Object> result = this.updateSection(params, state);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(REMOVE_SECTION)) {
+				Map<String, Object> result = this.removeSection(params, state);
+				jsonMap.putAll(result);
+			} else if (citation_action != null && citation_action.trim().equals(UPDATE_SAVED_SORT)) {
+				Map<String, Object> result = this.updateSavedSort(params, state, req, res);
+				jsonMap.putAll(result);
+			} else {
+				Map<String, Object> result = this.createCitationList(params, state, req, res);
+				jsonMap.putAll(result);
+			}
+
+			// Validate list after you update it
+			collection = getCitationCollection(state, false);
+			errorMessage = getCitationValidator().validateExistingDbStructure(collection);
+			if (errorMessage!=null) {
+				logErrorMessage(jsonMap, collection, errorMessage);
+			}
+			else {
+				logger.debug("Nested citation list successfully saved: " + new Date() + ": for collection with id: " + collection.getId());
+			}
+		}
+		else {
+			logErrorMessage(jsonMap, collection, errorMessage);
 		}
 		
 		jsonMap.put("secondsBetweenSaveciteRefreshes", this.configurationService.getSecondsBetweenSaveciteRefreshes());
-		
+
 		// convert to json string
 		String jsonString = JSONObject.fromObject(jsonMap).toString();
 		try {
@@ -893,6 +912,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// what goes back?
 		}
 
+	}
+
+	private void logErrorMessage(Map<String, Object> jsonMap, CitationCollection collection, String errorMessage) {
+		Map<String, Object> result = new HashMap<>();
+		result.put("Error: ", new String[]{new Date() + ": Invalid nested list for collection with id: " + collection.getId()});
+		jsonMap.putAll(result);
+		logger.error(errorMessage);
 	}
 
 	protected Map<String, Object> updateSavedSort(ParameterParser params,
@@ -980,6 +1006,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	protected Map<String, Object> addSection(ParameterParser params, SessionState state) {
 		String message;
+		String errorMessage = null;
 		Map<String, Object> results = new HashMap<String, Object>();
 		try {
 			int locationId = params.getInt("locationId");
@@ -987,22 +1014,34 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			CitationCollection collection = getCitationCollection(state, false);
 
 			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, rb.getString("nested.section.title.text"));
-			getCitationService().saveSection(citationCollectionOrder);
-			message = rb.getString("resource.updated");
+			errorMessage = getCitationValidator().getAddSectionErrorMessage(citationCollectionOrder, collection);
+			if (errorMessage==null){
+				getCitationService().saveSection(citationCollectionOrder);
+				message = rb.getString("resource.updated");
+				logger.debug("Reading list with collection id: " + collection.getId() + " successfully updated. H1 section added at location: " + locationId);
+			}
+			else {
+				message = errorMessage;
+				logger.warn("Invalid citation list with collection id: " + collection.getId() + " in addSection(). " + errorMessage);
+			}
 			state.setAttribute(STATE_CITATION_COLLECTION, null);
 		}
 		catch (Exception e){
 			message = e.getMessage();
 			logger.warn("Exception in addSection() " + e);
 		}
-		if(message != null && ! message.trim().equals("")) {
+		if(errorMessage==null && message != null && ! message.trim().equals("")) {
 			results.put("message", message);
+		}
+		else {
+			results.put("Error: ", new String[]{errorMessage});
 		}
 		return results;
 	}
 
 	protected Map<String, Object> addSubSection(ParameterParser params, SessionState state) {
 		String message;
+		String errorMessage = null;
 		Map<String, Object> results = new HashMap<String, Object>();
 
 		try {
@@ -1012,8 +1051,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			CitationCollection collection = getCitationCollection(state, false);
 
 			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, addSectionHTML);
-			getCitationService().saveSubsection(citationCollectionOrder);
-			message = rb.getString("resource.updated");
+			errorMessage = getCitationValidator().getAddSubSectionErrorMessage(citationCollectionOrder, collection);
+			if (errorMessage==null){
+				getCitationService().saveSubsection(citationCollectionOrder);
+				message = rb.getString("resource.updated");
+				logger.debug("Reading list with collection id: " + collection.getId() + " successfully updated.  Subsection added at location: " + locationId);
+			}
+			else {
+				message = errorMessage;
+				logger.warn("Invalid citation list with collection id: " + collection.getId() + " in addSubSection(). " + errorMessage);
+			}
 			state.setAttribute(STATE_CITATION_COLLECTION, null);
 		}
 		catch (Exception e){
@@ -1021,8 +1068,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			logger.warn("Exception in addSubSection() " + e);
 		}
 
-		if(message != null && ! message.trim().equals("")) {
+		if(errorMessage==null && message != null && ! message.trim().equals("")) {
 			results.put("message", message);
+		}
+		else {
+			results.put("Error: ", new String[]{errorMessage});
 		}
 		return results;
 	}
@@ -1030,6 +1080,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected Map<String, Object> dragAndDrop(ParameterParser params, SessionState state) {
 
 		String message = null;
+		String errorMessage = null;
 		Map<String, Object> results = new HashMap<String, Object>();
 		ObjectMapper mapper = new ObjectMapper();
 		List<CitationCollectionOrder> citationCollectionOrders;
@@ -1073,13 +1124,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 				citationCollectionOrders = mapper.readValue(nestedCitations,
 						TypeFactory.collectionType(List.class, CitationCollectionOrder.class));
-				if (getCitationValidator().isValid(citationCollectionOrders)){
+
+				CitationCollection collection = getCitationCollection(state, false);
+				errorMessage = getCitationValidator().getDragAndDropErrorMessage(citationCollectionOrders, collection);
+				if (errorMessage==null){
 					getCitationService().save(citationCollectionOrders, citationCollectionId);
 					message = rb.getString("resource.updated");
 					state.setAttribute(STATE_CITATION_COLLECTION, null);
+					logger.debug("Reading list with collection id: " + collection.getId() + " successfully updated. Drag and drop successful");
 				}
 				else {
-					message = rb.getString("invalid nested collection") + "for collection id " + citationCollectionId;
+					message = errorMessage;
+					logger.warn("Invalid citation list with collection id: " + collection.getId() + " in dragAndDrop(). " + errorMessage);
 				}
 			}
 		}
@@ -1087,14 +1143,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			message = e.getMessage();
 			logger.warn("Exception in dragandDrop() " + e);
 		}
-		if(message != null && ! message.trim().equals("")) {
+		if(errorMessage==null && message != null && ! message.trim().equals("")) {
 			results.put("message", message);
+		}
+		else {
+			results.put("Error: ", new String[]{errorMessage});
 		}
 		return results;
 	}
 
 	protected Map<String, Object> updateSection(ParameterParser params, SessionState state) {
 		String message;
+		String errorMessage = null;
 		Map<String, Object> results = new HashMap<String, Object>();
 		try {
 			String addSectionHTML = params.getString("addSectionHTML");
@@ -1105,15 +1165,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			CitationCollectionOrder.SectionType sectionType = CitationCollectionOrder.SectionType.valueOf(params.getString("sectionType"));
 			CitationCollection collection = getCitationCollection(state, false);
 			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, cleanAddSectionHTML);
-			getCitationService().updateSection(citationCollectionOrder);
-			message = rb.getString("resource.updated");
+			errorMessage = getCitationValidator().getUpdateSectionErrorMessage(citationCollectionOrder, collection);
+			if (errorMessage==null){
+				getCitationService().updateSection(citationCollectionOrder);
+				message = rb.getString("resource.updated");
+				logger.debug("Reading list with collection id: " + collection.getId() + "  successfully updated.  Section updated at location:" + locationId) ;
+			}
+			else {
+				message = errorMessage;
+				logger.warn("Invalid citation list with collection id: " + collection.getId() + " in updateSection(). " + errorMessage);
+			}
 		}
 		catch (Exception e){
 			message = e.getMessage();
 			logger.warn("Exception in updateSection() " + e);
 		}
-		if(message != null && ! message.trim().equals("")) {
+		if(errorMessage==null && message != null && ! message.trim().equals("")) {
 			results.put("message", message);
+		}
+		else {
+			results.put("Error: ", new String[]{errorMessage});
 		}
 		return results;
 	}
@@ -1141,20 +1212,33 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	protected Map<String, Object> removeSection(ParameterParser params, SessionState state) {
 		String message;
+		String errorMessage = null;
 		Map<String, Object> results = new HashMap<String, Object>();
 		try {
 			int locationId = params.getInt("locationId");
 			CitationCollection collection = getCitationCollection(state, false);
-			getCitationService().removeLocation(collection.getId(), locationId);
-			message = rb.getString("resource.updated");
-			results.put("sectionToRemove", "#sectionInlineEditor" + locationId);
+			errorMessage = getCitationValidator().getRemoveSectionErrorMessage(collection, locationId);
+			if (errorMessage==null){
+				getCitationService().removeLocation(collection.getId(), locationId);
+				message = rb.getString("resource.updated");
+				results.put("sectionToRemove", "#sectionInlineEditor" + locationId);
+				logger.debug("Reading list with collection id: " + collection.getId() + "  successfully updated.  Section removed at location: " + locationId);
+			}
+			else {
+				message = errorMessage;
+				logger.warn("Invalid citation list with collection id: " + collection.getId() + "  in removeSection(). " + errorMessage);
+			}
+			state.setAttribute(STATE_CITATION_COLLECTION, null);
 		}
 		catch (Exception e){
 			message = e.getMessage();
 			logger.warn("Exception in removeSection() " + e);
 		}
-		if(message != null && ! message.trim().equals("")) {
+		if(errorMessage==null && message != null && ! message.trim().equals("")) {
 			results.put("message", message);
+		}
+		else {
+			results.put("Error: ", new String[]{errorMessage});
 		}
 		return results;
 	}
@@ -1365,7 +1449,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				results.put("description", description);
 			}
 		}
-		
 	}
 
 	protected void captureDisplayName(ParameterParser params, SessionState state,
