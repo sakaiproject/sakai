@@ -21,7 +21,17 @@
 package org.sakaiproject.entitybroker.providers;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -74,7 +84,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
 RESTful, ActionsExecutable {
 
     private static Logger log = LoggerFactory.getLogger(MembershipEntityProvider.class);
-    
+
     private SiteService siteService;
     private AuthzGroupService authzGroupService;
 
@@ -135,7 +145,6 @@ RESTful, ActionsExecutable {
 
     public void init() {
         allowAdminSiteChanges = developerHelperService.getConfigurationSetting(ADMIN_SITE_CHANGE_ALLOWED, false);
-        Objects.requireNonNull(userAuditRegistration);
     }
 
 
@@ -192,9 +201,7 @@ RESTful, ActionsExecutable {
             //String user = sessionManager().getCurrentSessionUserId();
             String currentUserEid = userEntityProvider.getCurrentUser(view).getEid(); //userDirectoryService.getCurrentUser().getEid();
             String roleId = siteService.getSite(siteId).getJoinerRole();
-            String[] userAuditString = {siteId,currentUserEid,roleId,UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};
-            List<String[]> userAuditList = new ArrayList<>();
-                    userAuditList.add(userAuditString);
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserEid,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid});
             userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
@@ -861,7 +868,6 @@ RESTful, ActionsExecutable {
         String[] userIds = checkForBatch(params, userId);
         String memberId = "";
         String currentUserId = developerHelperService.getCurrentUserId();
-        User user = null;
         
         // now add all the memberships
         for (int i = 0; i < userIds.length; i++) {
@@ -881,6 +887,7 @@ RESTful, ActionsExecutable {
                     sg.site.addMember(userIds[i], roleId, active, false);
                     saveSiteMembership(sg.site);
                 }
+                User user = null;
                 // Add change to user_audits_log table.
                 try {
                     user = userDirectoryService.getUser(userIds[i]);
