@@ -113,7 +113,6 @@
     <sakai.spring.test.version>4.3.6.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.14</sakai.tika.version>
     <sakai.tomcat.version>8.0.41</sakai.tomcat.version>
-    <sakai.wicket.version>6.16.0</sakai.wicket.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -268,6 +267,28 @@
         <random-source>-Djava.security.egd=file:/dev/./urandom</random-source>
       </properties>
     </profile>
+    <profile>
+        <id>snapshots</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+            <property>
+                <name>snapshots</name>
+            </property>
+        </activation>
+        <repositories>
+            <repository>
+                <id>sonatype-nexus-snapshots</id>
+                <name>Sonatype Nexus Snapshots</name>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                <releases>
+                    <enabled>false</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+        </repositories>
+    </profile>
   </profiles>
 
   <pluginRepositories>
@@ -304,17 +325,6 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
-    <repository>
-        <id>sonatype-nexus-snapshots</id>
-        <name>Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
     </repository>
     <repository>
       <id>sakai-maven</id>

@@ -3,7 +3,7 @@ package org.sakaiproject.component.section;
 import java.io.Serializable;
 import java.sql.Time;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.section.api.coursemanagement.Meeting;
 
 public class MeetingImpl implements Meeting, Serializable {

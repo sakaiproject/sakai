@@ -58,6 +58,7 @@ public class FormattedTextTest {
     private static final boolean BLANK_DEFAULT = true;
     public static String TEST1 = "<a href=\"blah.html\" style=\"font-weight:bold;\">blah</a><div>hello there</div>";
     public static String TEST2 = "<span>this is my span</span><script>alert('oh noes, a XSS attack!');</script><div>hello there from a div</div>";
+    public static String TEST3 = "<a href=\"blah.html\" style=\"font-weight:bold;\" target=\"_blank\">blah</a><div>hello there</div>";
     FormattedTextImpl formattedText;
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
@@ -170,6 +171,12 @@ public class FormattedTextTest {
                 formattedText.escapeHtmlFormattedText("<a href=\"other.html\">link</a>") );
     	Assert.assertEquals("<a href=\"other.html\" class=\"azeckoski\" target=\"_blank\" rel=\"noopener\">link</a>",
                 formattedText.escapeHtmlFormattedText("<a href=\"other.html\" class=\"azeckoski\">link</a>") );
+        Assert.assertEquals("<a href=\"other.html\" target=\"_blank\" class=\"arbitrary\" rel=\"noopener\">link</a>",
+                formattedText.escapeHtmlFormattedText("<a href=\"other.html\" target=\"_blank\" class=\"arbitrary\">link</a>") );
+        Assert.assertEquals("<a href=\"other.html\" class=\"arbitrary\" target=\"_blank\" rel=\"noopener\">link</a>",
+                formattedText.escapeHtmlFormattedText("<a href=\"other.html\" class=\"arbitrary\" target=\"_blank\">link</a>") );
+        Assert.assertEquals("<a href=\"other.html\" target=\"arbitrary\" class=\"arbitrary\">link</a>",
+                formattedText.escapeHtmlFormattedText("<a href=\"other.html\" target=\"arbitrary\" class=\"arbitrary\">link</a>") );
     	Assert.assertEquals("<b>simple</b><b class=\"AZ\">bold</b>", 
                 formattedText.escapeHtmlFormattedText("<b>simple</b><b class=\"AZ\">bold</b>") );
 
@@ -203,6 +210,17 @@ public class FormattedTextTest {
         Assert.assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\">blah</a><div>hello there</div>", result);
 
         strFromBrowser = TEST1;
+        errorMessages = new StringBuilder();
+        formattedText.setDefaultAddBlankTargetToLinks(true);
+        result = formattedText.processFormattedText(strFromBrowser, errorMessages, false);
+        Assert.assertNotNull(result);
+        Assert.assertTrue( result.contains("href=\"blah.html\""));
+        //Assert.assertFalse( result.contains("style=\"font-weight:bold;\"")); // strips this out
+        //Assert.assertTrue( result.contains("target=\"_blank\"")); // adds target in
+        Assert.assertTrue( result.contains("<div>hello there</div>"));
+        Assert.assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\" target=\"_blank\" rel=\"noopener\">blah</a><div>hello there</div>", result);
+
+        strFromBrowser = TEST3;
         errorMessages = new StringBuilder();
         formattedText.setDefaultAddBlankTargetToLinks(true);
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, false);

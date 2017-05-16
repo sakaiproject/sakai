@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL:$
+ * $Id:$
  ***********************************************************************************
  *
- * Copyright (c) 2006, 2008 The Sakai Foundation
+ * Copyright (c) 2008 The Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,28 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.coursemanagement.impl;
 
-/**
- * A CrossListableCmImpl is a CM entity that can be cross-listed.  This does not belong
- * in the API, since the CrossListingCmImpl object is specific to the hibernate implementation.
- * 
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
- */
-public abstract class CrossListableCmImpl extends AbstractMembershipContainerCmImpl {
+package org.sakaiproject.calendar.api;
 
-	private static final long serialVersionUID = 1L;
-	public abstract CrossListingCmImpl getCrossListing();
-	public abstract void setCrossListing(CrossListingCmImpl crossListingCmImpl);
+public interface ExternalSubscriptionDetails extends ExternalSubscription {
+
+	enum State { LOADED, FAILED, UNKNOWN}
+
+	/** Get context (site id) of external subscription or the institutional ID if central one */
+	String getContext();
+
+	/** Get subscription URL */
+	String getSubscriptionUrl();
+
+	/** Get Calendar object of external subscription */
+	Calendar getCalendar();
+
+	/** Check if external subscription is an institutional subscription */
+	boolean isInstitutional();
+
+	/**
+	 * @return Is this subscription sucessfully loading some data.
+	 */
+	State getState();
+
 }
