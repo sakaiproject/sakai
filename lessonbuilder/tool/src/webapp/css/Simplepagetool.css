@@ -1131,6 +1131,11 @@ input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="s
 }
 .checklistDiv {
  padding-right: 15px;
+ width: 100%;
+ max-width: 500px;
+}
+.checklistDiv .checklistDescription {
+ width: auto;
 }
 .questionDivControl {
  margin-top: 5px;
