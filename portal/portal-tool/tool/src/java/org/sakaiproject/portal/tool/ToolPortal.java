@@ -33,6 +33,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -308,21 +311,15 @@ public class ToolPortal extends HttpServlet
 
                 if (site != null)
                 {                           
-                    String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);
-                    if (strMathJaxEnabled != null)
-                    {                              
-                        String [] strMathJaxTools = strMathJaxEnabled.split(",");
-                        List<String> mathJaxTools = Arrays.asList(strMathJaxTools);
-                        if (mathJaxTools != null)
+                    String strMathJaxEnabledForSite = site.getProperties().getProperty(MATHJAX_ENABLED);
+                    if (!StringUtils.isBlank(strMathJaxEnabledForSite))
+                    {
+                        if (Boolean.valueOf(strMathJaxEnabledForSite))
                         {
-                            String toolId = toolConfig.getTool().getId();
-                            if (toolId != null && mathJaxTools.contains(toolId))
-                            {
-                                // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
-                                headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
-                                headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n";
-                            }
-                        }                          
+                            // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
+                            headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
+                            headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n";
+                        }
                     }
                 }
             }
