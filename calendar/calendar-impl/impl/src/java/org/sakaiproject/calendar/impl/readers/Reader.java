@@ -314,7 +314,7 @@ public abstract class Reader
 	 * calendar event properties.
 	 * @throws ImportException
 	 */
-	abstract public Map getDefaultColumnMap();
+	abstract public Map<String, String> getDefaultColumnMap();
 	
 	/**
 	 */

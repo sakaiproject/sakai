@@ -1,34 +1,66 @@
 package org.sakaiproject.calendar.impl;
 
-import org.apache.commons.codec.binary.Base64;
-import org.sakaiproject.calendar.api.Calendar;
+import lombok.Data;
+import lombok.Value;
 import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.calendar.api.ExternalSubscription;
+import org.sakaiproject.calendar.api.ExternalSubscriptionDetails;
 import org.sakaiproject.calendar.impl.BaseExternalCalendarSubscriptionService.ExternalCalendarSubscription;
 import org.sakaiproject.entity.api.Entity;
 
-public class BaseExternalSubscription implements ExternalSubscription {
+import java.time.Instant;
+import java.util.Base64;
+
+/**
+ * Equaly just matches on the reference any nothing else.
+ */
+public class BaseExternalSubscriptionDetails implements ExternalSubscriptionDetails {
 	private String subscriptionName;
 
 	private String subscriptionUrl;
 
 	private String context;
 
-	private Calendar calendar;
+	private ExternalCalendarSubscription calendar;
 
 	private boolean isInstitutional;
 
-	public BaseExternalSubscription() {
+	private Status status;
+
+	public BaseExternalSubscriptionDetails() {
 	}
 
-	public BaseExternalSubscription(String subscriptionName,
-			String subscriptionUrl, String context, Calendar calendar,
-			boolean isInstitutional) {
+	/**
+	 * Copy constructor.
+	 * @param other
+	 */
+	public BaseExternalSubscriptionDetails(BaseExternalSubscriptionDetails other) {
+		this.subscriptionName = other.subscriptionName;
+		this.subscriptionUrl = other.subscriptionUrl;
+		this.context = other.context;
+		this.calendar = other.calendar;
+		this.isInstitutional = other.isInstitutional;
+		this.status = other.status;
+	}
+
+	/**
+	 * Creates an instance that hasn't gone out to the network so we don't know
+	 * the status of it.
+	 */
+	public BaseExternalSubscriptionDetails(String subscriptionName,
+										   String subscriptionUrl, String context, ExternalCalendarSubscription calendar,
+										   boolean isInstitutional) {
 		setSubscriptionName(subscriptionName);
 		setSubscriptionUrl(subscriptionUrl);
 		setCalendar(calendar);
 		setContext(context);
 		setInstitutional(isInstitutional);
+	}
+
+	public BaseExternalSubscriptionDetails(String subscriptionName,
+										   String subscriptionUrl, String context, ExternalCalendarSubscription calendar,
+										   boolean isInstitutional, boolean ok, String error, Instant instant) {
+	    this(subscriptionName, subscriptionUrl, context, calendar, isInstitutional);
+		status = new Status(ok, error, instant);
 	}
 
 	public String getSubscriptionName() {
@@ -54,7 +86,7 @@ public class BaseExternalSubscription implements ExternalSubscription {
 	public void setContext(String context) {
 		this.context = context;
 		if (calendar != null)
-			((ExternalCalendarSubscription) calendar).setContext(context);
+			calendar.setContext(context);
 	}
 
 	public String getReference() {
@@ -65,11 +97,11 @@ public class BaseExternalSubscription implements ExternalSubscription {
 					getIdFromSubscriptionUrl(subscriptionUrl));
 	}
 
-	public Calendar getCalendar() {
+	public ExternalCalendarSubscription getCalendar() {
 		return calendar;
 	}
 
-	public void setCalendar(Calendar calendar) {
+	public void setCalendar(ExternalCalendarSubscription calendar) {
 		this.calendar = calendar;
 	}
 
@@ -81,11 +113,21 @@ public class BaseExternalSubscription implements ExternalSubscription {
 		this.isInstitutional = isInstitutional;
 	}
 
+	public State getState() {
+		return status != null?
+				status.ok?State.LOADED:State.FAILED:
+				State.UNKNOWN;
+	}
+
+	public Instant getRefreshed() {
+		return status != null? status.getRefreshed(): null;
+	}
+
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof BaseExternalSubscription)
+		if (o instanceof BaseExternalSubscriptionDetails)
 			return getReference().equals(
-					((BaseExternalSubscription) o).getReference());
+					((BaseExternalSubscriptionDetails) o).getReference());
 		return false;
 	}
 
@@ -93,7 +135,7 @@ public class BaseExternalSubscription implements ExternalSubscription {
 	public int hashCode() {
 		int hashCode = super.hashCode();
 		if (getReference() != null) {
-			hashCode += getReference().hashCode();
+			hashCode = getReference().hashCode();
 		}
 		;
 		return hashCode;
@@ -113,7 +155,7 @@ public class BaseExternalSubscription implements ExternalSubscription {
 	public static String getIdFromSubscriptionUrl(String url)
 	{
 		// use Base64
-		byte[] encoded = Base64.encodeBase64(url.getBytes());
+		byte[] encoded = Base64.getEncoder().encode(url.getBytes());
 		// '/' cannot be used in Reference => use '.' instead (not part of
 		// Base64 alphabet)
 		String encStr = new String(encoded).replaceAll("/", "\\.");
@@ -122,8 +164,7 @@ public class BaseExternalSubscription implements ExternalSubscription {
 
 	public static String getSubscriptionUrlFromId(String id) {
 		// use Base64
-		byte[] decoded = Base64.decodeBase64(id.replaceAll("\\.", "/")
-				.getBytes());
+		byte[] decoded = Base64.getDecoder().decode(id.replaceAll("\\.", "/").getBytes());
 		return new String(decoded);
 	}
 
@@ -132,5 +173,15 @@ public class BaseExternalSubscription implements ExternalSubscription {
 		return CalendarService.REFERENCE_ROOT + Entity.SEPARATOR
 				+ CalendarService.REF_TYPE_CALENDAR_SUBSCRIPTION + Entity.SEPARATOR
 				+ context + Entity.SEPARATOR + id;
+	}
+
+	/**
+	 * When a calendar is attempted to be loaded this holds details about the load.
+	 */
+	@Value
+	public class Status {
+		private boolean ok;
+		private String error;
+		private Instant refreshed;
 	}
 }

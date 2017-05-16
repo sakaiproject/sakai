@@ -45,7 +45,7 @@ import org.sakaiproject.authz.api.*;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
-import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -133,6 +133,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    private ResourceLoader rb = new ResourceLoader("calendar");
    
    private ContentHostingService contentHostingService;
+
+   private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
    
 	private GroupComparator groupComparator = new GroupComparator();
 	
@@ -648,7 +650,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 *        The OpaqueUrlDao.
 	 */
 	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
-	
+
+	public void setExternalCalendarSubscriptionService(ExternalCalendarSubscriptionService externalCalendarSubscriptionService) {
+		this.externalCalendarSubscriptionService = externalCalendarSubscriptionService;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -807,7 +813,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		Reference _ref = m_entityManager.newReference(ref);
 		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(_ref.getSubType())) {
-			Calendar c = ExternalCalendarSubscriptionService.getCalendarSubscription(ref);			
+			Calendar c = externalCalendarSubscriptionService.getCalendarSubscription(ref);
 			if (c == null) throw new IdUnusedException(ref);
 			return c;
 		}
@@ -7449,7 +7455,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		
 		// add external calendar subscriptions
 		List referenceList = mergedCalendarList.getReferenceList();
-		Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
+		Set subscriptionRefList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
 		referenceList.addAll(subscriptionRefList);
 		
 		return referenceList;
