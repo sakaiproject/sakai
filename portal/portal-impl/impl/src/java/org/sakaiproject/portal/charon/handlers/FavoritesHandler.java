@@ -18,6 +18,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.exception.PermissionException;
@@ -41,11 +43,13 @@ public class FavoritesHandler extends BasePortalHandler
 	private static final String FAVORITES_PROPERTY = "order";
 	private static final String AUTO_FAVORITE_ENABLED_PROPERTY = "autoFavoriteEnabled";
 	private static final String SEEN_SITES_PROPERTY = "autoFavoritesSeenSites";
-
+	private ServerConfigurationService serverConfigurationService;
 
 	public FavoritesHandler()
 	{
 		setUrlFragment(URL_FRAGMENT);
+		serverConfigurationService = (ServerConfigurationService) 
+				ComponentManager.get(ServerConfigurationService.class);
 	}
 
 
@@ -102,7 +106,7 @@ public class FavoritesHandler extends BasePortalHandler
 		ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 
 		// Find any sites that this user was added to since we last looked
-		boolean autoFavorite = true;
+		boolean autoFavorite = serverConfigurationService.getBoolean("portal.autofavorite", true);
 
 		try {
 			autoFavorite = props.getBooleanProperty(AUTO_FAVORITE_ENABLED_PROPERTY);
