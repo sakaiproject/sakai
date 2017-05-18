@@ -196,6 +196,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             String url = profileLinkLogic.getInternalDirectUrlToUserConnections(to);
                             doSocialInsert(from, to, event, ref, e.getEventTime(), url);
                             countCache.remove(from);
+                            countCache.remove(to);
                         } else if (ProfileConstants.EVENT_MESSAGE_SENT.equals(event)) {
                             String to = pathParts[2];
                             String siteId = "~" + to;
