@@ -79,11 +79,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var country = sakai.locale && sakai.locale.userCountry || null;
 
     if (sakai.editor.editors.ckeditor.browser === "elfinder") {
-        // Flag for setting elfinder to build or source version
-        // Must be either 'src' or 'build'
-        var elfinderBuild = 'build';
-        var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild +
-            '.html?connector=elfinder-connector/elfinder-servlet/connector';
+        var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector';
 
         // Add tilde to userId in order to avoid permission error while getting resources from user workspace
         collectionId = collectionId.replace('/user/','/user/~');
