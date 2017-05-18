@@ -48,6 +48,9 @@ import org.sakaiproject.tool.cover.SessionManager;
 
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import javax.faces.context.FacesContext;
+
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -119,6 +122,10 @@ public class SubmitTimedAssessmentThread extends TimerTask
         	  eventLogData.setEclipseTime(null); 
         	  eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
           }
+		  			
+            String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+            eventLogData.setIpAddress(thisIp);
+					  
             eventLogFacade.setData(eventLogData);
             eventService.saveOrUpdateEventLog(eventLogFacade);
 

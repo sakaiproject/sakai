@@ -442,7 +442,10 @@ public class DeliveryActionListener
                   eventLogData.setErrorMsg(eventLogMessages.getString("no_submission"));
                   eventLogData.setEndDate(null);
                   eventLogData.setEclipseTime(null);
-                      
+                  				  
+                  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+                  eventLogData.setIpAddress(thisIp);
+				  					  
                   eventLogFacade.setData(eventLogData);
                   eventService.saveOrUpdateEventLog(eventLogFacade);           	  
                   
@@ -572,7 +575,10 @@ public class DeliveryActionListener
     		eventLogData.setEndDate(null);
     		eventLogData.setEclipseTime(null);
     	}
-    	
+    			
+    	String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+    	eventLogData.setIpAddress(thisIp);
+				
         eventLogFacade.setData(eventLogData);
     	eventService.saveOrUpdateEventLog(eventLogFacade);
     	throw e;
