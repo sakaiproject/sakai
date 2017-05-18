@@ -10,6 +10,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -38,6 +39,16 @@ public class AssignmentEntity implements Entity {
     private String assignmentId;
     private Assignment assignment;
     private Reference reference;
+
+    public void initEntity(Assignment assignment) {
+        Objects.requireNonNull(assignment, "Assignment cannot be null");
+        if (StringUtils.isNotBlank(assignment.getId())) {
+            // if assignment has an id assume its been persisted
+            this.assignment = assignment;
+            this.assignmentId = assignment.getId();
+        }
+        reference = entityManager.newReference(AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).subtype("a").reckon().getReference());
+    }
 
     public void initEntity(String assignmentId) {
         Objects.requireNonNull(assignmentId, "Assignment id cannot be null");

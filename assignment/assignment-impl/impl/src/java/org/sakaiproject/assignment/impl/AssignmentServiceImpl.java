@@ -287,6 +287,13 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public Entity createAssignmentEntity(Assignment assignment) {
+        AssignmentEntity entity = assignmentEntityFactory.getObject();
+        entity.initEntity(assignment);
+        return entity;
+    }
+
+    @Override
     public String getEntityUrl(Reference reference) {
         String url = null;
 
@@ -659,6 +666,9 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
     }
 
+    // TODO removing related content from other tools shouldn't be the concern for assignments service
+    // it should post an event and let those tools take action.
+    // * Unless a transaction is required
     @Override
     public void removeAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
@@ -755,9 +765,10 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
 
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         // security check
-        if (!allowAddAssignment(assignment.getContext())) {
-            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, null);
+        if (!allowUpdateAssignment(reference)) {
+            throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
         if (assignmentRepository.exists(assignment.getId())) {

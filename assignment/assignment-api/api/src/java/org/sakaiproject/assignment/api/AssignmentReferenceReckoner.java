@@ -3,6 +3,7 @@ package org.sakaiproject.assignment.api;
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.entity.api.Entity;
 
 import lombok.AccessLevel;
@@ -80,7 +81,7 @@ public class AssignmentReferenceReckoner {
      * @return
      */
     @Builder(builderMethodName = "reckoner", buildMethodName = "reckon")
-    public static AssignmentReference newAssignmentReferenceReckoner(String container, String context, String id, String reference, String subtype) {
+    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, String container, String context, String id, String reference, String subtype) {
         if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
             String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
@@ -103,10 +104,12 @@ public class AssignmentReferenceReckoner {
                     }
                 }
             }
+        } else if (assignment != null) {
+            context = assignment.getContext();
+            id = assignment.getId();
+            subtype = "a";
         }
-        return new
-
-                AssignmentReference(
+        return new AssignmentReference(
                 (container == null) ? "" : container,
                 (context == null) ? "" : context,
                 (id == null) ? "" : id,

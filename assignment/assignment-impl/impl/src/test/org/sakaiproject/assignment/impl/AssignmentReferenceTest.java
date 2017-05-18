@@ -1,8 +1,11 @@
 package org.sakaiproject.assignment.impl;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.model.Assignment;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,5 +58,16 @@ public class AssignmentReferenceTest {
 
         String reference2 = AssignmentReferenceReckoner.reckoner().context("***CONTEXT_ID***").id("***SUBMISSION_ID***").subtype("s").container("***ASSIGNMENT_ID***").reckon().getReference();
         Assert.assertEquals("/assignment/s/***CONTEXT_ID***/***ASSIGNMENT_ID***/***SUBMISSION_ID***", reference2);
+    }
+
+    @Test
+    public void assignmentTest() {
+        final String context = UUID.randomUUID().toString();
+        final String id = UUID.randomUUID().toString();
+        Assignment assignment = new Assignment();
+        assignment.setId(id);
+        assignment.setContext(context);
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        Assert.assertEquals("/assignment/a/" + context + "/" + id, reference);
     }
 }
