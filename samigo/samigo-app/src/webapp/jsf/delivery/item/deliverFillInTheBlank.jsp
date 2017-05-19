@@ -29,7 +29,7 @@ should be included in file importing DeliveryMessages
 
 <div class="sr-only">
   <h:outputFormat value="#{deliveryMessages.fib_sr_explanation}" escape="false">
-    <f:param value="#{question.fibArray.size()}" />
+    <f:param value="#{question.fibArray.size()-1}" />
   </h:outputFormat>
 </div>
 
