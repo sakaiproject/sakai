@@ -24,24 +24,33 @@ package org.sakaiproject.assignment.impl;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -58,11 +67,13 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
     private static final Faker faker = new Faker();
 
-    @Autowired SecurityService securityService;
-    @Autowired SessionManager sessionManager;
+    @Autowired private SecurityService securityService;
+    @Autowired private SessionManager sessionManager;
     @Autowired private AssignmentService assignmentService;
     @Autowired private EntityManager entityManager;
     @Autowired private ServerConfigurationService serverConfigurationService;
+    @Autowired private UserDirectoryService userDirectoryService;
+    @Autowired private SiteService siteService;
 
     @Before
     public void setUp() {
@@ -75,7 +86,7 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void testAddAndGetAssignment() {
+    public void addAndGetAssignment() {
         String userId = UUID.randomUUID().toString();
         String context = UUID.randomUUID().toString();
         when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().context(context).reckon().getReference())).thenReturn(true);
@@ -111,21 +122,17 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Test
     public void getAssignmentStatus() {
         String context = UUID.randomUUID().toString();
-        createNewAssignment(context);
-        Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(context);
-        Assert.assertEquals(1, assignments.size());
-        Assignment assignment = assignments.toArray(new Assignment[]{})[0];
+        Assignment assignment = createNewAssignment(context);
         String assignmentId = assignment.getId();
         assignment.setDraft(Boolean.TRUE);
-
-        AssignmentConstants.Status status = null;
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT, AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())).thenReturn(true);
         try {
             assignmentService.updateAssignment(assignment);
-            status = assignmentService.getAssignmentCannonicalStatus(assignmentId);
+            AssignmentConstants.Status status = assignmentService.getAssignmentCannonicalStatus(assignmentId);
+            Assert.assertEquals(AssignmentConstants.Status.DRAFT, status);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-        Assert.assertEquals(AssignmentConstants.Status.DRAFT, status);
     }
 
     @Test
@@ -216,6 +223,36 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
         // TODO check all fields
         Assert.assertEquals(title, updatedAssignment.getTitle());
         Assert.assertEquals(context, updatedAssignment.getContext());
+    }
+
+    @Test
+    public void addAndGetSubmission() throws UserNotDefinedException {
+        String submitterId = UUID.randomUUID().toString();
+        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
+        User userMock = Mockito.mock(User.class);
+        when(userMock.getId()).thenReturn(submitterId);
+        when(userDirectoryService.getUser(submitterId)).thenReturn(userMock);
+        when(siteService.siteReference(assignment.getContext())).thenReturn("/site/" + assignment.getContext());
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + assignment.getContext())).thenReturn(true);
+        try {
+            AssignmentSubmission savedSubmission = assignmentService.addSubmission(assignment.getId(), submitterId);
+            Assert.assertNotNull(savedSubmission);
+            Assert.assertNotNull(savedSubmission.getId());
+            AssignmentSubmission getSubmission = assignmentService.getSubmission(savedSubmission.getId());
+            Set<AssignmentSubmissionSubmitter> submitters = getSubmission.getSubmitters();
+
+            Assert.assertNotNull(getSubmission);
+            Assert.assertNotNull(getSubmission.getId());
+            Assert.assertEquals(assignment.getId(), getSubmission.getAssignment().getId());
+            Assert.assertEquals(assignment.getContext(), getSubmission.getAssignment().getContext());
+
+            AssignmentSubmissionSubmitter submitter = submitters.stream().findAny().get();
+            Assert.assertNotNull(submitter);
+            Assert.assertNotNull(submitter.getId());
+            Assert.assertEquals(submitterId, submitter.getSubmitter());
+        } catch (Exception e) {
+            Assert.fail("Could not add submission to assignment, " + e.getMessage());
+        }
     }
 
     private Assignment createNewAssignment(String context) {

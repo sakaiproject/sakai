@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,7 +86,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
             Assignment assignment = assignmentService.getAssignment(opaqueContext);
             if (assignment.getAllowPeerAssessment() && !assignment.getDraft()) {
                 int numOfReviews = assignment.getPeerAssessmentNumberReviews();
-                List<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
+                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(assignment);
                 //keep a map of submission ids to look up possible existing peer assessments
                 Map<String, AssignmentSubmission> submissionIdMap = new HashMap<String, AssignmentSubmission>();
                 //keep track of who has been assigned an assessment

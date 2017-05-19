@@ -52,6 +52,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -602,7 +603,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         log.debug("Created new assignment {}", assignment.getId());
 
         // event for tracking
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_CONTENT, assignment.getId(), true));
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignment.getId(), true));
 
         return assignment;
     }
@@ -746,8 +747,45 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentSubmission addSubmission(String context, String assignmentId, String submitter) throws PermissionException {
-        return null;
+    @Transactional
+    public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException {
+        AssignmentSubmission submission = null;
+        try {
+            Assignment assignment = getAssignment(assignmentId);
+
+            String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+            if (!permissionCheckWithGroups(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference, assignment)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
+            }
+
+            User user = null;
+            try {
+                user = userDirectoryService.getUser(submitter);
+            } catch (UserNotDefinedException e) {
+                try {
+                    user = userDirectoryService.getUser(sessionManager.getCurrentSessionUserId());
+                } catch (UserNotDefinedException e1) {
+                    log.error("Unknown submitter while adding a submission to assignment: {}", assignmentId);
+                    return null;
+                }
+            }
+
+            AssignmentSubmissionSubmitter submissionSubmitter = new AssignmentSubmissionSubmitter();
+            submissionSubmitter.setSubmitter(user.getId());
+            submissionSubmitter.setSubmittee(true);
+            Set<AssignmentSubmissionSubmitter> submissionSubmitters = new HashSet<>();
+            submissionSubmitters.add(submissionSubmitter);
+
+            submission = new AssignmentSubmission();
+            assignmentRepository.saveSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
+
+            // TODO post an event ((BaseAssignmentSubmissionEdit) submission).setEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION);
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submission.getId(), true));
+        } catch (IdUnusedException iue) {
+            log.error("A submission cannot be added to an unknown assignement: {}", assignmentId);
+        }
+
+        return submission;
     }
 
     @Override
@@ -889,8 +927,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public List<AssignmentSubmission> getSubmissions(Assignment assignment) {
-        return null;
+    public Set<AssignmentSubmission> getSubmissions(Assignment assignment) {
+        return assignment.getSubmissions();
     }
 
     @Override
@@ -989,7 +1027,11 @@ public class AssignmentServiceImpl implements AssignmentService {
             Assignment assignment = getAssignment(aRef);
 
             if (assignment.getIsGroup()) {
-                Collection<Group> submitterGroups = getSubmitterGroupList(searchFilterOnly, viewString.length() == 0 ? AssignmentConstants.ALL : viewString, searchString, aRef, contextString == null ? assignment.getContext() : contextString);
+                Collection<Group> submitterGroups = getSubmitterGroupList(searchFilterOnly,
+                        viewString.length() == 0 ? AssignmentConstants.ALL : viewString,
+                        searchString,
+                        aRef,
+                        contextString == null ? assignment.getContext() : contextString);
                 if (submitterGroups != null && !submitterGroups.isEmpty()) {
                     List<AssignmentSubmission> submissions = new ArrayList<>();
                     for (Group g : submitterGroups) {
@@ -1028,7 +1070,11 @@ public class AssignmentServiceImpl implements AssignmentService {
             } else {
 
                 //List<String> submitterIds = getSubmitterIdList(searchFilterOnly, viewString.length() == 0 ? AssignmentConstants.ALL:viewString, searchString, aRef, contextString == null? a.getContext():contextString);
-                Map<User, AssignmentSubmission> submitters = getSubmitterMap(searchFilterOnly, viewString.length() == 0 ? AssignmentConstants.ALL : viewString, searchString, aRef, contextString == null ? assignment.getContext() : contextString);
+                Map<User, AssignmentSubmission> submitters = getSubmitterMap(searchFilterOnly,
+                        viewString.length() == 0 ? AssignmentConstants.ALL : viewString,
+                        searchString,
+                        aRef,
+                        contextString == null ? assignment.getContext() : contextString);
 
                 if (!submitters.isEmpty()) {
                     List<AssignmentSubmission> submissions = new ArrayList<AssignmentSubmission>(submitters.values());
@@ -1989,8 +2035,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     // TODO refactor this
-    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment,String gradeFileFormat, boolean includeNotSubmitted)
-    {
+    protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, Assignment.SubmissionType typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, String gradeFileFormat, boolean includeNotSubmitted) {
         ZipOutputStream out = null;
         try {
             out = new ZipOutputStream(outputStream);
@@ -2002,14 +2047,13 @@ public class AssignmentServiceImpl implements AssignmentService {
             SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString, getCsvSeparator());
 
             String submittedText = "";
-            if (!submissions.hasNext())
-            {
+            if (!submissions.hasNext()) {
                 exceptionMessage.append("There is no submission yet. ");
             }
 
             // Write the header
             sheet.addHeader("Group", rb.getString("grades.eid"), rb.getString("grades.members"),
-                    rb.getString("grades.grade"), rb.getString("grades.submissionTime"),rb.getString("grades.late"));
+                    rb.getString("grades.grade"), rb.getString("grades.submissionTime"), rb.getString("grades.late"));
 
             // allow add assignment members
             List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -2018,17 +2062,14 @@ public class AssignmentServiceImpl implements AssignmentService {
             String submittersName = "";
             String caughtException = null;
             String caughtStackTrace = null;
-            while (submissions.hasNext())
-            {
+            while (submissions.hasNext()) {
                 AssignmentSubmission s = (AssignmentSubmission) submissions.next();
 
-                log.debug( this + " ZIPGROUP " + ( s == null ? "null": s.getId() ));
+                log.debug(this + " ZIPGROUP " + (s == null ? "null" : s.getId()));
 
                 //SAK-29314 added a new value where it's by default submitted but is marked when the user submits
-                if ((s.getSubmitted() && s.getUserSubmission())|| includeNotSubmitted)
-                {
-                    try
-                    {
+                if ((s.getSubmitted() && s.getUserSubmission()) || includeNotSubmitted) {
+                    try {
                         submittersName = root;
 
                         User[] submitters = s.getSubmitters().stream().map(p -> {
@@ -2044,18 +2085,15 @@ public class AssignmentServiceImpl implements AssignmentService {
                         String submittersString = "";
                         String submitters2String = "";
 
-                        for (int i = 0; i < submitters.length; i++)
-                        {
-                            if (i > 0)
-                            {
+                        for (int i = 0; i < submitters.length; i++) {
+                            if (i > 0) {
                                 submittersString = submittersString.concat("; ");
                                 submitters2String = submitters2String.concat("; ");
                             }
                             String fullName = submitters[i].getSortName();
                             // in case the user doesn't have first name or last name
-                            if (fullName.indexOf(",") == -1)
-                            {
-                                fullName=fullName.concat(",");
+                            if (fullName.indexOf(",") == -1) {
+                                fullName = fullName.concat(",");
                             }
                             submittersString = submittersString.concat(fullName);
                             submitters2String = submitters2String.concat(submitters[i].getDisplayName());
@@ -2068,16 +2106,14 @@ public class AssignmentServiceImpl implements AssignmentService {
                         sheet.addRow(submitterString, submittersString, submitters2String, // TODO gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
                                 s.getGrade(), s.getDateSubmitted().toString(), latenessStatus);
 
-                        if (StringUtils.trimToNull(submitterString) != null)
-                        {
+                        if (StringUtils.trimToNull(submitterString) != null) {
                             submittersName = submittersName.concat(StringUtils.trimToNull(submitterString));
                             submittedText = s.getSubmittedText();
 
                             submittersName = submittersName.concat("/");
 
                             // record submission timestamp
-                            if (s.getSubmitted() && s.getDateSubmitted() != null)
-                            {
+                            if (s.getSubmitted() && s.getDateSubmitted() != null) {
                                 ZipEntry textEntry = new ZipEntry(submittersName + "timestamp.txt");
                                 out.putNextEntry(textEntry);
                                 byte[] b = (s.getDateSubmitted().toString()).getBytes();
@@ -2087,11 +2123,9 @@ public class AssignmentServiceImpl implements AssignmentService {
                             }
 
                             // create the folder structure - named after the submitter's name
-                            if (typeOfSubmission != Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-                            {
+                            if (typeOfSubmission != Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                                 // include student submission text
-                                if (withStudentSubmissionText)
-                                {
+                                if (withStudentSubmissionText) {
                                     // create the text file only when a text submission is allowed
                                     ZipEntry textEntry = new ZipEntry(submittersName + submitterString + "_submissionText" + AssignmentConstants.ZIP_SUBMITTED_TEXT_FILE_TYPE);
                                     out.putNextEntry(textEntry);
@@ -2102,8 +2136,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                 }
 
                                 // include student submission feedback text
-                                if (withFeedbackText)
-                                {
+                                if (withFeedbackText) {
                                     // create a feedbackText file into zip
                                     ZipEntry fTextEntry = new ZipEntry(submittersName + "feedbackText.html");
                                     out.putNextEntry(fTextEntry);
@@ -2114,11 +2147,9 @@ public class AssignmentServiceImpl implements AssignmentService {
                                 }
                             }
 
-                            if (typeOfSubmission != Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-                            {
+                            if (typeOfSubmission != Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION && typeOfSubmission != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) {
                                 // include student submission attachment
-                                if (withStudentSubmissionAttachment)
-                                {
+                                if (withStudentSubmissionAttachment) {
                                     // create a attachment folder for the submission attachments
                                     String sSubAttachmentFolder = submittersName + rb.getString("stuviewsubm.submissatt") + "/";
                                     ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
@@ -2129,8 +2160,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                 }
                             }
 
-                            if (withFeedbackComment)
-                            {
+                            if (withFeedbackComment) {
                                 // the comments.txt file to show instructor's comments
                                 ZipEntry textEntry = new ZipEntry(submittersName + "comments" + AssignmentConstants.ZIP_COMMENT_FILE_TYPE);
                                 out.putNextEntry(textEntry);
@@ -2140,8 +2170,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                 out.closeEntry();
                             }
 
-                            if (withFeedbackAttachment)
-                            {
+                            if (withFeedbackAttachment) {
                                 // create an attachment folder for the feedback attachments
                                 String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
                                 ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
@@ -2162,9 +2191,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                             }
 
                         } // if
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         caughtException = e.toString();
                         if (log.isDebugEnabled()) {
                             caughtStackTrace = ExceptionUtils.getStackTrace(e);
@@ -2175,28 +2202,22 @@ public class AssignmentServiceImpl implements AssignmentService {
 
             } // while -- there is submission
 
-            if (caughtException == null)
-            {
+            if (caughtException == null) {
                 // continue
-                if (withGradeFile)
-                {
-                    ZipEntry gradesCSVEntry = new ZipEntry(root + "grades."+ sheet.getFileExtension());
+                if (withGradeFile) {
+                    ZipEntry gradesCSVEntry = new ZipEntry(root + "grades." + sheet.getFileExtension());
                     out.putNextEntry(gradesCSVEntry);
                     sheet.write(out);
                     out.closeEntry();
                 }
-            }
-            else
-            {
+            } else {
                 // log the error
                 exceptionMessage.append(" Exception " + caughtException + " for creating submission zip file for assignment " + "\"" + assignmentTitle + "\"\n");
                 if (log.isDebugEnabled()) {
                     exceptionMessage.append(caughtStackTrace);
                 }
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             exceptionMessage.append("IOException for creating submission zip file for assignment " + "\"" + assignmentTitle + "\" exception: " + e + "\n");
         } finally {
             // Complete the ZIP file

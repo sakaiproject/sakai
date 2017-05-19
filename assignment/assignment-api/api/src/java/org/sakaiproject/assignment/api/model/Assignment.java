@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -46,7 +47,9 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
@@ -56,6 +59,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
+@EqualsAndHashCode(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
 public class Assignment {
 
     @Id
@@ -122,7 +127,7 @@ public class Assignment {
     @Column(name = "POSITION")
 	private Integer position;
 
-    @OneToMany(mappedBy = "assignment")
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL)
     private Set<AssignmentSubmission> submissions = new HashSet<>();
 
     @ElementCollection

@@ -12,13 +12,17 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "ASN_SUBMISSION_SUBMITTER")
 
 @Data
 @NoArgsConstructor
+@ToString(exclude = {"submission"})
+@EqualsAndHashCode(exclude = {"submission"})
 public class AssignmentSubmissionSubmitter {
 
     @Id

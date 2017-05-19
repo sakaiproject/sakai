@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -301,7 +302,7 @@ public interface AssignmentService extends EntityProducer {
      * @throws IdUsedException     if the submission id is already used.
      * @throws PermissionException if the current User does not have permission to do this.
      */
-    public AssignmentSubmission addSubmission(String context, String assignmentId, String submitter) throws PermissionException;
+    public AssignmentSubmission addSubmission(String assignmentId, String submitter) throws PermissionException;
 
     /**
      * Add a new AssignmentSubmission to the directory, from a definition in XML. Must commitEdit() to make official, or cancelEdit() when done!
@@ -428,7 +429,7 @@ public interface AssignmentService extends EntityProducer {
      *                   the Assignment who's submissions you would like.
      * @return List over all the submissions for an Assignment.
      */
-    public List<AssignmentSubmission> getSubmissions(Assignment assignment);
+    public Set<AssignmentSubmission> getSubmissions(Assignment assignment);
 
     /**
      * Return a sorted list of users representing a group.

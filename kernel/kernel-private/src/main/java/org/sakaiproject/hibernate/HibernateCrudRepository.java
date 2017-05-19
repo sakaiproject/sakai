@@ -130,6 +130,11 @@ public abstract class HibernateCrudRepository<T, ID extends Serializable> implem
         }
     }
 
+    @Override
+    public void refresh(T entity) {
+        sessionFactory.getCurrentSession().refresh(entity);
+    }
+
     /**
      * Starts a Hibernate Criteria query for the type T in HibernateCrudRespository&lt;T, I&gt;
      * @return a Criteria query

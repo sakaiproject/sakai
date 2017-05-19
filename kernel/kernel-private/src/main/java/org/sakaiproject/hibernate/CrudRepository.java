@@ -95,4 +95,6 @@ public interface CrudRepository<T, ID extends Serializable> extends Repository<T
      * Deletes all entities managed by the repository.
      */
     void deleteAll();
+
+    void refresh(T entity);
 }

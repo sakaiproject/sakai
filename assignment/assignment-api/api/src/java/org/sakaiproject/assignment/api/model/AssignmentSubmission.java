@@ -24,10 +24,10 @@ package org.sakaiproject.assignment.api.model;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -46,7 +46,9 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * AssignmentSubmission represents a student submission for an assignment.
@@ -56,6 +58,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@ToString(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
+@EqualsAndHashCode(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
 public class AssignmentSubmission {
 
 	@Id
@@ -68,7 +72,7 @@ public class AssignmentSubmission {
 	@JoinColumn(name = "ASSIGNMENT_ID")
 	private Assignment assignment;
 
-	@OneToMany(mappedBy = "submission")
+	@OneToMany(mappedBy = "submission", cascade = CascadeType.ALL)
 	private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
 	//private List submissionLog;
