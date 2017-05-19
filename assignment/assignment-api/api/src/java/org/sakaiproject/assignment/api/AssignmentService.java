@@ -324,9 +324,9 @@ public interface AssignmentService extends EntityProducer {
      */
     public void removeSubmission(AssignmentSubmission submission) throws PermissionException;
 
-    void updateAssignment(Assignment assignment) throws IdUnusedException, PermissionException;
+    void updateAssignment(Assignment assignment) throws PermissionException;
 
-    void updateSubmission(AssignmentSubmission submission) throws IdUnusedException, PermissionException;
+    void updateSubmission(AssignmentSubmission submission) throws PermissionException;
 
     Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException;
 

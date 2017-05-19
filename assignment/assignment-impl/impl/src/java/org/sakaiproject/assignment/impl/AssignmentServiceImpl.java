@@ -598,7 +598,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         Assignment assignment = new Assignment();
         assignment.setContext(context);
-        assignment = assignmentRepository.save(assignment);
+        assignmentRepository.newAssignment(assignment);
 
         log.debug("Created new assignment {}", assignment.getId());
 
@@ -618,14 +618,14 @@ public class AssignmentServiceImpl implements AssignmentService {
         Assignment assignment = null;
 
         if (StringUtils.isNotBlank(assignmentId)) {
-            if (!assignmentRepository.exists(assignmentId)) {
+            if (!assignmentRepository.existsAssignment(assignmentId)) {
                 throw new IdUnusedException(assignmentId);
             } else {
                 log.debug("duplicating assignment with ref = {}", assignmentId);
 
                 Assignment existingAssignment = getAssignment(assignmentId);
 
-                assignment = addAssignment(context);
+                assignment.setContext(context);
                 assignment.setTitle(existingAssignment.getTitle() + " - " + rb.getString("assignment.copy"));
                 assignment.setSection(existingAssignment.getSection());
                 assignment.setOpenDate(existingAssignment.getOpenDate());
@@ -637,7 +637,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 Map<String, String> properties = existingAssignment.getProperties();
                 addLiveProperties(properties);
                 assignment.setProperties(properties);
-                assignmentRepository.saveAssignment(assignment);
+                assignmentRepository.newAssignment(assignment);
             }
         }
         return assignment;
@@ -654,7 +654,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
-        assignmentRepository.delete(assignment);
+        assignmentRepository.deleteAssignment(assignment);
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
 
@@ -777,7 +777,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             submissionSubmitters.add(submissionSubmitter);
 
             submission = new AssignmentSubmission();
-            assignmentRepository.saveSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
+            assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
             // TODO post an event ((BaseAssignmentSubmissionEdit) submission).setEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION);
             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submission.getId(), true));
@@ -799,7 +799,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public void updateAssignment(Assignment assignment) throws IdUnusedException, PermissionException {
+    public void updateAssignment(Assignment assignment) throws PermissionException {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
 
@@ -809,15 +809,11 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
-        if (assignmentRepository.exists(assignment.getId())) {
-            assignmentRepository.save(assignment);
-        } else {
-            throw new IdUnusedException(assignment.getId());
-        }
+        assignmentRepository.saveAssignment(assignment);
     }
 
     @Override
-    public void updateSubmission(AssignmentSubmission submission) throws IdUnusedException, PermissionException {
+    public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
         Assert.notNull(submission.getAssignment(), "Submission doesn't appear to have been persisted yet");
@@ -826,17 +822,12 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, null);
         }
 
-        Assignment assignment = submission.getAssignment();
-        if (assignmentRepository.exists(assignment.getId())) {
-            assignmentRepository.save(assignment);
-        } else {
-            throw new IdUnusedException(assignment.getId());
-        }
+        assignmentRepository.saveSubmission(submission);
     }
 
     @Override
     public Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException {
-        Objects.requireNonNull(reference, "Reference cannot be null");
+        Assert.notNull(reference, "Reference cannot be null");
         return getAssignment(reference.getId());
     }
 

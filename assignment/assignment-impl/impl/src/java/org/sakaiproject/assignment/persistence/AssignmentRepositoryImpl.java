@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
@@ -33,8 +34,28 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void saveAssignment(Assignment assignment) {
-        save(assignment);
+    public void newAssignment(Assignment assignment) {
+        if (!existsAssignment(assignment.getId())) {
+            sessionFactory.getCurrentSession().persist(assignment);
+        }
+    }
+
+    @Override
+    @Transactional
+    public Assignment saveAssignment(Assignment assignment) {
+        if (existsAssignment(assignment.getId())) {
+            return (Assignment) sessionFactory.getCurrentSession().merge(assignment);
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public boolean existsAssignment(String assignmentId) {
+        if (assignmentId != null && exists(assignmentId)) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -56,22 +77,42 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public void saveSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
-        submitters.ifPresent(submission::setSubmitters);
-        submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
-        feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
-        submittedAttachments.ifPresent(submission::setSubmittedAttachments);
-        properties.ifPresent(submission::setProperties);
+    public AssignmentSubmission saveSubmission(AssignmentSubmission submission) {
+        if (existsSubmission(submission.getId())) {
+            return (AssignmentSubmission) sessionFactory.getCurrentSession().merge(submission);
+        }
+        return null;
+    }
 
-        submission.setAssignment(assignment);
-        assignment.getSubmissions().add(submission);
+    @Override
+    @Transactional
+    public boolean existsSubmission(String submissionId) {
+        if (submissionId != null && sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId) != null) {
+            return true;
+        }
+        return false;
+    }
 
-        sessionFactory.getCurrentSession().persist(assignment);
+    @Override
+    @Transactional
+    public void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties) {
+        if (!existsSubmission(submission.getId()) && exists(assignment.getId())) {
+            submitters.ifPresent(submission::setSubmitters);
+            submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
+            feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
+            submittedAttachments.ifPresent(submission::setSubmittedAttachments);
+            properties.ifPresent(submission::setProperties);
+
+            submission.setAssignment(assignment);
+            assignment.getSubmissions().add(submission);
+
+            sessionFactory.getCurrentSession().persist(assignment);
 //        sessionFactory.getCurrentSession().save(assignment);
 //        session.save(submission);
 //        submitters.ifPresent(s -> s.forEach(session::save));
 //        session.persist(submission);
 //        submitters.ifPresent(s -> s.forEach(session::persist));
-        // TODO remove the commented items
+            // TODO remove the commented items
+        }
     }
 }
