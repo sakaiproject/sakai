@@ -1800,7 +1800,7 @@ public class DiscussionForumTool
     
     // if the topic is not moderated (and already exists), all of the pending messages must be approved
     if (selectedTopic != null && selectedTopic.getTopic() != null &&
-    		!selectedTopic.getTopic().getModerated() && selectedTopic.getTopic().getId() != null)
+    		!selectedTopic.getTopicModerated() && selectedTopic.getTopic().getId() != null)
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
@@ -1888,7 +1888,7 @@ public class DiscussionForumTool
 	  
     // if the topic is not moderated, all of the messages must be approved
     if (selectedTopic != null && selectedTopic.getTopic().getId() != null &&
-    		!selectedTopic.getTopic().getModerated())
+    		!selectedTopic.getTopicModerated())
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
