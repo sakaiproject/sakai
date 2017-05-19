@@ -798,6 +798,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				try{
 					SitePresenceConsolidation spc = presencesMap.get(pKey);
 					if(spc == null) {
+						Calendar c = Calendar.getInstance(); 
+						c.setTime(date); 
+						c.add(Calendar.DATE, -1);
+						Date dateOneDayBefore = c.getTime();						 
+						pKey = siteId+userId+dateOneDayBefore;
+						spc = presencesMap.get(pKey);
+					}
+					if(spc == null) {
 						SitePresence sp = new SitePresenceImpl();
 						sp.setSiteId(siteId);
 						sp.setUserId(userId);
