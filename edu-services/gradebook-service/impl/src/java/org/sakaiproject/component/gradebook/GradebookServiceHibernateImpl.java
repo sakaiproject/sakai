@@ -191,7 +191,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 	
 	@Override
-	@Deprecated
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final String assignmentName) throws AssessmentNotFoundException {
 		if (assignmentName == null || gradebookUid == null) {
 			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are assignmentName:" 
@@ -201,6 +200,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignment " + assignmentName);
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
+		if (NumberUtils.isNumber(assignmentName)) {
+			try {
+				return getAssignment(gradebookUid, NumberUtils.toLong(assignmentName, -1L));
+			}
+			//Continue on if the assignment is not found
+			catch (AssessmentNotFoundException e) {
+				log.debug("{}",e.getMessage());
+			}
+		}
+
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
@@ -2428,6 +2437,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("null parameter passed to getAssignment. Values are gradebookUid:" 
 					+ gradebookUid + " assignmentName:" + assignmentName + " studentUid:" + studentUid);
 		}	
+
+		if (NumberUtils.isNumber(assignmentName)) {
+			try {
+				return getAssignmentScoreString(gradebookUid, NumberUtils.toLong(assignmentName, -1L), studentUid);
+			}
+			//Continue on if the assignment is not found
+			catch (AssessmentNotFoundException e) {
+				log.debug("{}",e.getMessage());
+			}
+		}
 
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
 			@Override

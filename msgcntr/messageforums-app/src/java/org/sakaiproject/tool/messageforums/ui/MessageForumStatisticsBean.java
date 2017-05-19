@@ -2606,7 +2606,7 @@ public class MessageForumStatisticsBean {
 		selAssignName = "";
 		if(assign != null){
 			for (SelectItem item : getAssignments()) {
-				if(assign.equals(item.getLabel())){
+				if(assign.equals(item.getLabel()) || assign.equals(item.getValue())){
 					selectedAssign = item.getValue().toString();
 					selAssignName = assign;
 				}
