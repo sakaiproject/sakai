@@ -654,7 +654,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
         }
 
-        assignmentRepository.deleteAssignment(assignment);
+        assignmentRepository.deleteAssignment(assignment.getId());
 
         eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT, reference, true));
 

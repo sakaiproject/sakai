@@ -27,7 +27,7 @@ public interface AssignmentRepository extends Repository<Assignment, String>, Se
 
     boolean existsAssignment(String assignmentId);
 
-    void deleteAssignment(Assignment assignment);
+    void deleteAssignment(String assignmentId);
 
     void deleteSubmission(String submissionId);
 
