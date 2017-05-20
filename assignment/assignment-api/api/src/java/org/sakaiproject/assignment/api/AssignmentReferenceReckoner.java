@@ -4,16 +4,19 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFEREN
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.entity.api.Entity;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by enietzel on 5/11/17.
  */
+@Slf4j
 public class AssignmentReferenceReckoner {
 
     @Value
@@ -81,8 +84,9 @@ public class AssignmentReferenceReckoner {
      * @return
      */
     @Builder(builderMethodName = "reckoner", buildMethodName = "reckon")
-    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, String container, String context, String id, String reference, String subtype) {
+    public static AssignmentReference newAssignmentReferenceReckoner(Assignment assignment, AssignmentSubmission submission, String container, String context, String id, String reference, String subtype) {
         if (StringUtils.startsWith(reference, REFERENCE_ROOT)) {
+            log.debug("constructing reference from reference");
             // we will get null, assignment, [a|c|s|grades|submissions], context, [auid], id
             String[] parts = StringUtils.splitPreserveAllTokens(reference, Entity.SEPARATOR);
             if (parts.length > 2) {
@@ -105,9 +109,21 @@ public class AssignmentReferenceReckoner {
                 }
             }
         } else if (assignment != null) {
+            log.debug("constructing reference from assignment");
             context = assignment.getContext();
             id = assignment.getId();
             subtype = "a";
+        } else if (submission != null) {
+            log.debug("constructing reference from submission");
+            Assignment submissionAssignment = submission.getAssignment();
+            if (submissionAssignment != null) {
+                context = submission.getAssignment().getContext();
+                container = submission.getAssignment().getId();
+                id = submission.getId();
+                subtype = "s";
+            } else {
+                log.warn("no assignment while constructing submission reference");
+            }
         }
         return new AssignmentReference(
                 (container == null) ? "" : container,

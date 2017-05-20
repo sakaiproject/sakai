@@ -226,33 +226,65 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     }
 
     @Test
-    public void addAndGetSubmission() throws UserNotDefinedException {
+    public void addAndGetSubmission() {
+        String context = UUID.randomUUID().toString();
         String submitterId = UUID.randomUUID().toString();
-        Assignment assignment = createNewAssignment(UUID.randomUUID().toString());
-        User userMock = Mockito.mock(User.class);
-        when(userMock.getId()).thenReturn(submitterId);
-        when(userDirectoryService.getUser(submitterId)).thenReturn(userMock);
-        when(siteService.siteReference(assignment.getContext())).thenReturn("/site/" + assignment.getContext());
-        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + assignment.getContext())).thenReturn(true);
         try {
-            AssignmentSubmission savedSubmission = assignmentService.addSubmission(assignment.getId(), submitterId);
+            AssignmentSubmission savedSubmission = createNewSubmission(context, submitterId);
             Assert.assertNotNull(savedSubmission);
             Assert.assertNotNull(savedSubmission.getId());
-            AssignmentSubmission getSubmission = assignmentService.getSubmission(savedSubmission.getId());
-            Set<AssignmentSubmissionSubmitter> submitters = getSubmission.getSubmitters();
 
+            AssignmentSubmission getSubmission = assignmentService.getSubmission(savedSubmission.getId());
             Assert.assertNotNull(getSubmission);
             Assert.assertNotNull(getSubmission.getId());
-            Assert.assertEquals(assignment.getId(), getSubmission.getAssignment().getId());
-            Assert.assertEquals(assignment.getContext(), getSubmission.getAssignment().getContext());
 
+            Assignment assignment = getSubmission.getAssignment();
+            Assert.assertNotNull(assignment.getId());
+            Assert.assertEquals(context, assignment.getContext());
+
+            Set<AssignmentSubmissionSubmitter> submitters = getSubmission.getSubmitters();
+            Assert.assertEquals(1, submitters.size());
             AssignmentSubmissionSubmitter submitter = submitters.stream().findAny().get();
             Assert.assertNotNull(submitter);
             Assert.assertNotNull(submitter.getId());
             Assert.assertEquals(submitterId, submitter.getSubmitter());
         } catch (Exception e) {
-            Assert.fail("Could not add submission to assignment, " + e.getMessage());
+            Assert.fail("Could not create submission, " + e.getMessage());
         }
+    }
+
+    @Test
+    public void removeSubmission() {
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        try {
+            AssignmentSubmission submission = createNewSubmission(context, submitterId);
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            String submissionId = submission.getId();
+            assignmentService.removeSubmission(submission);
+
+            AssignmentSubmission removedSubmmision = assignmentService.getSubmission(submissionId);
+            Assert.assertNull(removedSubmmision);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission, " + e.getMessage());
+        }
+    }
+
+    private AssignmentSubmission createNewSubmission(String context, String submitterId) throws UserNotDefinedException {
+        Assignment assignment = createNewAssignment(context);
+        User userMock = Mockito.mock(User.class);
+        when(userMock.getId()).thenReturn(submitterId);
+        when(userDirectoryService.getUser(submitterId)).thenReturn(userMock);
+        when(siteService.siteReference(assignment.getContext())).thenReturn("/site/" + assignment.getContext());
+        when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + assignment.getContext())).thenReturn(true);
+        AssignmentSubmission submission = null;
+        try {
+            submission = assignmentService.addSubmission(assignment.getId(), submitterId);
+        } catch (PermissionException e) {
+            Assert.fail(e.getMessage());
+        }
+        return submission;
     }
 
     private Assignment createNewAssignment(String context) {

@@ -779,7 +779,6 @@ public class AssignmentServiceImpl implements AssignmentService {
             submission = new AssignmentSubmission();
             assignmentRepository.newSubmission(assignment, submission, Optional.of(submissionSubmitters), Optional.empty(), Optional.empty(), Optional.empty());
 
-            // TODO post an event ((BaseAssignmentSubmissionEdit) submission).setEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION);
             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT_SUBMISSION, submission.getId(), true));
         } catch (IdUnusedException iue) {
             log.error("A submission cannot be added to an unknown assignement: {}", assignmentId);
@@ -795,7 +794,27 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public void removeSubmission(AssignmentSubmission submission) throws PermissionException {
+        if (submission != null) {
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            // check security
+            if (!permissionCheck(SECURE_REMOVE_ASSIGNMENT_SUBMISSION, reference, null)) {
+                throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT_SUBMISSION, reference);
+            }
 
+            // remove submission
+            assignmentRepository.deleteSubmission(submission.getId());
+
+            // track event
+            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_REMOVE_ASSIGNMENT_SUBMISSION, reference, true));
+
+            try {
+                authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(reference));
+            } catch (AuthzPermissionException e) {
+                log.warn("removing realm for : {} : {}", reference, e.getMessage());
+            } catch (GroupNotDefinedException e) {
+                log.warn("cannot find group for submission : {} : {}", reference, e.getMessage());
+            }
+        }
     }
 
     @Override

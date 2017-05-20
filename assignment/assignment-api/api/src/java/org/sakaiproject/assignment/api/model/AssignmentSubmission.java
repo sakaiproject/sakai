@@ -59,7 +59,8 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
-@EqualsAndHashCode(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
+//@EqualsAndHashCode(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
+@EqualsAndHashCode(of = "id")
 public class AssignmentSubmission {
 
 	@Id
@@ -72,7 +73,7 @@ public class AssignmentSubmission {
 	@JoinColumn(name = "ASSIGNMENT_ID")
 	private Assignment assignment;
 
-	@OneToMany(mappedBy = "submission", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
 	//private List submissionLog;

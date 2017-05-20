@@ -29,6 +29,8 @@ public interface AssignmentRepository extends Repository<Assignment, String>, Se
 
     void deleteAssignment(Assignment assignment);
 
+    void deleteSubmission(String submissionId);
+
     void softDeleteAssignment(Assignment assignment);
 
     AssignmentSubmission findSubmission(String submissionId);

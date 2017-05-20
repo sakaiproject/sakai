@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,6 +69,23 @@ public class AssignmentReferenceTest {
         assignment.setId(id);
         assignment.setContext(context);
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        Assert.assertNotNull(reference);
         Assert.assertEquals("/assignment/a/" + context + "/" + id, reference);
+    }
+
+    @Test
+    public void submissionTest() {
+        final String context = UUID.randomUUID().toString();
+        final String assignmentId = UUID.randomUUID().toString();
+        final String submissionId = UUID.randomUUID().toString();
+        Assignment assignment = new Assignment();
+        assignment.setId(assignmentId);
+        assignment.setContext(context);
+        AssignmentSubmission submission = new AssignmentSubmission();
+        submission.setId(submissionId);
+        submission.setAssignment(assignment);
+        String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+        Assert.assertNotNull(reference);
+        Assert.assertEquals("/assignment/s/" + context + "/" + assignmentId + "/" + submissionId, reference);
     }
 }
