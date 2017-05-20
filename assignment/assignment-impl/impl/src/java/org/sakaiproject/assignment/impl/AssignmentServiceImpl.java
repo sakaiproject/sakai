@@ -648,7 +648,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
         log.debug("Attempting to delete assignment with id = {}", assignment.getId());
-        String reference = AssignmentReferenceReckoner.reckoner().context(assignment.getContext()).id(assignment.getId()).reckon().getReference();
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
 
         if (!allowRemoveAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ASSIGNMENT, null);
