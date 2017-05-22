@@ -82,8 +82,8 @@
 		<div id="davdocs_step1">
 			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
 
-	<p class="indnt3">
-<input id="webDavUrl" type="text" size="80" value="
+	<p class="form-group">
+<input class="form-control" id="webDavUrl" type="text" value="
 #if("$!inMyWorkspace" == "true")
 ${server_url}${dav_user}$user_id
 #elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")

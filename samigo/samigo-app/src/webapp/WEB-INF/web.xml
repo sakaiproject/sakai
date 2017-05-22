@@ -10,11 +10,6 @@
 
   <!-- BEGIN SAMIGO JSF CONTEXT PARAM-->
     <context-param>
-        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-        <param-value>client</param-value>
-    </context-param>
-
-    <context-param>
         <description>
             Set this flag to true if you want the JavaServer Faces
             Reference Implementation to validate the XML in your
@@ -240,6 +235,12 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowAttachmentMediaServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <description>Export Markup Text Assessment</description>
+    <servlet-name>ExportMarkupTextServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.export.ExportMarkupTextServlet</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
@@ -253,6 +254,11 @@
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
     <url-pattern>/servlet/Login</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ExportMarkupTextServlet</servlet-name>
+    <url-pattern>/servlet/ExportMarkupText</url-pattern>
   </servlet-mapping>
 
   <!-- RSF direct access servlet -->

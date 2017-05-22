@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
@@ -55,9 +56,11 @@ public class UrlResourceType extends BaseResourceType
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.type.types";
 	private static final String RESOURCECLASS = "resource.class.type";
 	private static final String RESOURCEBUNDLE = "resource.bundle.type";
-	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
-	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+	private ServerConfigurationService serverConfigurationService =  (ServerConfigurationService) ComponentManager.get("org.sakaiproject.component.api.ServerConfigurationService");;
+	private String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+	private String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+
 	// private static ResourceLoader rb = new ResourceLoader("types");
 	
 	protected EnumMap<ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ActionType, List<ResourceToolAction>>(ActionType.class);
@@ -138,6 +141,11 @@ public class UrlResourceType extends BaseResourceType
 		return null;
 	}
 	
+	public String getIconClass(ContentEntity entity) 
+	{
+		return null;
+	}
+	
 	public String getId() 
 	{
 		return typeId;
@@ -197,7 +205,7 @@ public class UrlResourceType extends BaseResourceType
 	@Override
     public boolean hasRightsDialog()
     {
-	    return false;
+		return serverConfigurationService.getBoolean("content.url.rightsdialog", false);
     }
 
 }

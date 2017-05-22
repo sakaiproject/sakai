@@ -6,6 +6,7 @@
     <bean name="org.sakaiproject.roster.api.SakaiProxy"
         class="org.sakaiproject.roster.impl.SakaiProxyImpl" init-method="init">
         <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+        <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
         <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
         <property name="groupProvider"><ref bean="org.sakaiproject.authz.api.GroupProvider"/></property>
         <property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>

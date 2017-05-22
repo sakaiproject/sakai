@@ -1,7 +1,7 @@
 package org.sakaiproject.component.app.scheduler.jobs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
@@ -23,8 +23,8 @@ import java.util.List;
  */
 public class TestEventGeneratorJob extends AbstractConfigurableJob
 {
-    private static final Log
-        LOG = LogFactory.getLog(TestEventGeneratorJob.class);
+    private static final Logger
+        LOG = LoggerFactory.getLogger(TestEventGeneratorJob.class);
 
     public static final String
         STARTDATE_PROPERTY          = "startDate.property",

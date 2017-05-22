@@ -684,7 +684,7 @@ public interface GradebookManager {
      *  
      *  @param gradeMap
      */
-    public void createDefaultLetterGradePercentMapping(Map gradeMap);
+    public void createDefaultLetterGradePercentMapping(Map<String, Double> gradeMap);
 
     /**
      * Get letter grading percentage mappings for a gradebook.
@@ -700,7 +700,7 @@ public interface GradebookManager {
      *  @param gradeMap letter grade percentage map
      *  @param gradebook
      */
-    public void saveOrUpdateLetterGradePercentMapping(final Map gradeMap, final Gradebook gradebook);
+    public void saveOrUpdateLetterGradePercentMapping(final Map<String, Double> gradeMap, final Gradebook gradebook);
     
     /**
      * Add a new ungraded assignment to a gradebook

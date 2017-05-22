@@ -1,0 +1,148 @@
+.#{$namespace}sakai-poll{
+	.pollEditorSmall{
+		max-width: 60em;;
+	    padding-bottom: 1em;
+	}
+
+	/*skinned sortable header - sort icons*/
+	thead{
+		tr{
+			th{
+				background: #F9F9F9;
+				font-weight: bold;
+				text-decoration: none;
+				a{
+					color: #347EB2;
+				}
+			}
+			.header{
+				a{
+					padding-right: 25px;
+				}
+			}
+			div{
+				.reset-order{
+					a{
+						background-image: url(/library/image/sakai/sortdescending.gif);
+						background-repeat: no-repeat;
+					}
+				}
+			}
+			.headerSortUp{
+				a {
+					background-image: url(/library/image/sakai/sortdescending.gif);
+					background-repeat: no-repeat;
+					background-position: 90% center;
+					padding-right: 25px;
+				}
+			}
+			.headerSortDown{
+				a {
+					background-image: url(/library/image/sakai/sortascending.gif);
+					background-repeat: no-repeat;
+					background-position: 90% center;
+					padding-right: 25px;
+				} 
+			}
+		}
+	}
+
+	#sortableTable {
+		display: table;
+		tr{
+			display: table-row;
+			td{
+				display: table-cell;
+				padding: 8px;
+			}
+		}
+		.reset-order {
+			background-image: url(/library/image/sakai/expand-collapse.gif);
+			background-repeat: no-repeat;
+			background-position: center center;
+			height: 15px;
+			width: 25px;
+			border: none;
+			cursor: hand;
+			#reset-order-link span{
+				display: none;
+			}
+		}
+	}
+	#poll_list_remove_confirm, #poll_list_reset_confirm  {
+		display: none;
+	}
+	.addItem {
+		background:transparent url(/library/image/silk/add.png) no-repeat scroll left center;
+		padding-left:2em;
+	}
+
+	.actionItem, .itemAction{
+		float: none;
+	}
+
+	/* chart styles */
+	#chart-selector {
+		margin-top: 20px;
+		margin-bottom: 10px;
+		display:block;
+	}
+
+	.icon {
+		background-position: center left;
+	    background-repeat: no-repeat;
+	    padding-left: 18px;
+	}
+
+	.refresh {
+		background-image: url(/library/image/silk/arrow_refresh.png);
+	 }
+
+	 form{
+	 	> table{
+	 		@media #{$phone}{
+	 			display: block;		
+	 			max-width: 100%;
+	 			tr{
+	 				display: inline;
+	 			}
+	 			td{
+	 				display: block;
+	 				max-width: 100%;
+	 			}
+	 		}
+	 	}
+		.listHier{ 
+			tr {
+				td {
+	 				@media #{$phone}{
+						font-size: 12px;
+					}
+		 		}
+		 		&:nth-child(odd) {
+		 			background: #FFFFFF;
+		 			&:hover {
+		 				background-color: #f5f5f5 ;
+		 			}
+		 		}
+		 		&:nth-child(even) {
+		 			background: #F9F9F9;
+		 			&:hover {
+		 				background-color: #f5f5f5 ;
+		 			}
+		 		}
+		 	}
+		 }
+	 	input{
+	 		@media #{$phone}{
+	 			max-width: 92%;
+	 		}
+	 	}
+	 	label{
+	 		font-weight: 400;
+	 		&[for^="option"]{
+	 			margin: 0 0 5px 0.6em;
+	 		}
+	 	}
+	 }
+}

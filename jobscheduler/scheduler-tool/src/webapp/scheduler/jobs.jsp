@@ -7,7 +7,9 @@
 <f:view>
 	<sakai:view_container title="#{msgs.title_job}">		
 	  <h:form>
-  	  <h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
+		<div class="clear">
+			<h:graphicImage value="/images/quartz.jpg" alt="#{msgs.powered_by} Quartz"/>
+		</div>
   	  <sakai:tool_bar>
 		   <sakai:tool_bar_item
 		     action="create_job"
@@ -21,10 +23,10 @@
 		<sakai:tool_bar_item
 		     action="runningJobs"
 			   value="#{msgs.running_jobs}"/>
-	  
    	  </sakai:tool_bar>
+   	  <br/>
    	  <sakai:view_content>
-  	    <h:dataTable value="#{schedulerTool.jobDetailWrapperList}" var="job" styleClass="listHier lines">
+  	    <h:dataTable value="#{schedulerTool.jobDetailWrapperList}" var="job" styleClass="table table-striped">
   	      <h:column>
     	      <f:facet name="header">    	      
     	        <h:commandButton alt="SelectAll" image="images/checkbox.gif" action="#{schedulerTool.processSelectAllJobs}"/>

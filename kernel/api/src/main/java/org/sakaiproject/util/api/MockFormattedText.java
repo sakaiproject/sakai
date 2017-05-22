@@ -21,8 +21,8 @@
 
 package org.sakaiproject.util.api;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import java.text.NumberFormat;
 /**
@@ -33,7 +33,7 @@ import java.text.NumberFormat;
  */
 public class MockFormattedText implements FormattedText {
 
-    private static final Log log = LogFactory.getLog(FormattedText.class);
+    private static final Logger log = LoggerFactory.getLogger(FormattedText.class);
     private static final String WARNING = "Using MOCK FormattedText: all values just pass through and are not processed: FOR TESTING ONLY (if this is live there is a big problem)";
 
     public String processFormattedText(String strFromBrowser, StringBuffer errorMessages) {

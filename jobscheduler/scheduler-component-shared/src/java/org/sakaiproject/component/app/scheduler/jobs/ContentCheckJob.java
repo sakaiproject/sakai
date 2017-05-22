@@ -4,8 +4,8 @@ import org.apache.commons.collections.iterators.IteratorChain;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -22,7 +22,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -45,7 +44,7 @@ import java.util.NoSuchElementException;
  */
 public class ContentCheckJob implements Job {
 
-	private final static Log log = LogFactory.getLog(ContentCheckJob.class);
+	private final static Logger log = LoggerFactory.getLogger(ContentCheckJob.class);
 	public static final String ALGORITHM = "MD5";
 
 	private ContentHostingService chs;

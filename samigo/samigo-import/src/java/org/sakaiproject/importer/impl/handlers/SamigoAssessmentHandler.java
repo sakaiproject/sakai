@@ -39,6 +39,7 @@ import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.Assessment;
 import org.sakaiproject.importer.impl.importables.AssessmentAnswer;
 import org.sakaiproject.importer.impl.importables.AssessmentQuestion;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -47,18 +48,20 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SamigoAssessmentHandler implements HandlesImportable {
-	private static Log log = LogFactory.getLog(SamigoAssessmentHandler.class);
+	private static Logger log = LoggerFactory.getLogger(SamigoAssessmentHandler.class);
     
 	// Samigo identifies each question type with an int
 	public static final int TRUE_FALSE = 4;
@@ -130,6 +133,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 				item.setSequence(Integer.valueOf(i + 1));
 				item.setSection(section);
 				section.addItem(itemService.saveItem(item));
+				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + item.getItemId().toString(), true));
 			}
 			data.setSectionSet(sectionSet);
 			assessment.setData(data);

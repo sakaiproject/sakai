@@ -25,8 +25,8 @@ package org.sakaiproject.tool.gradebook.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -37,7 +37,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * changes based upon the grade entry method.
  */
 public class ScoreConverter extends PointsConverter {
-	private static final Log log = LogFactory.getLog(ScoreConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(ScoreConverter.class);
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");

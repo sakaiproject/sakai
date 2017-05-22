@@ -14,6 +14,30 @@ public class SplitEmailAddressTest {
         assertEquals("example.com", email.getDomain());
     }
 
+    @Test
+    public void testBATVGood() {
+        // Check that our batv parsing works.
+        SplitEmailAddress email = SplitEmailAddress.parse("prvs=2987A7B7C7=me@example.com");
+        assertEquals("me", email.getLocal());
+        assertEquals("example.com", email.getDomain());
+    }
+
+    @Test
+    public void testBATVBad() {
+        // Check that our batv parsing is strict along the lines of the RFC
+        SplitEmailAddress email = SplitEmailAddress.parse("prvs=aaaaaaaaaa=me@example.com");
+        assertEquals("prvs=aaaaaaaaaa=me", email.getLocal());
+        assertEquals("example.com", email.getDomain());
+    }
+
+    @Test
+    public void testBATVSubAddress() {
+        // Check that we also catch the subaddressing style.
+        SplitEmailAddress email = SplitEmailAddress.parse("me+prvs=2987A7B7C7@example.com");
+        assertEquals("me", email.getLocal());
+        assertEquals("example.com", email.getDomain());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testNoAt() {
         SplitEmailAddress email = SplitEmailAddress.parse("notavalidemail");

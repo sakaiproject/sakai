@@ -1,7 +1,7 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_student_list_submissions.vm,v 1.8 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
-<div class="portletBody container">
+<div class="portletBody container-fluid">
 	#navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 
 	<div class="page-header">
@@ -188,33 +188,36 @@
 											&nbsp;
 										</td>
 										<td headers="status">
-											#if ($!submission.Returned)
-												$tlang.getString("gen.returned")
-											#else
-												#if ($!submission.getGraded())
-													#if ($!submission.getGradeReleased())
-														$tlang.getString("gen.relea")
-													#else
-														$tlang.getString("gen.gra")
-													#end
-												#else
-													#if ($!submission.Submitted)
-														$tlang.getString("ungra")
-													#end
-												#end
-											#end
+											$submission.getStatus()
 											&nbsp;
 										</td>
 										#if ($withGrade)
 											<td headers="grade">
-												#if ($!submission.Graded && ($!submission.GradeReleased || $!submission.Returned))
-													##show grade when it is released or when submission is returned
 													#if ($assignment.getContent().TypeOfGrade == 1)
 														$tlang.getString("gen.nograd")
 													#else
-														$!submission.gradeDisplay
+														#if ($assignment.isGroup())
+															#if(($assignment.getProperties().getProperty("prop_new_assignment_add_to_gradebook").trim()) && ($assignment.getContent().TypeOfGrade == 3))
+																#if ($submission.getGradeForUserInGradeBook($!member.getId()))
+																	$!submission.getGradeForUserInGradeBook($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
+																#else
+																	#if ($!submission.getGradeForUser($!member.getId()))
+																		$!submission.getGradeForUser($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
+																	#else
+																		$!submission.gradeDisplay
+																	#end
+																#end
+															#else
+																#if ($!submission.getGradeForUser($!member.getId()))
+																	$!submission.getGradeForUser($!member.getId()) <abbr title="Group Grades">($!submission.gradeDisplay)</abbr>
+																#else
+																	$!submission.gradeDisplay
+																#end
+															#end
+														#else
+															$!submission.gradeDisplay
+														#end
 													#end
-												#end
 											</td>
 										#end
 									</tr>

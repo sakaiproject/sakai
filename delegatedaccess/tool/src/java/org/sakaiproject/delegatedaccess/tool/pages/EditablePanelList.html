@@ -27,6 +27,17 @@
                 		<div style="width:15%; float:left; font-weight:bold;"><wicket:message key=".auth"/></div>
                 		<div style="width:74%; float:right; font-weight:bold;">Tool</div>
                 	</div>
+                    <div class="rowTool" style="background-color: #EEE; border-bottom: 1px solid #CCC; overflow: hidden;">
+                        <span style="width:10%; float:left; text-align: center;">
+                            <input wicket:id="toggleAllPublicCheckboxes" id="toggleAllPublicCheckboxes" type="checkbox" />
+                        </span>
+                        <span style="width:15%; float:left; text-align: center;">
+                            <input wicket:id="toggleAllAuthCheckboxes" id="toggleAllAuthCheckboxes" type="checkbox" />
+                        </span>
+                        <span style="width:74%; float:right;">
+                            &nbsp;
+                        </span>
+                    </div>
 	                <div class="rowTool" wicket:id="list">
 	                	<span style="width:10%; float:left; text-align: center;"><input wicket:id="publicCheck" type="checkbox" /></span>
 						<span style="width:15%; float:left; text-align: center;"><input wicket:id="authCheck" type="checkbox" /></span>

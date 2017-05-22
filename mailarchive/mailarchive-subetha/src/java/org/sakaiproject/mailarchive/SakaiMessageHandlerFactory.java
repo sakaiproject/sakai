@@ -2,8 +2,8 @@ package org.sakaiproject.mailarchive;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -51,7 +51,7 @@ import static org.sakaiproject.mailarchive.api.MailArchiveService.*;
  */
 public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
-    private Log log = LogFactory.getLog(SakaiMessageHandlerFactory.class);
+    private Logger log = LoggerFactory.getLogger(SakaiMessageHandlerFactory.class);
 
     /**
      * The user name of the postmaster user - the one who posts incoming mail.
@@ -167,7 +167,8 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
 
             @Override
             public void from(String from) throws RejectException {
-                this.from = from;
+                SplitEmailAddress address = SplitEmailAddress.parse(from);
+                this.from = address.getLocal() + "@" + address.getDomain();
             }
 
             @Override
@@ -455,7 +456,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                             if (mailSupport != null) {
                                 errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                             }
-                            throw new RejectException(450, errMsg);
+                            throw new RejectException(550, errMsg);
                         }
                     }
                     return channel;
@@ -468,7 +469,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         if (mailSupport != null) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
-                        throw new RejectException(450, errMsg);
+                        throw new RejectException(550, errMsg);
                     }
                 } catch (PermissionException e) {
                     try {
@@ -484,7 +485,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                         if (mailSupport != null) {
                             errMsg += rb.getFormattedMessage("err_questions", mailSupport) + "\n";
                         }
-                        throw new RejectException(450, errMsg);
+                        throw new RejectException(550, errMsg);
                     } catch (UserNotDefinedException unde) {
                         log.warn(String.format("no postmaster, incoming mail will not be processed until a " +
                                 "postmaster user (id=%s) exists in this Sakai instance", POSTMASTER));

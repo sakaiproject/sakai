@@ -25,6 +25,8 @@ import java.util.HashMap;
 
 public class Configuration extends HashMap
 {
+	private static final long serialVersionUID = 1L;
+
 	public String getString(String name)
 	{
 		return (String) get(name);

@@ -10,9 +10,6 @@
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
 		## import is possible when use has maintain rights on at least one site other than the current one
 		#if ($!sites && $sites.size()>1)
-			<p class="step">
-				$tlang.getString("sitinfimp.reuse.user")
-			</p>
 			<p class="instruction">
 				$tlang.getString("sitinfimp.youcan.user1") $!currentSite.getType() $tlang.getString("sitinfimp.youcan.user2")
 			</p>
@@ -20,16 +17,16 @@
 			#foreach($site in $sites)
 			#set ($siteIDCounter = $siteIDCounter + 1)
 				#if ($!currentSite && ($site.Id != $!currentSite.Id))
-					<p class="checkbox indnt3">
-					<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
-						#if ($!importSiteList.containsKey($!site))
-							checked="checked"
-						#end
-					 />
+					<div class="checkbox">						
 						<label for="site_$siteIDCounter">
+							<input type="checkbox" name="importSites" id="site_$siteIDCounter" value="$site.getId()" 
+								#if ($!importSiteList.containsKey($!site))
+									checked="checked"
+								#end
+					 		/>
 							$validator.escapeHtml($site.getTitle())
 						</label>
-					</p>	
+					</div>	
 				#end
 			#end
 			<input type="hidden" name="back" value="$!toIndex" />

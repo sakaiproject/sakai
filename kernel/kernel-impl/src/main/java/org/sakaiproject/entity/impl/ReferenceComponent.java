@@ -24,8 +24,8 @@ package org.sakaiproject.entity.impl;
 import java.util.Collection;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -44,7 +44,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class ReferenceComponent implements Reference
 {
 	/** Our logger. */
-	protected static final Log M_log = LogFactory.getLog(ReferenceComponent.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(ReferenceComponent.class);
 
 	/** The reference string. */
 	protected String m_reference = null;

@@ -24,8 +24,8 @@ package org.sakaiproject.content.impl.test;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 
 /**
@@ -34,7 +34,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
  */
 public class MockContentCollection extends MockContentEntity implements ContentCollectionEdit
 {
-	private static final Log logger = LogFactory.getLog(MockContentCollection.class);
+	private static final Logger logger = LoggerFactory.getLogger(MockContentCollection.class);
 
 	/**
 	 * @param collectionId

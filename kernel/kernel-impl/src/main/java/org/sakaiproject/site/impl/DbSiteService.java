@@ -33,9 +33,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -58,7 +59,7 @@ import org.sakaiproject.util.StringUtil;
 public abstract class DbSiteService extends BaseSiteService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DbSiteService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbSiteService.class);
 
 	/** Table name for sites. */
 	protected String m_siteTableName = "SAKAI_SITE";
@@ -516,7 +517,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			// if we are joining, start our where with the join clauses
 			StringBuilder where = new StringBuilder();
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join on site id and also select the proper user
 				where.append(siteServiceSql.getSitesWhere1Sql());
@@ -722,14 +723,14 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 			if (criteria != null) fieldCount += 1;
-			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
 				fields = new Object[fieldCount];
 				int pos = 0;
-				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 				{
 					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
@@ -765,13 +766,13 @@ public abstract class DbSiteService extends BaseSiteService
 						}
 					}
 				}
-				if (type == SelectionType.JOINABLE)
-				{
-					fields[pos++] = getCurrentUserIdIfNull(userId);
-				}
 				if (criteria != null)
 				{
 					fields[pos++] =  "%" + criteria + "%";
+				}
+				if (type == SelectionType.JOINABLE)
+				{
+					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
 				if ((propertyCriteria != null) && (propertyCriteria.size() > 0))
 				{
@@ -807,7 +808,7 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// do we need a join?
 			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join with the SITE_USER table
 				join = siteServiceSql.getSitesJoin1Sql();
@@ -1059,9 +1060,11 @@ public abstract class DbSiteService extends BaseSiteService
 			SqlReader reader = requireDescription ? fullSiteReader : lightSiteReader;
 			String order = getSitesOrder(sort);
 
-
 			// Account for limitations in the number of IN parameters we can use by batching
-			int remaining = siteIds.size();
+			// Load just the sites that weren't found in cache
+			List<String> siteIdsToLoad = siteMap.entrySet().stream().filter(e -> e.getValue() == null)
+					.map(Map.Entry::getKey).collect(Collectors.toList());
+			int remaining = siteIdsToLoad.size();
 			while (remaining > 0)
 			{
 				// We are using fixed sized buckets for IN clause parameters, up to the platform maximum number and filling
@@ -1070,8 +1073,8 @@ public abstract class DbSiteService extends BaseSiteService
 				// and does not affect results against a non-null column (as with IDs).
 
 				// Fill a bucket by passing the sublist from our current element to the end (remaining length)
-				int start = siteIds.size() - remaining;
-				Object[] values = getFilledBucket(siteIds.subList(start, start + remaining));
+				int start = siteIdsToLoad.size() - remaining;
+				Object[] values = getFilledBucket(siteIdsToLoad.subList(start, start + remaining));
 				int bucketSize = values.length;
 				String where = getWhereSiteIdIn(values);
 
@@ -1094,7 +1097,7 @@ public abstract class DbSiteService extends BaseSiteService
 				if (i.next() == null) i.remove();
 			}
 
-			return new ArrayList<Site>(siteMap.values());
+			return new ArrayList<>(siteMap.values());
 		}
 
 		/**
@@ -1184,7 +1187,7 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// if we are joining, start our where with the join clauses
 			StringBuilder where = new StringBuilder();
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join on site id and also select the proper user
 				where.append(siteServiceSql.getSitesWhere1Sql());
@@ -1265,7 +1268,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			// do we need a join?
 			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join with the SITE_USER table
 				join = siteServiceSql.getSitesJoin1Sql();
@@ -1303,14 +1306,14 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 			if (criteria != null) fieldCount += 1;
-			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
 				fields = new Object[fieldCount];
 				int pos = 0;
-				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.INACTIVE_ONLY))
 				{
 					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}

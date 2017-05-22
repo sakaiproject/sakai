@@ -87,21 +87,6 @@
 
   </managed-bean>
   
-  <!-- Custom tags -->
-  <render-kit>
-    <!-- date picker -->
-    <renderer>
-      <component-family>javax.faces.Input</component-family>
-      <renderer-type>DatePicker</renderer-type>
-      <renderer-class>org.sakaiproject.tool.podcasts.jsf.renderer.DatePickerRenderer</renderer-class>
-    </renderer>
-    <renderer>
-      <component-family>javax.faces.Output</component-family>
-      <renderer-type>DatePickerPopup</renderer-type>
-      <renderer-class>org.sakaiproject.tool.podcasts.jsf.renderer.DatePickerPopupRenderer</renderer-class>
-    </renderer>
-  </render-kit>
-	
 	<!-- navigation
 			FROM what page TO what page
 			IUPUI: path needs to be /projname/xx.jsp -->

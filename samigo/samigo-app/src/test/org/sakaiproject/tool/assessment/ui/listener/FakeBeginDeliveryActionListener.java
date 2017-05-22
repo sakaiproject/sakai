@@ -26,8 +26,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class FakeBeginDeliveryActionListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(FakeBeginDeliveryActionListener.class);
+  private static Logger log = LoggerFactory.getLogger(FakeBeginDeliveryActionListener.class);
   private static String ID_TO_TEST = "3";
 
   /**
@@ -123,7 +123,6 @@ public class FakeBeginDeliveryActionListener implements ActionListener
       control.setSubmissionsAllowed(control.UNLIMITED_SUBMISSIONS_ALLOWED);
       control.setFeedbackDate(new Date());
       control.setAssessmentFormat(control.BY_PART);
-      control.setUsername("Groucho");
       control.setPassword("swordfish");
       pub.setAssessmentAccessControl(new PublishedAccessControl());
 //    }
@@ -149,8 +148,7 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     log.info("** 4. FakeBeginDeliveryActionListener, pubId= "+pubAssessment.getPublishedAssessmentId());
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
-    delivery.setHonorPledge(pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    		pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
+    delivery.setHonorPledge(pubAssessment.getAssessmentAccessControl().getHonorPledge());
     delivery.setInstructorMessage(pubAssessment.getDescription());
     delivery.setCreatorName(pubAssessment.getCreatedBy());
     delivery.setSubmitted(false);
@@ -256,7 +254,6 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     settings.setFormatByAssessment(AssessmentAccessControlIfc.BY_ASSESSMENT.equals(format));
     settings.setFormatByPart(AssessmentAccessControlIfc.BY_PART.equals(format));
     settings.setFormatByQuestion(AssessmentAccessControlIfc.BY_QUESTION.equals(format));
-    settings.setUsername(control.getUsername());
     settings.setPassword(control.getPassword());
   }
 

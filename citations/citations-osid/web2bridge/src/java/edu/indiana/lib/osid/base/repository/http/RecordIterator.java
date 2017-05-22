@@ -27,8 +27,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class RecordIterator extends edu.indiana.lib.osid.base.repository.RecordIterator
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(RecordIterator.class);
-		
     private java.util.Vector vector = new java.util.Vector();
     private int i = 0;
 

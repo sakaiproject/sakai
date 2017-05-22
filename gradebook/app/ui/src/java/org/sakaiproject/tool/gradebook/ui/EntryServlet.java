@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
  * Redirects the request to the role-appropriate initial view of the gradebook.
  */
 public class EntryServlet extends HttpServlet {
-    private static final Log logger = LogFactory.getLog(EntryServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(EntryServlet.class);
 
     public static final String INIT_SECRET = "org.apache.myfaces.secret";
     public static final String GENERATE_RANDOM_SECRET = "GENERATE_RANDOM_SECRET";
@@ -110,7 +110,7 @@ public class EntryServlet extends HttpServlet {
                 response.sendRedirect(path.toString());
             }
         } catch (IOException ioe) {
-            logger.fatal("Could not redirect user: " + ioe);
+            logger.error("Could not redirect user: {}", ioe.getMessage(), ioe);
         }
 	}
 

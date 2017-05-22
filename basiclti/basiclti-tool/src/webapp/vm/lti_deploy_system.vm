@@ -155,7 +155,7 @@ ${includeLatestJQuery}
 	                </td>
 	                <td headers="site_id">
 	                	#set($siteId="<span style='display:none;'>zzzz</span>")
-	                	#set($siteId=$deploy.get("site_id"))
+	                	#set($siteId=$deploy.get("SITE_ID"))
 	                	$!siteId
 	                </td>
 	                <td headers="use">$deploy.get("lti_content_count")</td> 

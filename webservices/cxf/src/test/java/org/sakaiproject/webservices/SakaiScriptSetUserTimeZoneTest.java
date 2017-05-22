@@ -29,8 +29,8 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.user.api.User;
 import org.junit.rules.ExpectedException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.RuntimeException;
 

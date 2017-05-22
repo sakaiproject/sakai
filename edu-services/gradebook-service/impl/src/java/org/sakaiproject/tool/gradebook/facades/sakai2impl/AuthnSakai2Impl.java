@@ -21,8 +21,8 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -33,7 +33,7 @@ import org.sakaiproject.tool.gradebook.facades.Authn;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class AuthnSakai2Impl implements Authn {
-    private static final Log log = LogFactory.getLog(AuthnSakai2Impl.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthnSakai2Impl.class);
 
 	/**
 	 * @see org.sakaiproject.tool.gradebook.facades.Authn#getUserUid()

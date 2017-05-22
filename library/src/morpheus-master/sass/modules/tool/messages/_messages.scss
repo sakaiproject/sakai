@@ -1,0 +1,170 @@
+ .#{$namespace}sakai-messages{
+
+ 	.container_messages{
+ 		margin-left: 0;
+ 		margin-right: 0;
+ 		max-width: 980px;
+ 	}
+
+ 	.nav_table{
+ 		font-size: 0.9em; 
+ 		margin: 0.5em 0;
+ 		img{
+ 			vertical-align: sub;
+ 		}
+ 	}
+
+ 	.searchNav{
+ 		.button_search{
+ 			margin: 0 0.5em;
+ 			padding: 5px 10px 5px 12px;
+ 		}
+ 	}
+
+ 	#adv_input{
+ 		background: darken( $tool-background-color, 5% );
+ 		margin: 1em 0em 1em 0em;
+ 		padding: 0 0 1em 0;
+ 		.header{
+ 			background: darken( $tool-background-color, 10% );
+ 			display: block;
+ 			font-size: 1em;
+ 			font-weight: 600;
+ 			padding: 0.8em 0.5em;
+ 		}
+ 		.specialLink{
+ 			margin: 0 0 0 0;
+ 			.button{
+ 				padding: 0.1em 0.8em 0em 0.8em;
+ 			}
+ 		}
+ 		.checkbox{
+ 			display: inline-block;
+ 			input[type="checkbox"]{
+ 				margin-left: 10px;
+ 				position: inherit;
+ 				+ label{
+ 					padding-left: 10px;
+ 					padding-right: 40px;
+ 				}
+ 			}
+ 		}
+ 		.shorttext{
+ 			display: none;
+ 			&.showed{
+ 				display: block;
+ 				padding: 0.5em 0em 0em 0.8em;
+ 				.labeled{
+ 					font-weight: 700;
+ 					display: inline-block;
+ 					padding: 0em 0.5em 0em 0em;
+ 					@media #{$phone}{
+ 						display: block;
+ 						padding: 0.4em 0 0.4em 0;
+ 					}
+ 				}
+ 			}
+ 		}
+ 	}
+
+ 	#pvtMsgSettings{
+ 		h1{
+ 			margin: 2em 0 0.8em 0;
+ 			padding: 0 0 0.5em 0;
+ 			border-bottom: 1px solid darken( $tool-background-color, 10% );
+ 		}
+ 		h2{
+ 			border-bottom: 1px solid darken( $tool-background-color, 10% );
+ 			margin: 2em 0 0.8em 0;
+ 			padding: 0 0 0.5em 0;
+ 		}
+ 	}
+ 	
+ 	#prefs_pvt_form{
+ 		&\:pvtmsgs{
+ 			max-width: 1200px;
+ 			
+ 			td.check{
+ 				width: 10%;
+ 			} 		
+ 			td.attach{
+ 				width: 1%;
+ 			}
+ 			td.reply{
+ 				width: 1%;
+ 			}
+  			td.specialLink{
+ 				width: 25%;
+ 			}
+  			td.created{
+ 				width: 25%;
+ 			}
+  			td.date{
+ 				width: 18%;
+ 			}
+  			td.bogus{
+ 				width: 17%;
+ 			}
+ 		}
+ 	}
+ 	
+ 	table.table-inline{
+ 		display: block;
+ 		margin: 0 0 1.5em 0;
+ 		tr, td{
+ 			display: inline-block;
+ 		}
+ 	}
+
+ 	.messages_viewnav{
+ 		margin: 1em 0;
+ 		label{
+ 			margin: 0 0.5em 5px 0;
+ 		}
+ 	}
+	
+	.composeForm {
+	    position: relative;
+	    width: 100%;
+	    .row{
+	    	display: block;
+	    	margin-top: 10px;
+	    	margin-bottom: 10px;
+	    	&.bcc-row {
+	    		margin: 20px -15px 20px -15px;
+	    	}
+	    }
+	    .form-label{
+	    	margin-top: 16px;
+	    	margin-bottom: 10px;
+	    	@media #{$phone}{
+	    		margin-top:    0px;
+	    		margin-bottom: 0px;
+	    	}
+	    }
+	    .radio input[type="radio"], .radio-inline input[type="radio"], .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"] {
+	        position: absolute;
+	        margin-left: 0px;
+	        margin-top: 4px;
+	    }
+	    .checkbox {
+	    	margin: 0;
+	    }
+	    & + h4 + table{
+	    	width: 100%;
+	    	table {
+	    		width: 100%;
+	    	}
+	    }
+	    @media #{$phone}{
+	    	.delete_selection{
+	    		display: block;
+	    		padding: 0.5em 0;
+	    	}
+	    	.pvt_send_cc{
+	    		display: block;
+	    	}
+	    }
+	}
+
+}

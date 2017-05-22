@@ -21,8 +21,8 @@
 
 package org.sakaiproject.jsf.renderer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -92,7 +92,7 @@ public class InputRichTextRenderer extends Renderer
   private static final MessageFormat LIST_ITEM_FORMAT_FCK =
      new MessageFormat("[\"{0}\", \"{1}\"]");
 
-  private static final Log log = LogFactory.getLog(InputRichTextRenderer.class);
+  private static final Logger log = LoggerFactory.getLogger(InputRichTextRenderer.class);
 
   // we have static resources for our script path and built-in toolbars etc.
   static {
@@ -204,7 +204,7 @@ public class InputRichTextRenderer extends Renderer
     catch (Exception ex)
     {
       //default, whatever goes awry
-      if (log.isDebugEnabled()) log.debug(ex);  
+      log.debug(ex.getMessage());
     }
 
     if (widthPx == DEFAULT_WIDTH_PX && textareaColumns != DEFAULT_COLUMNS)

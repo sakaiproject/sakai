@@ -16,13 +16,13 @@
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doReviseProperties" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
 		<div id="propertiesDiv${DOT}$i" style="display:block;">
-			<p class="shorttext#if($item.isNameMissing()) validation#end">
+			<div class="form-group #if($item.isNameMissing()) validation#end">
 				#if($item.canChangeDisplayName() )
 					<span class="reqStar">*</span>
 					<label for="displayName${DOT}$i">
 						$tlang.getString("label.display") 
 					</label>
-					<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" maxlength="512"/>
+					<input type="text" class="form-control" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" maxlength="512"/>
 				#else
 					<label for="displayName_display${DOT}$i">
 						$tlang.getString("label.display") 
@@ -30,7 +30,7 @@
 					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$validator.escapeHtml("$!item.name")" />
 					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
 				#end
-			</p>
+			</div>
 			#parse("/vm/resources/sakai_properties.vm")
 			<hr class="itemSeparator" />
 		</div>			

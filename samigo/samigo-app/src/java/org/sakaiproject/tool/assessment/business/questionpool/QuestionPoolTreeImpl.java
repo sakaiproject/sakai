@@ -30,8 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.shared.SharedException;
 
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -61,7 +61,7 @@ public class QuestionPoolTreeImpl
 	private static final long serialVersionUID = 2173986944623441011L;
 
 
-private static Log log = LogFactory.getLog(QuestionPoolTreeImpl.class);
+private static Logger log = LoggerFactory.getLogger(QuestionPoolTreeImpl.class);
 
 
   private HashMap poolMap;

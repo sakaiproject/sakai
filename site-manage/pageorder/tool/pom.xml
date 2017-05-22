@@ -37,10 +37,6 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
@@ -55,6 +51,10 @@
             <artifactId>sakai-rsf-core</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.sitemanage</groupId>
+            <artifactId>sakai-site-manage-util</artifactId>
         </dependency>
     </dependencies>
 

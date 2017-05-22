@@ -55,7 +55,6 @@ private boolean considerUserId;
   private boolean anonymousGrading;
   private boolean collectSectionMetadata;
   private String allowedIP;
-  private String userName;
   private String password;
   private String enableDisableAssessmentOrganization;
   private boolean displayNumberingContinuous;
@@ -374,24 +373,6 @@ private boolean considerUserId;
       list.add(st.nextToken());
     }
     return list;
-  }
-
-  /**
-   * user name to restrict to
-   * @return name
-   */
-  public String getUserName()
-  {
-    return userName;
-  }
-
-  /**
-   * user name to restrict to
-   * @param userName user name to restrict to
-   */
-  public void setUserName(String userName)
-  {
-    this.userName = userName;
   }
 
   /**

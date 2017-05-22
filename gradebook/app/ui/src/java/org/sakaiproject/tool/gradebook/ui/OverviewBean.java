@@ -36,8 +36,8 @@ import java.util.Map.Entry;
 
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
@@ -53,7 +53,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  * Backing bean for the visible list of assignments in the gradebook.
  */
 public class OverviewBean extends GradebookDependentBean implements Serializable  {
-	private static final Log logger = LogFactory.getLog(OverviewBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(OverviewBean.class);
 
     private static final Map columnSortMap;
 

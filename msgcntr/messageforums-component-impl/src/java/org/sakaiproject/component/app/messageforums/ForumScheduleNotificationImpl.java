@@ -3,12 +3,6 @@ package org.sakaiproject.component.app.messageforums;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.scheduler.DelayedInvocation;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -18,11 +12,16 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 public class ForumScheduleNotificationImpl implements ForumScheduleNotification {
 	
-	private static final Log LOG = LogFactory.getLog(ForumScheduleNotificationImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ForumScheduleNotificationImpl.class);
     
     private static final String AREA_PREFIX = "area-";
     private static final String FORUM_PREFIX = "forum-";
@@ -77,16 +76,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
     
     private void scheduleAvailability(String id, boolean availabilityRestricted, Date openDate, Date closeDate){
     	// Remove any existing notifications for this area
-    	DelayedInvocation[] fdi = scheduledInvocationManager.findDelayedInvocations("org.sakaiproject.api.app.messageforums.ForumScheduleNotification",
-    			id);
-    	if (fdi != null && fdi.length > 0)
-    	{
-    		for (DelayedInvocation d : fdi)
-    		{
-    			scheduledInvocationManager.deleteDelayedInvocation(d.uuid);
-    		}
-    	}
-    	
+    	scheduledInvocationManager.deleteDelayedInvocation("org.sakaiproject.api.app.messageforums.ForumScheduleNotification", id);
     	if (availabilityRestricted)
     	{
     		Time openTime = null;

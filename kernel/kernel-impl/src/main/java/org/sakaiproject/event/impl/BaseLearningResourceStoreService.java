@@ -27,9 +27,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -41,6 +39,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -66,7 +66,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
     private static final String ORIGIN_SAKAI_SYSTEM = "sakai.system";
     private static final String ORIGIN_SAKAI_CONTENT = "sakai.resources";
 
-    private static final Log log = LogFactory.getLog(BaseLearningResourceStoreService.class);
+    private static final Logger log = LoggerFactory.getLogger(BaseLearningResourceStoreService.class);
 
     /**
      * Stores the complete set of known LRSP providers (from the Spring AC or registered manually)
@@ -90,16 +90,15 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
         providers = new ConcurrentHashMap<String, LearningResourceStoreProvider>();
         // search for known providers
         if (isEnabled() && applicationContext != null) {
-            @SuppressWarnings("unchecked")
             Map<String, LearningResourceStoreProvider> beans = applicationContext.getBeansOfType(LearningResourceStoreProvider.class);
             for (LearningResourceStoreProvider lrsp : beans.values()) {
                 if (lrsp != null) { // should not be null but this avoids killing everything if it is
                     registerProvider(lrsp);
                 }
             }
-            log.info("LRS Registered "+beans.size()+" LearningResourceStoreProviders from the Spring AC during service INIT");
+            log.info("LRS Registered {} LearningResourceStoreProviders from the Spring AC during service INIT", beans.size());
         } else {
-            log.info("LRS did not search for existing LearningResourceStoreProviders in the system (ac="+applicationContext+", enabled="+isEnabled()+")");
+            log.info("LRS did not search for existing LearningResourceStoreProviders in the system (ac={}, enabled={})", applicationContext, isEnabled());
         }
         if (isEnabled() && serverConfigurationService != null) {
             String[] filters = serverConfigurationService.getStrings("lrs.origins.filter");
@@ -112,7 +111,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                         originFilters.add(filters[i]);
                     }
                 }
-                log.info("LRS found "+originFilters.size()+" origin filters: "+originFilters);
+                log.info("LRS found {} origin filters: {}", originFilters.size(), originFilters);
             }
         }
         if (isEnabled() && eventTrackingService != null) {
@@ -120,7 +119,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             eventTrackingService.addLocalObserver(this.experienceObserver);
             log.info("LRS registered local event tracking observer");
         }
-        log.info("LRS INIT: enabled="+isEnabled());
+        log.info("LRS INIT: enabled={}", isEnabled());
     }
 
     public void destroy() {
@@ -147,7 +146,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             if (providers == null || providers.isEmpty()) {
                 if (noProvidersWarningTS < (System.currentTimeMillis() - 86400000)) { // check if we already warned in the last 24 hours
                     noProvidersWarningTS = System.currentTimeMillis();
-                    log.warn("LRS statement from ("+origin+") skipped because there are no providers to process it: "+statement);
+                    log.warn("LRS statement from ({}) skipped because there are no providers to process it: {}", origin, statement);
                 }
             } else {
                 // filter out certain tools and statement origins
@@ -155,7 +154,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 if (originFilters != null && !originFilters.isEmpty()) {
                     origin = StringUtils.trimToNull(origin);
                     if (origin != null && originFilters.contains(origin)) {
-                        if (log.isDebugEnabled()) log.debug("LRS statement skipped because origin ("+origin+") matches the originFilter");
+                        log.debug("LRS statement skipped because origin ({}) matches the originFilter", origin);
                         skip = true;
                     }
                 }
@@ -170,13 +169,12 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                     } else if (statement.getRawMap() != null 
                             && !statement.getRawMap().isEmpty()) {
                         valid = true;
-                    } else if (statement.getRawJSON() != null 
-                            && !StringUtils.isNotBlank(statement.getRawJSON())) {
+                    } else if (StringUtils.isNotBlank(statement.getRawJSON())) {
                         valid = true;
                     }
                     if (valid) {
                         // process this statement
-                        if (log.isDebugEnabled()) log.debug("LRS statement being processed, origin="+origin+", statement="+statement);
+                        log.debug("LRS statement being processed, origin={}, statement={}", origin, statement);
                         for (LearningResourceStoreProvider lrsp : providers.values()) {
                             // run the statement processing in a new thread
                             String threadName = "LRS_"+lrsp.getID();
@@ -185,10 +183,10 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                             t.start();
                         }
                     } else {
-                        log.warn("Invalid statment registered, statement will not be processed: "+statement);
+                        log.warn("Invalid statment registered, statement will not be processed: {}", statement);
                     }
                 } else {
-                    if (log.isDebugEnabled()) log.debug("LRS statement being skipped, origin="+origin+", statement="+statement);
+                    log.debug("LRS statement being skipped, origin={}, statement={}", origin, statement);
                 }
             }
         }
@@ -209,7 +207,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
             try {
                 lrsp.handleStatement(statement);
             } catch (Exception e) {
-                log.error("LRS Failure running LRS statement in provider ("+lrsp.getID()+"): statement=("+statement+"): "+e, e);
+                log.error("LRS Failure running LRS statement in provider ({}): statement=({}): ", lrsp.getID(), statement, e);
             }
         }
     };
@@ -287,7 +285,7 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                 String origin = this.lrss.getEventOrigin(event);
                 // convert event into statement when possible
                 LRS_Statement statement = this.lrss.getEventStatement(event);
-                if (statement != null) {
+                if (statement != null && statement.isPopulated()) {
                     this.lrss.registerStatement(statement, origin);
                 }
             }
@@ -301,26 +299,46 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
      * @return a statement if one can be formed OR null if not
      */
     private LRS_Statement getEventStatement(Event event) {
-        LRS_Statement statement;
-        try {
-            LRS_Verb verb = getEventVerb(event);
-            if (verb != null) {
-                LRS_Object object = getEventObject(event);
-                if (object != null) {
-                    LRS_Actor actor = getEventActor(event);
-                    statement = new LRS_Statement(actor, verb, object);
-                    LRS_Context c = getEventContext(event);
-                    if (c != null) {
-                        statement.setContext(c);
-                    }
-                } else {
-                    statement = null;
-                }
-            } else {
-                statement = null;
+        //If the event already has the statement set, just use that
+        LRS_Statement statement=null;
+        LRS_Verb verb=null;
+        LRS_Actor actor=null;
+        LRS_Context context=null;
+        LRS_Object object=null;
+        LRS_Result result = null;
+        if (event.getLrsStatement() != null) {
+            statement =  event.getLrsStatement();
+            //If the statement is fully populated nothing left to do
+            if (statement.isPopulated()) {
+                return statement;
             }
+            verb=statement.getVerb();
+            actor=statement.getActor();
+            context=statement.getContext();
+            object=statement.getObject();
+            result=statement.getResult();
+
+        }
+        try {
+            //If verb not set try to get it from the event
+            if (verb == null) {
+                verb = getEventVerb(event);
+            }
+            // If object not set try to get it from the event
+            if (object == null) {
+                object = getEventObject(event);
+            }
+            //If actor is not null try to get it from the event
+            if (actor == null) {
+                actor = getEventActor(event);
+            }
+            //If context is not set get it from the event
+            if (context == null) {
+                context = getEventContext(event);
+            }
+            statement = new LRS_Statement(actor, verb, object,result,context);
         } catch (Exception e) {
-            if (log.isDebugEnabled()) log.debug("LRS Unable to convert event ("+event+") into statement: "+e);
+            log.debug("LRS Unable to convert event ({}) into statement.", event, e);
             statement = null;
         }
         return statement;
@@ -362,12 +380,15 @@ public class BaseLearningResourceStoreService implements LearningResourceStoreSe
                     server = serverConfigurationService.getServerId()+"."+server;
                 }
                 actorEmail = user.getId()+"@"+server;
-                if (log.isDebugEnabled()) log.debug("LRS Actor: No email set for user ("+user.getId()+"), using generated one: "+actorEmail);
+                log.debug("LRS Actor: No email set for user ({}), using generated one: {}", user.getId(), actorEmail);
             }
             actor = new LRS_Actor(actorEmail);
             if (StringUtils.isNotEmpty(user.getDisplayName())) {
                 actor.setName(user.getDisplayName());
             }
+            // set actor account object
+            actor.setAccount(user.getEid(), serverConfigurationService.getServerUrl());
+            // TODO implement OpenID support
         }
         return actor;
     }

@@ -43,6 +43,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -67,6 +69,7 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -83,6 +86,7 @@ import uk.org.ponder.rsf.util.RSFUtil;
  * 
  */
 public class PagePickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(PagePickerProducer.class);
 	public static final String VIEW_ID = "PagePicker";
 	private static String SITE_UPD = "site.upd";
 
@@ -110,6 +114,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		String title;
 		int level;
 		boolean toplevel;
+		boolean hidden;
+		Date releaseDate;
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
@@ -141,7 +147,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     //      that lets us find at the end anything that hasn't been shown
 
     public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, Set<Long>sharedPages, int level, boolean toplevel, boolean canEditPage) {
-	    // System.out.println("in findallpages " + pageItem.getName() + " " + toplevel);
+	    // log.info("in findallpages " + pageItem.getName() + " " + toplevel);
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
 	    if (pageId == 0L)
@@ -155,9 +161,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		return;
 	    }
 
+	    SimplePage page = simplePageToolDao.getPage(pageId);
 	    // implement hidden. 
 	    if (! canEditPage) {
-	    	SimplePage page = simplePageToolDao.getPage(pageId);
 	    	if (page.isHidden())
 		    return;
 		if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
@@ -176,7 +182,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    Properties roleConfig = placement.getPlacementConfig();
 			    String roleList = roleConfig.getProperty("functions.require");
 			    String visibility = roleConfig.getProperty("sakai-portal:visible");
-			    // System.out.println("roles " + roleList + " visi " + visibility);
+			    // log.info("roles " + roleList + " visi " + visibility);
 			    // doesn't require site update, so visible
 			    if ((visibility == null || !visibility.equals("false")) &&
 				(roleList == null || roleList.indexOf(SITE_UPD) < 0)) {
@@ -200,6 +206,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    entry.title = pageItem.getName();
 	    entry.level = level;
 	    entry.toplevel = toplevel;
+	    entry.hidden = page.isHidden();
+	    entry.releaseDate = page.getReleaseDate();
 
 	    // add entry
 	    entries.add(entry);
@@ -235,7 +243,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			if (item.getNextPage())
 			    nexts.add(item);
 			else  {
-			    // System.out.println("call for subpage " + item.getName() + " " + false);
+			    // log.info("call for subpage " + item.getName() + " " + false);
 			    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level +1, false, canEditPage);
 			}
 	    	}
@@ -243,7 +251,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    // nexts done afterwards
 	    for (SimplePageItem item: nexts) {
 	    	if (item.getType() == SimplePageItem.PAGE) {
-		    // System.out.println("calling findallpage " + item.getName() + " " + false);
+		    // log.info("calling findallpage " + item.getName() + " " + false);
 		    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level, false, canEditPage);
 	    	}
 	    }
@@ -271,13 +279,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			try {
 				simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 			} catch (Exception e) {
-				System.out.println("PagePicker permission exception " + e);
+				log.info("PagePicker permission exception " + e);
 				return;
 			}
 		}
 
 		UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localeGetter.get().getLanguage()))
-		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));        
+		    .decorate(new UIFreeAttributeDecorator("xml:lang", localeGetter.get().getLanguage()));
 
 		boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
 
@@ -290,7 +298,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 			// path defaults to null, which is next
 			UIOutput.make(tofill, "return-div");
-			UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
+
+			String currentToolTitle = simplePageBean.getPageTitle();
+			String returnText = messageLocator.getMessage("simplepage.return").replace("{}", currentToolTitle);  
+			UIInternalLink.make(tofill, "return", returnText, view);  
+
 			UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.index"));
 		} else {
 			UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.chooser"));
@@ -342,7 +354,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		// this adds everything you can find from top level pages to entries. But make sure user can see
 		// the tool
 		for (SimplePageItem sitePageItem : sitePages) {
-		    // System.out.println("findallpages " + sitePageItem.getName() + " " + true);
+		    // log.info("findallpages " + sitePageItem.getName() + " " + true);
 		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true, canEditPage);
 		}
 
@@ -357,7 +369,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			marker.level = -1;
 			entries.add(marker);
 			for (SimplePage p: pageMap.values()) {
-				if(p.getOwner() == null) {
+				if(!simplePageBean.isStudentPage(p)) {
 					PageEntry entry = new PageEntry();
 					entry.pageId = p.getPageId();
 					entry.itemId = null;
@@ -408,7 +420,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    
 		    if (entry.level < 0) {
 		    	UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
-			UIOutput.make(row, "chooseall");
+			if (summaryPage)
+			    UIOutput.make(row, "chooseall");
 		    }
 		    // if no itemid, it's unused. Only canedit people will see it
 		    else if (summaryPage && entry.itemId != null) {
@@ -416,7 +429,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	if (level > 5)
 		    		level = 5;
 		    	String imagePath = "/lessonbuilder-tool/images/";
-		    	SimplePageItem item = simplePageBean.findItem(entry.itemId);
+
 		    	SimplePageLogEntry logEntry = simplePageBean.getLogEntry(entry.itemId);
 		    	String note = null;
 		    	if (logEntry != null && logEntry.isComplete()) {
@@ -496,9 +509,10 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                         UIOutput.make(itemListItem,"item-icon")
                             .decorate(getImageSourceDecorator(pageItem));
 
-                        if (pageItem.isPrerequisite()) {
-                            itemListItem.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
-                        }
+			// interesting idea, but makes it invisible
+                        //if (pageItem.isPrerequisite()) {
+			    //  itemListItem.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+                        //}
 
                         if(SimplePageItem.TEXT == pageItem.getType()) {
                             UIOutput.make(itemListItem, "name",  messageLocator.getMessage("simplepage.chooser.textitemplaceholder"))
@@ -550,8 +564,21 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		    }
 
-		    if (canEditPage && entry != null && entry.pageId != null && sharedPages.contains(entry.pageId)) {
-			UIOutput.make(row, "shared");
+		    
+		    if (canEditPage && entry != null && entry.pageId != null && entry.itemId != null) {
+			String text = null;
+			if (sharedPages.contains(entry.pageId))
+			    text = messageLocator.getMessage("simplepage.sharedpage");
+		    	SimplePageItem item = simplePageBean.findItem(entry.itemId);
+			String released = simplePageBean.getReleaseString(item, localeGetter.get());
+			if (released != null) {
+			    if (text != null)
+				text = text + released;
+			    else
+				text = released;
+			}
+			if (text != null) 
+			    UIOutput.make(row, "shared", text);
 		    }
 
 		    // debug code for development. this will be removed at some point
@@ -591,8 +618,10 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			// return to Reorder, to add items from this page
 		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.selectPage}");
 		    } else if(((GeneralViewParameters) viewparams).newTopLevel) {
+			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addOldPage}");
 		    }else {
+			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 		    	UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.createSubpage}");
 		    }
 		    UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
@@ -601,23 +630,23 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		}		
 	}
 
-    private UIFreeAttributeDecorator getImageSourceDecorator(SimplePageItem pageItem) {
+    private UIStyleDecorator getImageSourceDecorator(SimplePageItem pageItem) {
 
         switch (pageItem.getType()) {
             case SimplePageItem.FORUM:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png");
+                return new UIStyleDecorator("icon-sakai--sakai-forums");
             case SimplePageItem.ASSIGNMENT:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/page_edit.png");
+                return new UIStyleDecorator("icon-sakai--sakai-assignment-grades");
             case SimplePageItem.ASSESSMENT:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png");
+                return new UIStyleDecorator("icon-sakai--sakai-samigo");
             case SimplePageItem.QUESTION:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png");
+                return new UIStyleDecorator("fa-question");
             case SimplePageItem.COMMENTS:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png");
+                return new UIStyleDecorator("fa-commenting");
             case SimplePageItem.BLTI:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/application_go.png");
+                return new UIStyleDecorator("fa-globe");
             case SimplePageItem.PAGE:
-                return new UIFreeAttributeDecorator("src", "/library/image/silk/book_open.png");
+                return new UIStyleDecorator("fa-folder-open-o");
             case SimplePageItem.RESOURCE:
                 return getImageSourceDecoratorFromMimeType(pageItem);
             case SimplePageItem.MULTIMEDIA:
@@ -625,48 +654,29 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
             case SimplePageItem.TEXT:
                 return getImageSourceDecoratorFromMimeType(pageItem);
             default:
-                return new UIFreeAttributeDecorator("src", "");
+                return new UIStyleDecorator("");
         } 
     }
 
-    private UIFreeAttributeDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
+    private UIStyleDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
 
-        String mimeType = pageItem.getHtml();
+        String mimeType;
 
         if(SimplePageItem.TEXT == pageItem.getType()) {
             mimeType = "text/html";
-        } else if("application/octet-stream".equals(mimeType)) {
-            // OS X reports octet stream for things like MS Excel documents.
-            // Force a mimeType lookup so we get a decent icon.
-            mimeType = null;
-        }
-
-        if (mimeType == null || mimeType.equals("")) {
-            String s = pageItem.getSakaiId();
-            int j = s.lastIndexOf(".");
-            if (j >= 0)
-            s = s.substring(j+1);
-            mimeType = ContentTypeImageService.getContentType(s);
-        }
+        } else {
+	    mimeType = simplePageBean.getContentType(pageItem);
+	}
 
         String src = null;
 
-        if (!useSakaiIcons) {
-            src = imageToMimeMap.get(mimeType);
-        }
+	src = imageToMimeMap.get(mimeType);
 
         if (src == null) {
-            String image = ContentTypeImageService.getContentTypeImage(mimeType);
-            if (image != null) {
-                src = "/library/image/" + image;
-            }
+	    src = "fa-file-o";
         }
         
-        if(src != null) {
-            return new UIFreeAttributeDecorator("src", src);
-        } else {
-            return new UIFreeAttributeDecorator("src", "");
-        }
+	return new UIStyleDecorator(src);
     }
 
 	public ViewParameters getViewParameters() {

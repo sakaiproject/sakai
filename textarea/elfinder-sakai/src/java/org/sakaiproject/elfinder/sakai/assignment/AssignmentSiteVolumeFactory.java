@@ -1,10 +1,11 @@
 package org.sakaiproject.elfinder.sakai.assignment;
 
 import cn.bluejoe.elfinder.service.FsItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
 import org.sakaiproject.elfinder.sakai.SakaiFsService;
 import org.sakaiproject.elfinder.sakai.SiteVolume;
@@ -26,9 +27,11 @@ import java.util.List;
  */
 public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
 
-    private static final Log LOG = LogFactory.getLog(AssignmentSiteVolumeFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AssignmentSiteVolumeFactory.class);
     private AssignmentService assignmentService;
     private UserDirectoryService userDirectoryService;
+    private ServerConfigurationService serverConfigurationService;
+    private static final String ASSIGNMENT_URL_PREFIX = "/direct/assignment/";
 
     public void setAssignmentService(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
@@ -36,6 +39,10 @@ public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     @Override
@@ -226,6 +233,11 @@ public class AssignmentSiteVolumeFactory implements SiteVolumeFactory {
 
         @Override
         public String getURL(FsItem fsItem) {
+            String serverUrlPrefix = serverConfigurationService.getServerUrl();
+            if(fsItem instanceof AssignmentFsItem){
+                AssignmentFsItem assignmentFsItem = (AssignmentFsItem)fsItem;
+                return serverUrlPrefix + ASSIGNMENT_URL_PREFIX + assignmentFsItem.getId();
+            }
             return null;
         }
     }

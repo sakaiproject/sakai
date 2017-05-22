@@ -18,13 +18,14 @@ package org.sakaiproject.mailsender.tool.producers.fragments;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.logic.ComposeLogic;
 import org.sakaiproject.mailsender.tool.params.UsersViewParameters;
 import org.sakaiproject.user.api.User;
 
+import uk.org.ponder.beanutil.PathUtil;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -43,7 +44,7 @@ public class UsersProducer implements ViewComponentProducer, ViewParamsReporter
 {
 	public static final String VIEW_ID = "users";
 
-	private final Log log = LogFactory.getLog(UsersProducer.class);
+	private final Logger log = LoggerFactory.getLogger(UsersProducer.class);
 	private ComposeLogic composeLogic;
 	private TargettedMessageList messages;
 
@@ -112,8 +113,9 @@ public class UsersProducer implements ViewComponentProducer, ViewParamsReporter
 							viewParams.id + "-" + Integer.toString(i));
 					String displayName = user.getLastName() + ", " + user.getFirstName() + " ("
 							+ user.getDisplayId() + ")";
-					UIBoundBoolean input = UIBoundBoolean.make(cell, "mailsender-user",
-							"emailBean.newEmail.userIds." + user.getId());
+					String path = PathUtil.buildPath(new String []{
+							"emailBean","newEmail","userIds",user.getId()});
+					UIBoundBoolean input = UIBoundBoolean.make(cell, "mailsender-user", path);
 					UIVerbatim label = UIVerbatim.make(cell, "mailsender-userLabel",
 							displayName);
 					

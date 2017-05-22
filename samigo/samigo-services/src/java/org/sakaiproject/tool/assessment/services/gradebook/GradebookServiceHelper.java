@@ -21,8 +21,8 @@
 
 
 package org.sakaiproject.tool.assessment.services.gradebook;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 
@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
  */
 public class GradebookServiceHelper
 {
-    private Log log = LogFactory.getLog(GradebookServiceHelper.class);
+    private Logger log = LoggerFactory.getLogger(GradebookServiceHelper.class);
 
     public static boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws Exception {
       return false;

@@ -27,6 +27,8 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -61,6 +63,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class ResourcePickerProducer implements ViewComponentProducer, ViewParamsReporter, NavigationCaseReporter {
+	private static final Logger log = LoggerFactory.getLogger(ResourcePickerProducer.class);
 	public static final String VIEW_ID = "ResourcePicker";
 
 	public String getViewID() {
@@ -108,7 +111,7 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 			try {
 				simplePageBean.updatePageObject(((FilePickerViewParameters) viewparams).getSender());
 			} catch (Exception e) {
-				System.out.println("ResourcePicker permission exception " + e);
+				log.info("ResourcePicker permission exception " + e);
 				return;
 			}
 		}
@@ -135,8 +138,9 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, ServerConfigurationService.getString("lessonbuilder.attachlinks", "true"));
 		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMID, itemId);
 		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ADDBEFORE, ((FilePickerViewParameters) viewparams).getAddBefore());
+		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMNAME, ((FilePickerViewParameters) viewparams).getName());
 
-		if (simplePageBean.getCurrentPage().getOwner() != null) {
+		if (simplePageBean.isStudentPage(simplePageBean.getCurrentPage())) {
 		    toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, "/user/" + simplePageBean.getCurrentUserId() + "/");
 		}
 
@@ -146,9 +150,9 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		// rsf:id helper-binding method binding
 		String process = null;
 
-		if (((FilePickerViewParameters) viewparams).getWebsite())
+		if (((FilePickerViewParameters) viewparams).isWebsite())
 		    process = "#{simplePageBean.processWebSite}";
-		if (((FilePickerViewParameters) viewparams).getCaption())
+		else if (((FilePickerViewParameters) viewparams).getCaption())
 		    process = "#{simplePageBean.processCaption}";
 		else if (((FilePickerViewParameters) viewparams).getResourceType())
 		    process = "#{simplePageBean.processMultimedia}";

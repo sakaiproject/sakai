@@ -21,8 +21,8 @@
 
 package org.sakaiproject.memory.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.Configuration;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public class BasicMapCache<K, V> extends BasicCache<K, V> {
-    final Log log = LogFactory.getLog(BasicMapCache.class);
+    final Logger log = LoggerFactory.getLogger(BasicMapCache.class);
 
     /**
      * Underlying cache implementation

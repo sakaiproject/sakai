@@ -27,8 +27,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
@@ -51,12 +51,12 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public abstract class BasePortalHandler implements PortalHandler
 {
-	private static final Log log = LogFactory.getLog(BasePortalHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(BasePortalHandler.class);
 
 	public BasePortalHandler()
 	{
 		urlFragment = "none";
-		timeService = (TimeService) ComponentManager.get(TimeService.class);
+		timeService = ComponentManager.get(TimeService.class);
 	}
 
 	private TimeService timeService;

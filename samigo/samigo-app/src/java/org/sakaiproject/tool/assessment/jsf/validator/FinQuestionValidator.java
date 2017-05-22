@@ -35,8 +35,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
-import org.apache.commons.math.complex.Complex;
-import org.apache.commons.math.complex.ComplexFormat;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class FinQuestionValidator implements Validator {

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.summary.calendar"
+    	title="Calendar"
+        description="Show a summary of schedule events.">
+    	
+    	<!--
+    	<category name="myworkspace" />
+    	-->
+		
+               <configuration name="reset.button" value="false" type="final" />
+
+		<!-- <configuration name="help.id" value="sakai.schedule" type="final" /> -->
+
+		<configuration name="functions.require" value="calendar.read" /> 
+
+	</tool>
+</registration>

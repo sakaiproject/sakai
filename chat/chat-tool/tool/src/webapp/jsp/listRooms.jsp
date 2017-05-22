@@ -1,5 +1,6 @@
 <f:view>
 	<sakai:view title="#{msgs.room_list_title}">
+	<sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
 		<h:form>
 			<sakai:tool_bar>
 				<h:commandLink id="addRoom" rendered="#{ChatTool.canCreateChannel}"

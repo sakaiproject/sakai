@@ -1,0 +1,77 @@
+{
+    "question_doc": {
+        "_source": {
+            "enabled": false
+        },
+
+        "properties": {
+            "questionId": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "site": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "hash": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "questionPoolId": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "tags": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "type": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "subtype": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "typeId": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "qText": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "assessmentId": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "reference": {
+                "type": "string",
+                "index": "not_analyzed",
+                "store": "yes"
+            },
+            "indexed": {
+                "type": "boolean",
+                "index": "not_analyzed",
+                "null_value": "false",
+                "store": "no"
+            },
+            "contents": {
+                "type": "string",
+                "analyzer": "standard",
+                "index": "analyzed",
+                "store": "yes"
+            }
+        }
+    }
+}

@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.model.PhaseAware;
 
 /**
@@ -31,7 +31,7 @@ import org.sakaiproject.jsf.model.PhaseAware;
  *
  */
 public abstract class InitializableBean implements PhaseAware {
-	private static final Log logger = LogFactory.getLog(InitializableBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(InitializableBean.class);
 
 	private transient boolean notValidated;
 

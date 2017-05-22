@@ -4,10 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-   
+<!DOCTYPE html>
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
@@ -16,37 +13,33 @@
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
-<div class="portletBody">
+<div class="portletBody container-fluid">
   <h:form id="sectionActivityId">
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+    <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+
   <!-- HEADINGS -->
   <%@ include file="/jsf/section-activity/sectionActivityHeadings.jsp" %>
   
-<!-- content... -->
- 
- 
- <div align="left">
- 	<h3>
+  <div class="page-header">
+ 	<h1>
       <h:outputText value="#{sectionActivityMessages.section_activity_report_colon}"/>
-      <h:outputText value="#{sectionActivity.selectedUserDisplayName}"/>
-      
-   </h3>
- </div>
-<br></br>
- <div class="tier1">
- 	<h:panelGroup>
- 		 <h:outputText value="#{sectionActivityMessages.view_student}" style="instruction"/>
- 		   <h:outputText escape="false" value="&nbsp;&nbsp;" />			
- 		 <h:selectOneMenu value="#{sectionActivity.selectedUser}" id="studentName"
-         required="true" onchange="document.forms[0].submit();" style="margin-right:1em">
+      <small>
+        <h:outputText value="#{sectionActivity.selectedUserDisplayName}"/>
+      </small>
+    </h1>
+  </div>
+
+  <h:panelGroup layout="block" styleClass="form-group">
+ 		 <h:outputLabel value="#{sectionActivityMessages.view_student}" style="instruction"/>
+ 		 <h:outputText escape="false" value="&#160;" />			
+ 		 <h:selectOneMenu value="#{sectionActivity.selectedUser}" id="studentName" required="true" onchange="document.forms[0].submit();">
       	 	 <f:selectItems value="#{sectionActivity.displayNamesList}" />  
       	 	 <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />  
     	 </h:selectOneMenu>
-   </h:panelGroup>	 
- </div>
- 
- <div class="tier1">
- <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" value="#{sectionActivity.sectionActivityDataList}" var="pageData">
+  </h:panelGroup>	 
+  <br/>
+  <div class="tier1">
+   <h:dataTable styleClass="table table-striped" value="#{sectionActivity.sectionActivityDataList}" var="pageData">
 	 <!-- Title.. -->
 	 <h:column rendered="#{sectionActivity.sortType != 'assessmentName'}">
 	  <f:facet name="header">

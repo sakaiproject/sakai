@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.logic.ExternalLogic;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -76,7 +76,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 	private PollVoteManager pollVoteManager;
 
 
-	private static final Log LOG = LogFactory.getLog(PollVoteProducer.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PollVoteProducer.class);
 
 	public String getViewID() {
 		// TODO Auto-generated method stub

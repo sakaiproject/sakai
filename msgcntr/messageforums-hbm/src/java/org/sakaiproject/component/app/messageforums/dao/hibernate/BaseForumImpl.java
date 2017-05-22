@@ -27,8 +27,8 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -39,7 +39,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparato
  
 public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
-    private static final Log LOG = LogFactory.getLog(BaseForumImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BaseForumImpl.class);
 
     private String title;
     private String shortDescription;

@@ -22,6 +22,7 @@
 package org.sakaiproject.access.tool;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
@@ -31,8 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -62,7 +63,7 @@ import org.sakaiproject.tool.api.Session;
 public class WebServlet extends AccessServlet
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(WebServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(WebServlet.class);
 	protected ContentHostingService contentHostingService;
 	protected UserDirectoryService userDirectoryService;
 	protected TimeService timeService;
@@ -196,14 +197,18 @@ public class WebServlet extends AccessServlet
 			if (o != null && o instanceof FileItem)
 			{
 				FileItem fi = (FileItem) o;
-				// System.out.println("found file " + fi.getName());
-				if (!writeFile(fi.getName(), fi.getContentType(), fi.get(), path, req, res, true)) return;
+				try (InputStream inputStream = fi.getInputStream())
+				{
+					if (!writeFile(fi.getName(), fi.getContentType(), inputStream, path, req, res, true)) return;
+				} catch (IOException ioe) {
+					M_log.warn("Problem getting InputStream", ioe);
+				}
 			}
 		}
 	}
 
-	protected boolean writeFile(String name, String type, byte[] data, String dir, HttpServletRequest req,
-			HttpServletResponse resp, boolean mkdir)
+	protected boolean writeFile(String name, String type, InputStream inputStream, String dir, HttpServletRequest req,
+								HttpServletResponse resp, boolean mkdir)
 	{
 		try
 		{
@@ -283,7 +288,7 @@ public class WebServlet extends AccessServlet
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 
 				// System.out.println("Trying Add " + path);
-				ContentResource resource = contentHostingService.addResource(path, type, data, resourceProperties,
+				ContentResource resource = contentHostingService.addResource(path, type, inputStream, resourceProperties,
 						NotificationService.NOTI_NONE);
 
 			}
@@ -295,7 +300,7 @@ public class WebServlet extends AccessServlet
 					try
 					{
 						ContentCollection collection = contentHostingService.addCollection(dir, resourceProperties);
-						return writeFile(name, type, data, dir, req, resp, false);
+						return writeFile(name, type, inputStream, dir, req, resp, false);
 					}
 					catch (Throwable ee)
 					{

@@ -31,14 +31,17 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.SiteSpecificResourceType;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.javax.Filter;
 
@@ -49,11 +52,14 @@ import org.sakaiproject.javax.Filter;
 public class ResourceTypeRegistryImpl implements ResourceTypeRegistry 
 {
 	/** Our logger. */
-	protected static final Log M_log = LogFactory.getLog(ResourceTypeRegistryImpl.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(ResourceTypeRegistryImpl.class);
 
 	/** Map of ResourceType objects indexed by typeId */
 	protected Map<String, ResourceType> typeIndex = new HashMap<String, ResourceType>();
 	
+	/** Map of ContentChangeHandler objects indexed by typeId */
+	protected Map<String, ContentChangeHandler> typeIdToHandler = new HashMap<String, ContentChangeHandler>();
+
 	protected Map<String,Map<String,Boolean>> enabledTypesMap = new HashMap <String,Map<String,Boolean>>();
 	
 	protected Map<String, ServiceLevelAction> multiItemActions = new HashMap<String, ServiceLevelAction>();
@@ -137,6 +143,13 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public void register(ResourceType type) 
 	{
+        register(type, null);
+    }
+	/**
+	 * @inheritDoc
+	 */
+	public void register(ResourceType type, ContentChangeHandler cch)
+	{
 		if(type == null || type.getId() == null)
 		{
 			return;
@@ -151,7 +164,8 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 //			
 //		}
 		typeIndex.put(type.getId(), type);
-		
+		typeIdToHandler.put(type.getId(), cch);
+
 		for(ResourceToolAction action : type.getActions(Arrays.asList(ActionType.values())))
 		{
 			if(action instanceof ServiceLevelAction && ((ServiceLevelAction) action).isMultipleItemAction())
@@ -267,6 +281,13 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		}
 		
 		return typeDefs;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getContentChangeHandler(java.lang.String)
+	 */
+	public ContentChangeHandler getContentChangeHandler(String resourceType) {
+		return typeIdToHandler.get(resourceType);
 	}
 
 	/* (non-Javadoc)

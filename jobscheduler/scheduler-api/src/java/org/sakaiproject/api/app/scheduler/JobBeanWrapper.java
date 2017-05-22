@@ -20,22 +20,31 @@
 **********************************************************************************/
 package org.sakaiproject.api.app.scheduler;
 
+import org.quartz.Job;
+
 /**
- * Created by IntelliJ IDEA.
- * User: John Ellis
- * Date: Dec 1, 2005
- * Time: 12:35:51 PM
- * To change this template use File | Settings | File Templates.
+ * This is used to represent a job that can be run through the Sakai Scheduler tool.
  */
 public interface JobBeanWrapper {
 
-   public static final String SPRING_BEAN_NAME = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.bean";
-   public static final String JOB_TYPE = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType";
+   String SPRING_BEAN_NAME = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.bean";
+   String JOB_TYPE = "org.sakaiproject.api.app.scheduler.JobBeanWrapper.jobType";
 
-   public String getBeanId();
+   /**
+    * @return The Spring Bean ID to retrieve from the application context.
+     */
+   String getBeanId();
 
-   public Class getJobClass();
+   /**
+    * This is the class that will get registered with Quartz to be run.
+    * @return A Class that implements the Job interface.
+     */
+   Class<? extends Job> getJobClass();
 
-   public String getJobType();
+   /**
+    * This is the name that is displayed in the interface for the job.
+    * @return A summary of the job.
+     */
+   String getJobType();
 
 }

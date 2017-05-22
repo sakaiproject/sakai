@@ -23,8 +23,8 @@ package org.sakaiproject.util;
 
 import java.sql.ResultSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 
 /**
@@ -33,7 +33,7 @@ import org.sakaiproject.db.api.SqlReader;
 public class DbSingleStorageReader implements SqlReader
 {
 
-	private static final Log log = LogFactory.getLog(DbSingleStorageReader.class);
+	private static final Logger log = LoggerFactory.getLogger(DbSingleStorageReader.class);
 
 	private DbSingleStorage storage;
 

@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2011</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>component</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -33,10 +33,6 @@
       	<artifactId>content-copyright-api</artifactId>
       	<version>${project.version}</version>
       	<scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
     </dependency>
   </dependencies>
   <build>

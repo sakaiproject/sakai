@@ -1,0 +1,224 @@
+@import "base/compass";
+
+body{
+	@media #{$phone}{
+		&.toolsNav--displayed{
+			// hide the tool body
+			.#{$namespace}pagebody {
+				#content {
+					display: none;
+				}
+			}
+			// make the banner stick to the top on scroll when the tool menu is visible
+			.#{$namespace}mainHeader {
+				position: absolute;
+				top: -$banner-height;
+
+				.#{$namespace}topHeader {
+					position: relative;
+					padding-top: 0 !important;
+
+					.#{$namespace}headerLogo {
+						position: relative;
+					}
+				}
+			}
+
+			// show the tool menu
+			#toolMenuWrap{
+				width: 100%;
+				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
+				left: 0;
+				z-index: 1001;
+
+				@if $tool-menu-icon-on-left {
+					background-color: $tool-background-color;
+				}
+				#toolSubsitesContainer{
+					overflow-y:auto;
+					height:100%;
+				}
+				&:after {
+					bottom: 100%;
+					left: 40px;
+					border: solid transparent;
+					content: " ";
+					height: 0;
+					width: 0;
+					position: absolute;
+					pointer-events: none;
+					border-color: rgba(255, 255, 255, 0);
+					border-bottom-color: $tool-menu-background-color;
+					border-width: 7px;
+					outline: 0;
+				}
+				.Mrphs-toolsNav__menuitem--title{
+					display: inline-block;
+					letter-spacing: 0px;
+					border: 0px none;
+					@include border-radius( 0 );
+					box-shadow: none;
+				}
+				> h1.skip{
+					display: block;
+					position: relative;
+					top: 0;
+					left: 0;
+					height: 1em;
+					padding: 0.6em 0 1.6em 0.5em;
+					line-height: 1.05;
+					font-size: 1em;
+					font-weight: 300;
+					background: $tool-background-color;
+					margin: 0;
+					border-bottom:  1px solid darken( $tool-menu-background-color, 5% );
+					position: relative;
+				}
+			}
+			#toolMenu, #subSites{
+				@if $tool-menu-icon-on-left {
+					background-color: $tool-background-color;
+				}
+				ul{
+					list-style: none;
+					padding:0;
+					li{
+						@if $tool-menu-icon-on-left {
+							display: block;
+							border-bottom: 1px solid $tool-menu-item-separator-color;
+							width: 100%;
+							white-space: nowrap;
+							overflow: hidden;
+
+							a {
+								padding: 8px 4px;
+							}
+						}
+						@else {
+							border-left: 2px solid darken( $tool-menu-background-color, 10% );
+							display: inline-block;
+							margin: -4px -4px 0px 0; //FIX for inline-block extra space.
+							width: calc( 25% - 1px );
+						}
+						&.#{$namespace}collapseTools{
+							display: none;
+						}
+						.#{$namespace}toolsNav__subnav{
+							li{
+								a{
+						  			@media #{$phone}{
+										padding: 0.6em 0 0.6em 2em;
+									}
+								}
+							}
+						}
+						.#{$namespace}toolsNav__category {				
+							display: block;
+						}
+					}
+				}
+			}
+
+			#portalMask {
+				background: transparent;
+			}
+		}
+		&.sitesNav--displayed{
+
+			.Mrphs-mainHeader{
+				&.is-maximized{
+					.siteNavWrap{
+						background: $primary-color;
+						margin-top: -3em;
+						min-height: 100%;
+						padding-top: 3em;
+						position: fixed;
+						width: 85%;
+						box-shadow: 0 0 20em rgba( 0,0,0,0.8 );
+					}
+				}
+			}
+
+
+			#toolMenuWrap{
+				left: #{  $tool-menu-width * -1 };
+			}
+			#linkNav{
+				background: transparent;
+				display: block;
+				max-height: 100%;
+				overflow: auto;
+				ul{
+					li.#{$namespace}sitesNav__menuitem {
+						display: block;
+						margin: 1.5em;
+						&.is-selected{
+							a{
+								background: $background-color;
+							}
+						}
+						a{
+							background: darken( $background-color-secondary, 5% );
+							border-right: 0px none;
+						}
+						&.#{$namespace}sitesNav__menuitem--myworkspace{
+							background: $primary-color;
+							margin: 0 0 0 0;
+							a{
+								background: $primary-color;
+							}
+						}
+					}
+					&.#{$namespace}sitesNav__menu{
+						margin: 1em 0.8em 0 1.2em;
+					}
+				}
+			}
+			.#{$namespace}mainHeader{
+				.#{$namespace}headerLogo{
+					width: 75%;
+					display: block;
+					position: absolute;
+					z-index: 40;
+					margin: 0 0 0 4em;
+					.#{$namespace}headerLogo--institution{
+						display: inline-block;
+						margin: 0.6em 0em 0 1em;
+					}
+				}
+			}
+		}
+	}
+}
+
+// Viewport Helpers
+// - these are hidden elements that the JavaScript can query
+//   to determine the current viewport breakpoint
+body {
+  ##{$namespace}viewport-helpers {
+    .phone, .tablet, .desktop {
+      display: none;
+
+      height: 1px;
+      width: 1px;
+      overflow: hidden;
+      position: absolute;
+      left: -1000000px;
+    }
+    @media #{$phone} {
+      .phone {
+        display: block;
+      }
+    }
+    @media #{$tablet} {
+      .tablet {
+        display: block;
+      }
+    }
+    @media #{$desktop} {
+      .desktop {
+        display: block;
+      }
+    }
+  }
+}

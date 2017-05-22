@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -75,7 +75,7 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 public class CourseManagementServiceFederatedImpl implements
 		CourseManagementService {
 
-	private static final Log log = LogFactory.getLog(CourseManagementServiceFederatedImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseManagementServiceFederatedImpl.class);
 
 	private List<CourseManagementService> implList;
 	

@@ -17,7 +17,10 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2003</inceptionYear>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -47,10 +50,6 @@
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>jtidy</groupId>
@@ -84,5 +83,13 @@
             </resource>
         </resources>
         <sourceDirectory>src/java</sourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                   <include>log4j.properties</include>
+                </includes>
+            </testResource>
+       </testResources>
     </build>
 </project>

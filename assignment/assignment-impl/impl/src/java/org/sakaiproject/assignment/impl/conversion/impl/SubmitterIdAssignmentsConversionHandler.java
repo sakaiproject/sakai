@@ -26,8 +26,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
 
 /**
@@ -38,8 +38,7 @@ import org.sakaiproject.util.conversion.SchemaConversionHandler;
 public class SubmitterIdAssignmentsConversionHandler implements SchemaConversionHandler
 {
 
-	private static final Log log = LogFactory
-			.getLog(SubmitterIdAssignmentsConversionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(SubmitterIdAssignmentsConversionHandler.class);
 
 	// db driver
 	private String m_dbDriver = null;

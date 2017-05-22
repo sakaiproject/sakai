@@ -21,8 +21,8 @@
 
 package org.sakaiproject.config.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -47,7 +47,7 @@ import java.util.List;
  *         Created on April 18, 2013
  */
 public class StoredConfigServiceTest extends SakaiKernelTestBase {
-    private static final Log LOG = LogFactory.getLog(StoredConfigServiceTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StoredConfigServiceTest.class);
 
     private static BasicConfigurationService basicConfigurationService;
     private static StoredConfigService storedConfigService;
@@ -61,7 +61,7 @@ public class StoredConfigServiceTest extends SakaiKernelTestBase {
             oneTimeSetupAfter();
             LOG.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			LOG.warn(e);
+			LOG.warn(e.getMessage(), e);
 		}
 	}
 	

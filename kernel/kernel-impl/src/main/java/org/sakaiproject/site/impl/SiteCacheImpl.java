@@ -25,8 +25,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	
-	private static Log M_log = LogFactory.getLog(SiteCacheImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteCacheImpl.class);
 	/** Map of a tool id to a cached site's tool configuration instance. */
 	protected Map<String, ToolConfiguration> m_tools = new ConcurrentHashMap<String, ToolConfiguration>();
 	/** Map of a page id to a cached site's SitePage instance. */
@@ -111,9 +111,12 @@ public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	/**
 	 * Test for a non expired entry in the cache.
 	 * 
+	 * 2016-09-07 - Mitch Golden - The key may in fact be expired!
+	 * Be careful if you use this method
+	 *
 	 * @param key
 	 *        The cache key.
-	 * @return true if the key maps to a non-expired cache entry, false if not.
+	 * @return true if the key maps to a cache entry, false if not.
 	 */
 	@Override
     public boolean containsKey(String key)

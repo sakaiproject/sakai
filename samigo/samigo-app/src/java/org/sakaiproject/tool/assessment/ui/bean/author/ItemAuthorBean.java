@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -49,8 +50,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -73,6 +74,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -105,7 +107,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ItemAuthorBean
   implements Serializable
 {
-  private static Log log = LogFactory.getLog(ItemAuthorBean.class);
+  private static Logger log = LoggerFactory.getLogger(ItemAuthorBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
@@ -115,7 +117,7 @@ public class ItemAuthorBean
   public final static String FROM_ASSESSMENT= "assessment";
   private String assessTitle;
   private String sectionIdent;
-  private ArrayList assessmentSectionIdents;
+  private List assessmentSectionIdents;
   private String insertPosition;
   private String insertToSection;
   private String insertType;
@@ -130,17 +132,35 @@ public class ItemAuthorBean
   private String showQuestionLevelFeedback;
   private String showSelectionLevelFeedback;
   private String showFeedbackAuthoring;
-  private ArrayList trueFalseAnswerSelectList;
+  private List trueFalseAnswerSelectList;
   private ItemDataIfc item;
   private ItemBean currentItem;
   private ItemFacade itemToDelete;
   private ItemFacade itemToPreview;
   private List attachmentList;
+  private Set<ItemTagIfc> tagsList;
+  private String tagsListToJson;
+  private String tagsTempListToJson;
+  private boolean deleteTagsAllowed;
+  private boolean multiTagsSingleQuestion;
+  private boolean multiTagsSingleQuestionCheck;
+
+  private String showTagsStyle;
+
+
+  private String language;
+
+  public String getLanguage() {
+    Locale loc = new ResourceLoader().getLocale();
+    this.language = loc.getLanguage();
+    return this.language;
+  }
+
 
   // for questionpool
   private String qpoolId;
   private String target;
-  private ArrayList poolListSelectItems;
+  private List poolListSelectItems;
 
   // for item editing
 
@@ -171,7 +191,50 @@ public class ItemAuthorBean
    {
      this.item=item;
      this.attachmentList = item.getItemAttachmentList();
+     this.tagsList = item.getItemTagSet();
    }
+
+    private String tagListToJsonString(Set<ItemTagIfc> tagsListToConvert){
+
+
+      String tagsListToJson = "[";
+      if (tagsListToConvert!=null) {
+        Iterator<ItemTagIfc> i = tagsListToConvert.iterator();
+        Boolean more = false;
+        while (i.hasNext()) {
+          if (more) {
+            tagsListToJson += ",";
+          }
+          ItemTagIfc tagToShow = (ItemTagIfc) i.next();
+          String tagId = tagToShow.getTagId();
+          String tagLabel = tagToShow.getTagLabel();
+          String tagCollectionName = tagToShow.getTagCollectionName();
+          tagsListToJson += "{\"tagId\":\"" + tagId + "\",\"tagLabel\":\"" + tagLabel + "\",\"tagCollectionName\":\"" + tagCollectionName + "\"}";
+          more = true;
+        }
+      }
+      tagsListToJson += "]";
+      return tagsListToJson;
+    }
+
+
+  public String getTagsListToJson(){
+    return this.tagsListToJson;
+    }
+
+  public void setTagsListToJson(String tagsListToJson)
+    {
+        this.tagsListToJson = tagsListToJson;
+    }
+
+  public String getTagsTempListToJson() {
+    return tagsTempListToJson;
+  }
+
+  public void setTagsTempListToJson(String tagsTempListToJson) {
+    this.tagsTempListToJson = tagsTempListToJson;
+  }
+
 
   public ItemDataIfc getItem()
   {
@@ -225,7 +288,7 @@ public class ItemAuthorBean
   /**
    * @return
    */
-  public ArrayList getAssessmentSectionIdents()
+  public List getAssessmentSectionIdents()
   {
     return assessmentSectionIdents;
   }
@@ -233,7 +296,7 @@ public class ItemAuthorBean
   /**
    * @param list
    */
-  public void setAssessmentSectionIdents(ArrayList list)
+  public void setAssessmentSectionIdents(List list)
   {
     assessmentSectionIdents = list;
   }
@@ -670,8 +733,8 @@ public class ItemAuthorBean
    * @return ArrayList of model SelectItems
    */
 
-  public ArrayList getTrueFalseAnswerSelectList() {
-    ArrayList list = new ArrayList();
+  public List getTrueFalseAnswerSelectList() {
+    List list = new ArrayList();
 
     String trueprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","true_msg");
     String falseprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","false_msg");
@@ -704,8 +767,8 @@ public class ItemAuthorBean
   }
 // TODO use sectionBean.getsectionNumberList when its ready
 
-  public ArrayList getSectionSelectList() {
-    ArrayList list = new ArrayList();
+  public List getSectionSelectList() {
+    List list = new ArrayList();
     
     ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
     AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
@@ -749,8 +812,8 @@ public class ItemAuthorBean
     return list;
   }
 
-  public ArrayList getSelectRelativeWidthList() {
-	  ArrayList<SelectItem> list = new ArrayList();
+  public List getSelectRelativeWidthList() {
+	  List<SelectItem> list = new ArrayList();
 	  ResourceLoader rb = new ResourceLoader(
 		"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  
@@ -831,13 +894,13 @@ public class ItemAuthorBean
 	 * 
 	 * @return ArrayList of model SelectItems
 	 */
-  public ArrayList getPoolSelectList() {
+  public List getPoolSelectList() {
 
     poolListSelectItems = new ArrayList();
 
 
     QuestionPoolService delegate = new QuestionPoolService();
-    ArrayList<QuestionPoolFacade> qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    List<QuestionPoolFacade> qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
     Iterator<QuestionPoolFacade> iter = qplist.iterator();
 
     try {
@@ -1016,82 +1079,7 @@ public class ItemAuthorBean
 
 		return outcome;
 	}
-
-/**
- * delete specified Item
- */
-  public String deleteItem() {
-	  ItemService delegate = new ItemService();
-	  Long deleteId= this.getItemToDelete().getItemId();
-	  ItemFacade itemf = delegate.getItem(deleteId, AgentFacade.getAgentString());
-	  // save the currSection before itemf.setSection(null), used to reorder question sequences
-	  SectionFacade  currSection = (SectionFacade) itemf.getSection();
-	  Integer  currSeq = itemf.getSequence();
-
-	  QuestionPoolService qpdelegate = new QuestionPoolService();
-	  if (qpdelegate.getPoolIdsByItem(deleteId.toString()) ==  null || qpdelegate.getPoolIdsByItem(deleteId.toString()).isEmpty()){
-		  // if no reference to this item at all, ie, this item is created in assessment but not assigned to any pool
-
-		  AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-		  AssessmentService assessdelegate = new AssessmentService();
-		  AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(currSection.getSectionId());
-		  if (!authzBean.isUserAllowedToEditAssessment(af.getAssessmentBaseId().toString(), af.getCreatedBy(), false)) {
-		      throw new IllegalArgumentException("User does not have permission to delete item in assessment: " + af.getAssessmentBaseId());
-		  }
-
-		  delegate.deleteItem(deleteId, AgentFacade.getAgentString());
-	  }
-	  else {
-		  if (currSection == null) {
-			  // if this item is created from question pool
-			  QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
-	          ItemFacade itemfacade= delegate.getItem(deleteId, AgentFacade.getAgentString());
-	          ArrayList items = new ArrayList();
-	          items.add(itemfacade);
-	          qpoolbean.setItemsToDelete(items);
-			  qpoolbean.removeQuestionsFromPool();
-			  return "editPool";
-		  }
-		  else {
-			  // 
-			  // if some pools still reference to this item, ie, this item is 
-			  // created in assessment but also assigned a a pool
-			  // then just set section = null
-			  itemf.setSection(null);
-			  delegate.saveItem(itemf);
-		  }
-	  }
-	//An item has been deleted
-	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.item.delete", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId, true));
-
-	AssessmentService assessdelegate = new AssessmentService();
-      // reorder item numbers
-
-	  SectionFacade sectfacade = assessdelegate.getSection(currSection.getSectionId().toString());
-	  Set itemset = sectfacade.getItemFacadeSet();
-	  // should be size-1 now.
-	  Iterator iter = itemset.iterator();
-	  while (iter.hasNext()) {
-		  ItemFacade  itemfacade = (ItemFacade) iter.next();
-		  Integer itemfacadeseq = itemfacade.getSequence();
-		  if (itemfacadeseq.compareTo(currSeq) > 0 ){
-			  itemfacade.setSequence( Integer.valueOf(itemfacadeseq.intValue()-1) );
-			  delegate.saveItem(itemfacade);
-		  }
-	  }
-
-	  //  go to editAssessment.jsp, need to first reset assessmentBean
-	  AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-                                          "assessmentBean");
-	  AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
-	  assessmentBean.setAssessment(assessment);
-	  assessdelegate.updateAssessmentLastModifiedInfo(assessment);
-  	  //Assessment has been revised
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.asessment.revise", "/sam/" +AgentFacade.getCurrentSiteId() + "/removed itemId=" + deleteId + "from assessmentId=" + assessmentBean.getAssessmentId(), true));
-	  return "editAssessment";
-  }
-
-
+	
  public String confirmDeleteItem(){
 
         ItemService delegate = new ItemService();
@@ -1149,6 +1137,34 @@ public class ItemAuthorBean
       return false;    
   }
 
+  public Set<ItemTagIfc> getTagsList() {
+    return tagsList;
+  }
+
+
+  /**
+   * @param tagsList
+   */
+  public void setTagsList(Set<ItemTagIfc> tagsList)
+  {
+    this.tagsList = tagsList;
+    setTagsListToJson(tagListToJsonString(tagsList));
+  }
+
+  public String getShowTagsStyle() {
+    if (ServerConfigurationService.getBoolean("samigo.author.usetags", Boolean.FALSE)){
+      return "";
+    }else{
+      return "display:none;";
+    }
+  }
+
+  public void setShowTagsStyle(String showTagsStyle) {
+    this.showTagsStyle = showTagsStyle;
+  }
+
+
+
   public String addAttachmentsRedirect() {
     // 1. load resources into session for resources mgmt page
     //    then redirect to resources mgmt page
@@ -1169,19 +1185,19 @@ public class ItemAuthorBean
     }
     return getOutcome();
   }
-  
-  /* called by SamigoJsfTool.java on exit from file picker */
-  public void setItemAttachment(){
-	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-	boolean isEditPendingAssessmentFlow =  author.getIsEditPendingAssessmentFlow();
-	ItemService service = null;
-	if (isEditPendingAssessmentFlow) {
-		service = new ItemService();
-	}
-	else {
-		service = new PublishedItemService();
-	}
-    ItemDataIfc itemData = null;
+
+  private ItemService loadItemService(boolean isEditPendingAssessmentFlow) {
+    if (isEditPendingAssessmentFlow) {
+      return new ItemService();
+    }
+    else {
+      return new PublishedItemService();
+    }
+  }
+
+  private ItemFacade loadItem(boolean isEditPendingAssessmentFlow) {
+    ItemService service = loadItemService(isEditPendingAssessmentFlow);
+    ItemFacade itemData = null;
     // itemId == null => new questiion
     if (this.itemId!=null){
       try{
@@ -1191,11 +1207,18 @@ public class ItemAuthorBean
         log.warn(e.getMessage());
       }
     }
+    return itemData;
+  }
+  
+  /* called by SamigoJsfTool.java on exit from file picker */
+  public void setItemAttachment(){
+	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+	boolean isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
 
     // list returns contains modified list of attachments, i.e. new 
     // and old attachments. This list will be 
     // persisted to DB if user hit Save on the Item Modifying page.
-    List list = prepareItemAttachment(itemData, isEditPendingAssessmentFlow);
+    List list = prepareItemAttachment(loadItem(isEditPendingAssessmentFlow), isEditPendingAssessmentFlow);
     setAttachmentList(list);
   }
 
@@ -1204,9 +1227,13 @@ public class ItemAuthorBean
     if (attachmentList == null){
       return list;
     }
-    for (int i=0; i<attachmentList.size(); i++){
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    final ItemFacade item = loadItem(author.getIsEditPendingAssessmentFlow());
+    boolean itemEdited = false;
+    Iterator<AttachmentIfc> i = attachmentList.iterator();
+    while ( i.hasNext() ) {
       ContentResource cr = null;
-      AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+      AttachmentIfc attach = i.next();
       try{
         log.debug("*** resourceId="+attach.getResourceId());
         cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
@@ -1220,8 +1247,9 @@ public class ItemAuthorBean
           // use case: user remove resource in file picker, then exit modification without
           // proper cancellation by clicking at the left nav instead of "cancel".
           // Also in this use case, any added resource would be left orphan.
-          AssessmentService assessmentService = new AssessmentService();
-          assessmentService.removeItemAttachment(attach.getAttachmentId().toString());
+          item.removeItemAttachmentById(attach.getAttachmentId());
+          i.remove();
+          itemEdited = true;
       }
       catch (TypeException e) {
     	  log.warn("ContentHostingService.getResource() throws TypeException="+e.getMessage());
@@ -1231,6 +1259,10 @@ public class ItemAuthorBean
         log.debug("*** ref="+ref);
         if (ref !=null ) list.add(ref);
       }
+    }
+    if ( itemEdited ) {
+      final ItemService itemService = loadItemService(author.getIsEditPendingAssessmentFlow());
+      itemService.saveItem(item);
     }
     return list;
   }
@@ -1243,8 +1275,8 @@ public class ItemAuthorBean
       if (item != null){
         attachmentSet = item.getItemAttachmentSet();
       }
-      HashMap map = getResourceIdHash(attachmentSet);
-      ArrayList newAttachmentList = new ArrayList();
+      Map map = getResourceIdHash(attachmentSet);
+      List newAttachmentList = new ArrayList();
       
       AssessmentService assessmentService = new AssessmentService();
       String protocol = ContextUtil.getProtocol();
@@ -1287,8 +1319,8 @@ public class ItemAuthorBean
     else return item.getItemAttachmentList();
   }
 
-  private HashMap getResourceIdHash(Set attachmentSet){
-    HashMap map = new HashMap();
+  private Map getResourceIdHash(Set attachmentSet){
+    Map map = new HashMap();
     if (attachmentSet !=null ){
       Iterator iter = attachmentSet.iterator();
       while (iter.hasNext()){
@@ -1299,19 +1331,19 @@ public class ItemAuthorBean
     return map;
   }
 
-  private HashMap resourceHash = new HashMap();
-  public HashMap getResourceHash() {
+  private Map resourceHash = new HashMap();
+  public Map getResourceHash() {
       return resourceHash;
   }
 
-  public void setResourceHash(HashMap resourceHash)
+  public void setResourceHash(Map resourceHash)
   {
       this.resourceHash = resourceHash;
   }
   
   private void prepareMCcorrAnswers() {
 	  if (Long.valueOf(currentItem.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT) || Long.valueOf(currentItem.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
-		  ArrayList multipleChoiceAnswers = currentItem.getMultipleChoiceAnswers();
+		  List multipleChoiceAnswers = currentItem.getMultipleChoiceAnswers();
 		  if (multipleChoiceAnswers == null) {
 			  return;
 		  }
@@ -1345,12 +1377,11 @@ public class ItemAuthorBean
 			try {
 				ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext());
-				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+				resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				
 				ContentCollectionEdit edit = (ContentCollectionEdit)AssessmentService.getContentHostingService().addCollection(collectionId, resourceProperties);
 				
-				edit.setPublicAccess();
-				AssessmentService.getContentHostingService().commitCollection(edit);
+				AssessmentService.getContentHostingService().setPubView(collectionId,true);
 			}catch(Exception ee){
 				log.warn(ee.getMessage());
 			}
@@ -1360,15 +1391,14 @@ public class ItemAuthorBean
 		}
 
 		try {
-			if(/*!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || */!AssessmentService.getContentHostingService().isPubView(collectionId))
+			if(!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || !AssessmentService.getContentHostingService().isPubView(collectionId))
 			{
 			
 				ContentCollectionEdit edit = AssessmentService.getContentHostingService().editCollection(collectionId);
 				ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
-				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
-
+				resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				edit.setPublicAccess();
-				
+
 				AssessmentService.getContentHostingService().commitCollection(edit);
 				
 			}
@@ -1441,7 +1471,7 @@ public class ItemAuthorBean
 			
 			AssessmentService.getContentHostingService().addResource(collectionId+fullname, mimeType, mediaByte, resourceProperties, NotificationService.NOTI_NONE);
 		}catch(Exception e)	{
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 		finally {
 			SecurityService.popAdvisor();
@@ -1547,11 +1577,34 @@ public class ItemAuthorBean
 	  if(allowMinScore == null){
 		  allowMinScore = ServerConfigurationService.getBoolean("samigo.allowMinScore", Boolean.FALSE);
 	  }
+      log.debug("Allow min score: {}", allowMinScore);
 	  return allowMinScore;
   }
 
   public void setAllowMinScore(Boolean allowMinScore) {
 	  this.allowMinScore = allowMinScore;
   }
+
+  public boolean getDeleteTagsAllowed() {
+    AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (authorizationBean.isSuperUser()) {
+      return true;
+    }else {
+      return ServerConfigurationService.getBoolean("samigo.author.allowDeleteTags", true);
+    }
+  }
+
+    public boolean getMultiTagsSingleQuestion() {
+            return ServerConfigurationService.getBoolean("samigo.author.multitag.singlequestion", false);
+    }
+
+    public boolean getMultiTagsSingleQuestionCheck() {
+        AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+        if (authorizationBean.isSuperUser()) {
+            return true;
+        }else {
+            return (ServerConfigurationService.getBoolean("samigo.author.multitag.singlequestion.check", false) && !getMultiTagsSingleQuestion());
+        }
+    }
 
 }

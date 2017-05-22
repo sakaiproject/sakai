@@ -13,10 +13,7 @@
   <name>content-metadata-impl</name>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content-metadata-impl</artifactId>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target/>
-  </properties>
+  <packaging>sakai-component</packaging>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -38,19 +35,9 @@
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
     </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
 	  <dependency>
 		  <groupId>commons-lang</groupId>
 		  <artifactId>commons-lang</artifactId>
 	  </dependency>
-    <dependency>
-    	<groupId>junit</groupId>
-    	<artifactId>junit</artifactId>
-    	<version>4.10</version>
-    	<scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

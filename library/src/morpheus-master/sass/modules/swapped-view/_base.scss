@@ -1,0 +1,20 @@
+@if $swapped-view-enabled {
+	.#{$namespace}portalWrapper{
+		color: $swapped-view-text-color;
+		&.swapped-view{
+			.#{$namespace}topHeader{
+				background: $swapped-view-primary;
+			}
+			.#{$namespace}siteHierarchy{
+				background: $background-color-secondary;
+				color: $background-color;
+				a {
+					color: $background-color;
+				}
+			}
+			.#{$namespace}mainHeader.is-maximized .siteNavWrap{
+				background: $swapped-view-sites-nav-background;
+			}
+		}
+	}
+}

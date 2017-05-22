@@ -38,8 +38,8 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.PeriodAxis;
@@ -96,7 +96,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class ChartServiceImpl implements ChartService {
 	/** Static fields */
-	private static Log				LOG									= LogFactory.getLog(EventRegistryServiceImpl.class);
+	private static Logger				LOG									= LoggerFactory.getLogger(EventRegistryServiceImpl.class);
 	private static ResourceLoader	msgs								= new ResourceLoader("Messages");
 	private static final int		MIN_CHART_WIDTH_TO_DRAW_ALL_DAYS	= 640;
 
@@ -886,7 +886,7 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private AbstractDataset getCategoryDataset(Report report) {
-		List<Stat> reportData = report.getReportData();
+		List<? extends Stat> reportData = report.getReportData();
 		
 		// fill dataset
 		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
@@ -939,7 +939,7 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private AbstractDataset getPieDataset(Report report) {
-		List<Stat> reportData = report.getReportData();
+		List<? extends Stat> reportData = report.getReportData();
 		
 		// fill dataset
 		DefaultPieDataset dataSet = new DefaultPieDataset();
@@ -1010,7 +1010,7 @@ public class ChartServiceImpl implements ChartService {
 	}
 	
 	private AbstractDataset getTimeSeriesCollectionDataset(Report report) {
-		List<Stat> reportData = report.getReportData();
+		List<? extends Stat> reportData = report.getReportData();
 		
 		// fill dataset
 		TimeSeriesCollection dataSet = new TimeSeriesCollection();

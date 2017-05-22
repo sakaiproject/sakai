@@ -27,8 +27,8 @@ import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  * Provides data for the instructor's view of a student's grades in the gradebook.
  */
 public class InstructorViewBean extends ViewByStudentBean implements Serializable {
-	private static Log logger = LogFactory.getLog(InstructorViewBean.class);
+	private static Logger logger = LoggerFactory.getLogger(InstructorViewBean.class);
 
 	private EnrollmentRecord previousStudent;
 	private EnrollmentRecord nextStudent;

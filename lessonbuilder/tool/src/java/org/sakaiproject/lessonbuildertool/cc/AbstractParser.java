@@ -46,6 +46,8 @@ package org.sakaiproject.lessonbuildertool.cc;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
@@ -60,6 +62,7 @@ import java.io.StringBufferInputStream;
 
 public abstract class AbstractParser {
 
+  private static final Logger log = LoggerFactory.getLogger(AbstractParser.class);
   private static final String RESOURCE_QUERY="ims:resource[@identifier='xxx']";
   private static final String MD_ROOT="lom";
   private static final String METADATA="metadata";
@@ -95,7 +98,7 @@ public abstract class AbstractParser {
   public void
   processDependencies(DefaultHandler the_handler,
                       Element the_resource) throws ParseException {
-      for (Iterator iter=the_resource.getChildren(DEPENDENCY, the_handler.getNs().cc_ns()).iterator(); iter.hasNext();) {
+      for (Iterator iter=the_resource.getChildren(DEPENDENCY, the_handler.getNs().getNs()).iterator(); iter.hasNext();) {
       String target=((Element)iter.next()).getAttributeValue(IDREF);
       Element resource=findResource(the_handler.getNs(),target,the_resource.getParentElement());
       the_handler.startDependency(the_resource.getAttributeValue(ID),target);
@@ -107,18 +110,18 @@ public abstract class AbstractParser {
   public void
   processFiles(DefaultHandler the_handler,
                Element the_resource) {
-      for (Iterator iter=the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).iterator(); iter.hasNext();) {
-      the_handler.addFile(((Element)iter.next()).getAttributeValue(HREF));
-    }
+	  for (Iterator iter=the_resource.getChildren(FILE, the_handler.getNs().getNs()).iterator(); iter.hasNext();) {
+		  the_handler.addFile((Element)iter.next());
+	  }
   }
-  
+
   public void
   processResourceMetadata(DefaultHandler the_handler,
                           Element the_resource) throws ParseException {
-      Element md = the_resource.getChild(METADATA, the_handler.getNs().cc_ns());
+      Element md = the_resource.getChild(METADATA, the_handler.getNs().getNs());
       if (md != null) {
 	 the_handler.checkCurriculum(md);
-	 md=the_resource.getChild(METADATA, the_handler.getNs().cc_ns()).getChild(MD_ROOT, the_handler.getNs().lom_ns());
+	 md=the_resource.getChild(METADATA, the_handler.getNs().getNs()).getChild(MD_ROOT, the_handler.getNs().lom_ns());
 	 if (md!=null) {    
 	     the_handler.setResourceMetadataXml(md);
 	 }
@@ -157,9 +160,9 @@ public abstract class AbstractParser {
       } catch (Exception e) {
 	  e.printStackTrace();
           if (the_resource == null)
-              System.out.println("processresouce the item null");
+              log.info("processresouce the item null");
           else
-              System.out.println("processresource failed " + the_resource.getAttributeValue(ID));
+              log.info("processresource failed " + the_resource.getAttributeValue(ID));
 
       };
   }
@@ -170,7 +173,7 @@ public abstract class AbstractParser {
     try {
       String query=RESOURCE_QUERY.replaceFirst("xxx", the_identifier);
       XPath path=XPath.newInstance(query);
-      path.addNamespace(ns.cc_ns());
+      path.addNamespace(ns.getNs());
       result= (Element)path.selectSingleNode(the_resources);
     } catch (JDOMException e) {
       throw new ParseException(e.getMessage(),e);

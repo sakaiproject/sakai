@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -36,11 +36,6 @@
       <groupId>org.sakaiproject.login</groupId>
       <artifactId>login-api</artifactId>
      </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      
-    </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>

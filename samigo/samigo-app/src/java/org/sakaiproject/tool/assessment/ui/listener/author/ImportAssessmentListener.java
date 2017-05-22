@@ -24,12 +24,14 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -54,7 +56,7 @@ public class ImportAssessmentListener implements ActionListener
 	
 	// This listener doesn't seem to be used by any JSF pages, or called by any java code. 
 
-  private static Log log = LogFactory.getLog(ImportAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(ImportAssessmentListener.class);
   private static final String f = "sample12Assessment.xml";
 //  private static final String f = "sample12Assessment2.xml";
 //  private static final String f = "respondus_IMS_QTI_sample12Assessment.xml";
@@ -100,7 +102,7 @@ public class ImportAssessmentListener implements ActionListener
 
     // update core AssessmentList: get the managed bean, author and set the list
       AssessmentService assessmentService = new AssessmentService();
-      ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
+      List list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
     //
       author.setAssessments(list);

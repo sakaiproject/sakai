@@ -17,10 +17,10 @@
 		#if($!{item.isMissing("content")})
 			<p class="shorttext validation">
 		#else
-			<p class="shorttext">
+			<p class="form-group">
 		#end
 			<label for="content">$tlang.getString("label.page")</label>
-			<input type="text" name="page" id="page" size="60" value="$!validator.escapeHtml("$!page")" />
+			<input class="form-control" type="text" name="page" id="page" value="$!validator.escapeHtml("$!page")" />
 		</p>
 		<p class="act">
 			<input type="submit" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doMakeSitePage")';submitform('addContentForm');" value="$tlang.getString("button.addpage")" accesskey="s" />

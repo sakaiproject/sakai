@@ -42,12 +42,12 @@ import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class UploadFilter implements Filter {
-  private static Log log = LogFactory.getLog(UploadFilter.class);
+  private static Logger log = LoggerFactory.getLogger(UploadFilter.class);
 
    private int sizeThreshold = -1;
    private long sizeMax = -1;

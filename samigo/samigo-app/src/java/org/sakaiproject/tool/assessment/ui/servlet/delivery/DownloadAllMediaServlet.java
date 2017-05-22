@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -73,7 +73,7 @@ public class DownloadAllMediaServlet extends HttpServlet
 	 * 
 	 */
 	private static final long serialVersionUID = 1465451058167004991L;
-	private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
+	private static Logger log = LoggerFactory.getLogger(DownloadAllMediaServlet.class);
 	private GradingService gradingService = new GradingService();
 
   public DownloadAllMediaServlet()
@@ -90,7 +90,8 @@ public class DownloadAllMediaServlet extends HttpServlet
       throws ServletException, IOException
   {
     String publishedItemId = req.getParameter("publishedItemId");
-    log.debug("publishedItemId = " + publishedItemId);
+    String publishedId  = req.getParameter("publishedId");
+    log.debug("publishedItemId = " + publishedItemId + " publishedId = " + publishedId);
     
     // who can access the zip file? You can,
     // if you have a assessment.grade.any or assessment.grade.own permission
@@ -110,7 +111,7 @@ public class DownloadAllMediaServlet extends HttpServlet
     String assessmentCreatedBy = req.getParameter("createdBy");
     
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet("authorization", req, res);
-    if (authzBean.isUserAllowedToGradeAssessment(publishedItemId, assessmentCreatedBy, true)) {
+    if (authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentCreatedBy, true, currentSiteId)) {
     	accessDenied = false;
     }
     

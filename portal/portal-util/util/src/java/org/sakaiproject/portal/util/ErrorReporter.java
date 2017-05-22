@@ -36,8 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
@@ -66,7 +66,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class ErrorReporter
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ErrorReporter.class);
+	private static Logger M_log = LoggerFactory.getLogger(ErrorReporter.class);
 
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-util");
@@ -244,7 +244,7 @@ public class ErrorReporter
 	}
 
 	/**
-	 * Log and email the error report details.
+	 * Logger and email the error report details.
 	 * 
 	 * @param usageSessionId
 	 *        The end-user's usage session id.

@@ -32,3 +32,32 @@
   border: 3px dashed #CCC;
   height: 45px;
 }
+
+/* Bootstrap > Morpheus overrides */
+.checkbox input[type="checkbox"][disabled],
+.radio input[type="radio"][disabled]{
+  background-color: #eee;
+}
+.checkbox input[type="checkbox"][disabled]+span,
+.radio input[type="radio"][disabled]+span,
+.checkbox input[type="checkbox"][disabled]+label,
+.radio input[type="radio"][disabled]+label{
+  color: #999;
+}
+
+/* reset the padding and add to link instead, to make whole div clickable. See #3756 */
+.panel-heading {
+    padding:0 !important;
+}
+
+.panel-heading > .panel-title > a {
+    display: inline-block;
+    height: 100%;
+    width: 100%;
+    padding: 10px 15px;
+}
+
+.gb-schema-chart {
+	margin-left: 4em;
+	margin-top: 2em;
+}

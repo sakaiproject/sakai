@@ -14,7 +14,7 @@
 		<h:commandButton styleClass="button_search" value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>
 		
 		<f:verbatim><span id='adv_button'></f:verbatim>
-		  <h:commandLink styleClass="button" value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');setMainFrameHeight('#{PrivateMessagesTool.placementId}');" title="#{msgs.pvt_advsearch}"/>
+		  <h:commandButton styleClass="button_search" value="#{msgs.pvt_advsearch}" onmousedown="javascript:toggleDisplay('adv_input','adv_button');setMainFrameHeight('#{PrivateMessagesTool.placementId}');" title="#{msgs.pvt_advsearch}"/>
 		<f:verbatim></span></f:verbatim>
 		<f:verbatim></div></f:verbatim>
   </h:panelGroup>
@@ -28,9 +28,9 @@
 			<h:outputText value=" " />
 			<h:outputText value=" " />
 			<h:panelGroup styleClass="itemNav specialLink">
-	      <h:commandLink styleClass="button" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" onkeypress="document.forms[0].submit;"
+	      	<h:commandButton styleClass="button_search" value="#{msgs.pvt_clear_search}" action="#{PrivateMessagesTool.processClearSearch}" onkeypress="document.forms[0].submit;"
 	                     title="#{msgs.pvt_clear_search}"/>
-				<h:commandLink  styleClass="button" value="#{msgs.pvt_normal_search}" onmousedown="javascript:toggleDisplay('adv_button','adv_input');" 
+				<h:commandButton  styleClass="button_search" value="#{msgs.pvt_normal_search}" onmousedown="javascript:toggleDisplay('adv_button','adv_input');" 
 				               title="#{msgs.pvt_normal_search}" />
 			</h:panelGroup>
 			<%-- gsilver:jsf problem - all these h:selectBooleanCheckbox produce input[type="checkbox"] missing name and/or value attributes--%>

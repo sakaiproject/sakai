@@ -47,6 +47,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 
 import javax.jws.WebMethod;
@@ -88,6 +89,7 @@ public class AbstractWebService {
     protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
     protected ActivityService activityService;
     protected QuestionPoolServiceAPI questionPoolServiceImpl;
+    protected LessonBuilderAccessAPI lessonBuilderAccessAPI;
 
     
     @WebMethod(exclude = true)
@@ -267,4 +269,10 @@ public class AbstractWebService {
     public void setQuestionPoolServiceImpl(QuestionPoolServiceAPI questionPoolServiceImpl) {
         this.questionPoolServiceImpl = questionPoolServiceImpl;
     }
+
+    @WebMethod(exclude = true)
+    public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI lessonBuilderAccessAPI) {
+        this.lessonBuilderAccessAPI = lessonBuilderAccessAPI;
+    }
+
 }

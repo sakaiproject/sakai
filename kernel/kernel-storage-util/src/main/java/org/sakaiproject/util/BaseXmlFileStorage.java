@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -53,7 +53,7 @@ import org.w3c.dom.NodeList;
 public class BaseXmlFileStorage
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseXmlFileStorage.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseXmlFileStorage.class);
 
 	/**
 	 * Holds the container object, a table of the resources contained.

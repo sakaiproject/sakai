@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -41,7 +41,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  */
 public class CourseGradesToSpreadsheetConverterDefault implements CourseGradesToSpreadsheetConverter {
 
-	private static final Log log = LogFactory.getLog(CourseGradesToSpreadsheetConverterDefault.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseGradesToSpreadsheetConverterDefault.class);
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.gradebook.CourseGradesConverter#getSpreadsheetData(java.util.List, org.sakaiproject.tool.gradebook.CourseGrade, java.util.Map)

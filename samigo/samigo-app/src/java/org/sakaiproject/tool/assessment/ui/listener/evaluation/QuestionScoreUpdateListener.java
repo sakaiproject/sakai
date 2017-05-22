@@ -37,10 +37,19 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.util.MathUtils;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.math3.util.Precision;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Object;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -51,6 +60,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
@@ -67,7 +77,9 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 public class QuestionScoreUpdateListener
   implements ActionListener
 {
-  private static Log log = LogFactory.getLog(QuestionScoreUpdateListener.class);
+  private static Logger log = LoggerFactory.getLogger(QuestionScoreUpdateListener.class);
+  private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
+
   //private static EvaluationListenerUtil util;
   //private static BeanSort bs;
   //private static ContextUtil cu;
@@ -191,7 +203,7 @@ public class QuestionScoreUpdateListener
           logString.append(data.getItemGradingId());
           
           // if newAutoScore != oldAutoScore
-          if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001))) {
+          if (!(Precision.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001))) {
         	data.setAutoScore(Double.valueOf(newAutoScore));
         	logString.append(", newAutoScore=");
             logString.append(newAutoScore);
@@ -207,13 +219,17 @@ public class QuestionScoreUpdateListener
           }
           
           // if newAutoScore != oldAutoScore or newComments != oldComments
-          if (!(MathUtils.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) || !newComments.equals(oldComments)){
+          if (!(Precision.equalsIncludingNaN(newAutoScore, oldAutoScore, 0.0001)) || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
             String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();
             String safeString = targetString.length() > 255 ? targetString.substring(0, 255) : targetString;
-            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", safeString, true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
+            //Need this again for the total score, it might be better if updateItemScore returned this object
+            AssessmentGradingData adata = delegate.load(data.getAssessmentGradingId().toString(),false);
+            eventTrackingService.post(eventTrackingService.newEvent(
+            		SamigoConstants.EVENT_ASSESSMENT_QUESTION_SCORE_UPDATE,safeString, AgentFacade.getCurrentSiteId(), 
+            		true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForQuestionScoreUpdate(adata, tbean.getPublishedAssessment(), newAutoScore, oldAutoScore)));
           }
           
           if (!hasUpdateAttachment) {
@@ -260,7 +276,7 @@ public class QuestionScoreUpdateListener
 	  GradingService gradingService = new GradingService();
 	  if (attachmentList.size() > 0) {
 			gradingService.saveOrUpdateAttachments(attachmentList);
-			EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
+			eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, 
 					"siteId=" + AgentFacade.getCurrentSiteId() + ", Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
 					true));
 		}
@@ -271,7 +287,7 @@ public class QuestionScoreUpdateListener
 	  while (iter.hasNext()){
 		  Long attachmentId = (Long)iter.next();
 		  gradingService.removeItemGradingAttachment(attachmentId.toString());
-		  EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
+		  eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, 
 				  "siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
 	  }
 	  bean.setIsAnyItemGradingAttachmentListModified(true);

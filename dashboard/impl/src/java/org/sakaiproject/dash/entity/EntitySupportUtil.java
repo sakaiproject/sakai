@@ -23,8 +23,8 @@ package org.sakaiproject.dash.entity;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.event.api.Event;
@@ -36,7 +36,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class EntitySupportUtil{
 	
-	private Log logger = LogFactory.getLog(EntitySupportUtil.class);
+	private Logger logger = LoggerFactory.getLogger(EntitySupportUtil.class);
 	
 	static ResourceLoader rl = new ResourceLoader("dash_entity");
 	

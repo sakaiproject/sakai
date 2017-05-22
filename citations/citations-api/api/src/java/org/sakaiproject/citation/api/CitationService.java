@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.osid.repository.Asset;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 
 import org.sakaiproject.citation.api.Citation;
@@ -190,6 +191,18 @@ public interface CitationService extends EntityProducer
      * @param citation
      */
     public void save(Citation citation);
+    
+    /**
+     * Creates a duplicate of the citation.
+     * @param citation The citation to copy.
+     */
+    public Citation copyCitation(Citation citation);
+    
+	/**
+	 * This method copies a collection and all the citations it contains.
+	 * @param reference The reference of the content resource to copy
+	 */
+	public void copyCitationCollection(Reference reference);
 
 	/**
      * 
@@ -242,5 +255,24 @@ public interface CitationService extends EntityProducer
 	 * @param citationCollectionId
 	 */
 	public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
+
+	/**
+	 ** Gets a citation collection including nested and unnested citations
+	 * @param citationCollectionId
+	 */
+	public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId);
+
+	/**
+	 ** Gets next id in citation collection order table for a collection
+	 * @param collectionId
+	 */
+	public String getNextCitationCollectionOrderId(String collectionId);
+	/**
+	 ** Gets a citation collection order
+	 * @param id
+	 * @param locationId
+	 */
+	public CitationCollectionOrder getCitationCollectionOrder(String id, int locationId);
+
 }	// interface CitationService
 

@@ -33,8 +33,8 @@ import javax.faces.event.ActionListener;
 import javax.faces.application.FacesMessage;
 
 import javax.faces.context.FacesContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -54,7 +54,7 @@ import org.sakaiproject.tool.assessment.util.TextFormat;
 public class PoolSaveListener implements ActionListener
 {
 
-  private static Log log = LogFactory.getLog(PoolSaveListener.class);
+  private static Logger log = LoggerFactory.getLogger(PoolSaveListener.class);
   //private static ContextUtil cu;
 
 
@@ -180,7 +180,7 @@ public class PoolSaveListener implements ActionListener
 
       //  System.out.println( "SAVE - POOLSOURCE= "+qpbean.getAddPoolSource());
       //where do you get value from addPoolSource?  It always return null though.
-      if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome())) {
+      if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome()) && (qpbean.getOutcomePool() > 0) ) {
     // so reset subpools tree
 //    QuestionPoolFacade thepool= delegate.getPool(parentid, AgentFacade.getAgentString());
 //    qpbean.getCurrentPool().setNumberOfSubpools(thepool.getSubPoolSize().toString());
@@ -193,7 +193,7 @@ public class PoolSaveListener implements ActionListener
       currentPool.setDescription(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getDescription()));
       currentPool.setObjectives(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getObjectives()));
       currentPool.setKeywords(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpbean.getParentPool().getKeywords()));
-      ArrayList addedPools = qpbean.getAddedPools();
+      List addedPools = qpbean.getAddedPools();
       if (addedPools == null) {
     	  addedPools = new ArrayList();
       }

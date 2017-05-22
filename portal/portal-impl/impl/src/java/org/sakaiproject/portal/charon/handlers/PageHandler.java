@@ -33,8 +33,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -42,13 +40,15 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.portal.util.URLUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
@@ -60,7 +60,7 @@ public class PageHandler extends BasePortalHandler
 
 	private static final String INCLUDE_PAGE = "include-page";
 
-	private static final Log log = LogFactory.getLog(PageHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(PageHandler.class);
 
 	private static final String URL_FRAGMENT = "page";
         
@@ -158,7 +158,7 @@ public class PageHandler extends BasePortalHandler
 
 		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + page.getTitle();
 
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response
@@ -227,14 +227,11 @@ public class PageHandler extends BasePortalHandler
 
 					if (site != null)
 					{
-						boolean thisTool = portal.getSiteHelper().allowTool(site,
-								placement);
-						// System.out.println(" Allow Tool Display -" +
-						// placement.getTitle() + " retval = " + thisTool);
-						if (!thisTool) continue; // Skip this tool if not
-						// allowed
+						boolean thisTool = portal.getSiteHelper().allowTool(site,placement);
+						if (!thisTool) continue; // Skip this tool if not allowed
 					}
 
+					//Get the tool data map.
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{
@@ -259,6 +256,8 @@ public class PageHandler extends BasePortalHandler
 					boolean thisTool = portal.getSiteHelper().allowTool(site,
 								placement);
 					if (!thisTool) continue; // Skip this tool if not allowed
+					
+					//Get the tool data map.
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{

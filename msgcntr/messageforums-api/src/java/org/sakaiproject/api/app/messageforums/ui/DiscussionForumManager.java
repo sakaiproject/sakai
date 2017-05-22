@@ -597,6 +597,7 @@ public interface DiscussionForumManager
   */
   public Set<String> getUsersAllowedForTopic(Long topicId, boolean checkReadPermission, boolean checkModeratePermission);
 
+  public List getRecentDiscussionForumThreadsByTopicIds(List<Long> topicIds, int numberOfMessages);
   /** gets all topics within a site */
   public List<Topic> getTopicsInSite(final String contextId);
 

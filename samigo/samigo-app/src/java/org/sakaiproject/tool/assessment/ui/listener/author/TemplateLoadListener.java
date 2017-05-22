@@ -24,27 +24,23 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.text.SimpleDateFormat;
-import java.util.Map;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -60,7 +56,7 @@ public class TemplateLoadListener
     extends TemplateBaseListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(TemplateLoadListener.class);
+  private static Logger log = LoggerFactory.getLogger(TemplateLoadListener.class);
   static private ContextUtil cu;
   /**
    * Normal listener method.
@@ -126,6 +122,8 @@ public class TemplateLoadListener
           templateBean.setQuestionNumbering(aac.getItemNumbering().toString());
         if (aac.getDisplayScoreDuringAssessments() != null)
             templateBean.setDisplayScoreDuringAssessments(aac.getDisplayScoreDuringAssessments().toString());
+        if (aac.getHonorPledge() != null)
+            templateBean.setHonorPledge(aac.getHonorPledge());
         
         if (aac.getMarkForReview() != null) {
         	if (aac.getMarkForReview().equals(Integer.valueOf(1))) {
@@ -152,6 +150,9 @@ public class TemplateLoadListener
         }
         if (aac.getLateHandling() != null)
           templateBean.setLateHandling(aac.getLateHandling().toString());
+        if (aac.getInstructorNotification() != null) {
+          templateBean.setInstructorNotification(aac.getInstructorNotification().toString());
+        }
         if (aac.getAutoSubmit() != null && aac.getAutoSubmit().intValue() == 1) {
         		templateBean.setAutomaticSubmission(Boolean.TRUE);
         	}

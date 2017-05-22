@@ -33,8 +33,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -49,7 +49,7 @@ import org.springframework.core.io.Resource;
 public class ComponentsLoader
 {
 	/** Our logger */
-	private static Log M_log = LogFactory.getLog(ComponentsLoader.class);
+	private static Logger M_log = LoggerFactory.getLogger(ComponentsLoader.class);
 
 	/** Folder containing override definitions for beans */
 	private File overridesFolder;

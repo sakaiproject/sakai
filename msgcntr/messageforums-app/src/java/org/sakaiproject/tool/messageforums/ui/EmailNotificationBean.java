@@ -1,13 +1,13 @@
 package org.sakaiproject.tool.messageforums.ui;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.EmailNotification;
 
  
 public class EmailNotificationBean {
 
-	private static final Log LOG = LogFactory.getLog(EmailNotificationBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EmailNotificationBean.class);
 	private EmailNotification emailNotification;
 
 	public EmailNotificationBean(EmailNotification curroption){

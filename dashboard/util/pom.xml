@@ -16,10 +16,6 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
-
-		<!-- project dependencies -->
-
-		<!-- Sakai dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>

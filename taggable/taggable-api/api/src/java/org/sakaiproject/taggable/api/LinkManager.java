@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.taggable.api.Link;
 
 public interface LinkManager
 {
@@ -110,7 +109,7 @@ public interface LinkManager
 	 *             Exception thrown if current user doesn't have permission to
 	 *             perform this action.
 	 */
-	public List<Link> getLinks(String activityRef, boolean any, String toContext)
+	public List getLinks(String activityRef, boolean any, String toContext)
 			throws PermissionException;
 	
 	/**

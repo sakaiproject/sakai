@@ -37,8 +37,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -75,7 +75,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 
 public class MnemeEntity implements LessonEntity, QuizEntity {
 
-    private static Log log = LogFactory.getLog(MnemeEntity.class);
+    private static Logger log = LoggerFactory.getLogger(MnemeEntity.class);
 
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -248,6 +248,10 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 
     public LessonEntity getEntity(String ref) {
 	int i = ref.indexOf("/",1);
+	if (i < 1 && i < ref.length()) {
+		// We didn't find it.
+		return null;
+	}
 	String typeString = ref.substring(1, i);
 	String id = ref.substring(i+1);
 

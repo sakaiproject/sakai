@@ -1,9 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+
 <body>
 <wicket:extend>
   
-	<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
+	<div class="row">
+		<div class="col-sm-12">
+			<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
+			<button type="button" class="btn btn-info btn-xs gb-summary-print pull-right"><wicket:message key="button.print" /></button>
+		</div>
+	</div>
 
 	<div wicket:id="summary" id="studentGradeSummary"></div>
 

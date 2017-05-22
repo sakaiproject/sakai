@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -61,11 +61,6 @@
       <artifactId>OkiOSID</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
-    </dependency>
-    <dependency>
     	<groupId>commons-lang</groupId>
     	<artifactId>commons-lang</artifactId>
     </dependency>
@@ -82,6 +77,31 @@
      <artifactId>jmock-junit3</artifactId>
       <version>2.5.1</version>
      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-legacy</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.jmock</groupId>
+        <artifactId>jmock-junit4</artifactId>
+        <version>2.5.1</version>
+        <scope>test</scope>
+        <!-- This is so that we only get one copy of junit. -->
+        <exclusions>
+            <exclusion>
+               <groupId>junit</groupId>
+               <artifactId>junit-dep</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
     <dependency>
      <groupId>org.springframework</groupId>
@@ -136,6 +156,7 @@
         <directory>${basedir}/src/test</directory>
         <includes>
           <include>**/*.xml</include>
+          <include>**/log4j.properties</include>
         </includes>
       </testResource>
     </testResources>

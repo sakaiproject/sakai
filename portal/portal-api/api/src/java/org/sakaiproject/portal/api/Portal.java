@@ -97,6 +97,11 @@ public interface Portal
 
 	public static final String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
 
+	/*
+	* Configuration option for default number of site tabs to display to users
+	*/
+	public static final String CONFIG_DEFAULT_TABS = "portal.default.tabs";
+
 	/**
 	 * Tool property used to indicate if JSR_168 tools are to be pre-rendered
 	 * as they are being placed in the context.

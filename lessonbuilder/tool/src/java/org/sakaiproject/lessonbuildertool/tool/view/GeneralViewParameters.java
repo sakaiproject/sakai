@@ -30,7 +30,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public static final int COMMENTS = 1;
 	public static final int STUDENT_CONTENT = 2;
 	public static final int STUDENT_PAGE = 3;
-	
+	public static final int CALENDAR = 4;
 	private String errorMessage = "";
 	private long sendingPage = -1;
 
@@ -54,6 +54,10 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public String author; // An author whose comments should be highlighted
 	public String addBefore = ""; // itemid to add a new item before that item
 	public String placementId = null;
+	//variables added to display forum conversation inside Lessons tool
+	public String messageId = "";
+	public String topicId = "";
+	public String forumId = "";
 
 	public GeneralViewParameters() {
 		super();
@@ -198,6 +202,27 @@ public class GeneralViewParameters extends SimpleViewParameters {
 		return placementId;
 	}
 
+	public String getMessageId() {
+		return messageId;
+	}
 
+	public void setMessageId(String messageId) {
+		this.messageId = messageId;
+	}
 
+	public String getTopicId() {
+		return topicId;
+	}
+
+	public void setTopicId(String topicId) {
+		this.topicId = topicId;
+	}
+
+	public String getForumId() {
+		return forumId;
+	}
+
+	public void setForumId(String forumId) {
+		this.forumId = forumId;
+	}
 }

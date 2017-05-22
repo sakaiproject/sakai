@@ -33,10 +33,10 @@ import java.util.Map;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class GradingEvents implements Serializable {
-    protected Map studentsToEventsMap;
+    protected Map<String, List<GradingEvent>> studentsToEventsMap;
 
     public GradingEvents() {
-        studentsToEventsMap = new HashMap();
+        studentsToEventsMap = new HashMap<>();
     }
 
     /**
@@ -45,25 +45,15 @@ public class GradingEvents implements Serializable {
      * @param studentId
      * @return
      */
-    public List getEvents(String studentId) {
-        List gradingEvents = (List)studentsToEventsMap.get(studentId);
-        if(gradingEvents == null) {
-            return new ArrayList();
-        } else {
-            return gradingEvents;
-        }
+    public List<GradingEvent> getEvents(String studentId) {
+        return studentsToEventsMap.get(studentId);
     }
 
     public void addEvent(GradingEvent event) {
         String studentId = event.getStudentId();
-        List list = (List)studentsToEventsMap.get(studentId);
-        if(list == null) {
-            list = new ArrayList();
-            studentsToEventsMap.put(studentId, list);
-        }
+        List<GradingEvent> list = studentsToEventsMap.computeIfAbsent(studentId, k -> new ArrayList<>());
         list.add(event);
     }
-
 }
 
 

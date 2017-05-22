@@ -39,8 +39,8 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -75,7 +75,7 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 	private static final long MAX_SAFE_SESSIONS_TABLE_SIZE = 2000000l;
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(UsageSessionServiceAdaptor.class);
+	private static Logger M_log = LoggerFactory.getLogger(UsageSessionServiceAdaptor.class);
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;

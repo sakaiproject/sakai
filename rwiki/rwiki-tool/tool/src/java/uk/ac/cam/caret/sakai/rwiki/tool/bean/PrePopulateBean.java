@@ -20,8 +20,8 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
 
@@ -33,7 +33,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
  */
 public class PrePopulateBean
 {
-	private static Log log = LogFactory.getLog(PrePopulateBean.class);
+	private static Logger log = LoggerFactory.getLogger(PrePopulateBean.class);
 
 	private PopulateService populateService;
 

@@ -18,9 +18,7 @@ update qrtz_job_details set is_nonconcurrent = is_stateful;
 update qrtz_job_details set is_update_data = is_stateful;
 alter table qrtz_job_details drop column is_stateful;
 alter table qrtz_fired_triggers add column is_nonconcurrent bool;
-alter table qrtz_fired_triggers add column is_update_data bool;
 update qrtz_fired_triggers set is_nonconcurrent = is_stateful;
-update qrtz_fired_triggers set is_update_data = is_stateful;
 alter table qrtz_fired_triggers drop column is_stateful;
 --
 -- add new 'sched_name' column to all tables

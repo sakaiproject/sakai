@@ -33,8 +33,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
@@ -63,7 +63,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * other URLs (e.g., "/test/login.jsf") pass through.
  */
 public class RoleFilter implements Filter {
-	private static Log logger = LogFactory.getLog(RoleFilter.class);
+	private static Logger logger = LoggerFactory.getLogger(RoleFilter.class);
 
 	private String authnServiceBeanName;
 	private String authzServiceBeanName;

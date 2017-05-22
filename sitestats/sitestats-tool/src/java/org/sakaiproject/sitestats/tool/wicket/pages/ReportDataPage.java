@@ -26,8 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -80,7 +80,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ReportDataPage extends BasePage {
 	private static final long			serialVersionUID	= 1L;
-	private static Log					LOG					= LogFactory.getLog(ReportDataPage.class);
+	private static Logger					LOG					= LoggerFactory.getLogger(ReportDataPage.class);
 
 	private String						realSiteId;
 	private String						siteId;
@@ -600,12 +600,12 @@ public class ReportDataPage extends BasePage {
 			out.write(hssfWorkbookBytes);
 			out.flush();
 		}catch(IOException e){
-			LOG.error(e);
+			LOG.error(e.getMessage());
 		}finally{
 			try{
 				if(out != null) out.close();
 			}catch(IOException e){
-				LOG.error(e);
+				LOG.error(e.getMessage());
 			}
 		}
 	}
@@ -626,12 +626,12 @@ public class ReportDataPage extends BasePage {
 			out.write(csvString.getBytes());
 			out.flush();
 		}catch(IOException e){
-			LOG.error(e);
+			LOG.error(e.getMessage());
 		}finally{
 			try{
 				if(out != null) out.close();
 			}catch(IOException e){
-				LOG.error(e);
+				LOG.error(e.getMessage());
 			}
 		}
 	}
@@ -652,12 +652,12 @@ public class ReportDataPage extends BasePage {
 			out.write(pdf);
 			out.flush();
 		}catch(IOException e){
-			LOG.error(e);
+			LOG.error(e.getMessage());
 		}finally{
 			try{
 				if(out != null) out.close();
 			}catch(IOException e){
-				LOG.error(e);
+				LOG.error(e.getMessage());
 			}
 		}
 	}

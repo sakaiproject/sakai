@@ -56,3 +56,4 @@ include file for displaying matrix choices question
  			<h:outputText value="#{question.commentField}" />
 		</h:panelGrid>
 		<f:verbatim><br /></f:verbatim>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>

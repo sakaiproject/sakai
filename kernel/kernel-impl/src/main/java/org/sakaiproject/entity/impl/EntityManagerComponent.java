@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -143,7 +143,7 @@ public class EntityManagerComponent implements EntityManager
 	}
 
 	/** Our logger. */
-	protected static final Log M_log = LogFactory.getLog(EntityManagerComponent.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(EntityManagerComponent.class);
 
 	/** Set of EntityProducer services. */
 	protected ConcurrentHashMap<String, EntityProducer> m_producersIn = new ConcurrentHashMap<String, EntityProducer>();

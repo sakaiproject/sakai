@@ -120,13 +120,14 @@ PASystemBannerAlerts.prototype.setupAlertBannerToggle = function() {
   var self = this;
 
   self.$toggle = $($("#pasystemBannerAlertsToggleTemplate").html().trim());
+
+  if ($('.Mrphs-siteHierarchy:visible').length > 0) {
+    // Place the notification in the breadcrumbs bar where it's out of the way
+    self.$toggle.css('top', ($('.Mrphs-siteHierarchy').offset().top) + 'px');
+  }
+
   self.$toggle.hide();
   $("#loginLinks").prepend(self.$toggle);
-
-  if ($("#roleSwitch").length > 0) {
-    var offset = 20 + $("#roleSwitch").width() + $("#roleSwitch").offset().left - self.$toggle.parent().offset().left;
-    self.$toggle.css("left", offset + "px");
-  }
 
   self.$toggle.on("click", function(event) {
     event.preventDefault();

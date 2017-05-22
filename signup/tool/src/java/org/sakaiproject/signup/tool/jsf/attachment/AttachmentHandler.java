@@ -30,8 +30,8 @@ import java.util.Set;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -57,7 +57,7 @@ import org.sakaiproject.tool.cover.SessionManager;
  */
 public class AttachmentHandler implements Serializable {
 
-	private static Log log = LogFactory.getLog(AttachmentHandler.class);
+	private static Logger log = LoggerFactory.getLogger(AttachmentHandler.class);
 
 	private List<SignupAttachment> attachments;
 

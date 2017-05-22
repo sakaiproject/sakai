@@ -1,0 +1,12 @@
+/* *************************************************************** *
+ *                      Gradebook Tool styles                      *
+ * *************************************************************** */
+ 
+ /* style applied to the UL rendered for a feedback panel */
+ ul.feedbackPanel {
+ 	list-style-type: none;
+ 	margin: 0;
+ }
+ ul.feedbackPanel li span {
+   display: block;
+ }

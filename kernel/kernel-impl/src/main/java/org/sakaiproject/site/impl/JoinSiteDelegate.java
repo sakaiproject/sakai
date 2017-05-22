@@ -6,9 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -34,7 +34,7 @@ public class JoinSiteDelegate
     private UserDirectoryService    userDirectoryService;
 
     // class members
-    private static Log          log                             = LogFactory.getLog(JoinSiteDelegate.class);
+    private static Logger          log                             = LoggerFactory.getLogger(JoinSiteDelegate.class);
     private static final String COMMA_DELIMITER					= ",";										// Comma delimiter (for csv parsing)
     private static final String JOINSITE_GROUP_NO_SELECTION		= "noSelection";							// The value of the joiner group site
 	private static final String SAK_PERM_SITE_UPD				= "site.upd";								// The name of the site update permission
@@ -339,8 +339,12 @@ public class JoinSiteDelegate
                     	}
                     	
                     	// try adding the user to the group
-                        site.getGroup(joinerGroupId).addMember(user.getId(), site.getJoinerRole(), true, false);
-                        siteService.saveGroupMembership(site);
+                        try {
+                            site.getGroup(joinerGroupId).insertMember(user.getId(), site.getJoinerRole(), true, false);
+                            siteService.saveGroupMembership(site);
+                        } catch (IllegalStateException e) {
+                            log.error(".addJoinerToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", user.getId(), site.getGroup(joinerGroupId).getId());
+                        }
                     }
                     catch(Exception e)
                     {

@@ -22,16 +22,14 @@
 
   <!-- Project versions -->
   <properties>
-    <commons-digester.version>1.6</commons-digester.version>
     <commons-betwixt.version>0.8</commons-betwixt.version>
-    <commons-beanutils.version>1.7.0</commons-beanutils.version>
-    <easymock.version>3.2</easymock.version>
+    <easymock.version>3.4</easymock.version>
     <h2.version>1.1.111</h2.version>
     <mysql.version>5.1.25</mysql.version>
     <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
     <fop.version>1.0</fop.version>
     <jfreechart.version>1.0.5</jfreechart.version>
-    <sst.wicket.version>6.20.0</sst.wicket.version>
+    <sst.wicket.version>6.26.0</sst.wicket.version>
   </properties>
 
   <!-- Project modules -->
@@ -40,7 +38,6 @@
     <module>sitestats-bundle</module>
     <module>sitestats-impl</module>
     <module>sitestats-impl-hib</module>
-    <module>sitestats-pack</module>
     <module>sitestats-tool</module>
   </modules>
 
@@ -61,23 +58,6 @@
       </modules>
     </profile>
   </profiles>
-
-  <!-- Source code repository location -->
-
-  <!-- Distribution Management -->
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url>
-    </site>
-  </distributionManagement>
-
-  <!-- JIRA -->
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
-  </issueManagement>
 
   <!-- Project related dependencies -->
   <dependencyManagement>
@@ -111,19 +91,9 @@
       </dependency>
       <!-- Apache Commons -->
       <dependency>
-        <groupId>commons-digester</groupId>
-        <artifactId>commons-digester</artifactId>
-        <version>${commons-digester.version}</version>
-      </dependency>
-      <dependency>
         <groupId>commons-betwixt</groupId>
         <artifactId>commons-betwixt</artifactId>
         <version>${commons-betwixt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils-core</artifactId>
-        <version>${commons-beanutils.version}</version>
       </dependency>
       <!-- Apache others -->
       <dependency>

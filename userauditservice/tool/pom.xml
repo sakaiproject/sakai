@@ -28,13 +28,13 @@
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
-	    <dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>userauditservice-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>userauditservice-util</artifactId>
+            <groupId>org.sakaiproject.jsf</groupId>
+            <artifactId>jsf-tool</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
@@ -54,6 +54,10 @@
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
     </dependencies>
 </project>

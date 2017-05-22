@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -38,14 +39,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -59,9 +57,11 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>
@@ -98,7 +98,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
 
-	protected Log logger = LogFactoryImpl.getLog(getClass());
+	protected Logger logger = LoggerFactory.getLogger(SignupUIBaseBean.class);
 
 	protected Boolean publishedSite;
 	
@@ -643,7 +643,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * @return	List<String> of eids.
 	 */
 	public List<String> getEidsForEmail(String email) {
-		List<User> users = sakaiFacade.getUsersByEmail(email);
+		Collection<User> users = sakaiFacade.getUsersByEmail(email);
 		
 		List<String> eids = new ArrayList<String>();
 		for(User u:users) {
@@ -699,6 +699,14 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return uuids;
 	}
 
+	/**
+	 * Determines if user has a valid session
+	 * @return if user has a valid session
+	 */
+	public boolean isSessionValid() {
+		return getMeetingWrapper() == null;
+	}
+
 	
 	/**
 	 * Helper to get a formatted string of all attendee email addresses for all tineslots
@@ -710,11 +718,13 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		Set<String> emails = new HashSet<String>();
 		
 		StringBuilder sb = new StringBuilder();
-		for (TimeslotWrapper tsWrapper : timeslotWrappers) {
-			for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
-				String email = atWrapper.getAttendeeEmail();
-				if(StringUtils.isNotBlank(email)){
-					emails.add(email);
+		if (timeslotWrappers!=null){
+			for (TimeslotWrapper tsWrapper : timeslotWrappers) {
+				for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
+					String email = atWrapper.getAttendeeEmail();
+					if(StringUtils.isNotBlank(email)){
+						emails.add(email);
+					}
 				}
 			}
 		}

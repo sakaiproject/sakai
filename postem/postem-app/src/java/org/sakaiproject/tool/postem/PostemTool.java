@@ -41,8 +41,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.myfaces.shared_impl.util.MessageUtils;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.GradebookManager;
@@ -139,7 +139,7 @@ public class PostemTool {
 
 	private AuthzGroupService authzGroupService;
 
-	private static final Log LOG = LogFactory.getLog(PostemTool.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PostemTool.class);
 	
 	public int getColumn() {
 		return column;

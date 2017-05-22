@@ -1,6 +1,5 @@
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,20 +10,20 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.AnonymousMapping;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 /**
  * @see org.sakaiproject.api.app.messageforums.AnonymousManager
@@ -32,7 +31,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class AnonymousManagerImpl extends HibernateDaoSupport implements AnonymousManager
 {
-	private static final Log LOG = LogFactory.getLog(AnonymousManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AnonymousManagerImpl.class);
 
 	// Padding used to enforce that anonIDs are always 6 characters
 	private final String ANON_ID_PADDING = "000000";
@@ -103,7 +102,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 
 		HibernateCallback<List<AnonymousMapping>> hcb = new HibernateCallback<List<AnonymousMapping>>()
 		{ 
-			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException, SQLException
+			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
 			{
 				List<AnonymousMapping> mappings = new ArrayList<>();
 				// be mindful of Oracle's 1000 in clause limit
@@ -112,7 +111,7 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 				while (minUser < userIds.size())
 				{
 					Query q = session.getNamedQuery(QUERY_BY_SITE_AND_USERS);
-					q.setParameter("siteId", siteId, Hibernate.STRING);
+					q.setParameter("siteId", siteId, StringType.INSTANCE);
 					q.setParameterList("userIds", userIds.subList(minUser, maxUser));
 					mappings.addAll(q.list());
 					minUser += MAX_IN_CLAUSE_SIZE;
@@ -132,10 +131,10 @@ public class AnonymousManagerImpl extends HibernateDaoSupport implements Anonymo
 
 		HibernateCallback<List<AnonymousMapping>> hcb = new HibernateCallback<List<AnonymousMapping>>()
 		{
-			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException, SQLException
+			public List<AnonymousMapping> doInHibernate(Session session) throws HibernateException
 			{
 				Query q = session.getNamedQuery(QUERY_BY_SITE);
-				q.setParameter("siteId", siteId, Hibernate.STRING);
+				q.setParameter("siteId", siteId, StringType.INSTANCE);
 				return q.list();
 			}
 		};

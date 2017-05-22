@@ -18,14 +18,16 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Locale;
+import java.util.Map;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 
-public class FakeServerConfigurationService implements ServerConfigurationService {
+public abstract class FakeServerConfigurationService implements ServerConfigurationService {
 	private Map<String,String> m = new HashMap<String,String>();
 	
 	public FakeServerConfigurationService() {
@@ -49,72 +51,17 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		m.remove(key);
 	}
 	
-	public String getAccessPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getAccessUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public boolean getBoolean(String key, boolean defaultValue) {
 		return Boolean.parseBoolean(getString(key, Boolean.toString(defaultValue)));
-	}
-
-	public List getDefaultTools(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getGatewaySiteId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getHelpUrl(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	public int getInt(String key, int defaultValue) {
 		return Integer.parseInt(getString(key, Integer.toString(defaultValue)));
 	}
 
-	public String getLoggedOutUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getPortalUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getSakaiHomePath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getServerId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getServerIdInstance() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getServerInstance() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getServerName() {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public Collection<String> getServerNameAliases() {
+		return Collections.emptyList();
 	}
 
 	public String getServerUrl() {
@@ -135,36 +82,6 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 			v = defaultValue;
 		}
 		return v;
-	}
-
-	public String[] getStrings(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<String> getToolCategories(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Map<String, List<String>> getToolCategoriesAsMap(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List getToolOrder(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public Map<String, String> getToolToCategoryMap(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getToolUrl() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/*
@@ -205,15 +122,6 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		return null;
 	}
 
-	public List getToolsRequired(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getUserHomeUrl() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
     public <T> T getConfig(String name, T defaultValue) {
         return (T) m.get(name);

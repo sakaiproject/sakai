@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,13 +22,14 @@ import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -50,6 +52,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -70,7 +73,7 @@ public class SiteManageGroupSectionRoleHandler {
 	private static final String REQ_ATTR_GROUPFILE = "groupfile";
 
     /** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(SiteManageGroupSectionRoleHandler.class);
+	private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupSectionRoleHandler.class);
 	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
@@ -154,7 +157,7 @@ public class SiteManageGroupSectionRoleHandler {
     	this.messages = new TargettedMessageList();
     }
 	
-	private final org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager.get(org.sakaiproject.authz.api.GroupProvider.class);
+	private final GroupProvider groupProvider = ComponentManager.get(GroupProvider.class);
 	
 	// the group title
 	private String id;
@@ -410,7 +413,7 @@ public class SiteManageGroupSectionRoleHandler {
         return rv;
     }
     
-    public boolean isUserFromProvider(String userEId, String userId, Group g, List<String> rosterIds, List<String> roleIds)
+    public boolean isUserFromProvider(String userEId, String userId, Group g, List<String> rosterIds, Collection<String> roleIds)
     {
     	boolean rv = false;
     	
@@ -432,17 +435,17 @@ public class SiteManageGroupSectionRoleHandler {
     	}
     	
     	// check role next
-    	if (!rv && roleIds != null)
-    	{
-    		for (int i = 0; !rv && i < roleIds.size(); i++)
-	    	{
-    			String roleId = roleIds.get(i);
-		    	if (g.getUserRole(userId).getId().equals(roleId))
-		    	{
-		    		rv =  true;
-		    	}
-	    	}
-    	}
+		if (!rv && roleIds != null)
+		{
+			for (String roleId : roleIds)
+			{
+				if (g.getUserRole(userId).getId().equals(roleId))
+				{
+					rv =  true;
+					break;
+				}
+			}
+		}
     	
     	return rv;
     }
@@ -452,23 +455,16 @@ public class SiteManageGroupSectionRoleHandler {
      * @param g the group for which roles are being requested
      * @return Map of groups (id, group)
      */
-    public List<String> getGroupProviderRoles(Group g) {
-        List<String> rv = null;
+    public Collection<String> getGroupProviderRoles(Group g) {
+        Collection<String> rv = null;
         
         if (update) {
             rv = new ArrayList<>();
             if (g != null)
             {   
-                // get the authz group
-            	String roleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
-            	if (roleProviderId != null)
-            	{
-            		if (groupProvider != null)
-            		{
-	            		String[] roleStrings = groupProvider.unpackId(roleProviderId);
-	            		rv.addAll( Arrays.asList( roleStrings ) );
-            		}
-            	}
+                // Get the group roles
+                String roleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+                rv = SiteGroupHelper.unpack(roleProviderId);
             }
         }
         return rv;
@@ -485,9 +481,9 @@ public class SiteManageGroupSectionRoleHandler {
                 siteId = sessionManager.getCurrentToolSession()
                         .getAttribute(HELPER_ID + ".siteId").toString();
             }
-            catch (java.lang.NullPointerException npe) {
+            catch (NullPointerException npe) {
                 // Site ID wasn't set in the helper call!!
-                M_log.warn( npe );
+                M_log.warn(npe.getMessage());
             }
             
             if (siteId == null) {
@@ -501,7 +497,7 @@ public class SiteManageGroupSectionRoleHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn( e );
+                M_log.warn(e.getMessage());
             }
         }
         title = "";
@@ -595,7 +591,7 @@ public class SiteManageGroupSectionRoleHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn( e );
+            M_log.warn(e.getMessage());
         }
 
         return "";
@@ -675,6 +671,12 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		if (group != null)
 		{
+			M_log.debug("Check if the group is locked : {}", group.isLocked());
+			if(group.isLocked()) {
+				messages.addMessage(new TargettedMessage("editgroup.group.locked",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+				return null;
+			}
+			
 			group.setTitle(title);
             group.setDescription(description);
             group.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
@@ -706,8 +708,13 @@ public class SiteManageGroupSectionRoleHandler {
 
 				}
 				if (!found) {
-					group.removeMember(mId);
-					removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
+					try {
+						group.deleteMember(mId);
+						removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
+					} catch (IllegalStateException e) {
+						M_log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
+						return null;
+					}
 				}
 			}
 
@@ -732,8 +739,13 @@ public class SiteManageGroupSectionRoleHandler {
                     {
                         String roleUserId = (String) iRoleUsers.next();
                         Member member = site.getMember(roleUserId);
-                        group.addMember(roleUserId, memberId, member.isActive(), false);
-                        addedGroupMember.add("uid=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
+                        try {
+                            group.insertMember(roleUserId, memberId, member.isActive(), false);
+                            addedGroupMember.add("uid=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
+                        } catch (IllegalStateException e) {
+                            M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", roleUserId, group.getId());
+                            return null;
+                        }
                     }
                     selectedRoles.add(memberId);
                 }
@@ -752,8 +764,13 @@ public class SiteManageGroupSectionRoleHandler {
                         // However, if the user is inactive, getUserRole would return null; then use member role instead
                         String roleString = r != null ? r.getId(): memberRole != null? memberRole.getId() : "";
                         boolean active = m != null ? m.isActive() : true;
-                        group.addMember(memberId, roleString, active,false);
-                        addedGroupMember.add("uid=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
+                        try {
+                            group.insertMember(memberId, roleString, active,false);
+                            addedGroupMember.add("uid=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
+                        } catch (IllegalStateException e) {
+                            M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                            return null;
+                        }
                     }
                 }
             }
@@ -764,7 +781,7 @@ public class SiteManageGroupSectionRoleHandler {
 					s = s.replaceAll("-_p_-", ".");
 				}
 				// set provider id
-				group.setProviderGroupId(getProviderString(selectedRosters));
+				group.setProviderGroupId(groupProvider.packId(selectedRosters.toArray(new String[selectedRosters.size()])));
 			}
 			else
 			{
@@ -774,7 +791,7 @@ public class SiteManageGroupSectionRoleHandler {
 			if (!selectedRoles.isEmpty())
 			{
 				// pack the role provider id and add to property
-    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, getProviderString(selectedRoles));
+    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, SiteGroupHelper.pack(selectedRoles));
 			}
 			else
 			{
@@ -845,7 +862,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.error( e );
+                    M_log.error(e.getMessage());
                 }
             }
 	    	return "confirm";
@@ -856,15 +873,32 @@ public class SiteManageGroupSectionRoleHandler {
     {
     	// reset the warning messages
     	resetTargettedMessageList();
+
+    	// Trick to refresh site
+    	site = null;
+    	this.init();
     	
     	if (site != null)
     	{
+            List<String> notDeletedGroupsTitles = new ArrayList<String>();
             for( String groupId : deleteGroupIds )
             {
                 Group g = site.getGroup(groupId);
                 if (g != null) {
-                    site.removeGroup(g);
+                    try {
+                        site.deleteGroup(g);
+                    } catch (IllegalStateException e) {
+                        notDeletedGroupsTitles.add(g.getTitle());
+                        M_log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
+                    }
                 }
+            }
+            if (!notDeletedGroupsTitles.isEmpty()) {
+                StringJoiner groupsTitles = new StringJoiner(", ");
+                for (String groupTitle:notDeletedGroupsTitles) {
+                    groupsTitles.add(groupTitle.toString());
+                }
+                messages.addMessage(new TargettedMessage("deletegroup.notallowed.groups.remove", new Object[]{groupsTitles.toString()}, TargettedMessage.SEVERITY_ERROR));
             }
 			try {
 				siteService.save(site);
@@ -1064,7 +1098,11 @@ public class SiteManageGroupSectionRoleHandler {
                                 for( String userId : usersHasRole )
                                 {
                                     Member member = site.getMember(userId);
-                                    group.addMember(userId, role, member.isActive(), false);
+                                    try {
+                                        group.insertMember(userId, role, member.isActive(), false);
+                                    } catch (IllegalStateException e) {
+                                        M_log.error(".processAutoCreateGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                                    }
                                 }
                             }
                         }
@@ -1175,7 +1213,11 @@ public class SiteManageGroupSectionRoleHandler {
                 Member member = site.getMember( userID );
 
                 // Add the user to the group
-                group.addMember( userID, member.getRole().getId(), member.isActive(), false );
+                try {
+                    group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
+                } catch (IllegalStateException e) {
+                    M_log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+                }
                 userIDs.remove( index );
                 userCount++;
             }
@@ -1197,7 +1239,11 @@ public class SiteManageGroupSectionRoleHandler {
 
             // Add the user to the group
             Member member = site.getMember( userID );
-            group.addMember( userID, member.getRole().getId(), member.isActive(), false );
+            try {
+                group.insertMember( userID, member.getRole().getId(), member.isActive(), false );
+            } catch (IllegalStateException e) {
+                M_log.error(".createRandomGroups: User with id {} cannot be inserted in group with id {} because the group is locked", userID, group.getId());
+            }
             userIDs.remove( userIndex );
         }
     }
@@ -1251,15 +1297,6 @@ public class SiteManageGroupSectionRoleHandler {
 			oTitle = oTitle.substring(0, SiteConstants.SITE_GROUP_TITLE_LIMIT);
 		}
 		return oTitle.trim();
-	}
-
-	/**
-	 * Return a single string representing the provider id list
-	 * @param idsList
-	 */
-	private String getProviderString(List<String> idsList)
-	{
-		return SiteGroupHelper.pack(idsList);
 	}
 
     /**
@@ -1506,10 +1543,14 @@ public class SiteManageGroupSectionRoleHandler {
 			Map<String, ImportedGroup> groupMap = new HashMap<>();
 			
 			for(String[] line: lines){
-								
-	            String groupTitle = StringUtils.trim(line[0]);
-	            String userId = StringUtils.trim(line[1]);
-	            
+			    if (line.length < 2) {
+			        continue;
+                }
+	            String groupTitle = StringUtils.trimToNull(line[0]);
+	            String userId = StringUtils.trimToNull(line[1]);
+	            if (groupTitle == null || userId == null) {
+	                continue;
+                }
 	            //if we already have an occurrence of this group, get the group and update the user list within it
 	            if(groupMap.containsKey(groupTitle)){
 	            	ImportedGroup group = groupMap.get(groupTitle);
@@ -1523,50 +1564,51 @@ public class SiteManageGroupSectionRoleHandler {
 			 //extract all of the imported groups from the map
             importedGroups.addAll(groupMap.values());
 			
-		} catch (IOException | ArrayIndexOutOfBoundsException ioe) {
+		} catch (IOException ioe) {
 			M_log.error(ioe.getClass() + " : " + ioe.getMessage());
 			return false;
 		}
 
 		return true;
 	}
+
+	/**
+	 * Attempt to find a user, searches by EID, AID and email.
+	 *
+	 * @param search The search.
+	 * @return A user ID or <code>null</code> if none or multiple were found.
+	 */
+	public String lookupUser(String search) {
+		User user = null;
+		try {
+			user = userDirectoryService.getUserByAid(search);
+		} catch (UserNotDefinedException e) {
+				if (search.contains("@")) {
+					Collection<User> users = userDirectoryService.findUsersByEmail(search);
+					Iterator<User> usersIterator = users.iterator();
+					if (usersIterator.hasNext()) {
+						user = usersIterator.next();
+						if (usersIterator.hasNext()) {
+							// Too many matches
+							user = null;
+						}
+					}
+				}
+
+			}
+		return (user == null)? null : user.getId();
+	}
 	
 	/**
 	 * Helper to check for a valid user in a site, given an eid
-	 * @param eid	eid of user,v eg jsmith26
-	 * @return
+	 * @param userId the user's ID.
+	 * @return <code>true</code> if the user is a member of the site.
 	 */
-	public boolean isValidSiteUser(String eid) {
-		try {
-			User u = userDirectoryService.getUserByEid(eid);
-			if(u != null){
-				
-				Member m = site.getMember(u.getId());
-				if(m != null) {
-					return true;
-				}
-			}
-		} catch (UserNotDefinedException e) {
-			//not a valid user
-			return false;
-		}
-		return false;
+	public boolean isValidSiteUser(String userId) {
+		Member m = site.getMember(userId);
+		return m != null;
 	}
-	
-	/**
-	 * Helper to get a userId given an eid
-	 * @param eid	eid of user,v eg jsmith26
-	 * @return
-	 */
-	public String getUserId(String eid) {
-		try {
-			return userDirectoryService.getUserId(eid);
-		} catch (UserNotDefinedException e) {
-			M_log.error("The eid: " + eid + "is invalid.");
-			return null;
-		}
-	}
-	
+
 	/**
 	 * Does the actual import of the groups into the site.
 	 * @return
@@ -1596,16 +1638,13 @@ public class SiteManageGroupSectionRoleHandler {
     	        group.setTitle(importedGroup.getGroupTitle());
 			}
 			
-			//add all of the imported members to the group
-    		for(String eid: importedGroup.getUserIds()){
-    			this.addUserToGroup(eid, group);
+    		// add all of the imported members to the group
+    		for(String userId : importedGroup.getUserIds()) {
+    			this.addUserToGroup(userId, group);
     		}
-    		
+
     		try {
     			siteService.save(site);
-    			// post event about the participant update
-    			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(),true));
-    		
     		} catch (IdUnusedException | PermissionException e) {
             	M_log.error("processImportedGroups failed for site: " + site.getId(), e);
             	return "error";
@@ -1630,7 +1669,7 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		Set<Member> members= g.getMembers();
 		for(Member m: members) {
-			userIds.add(m.getUserEid());
+			userIds.add(m.getUserId());
 		}
 		return userIds;
 	}
@@ -1638,32 +1677,30 @@ public class SiteManageGroupSectionRoleHandler {
 	
 	/**
 	 * Helper to add a user to a group. Takes care of the role selection.
-	 * @param eid	eid of the user eg jsmith26
+	 * @param id	eid of the user eg jsmith26
 	 * @param g		the group
 	 */
-	private void addUserToGroup(String eid, Group g) {
+	private void addUserToGroup(String id, Group g) {
 		
 		//is this a valid site user?
-		if(!isValidSiteUser(eid)){
-			return;
-		}
-		
-		//get userId
-		String userId = getUserId(eid);
-		if(StringUtils.isBlank(userId)) {
+		if(!isValidSiteUser(id)){
 			return;
 		}
 		
 		//is user already in the group?
-		if(g.getUserRole(userId) != null) {
+		if(g.getUserRole(id) != null) {
 			return;
 		}
 		
 		//add user to group with correct role. This is the same logic as above
-		Role r = site.getUserRole(userId);
-		Member m = site.getMember(userId);
+		Role r = site.getUserRole(id);
+		Member m = site.getMember(id);
 		Role memberRole = m != null ? m.getRole() : null;
-		g.addMember(userId, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
+		try {
+			g.insertMember(id, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
+		} catch (IllegalStateException e) {
+			M_log.error(".addUserToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", id, g.getId());
+		}
 		
 	}
 	
@@ -1801,7 +1838,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdUnusedException | PermissionException ex )
         {
-            M_log.error( ex );
+            M_log.error(ex.getMessage());
         }
     }
 

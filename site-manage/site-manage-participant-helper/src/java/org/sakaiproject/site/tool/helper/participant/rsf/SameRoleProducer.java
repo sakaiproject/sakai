@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
@@ -53,7 +53,7 @@ import uk.org.ponder.stringutil.StringList;
 public class SameRoleProducer implements ViewComponentProducer, NavigationCaseReporter, ActionResultInterceptor {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SameRoleProducer.class);
+	private static Logger M_log = LoggerFactory.getLogger(SameRoleProducer.class);
 	
     public SiteAddParticipantHandler handler;
     public static final String VIEW_ID = "SameRole";
@@ -144,7 +144,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         		M_log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             UIBranchContainer userRow = UIBranchContainer.make(sameRoleForm, "user-row:", userEId);
-            UIOutput.make(userRow, "user-label", displayId + "(" + userName + ")");
+            UIOutput.make(userRow, "user-label", displayId + " ( " + userName + " )");
         }
     	
     	UICommand.make(sameRoleForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processSameRoleContinue}");

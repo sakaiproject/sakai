@@ -27,8 +27,8 @@ import java.io.FileInputStream;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.*;
 import javax.crypto.*;
@@ -40,7 +40,7 @@ import javax.crypto.spec.*;
 public class LinkToolUtil {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(LinkToolUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(LinkToolUtil.class);
 
 	private static final String privkeyname = "sakai.rutgers.linktool.privkey";
 	private static final String saltname = "sakai.rutgers.linktool.salt";

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -66,7 +66,7 @@ public class FormHandler {
 	}
 
 
-	private static Log m_log  = LogFactory.getLog(FormHandler.class);
+	private static Logger m_log  = LoggerFactory.getLogger(FormHandler.class);
 
 	public String processAction() {
 		//siteManage.validateNewUsers = false use the classic method:
@@ -164,8 +164,8 @@ public class FormHandler {
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
 			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
 
-			if (serverConfigurationService.getString("support.email", null) != null )
-				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
+			if (serverConfigurationService.getString("mail.support", null) != null )
+				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("mail.support")}) + "\n\n");
 
 			m_log.debug(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName}));
 			buff.append(messageLocator.getMessage("mailBodySalut")+"\n");

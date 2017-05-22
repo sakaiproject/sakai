@@ -85,7 +85,6 @@ public class CoreAssessmentEntityProviderImpl implements CoreAssessmentEntityPro
 
   public Object getEntity(EntityReference ref) {
 	  
-      System.out.println("core getentity");
 	  return new EntityData(new EntityReference("dummy reference"), "dummy"); 
   }
 

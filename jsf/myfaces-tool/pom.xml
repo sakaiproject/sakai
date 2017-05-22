@@ -66,7 +66,6 @@
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -75,7 +74,6 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>
@@ -90,7 +88,6 @@
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>2.0.2</version>
         </dependency>
     </dependencies>
 </project>

@@ -20,13 +20,14 @@ package edu.indiana.lib.twinpeaks.search.sru;
 import edu.indiana.lib.twinpeaks.search.HttpTransactionQueryBase;
 import edu.indiana.lib.twinpeaks.util.LogUtils;
 import edu.indiana.lib.twinpeaks.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Basic SRU query functionality
  */
+@Slf4j
 public abstract class SruQueryBase extends HttpTransactionQueryBase
 {
-	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(SruQueryBase.class);
   /*
    * SRU common parameters
    */

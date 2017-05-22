@@ -23,8 +23,8 @@ package org.sakaiproject.id.impl;
 
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.id.api.IdManager;
 
 /**
@@ -35,7 +35,7 @@ import org.sakaiproject.id.api.IdManager;
 public class UuidV4IdComponent implements IdManager
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(UuidV4IdComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(UuidV4IdComponent.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods

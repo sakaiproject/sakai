@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
 
 <body>
 	<wicket:panel>
@@ -25,7 +25,7 @@
 						<td wicket:id="studentEid">tstark1</td>
 						<td wicket:id="points">123/456</td>
 						<td wicket:id="calculated">C (63.15%)</td>
-						<td><input type="text" wicket:id="overrideGrade" size="5" maxlength="2"/></td>
+						<td><input type="text" wicket:id="overrideGrade" size="15" /></td>
 					</tr>
 				</tbody>
 			</table>
@@ -37,8 +37,8 @@
 			</div>
 			
 			<div>
-				<button wicket:id="submit" type="submit" class="btn btn-primary"><wicket:message key="button.saveoverride" /></button>
-				<button wicket:id="cancel" type="button" class="btn btn-link"><wicket:message key="button.cancel" /></button>	
+				<button wicket:id="submit" type="submit" class="button_color"><wicket:message key="button.saveoverride" /></button>
+				<button wicket:id="cancel" type="button"><wicket:message key="button.cancel" /></button>
 			</div>
 		
 		</form>

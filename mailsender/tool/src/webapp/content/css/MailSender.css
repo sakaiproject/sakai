@@ -19,7 +19,7 @@
 }
 
 .navIntraTool a, .navStatic {
-	margin-right: 0.5em !important;
+	margin-right: 0.5em;
 	margin-left: 0.5em;
 }
 
@@ -40,6 +40,14 @@
 	padding: 0pt;
 	width: 8%;
 	float: left;
+}
+
+.optionsheadervalue label{
+	font-weight: normal;
+}
+
+.option-checkbox{
+	padding: .4em 0 0 0;
 }
 
 .optionsheaderkeyholder {

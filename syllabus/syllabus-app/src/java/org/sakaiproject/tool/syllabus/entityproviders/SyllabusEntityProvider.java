@@ -14,8 +14,7 @@ import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
@@ -51,7 +50,7 @@ import org.sakaiproject.util.FormattedText;
 /**
  * Entity provider for the Syllabus tool
  */
-@CommonsLog
+@Slf4j
 public class SyllabusEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable, RESTful, DescribePropertiesable
 {
 
@@ -114,7 +113,8 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 		}
 		
 		//setup for checking items
-		boolean isMaintain = isMaintainer(siteId);
+		boolean isMaintain = syllabusService.checkAddOrEdit(siteService.siteReference(siteId));
+
 		long currentTime = Calendar.getInstance().getTimeInMillis();
 		
 		//Get the data
@@ -257,11 +257,6 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 		private String type;
 	}
 	
-	//same logic as the tool uses
-	private boolean isMaintainer(String siteId) {
-		return siteService.allowUpdateSite(siteId);
-	}
-
 	//conert date to long milliseconds, nullsafe.
 	private long dateToLong(Date d) {
 		if(d != null) {
@@ -281,7 +276,8 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 				String siteId = (String) params.get("siteId");
 				if(!"".equals(siteId.trim())){
 					//check that this user is truly the maintainer
-					if(!isMaintainer(siteId)){
+					if(!(syllabusService.checkAddOrEdit(siteService.siteReference(siteId))))
+					{
 						throw new IllegalArgumentException("User doesn't have access to modify this site.");
 					}
 					String title = (String) params.get("title");
@@ -328,7 +324,8 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 				SyllabusItem item = syllabusManager.getSyllabusItem(data.getSyllabusItem().getSurrogateKey());
 				data.setSyllabusItem(item);
 				//now that we have an obj that has SiteId, let's verify that the user has access to modify it:
-				if(!isMaintainer(item.getContextId())){
+				if(!(syllabusService.checkAddOrEdit(siteService.siteReference(item.getContextId())))) {
+
 					throw new IllegalArgumentException("User doesn't have access to modify this site.");
 				}
 

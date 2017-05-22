@@ -48,7 +48,7 @@ public abstract class TemplateBaseListener implements ActionListener
 {
   // forces you to implement your own processAction
   abstract public void processAction(ActionEvent parm1) throws javax.faces.event.AbortProcessingException;
-  //private static Log log = LogFactory.getLog(TemplateBaseListener.class);
+  //private static Logger log = LoggerFactory.getLogger(TemplateBaseListener.class);
 
   /**
    * Get a template from the template id

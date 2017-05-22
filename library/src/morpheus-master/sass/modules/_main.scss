@@ -1,0 +1,99 @@
+@import "base/compass";
+
+//.#{$namespace}
+.is-logged-out{
+	.#{$namespace}topHeader {
+		@media #{$phone}{
+			&.moving{
+	    		top: -12em;
+	    	}
+	    }
+    }
+}
+
+.#{$namespace}portalWrapper {
+	position: relative;
+	background: $main-content-background;
+}
+
+#pageBody{
+	@include align-items(stretch);
+	@include display-flex(flex);
+	@include flex-direction(row);
+	> .#{$namespace}pagebody{
+		width: 100%;
+	}
+}
+
+#content, .#{$namespace}container--footer{
+	margin: 0;
+	width: 100%;
+
+	@media #{$nonPhone} {
+		#col1of2, #col2of2{
+			margin: 0 0 0 1%;
+			vertical-align: top;
+	    display: inline-block;
+    }
+		#col1of2 {
+      width: $col1of2-width;
+    }
+    #col2of2 {
+      width: $col2of2-width;
+    }
+  }
+}
+
+.#{$namespace}mainContent{
+	background: $main-content-background;
+	padding-top: 1em;
+}
+
+#content {
+	@media #{$phone}{
+		margin: 0;
+		padding-top: 2em; // make way for the button container
+	}
+}
+
+.#{$namespace}pageColumns--single, .#{$namespace}footer{
+	margin: 0 1em;
+	clear: both;
+	@media #{$phone}{
+		margin: 0;
+	}
+}
+
+.#{$namespace}container--footer{
+	background-color: $footer-background-color;
+	border-top: 1px solid $footer-border-color;
+}
+
+.#{$namespace}footer{
+	color: $footer-color;
+	padding: 0.8em;
+	font-size: 0.8em;
+	#footer-links{
+		list-style: none;
+		padding: 0 0 0 0;
+		li{
+			display: inline-block;
+		}
+	}
+}
+
+.#{$namespace}noJs.js-warn-no-js
+{
+	position: fixed;
+	bottom: 0;
+	left: 10%;
+	width: 80%;
+	padding: 1em;
+	z-index: 200;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	background-color: #c00;
+	font-size: 1.143em;
+	text-align: center;
+	color: #fff;
+}

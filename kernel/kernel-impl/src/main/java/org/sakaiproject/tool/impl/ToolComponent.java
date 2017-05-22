@@ -36,9 +36,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -64,7 +64,7 @@ import org.w3c.dom.NodeList;
 public abstract class ToolComponent implements ToolManager
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ToolComponent.class);
+	private static Logger M_log = LoggerFactory.getLogger(ToolComponent.class);
 
 	/** Key in the ThreadLocalManager for binding our current placement. */
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";

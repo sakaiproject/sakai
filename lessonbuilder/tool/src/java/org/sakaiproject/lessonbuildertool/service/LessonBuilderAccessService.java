@@ -40,8 +40,8 @@ import java.util.TimeZone;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.SocketException;
 
@@ -81,6 +81,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
@@ -113,7 +114,7 @@ public class LessonBuilderAccessService {
 	public static final int CACHE_MAX_ENTRIES = 5000;
 	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
 	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
-	private static Log M_log = LogFactory.getLog(LessonBuilderAccessService.class);
+	private static Logger M_log = LoggerFactory.getLogger(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
    
@@ -228,6 +229,11 @@ public class LessonBuilderAccessService {
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
 	private boolean inlineHtml = ServerConfigurationService.getBoolean(INLINEHTML, true);
+	public static final String USECSP = "lessonbuilder.use-csp-headers";
+	// if using separate content domain we don't need this protection
+	private boolean useCsp = ServerConfigurationService.getBoolean(USECSP, 
+				   !ServerConfigurationService.getBoolean("content.separateDomains", false));
+        
         protected static final String MIME_SEPARATOR = "SAKAI_MIME_BOUNDARY";
 
         // uuid is the private key for sharing the session id
@@ -255,7 +261,6 @@ public class LessonBuilderAccessService {
 
 	public void init() {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
-
 		accessCache = memoryService.createCache(
 				"org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache",
 				new SimpleConfiguration<Object, Object>(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS)
@@ -278,7 +283,7 @@ public class LessonBuilderAccessService {
 			prop = simplePageToolDao.makeProperty("accessCryptoKey", DatatypeConverter.printHexBinary(keyBytes));
 			simplePageToolDao.quickSaveItem(prop);
 		    } catch (Exception e) {
-			System.out.println("unable to init cipher for session " + e);
+			M_log.info("unable to init cipher for session " + e);
 			// in case of race condition, our save will fail, but we'll be able to get a value
 			// saved by someone else
 			simplePageToolDao.flush();
@@ -374,7 +379,7 @@ public class LessonBuilderAccessService {
 					}
 
 				    } catch (Exception e) {
-					System.out.println("unable to decode lb.session " + e);
+					M_log.info("unable to decode lb.session " + e);
 				    }
 				}
 
@@ -424,7 +429,6 @@ public class LessonBuilderAccessService {
 					    group = "/site/" + currentPage.getSiteId() + "/group/" + group;
 					String currentSiteId = currentPage.getSiteId();
 					
-
 					// first let's make sure the user is allowed to access
 					// the containing page
 
@@ -451,9 +455,9 @@ public class LessonBuilderAccessService {
 					// legitimately have seen.
 
 					if (simplePageToolDao.isPageVisited(item.getPageId(), sessionManager.getCurrentSessionUserId(), owner)) {
-					    if (id.equals(itemResource))
+					    if (id.equals(itemResource) || item.getAttribute("multimediaUrl") != null) {
 						useLb = true;
-					    else {
+					    } else {
 						// not exact, but see if it's in the containing folder
 						int endFolder = itemResource.lastIndexOf("/");
 						if (endFolder > 0) {
@@ -504,7 +508,10 @@ public class LessonBuilderAccessService {
 						// OK
 					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 						// OK
+					    } else if (item.getAttribute("multimediaUrl") != null) {
+						// OK
 					    } else {
+
 						// do normal checking for other content
 						if (pushedAdvisor) {
 						    securityService.popAdvisor();
@@ -562,7 +569,6 @@ public class LessonBuilderAccessService {
 						
 					    }
 					} else {
-
 					    // normal security. no reason to use advisor
 					    if(pushedAdvisor) securityService.popAdvisor();
 					    pushedAdvisor = false;
@@ -583,6 +589,12 @@ public class LessonBuilderAccessService {
 					// probably resources access control won't apply to it
 					String url = contentHostingService.getUrl(id);					
 					// https://heidelberg.rutgers.edu/access/citation/content/group/24da8519-08c2-4c8c-baeb-8abdfd6c69d7/New%20Citation%20List
+
+					if (item.getAttribute("multimediaUrl") != null) {
+					    eventTrackingService.post(eventTrackingService.newEvent(LessonBuilderEvents.ITEM_READ, "/lessonbuilder/item/" + item.getId(), false));
+					    res.sendRedirect(item.getAttribute("multimediaUrl"));
+					    return;
+					}
 
 					int n = url.indexOf("//");
 					if (n > 0) {
@@ -616,26 +628,47 @@ public class LessonBuilderAccessService {
 						// Wrap it in any filtering needed.
 						resource = contentFilterService.wrap(resource);
 
+						// from contenthosting
+						res.addHeader("Cache-Control", "must-revalidate, private");
+						res.addHeader("Expires", "-1");
+
 					    // following cast is redundant is current kernels, but is needed for Sakai 2.6.1
 						long len = (long)resource.getContentLength();
 						String contentType = resource.getContentType();
+						ResourceProperties rp = resource.getProperties();
+						long lastModTime = 0;
+
+						try {
+							Time modTime = rp.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+							lastModTime = modTime.getTime();
+						} catch (Exception e1) {
+							M_log.info("Could not retrieve modified time for: " + resource.getId());
+						}
+
+						// KNL-1316 tell the browser when our file was last modified for caching reasons
+						if (lastModTime > 0) {
+							SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE, LOCALE_US);
+							rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
+							res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
+						}
 						
 						// 	for url resource type, encode a redirect to the body URL
 						// in 2.10 have to check resourcetype, but in previous releasese
 						// it doesn't get copied in site copy, so check content type. 10 doesn't set the contenttype to url
 						// so we have to check both to work in all versions
 						if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL) ||
-						    "org.sakaiproject.content.types.urlResource".equalsIgnoreCase(resource.getResourceType())) {
+						    "org.sakaiproject.content.types.urlResource".equalsIgnoreCase(resource.getResourceType())) 
+						{
 							if (len < MAX_URL_LENGTH) {
+
 								byte[] content = resource.getContent();
 								if ((content == null) || (content.length == 0)) {
 									throw new IdUnusedException(ref.getReference());
-								}								
-								// 	An invalid URI format will get caught by the
-								// 	outermost catch block
+								}
+								
+								// 	An invalid URI format will get caught by the outermost catch block
 								URI uri = new URI(new String(content, "UTF-8"));
-								eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ,
-										resource.getReference(null), false));
+								eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ, resource.getReference(null), false));
 
 								String decodedUrl = null;
 								if (id.endsWith(".URL")) {
@@ -653,25 +686,33 @@ public class LessonBuilderAccessService {
 								// 	long to issue as a redirect
 								throw new EntityNotDefinedException(ref.getReference());
 							}
-						} else {
-							
-							// 	use the last part, the file name part of the id, for
-							// 	the download file name
+						}
+
+						else
+						{
+							// use the last part, the file name part of the id, for the download file name
 							String fileName = Web.encodeFileName(req, Validator.getFileName(ref.getId()));
-							
 							String disposition = null;
 							
 							boolean inline = false;
+							boolean dangerous = false;
+
 							if (Validator.letBrowserInline(contentType)) {
 							    // type can be inline, but if HTML we have more checks to do
-							    if (inlineHtml || 
-								(! "text/html".equalsIgnoreCase(contentType) && ! "application/xhtml+xml".equals(contentType)))
+							    // because browsers upgrade some types to HTML the check isn't just for HTML
+
+							    String lcct = contentType.toLowerCase();
+							    if ( lcct.startsWith("text/") || lcct.startsWith("image/") 
+								 || lcct.contains("html") || lcct.contains("script"))
+								dangerous = true;
+
+							    // inlineHtml is true by default. This logic is for sites
+							    // that want to be super-careful
+							    if (inlineHtml || !dangerous)
 								// easy cases: not HTML or HTML always OK
 								inline = true;
 							    else {
 								// HTML and html is not allowed globally. code copied from BaseContentServices
-								ResourceProperties rp = resource.getProperties();
-								
 								boolean fileInline = false;
 								boolean folderInline = false;
 
@@ -703,52 +744,69 @@ public class LessonBuilderAccessService {
 								disposition = "attachment; filename=\"" + fileName + "\"";
 							}
 							
+							// note that by default inline is always set. If we have inline and dangerous (i.e. HTML or
+							// potentially HTML, we set security headers to provide some protection.
+							if (inline && dangerous && useCsp) {
+							    res.addHeader("Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							    res.addHeader("X-Content-Security-Policy", "sandbox allow-forms allow-scripts allow-top-navigation allow-popups allow-pointer-lock");
+							}
 
-							// NOTE: Only set the encoding on the content we have
-							// to.
-							// Files uploaded by the user may have been created with
-							// different encodings, such as ISO-8859-1;
-							// rather than (sometimes wrongly) saying its UTF-8, let
-							// the browser auto-detect the encoding.
-							// If the content was created through the WYSIWYG
-							// editor, the encoding does need to be set (UTF-8).
+							// NOTE: Only set the encoding on the content we have to.
+							// Files uploaded by the user may have been created with different encodings, such as ISO-8859-1;
+							// rather than (sometimes wrongly) saying its UTF-8, let the browser auto-detect the encoding.
+							// If the content was created through the WYSIWYG editor, the encoding does need to be set (UTF-8).
 							String encoding = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 							if (encoding != null && encoding.length() > 0) {
 								contentType = contentType + "; charset=" + encoding;
 							}
 
-							// from contenthosting
+				// KNL-1316 let's see if the user already has a cached copy. Code copied and modified from Tomcat DefaultServlet.java
+				long headerValue = req.getDateHeader("If-Modified-Since");
+				if (headerValue != -1 && (lastModTime < headerValue + 1000)) {
+				    // The entity has not been modified since the date specified by the client. This is not an error case.
+				    res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+				    return; 
+				}
 
-							res.addHeader("Cache-Control", "must-revalidate, private");
-							res.addHeader("Expires", "-1");
-							ResourceProperties rp = resource.getProperties();
-							long lastModTime = 0;
-
-							try {
-							    Time modTime = rp.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-							    lastModTime = modTime.getTime();
-							} catch (Exception e1) {
-							    M_log.info("Could not retrieve modified time for: " + resource.getId());
-							}
-							
-							// KNL-1316 tell the browser when our file was last modified for caching reasons
-							if (lastModTime > 0) {
-							    SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE, LOCALE_US);
-							    rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
-							    res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
-							}
-
-							// KNL-1316 let's see if the user already has a cached copy. Code copied and modified from Tomcat DefaultServlet.java
-							long headerValue = req.getDateHeader("If-Modified-Since");
-							if (headerValue != -1 && (lastModTime < headerValue + 1000)) {
-							    // The entity has not been modified since the date specified by the client. This is not an error case.
-							    res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-							    return; 
-							}
+				// If there is a direct link to the asset, no sense streaming it.
+				// Send the asset directly to the load-balancer or to the client
+				URI directLinkUri = contentHostingService.getDirectLinkToAsset(resource);
 
 		        ArrayList<Range> ranges = parseRange(req, res, len);
 
-		        if (req.getHeader("Range") == null || (ranges == null) || (ranges.isEmpty())) {
+				if (directLinkUri != null || req.getHeader("Range") == null || (ranges == null) || (ranges.isEmpty())) {
+					res.addHeader("Accept-Ranges", "none");
+					res.setContentType(contentType);
+					res.addHeader("Content-Disposition", disposition);
+					// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
+					if (len <= Integer.MAX_VALUE) {
+						res.setContentLength((int)len);
+					} else {
+						res.addHeader("Content-Length", Long.toString(len));
+					}
+
+					// SAK-30455: Track event now so the direct link still records a content.read
+					eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ, resource.getReference(null), false));
+
+					// Bypass loading the asset and just send the user a link to it.
+					if (directLinkUri != null) {
+						if (ServerConfigurationService.getBoolean("cloud.content.sendfile", false)) {
+							int hostLength = new String(directLinkUri.getScheme() + "://" + directLinkUri.getHost()).length();
+							String linkPath = "/sendfile" + directLinkUri.toString().substring(hostLength);
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("X-Sendfile: " + linkPath);
+							}
+
+							// Nginx uses X-Accel-Redirect and Apache and others use X-Sendfile
+							res.addHeader("X-Accel-Redirect", linkPath);
+							res.addHeader("X-Sendfile", linkPath);
+							return;
+						}
+						else if (ServerConfigurationService.getBoolean("cloud.content.directurl", true)) {
+							res.sendRedirect(directLinkUri.toString());
+							return;
+						}
+					}
 		        	
 					// stream the content using a small buffer to keep memory managed
 					InputStream content = null;
@@ -762,16 +820,6 @@ public class LessonBuilderAccessService {
 							throw new IdUnusedException(ref.getReference());
 						}
 	
-						res.setContentType(contentType);
-						res.addHeader("Content-Disposition", disposition);
-						res.addHeader("Accept-Ranges", "bytes");
-						
-						// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
- 						if (len <= Integer.MAX_VALUE){
- 							res.setContentLength((int)len);
- 						} else {
- 							res.addHeader("Content-Length", Long.toString(len));
- 						}
 
 						// set the buffer of the response to match what we are reading from the request
 						if (len < STREAM_BUFFER_SIZE)
@@ -813,15 +861,12 @@ public class LessonBuilderAccessService {
 							}
 						}
 					}
-					
-                                        // Track event - only for full reads
-                                        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ, resource.getReference(null), false));
 
 		        }
 		        else 
 		        {
 		        	// Output partial content. Adapted from Apache Tomcat 5.5.27 DefaultServlet.java
-		        	
+		            res.addHeader("Accept-Ranges", "bytes");
 		        	res.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
 
 		            if (ranges.size() == 1) {

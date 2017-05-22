@@ -29,8 +29,8 @@ import java.util.StringTokenizer;
 
 import org.w3c.dom.Document;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 //import org.sakaiproject.tool.assessment.qti.helper.AuthoringHelper;
@@ -53,7 +53,7 @@ public class XMLController implements Serializable
 	 */
 	private static final long serialVersionUID = 7064783681056628447L;
 
-private static Log log = LogFactory.getLog(XMLController.class);
+private static Logger log = LoggerFactory.getLogger(XMLController.class);
 
   private static final String XML_DECL =
     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + "\n";

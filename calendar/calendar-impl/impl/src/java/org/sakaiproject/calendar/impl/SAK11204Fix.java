@@ -28,8 +28,8 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.impl.BaseCalendarService.BaseCalendarEventEdit;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -40,7 +40,7 @@ import org.sakaiproject.db.api.SqlService;
  */
 public class SAK11204Fix
 {
-	private static final Log log = LogFactory.getLog(SAK11204Fix.class);
+	private static final Logger log = LoggerFactory.getLogger(SAK11204Fix.class);
 
 	private static final int MIGRATE = 1;
 
@@ -84,35 +84,25 @@ public class SAK11204Fix
 				sqlService.ddl(this.getClass().getClassLoader(), "SAK-11204");
 				if (checkSAK11204ForUpgrade() == UPGRADE_SCHEMA)
 				{
-					log
-							.fatal("SAK-11204: =============================================================================");
-					log
-							.fatal("SAK-11204: Database Upgrade for SAK-11204 Failed, you must investigate and fix before");
-					log
-							.fatal("SAK-11204: continuuing. I attempted to upgrade the schema but this appears to hav failed. You must");
-					log
-							.fatal("SAK-11204: ensure that the columns RANGE_START(BIGINT) and RANGE_END(BIGINT) are present in CALENDAR_EVENT");
-					log.fatal("SAK-11204: and there are indexes on both of the columns.");
-					log.fatal("SAK-11204: Thank you ");
-					log
-							.fatal("SAK-11204: =============================================================================");
+					log.error("SAK-11204: =============================================================================");
+					log.error("SAK-11204: Database Upgrade for SAK-11204 Failed, you must investigate and fix before");
+					log.error("SAK-11204: continuuing. I attempted to upgrade the schema but this appears to hav failed. You must");
+					log.error("SAK-11204: ensure that the columns RANGE_START(BIGINT) and RANGE_END(BIGINT) are present in CALENDAR_EVENT");
+					log.error("SAK-11204: and there are indexes on both of the columns.");
+					log.error("SAK-11204: Thank you ");
+					log.error("SAK-11204: =============================================================================");
 					System.exit(-10);
 				}
 			}
 			else
 			{
-				log
-						.fatal("SAK-11204: =============================================================================");
-				log
-						.fatal("SAK-11204: Database Upgrade for SAK-11204 Failed, you must investigate and fix before");
-				log
-						.fatal("SAK-11204: continuuing. AutoDDL was OFF, so I could not change the database schema. You must");
-				log
-						.fatal("SAK-11204: ensure that the columns RANGE_START(BIGINT) and RANGE_END(BIGINT) are present in CALENDAR_EVENT");
-				log.fatal("SAK-11204: and there are indexes on both of the columns.");
-				log.fatal("SAK-11204: Thank you ");
-				log
-						.fatal("SAK-11204: =============================================================================");
+				log.error("SAK-11204: =============================================================================");
+				log.error("SAK-11204: Database Upgrade for SAK-11204 Failed, you must investigate and fix before");
+				log.error("SAK-11204: continuuing. AutoDDL was OFF, so I could not change the database schema. You must");
+				log.error("SAK-11204: ensure that the columns RANGE_START(BIGINT) and RANGE_END(BIGINT) are present in CALENDAR_EVENT");
+				log.error("SAK-11204: and there are indexes on both of the columns.");
+				log.error("SAK-11204: Thank you ");
+				log.error("SAK-11204: =============================================================================");
 				System.exit(-10);
 
 			}
@@ -131,8 +121,7 @@ public class SAK11204Fix
 			for (Iterator<Calendar> icalendars = calendars.iterator(); icalendars
 					.hasNext();)
 			{
-				log.info("SAK-11204: Converting Calendar " + i + " of "
-						+ calendars.size());
+				log.info("SAK-11204: Converting Calendar {} of {}", i, calendars.size());
 				i++;
 				Calendar calendar = icalendars.next();
 				List<BaseCalendarEventEdit> levents = storage.getEvents(calendar);
@@ -145,19 +134,14 @@ public class SAK11204Fix
 				}
 			}
 		}
-		log.info("SAK-11204: Calendar Conversion Complete ");
+		log.info("SAK-11204: Calendar Conversion Complete");
 		if (forceUpgrade)
 		{
-			log
-					.warn("SAK-11204: =========================================================================================================  ");
-			log
-					.warn("SAK-11204: This Conversion was forced, please ensure that you remove sak11204.forceupgrade from sakai.properties ");
-			log
-					.warn("SAK-11204: If you do not remove sak11204.forceupgrade from sakai.properties this conversion will be performed ");
-			log
-					.warn("SAK-11204: every time you start this instance of sakai, and it will take the same ammount of time ");
-			log
-					.warn("SAK-11204: =========================================================================================================  ");
+			log.warn("SAK-11204: =========================================================================================================  ");
+			log.warn("SAK-11204: This Conversion was forced, please ensure that you remove sak11204.forceupgrade from sakai.properties ");
+			log.warn("SAK-11204: If you do not remove sak11204.forceupgrade from sakai.properties this conversion will be performed ");
+			log.warn("SAK-11204: every time you start this instance of sakai, and it will take the same ammount of time ");
+			log.warn("SAK-11204: =========================================================================================================  ");
 		}
 
 	}
@@ -183,22 +167,21 @@ public class SAK11204Fix
 				{
 					long ntodo = rs.getLong(1);
 					if ( ntodo == 0 ) {
-						log.debug("SAK-11204: Database has been migrated  ");
+						log.debug("SAK-11204: Database has been migrated");
 						return OK;
 					} else {
-						log.info("SAK-11204: Migration check, there are null range fields ");
+						log.info("SAK-11204: Migration check, there are null range fields");
 						return MIGRATE;
 					}
 				} else {
-					log.warn("SAK-11204: Could not count null range fields, assuming migrate ");
+					log.warn("SAK-11204: Could not count null range fields, assuming migrate");
 					return MIGRATE;
 				}
 			}
 			catch (SQLException ex)
 			{
-				log
-						.info("SAK-11204: Migration check, CALENDAR_EVENT schema not uptodate, test query said:  "
-								+ ex.getMessage());
+				log.info("SAK-11204: Migration check, CALENDAR_EVENT schema not uptodate, test query said: {}",
+						ex.getMessage());
 				return UPGRADE_SCHEMA;
 			}
 			finally

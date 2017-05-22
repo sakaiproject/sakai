@@ -56,16 +56,25 @@
             <artifactId>sections-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.emailtemplateservice</groupId>
+            <artifactId>emailtemplateservice-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.tags</groupId>
+            <artifactId>tags-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math</artifactId>
+            <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -76,8 +85,8 @@
             <artifactId>activation</artifactId>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>OKI</groupId>
@@ -130,9 +139,16 @@
             <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opensymphony.quartz</groupId>
+            <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>1.6.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-component-shared</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
@@ -154,23 +170,32 @@
             <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
-   		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache-core</artifactId>
-			<scope>test</scope>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
+            <scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.hamcrest</groupId>
+					<artifactId>hamcrest-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
 		</dependency>
     </dependencies>
 
@@ -196,6 +221,7 @@
                 <includes>
                     <include>hibernate-test.xml</include>
                     <include>hibernate.properties</include>
+                    <include>log4j.properties</include>
                     <include>spring-hibernate.xml</include>
                 </includes>
             </testResource>

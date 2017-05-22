@@ -2,9 +2,9 @@ package org.sakaiproject.emailtemplateservice.tool.handler;
 
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator;
 
@@ -13,7 +13,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 
 public class ModifyEmailHandler{
 	
-	private static Log log = LogFactory.getLog(ModifyEmailHandler.class);
+	private static Logger log = LoggerFactory.getLogger(ModifyEmailHandler.class);
 	
 	
 	private SessionManager sessionManager = null;

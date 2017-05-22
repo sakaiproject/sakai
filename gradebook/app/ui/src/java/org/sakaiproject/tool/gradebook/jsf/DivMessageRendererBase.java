@@ -32,11 +32,11 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class DivMessageRendererBase extends Renderer {
-	private static final Log logger = LogFactory.getLog(DivMessageRendererBase.class);
+	private static final Logger logger = LoggerFactory.getLogger(DivMessageRendererBase.class);
 
 	public static String INNER_TAG = "div";
 

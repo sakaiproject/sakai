@@ -21,17 +21,16 @@
 
 package org.sakaiproject.component.osid.id;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class Id implements org.osid.shared.Id
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaiproject.component.osid.id.Id" );
-
 	private String idString = null;
 
 	private void log(String entry) throws org.osid.shared.SharedException
 	{
-		LOG.debug("Id.log() entry: " + entry);
+		log.debug("Id.log() entry: " + entry);
 	}
 
 	protected Id() throws org.osid.shared.SharedException

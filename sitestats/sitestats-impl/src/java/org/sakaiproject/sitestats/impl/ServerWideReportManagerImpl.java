@@ -44,11 +44,8 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import lombok.Setter;
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -103,7 +100,7 @@ import org.sakaiproject.util.ResourceLoader;
  * In addition to the normal settings for setting up external databases for the SST_ tables
  * 
  */
-@CommonsLog
+@Slf4j
 public class ServerWideReportManagerImpl implements ServerWideReportManager
 {
 	

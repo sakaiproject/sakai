@@ -36,8 +36,8 @@ import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
@@ -92,8 +92,7 @@ public class MailArchiveEntityProvider extends AbstractEntityProvider implements
 
 	public final static String ENTITY_PREFIX = "mailarchive";
 
-	private static final Log log = LogFactory
-			.getLog(MailArchiveEntityProvider.class);
+	private static final Logger log = LoggerFactory.getLogger(MailArchiveEntityProvider.class);
 	private static ResourceLoader rb = new ResourceLoader("email");
 	public static int DEFAULT_NUM_MAILMESSAGES = 3;
 	public static int DEFAULT_DAYS_IN_PAST = 10;

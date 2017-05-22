@@ -45,13 +45,13 @@ public class PopupForUser {
     private static final Logger LOG = LoggerFactory.getLogger(PopupForUser.class);
 
     private User user;
-    private String eid;
+    private String userId;
 
     public PopupForUser(User currentUser) {
         user = currentUser;
 
-        if (user != null && user.getEid() != null) {
-            eid = user.getEid().toLowerCase();
+        if (user != null && user.getId() != null) {
+            userId = user.getId();
         } else {
             user = null;
         }
@@ -76,11 +76,11 @@ public class PopupForUser {
 
                 // That is either assigned to the current user
                 " LEFT OUTER join pasystem_popup_assign assign " +
-                " on assign.uuid = popup.uuid AND assign.user_eid = ?" +
+                " on assign.uuid = popup.uuid AND assign.user_id = ?" +
 
                 // Which the current user hasn't yet dismissed
                 " LEFT OUTER JOIN pasystem_popup_dismissed dismissed " +
-                " on dismissed.uuid = popup.uuid AND dismissed.user_eid = ?" +
+                " on dismissed.uuid = popup.uuid AND dismissed.user_id = ?" +
 
                 " WHERE " +
 
@@ -107,7 +107,7 @@ public class PopupForUser {
                                 @Override
                                 public Popup call(DBConnection db) throws SQLException {
                                     try (DBResults results = db.run(sql)
-                                            .param(eid).param(eid)
+                                            .param(userId).param(userId)
                                             .param(now).param(now).param(now)
                                             .param(getTemporaryTimeoutMilliseconds())
                                             .executeQuery()) {

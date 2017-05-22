@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.shared.impl.assessment;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 public class ItemServiceImpl implements ItemServiceAPI
 {
 
-  private Log log = LogFactory.getLog(ItemServiceImpl.class);
+  private Logger log = LoggerFactory.getLogger(ItemServiceImpl.class);
 
  /**
  * Get a particular item.

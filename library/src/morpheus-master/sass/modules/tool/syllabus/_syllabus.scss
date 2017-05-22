@@ -1,0 +1,183 @@
+.#{$namespace}sakai-syllabus {
+
+  @media print {
+    .noprint {
+      display: none;
+    }
+  }
+
+  /* css for timepicker */
+  .ui-timepicker-div {
+    .ui-widget-header {
+      margin-bottom: 8px;
+    }
+    dl {
+      text-align: left;
+      dt {
+        height: 25px;
+        margin-bottom: -25px;
+      }
+      dd {
+        margin: 0 10px 10px 65px;
+      }
+    }
+    td {
+      font-size: 90%;
+    }
+  }
+
+  .ui-tpicker-grid-label {
+    background: none;
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ui-timepicker-rtl {
+    direction: rtl;
+    dl {
+      text-align: right;
+      dd {
+        margin: 0 65px 10px 10px;
+      }
+    }
+  }
+
+  .editItem:hover {
+    padding-right: 18px;
+
+    position: relative;
+    cursor: pointer;
+
+    &:before {
+      @extend .fa;
+      @extend .fa-pencil;
+
+      color: $link-color;
+
+      position: absolute;
+      right: 0;
+    }
+
+    &.bodyInput {
+      &:before {
+        right: auto;
+        left: 0;
+      }
+    }
+  }
+
+  .bodyInput {
+    padding-left: 20px !important;
+    background-position: left top !important;
+    padding-right: 0 !important;
+  }
+
+  div.ui-tooltip {
+    max-width: 8000px;
+  }
+
+  a.draft {
+    color: grey !important;
+  }
+
+  .accordion-items-container {
+    display: block;
+    margin: 20px 0;
+  }
+
+  .ui-accordion .ui-accordion-header {
+    overflow: auto !important;
+    background-color: #D9EEF7;
+  }
+
+  .ui-state-active a {
+    color: #454545 !important;
+    font-weight: bold;
+  }
+
+  /* IE has layout issues when sorting (see #5413) */
+  .group {
+    zoom: 1;
+  }
+
+  .actionIcon {
+    padding-right: .5em;
+  }
+
+  .startTimeInput, .endTimeInput {
+    padding-right: 22px;
+    margin-left: 4px;
+
+    &:hover {
+      padding-right: 22px;
+
+      &:before {
+        right: 4px;
+      }
+    }
+  }
+
+  .popupMessage {
+    background-color: #ffe;
+    position: absolute;
+    top: 20px;
+    z-index: 1000;
+    left: 30%;
+    right: 30%;
+    width: auto;
+  }
+
+  .editable-pre-wrapped {
+    white-space: normal;
+  }
+
+  // main listing page
+  #syllabus {
+    #accordion {
+      .ui-accordion {
+        margin-bottom: 20px;
+
+        .ui-accordion-header {
+          min-height: 42px;
+          padding: 12px 10px;
+          border-color: #E5E5E5;
+          background: #FAFAFA;
+
+          .edit-actions {
+            float: right;
+
+            .fa {
+              color: $text-color !important;
+            }
+          }
+          .fa.fa-arrows {
+            color: $text-color !important;
+          }
+
+          .editItemTitle {
+            font-weight: bold;
+            color: $primary-color;
+            padding-left: 0;
+            margin-left: 0;
+            display: inline-block;
+          }
+
+          .draft {
+            .editItemTitle {
+              margin-left: 5px;
+            }
+          }
+        }
+
+        .ui-accordion-header-icon {
+          display: none;
+        }
+
+        .ui-accordion-content {
+          border-color: #E5E5E5;
+        }
+      }
+    }
+  }
+}

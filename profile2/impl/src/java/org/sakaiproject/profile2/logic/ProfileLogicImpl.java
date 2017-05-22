@@ -16,33 +16,27 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.conversion.ProfileConverter;
 import org.sakaiproject.profile2.dao.ProfileDao;
-import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
-import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
-import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.Person;
-import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfileLogic for Profile2.
@@ -52,11 +46,12 @@ import org.sakaiproject.user.api.User;
  */
 public class ProfileLogicImpl implements ProfileLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileLogicImpl.class);
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public UserProfile getUserProfile(final String userUuid) {
 	    return getUserProfile(userUuid, null);
     }
@@ -64,6 +59,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public UserProfile getUserProfile(final String userUuid, final String siteId) {
 		
 		//check auth and get currentUserUuid
@@ -86,11 +82,12 @@ public class ProfileLogicImpl implements ProfileLogic {
 		p.setImageUrl(imageLogic.getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN));
 		p.setImageThumbUrl(imageLogic.getProfileImageEntityUrl(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL));
 			
-		//get SakaiPerson
 		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		if(sakaiPerson == null) {
-			//no profile, return basic info only.
-			return p;
+		if (sakaiPerson == null) {
+			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
+			if (sakaiPerson == null) {
+				return p;
+			}
 		}
 		
 		//transform
@@ -98,7 +95,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		//if person requested own profile or superuser, no need for privacy checks
 		//add the additional information and return
-		if(userUuid.equals(currentUserUuid) || sakaiProxy.isSuperUser()) {
+		if(StringUtils.equals(userUuid, currentUserUuid) || sakaiProxy.isSuperUser()) {
 			p.setEmail(u.getEmail());
 			p.setStatus(statusLogic.getUserStatus(userUuid));
 			p.setSocialInfo(getSocialNetworkingInfo(userUuid));
@@ -190,6 +187,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean saveUserProfile(SakaiPerson sp) {
 		
 		if(sakaiProxy.updateSakaiPerson(sp)) {
@@ -209,6 +207,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean addNewCompanyProfile(final CompanyProfile companyProfile) {
 		
 		if(dao.addNewCompanyProfile(companyProfile)){
@@ -222,6 +221,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean updateCompanyProfile(final CompanyProfile companyProfile) {
 
 		if(dao.updateCompanyProfile(companyProfile)){
@@ -234,6 +234,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<CompanyProfile> getCompanyProfiles(final String userId) {
 		return dao.getCompanyProfiles(userId);
 	}
@@ -241,6 +242,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean removeCompanyProfile(String userId, long companyProfileId) {
 		if (userId == null || Long.valueOf(companyProfileId) == null) {
 			throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeCompanyProfile()");
@@ -265,6 +267,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public SocialNetworkingInfo getSocialNetworkingInfo(final String userId) {
 		
 		if(userId == null){
@@ -282,6 +285,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean saveSocialNetworkingInfo(SocialNetworkingInfo socialNetworkingInfo) {
 
 		if(dao.saveSocialNetworkingInfo(socialNetworkingInfo)) {
@@ -295,6 +299,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public BasicPerson getBasicPerson(String userUuid) {
 		return getBasicPerson(sakaiProxy.getUserById(userUuid));
 	}
@@ -302,6 +307,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public BasicPerson getBasicPerson(User user) {
 		BasicPerson p = new BasicPerson();
 		p.setUuid(user.getId());
@@ -313,6 +319,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<BasicPerson> getBasicPersons(List<User> users) {
 		List<BasicPerson> list = new ArrayList<BasicPerson>();
 		for(User u:users){
@@ -324,6 +331,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public Person getPerson(String userUuid) {
 		return getPerson(sakaiProxy.getUserById(userUuid));
 	}
@@ -331,6 +339,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public Person getPerson(User user) {
 		//catch for non existent user
 		if(user == null){
@@ -351,9 +360,10 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<Person> getPersons(List<User> users) {
-		List<Person> list = new ArrayList<Person>();
-		for(User u:users){
+		List<Person> list = new ArrayList();
+		for (User u : users) {
 			list.add(getPerson(u));
 		}
 		return list;
@@ -362,6 +372,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public List<String> getAllSakaiPersonIds() {
 		return dao.getAllSakaiPersonIds();
 	}
@@ -369,6 +380,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public int getAllSakaiPersonIdsCount() {
 		return dao.getAllSakaiPersonIdsCount();
 	}

@@ -26,11 +26,11 @@ import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 import javax.faces.event.PhaseListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FacesPhaseListener implements PhaseListener {
-	private static final Log logger = LogFactory.getLog(FacesPhaseListener.class);
+	private static final Logger logger = LoggerFactory.getLogger(FacesPhaseListener.class);
 
 	public PhaseId getPhaseId() {
 		return PhaseId.ANY_PHASE;

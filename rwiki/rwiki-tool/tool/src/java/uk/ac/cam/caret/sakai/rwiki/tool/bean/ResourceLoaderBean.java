@@ -27,8 +27,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -36,7 +36,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class ResourceLoaderBean implements Map
 {
-	private static Log log = LogFactory.getLog(ResourceLoaderBean.class);
+	private static Logger log = LoggerFactory.getLogger(ResourceLoaderBean.class);
 
 	private static final String RESOURCE_BUNDLE = "uk.ac.cam.caret.sakai.rwiki.tool.bundle.Messages";
 

@@ -33,7 +33,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -93,7 +94,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class SamigoSupport {
 	
-	private static Logger logger = Logger.getLogger(SamigoSupport.class);
+	private static Logger logger = LoggerFactory.getLogger(SamigoSupport.class);
 	private static final String CAN_TAKE = "assessment.takeAssessment";
 	private static final String CAN_PUBLISH = "assessment.publishAssessment.any";
 
@@ -217,7 +218,7 @@ public class SamigoSupport {
 				String localeCode) {
 			Map<String, Object> values = new HashMap<String, Object>();
 
-
+			ResourceLoader rl = new ResourceLoader("dash_entity");
 			PublishedAssessmentFacade pub = getPublishedAssessment(entityReference);
 			if(pub != null) {
 				AssessmentAccessControlIfc accessControl = null;
@@ -229,18 +230,18 @@ public class SamigoSupport {
 
 				DateFormat df = DateFormat.getDateTimeInstance();
 
-				values.put(VALUE_NEWS_TIME, df.format(pub.getCreatedDate()));
-				values.put(VALUE_OPEN_TIME, df.format(accessControl.getStartDate()));
-				values.put(VALUE_DUE_TIME, df.format(accessControl.getDueDate()));
-				values.put(VALUE_CLOSE_TIME, df.format(accessControl.getRetractDate()));
-
+				values.put(VALUE_NEWS_TIME, pub.getCreatedDate() == null ? rl.getString("dash.notset") : df.format(pub.getCreatedDate()));
+				values.put(VALUE_OPEN_TIME, accessControl.getStartDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getStartDate()));
+				values.put(VALUE_DUE_TIME, accessControl.getDueDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getDueDate()));
+				values.put(VALUE_CLOSE_TIME, accessControl.getRetractDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getRetractDate()));
+				
 				// "entity-type": "assignment"
 				values.put(DashboardEntityInfo.VALUE_ENTITY_TYPE, IDENTIFIER);
 
 				values.put(VALUE_MAX_GRADE, pub.getTotalScore().toString());
 
 				// "calendar-time": 1234567890
-				values.put(VALUE_CALENDAR_TIME, df.format(accessControl.getDueDate()));
+				values.put(VALUE_CALENDAR_TIME, accessControl.getDueDate() == null ? rl.getString("dash.notset") : df.format(accessControl.getDueDate()));
 				// "description": "Long thing, markup, escaped",
 				values.put(VALUE_DESCRIPTION, pub.getDescription());
 				// "title": "Assignment hoedown"

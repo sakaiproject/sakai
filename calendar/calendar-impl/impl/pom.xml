@@ -17,7 +17,10 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2003</inceptionYear>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -66,11 +69,6 @@
             <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>avalon-framework</groupId>
-            <artifactId>avalon-framework</artifactId>
-            <version>20020627</version>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
@@ -86,11 +84,6 @@
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
         </dependency>
-        <!-- ical4j is dependent on backport -->
-   		<dependency>
-			<groupId>backport-util-concurrent</groupId>
-			<artifactId>backport-util-concurrent</artifactId>
-		</dependency>
         <dependency>
             <groupId>fop</groupId>
             <artifactId>fop</artifactId>
@@ -111,15 +104,47 @@
             <artifactId>ehcache-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-impl</artifactId>
+            <version>${sakai.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.9</version>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4-common</artifactId>
+            <version>${sakai.powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4-rule</artifactId>
+            <version>${sakai.powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-classloading-xstream</artifactId>
+            <version>${sakai.powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-classloading-base</artifactId>
+            <version>${sakai.powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${sakai.powermock.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -147,6 +172,16 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.ics</include>
+                </includes>
+            </testResource>
+        </testResources>
         
     </build>
 </project>

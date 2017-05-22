@@ -1,9 +1,11 @@
 package org.sakaiproject.component.app.scheduler.jobs.logmessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.component.app.scheduler.jobs.AbstractConfigurableJob;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 /**
  * This is a simple Job that allows a message to be logged.
@@ -11,12 +13,14 @@ import org.sakaiproject.component.app.scheduler.jobs.AbstractConfigurableJob;
  */
 public class LogMessageJob extends AbstractConfigurableJob {
 
+    private static final Marker fatal = MarkerFactory.getMarker("FATAL");
+
     @Override
     public void runJob() throws JobExecutionException {
         String level = getConfiguredProperty("level");
         String message = getConfiguredProperty("message");
         String logger = getConfiguredProperty("logger");
-        Log log = LogFactory.getLog(logger);
+        Logger log = LoggerFactory.getLogger(logger);
         if ("trace".equalsIgnoreCase(level)) {
             log.trace(message);
         } else if ("debug".equalsIgnoreCase(level)) {
@@ -28,7 +32,7 @@ public class LogMessageJob extends AbstractConfigurableJob {
         } else if ("error".equalsIgnoreCase(level)) {
             log.error(message);
         } else if ("fatal".equalsIgnoreCase(level)) {
-            log.fatal(message);
+            log.error(fatal, message);
         }
     }
 }

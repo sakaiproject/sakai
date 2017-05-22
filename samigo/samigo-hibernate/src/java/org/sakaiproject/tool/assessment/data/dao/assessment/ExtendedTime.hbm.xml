@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="false">
+    <class name="org.sakaiproject.tool.assessment.data.dao.assessment.ExtendedTime"
+           table="SAM_EXTENDEDTIME_T">
+        <id name="id">
+            <column name="ID" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">SAM_EXTENDEDTIME_S</param>
+            </generator>
+        </id>
+
+        <many-to-one name="assessment" column="ASSESSMENT_ID" unique="false" not-null="false" class="org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData" lazy="false" />
+        <many-to-one name="pubAssessment" column="PUB_ASSESSMENT_ID" unique="false" not-null="false" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData" lazy="false" />
+        <property name="user" column="USER_ID" type="java.lang.String" />
+        <property name="group" column="GROUP_ID" type="java.lang.String" />
+        <property name="startDate" column="START_DATE" type="java.util.Date" />
+        <property name="dueDate" column="DUE_DATE" type="java.util.Date" />
+        <property name="retractDate" column="RETRACT_DATE" type="java.util.Date" />
+        <property name="timeHours" column="TIME_HOURS" type="java.lang.Integer" />
+        <property name="timeMinutes" column="TIME_MINUTES" type="java.lang.Integer" />
+    </class>
+
+    <query name="getEntriesForAss">
+        <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.assessment WHERE eTime.assessment =:assessmentId]]>
+    </query>
+
+    <query name="getEntriesForPub">
+        <![CDATA[FROM ExtendedTime eTime JOIN FETCH eTime.pubAssessment WHERE eTime.pubAssessment = :publishedId]]>
+    </query>
+
+    <query name="getEntriesForPubNUser">
+        <![CDATA[FROM ExtendedTime eTime WHERE eTime.pubAssessment = :publishedId AND eTime.user = :userId]]>
+    </query>
+
+    <query name="getEntriesForPubNGroup">
+        <![CDATA[FROM ExtendedTime eTime WHERE eTime.pubAssessment = :publishedId AND eTime.group = :groupId]]>
+    </query>
+</hibernate-mapping>

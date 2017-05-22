@@ -31,7 +31,8 @@ import java.util.List;
 //import java.util.Random;
 import java.util.Set;
 
-import org.apache.log4j.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -44,7 +45,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public class PublishedSectionData
     implements java.io.Serializable, SectionDataIfc, Comparable{
-  static Category errorLogger = Category.getInstance("errorLogger");
+  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
   public static final Integer ACTIVE_STATUS =  Integer.valueOf(1);
@@ -237,7 +238,7 @@ public class PublishedSectionData
       this.sectionMetaDataMap= new HashMap();
     }
     this.sectionMetaDataMap.put(label, entry);
-    this.sectionMetaDataSet.add(new SectionMetaData(this, label, entry));
+    this.sectionMetaDataSet.add(new PublishedSectionMetaData(this, label, entry));
   }
 
   public ArrayList getItemArray() {
@@ -264,7 +265,7 @@ public class PublishedSectionData
   public void addItem(ItemDataIfc item) {
     if (itemSet == null)
       itemSet = new HashSet();
-    itemSet.add((ItemData) item);
+    itemSet.add(item);
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws IOException {

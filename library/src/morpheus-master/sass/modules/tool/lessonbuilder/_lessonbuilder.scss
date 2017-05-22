@@ -1,0 +1,37 @@
+.Mrphs-sakai-lessonbuildertool{
+	.navIntraTool{
+		margin: 0 0 0 0;
+		padding: 0 0 0 0;
+		border-bottom: 0px none;
+		li{
+			span{
+				a{
+					border-bottom: 1px solid $tool-border-color;
+					display: inline-block;
+				}
+			}
+		}
+	}
+	.portletBody > * {
+		position: inherit;
+		top: 0;
+	}
+	.mainList{
+		list-style: none;
+		padding: 0 0 0 0;
+	}
+
+	label.checklistLabel.disabled:hover {
+		color: $swapped-view-text-color;
+		cursor: not-allowed;
+	}
+
+	label.checklistLabel.disabled {
+		color: $swapped-view-text-color;
+	}
+
+	.checklist-blur label.checklistLabel.disabled, .checklist-blur label.checklistLabel.disabled:hover{
+		text-shadow: 0 0 5px rgba(0,0,0,0.5);
+		color: transparent;
+	}
+}

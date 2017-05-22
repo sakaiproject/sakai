@@ -6,14 +6,14 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class FavoriteColChoiceListener implements ValueChangeListener {
-	 private static Log log = LogFactory.getLog(FavoriteColChoiceListener.class);
+	 private static Logger log = LoggerFactory.getLogger(FavoriteColChoiceListener.class);
 	public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
 	  {
 	    log.debug("FavoriteColChoiceListener: valueChangeLISTENER.");

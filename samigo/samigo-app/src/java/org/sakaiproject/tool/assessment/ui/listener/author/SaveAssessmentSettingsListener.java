@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -33,8 +34,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
@@ -58,7 +59,7 @@ import org.sakaiproject.util.FormattedText;
 public class SaveAssessmentSettingsListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(SaveAssessmentSettingsListener.class);
+  private static Logger log = LoggerFactory.getLogger(SaveAssessmentSettingsListener.class);
   //private static final GradebookServiceHelper gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   //private static final boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
 
@@ -254,7 +255,7 @@ public class SaveAssessmentSettingsListener
     s.save(assessmentSettings, false);
 
     // reset the core listing in case assessment title changes
-    ArrayList assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
+    List<AssessmentFacade> assessmentList = assessmentService.getBasicInfoOfAllActiveAssessments(
     		author.getCoreAssessmentOrderBy(),author.isCoreAscending());
     Iterator iter = assessmentList.iterator();
 	while (iter.hasNext()) {

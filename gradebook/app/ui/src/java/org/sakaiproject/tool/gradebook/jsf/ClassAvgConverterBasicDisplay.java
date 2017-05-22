@@ -25,8 +25,8 @@ package org.sakaiproject.tool.gradebook.jsf;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 import org.sakaiproject.tool.gradebook.ui.GradebookBean;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -42,7 +42,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * grade entry method for this gradebook. Truncates with 0 decimals or uses the config setting.
  */
 public class ClassAvgConverterBasicDisplay extends PointsConverter {
-	private static final Log log = LogFactory.getLog(ClassAvgConverterBasicDisplay.class);
+	private static final Logger log = LoggerFactory.getLogger(ClassAvgConverterBasicDisplay.class);
 
 	private int averageDecimalPlaces = 0;
 

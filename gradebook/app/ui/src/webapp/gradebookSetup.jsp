@@ -45,6 +45,7 @@
 				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade}"
 				valueChangeListener="#{gradebookSetupBean.processGradeEntryMethodChange}" onclick="this.form.submit();">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
+					<f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}"/>
 	        		<f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 				</h:selectOneRadio>
 

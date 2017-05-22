@@ -55,15 +55,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileUploadType extends BaseResourceType 
 {
 	protected String typeId = ResourceType.TYPE_UPLOAD;
 	protected String helperId = "sakai.resource.type.helper";
 
-	private static final Log LOG = LogFactory.getLog(FileUploadType.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FileUploadType.class);
 
 	
 	/** localized tool properties **/
@@ -252,6 +252,20 @@ public class FileUploadType extends BaseResourceType
 			}
 		}
 		return iconLocation;
+	}
+	
+	public String getIconClass(ContentEntity entity) 
+	{
+		String iconClass = null;
+		if(entity != null && entity instanceof ContentResource)
+		{
+			String mimetype = ((ContentResource) entity).getContentType();
+			if(mimetype != null && ! "".equals(mimetype.trim()))
+			{
+				iconClass = contentTypeImageService.getContentTypeImageClass(mimetype);
+			}
+		}
+		return iconClass;
 	}
 	
 	public String getId() 

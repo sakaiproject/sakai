@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
-	   xmlns:context="http://www.springframework.org/schema/context"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd   
-       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd   
-       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 	<!-- FsService is often retrieved from HttpRequest -->
 	<!-- while a static FsService is defined here -->
@@ -14,6 +10,7 @@
 			<bean class="org.sakaiproject.elfinder.sakai.SakaiFsService">
 				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 				<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+				<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 				<property name="securityChecker">
 					<bean class="org.sakaiproject.elfinder.impl.SakaiFsSecurityChecker"/>
 				</property>
@@ -32,10 +29,20 @@
 							<property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
 							<property name="uiPermissionsManager" ref="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"/>
 							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 						</bean>
+
 						<bean class="org.sakaiproject.elfinder.sakai.assignment.AssignmentSiteVolumeFactory">
 							<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+						</bean>
+						<bean class="org.sakaiproject.elfinder.sakai.samigo.SamSiteVolumeFactory">
+							<property name="publishedAssessmentService" >
+								<bean class="org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService"/>
+							</property>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+
 						</bean>
 					</set>
 				</property>

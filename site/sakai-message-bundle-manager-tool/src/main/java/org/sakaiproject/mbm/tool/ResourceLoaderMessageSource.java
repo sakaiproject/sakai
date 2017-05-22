@@ -17,8 +17,8 @@ package org.sakaiproject.mbm.tool;
 import java.text.MessageFormat;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.context.support.AbstractMessageSource;
 
@@ -30,7 +30,7 @@ import org.springframework.context.support.AbstractMessageSource;
  * @author Aaron Zeckoski (azeckoski @ vt.edu)
  */
 public class ResourceLoaderMessageSource extends AbstractMessageSource {
-    private static Log log = LogFactory.getLog(ResourceLoaderMessageSource.class);
+    private static Logger log = LoggerFactory.getLogger(ResourceLoaderMessageSource.class);
 
     ResourceLoader resourceLoader;
 

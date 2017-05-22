@@ -46,8 +46,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
@@ -65,7 +65,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * manager on the back end.
  */
 public class SamigoEmailService {
-	private static Log log = LogFactory.getLog(SamigoEmailService.class);
+	private static Logger log = LoggerFactory.getLogger(SamigoEmailService.class);
 
 	private String fromName;
 	private String fromEmailAddress;

@@ -41,7 +41,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 	
 	private Double pointsEarned;
     private String letterEarned;
-    private String userEnteredGrade;
     private Double percentEarned;
     private boolean userAbleToView;
     private Boolean excludedFromGrade;
@@ -249,14 +248,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 	
 	public void setOverallWeight(BigDecimal overallWeight) {
 		this.overallWeight = overallWeight;
-	}
-
-	public String getUserEnteredGrade() {
-		return userEnteredGrade;
-	}
-
-	public void setUserEnteredGrade(String userEnteredGrade) {
-		this.userEnteredGrade = userEnteredGrade;
 	}
 	
 	public Boolean getDroppedFromGrade() {

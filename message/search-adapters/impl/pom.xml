@@ -12,10 +12,10 @@
     <name>message-search-adapters-impl</name>
     <groupId>org.sakaiproject.message</groupId>
     <artifactId>message-search-adapters-impl</artifactId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <properties>
-        <deploy.target />
+        <deploy.target>components</deploy.target>
         <maven.test.jvmargs />
     </properties>
 
@@ -44,17 +44,6 @@
             <groupId>org.sakaiproject.search</groupId>
             <artifactId>search-util</artifactId>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.13</version>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
     </dependencies>
 
@@ -105,7 +94,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <forkMode>pertest</forkMode>
+                    <reuseFork>false</reuseFork>
                     <argLine>${maven.test.jvmargs}</argLine>
                 </configuration>
             </plugin>

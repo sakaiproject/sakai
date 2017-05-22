@@ -33,8 +33,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.json.IMSJSONRequest;
@@ -80,7 +80,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class LTI2Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(LTI2Servlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(LTI2Servlet.class);
 
 	protected Service_offered LTI2ResultItem = null;
 	protected Service_offered LTI2LtiLinkSettings = null;
@@ -447,7 +447,8 @@ public class LTI2Servlet extends HttpServlet {
 		jsonResponse.put(LTI2Constants.TYPE, StandardServices.TOOLPROXY_ID_TYPE);
 		jsonResponse.put(LTI2Constants.JSONLD_ID, getServiceURL(request) + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, getServiceURL(request) + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
+		// Check if this is needed for 2.1
+		// jsonResponse.put(LTI2Constants.CUSTOM_URL, getServiceURL(request) + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);

@@ -22,8 +22,8 @@ package org.sakaiproject.signup.tool.jsf.organizer.action;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -52,7 +52,7 @@ public class RemoveWaiter implements SignupBeanConstants {
 
 	private final String currentSiteId;
 
-	private Log logger = LogFactory.getLog(getClass());
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final boolean isOrganizer;
 

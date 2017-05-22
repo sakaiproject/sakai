@@ -21,8 +21,8 @@
 
 package org.sakaiproject.content.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -50,7 +50,7 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 public class VirusScannerTest extends SakaiKernelTestBase {
 
     //private static final String SIMPLE_FOLDER1 = "/admin/folder1/";
-    private static final Log log = LogFactory.getLog(VirusScannerTest.class);
+    private static final Logger log = LoggerFactory.getLogger(VirusScannerTest.class);
 
 	@BeforeClass
 	public static void beforeClass() {
@@ -59,7 +59,7 @@ public class VirusScannerTest extends SakaiKernelTestBase {
             oneTimeSetup("antivirus");
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

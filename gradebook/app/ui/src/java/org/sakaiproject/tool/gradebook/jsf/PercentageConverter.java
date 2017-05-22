@@ -26,8 +26,8 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.NumberConverter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -38,7 +38,7 @@ import org.sakaiproject.util.ResourceLoader;
  * decimal places, and then returns it as an integer percentage.
  */
 public class PercentageConverter extends NumberConverter {
-	private static final Log log = LogFactory.getLog(PercentageConverter.class);
+	private static final Logger log = LoggerFactory.getLogger(PercentageConverter.class);
 
 	public PercentageConverter() {
 		setType("percent");

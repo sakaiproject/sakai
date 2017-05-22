@@ -35,6 +35,16 @@ PortletToolRenderService.java, and portlet support code like PortletStateEncoder
 
 * editor-tool
 
+## Special portal URL's/Handlers
+The portal tools has a number of special handlers these are defined/added in the init of [SkinnableCharonPortal](https://github.com/sakaiproject/sakai/blob/master/portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/SkinnableCharonPortal.java)
+
+Some special urls include
+* Generate Bug Report, just tests the bug report, must be logged on as admin.
+  * `/portal/generatebugreport`
+* Direct Tool, goes directly to a tool id given a site id
+  * `/portal/directtool/sakai.samigo?sakai.site=e4a2b1db-f452-4ef0-8aee-b4bdde701c8c`
+  * `/portal/directtool/sakai.rsf.evaluation?sakai.site=~`
+
 ## Information about Morpheus
 - [ Morpheus Documentation ](../reference/README.md)
 

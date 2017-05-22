@@ -10,6 +10,7 @@ var noEditor = true;
 var userAgent = navigator.userAgent;
 var fckEditor = false;
 var ckEditor = false;
+var commentsToLoad = 0;
 
 $(function() {
 	
@@ -45,6 +46,7 @@ $(function() {
 		cache: false
 	});
 	
+	commentsToLoad = $(".replaceWithComments").size();
 	$(".replaceWithComments").each(function(index) {
 		var pageToRequest = $(this).parent().parent().children(".commentsBlock").attr("href");
 		// remove  pda/SITEID/. We don't want the portal to hack on this
@@ -80,7 +82,13 @@ $(function() {
 	});
 });
 
+/* only do this once if there is more than one comment block */
 function commentsLoaded() {
+	if (commentsToLoad > 1) {
+	    commentsToLoad--;
+	    return;
+	}
+	fixupHeights();
 	setMainFrameHeight(window.name);
 	
 	$(".pointsBox").unbind("keyup");
@@ -122,9 +130,9 @@ function loadMore(link) {
 	var i = pageToRequest.indexOf("Comment");
 	pageToRequest = "/lessonbuilder-tool/faces/" + pageToRequest.substring(i);
 	
+	commentsToLoad = $(link).parents(".replaceWithComments").size();
 	$(link).parents(".replaceWithComments").load(pageToRequest, commentsLoaded);
-	
-	setMainFrameHeight(window.name);
+
 }
 
 function performHighlight() {

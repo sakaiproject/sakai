@@ -23,7 +23,7 @@ abstract public class AttendeeEmailBase extends SignupEmailBase {
         events.addAll(eventsWhichUserIsAttending(user));
 
         for (VEvent event : events) {
-            calendarHelper.addUsersToVEvent(event, Collections.singletonList(user));
+            calendarHelper.addUsersToVEvent(event, Collections.singleton(user));
         }
 
         return events;

@@ -24,8 +24,8 @@ import java.io.Serializable;
 
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
@@ -40,7 +40,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class TestWSBean
   implements Serializable
 {
-  private static Log log = LogFactory.getLog(TestWSBean.class);
+  private static Logger log = LoggerFactory.getLogger(TestWSBean.class);
   private String itemid;
   private String itembankxml;
 

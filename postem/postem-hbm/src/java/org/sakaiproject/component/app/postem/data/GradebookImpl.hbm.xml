@@ -1,11 +1,8 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping
-    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.component.app.postem.data">
 
-<hibernate-mapping>
-
-	<class name="org.sakaiproject.component.app.postem.data.GradebookImpl" table="SAKAI_POSTEM_GRADEBOOK" optimistic-lock="version">
+<class name="org.sakaiproject.component.app.postem.data.GradebookImpl" table="SAKAI_POSTEM_GRADEBOOK" optimistic-lock="version">
 
 		<id name="id" type="long">
 			<column name="id" not-null="true" length="19" />

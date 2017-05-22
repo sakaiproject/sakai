@@ -29,14 +29,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
 
@@ -57,7 +58,7 @@ import com.novell.ldap.LDAPEntry;
 public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(SimpleLdapAttributeMapper.class);
+	private static Logger M_log = LoggerFactory.getLogger(SimpleLdapAttributeMapper.class);
 	
 	/**
 	 * User entry attribute mappings. Keys are logical attr names,
@@ -366,7 +367,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         				"][physical attr name = " + attribute.getName() + 
         				"][value = " + attrValue + "]");
         	}
-            userData.setProperty(logicalAttrName, attrValue);
+        	// Support multivalue attributes.
+        	String[] attrValues = attribute.getStringValueArray();
+        	if (attrValues.length > 1) {
+        		List<String> newList = Arrays.asList(attrValues);
+        		userData.getProperties().put(logicalAttrName, newList);
+        	} else {
+        		userData.setProperty(logicalAttrName, attrValue);
+        	}
         }
         
     }
@@ -405,8 +413,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		Properties srcProps = userData.getProperties();
 		ResourceProperties tgtProps = userEdit.getProperties();
 		for ( Entry srcProp : srcProps.entrySet() ) {
-			tgtProps.addProperty((String)srcProp.getKey(), 
-					(String)srcProp.getValue());
+			if (srcProp.getValue() instanceof String) {
+				tgtProps.addProperty((String)srcProp.getKey(), 
+						(String)srcProp.getValue());
+			} else if (srcProp.getValue() instanceof List) {
+				for(String value: (List<String>)srcProp.getValue()) {
+					tgtProps.addPropertyToList((String) srcProp.getKey(), value);
+				}
+			}
 		}
 		
 	}
@@ -505,11 +519,9 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 			physicalAttrNames = new String[0];
 			return;
 		}
-		physicalAttrNames = new String[attributeMappings.size()];
-		int k = 0;
-		for ( String name : attributeMappings.values() ) {
-			physicalAttrNames[k++] = name;
-		}
+
+		// filter out any duplicate values so we don't request them twice
+		physicalAttrNames = attributeMappings.values().stream().distinct().toArray(String[]::new);
 	}
     
     /**

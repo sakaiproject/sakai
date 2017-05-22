@@ -1,6 +1,18 @@
 // 'Namespace'
 var ASN = ASN || {};
 
+// http://stackoverflow.com/a/6021027/3708872
+ASN.updateQueryStringParameter = function(uri, key, value) {
+  var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+  var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+  if (uri.match(re)) {
+    return uri.replace(re, '$1' + key + "=" + value + '$2');
+  }
+  else {
+    return uri + separator + key + "=" + value;
+  }
+}
+
 ASN.getSelect = function(selectBox) {
     if (selectBox && selectBox instanceof HTMLSelectElement) { 
         return selectBox.options[selectBox.selectedIndex].value;
@@ -727,6 +739,10 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
     {
         extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
     }
+    if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+    }
     if (extraInfoArray.length === 0)
     {
         alert(alertMessage);
@@ -789,7 +805,7 @@ ASN.submitForm = function( formID, option, submissionID, view )
         // Apply the submission ID to the form's action if one is supplied
         if( submissionID !== null )
         {
-            form.action += "&submissionId=" + submissionID;
+            form.action = ASN.updateQueryStringParameter(form.action,"submissionId",submissionID);
         }
 
         // Do the onsubmit() if the form has one
@@ -890,9 +906,72 @@ ASN.toggleAutoAnnounceOptions = function(checked){
     var section = document.getElementById("selectAutoAnnounceOptions");
     if(checked){
         section.style.display="block";
-        resizeFrame('grow');
+        ASN.resizeFrame('grow');
     }else{
         section.style.display="none";
-        resizeFrame('shrink');
+        ASN.resizeFrame('shrink');
     }
 };
+
+// SAK-30032
+ASN.setupPeerReviewAttachment = function(){
+    $('#submissionFileCount').val(1);
+    $('#addMoreAttachmentControls').click(function(e){
+        e.preventDefault();
+        if ($('#submissionFileCount').val() < 5) {
+            var $input = $('#clonableUpload').clone().removeAttr('id').addClass('cloned').appendTo('#clonedHolder').children('input');
+            $input.val('');
+            var $count = $('#submissionFileCount').val();
+            var $nameCount = "upload"+$count;
+            $input.attr("name", $nameCount);
+            $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
+            if ($('#submissionFileCount').val() == 5) {
+                $('#addMoreAttachmentControls').hide();
+                $('#addMoreAttachmentControlsInactive').show();
+            }
+        }
+        $('.cloned a').show();
+        ASN.resizeFrame('grow');
+    });
+    var notifyDeleteControl = function(){
+        $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
+        if ($('#submissionFileCount').val() < 5) {
+            $('#addMoreAttachmentControls').show();
+            $('#addMoreAttachmentControlsInactive').hide();
+        }
+    };
+};
+
+// SAK-30032
+ASN.submitPeerReviewAttachment = function(id, action)
+{
+    var theForm = document.getElementById(id);
+    if(action !== null) {
+        theForm.action = action;
+    }
+    if(theForm && theForm.onsubmit) {
+        theForm.onsubmit();
+    }
+    if(theForm && theForm.submit) {
+        theForm.submit();
+    }
+};
+
+
+ASN.handleReportsTriangleDisclosure = function (header, content)
+{
+    var headerSrc = header.src;
+    var expand = "/library/image/sakai/expand.gif";
+    var collapse = "/library/image/sakai/collapse.gif";
+    if (headerSrc.indexOf(expand) !== -1)
+    {
+        header.src = collapse;
+        content.removeAttribute("style");
+        ASN.resizeFrame();
+    }
+    else if (headerSrc.indexOf(collapse) !== -1)
+    {
+        header.src = expand;
+        content.style.display = "none";
+    }
+}

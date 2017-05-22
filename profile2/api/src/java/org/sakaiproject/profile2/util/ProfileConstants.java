@@ -124,7 +124,7 @@ public class ProfileConstants {
 	public static final String USER_PROPERTY_JPEG_PHOTO = "jpegPhoto";
 	
 	//gravatar base URL
-	public static final String GRAVATAR_BASE_URL = "http://www.gravatar.com/avatar/";
+	public static final String GRAVATAR_BASE_URL = "//www.gravatar.com/avatar/";
 
     // Defines the name of the blank image, the one a user gets when nothing else is available
     public static final String BLANK = "blank";
@@ -212,7 +212,7 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_INTERESTS_ENABLED = true; //profile2.profile.interests.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED = false; //profile2.official.image.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED = true; //profile2.gravatar.image.enabled
-	public static final boolean SAKAI_PROP_PROFILE2_WALL_ENABLED = true; //profile2.wall.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_WALL_ENABLED = false; //profile2.wall.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_DEFAULT = false; //profile2.wall.default
 	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_ENABLED = false; //profile2.import
@@ -276,6 +276,8 @@ public class ProfileConstants {
 	public static final String TAB_COOKIE = "profile2-tab";
 	public static final int TAB_INDEX_PROFILE = 0;
 	public static final int TAB_INDEX_WALL = 1;
+	public static final String PROFILE = "profile";
+	public static final String WALL = "wall";
 	
 	/*
 	 * WALL 

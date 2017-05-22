@@ -22,16 +22,13 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -48,6 +45,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * Handler to process directtool urls including storing destination state
@@ -59,7 +58,9 @@ import org.sakaiproject.util.Web;
  */
 public class DirectToolHandler extends BasePortalHandler
 {
-	private static Log M_log = LogFactory.getLog(DirectToolHandler.class);
+	private static Logger M_log = LoggerFactory.getLogger(DirectToolHandler.class);
+
+	private static ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class);
 
 	public static final String URL_FRAGMENT = "directtool";
 
@@ -156,6 +157,14 @@ public class DirectToolHandler extends BasePortalHandler
 			return END;
 		}
 
+		// toolContextPath will may be /portal/directtool/tttt.
+		// we need /portal/site/NNN/tool/tttt in order to get full markup
+		// storedstate will replace directool with tool, so we just insert site
+		String portalPath = serverConfigurationService.getString("portalPath", "/portal");
+		if (toolContextPath.startsWith(portalPath + "/directtool/")) {
+		    toolContextPath = portalPath + "/site/" + siteTool.getSiteId() + toolContextPath.substring(portalPath.length());
+		}
+
 		// permission check - visit the site (unless the tool is configured to
 		// bypass)
 		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
@@ -163,13 +172,6 @@ public class DirectToolHandler extends BasePortalHandler
 			Site site = null;
 			try
 			{
-				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
-				if (advisors != null) {
-					for (SecurityAdvisor advisor:advisors) {
-						SecurityService.pushAdvisor(advisor);
-						//session.removeAttribute("sitevisit.security.advisor");
-					}
-				}
 				site = SiteService.getSiteVisit(siteTool.getSiteId());
 			}
 			catch (IdUnusedException e)

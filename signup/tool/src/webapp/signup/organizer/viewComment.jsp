@@ -29,7 +29,7 @@
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>
-											
+				<div class="table-responsive">
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
 				
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
@@ -62,7 +62,7 @@
 					<h:outputText value="#{EditCommentSignupMBean.comment}" escape="false" styleClass="longtext" rendered="#{EditCommentSignupMBean.comment !=null}"/>
 					<h:outputText value="#{msgs.event_no_comment_available}" escape="false" styleClass="longtext" rendered="#{EditCommentSignupMBean.comment ==null}"/>																	
 						
-				</h:panelGrid>
+				</h:panelGrid></div>
 															
 				<sakai:button_bar>
 					<h:commandButton id="save" action="#{EditCommentSignupMBean.editAttendeeComment}" value="#{msgs.edit_button}"/> 			

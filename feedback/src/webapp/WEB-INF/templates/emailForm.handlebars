@@ -1,0 +1,43 @@
+<h2 id="feedback-title">{{translate 'title'}}</h2>
+<div id="feedback-overview" class="instruction">{{translate instructionKey instructionUrl=instructionUrl}}</div>
+<form id="feedback-form" action="/direct/feedback/{{siteId}}/{{url}}" method="POST">
+    <div id="feedback-mandatory-instruction" class="instruction">{{translate 'mandatory_instruction'}}</div>
+    <fieldset>
+    <div class="feedback-form-field">
+    	<label for="feedback-title">{{translate 'title_label'}}</label>
+    	<input id="feedback-title" type="text" name="title" maxlength="40" size="40"/>
+    </div>
+    <div class="feedback-form-field">
+    	<label for="feedback-description">{{translate 'description_label'}}</label>
+    	<textarea id="feedback-description" name="description" cols="80" rows="5"></textarea>
+    </div>
+    <div id="feedback-sender-address-wrapper" class="feedback-form-field">
+    	<label for="feedback-sender-address">{{translate 'sender_address_label'}}</label>
+    	<input id="feedback-sender-address" type="text" name="senderaddress" size="40"/>
+    </div>
+    
+    <input id="feedback-destination-email" value="{{destinationAddress}}" hidden="hidden"/>
+    <input id="feedback-contactname" value="{{contactName}}" hidden="hidden"/>
+    <input type="hidden" name="siteExists" value="{{siteExists}}"/>
+    <input name="plugins" value="{{plugins}}" type="hidden"/>
+    <input name="screenWidth" value="{{screenWidth}}" type="hidden"/>
+    <input name="screenHeight" value="{{screenHeight}}" type="hidden"/>
+    <input name="oscpu" value="{{oscpu}}" type="hidden"/>
+    <input name="windowWidth" value="{{windowWidth}}" type="hidden"/>
+    <input name="windowHeight" value="{{windowHeight}}" type="hidden"/>
+    <div id="feedback-attachments-label">
+        <span>{{translate 'attachments_label'}}</span>
+        <span id="feedback-max-attachments-label">
+            <span id="feedback-max-attachments-mb"></span>
+            <span id="feedback-attachments-max-suffix">{{translate 'attachments_max_suffix'}}</span>
+        </span>
+    </div>
+    <input id="feedback-attachment" name="attachment" title="{{translate 'attachments_select_attachment'}}" type="file" class="multi"/><br clear="all"/>
+    <div id="feedback-recaptcha-wrapper">
+        <div>Enter the text that you see in the box below:</div>
+        <div id="feedback-recaptcha-block"></div>
+    </div>
+    </fieldset>
+    <input id="feedback-submit-button" type="submit" value="{{translate 'submit_label'}}" />
+    <input id="feedback-cancel-button" type="submit" value="{{translate 'cancel_label'}}" />
+</form>

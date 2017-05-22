@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -36,7 +36,7 @@ public class AliasingSiteAdvisor implements Observer
 	 */
 	private static final String PORTAL_USE_PAGE_ALIASES = "portal.use.page.aliases";
 
-	private static Log log = LogFactory.getLog(AliasingSiteAdvisor.class);
+	private static Logger log = LoggerFactory.getLogger(AliasingSiteAdvisor.class);
 	
 	private static String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
 	
@@ -140,7 +140,7 @@ public class AliasingSiteAdvisor implements Observer
 				}
 				catch (PermissionException e)
 				{
-					// Log and there isn't any point in carrying on.
+					// Logger and there isn't any point in carrying on.
 					log.warn("Lack of permission to create alias: "+ e.getMessage());
 					break;
 				}

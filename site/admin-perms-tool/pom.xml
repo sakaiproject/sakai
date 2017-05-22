@@ -18,6 +18,10 @@
   </organization>
   <inceptionYear>2008</inceptionYear>
   <packaging>war</packaging>
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+  </properties>
 
   <dependencies>
     <!-- we are running a webapp in a servlet container so we need the servlet API -->
@@ -94,17 +98,6 @@
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
       <scope>runtime</scope>
-    </dependency>
-    <!-- Sakai uses apache commons logging -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <!-- testing dependencies -->
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

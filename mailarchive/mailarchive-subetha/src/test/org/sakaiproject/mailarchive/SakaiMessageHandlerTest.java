@@ -138,7 +138,6 @@ public class SakaiMessageHandlerTest {
     @Test()
     public void testIgnorePostmaster() throws Exception {
         when(aliasService.getTarget("postmaster")).thenThrow(IdUnusedException.class);
-        when(rb.getString("err_addr_unknown")).thenReturn("err_addr_unknown");
         SmartClient client = createClient();
         client.from("sender@example.com");
         client.to("postmaster@sakai.example.com");
@@ -163,6 +162,31 @@ public class SakaiMessageHandlerTest {
         SmartClient client = createClient();
         client.from("sender@example.com");
         client.to("siteId@sakai.example.com");
+        writeData(client, "/simple-email.txt");
+
+        verify(channel, times(1)).addMailArchiveMessage(anyString(), eq("sender@example.com"), any(), any(), any(), any());
+    }
+
+    @Test
+    // Check that the BATV parsing is working correctly
+    public void testSiteIdAcceptBatv() throws Exception {
+        User sender = mock(User.class);
+        when(userDirectoryService.findUsersByEmail("sender@example.com")).thenReturn(Collections.singleton(sender));
+
+        MailArchiveChannel channel = mock(MailArchiveChannel.class);
+        when(channel.getEnabled()).thenReturn(true);
+        when(channel.getOpen()).thenReturn(false);
+        when(channel.allowAddMessage(sender)).thenReturn(true);
+        when(channel.getId()).thenReturn("channelId");
+        when(channel.getContext()).thenReturn("siteId");
+
+        when(mailArchiveService.channelReference("siteId", SiteService.MAIN_CONTAINER)).thenReturn("/site/siteId");
+        when(mailArchiveService.getMailArchiveChannel("/site/siteId")).thenReturn(channel);
+
+        SmartClient client = createClient();
+        client.from("prvs=2987A7B7C7=sender@example.com");
+        client.to("siteId@sakai.example.com");
+        // BATV is only in the envelope so the mail message should be the same.
         writeData(client, "/simple-email.txt");
 
         verify(channel, times(1)).addMailArchiveMessage(anyString(), eq("sender@example.com"), any(), any(), any(), any());

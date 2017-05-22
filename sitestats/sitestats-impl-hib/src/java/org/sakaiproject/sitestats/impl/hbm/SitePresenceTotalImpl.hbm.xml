@@ -1,8 +1,7 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping
-    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<hibernate-mapping>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.sitestats.impl">
+
     <class name="org.sakaiproject.sitestats.impl.SitePresenceTotalImpl"
         table="SST_PRESENCE_TOTALS"
         lazy="true">
@@ -12,10 +11,10 @@
             </generator>
         </id>
         <property name="siteId" type="string" not-null="true">
-            <column name="SITE_ID" length="99" not-null="true" unique-key="spt-key"/>
+            <column name="SITE_ID" length="99" not-null="true" unique-key="spt_site_user_key"/>
         </property>
         <property name="userId" type="string" not-null="true">
-            <column name="USER_ID" length="99" not-null="true" unique-key="spt-key"/>
+            <column name="USER_ID" length="99" not-null="true" unique-key="spt_site_user_key"/>
         </property>
         <property name="totalVisits" type="integer" not-null="true">
             <column name="TOTAL_VISITS" not-null="true" />

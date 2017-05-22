@@ -146,7 +146,7 @@ function switchui()
 <% } %>
 <% if ( allow(sp,"secret") ) { %>
 <p  class="shorttext" style="clear:none;">
-<span class="reqStar">*</span>	<label for="imsti.secret"><%=rb.getString("tool.secret") %></label>
+<span class="reqStar">*</span><label for="imsti.secret"><%=rb.getString("tool.secret") %></label>
 <input type="password" name="imsti.secret" id="imsti.secret" value="<%=ov.getProperty("imsti.secret","")%>"> 
 <%=rb.getString("tool.secret.detail") %>
 </p>
@@ -221,14 +221,15 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") ) { %>
 <h3><%=rb.getString("launch.information") %></h3>
 <% if ( allow(sp,"newpage") ) { %>
-<p class="checkbox indnt1">
+<p>
+<label for="imsti.newpage">
 <input type="checkbox" size="10" name="imsti.newpage" id="imsti.newpage" 
 <% if ( ov.getProperty("imsti.newpage",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<label for="imsti.newpage"><%=rb.getString("new.page") %></label><%=rb.getString("new.page.detail") %>
+<%=rb.getString("new.page") %></label><%=rb.getString("new.page.detail") %>
 </p>
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>
@@ -239,14 +240,15 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </p>
 <% } %>
 <% if ( allow(sp,"debug") ) { %>
-<p class="checkbox indnt1">
+<p>
+<label for="imsti.debug">
 <input type="checkbox" size="10" name="imsti.debug" id="imsti.debug" 
 <% if ( ov.getProperty("imsti.debug",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<label for="imsti.debug"><%=rb.getString("debug.launch") %></label>
+<%=rb.getString("debug.launch") %></label>
 <span class="textPanelFooter"><%=rb.getString("debug.launch.detail") %></span>
 </p>
 <% } %>
@@ -258,38 +260,42 @@ if ( document.getElementById("UISwitcher") ) switchui();
 ) { %>
 <h3><%=rb.getString("launch.privacy") %></h3>
 <% if ( allow(sp,"releasename") ) { %>
-	<p class="checkbox indnt1">
-		<input type="checkbox" size="10" name="imsti.releasename" id="imsti.releasename" 
-		<% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
-  		checked="yes" />
-			<% } else { %>
-   		/>
-		<% } %>
-		<label for="imsti.releasename"><%=rb.getString("privacy.releasename") %></label>
+	<p>
+		<label for="imsti.releasename">
+			<input type="checkbox" size="10" name="imsti.releasename" id="imsti.releasename" 
+			<% if ( ov.getProperty("imsti.releasename",null) != null ) { %>
+  			checked="yes" />
+				<% } else { %>
+   			/>
+			<% } %>
+			<%=rb.getString("privacy.releasename") %>
+		</label>
 	</p>
 <% } %>
 <% if ( allow(sp,"releaseemail") ) { %>
-	<p class="checkbox indnt1">
-		<input type="checkbox" size="10" name="imsti.releaseemail" id="imsti.releaseemail" 
-		<% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
-  		checked="yes" />
-		<% } else { %>
-   		/>
-		<% } %>
-	<label for="imsti.releaseemail"><%=rb.getString("privacy.releaseemail") %></label>	
+	<p>
+		<label for="imsti.releaseemail">
+			<input type="checkbox" size="10" name="imsti.releaseemail" id="imsti.releaseemail" 
+			<% if ( ov.getProperty("imsti.releaseemail",null) != null ) { %>
+  			checked="yes" />
+			<% } else { %>
+   			/>
+			<% } %>
+			<%=rb.getString("privacy.releaseemail") %>
+		</label>	
 	<span class="textPanelFooter"><%=rb.getString("launch.privacy.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"allowroster") && allowRoster ) { %>
 <p>
-
+<label for="imsti.allowroster">
 <input type="checkbox" size="10" name="imsti.allowroster" id="imsti.allowroster" 
 <% if ( ov.getProperty("imsti.allowroster",null) != null ) { %>
   checked="yes" />
 <% } else { %>
    />
 <% } %>
-<label for="imsti.allowroster"><%=rb.getString("privacy.allowroster") %></label>
+<%=rb.getString("privacy.allowroster") %></label>
 <span class="textPanelFooter"><%=rb.getString("allowroster.detail") %></span>
 </p>
 <% } %>
@@ -308,8 +314,8 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% if ( allow(sp,"allowsettings") && allowSettings ) { %>
 <h3><%=rb.getString("allowsettings.information") %></h3>
-<p class="checkbox">
-
+<p>
+<label for="imsti.allowsettings">
 <input type="checkbox" size="10" name="imsti.allowsettings" id="imsti.allowsettings" 
 <% if ( ov.getProperty("imsti.allowsettings",null) != null ) { %>
   checked="yes" />
@@ -317,7 +323,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
    />
 
 <% } %>
-<label for="imsti.allowsettings"><%=rb.getString("privacy.allowsettings") %></label>
+<%=rb.getString("privacy.allowsettings") %></label>
 <span class="textPanelFooter"><%=rb.getString("allowsettings.detail") %></span>
 </p>
 

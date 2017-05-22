@@ -20,7 +20,6 @@
       <modules>
         <module>web-api/api</module>
         <module>web-impl/impl</module>
-        <module>web-impl/pack</module>
         <module>web-tool/tool</module>
         <module>web-portlet</module> 
       </modules>
@@ -33,7 +32,6 @@
       <modules>
         <module>web-api/api</module>
         <module>web-impl/impl</module>
-        <module>web-impl/pack</module>
         <module>web-tool/tool</module>
         <module>web-portlet</module> 
       </modules>

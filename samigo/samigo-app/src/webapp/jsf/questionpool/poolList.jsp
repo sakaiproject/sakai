@@ -30,10 +30,17 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
-<script type="text/JavaScript">
-<%@ include file="/js/samigotree.js" %>
-</script>
+          <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
+          <script type="text/JavaScript">
+              <%@ include file="/js/samigotree.js" %>
+          </script>
+          <script type="text/javascript">
+              function flagFolders() {
+                  collapseAllRows();
+                  flagRows();
+              }
+              window.onload = flagFolders;
+          </script>
       </head>
 <body onload="collapseAllRows();flagRows();;<%= request.getAttribute("html.body.onload") %>;disabledButton()">
  <div class="portletBody container-fluid">
@@ -59,7 +66,7 @@
                                        
 <f:verbatim></span></li></f:verbatim>
 <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
-<f:verbatim><li role="menuitem" ><span></f:verbatim>
+<li role="menuitem" ><span>
  
    <h:commandLink title="#{generalMessages.t_template}" rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
         <h:outputText value="#{generalMessages.template}"/>
@@ -72,9 +79,9 @@
          type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
    </h:commandLink>
 
-<f:verbatim></span></li></f:verbatim>
+</span></li>
 </h:panelGroup>
-<f:verbatim><li role="menuitem" ><span class="current"></f:verbatim>
+<li role="menuitem" ><span class="current">
 
         <h:outputText value="#{questionPoolMessages.qps}"/>
 

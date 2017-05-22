@@ -2,7 +2,6 @@
 <!-- start: chef_assignments_student_view_grade.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
 <!-- jQuery already loaded in assignment_chef_header -->
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
     $(document).ready(function(){
         ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
@@ -19,26 +18,6 @@
             }
         );
     });
-
-var reportsExpanded = false;
-function handleReportsTriangleDisclosure(btn)
-{
-	var reportsDiv = document.getElementById("reportsDiv");
-	if (reportsExpanded)
-	{
-		btn.src="/library/image/sakai/expand.gif";
-		btn.alt="$tlang.getString('review.report.expand')";
-		reportsDiv.style.display="none";
-	}
-	else
-	{
-		btn.src="/library/image/sakai/collapse.gif";
-		btn.alt="$tlang.getString('review.report.collapse')";
-		reportsDiv.style.display="block";
-		ASN.resizeFrame();
-	}
-	reportsExpanded = !reportsExpanded;
-}
 </script>
 <div class="portletBody">
 	#set ($assignment = $submission.Assignment)
@@ -194,7 +173,7 @@ function handleReportsTriangleDisclosure(btn)
 								#set($reviewResults=$submission.ContentReviewResults)
 								#if ($reviewResults.size() >= 3)
 									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="/library/image/sakai/expand.gif" alt="$tlang.getString('review.report.expand')"/>
+										<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="/library/image/sakai/expand.gif" alt="$tlang.getString('review.report.expand')"/>
 										## TODO: reconsider for i18n
 										$reviewResults.size() $tlang.getString("review.reports")
 									</div>
@@ -203,15 +182,10 @@ function handleReportsTriangleDisclosure(btn)
 								#foreach ($reviewResult in $reviewResults)
 									<div>
 										#set ($props = $reviewResult.getContentResource().Properties)
-										<span class="reportIcon">
-										
-										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-										#else
-											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-											</a>
-										#end
+										<span class="reportIcon">										
+											#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+											<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+											#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
 										</span>
 										#if ($reviewResult.isInline())
 											$tlang.getString("submission.inline")
@@ -504,6 +478,28 @@ function handleReportsTriangleDisclosure(btn)
 							<b>$tlang.getString("gen.comments")</b> 
 							<div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
 						#end
+                        <ul class="attachList">
+                            <lh><strong>$tlang.getString("gen.attachments")</strong></lh>
+							#foreach($attachment in $review.getAttachmentRefList())
+								#set ($props = false)
+								#set ($props = $attachment.Properties)
+								#if ($!props)
+                                    <li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									#if ($decoratedUrlMap)
+                                        <a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#else
+                                        <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#end
+										#propertyDetails($props)
+                                    </li>
+								#end
+							#end
+                        </ul>
 						</div>
 					#end
 					</div>

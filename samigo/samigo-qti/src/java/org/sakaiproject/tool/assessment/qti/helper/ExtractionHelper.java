@@ -40,8 +40,9 @@ import java.util.TreeSet;
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -119,7 +120,7 @@ public class ExtractionHelper
   private static final String ITEM_TRANSFORM = "extractItem.xsl";
   private static final String ITEM_EMI_TRANSFORM = "extractEMIItem.xsl";
   public static final String REMOVE_NAMESPACE_TRANSFORM = "removeDefaultNamespaceFromQTI.xsl";
-  private static Log log = LogFactory.getLog(ExtractionHelper.class);
+  private static Logger log = LoggerFactory.getLogger(ExtractionHelper.class);
 
   private int qtiVersion = QTIVersion.VERSION_1_2;
   private String overridePath = null; // override defaults and settings
@@ -310,17 +311,17 @@ public class ExtractionHelper
     }
     catch (IOException ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       ex.printStackTrace(System.out);
     }
     catch (SAXException ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       ex.printStackTrace(System.out);
     }
     catch (ParserConfigurationException ex)
     {
-      log.error(ex);
+      log.error(ex.getMessage(), ex);
       ex.printStackTrace(System.out);
     }
     return map;
@@ -360,7 +361,7 @@ public class ExtractionHelper
       }
       catch (DOMException ex)
       {
-        log.error(ex);
+        log.error(ex.getMessage(), ex);
         ex.printStackTrace(System.out);
       }
     }
@@ -398,7 +399,7 @@ public class ExtractionHelper
       }
       catch (DOMException ex)
       {
-        log.error(ex);
+        log.error(ex.getMessage(), ex);
         ex.printStackTrace(System.out);
       }
     }
@@ -1027,14 +1028,12 @@ public class ExtractionHelper
     // Username, password, finalPageUrl
 //    String considerUserId = assessment.getAssessmentMetaDataByLabel(
 //        "CONSIDER_USERID"); //
-    String userId = assessment.getAssessmentMetaDataByLabel("USERID");
     String password = assessment.getAssessmentMetaDataByLabel("PASSWORD");
     String finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
 
     if (//"TRUE".equalsIgnoreCase(considerUserId) &&
-        notNullOrEmpty(userId) && notNullOrEmpty(password))
+        notNullOrEmpty(password))
     {
-      control.setUsername(userId);
       control.setPassword(password);
       assessment.getData().addAssessmentMetaData("hasUsernamePassword", "true");
     }
@@ -1519,7 +1518,18 @@ public class ExtractionHelper
     section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, (String) sectionMap.get("keyword"));
     section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, (String) sectionMap.get("objective"));
     section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, (String) sectionMap.get("rubric"));
-    section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, (String) sectionMap.get("questions-ordering"));
+
+    // SAM-2781: if you are importing from before Sakai 11, this will be null
+    String qorderString = (String) sectionMap.get("questions-ordering");
+    if (StringUtils.isNotBlank(qorderString) && StringUtils.isNumeric(qorderString))
+    {
+      section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, qorderString);
+    }
+    else
+    {
+      section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
+    }
+
   }
 
   /**
@@ -2827,7 +2837,7 @@ public class ExtractionHelper
           if (instruction != null && instruction.length() > 0) {
               instruction = XmlUtil.processFormattedText(log, (String) instructions.get(0));
               instruction = instruction.replaceAll("\\?\\?"," ");//SAK-2298
-              item.setInstruction(instruction);
+              item.setInstruction(makeFCKAttachment(instruction));
           }
       }
       
@@ -3103,7 +3113,7 @@ public class ExtractionHelper
 			option = option.trim();
 			String text = option.substring(3).trim();
 			Answer a = new Answer(itemText, text, seq++, option.substring(1, 2));
-			a.setIsCorrect(false);
+			a.setIsCorrect(Boolean.FALSE);
 			answerSet.add(a);
 			optionMap.put(option.substring(1, 2), text);
 		}

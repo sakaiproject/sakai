@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.syllabus;
 
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -40,16 +41,20 @@ import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.FilenameUtils;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -70,6 +75,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -90,6 +96,10 @@ public class SyllabusTool
   private static final String SESSION_ATTACHMENT_DATA_ID = "syllabysAttachDataId";
   //used for the UI to know which data ID to have opened by default (i.e. if you added/removed an attachment on the main page)
   private String openDataId;
+  private static final String HIDDEN_START_ISO_DATE = "dataStartDateISO8601";
+  private static final String HIDDEN_END_ISO_DATE = "dataEndDateISO8601";
+  private static final String DATEPICKER_DATE_FORMAT = "yyyy-MM-dd";
+  private static final String DATEPICKER_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
   
   
   public class DecoratedSyllabusEntry
@@ -107,6 +117,8 @@ public class SyllabusTool
     protected boolean justCreated = false;
     
     protected ArrayList attachmentList = null;
+    private String startDateString;
+    private String endDateString;
     
     public DecoratedSyllabusEntry(SyllabusData en)
     {
@@ -118,6 +130,8 @@ public class SyllabusTool
       this.orig_endDate = en.getEndDate() == null ? null : (Date) en.getEndDate().clone();
       this.orig_isLinkCalendar= en.isLinkCalendar();
       this.orig_status = en.getStatus();
+      this.startDateString = en.getStartDate() == null ? "" : DateFormatterUtil.format(en.getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+      this.endDateString = en.getEndDate() == null ? "" : DateFormatterUtil.format(en.getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
     }
 
     public SyllabusData getEntry()
@@ -322,6 +336,32 @@ public class SyllabusTool
 	public String getDraftStatus() {
 		return draftStatus;
 	}
+
+	public String getStartDateString() {
+		return this.startDateString;
+	}
+
+	public void setStartDateString(String startDateString) {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		String startISODate = params.get((getEntry().getPosition() - new Integer(1)) + HIDDEN_START_ISO_DATE);
+		if(DateFormatterUtil.isValidISODate(startISODate)){
+			 getEntry().setStartDate(DateFormatterUtil.parseISODate(startISODate));
+		}
+		this.startDateString = DateFormatterUtil.format(getEntry().getStartDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+	}
+
+	public String getEndDateString() {
+		return this.endDateString;
+	}
+
+	public void setEndDateString(String endDateString) {
+		Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+		String endISODate = params.get((getEntry().getPosition() - new Integer(1)) + HIDDEN_END_ISO_DATE);
+		if(DateFormatterUtil.isValidISODate(endISODate)){
+			 getEntry().setEndDate(DateFormatterUtil.parseISODate(endISODate));
+		}
+		this.endDateString = DateFormatterUtil.format(getEntry().getEndDate(), DATEPICKER_DATETIME_FORMAT, rb.getLocale());
+	}
   }
 
   protected SyllabusManager syllabusManager;
@@ -336,7 +376,7 @@ public class SyllabusTool
   
   protected BulkSyllabusEntry bulkEntry = null;
 
-  protected Log logger = LogFactory.getLog(SyllabusTool.class);
+  protected Logger logger = LoggerFactory.getLogger(SyllabusTool.class);
 
   protected String filename = null;
 
@@ -454,7 +494,7 @@ public class SyllabusTool
                 while (iter.hasNext())
                 {
                     SyllabusData en = (SyllabusData) iter.next();
-                    if (this.checkAccess())
+                    if (isAddOrEdit())
                     {
                         DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                         entries.add(den);
@@ -519,7 +559,7 @@ public class SyllabusTool
             while (iter.hasNext())
             {
               SyllabusData en = (SyllabusData) iter.next();
-              if (this.checkAccess())
+              if (isAddOrEdit())
               {
                 DecoratedSyllabusEntry den = new DecoratedSyllabusEntry(en);
                 entries.add(den);
@@ -659,7 +699,7 @@ public class SyllabusTool
 
     if (syllabusItem == null)
     {
-        if (this.checkAccess())
+        if (isAddOrEdit())
         {
             syllabusItem = syllabusManager.createSyllabusItem(currentUserId,
                     currentSiteId, null);
@@ -680,11 +720,6 @@ public class SyllabusTool
   public void setSyllabusItem(SyllabusItem syllabusItem)
   {
     this.syllabusItem = syllabusItem;
-  }
-
-  public void setLogger(Log logger)
-  {
-    this.logger = logger;
   }
 
   public String getFilename()
@@ -750,11 +785,34 @@ public class SyllabusTool
 	  return siteTitle;
   }
   
+  //Convenience methods for JSF
+  public boolean isAddItem() {
+	  return syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM);
+  }
+  
+  public boolean isBulkAddItem() {
+	  return syllabusService.checkPermission(SyllabusService.SECURE_BULK_ADD_ITEM);
+  }
+  
+  public boolean isBulkEdit() {
+	  return syllabusService.checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM);
+  }
+  
+  public boolean isRedirect() {
+	  return syllabusService.checkPermission(SyllabusService.SECURE_REDIRECT);
+  }
+
+  public boolean isAddOrEdit() {
+	  return syllabusService.checkAddOrEdit();
+			  
+  }
+
+ 
   //testing the access to control the "create/edit"
   //button showing up or not on main page.
   public String getEditAble()
   {
-    if (checkAccess())
+    if (isAddItem() || isBulkAddItem() || isBulkEdit())
     {
       editAble = "true";
     }
@@ -829,7 +887,7 @@ public class SyllabusTool
     ArrayList selected = getSelectedEntries();
     try
     {
-      if (!this.checkAccess())
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -957,7 +1015,7 @@ public class SyllabusTool
       displayCalendarError = false;
       alertMessage = null;
       
-      if (!this.checkAccess())
+      if (!(isAddItem() || isBulkAddItem() || isBulkEdit()))
       {
         return "permission_error";
       }
@@ -1188,7 +1246,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!this.checkAccess())
+      if (!(isAddItem() || isBulkEdit()))
       {
         return "permission_error";
       }
@@ -1286,7 +1344,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess())
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -1343,7 +1401,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess())
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_ADD_ITEM))
       {
         return "permission_error";
       }
@@ -1391,7 +1449,7 @@ public class SyllabusTool
   {
     try
     {
-      if (!this.checkAccess())
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM))
       {
         return "permission_error";
       }
@@ -1418,7 +1476,7 @@ public class SyllabusTool
   {
 	  try
 	    {
-	      if (!this.checkAccess())
+	      if (!syllabusService.checkPermission(SyllabusService.SECURE_BULK_EDIT_ITEM))
 	      {
 	        return "permission_error";
 	      }
@@ -1485,7 +1543,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!this.checkAccess())
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -1583,7 +1641,7 @@ public class SyllabusTool
       displayDateError=false;
       displayCalendarError = false;
       alertMessage = null;
-      if (!this.checkAccess())
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -1896,7 +1954,7 @@ public class SyllabusTool
   {
     try
     {
-      if (!this.checkAccess())
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_REDIRECT))
       {
         return "permission_error";
       }
@@ -1934,7 +1992,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess())
+      if (!syllabusService.checkPermission(SyllabusService.SECURE_REDIRECT))
       {
         return "permission_error";
       }
@@ -1999,7 +2057,7 @@ public class SyllabusTool
 
     try
     {
-      if (!this.checkAccess())
+      if (!(isAddItem() || isBulkAddItem() || isBulkEdit()))
       {
         return "permission_error";
       }
@@ -2031,15 +2089,6 @@ public class SyllabusTool
     return "main";
   }
 
-  public boolean checkAccess()
-  {
-    //sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
-    Placement placement = ToolManager.getCurrentPlacement();
-    String currentSiteId = placement.getContext();
-    boolean allowOrNot = SiteService.allowUpdateSite(currentSiteId);
-    return allowOrNot;
-  }
-  
   public String getTitle()
   {
     ////return SiteService.findTool(PortalService.getCurrentToolId()).getTitle();
@@ -2128,41 +2177,31 @@ public class SyllabusTool
   {
     if(attachCaneled == false)
     {
-      UIComponent component = event.getComponent();
       Object newValue = event.getNewValue();
-      Object oldValue = event.getOldValue();
-      PhaseId phaseId = event.getPhaseId();
-      Object source = event.getSource();
-      
+
       if (newValue instanceof String) return "";
       if (newValue == null) return "";
-      
-      try
+
+      FileItem item = (FileItem) event.getNewValue();
+      try (InputStream inputStream = item.getInputStream())
       {
-        FileItem item = (FileItem) event.getNewValue();
         String fileName = item.getName();
-        byte[] fileContents = item.get();
-        
+
         ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
-        
-        String tempS = fileName;
-        //logger.info(tempS);
-        int lastSlash = tempS.lastIndexOf("/") > tempS.lastIndexOf("\\") ? 
-            tempS.lastIndexOf("/") : tempS.lastIndexOf("\\");
-        if(lastSlash > 0)
-          fileName = tempS.substring(lastSlash+1);
-            
-        ContentResource thisAttach = contentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents, props);
+
+        if (fileName != null) {
+            filename = FilenameUtils.getName(filename);
+        }
+
+        ContentResourceEdit thisAttach = contentHostingService.addAttachmentResource(fileName);
+        thisAttach.setContent(inputStream);
+        thisAttach.setContentType(item.getContentType());
+        thisAttach.getPropertiesEdit().addAll(props);
+        contentHostingService.commitResource(thisAttach);
         
         SyllabusAttachment attachObj = syllabusManager.createSyllabusAttachmentObject(thisAttach.getId(), fileName);
-        ////////revise        syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), attachObj);
         attachments.add(attachObj);
-        
-        String ss = thisAttach.getUrl();
-        String fileWithWholePath = thisAttach.getUrl();
-        
-        String s = ss;
-        
+
         if(entry.justCreated != true)
         {
           allAttachments.add(attachObj);
@@ -2170,8 +2209,7 @@ public class SyllabusTool
       }
       catch (Exception e)
       {
-        logger.error(this + ".processUpload() in SyllabusTool " + e);
-        e.printStackTrace();
+        logger.error(this + ".processUpload() in SyllabusTool", e);
       }
       if(entry.justCreated == true)
       {
@@ -2284,7 +2322,7 @@ public class SyllabusTool
   
   public String processRemoveAttach()
   {
-      if (!this.checkAccess())
+      if (!isAddOrEdit())
       {
         return "permission_error";
       }
@@ -2758,7 +2796,7 @@ public class SyllabusTool
 		  {
 			  Date rvDate = syllabusData.getStartDate();
 			  if(rvDate != null){
-				  rv = SyllabusData.dateFormat.format(rvDate);
+				  rv = DateFormatterUtil.format(rvDate, DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 			  }
 			  alert = false;
 		  }
@@ -2787,11 +2825,11 @@ public class SyllabusTool
 			  if(date == null || "".equals(date)){
 				  syllabusData.setStartDate(null);
 			  }else{
-				  try {
-					  syllabusData.setStartDate(SyllabusData.dateFormat.parse(date));
-				  } catch (ParseException e) {
-					  //date won't be changed
-				  }
+					Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+					String startISODate = params.get(HIDDEN_START_ISO_DATE);
+					if(DateFormatterUtil.isValidISODate(startISODate)){
+					     syllabusData.setStartDate(DateFormatterUtil.parseISODate(startISODate));
+					}
 			  }
 		  }
 	  }
@@ -2814,7 +2852,7 @@ public class SyllabusTool
 		  {
 			  Date rvDate = syllabusData.getEndDate();
 			  if(rvDate != null){
-				  rv = SyllabusData.dateFormat.format(rvDate);
+				  rv = DateFormatterUtil.format(rvDate, DATEPICKER_DATETIME_FORMAT, rb.getLocale());
 			  }
 			  alert = false;
 		  }
@@ -2843,11 +2881,11 @@ public class SyllabusTool
 			  if(date == null || "".equals(date)){
 				  syllabusData.setEndDate(null);
 			  }else{
-				  try {
-					  syllabusData.setEndDate(SyllabusData.dateFormat.parse(date));
-				  } catch (ParseException e) {
-					  //date won't be changed
-				  }
+					Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+					String endISODate = params.get(HIDDEN_END_ISO_DATE);
+					if(DateFormatterUtil.isValidISODate(endISODate)){
+					     syllabusData.setEndDate(DateFormatterUtil.parseISODate(endISODate));
+					}
 			  }
 		  }
 	  }
@@ -2942,7 +2980,6 @@ public class SyllabusTool
   }
   
   public class BulkSyllabusEntry{
-	  public final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 	  public final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a");
 	  private String title = "";
 	  private Date startDate = null;
@@ -3039,7 +3076,7 @@ public class SyllabusTool
 	  {
 		String rv = "";
 		if(getStartDate() != null){
-			rv = dateFormat.format(getStartDate());
+			rv = DateFormatterUtil.format(getStartDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
 		}
 		return rv;
 	  }
@@ -3049,10 +3086,10 @@ public class SyllabusTool
 		if(date == null || "".equals(date)){
 			setStartDate(null);
 		}else{
-			try {
-				setStartDate(dateFormat.parse(date));
-			} catch (ParseException e) {
-				//date won't be changed
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+			String startISODate = params.get(HIDDEN_START_ISO_DATE);
+			if(DateFormatterUtil.isValidISODate(startISODate)){
+					setStartDate(DateFormatterUtil.parseISODate(startISODate));
 			}
 		}
 	}
@@ -3061,7 +3098,7 @@ public class SyllabusTool
 	  {
 		String rv = "";
 		if(getEndDate() != null){
-			rv = dateFormat.format(getEndDate());
+			rv = DateFormatterUtil.format(getEndDate(), DATEPICKER_DATE_FORMAT, rb.getLocale());
 		}
 		return rv;
 	  }
@@ -3071,10 +3108,10 @@ public class SyllabusTool
 		if(date == null || "".equals(date)){
 			setEndDate(null);
 		}else{
-			try {
-				setEndDate(dateFormat.parse(date));
-			} catch (ParseException e) {
-				//date won't be changed
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+			String endISODate = params.get(HIDDEN_END_ISO_DATE);
+			if(DateFormatterUtil.isValidISODate(endISODate)){
+					setEndDate(DateFormatterUtil.parseISODate(endISODate));
 			}
 		}
 	}

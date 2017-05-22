@@ -18,15 +18,11 @@
 package edu.indiana.lib.twinpeaks.net;
 
 import edu.indiana.lib.twinpeaks.util.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
-import javax.xml.parsers.*;
-
-import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Handle HTTP based search operations.  Send (POST or GET) a query to the
@@ -35,10 +31,8 @@ import org.xml.sax.*;
  * The response text and HTTP details (status, character set, etc) are made
  * available to caller.
  */
+@Slf4j
 public class HttpTransaction {
-
-private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransaction.class);
-
   /**
    * Agent identification, HTTP form submission types
    */
@@ -316,12 +310,12 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
 		}
 
 		contentType	= connection.getContentType();
-    _log.debug("ContentType = " + contentType);
+    log.debug("ContentType = " + contentType);
 
 		index = (contentType == null) ? -1 : contentType.toLowerCase().indexOf(CHARSETEQ);
 
 		if (index == -1) {
-			_log.debug("return default character set: "
+			log.debug("return default character set: "
 											 + getDefaultCharacterSet());
 			return getDefaultCharacterSet();
 		}
@@ -340,7 +334,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
 					break;
 			}
 		}
-		_log.debug("character set = "
+		log.debug("character set = "
 											+ ((buffer.length() == 0) ? getDefaultCharacterSet()
 																								: buffer.toString()));
 		return (buffer.length() == 0) ? getDefaultCharacterSet() : buffer.toString();
@@ -573,7 +567,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
     /*
      * Get connection, set transaction characteristics
      */
-		_log.debug("*** CONNECTING to URL: " + this.url.toString());
+		log.debug("*** CONNECTING to URL: " + this.url.toString());
 
     reset();
     connection = getConnection();
@@ -586,7 +580,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(HttpTransac
 		 */
     clientCookie = setRequestCookies();
 		if (clientCookie.length() > 0) {
-			_log.debug("Cookie: " + clientCookie);
+			log.debug("Cookie: " + clientCookie);
     	connection.setRequestProperty("Cookie", clientCookie);
 	  }
 		/*

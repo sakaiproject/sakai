@@ -46,6 +46,7 @@ $(window).load( function() {
 
 <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
 <script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 
 <link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
 
@@ -73,9 +74,9 @@ $(window).load( function() {
 <div class="portletBody container-fluid">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
-<h:form id="assesssmentForm">
+<h:form id="assessmentForm">
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="bs-callout-danger">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
@@ -235,9 +236,8 @@ $(window).load( function() {
       <h:panelGrid styleClass="table table-striped" columns="2" width="100%" columnClasses="navView,navList" border="0">
        <h:panelGroup rendered="#{!author.isEditPoolFlow}">
 		<h:outputText value="#{authorMessages.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
-        <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" rendered="#{author.isEditPendingAssessmentFlow}" >
-          <f:selectItems value="#{assessmentBean.partNumbers}" />
-          <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
+          <h:selectOneMenu id="number" value="#{partBean.number}" onchange="enableOrderUpdate()" rendered="#{author.isEditPendingAssessmentFlow}" >
+          <f:selectItems value="#{assessmentBean.partNumbers}" />          
         </h:selectOneMenu>
         <h:outputText value="#{partBean.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
         <h:outputText value="&#160;" escape="false" />
@@ -249,8 +249,9 @@ $(window).load( function() {
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}" escape="false"/>
 		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} #{partBean.poolNameToBeDrawn} - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}" escape="false"/>
 
-		<h:commandButton value="#{authorMessages.random_update_questions}" type="submit" id="randomQuestions" action="editAssessment" rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2' && author.isEditPendingAssessmentFlow)}"
-			onclick="document.getElementById('assesssmentForm:randomQuestionsSectionId').value='#{partBean.sectionId}'" style="margin-left: 2em">
+		<h:commandButton value="#{authorMessages.random_update_questions}" type="submit" id="randomQuestions" action="editAssessment" style="margin-left: 2em"
+			rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2' && author.isEditPendingAssessmentFlow)}"
+			onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('assessmentForm:randomQuestionsSectionId').value='#{partBean.sectionId}';" >
 		  	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateRandomPoolQuestionsListener" />
 		</h:commandButton>
 		
@@ -280,12 +281,13 @@ $(window).load( function() {
 
         <h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.number ne 1 && author.isEditPendingAssessmentFlow}"/>
 
-        <h:commandLink title="#{authorMessages.t_editP}" id="editPart" immediate="true" action="editPart">
-         
+        <h:commandLink title="#{authorMessages.t_editP}" id="editPart" immediate="true" action="editPart" 
+                       onclick="SPNR.insertSpinnerInPreallocated( null, null, 'assessmentForm:parts:#{partBean.number - 1}:editPartSpinner' );">
           <h:outputText value="#{commonMessages.edit_action}" />
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
+        <t:div id="editPartSpinner" styleClass="allocatedSpinPlaceholder"></t:div>
 
       </h:panelGroup>
 	  
@@ -335,9 +337,8 @@ $(window).load( function() {
           <h:panelGroup>
           <h:outputText value="#{authorMessages.q} " />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
-            <h:selectOneMenu id="number" onchange="document.forms[0].submit();" value="#{question.number}" rendered="#{author.isEditPendingAssessmentFlow}">
+            <h:selectOneMenu id="number" onchange="enableOrderUpdate()" value="#{question.number}" rendered="#{author.isEditPendingAssessmentFlow}">
               <f:selectItems value="#{partBean.questionNumbers}" />
-              <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderQuestionsListener" />
             </h:selectOneMenu>
           <h:outputText value="#{question.number}: " rendered="#{!author.isEditPendingAssessmentFlow}"/>
 
@@ -359,7 +360,7 @@ $(window).load( function() {
      <h:outputText rendered="#{question.itemData.typeId== 16}" value=" #{authorMessages.image_map_question}"/><!-- IMAGEMAP_QUESTION -->
 
      <h:outputText value=" #{authorMessages.dash} " />
-     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow || (question.itemData.typeId== 14)}"  size="6" onkeydown="inIt()" onchange="toPoint(this.id);" rendered="#{question.itemData.typeId!= 3}">
+     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow || (question.itemData.typeId== 14)}" label="#{authorMessages.pt}" size="6" onkeydown="inIt()" styleClass="ConvertPoint" rendered="#{question.itemData.typeId!= 3}">
 	<f:validateDoubleRange minimum="0.00"/></h:inputText>
     <h:outputText rendered="#{question.itemData.typeId== 3}" value="#{question.updatedScore}"/>
 		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
@@ -468,11 +469,13 @@ $(window).load( function() {
 </div>
   </h:column>
 </h:dataTable>
-
 <h:commandButton value="#{authorMessages.button_update_points}" id="pointsUpdate" action="editAssessment" rendered="#{!author.isEditPoolFlow}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentTotalPointsListener" />
 </h:commandButton>
-
+<h:outputText value="&#160;" escape="false" />
+<h:commandButton value="#{authorMessages.button_update_order}" id="orderUpdate" action="orderUpdate" rendered="#{!author.isEditPoolFlow}">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.UpdateAssessmentQuestionsOrder" />
+</h:commandButton>
 </div> <!-- End the main container -->
 
 <h:panelGrid columns="1" width="100%" columnClasses="navList" border="0">
@@ -510,7 +513,7 @@ $(window).load( function() {
 	    <f:param value="#{author.editPoolName}" />
 	</h:outputFormat>
 </h:panelGrid>
-<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="bs-callout-danger">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>

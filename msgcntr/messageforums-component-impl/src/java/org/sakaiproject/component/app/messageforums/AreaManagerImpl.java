@@ -20,27 +20,21 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.collection.PersistentSet;
+import org.hibernate.collection.internal.PersistentSet;
+import org.hibernate.type.StringType;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.ForumScheduleNotification;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
-import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
 import org.sakaiproject.exception.IdUnusedException;
@@ -49,13 +43,15 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager {
-    private static final Log LOG = LogFactory.getLog(AreaManagerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AreaManagerImpl.class);
 
     private static final String QUERY_AREA_BY_CONTEXT_AND_TYPE_ID = "findAreaByContextIdAndTypeId";
     private static final String QUERY_AREA_BY_TYPE = "findAreaByType";
@@ -77,6 +73,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private Boolean DEFAULT_AUTO_MARK_READ = false;    
 
     private SiteService siteService;
+    private ToolManager toolManager;
     
     /**
      * sakai.property for setting the default Messages tool option for sending a copy of a message
@@ -92,6 +89,10 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
+	}
+
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
 	}
 
 	public void init() {
@@ -274,7 +275,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         // If the open forums were not loaded then there is no need to redo the sort index
         //     thus if it's a hibernate persistentset and initialized
         if( area.getOpenForumsSet() != null &&
-              ((area.getOpenForumsSet() instanceof PersistentSet && 
+              ((area.getOpenForumsSet() instanceof PersistentSet &&
               ((PersistentSet)area.getOpenForumsSet()).wasInitialized()) || !(area.getOpenForumsSet() instanceof PersistentSet) )) {
            for(Iterator i = area.getOpenForums().iterator(); i.hasNext(); ) {
               BaseForum forum = (BaseForum)i.next();
@@ -312,7 +313,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         if (TestUtil.isRunningTests()) {
             return "test-context";
         }
-        Placement placement = ToolManager.getCurrentPlacement();
+        Placement placement = toolManager.getCurrentPlacement();
         String presentSiteId = placement.getContext();
         return presentSiteId;
     }
@@ -325,10 +326,10 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public Area getAreaByContextIdAndTypeId(final String contextId, final String typeId) {
         LOG.debug("getAreaByContextIdAndTypeId executing for current user: " + getCurrentUser());
         HibernateCallback hcb = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 Query q = session.getNamedQuery(QUERY_AREA_BY_CONTEXT_AND_TYPE_ID);
-                q.setParameter("contextId", contextId, Hibernate.STRING);
-                q.setParameter("typeId", typeId, Hibernate.STRING);
+                q.setParameter("contextId", contextId, StringType.INSTANCE);
+                q.setParameter("typeId", typeId, StringType.INSTANCE);
                 return q.uniqueResult();
             }
         };
@@ -342,9 +343,9 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
       final String currentUser = getCurrentUser();
       LOG.debug("getAreaByType executing for current user: " + currentUser);
       HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
+          public Object doInHibernate(Session session) throws HibernateException {
               Query q = session.getNamedQuery(QUERY_AREA_BY_TYPE);              
-              q.setParameter("typeId", typeId, Hibernate.STRING);              
+              q.setParameter("typeId", typeId, StringType.INSTANCE);
               return q.uniqueResult();
           }
       };        

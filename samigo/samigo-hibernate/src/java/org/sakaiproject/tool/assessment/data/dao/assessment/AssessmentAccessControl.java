@@ -21,7 +21,7 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
-import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
@@ -31,8 +31,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * This keeps track of the submission scheme, and the number allowed.
@@ -95,6 +93,7 @@ public class AssessmentAccessControl
   private Integer timedAssessment;
   private Integer retryAllowed;
   private Integer lateHandling;
+  private Integer instructorNotification;
   private Date startDate;
   private Date dueDate;
   private Date scoreDate;
@@ -107,9 +106,9 @@ public class AssessmentAccessControl
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
-  private String username;
   private String password;
   private Integer markForReview;
+  private Boolean honorPledge;
 
   /**
    * Creates a new SubmissionModel object.
@@ -123,7 +122,7 @@ public class AssessmentAccessControl
   public AssessmentAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
                                  Integer assessmentFormat, Integer bookMarkingItem,
                                  Integer timeLimit, Integer timedAssessment,
-                                 Integer retryAllowed, Integer lateHandling,
+                                 Integer retryAllowed, Integer lateHandling, Integer instructorNotification,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate,
                                  Date retractDate, Integer autoSubmit,
@@ -138,6 +137,7 @@ public class AssessmentAccessControl
     this.timedAssessment = timedAssessment;
     this.retryAllowed = retryAllowed; // cannot edit(0)
     this.lateHandling = lateHandling; // cannot edit(0)
+    this.instructorNotification = instructorNotification;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
@@ -156,7 +156,7 @@ public class AssessmentAccessControl
         this.getSubmissionsAllowed(), this.getSubmissionsSaved(),
         this.getAssessmentFormat(), this.getBookMarkingItem(),
         this.getTimeLimit(), this.getTimedAssessment(),
-        this.getRetryAllowed(), this.getLateHandling(),
+        this.getRetryAllowed(), this.getLateHandling(), this.getInstructorNotification(),
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
         this.getRetractDate(), this.getAutoSubmit(),
@@ -168,11 +168,11 @@ public class AssessmentAccessControl
     ((AssessmentAccessControl)cloned).setItemNumbering(this.itemNumbering);
     ((AssessmentAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((AssessmentAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
-    ((AssessmentAccessControl)cloned).setUsername(this.username);
     ((AssessmentAccessControl)cloned).setPassword(this.password);
     ((AssessmentAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((AssessmentAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
     ((AssessmentAccessControl)cloned).setMarkForReview(this.markForReview);
+    ((AssessmentAccessControl)cloned).setHonorPledge(this.honorPledge);
     return cloned;
   }
 
@@ -277,6 +277,16 @@ public class AssessmentAccessControl
   public Integer getLateHandling()
   {
     return lateHandling;
+  }
+
+  public void setInstructorNotification(Integer instructorNotification)
+  {
+    this.instructorNotification = instructorNotification;
+  }
+
+  public Integer getInstructorNotification()
+  {
+    return instructorNotification;
   }
 
   public Date getStartDate() {
@@ -385,13 +395,6 @@ public class AssessmentAccessControl
     this.releaseTo = releaseTo;
   }
 
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }
@@ -416,5 +419,11 @@ public class AssessmentAccessControl
   public void setMarkForReview(Integer markForReview) {
 	this.markForReview = markForReview;
   }
-   
+
+  @Override
+  public Boolean getHonorPledge() { return this.honorPledge; }
+
+  @Override
+  public void setHonorPledge(Boolean honorPledge) { this.honorPledge = honorPledge; }
+
 }

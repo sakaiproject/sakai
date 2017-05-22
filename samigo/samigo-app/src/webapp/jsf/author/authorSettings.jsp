@@ -42,18 +42,28 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
-      
-      <script type="text/javascript" src="../../js/extendedTime.js"/>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <samigo:script path="/js/authoring.js"/>
       
-
       <script type="text/javascript">
         $(document).ready(function() {
           // set up the accordion for settings
-          $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true, active: 1 });
+          var accordionPanel = 1;
+          if (window.sessionStorage && window.sessionStorage.getItem('samigo_assessmentsettings')) {
+              accordionPanel = parseInt(window.sessionStorage.getItem('samigo_assessmentsettings'));
+          }
+          $("#jqueryui-accordion").accordion({
+              heightStyle: "content",
+              activate: function(event, ui) {
+                  if (window.sessionStorage) {
+                      window.sessionStorage.setItem('samigo_assessmentsettings', $("#jqueryui-accordion").accordion("option", "active"));
+                  }
+              },
+              active: accordionPanel,
+              collapsible: true
+          });
           // This is a sub-accordion inside of the About the Assessment Panel
           $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
           // This is a sub-accordion inside of the Availability and Submission Panel
@@ -66,7 +76,7 @@
               input: '#assessmentSettingsAction\\:startDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
-              allowEmptyDate: true,
+              allowEmptyDate: false,
               val: '<h:outputText value="#{assessmentSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'startDateISO8601' }
           });
@@ -82,7 +92,7 @@
               input: '#assessmentSettingsAction\\:retractDate',
               useTime: 1,
               parseFormat: 'YYYY-MM-DD HH:mm:ss',
-              allowEmptyDate: true,
+              allowEmptyDate: false,
               val: '<h:outputText value="#{assessmentSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'retractDateISO8601' }
           });
@@ -93,6 +103,30 @@
               allowEmptyDate: true,
               val: '<h:outputText value="#{assessmentSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
               ashidden: { iso8601: 'feedbackDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:newEntry-start_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeStartString}"/>',
+              ashidden: { iso8601: 'newEntry-start_date-iso8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:newEntry-due_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeDueString}"/>',
+              ashidden: { iso8601: 'newEntry-due_date-iso8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:newEntry-retract_date',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              allowEmptyDate: true,
+              val: '<h:outputText value="#{assessmentSettings.extendedTimeRetractString}"/>',
+              ashidden: { iso8601: 'newEntry-retract_date-iso8601' }
           });
 
           // SAM-2121: Lockdown the question layout and mark for review if necessary
@@ -105,7 +139,6 @@
           lockdownGradebook(releaseToVal);
           showHideReleaseGroups();
           initTimedCheckBox();
-          extendedTimeInitialize();
           checkUncheckTimeBox();
           checkLastHandling();
         });
@@ -126,7 +159,7 @@
       </script>
 
       </head>
-    <body onload="checkTimeSelect(); <%= request.getAttribute("html.body.onload") %>">
+    <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody container-fluid">
 
@@ -195,19 +228,20 @@
         <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_description}" rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}"/>
 
         <div class="col-md-10">
-          <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author">
-           <f:validateLength maximum="4000"/>
-           </samigo:wysiwyg>
+            <h:panelGrid>
+                <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author">
+                <f:validateLength maximum="60000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
         </div>
     </div>
 
     <!-- Honor Pledge -->
     <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" />
+        <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         <div class="col-md-10">
-            <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable}"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputText  value="#{assessmentSettingsMessages.honor_pledge_add}" />
+            <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.honorPledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+            <h:outputText  value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
     </div>
 
@@ -227,25 +261,36 @@
         <div class="samigo-subheading">
             <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> 
         </div>
-        <div class="tier3">
-            <h:panelGrid columns="2" columnClasses="samigoCell">
-            <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"/>
-            <h:inputText id="keywords" size="80" value="#{assessmentSettings.keywords}"/>
-
-            <h:outputLabel for="objectives" value="#{assessmentSettingsMessages.metadata_objectives}"/>
-            <h:inputText id="objectives" value="#{assessmentSettings.objectives}"/>
-
-            <h:outputLabel for="rubrics" value="#{assessmentSettingsMessages.metadata_rubrics}"/>
-            <h:inputText id="rubrics" value="#{assessmentSettings.rubrics}"/>
-            </h:panelGrid>
+        
+        <div class="form-group row">
+            <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"  styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:inputText id="keywords" size="80" value="#{assessmentSettings.keywords}" styleClass="form-control"/>
+            </div>
         </div>
+
+        <div class="form-group row">
+            <h:outputLabel for="objectives" value="#{assessmentSettingsMessages.metadata_objectives}"  styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:inputText id="objectives" value="#{assessmentSettings.objectives}" styleClass="form-control"/>
+            </div>
+        </div>
+
+         <div class="form-group row">
+            <h:outputLabel for="rubrics" value="#{assessmentSettingsMessages.metadata_rubrics}"  styleClass="col-md-2 form-control-label"/>
+            <div class="col-md-10">
+                <h:inputText id="rubrics" value="#{assessmentSettings.rubrics}" styleClass="form-control"/>
+            </div>
+        </div>
+        
+        
         <div class="samigo-subheading">
             <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
         </div>
-         <div class="tier3">
+         <div class="samigo-checkbox">
          <h:selectBooleanCheckbox rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
-         <h:outputText value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
+         <h:outputLabel value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
        </div>
       </div>
     </h:panelGroup>
@@ -271,9 +316,6 @@
       <f:selectItems value="#{assessmentSettings.groupsForSite}" />
     </h:selectManyCheckbox>
   </div>
-  
-  <!-- Extended Time -->
-  <%@ include file="inc/extendedTime.jspf"%>
 
   <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
@@ -312,8 +354,6 @@
           <div class="col-md-10">
               <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
               <h:outputText value="&#160;" escape="false" />
-              <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('endDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
-              <h:outputText value="&#160;" escape="false" />
 
     <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
@@ -349,8 +389,6 @@
             <t:radio for="lateHandling" index="1" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('retractDate');" alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
           </li>
         </ul>
         <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.late_accept_help}" />
@@ -359,14 +397,16 @@
   </h:panelGroup>
 
   <!-- AUTOMATIC SUBMISSION -->
-  <h:panelGroup styleClass="radio row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
-    <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
+    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
+    <div class="col-md-4">
       <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}" />
-    </h:outputLabel>
+      <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.auto_submit_help}" />
+    </div>
   </h:panelGroup>
 
   <!-- SUBMISSION EMAILS -->
-  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
+  <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.instructorNotification_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.instructorNotificationLabel}" />
     <div class="col-md-10">
       <t:selectOneRadio id="notificationEmailChoices" value="#{assessmentSettings.instructorNotification}" layout="spread">
@@ -384,15 +424,18 @@
   </h:panelGroup>
 
     <!-- Display Scores -->
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
-     <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> <f:verbatim> </div><div class="tier3"> </f:verbatim>
-       <h:panelGrid columns="2"  >
-         <h:selectOneRadio id="displayScores" value="#{assessmentSettings.displayScoreDuringAssessments}"  layout="pageDirection">
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
+      <h:outputLabel styleClass="col-md-2" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
+      <div class="col-md-10">
+         <t:selectOneRadio id="displayScores" value="#{assessmentSettings.displayScoreDuringAssessments}" layout="spread">
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
-         </h:selectOneRadio>
-      </h:panelGrid>
-      <f:verbatim></div></f:verbatim>
+         </t:selectOneRadio>
+         <ul class="display-scores">
+           <li><t:radio for="displayScores" index="0" /></li>
+           <li><t:radio for="displayScores" index="1" /></li>
+         </ul>
+      </div>
     </h:panelGroup>
 
 <div id="jqueryui-accordion-security"><!-- This is sub-accordion for high security and submission message -->
@@ -400,52 +443,60 @@
   <!-- *** HIGH SECURITY *** -->
   <h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true or publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true}" >
     <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_high_security} </a> </h3><div>" />
-    <h:panelGrid border="0" columns="2" summary="#{templateMessages.high_security_sec}">
-      <h:outputText value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
-      <%-- no WYSIWYG for IP addresses --%>
-      <h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}">
-      <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
-      <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/> 
-     </h:panelGroup>
-      <h:outputText value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
-      <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel for="username" value="#{assessmentSettingsMessages.high_security_username}"/>
-        <h:inputText id="username" size="20" value="#{assessmentSettings.username}"/>
-        <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
-        <h:inputText id="password" size="20" value="#{assessmentSettings.password}"/>
-      </h:panelGrid>
-      
-      <h:outputText value="#{assessmentSettingsMessages.require_secure_delivery}" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}"/>
-	  <h:panelGrid border="0" columns="1"  columnClasses="samigo-security" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
-	  	<h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();">
-			<f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
-	  	</h:selectOneRadio>
-	  	<h:panelGrid border="0" columns="2"  columnClasses="samigo-security" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">	
-			<h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
-			<h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}" disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>      	
-	  	</h:panelGrid>
-	  </h:panelGrid>
-    </h:panelGrid>
+    
+    
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
+        <%-- no WYSIWYG for IP addresses --%>
+        <div class="col-md-10">
+            <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
+            <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/> 
+        </div>
+    </h:panelGroup>
+    
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
+            <h:inputText id="password" size="20" value="#{assessmentSettings.password}" styleClass="form-control"/>
+        </div>
+    </h:panelGroup>
+
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
+        <h:outputLabel value="#{assessmentSettingsMessages.require_secure_delivery}" styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();">
+                <f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
+            </h:selectOneRadio>
+            <h:panelGrid border="0" columns="2"  columnClasses="samigo-security" >	
+                <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
+                <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}" disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>      	
+            </h:panelGrid>
+        </div>
+    </h:panelGroup>
+    
     <f:verbatim></div></f:verbatim>
   </h:panelGroup>
 
   <!-- *** SUBMISSION MESSAGE *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true or assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}" >
    <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_submission_message} </a> </h3><div>" />
-    <h:panelGrid rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
-    <div class="samigo-submission-message">
-        <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" /> 
-       <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" mode="author">
-         <f:validateLength maximum="4000"/>
-       </samigo:wysiwyg>
-       </div>
-    </h:panelGrid>
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
-    <div class="samigo-submission-message">
-      <h:outputLabel for="finalPageUrl" value="#{assessmentSettingsMessages.submission_final_page_url}" />
-      <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" />
-      <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
-    </div>
+    <h:panelGroup layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.submissionMessage_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" styleClass="col-md-2 form-control-label" />
+        <div class="col-md-10">
+            <h:panelGrid>
+                <samigo:wysiwyg rows="140" value="#{assessmentSettings.submissionMessage}" hasToggle="yes" mode="author">
+                    <f:validateLength maximum="4000"/>
+                </samigo:wysiwyg>
+            </h:panelGrid>
+        </div>
+    </h:panelGroup>
+    <h:panelGroup  layout="block" styleClass="form-group row" rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
+        <h:outputLabel for="finalPageUrl" value="#{assessmentSettingsMessages.submission_final_page_url}"  styleClass="col-md-2 form-control-label"/>
+        <div class="col-md-10">
+            <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" styleClass="form-control"/>
+            <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
+        </div>
     </h:panelGroup>
    </div>
 </h:panelGroup>
@@ -454,42 +505,46 @@
 
 </samigo:hideDivision><!-- END the Availabity and Submissions category -->
 
+<samigo:hideDivision title="#{assessmentSettingsMessages.heading_extended_time}" >
+  <!-- Extended Time -->
+  <%@ include file="inc/extendedTime.jspf"%>
+</samigo:hideDivision>
+
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading_feedback}" >
 
   <!-- *** GRADING *** -->
   <div class="tier3">
   <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" escape="false" value="#{commonMessages.grading}"/>
+      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.recorded_score} " />
       <div class="col-md-10 form-inline">
-        <h:outputLabel value="#{assessmentSettingsMessages.recorded_score} " />
-        <h:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType1" rendered="#{author.canRecordAverage}">
+        <t:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType1" rendered="#{author.canRecordAverage}" layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
           <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.average_score}"/>
-        </h:selectOneRadio>
-        <h:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType2" rendered="#{!author.canRecordAverage}">
+        </t:selectOneRadio>
+        <t:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType2" rendered="#{!author.canRecordAverage}" layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
-        </h:selectOneRadio>
+        </t:selectOneRadio>
       </div>
     </h:panelGroup>
   
     <!--  ANONYMOUS OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>
-      <div class="col-md-10">
-        <h:outputLabel value="#{assessmentSettingsMessages.student_identity}">
-          <h:selectBooleanCheckbox id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"/>
-        </h:outputLabel>
+      <div class="col-md-10 samigo-checkbox">
+        <h:selectBooleanCheckbox id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"/>
+        <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
       </div>
     </h:panelGroup>
     
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
-      <div class="col-md-10">
+      <div class="col-md-10 samigo-checkbox">
         <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"/>
+        <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
       </div>
     </h:panelGroup>
 
@@ -498,9 +553,11 @@
     <!-- *** FEEDBACK *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
 
-      <h4 class="samigo-category-subhead-2">
-        <h:outputText escape="false" value="#{assessmentSettingsMessages.heading_feedback}"/>
-      </h4>
+      <div class="page-header">
+        <h4 class="samigo-category-subhead-2">
+          <h:outputText escape="false" value="#{assessmentSettingsMessages.heading_feedback}"/>
+        </h4>
+      </div>
 
     <!-- FEEDBACK AUTHORING -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
@@ -537,8 +594,6 @@
 	    <t:radio for="feedbackDelivery" index="3" />
             <h:outputText value="&#160;" escape="false" />
             <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" />
-            <h:outputText value="&#160;" escape="false" />
-            <h:graphicImage value="/images/crossmark.gif"  onclick="resetDatePicker('feedbackDate');"  alt="#{assessmentSettingsMessages.clear_calendar_alt}"/>
 	  </li>
         </ul>
       </div>
@@ -550,54 +605,44 @@
       <div class="form-group row">
         <h:outputLabel styleClass="col-md-2" for="feedbackComponentOption" value="#{assessmentSettingsMessages.feedback_components}"/>
         <div class="col-md-10">
-          <t:selectOneRadio id="feedbackComponentOption" value="#{assessmentSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);" layout="spread">
-            <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
-            <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
-          </t:selectOneRadio>
-          <ul class="feedback-component">
-            <li><t:radio for="feedbackComponentOption" index="0" /></li>
-            <li><t:radio for="feedbackComponentOption" index="1" /></li>
-          </ul>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox1" value="#{commonMessages.student_response}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox3" value="#{commonMessages.correct_response}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox2" value="#{commonMessages.question_level_feedback}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox4" value="#{commonMessages.selection_level_feedback}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox6" value="#{assessmentSettingsMessages.grader_comments}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentQuestionScore}" id="feedbackCheckbox7"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox7" value="#{assessmentSettingsMessages.student_question_score}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox5" value="#{assessmentSettingsMessages.student_assessment_score}" />
-          </h:panelGroup>
-          <h:panelGroup styleClass="form-inline" layout="block">
-            <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"/>
-            <h:outputText value="&#160;" escape="false" />
-            <h:outputLabel for="feedbackCheckbox8" value="#{commonMessages.statistics_and_histogram}" />
-          </h:panelGroup>
+            <t:selectOneRadio id="feedbackComponentOption" value="#{assessmentSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);" layout="pageDirection">
+                <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
+                <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
+            </t:selectOneRadio>
+            <div class="respChoice indent1">
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"/>
+                    <h:outputLabel for="feedbackCheckbox1" value="#{commonMessages.student_response}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"/>
+                    <h:outputLabel for="feedbackCheckbox3" value="#{commonMessages.correct_response}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"/>
+                    <h:outputLabel for="feedbackCheckbox2" value="#{commonMessages.question_level_feedback}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"/> 
+                    <h:outputLabel for="feedbackCheckbox4" value="#{commonMessages.selection_level_feedback}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"/>
+                    <h:outputLabel for="feedbackCheckbox6" value="#{assessmentSettingsMessages.grader_comments}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentQuestionScore}" id="feedbackCheckbox7"/>
+                    <h:outputLabel for="feedbackCheckbox7" value="#{assessmentSettingsMessages.student_question_score}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"/>
+                    <h:outputLabel for="feedbackCheckbox5" value="#{assessmentSettingsMessages.student_assessment_score}" />
+                </h:panelGroup>
+                <h:panelGroup styleClass="form-inline" layout="block">
+                    <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"/>
+                    <h:outputLabel for="feedbackCheckbox8" value="#{commonMessages.statistics_and_histogram}" />
+                </h:panelGroup>
+          </div>
         </div>
       </div>
 
@@ -694,7 +739,7 @@
 
  <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);" >
+      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
   </h:commandButton>
@@ -702,13 +747,13 @@
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" rendered="#{not assessmentSettings.hasQuestions}"
       action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
       
-<!-- save -->
-  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);">
+  <!-- Save button -->
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>
 
-  <!-- cancel -->
+  <!-- Cancel button -->
   <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" rendered="#{author.firstFromPage == 'editAssessment'}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetAssessmentAttachmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />

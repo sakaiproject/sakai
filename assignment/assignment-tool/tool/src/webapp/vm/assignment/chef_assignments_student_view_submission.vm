@@ -23,29 +23,9 @@ $(document).ready(function(){
     });
     
 });
-	
-var reportsExpanded = false;
-function handleReportsTriangleDisclosure(btn)
-{
-	var reportsDiv = document.getElementById("reportsDiv");
-	if (reportsExpanded)
-	{
-		btn.src = "#imageLink("sakai/expand.gif")";
-		btn.alt = "$tlang.getString('review.report.expand')";
-		reportsDiv.style.display="none";
-	}
-	else
-	{
-		btn.src = "#imageLink("sakai/collapse.gif")";
-		btn.alt = "$tlang.getString('review.report.collapse')";
-		reportsDiv.style.display="block";
-		resizeFrame();
-	}
-	reportsExpanded = !reportsExpanded;
-}
 </script>
 ## Include other javascript specific to this page
-<script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
+#javascript("/sakai-assignment-tool/js/studentViewSubmission.js")
 
 <div class="portletBody">
 ## submission times
@@ -163,12 +143,13 @@ function handleReportsTriangleDisclosure(btn)
 		#end
 	#end
 ##		<h4>$tlang.getString("gen.assdet")</h4>
-			<table class="itemSummary"  summary="$tlang.getString("gen.theassinf")">
-				<tr>
-					<th>
-						$tlang.getString("gen.title")
-					</th>
-					<td>
+		<div class="itemSummary">
+			<div class="row">
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryHeader">$tlang.getString("gen.title")</div>
+				</div>
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryValue">
 						#assignmentTitleIcon($assignment)
                                                 $validator.escapeHtml($assignment.getTitle())
 						#set ($deleted = false)
@@ -176,91 +157,101 @@ function handleReportsTriangleDisclosure(btn)
 						#if ($!deleted.equalsIgnoreCase("true"))
 							<span class="highlight">(Assignment has been deleted)</span>
 						#end
-					</td>
-				</tr>
-				<tr>
-					<th>
-						$tlang.getString("gen.due")
-					</th>
-					#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
-					<td>
-					#if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
-						$!assignment.dueTime.toStringLocalFull()
-					#end
-					</td>
-				</tr>
-				##resubmit number
-				#if ($submissionType != 4)
-					<tr>
-						<th>
-							$tlang.getString("allow.resubmit.number")
-						</th>
-						<td>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryHeader">$tlang.getString("gen.due")</div>
+				</div>
+				#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
+				<div class="col-lg-4 col-sm-6 col-xs-12">
+					<div class="itemSummaryValue">
+						#if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
+							$!assignment.dueTime.toStringLocalFull()
+						#end
+					</div>
+				</div>
+			</div>
+			##resubmit number
+			#if ($submissionType != 4)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("allow.resubmit.number")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
 							#if ($!resubmitNumber) $resubmitNumber #else 0 #end 
-						</td>
-					</tr>
-					## resubmit close time
-					#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
-						<tr>
-							<th>
-								$tlang.getString("allow.resubmit.closeTime")
-							</th>
-							<td>
+						</div>
+					</div>
+				</div>
+				## resubmit close time
+				#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
+					<div class="row">
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryHeader">$tlang.getString("allow.resubmit.closeTime")</div>
+						</div>
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryValue">
 								$resubmitCloseTime
-							</td>
-						</tr>
-					#end
+							</div>
+						</div>
+					</div>
 				#end
-				## no need to show status if this is for an non-electronic submission type of assignment
-					#if (!$!nonElectronicType)
-				<tr>
-					<th>
-						$tlang.getString("gen.status")
-					</th>
-					<td>
-						#if ($!submission)
-							#if ($submitted && $!timeSubmitted)
-								#if ($returned)
-									#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
-										$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
+			#end
+			## no need to show status if this is for an non-electronic submission type of assignment
+			#if (!$!nonElectronicType)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.status")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
+							#if ($!submission)
+								#if ($submitted && $!timeSubmitted)
+									#if ($returned)
+										#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
+											$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
+										#else
+											$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
+											#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
+												<span class="highlight"> $tlang.getString("gen.late")</span>
+											#end
+										#end
+									#elseif ($submission.getGraded() && $submission.getGradeReleased())
+										#if ($!withGrade)
+											$tlang.getString("grad3")
+										#else
+											$tlang.getString("gen.commented")
+										#end
 									#else
-										$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
+										$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
 										#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
-											<span class="highlight"> $tlang.getString("gen.late")</span>
+											<span class="highlight">$tlang.getString("gen.late2")</span>
 										#end
 									#end
-								#elseif ($submission.getGraded() && $submission.getGradeReleased())
-									#if ($!withGrade)
-										$tlang.getString("grad3")
-									#else
-										$tlang.getString("gen.commented")
-									#end
 								#else
-									$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
-									#if ($!timeSubmitted && $!timeSubmitted.after($assignment.DueTime))
-										<span class="highlight">$tlang.getString("gen.late2")</span>
-									#end
+									$tlang.getString("gen.inpro")
 								#end
 							#else
-								$tlang.getString("gen.inpro")
+								$tlang.getString("gen.notsta")
 							#end
-						#else
-							$tlang.getString("gen.notsta")
-						#end
-					</td>
-				</tr>
-				#end				
-				#if ($withGrade)
-					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
-					#if ($submission.getGraded() && $submission.getGradeReleased())
-						<tr>	
-							<th>
-								$tlang.getString("gen.gra")
-							</th>
-							<td class="highlight">
+						</div>
+					</div>
+				</div>
+			#end
+			#if ($withGrade)
+				#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
+				#if ($submission.getGraded() && $submission.getGradeReleased())
+					<div class="row">
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryHeader">$tlang.getString("gen.gra")</div>
+						</div>
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryValue highlight">
 								<strong>
 									#if ($assignment.getContent().TypeOfGrade != 1)
-                                                                               #if($!override)$override#else$submission.GradeDisplay#end
+										#if($!override)$override#else$submission.GradeDisplay#end
 									#else
 										$tlang.getString("gen.nograd")
 									#end
@@ -271,17 +262,17 @@ function handleReportsTriangleDisclosure(btn)
 									
 								<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
 								#if($scoringComponentEnabled)
-									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")	
-							    #end								
-						         
-							</td>
-						</tr>
-					#else
-						<tr>	
-							<th>
-								$tlang.getString("gen.grasca")
-							</th>
-							<td>
+									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
+								#end
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryHeader">$tlang.getString("gen.grasca")</div>
+						</div>
+						<div class="col-lg-4 col-sm-6 col-xs-12">
+							<div class="itemSummaryValue">
 								$gradeScale
 								#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
 									($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
@@ -291,75 +282,79 @@ function handleReportsTriangleDisclosure(btn)
 								#if($scoringComponentEnabled)
 									#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")	
 								#end
-						        
-							</td>
-						</tr>
-					#end
+							</div>
+						</div>
+					</div>
 				#end
-				##show alert when assignment is modified and the modified date is after its open date	
-				#set($newAssignment="false")
-				#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
-				#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
-					<tr>
-						<th>
-								$tlang.getString("gen.modbyins")
-						</th>
-						<td>
+			#end
+			##show alert when assignment is modified and the modified date is after its open date	
+			#set($newAssignment="false")
+			#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
+			#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.modbyins")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
 							$assignment.getTimeLastModified().toStringLocalFull()
-						</td>
-					</tr>
-				#end
-				#if($!submitted && $!timeSubmitted && $allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
-					<tr>
-						<th>
-							$reviewServiceName&nbsp;$tlang.getString("review.report")
-						</th>
-							<td>
-								#set($reviewResults=$submission.ContentReviewResults)
-								#if ($reviewResults.size() >= 3)
-									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
-										$reviewResults.size() $tlang.getString("review.reports")
-									</div>
-									<div id="reportsDiv" style="display:none;">
-								#end
-								#foreach ($reviewResult in $reviewResults)
-									<div>
-										#set ($props = $reviewResult.getContentResource().Properties)
-										<span class="reportIcon">
-										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
-										#else
-											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
-											</a>
-										#end
-										</span>
-										#if ($reviewResult.isInline())
-											$tlang.getString("submission.inline")
-										#else
-											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
-										#end
-									</div>
-								#end
-								#if ($reviewResults.size() >= 3)
-									</div>
-								#end
-							</td>
-				
-					</tr>
-				#end
-				#if ($!submission && $!submission.getSubmissionLog().size() > 0)
-					<tr>
-						<th>$tlang.getString("gen.history")</th>
-						<td>
+						</div>
+					</div>
+				</div>
+			#end
+			#if($!submitted && $!timeSubmitted && $allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$reviewServiceName&nbsp;$tlang.getString("review.report")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
+							#set($reviewResults=$submission.ContentReviewResults)
+							#if ($reviewResults.size() >= 3)
+								<div class="discTria">
+									<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+									$reviewResults.size() $tlang.getString("review.reports")
+								</div>
+								<div id="reportsDiv" style="display:none;">
+							#end
+							#foreach ($reviewResult in $reviewResults)
+								<div>
+									#set ($props = $reviewResult.getContentResource().Properties)
+									<span class="reportIcon">
+										#if (!$reviewResult.getReviewReport().equals("Error"))<a href="$reviewResult.getReviewReport()" target="_blank">#end
+										<span class="$reviewResult.getReviewIconCssClass()" title="#if($reviewResult.getReviewReport().equals("Error"))$reviewResult.getReviewError()#{else}$reviewResult.getReviewScore()#end"></span>
+										#if (!$reviewResult.getReviewReport().equals("Error"))</a>#end
+									</span>
+									#if ($reviewResult.isInline())
+										$tlang.getString("submission.inline")
+									#else
+										$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+									#end
+								</div>
+							#end
+							#if ($reviewResults.size() >= 3)
+								</div>
+							#end
+						</div>
+					</div>
+				</div>
+			#end
+			#if ($!submission && $!submission.getSubmissionLog().size() > 0)
+				<div class="row">
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryHeader">$tlang.getString("gen.history")</div>
+					</div>
+					<div class="col-lg-4 col-sm-6 col-xs-12">
+						<div class="itemSummaryValue">
 							#foreach ($entry in $submission.getSubmissionLog())
 								$entry<br>
 							#end
-						</td>
-					</tr>
-				#end
-			</table>
+						</div>
+					</div>
+				</div>
+			#end
+		</div>
+		<div class="clearfix"></div>
 		<h4>
 			$tlang.getString("gen.instr")
 		</h4>
@@ -501,6 +496,23 @@ function handleReportsTriangleDisclosure(btn)
 		#else
 				<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
+
+		#set($notes = [])
+		#set($notes = $notesMap.get($submitter.id))
+		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $notes.size() > 0)
+			#set($notesstr = "")
+			#foreach($note in $!notes)
+				#if($!note) #set($notesstr = "$notesstr<li>$note</li>") #end
+			#end
+			#if($notesstr) 
+				#set($notesstr = "<ul>$notesstr</ul>")
+			#else 
+				#set($notesstr = "---")
+			#end
+			<div class="instruction">
+				$tlang.getFormattedMessage("assignment.additional.notes.students.explanation", $notesstr)
+			</div>
+		#end
 
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
@@ -666,6 +678,9 @@ function handleReportsTriangleDisclosure(btn)
 										#if ($plagiarismFileTypes)
 											$plagiarismFileTypes
 										#end
+										#if ($plagiarismStudentPreview)
+											$plagiarismStudentPreview
+										#end
 									</em>
 								</p>
 							#end
@@ -739,6 +754,9 @@ function handleReportsTriangleDisclosure(btn)
 								$plagiarismNote
 								#if ($plagiarismFileTypes)
 									$plagiarismFileTypes
+								#end
+								#if ($plagiarismStudentPreview)
+									$plagiarismStudentPreview
 								#end
 							</em>
 						</p>
@@ -871,7 +889,8 @@ function handleReportsTriangleDisclosure(btn)
 							</table>
 				 		</div>
 					#end
-				#elseif ($submissionType == 5)
+				</div>
+			#elseif ($submissionType == 5)
 					## attachments > 1, but the assignment type is single uploaded file only
 
 					<div class="assignmentAttachBox">
@@ -895,7 +914,7 @@ function handleReportsTriangleDisclosure(btn)
 						#end
 					#end
 
-					<div class="assignmentAttachRadio assignmentAttachmentHighlight spinnerBesideContainer">
+					<div class="assignmentAttachRadio assignmentAttachmentHighlight">
 						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="ASN.highlightSelectedAttachment(); ASN.enableSubmitUnlessNoFile(true);" checked />
 						<span>
 							#set($attachment = $newSingleUploadedFile)
@@ -960,8 +979,7 @@ function handleReportsTriangleDisclosure(btn)
 					</div>
 				#end
 			#end
-			</div>
-				
+
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
@@ -1019,7 +1037,7 @@ function handleReportsTriangleDisclosure(btn)
 						<h4 id="toggleAttach" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.prefeedbackAttachments")
 						</h4>
-						<div class="attachcoms  toggledContent">
+						<div class="attachcoms toggledContent">
 						#set ($size = 0)
 						#set ($props = false)
 						#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1030,12 +1048,12 @@ function handleReportsTriangleDisclosure(btn)
 						#end
 						#if ($size == 0)
 							<p class="instruction">
-                                                            #if ($submissionType == 5)
-                                                                $tlang.getString("gen.noatt.single")
-                                                            #else
-                                                                $tlang.getString("gen.noatt")
-                                                            #end
-                                                        </p>
+								#if ($submissionType == 5)
+									$tlang.getString("gen.noatt.single")
+								#else
+									$tlang.getString("gen.noatt")
+								#end
+							</p>
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1054,9 +1072,9 @@ function handleReportsTriangleDisclosure(btn)
 									#end
 								#end
 							</ul>
-						#end	
+						#end
+						</div>
 					#end
-					</div>	
 				#end
 				#if ($withGrade)
 					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
@@ -1067,7 +1085,7 @@ function handleReportsTriangleDisclosure(btn)
 						<h4 id="toggleGrade" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
 							$tlang.getString("gradingsub.pregra")
 						</h4>
-						<div class="gradecoms  toggledContent">		
+						<div class="gradecoms toggledContent">
 							$!previousGrades
 						</div>
 					#end
@@ -1075,22 +1093,22 @@ function handleReportsTriangleDisclosure(btn)
 				#if ($!assignment.getContent().HonorPledge!=1)
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
+							#if (!$!canSubmit)
+								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
+								#end
+							#else
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
+								#end
+							#end
 							$honor_pledge_text
 						</label>
-						#if (!$!canSubmit)
-							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
-							#end
-						#else
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
-							#end					
-						#end
 						<br />
 						$tlang.getString("gen.youmus")
 					</p>
@@ -1098,9 +1116,9 @@ function handleReportsTriangleDisclosure(btn)
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
-						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.confirmDiscardOrSubmit(); return false;" />
+						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 					#else
-					 class="act messageInformation">
+					 class="act">
 								#if ($submitted && $!timeSubmitted)
 									#set($name=$tlang.getString("resubmit"))
 								#else
@@ -1123,7 +1141,7 @@ function handleReportsTriangleDisclosure(btn)
 								<input class="disableme" type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" />
 							#else
 								<input class="disableme" type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.can")"
-									onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.confirmDiscardOrSubmit(); return false;" />
+									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
 
                             #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
@@ -1138,7 +1156,7 @@ function handleReportsTriangleDisclosure(btn)
 			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
 				$tlang.getString("gen.can.discard")
 				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
-				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.undoCancel();" />
+				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel();" />
 			</div>
 		#else
 				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
@@ -1268,8 +1286,7 @@ function handleReportsTriangleDisclosure(btn)
 			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
 		#else
 			<p class="act">
-				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")"
-					onclick="SPNR.disableControlsAndSpin( this, null ); ASN_SVS.confirmDiscardOrSubmit(); return false;" />
+				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 			</p>
 		#end
 		#end

@@ -14,12 +14,7 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
   </bean>
 
-  <bean id="PageAddProducer"
-      class="org.sakaiproject.site.tool.helper.order.rsf.PageAddProducer">
-    <property name="handler" ref="SitePageEditHandler" />
-  </bean>
-
-  <bean id="PageEditProdcuer" 
+  <bean id="PageEditProdcuer"
       class="org.sakaiproject.site.tool.helper.order.rsf.PageEditProducer">
     <property name="handler" ref="SitePageEditHandler" />
   </bean>
@@ -35,6 +30,7 @@
     <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
     <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
   </bean>
 </beans>

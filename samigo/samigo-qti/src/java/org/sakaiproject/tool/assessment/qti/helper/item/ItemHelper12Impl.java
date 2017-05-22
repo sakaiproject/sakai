@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -60,7 +60,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 public class ItemHelper12Impl extends ItemHelperBase
   implements ItemHelperIfc
 {
-  private static Log log = LogFactory.getLog(ItemHelper12Impl.class);
+  private static Logger log = LoggerFactory.getLogger(ItemHelper12Impl.class);
   private static final String MATCH_XPATH =
     "item/presentation/flow/response_grp/render_choice";
   private static final String NBSP = "&#160;";

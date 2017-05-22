@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+    <style rsf:id="iconstyle" type="text/css">
+    </style>
+    <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <script language="JavaScript" src="/lessonbuilder-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
+    <script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
+    <link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.11.1.smoothness.css" rel="stylesheet" />
+    <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+    <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/checklist.css" type="text/css"/>
+    <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
+
+    <title rsf:id="msg=simplepage.checklist"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.11.1.custom.min.js"></script>
+
+<div class="portletBody">
+
+    <p rsf:id="debugstuff"> junk </p>
+
+    <form rsf:id="page_form" class="checklistForm">
+        <input type="hidden" rsf:id="csrf"/>
+	<input type="hidden" rsf:id="add-before" id="add-before" />
+        <div rsf:id="instructions">Enter your page content below</div>
+
+        <div class="ui-widget" id="checklist-error-container" style="display: none;">
+            <div class="messageError">
+                <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+                    <strong rsf:id="msg=simplepage.error_colon"></strong> <span id="checklist-error"></span></p>
+            </div>
+        </div>
+
+        <div class="longtext titleBorder">
+            <span rsf:id="title-label"></span><span class="bold" style="margin-left:5px;" rsf:id="page-title"></span>
+        </div>
+
+        <div>
+            <p class="required checklistFormInput">
+                <span class="reqStar">*</span>
+                <label class="checklistTitle" rsf:id="msg=simplepage.new-checklist-title" for="name"></label>
+                <br />
+                <input rsf:id="name" id="name" />
+                <br />
+                <input type="checkbox" rsf:id="isNameHidden" id="isNameHidden" class="hideNameCheckbox"/><label rsf:id="nameHidden-label" for="isNameHidden" class="hideNameCheckboxLabel"></label>
+            </p>
+            <p class="checklistFormInput">
+                <label class="checklistDescription" rsf:id="msg=simplepage.new-checklist-description" for="description"></label>
+                <br />
+                <textarea rsf:id="description" id="description"></textarea>
+            </p>
+
+            <hr />
+            <input type="hidden" rsf:id="attributeString" id="attributeString"/>
+
+            <fieldset>
+                <legend class="no-border"><h3 rsf:id="msg=simplepage.add-checklist-item"></h3></legend>
+                <div id="checklistItems">
+                    <li id="copyableChecklistItemDiv" style="display: none;" class="ui-state-default">
+                        <span class="fa fa-sort handle checklist-icons"></span>
+                        <input type="hidden" rsf:id="checklist-item-complete" />
+                        <input type="hidden" rsf:id="checklist-item-id" class="checklist-item-id" />
+                        <input type="hidden" rsf:id="checklist-item-link" class="checklist-item-link" id="checklist-item-link-" />
+                        <label for="checklist-item-name" ></label><span rsf:id="msg=simplepage.checklist-item-name" id="checklist-item-name" class="offscreen"></span>
+                        <input type="text" rsf:id="checklist-item-name" name="checklist-item-name" class="checklist-item-name" />
+                        <div class="actionContainer">
+                            <a href="#" id="external-link-" class="external-link"><span class="fa fa-link"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.link" /></span></a>
+                            <a href="#" id="external-link-unlink-" class="external-unlink"><span class="fa fa-chain-broken"><span class="sr-only" rsf:id="msg=simplepage.checklist.external.unlink" /></span></a>
+                            <a href="#" class="deleteItemLink"><img src="$context/images/delete.png" rsf:id="checklist-item-del" /></a>
+                        </div>
+                    </li>
+                    <ul id="createdChecklistItems"></ul>
+                </div>
+                <button id="addChecklistItemButton" class="button_color">
+                    <span aria-hidden="true" class="fa fa-plus-circle"></span>
+                    <span rsf:id="msg=simplepage.addChecklistItem"></span>
+                </button>
+            </fieldset>
+        </div>
+
+        <hr />
+        <h3><span rsf:id="msg=simplepage.optional.settings" /></h3>
+        <div id="additionalSettings">
+            <h3><span rsf:id="msg=simplepage.appearance.settings" /></h3>
+            <div id="stylingstuff" class="stylingstuff">
+                <p class="shorttext">
+                    <label for="indent-level"><span rsf:id="msg=simplepage.indent.level"/></label>
+                    <select rsf:id="indent-level" name="indent-level" id="indent-level"/>
+                </p>
+                <p class="shorttext">
+                    <label for="customCssClass" rsf:id="custom-css-label"></label>
+                    <input rsf:id="customCssClass" type="text" id="customCssClass" length="30" maxlength="99" class="edit-form-input"/>
+                </p>
+            </div>
+            <h3 id="groupHeader"><span rsf:id="msg=simplepage.group.settings" /></h3>
+            <div id="grouplist" rsf:id="grouplist">
+                <span rsf:id="group-list-span"/>
+                <p rsf:id="msg=simplepage.select-group"></p>
+                <div rsf:id="select-group-list:">
+                    <input type="checkbox" rsf:id="select-group" /><input type="checkbox" rsf:id="select-group-checked" checked="checked" /><span rsf:id="select-group-text"></span>
+                </div>
+            </div>
+        </div>
+
+        <span style="display:none;" id="confirmDeleteLangSupp" rsf:id="msg=simplepage.delete_page_confirm"></span>
+        <p class="act">
+            <input id="submitButton" accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
+            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+            <input type="submit" rsf:id="delete" class="deleteButton" />
+        </p>
+    </form>
+</div>
+<div rsf:id="dialogDiv" class="dialogs">
+    <div id="externalLink-dialog" rsf:id="externalLink-dialog" class="lessonsDialog">
+        <div class="information" rsf:id="msg=simplepage.checklist.external.link.info"></div>
+        <form action="#" rsf:id="item-picker">
+            <div id="list" border="0" role="list" class="checklistList" >
+                <h6 rsf:id="msg=simplepage.checklist.external.heading"></h6>
+                <div class="hierFlexList checklistList-item" rsf:id="item:" role="listitem" >
+                    <div class="hierFlex1" ><input class="checklistList-radio" name="external-link-radios" type="radio" rsf:id="select" id="select"/> <span rsf:id="name"/></div>
+                </div>
+            </div>
+
+            <input type="hidden" id="item-id" />
+            <p class="act">
+                <input type="button" id="externalLink-dialog-submit" class="bold" rsf:id="msg=simplepage.submit" />
+                <input type="button" id="externalLink-dialog-close" rsf:id="msg=simplepage.cancel" />
+            </p>
+        </form>
+    </div>
+</div>
+<div id="messages" style="display:none;">
+    <p rsf:id="msg=simplepage.checklist-name-required" id="simplepage.checklist-name-required"></p>
+</div>
+<script type="text/javascript" language="JavaScript" src="$context/js/checklist.js"></script>
+<script type="text/javascript">
+    checklist.init();
+</script>
+
+</body>
+</html>

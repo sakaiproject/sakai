@@ -17,6 +17,7 @@
 #end
 
 <div class="portletBody">
+	#if($menu)#toolbar($menu)#end
 
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	
@@ -25,7 +26,7 @@
 	</h3>
 	
 	<p class="messageInformation">
-		$icalInfoStr $tlang.getString("ical.info")<br/>
+		$icalInfoStr $tlang.getString("ical.info.public")<br/>
 	</p>
 	
    <p/>

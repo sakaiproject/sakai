@@ -12,9 +12,7 @@
   <artifactId>archive-base</artifactId>
   <packaging>pom</packaging>
   <modules>
-    <module>archive-tool/tool</module>
     <module>import-handlers/announcement-handlers</module>
-    <module>import-pack</module>
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -57,12 +55,6 @@
         <groupId>org.sakaiproject.edu-services.course-management</groupId>
         <artifactId>coursemanagement-api</artifactId>
         <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${sakai.lombok.version}</version>
         <scope>provided</scope>
       </dependency>
     </dependencies>

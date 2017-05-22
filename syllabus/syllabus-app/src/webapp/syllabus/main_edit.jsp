@@ -12,61 +12,37 @@
 
 <script>includeLatestJQuery('main_edit.jsp');</script>
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
-<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
-<link type="text/css" href="syllabus/css/syllabus.css" rel="stylesheet" media="screen" />
 <script type="text/javascript">
   var startDateValues = new Array();
-  var dateFormat = '<h:outputText value="#{msgs.jqueryDatePickerDateFormat}"/>';
-  var timeFormat = '<h:outputText value="#{msgs.jqueryDatePickerTimeFormat}"/>';
   var dataChanged = false;
+  var idPrefix = 'syllabusMainEdit:dataTable:';
+  $(document).ready(function() {
+  			$(".dateInputStart").each(function(){
+				localDatePicker({
+  							input: $(this),
+  							useTime: 1,
+  							parseFormat: 'YYYY-MM-DD HH:mm:ss',
+  							allowEmptyDate: false,
+  							val: $(this).val(),
+  							ashidden: {
+  									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataStartDate','dataStartDateISO8601')}
+  				});
+  			});
+			$(".dateInputEnd").each(function(){
+  				localDatePicker({
+  							input: $(this),
+  							useTime: 1,
+  							parseFormat: 'YYYY-MM-DD HH:mm:ss',
+  							allowEmptyDate: false,
+  							val: $(this).val(),
+  							ashidden: {
+  									iso8601: $(this).attr('id').replace(idPrefix,'').replace(':dataEndDate','dataEndDateISO8601')}
+  				});
+  			});
+  });
   $(function() {
-    $('.dateInput').datetimepicker({
-    	hour: 8,
-		timeFormat: timeFormat,
-		currentText: "<h:outputText value="#{msgs.now}"/>",
-		closeText: "<h:outputText value="#{msgs.done}"/>",
-		amNames: ['<h:outputText value="#{msgs.am}"/>', '<h:outputText value="#{msgs.am2}"/>'],
-		pmNames: ['<h:outputText value="#{msgs.pm}"/>', '<h:outputText value="#{msgs.pm2}"/>'],
-		timeText: "<h:outputText value="#{msgs.time}"/>",
-		hourText: "<h:outputText value="#{msgs.hour}"/>",
-		minuteText: "<h:outputText value="#{msgs.minute}"/>",
-		monthNames: ["<h:outputText value="#{msgs.jan}"/>",
-					  "<h:outputText value="#{msgs.feb}"/>",
-					  "<h:outputText value="#{msgs.mar}"/>",
-					  "<h:outputText value="#{msgs.apr}"/>",
-					  "<h:outputText value="#{msgs.may}"/>",
-					  "<h:outputText value="#{msgs.jun}"/>",
-					  "<h:outputText value="#{msgs.jul}"/>",
-					  "<h:outputText value="#{msgs.aug}"/>",
-					  "<h:outputText value="#{msgs.sep}"/>",
-					  "<h:outputText value="#{msgs.oct}"/>",
-					  "<h:outputText value="#{msgs.nov}"/>",
-					  "<h:outputText value="#{msgs.dec}"/>"],
-		dayNames: ["<h:outputText value="#{msgs.sunday}"/>",
-							"<h:outputText value="#{msgs.monday}"/>",
-							"<h:outputText value="#{msgs.tuesday}"/>",
-							"<h:outputText value="#{msgs.wednesday}"/>",
-							"<h:outputText value="#{msgs.thursday}"/>",
-							"<h:outputText value="#{msgs.friday}"/>",
-							"<h:outputText value="#{msgs.saturday}"/>"],
-		dayNamesMin: ["<h:outputText value="#{msgs.sun}"/>",
-							"<h:outputText value="#{msgs.mon}"/>",
-							"<h:outputText value="#{msgs.tue}"/>",
-							"<h:outputText value="#{msgs.wed}"/>",
-							"<h:outputText value="#{msgs.thu}"/>",
-							"<h:outputText value="#{msgs.fri}"/>",
-							"<h:outputText value="#{msgs.sat}"/>"],
-		beforeShow: function (textbox, instance) {
-			            instance.dpDiv.css({
-			                    marginLeft: textbox.offsetWidth + 'px'
-			          });
-		
-	}
-	});
-  
-  
-  	
   	//Setup the current values of the start dates (to compare and adjust the end dates when changed)
   	$(".dateInputStart").each(function(){
 		startDateValues[$(this).attr('id')] = $(this).val();
@@ -75,13 +51,19 @@
   	$(".dateInputStart").change(function(){
   		var startDate = new Date($(this).val());
   		var prevStartDate = new Date(startDateValues[$(this).attr('id')]);
+		if(startDate.getTime() == prevStartDate.getTime()){
+			return;
+		}
   		var endDate = new Date($(this).closest("tr").find(".dateInputEnd").val());
   		if(isNaN(startDate.getTime()) == false && isNaN(prevStartDate.getTime()) == false && isNaN(endDate.getTime()) == false){
   			//we only want to update if all three of these dates have been set
   			var timeDiff = startDate.getTime() - prevStartDate.getTime();
   			var newEndDate = new Date(endDate.getTime() + timeDiff);
   			var newEndTime = {hour: newEndDate.getHours(), minute: newEndDate.getMinutes()};
-  			$(this).closest("tr").find(".dateInputEnd").val($.datepicker.formatDate(dateFormat, newEndDate) + " " + $.datepicker.formatTime(timeFormat, newEndTime));
+			var dataInputEnd = $(this).closest("tr").find(".dateInputEnd");
+			dataInputEnd.datetimepicker("setDate", newEndDate);
+			dataInputEnd.siblings('input[id$=dataEndDateISO8601]').val(moment(newEndDate).format());
+			
   		}
   		startDateValues[$(this).attr('id')] = $(this).val();
   	});
@@ -219,36 +201,36 @@
         	}
         </script>
 
-		<h:form>
+		<h:form id="syllabusMainEdit">
 		<h:panelGroup>
 		  <f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
 		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
-		  <h:panelGroup rendered="#{SyllabusTool.editAble == 'true'}">
+		  <h:panelGroup rendered="#{SyllabusTool.addItem == 'true'}">
 			   <f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
 				  	<h:commandLink action="#{SyllabusTool.processListNew}" 
 				  		styleClass="actionLink" 
 				  		onmousedown="assignWarningClick(this);"
-					    rendered="#{SyllabusTool.editAble == 'true'}">
+					    rendered="#{SyllabusTool.addItem == 'true'}">
 					    	<h:outputText value="#{msgs.bar_new}"/>
 					</h:commandLink>
 				<f:verbatim></span></li></f:verbatim>
 			</h:panelGroup>
-			<h:panelGroup rendered="#{SyllabusTool.editAble == 'true'}">
+			<h:panelGroup rendered="#{SyllabusTool.bulkAddItem == 'true'}">
 				<f:verbatim><li role="menuitem" ><span></f:verbatim>
 				   	<h:commandLink
 							action="#{SyllabusTool.processListNewBulkMainEdit}"
 							onmousedown="assignWarningClick(this);"
-				   			rendered="#{SyllabusTool.editAble == 'true'}">
+				   			rendered="#{SyllabusTool.bulkAddItem == 'true'}">
 								<h:outputText value="#{msgs.bar_new_bulk}"/>
 				   	</h:commandLink>
 			   	<f:verbatim></span></li></f:verbatim>
 		   	</h:panelGroup>
-		   	<h:panelGroup rendered="#{SyllabusTool.editAble == 'true'}">
+		   	<h:panelGroup rendered="#{SyllabusTool.addOrEdit == 'true'}">
 			   	<f:verbatim><li role="menuitem" ><span></f:verbatim>
 				   	<h:commandLink
 							action="#{SyllabusTool.processStudentView}"
 							onmousedown="assignWarningClick(this);"
-				   			rendered="#{SyllabusTool.editAble == 'true'}">
+				   			rendered="#{SyllabusTool.addOrEdit == 'true'}">
 					    		<h:outputText value="#{msgs.bar_student_view}"/>
 					</h:commandLink>
 				<f:verbatim></span></li></f:verbatim>
@@ -259,7 +241,7 @@
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
-		     <h:dataTable value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"
+		     <h:dataTable id="dataTable" value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"
 		     				columnClasses="item,move,move,status,status" >
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
@@ -276,12 +258,12 @@
 								<h:outputText value="" />
 							</f:facet>
 							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
-								<h:graphicImage url="/syllabus/moveup.gif" alt="#{msgs.mainEditLinkUpTitle}" />
+											<f:verbatim><span class="fa fa-long-arrow-up" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkUpTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 							<h:outputText value=" "/>
 							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink" rendered="#{SyllabusTool.editAble == 'true'}">
-								<h:graphicImage url="/syllabus/movedown.gif" alt="#{msgs.mainEditLinkDownTitle}" />
+															<f:verbatim><span class="fa fa-long-arrow-down" alt="</f:verbatim><h:outputText value="#{msgs.mainEditLinkDownTitle}" /><f:verbatim>" ></span></f:verbatim>
 								<h:outputText value="(#{eachEntry.entry.title})" styleClass="skip"/>
 							</h:commandLink>
 						</h:column>
@@ -289,19 +271,13 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderStartTime}"/>
 							</f:facet>
-							<h:inputText styleClass="dateInput dateInputStart" value="#{eachEntry.entry.startDate}" id="dataStartDate">
-								<f:convertDateTime pattern="#{msgs.mainEditHeaderTimeFormat}"/>
-							</h:inputText>
-							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$(this).prev().focus();"/></f:verbatim>
+							<h:inputText styleClass="dateInput dateInputStart" value="#{eachEntry.startDateString}" id="dataStartDate"/>
 						</h:column>	
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderEndTime}"/>
 							</f:facet>
-							<h:inputText styleClass="dateInput dateInputEnd" value="#{eachEntry.entry.endDate}" id="dataEndDate">
-								<f:convertDateTime pattern="#{msgs.mainEditHeaderTimeFormat}"/>
-							</h:inputText>
-							<f:verbatim><img src="/library/image/silk/calendar_view_month.png" onclick="$(this).prev().focus();"/></f:verbatim>
+							<h:inputText styleClass="dateInput dateInputEnd" value="#{eachEntry.endDateString}" id="dataEndDate"/>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg && SyllabusTool.calendarExistsForSite}">
 							<f:facet name="header">
@@ -360,8 +336,7 @@
             <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
 
             <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
-                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"
-                                          height="500"/>
+                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"/>
             </syllabus:syllabus_if>
             <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
                 <h:outputText escape="false"

@@ -28,35 +28,12 @@
 		</developer>
 	</developers>
 
-	<licenses>
-        <license>
-            <name>Educational Community License, Version 2.0</name>
-            <url>http://www.opensource.org/licenses/ecl2.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://jira.sakaiproject.org/jira/browse/TINYURL</url>
-    </issueManagement>
-    
     <modules>
         <module>api</module>
         <module>impl</module>
-        <module>pack</module>
         <module>tool</module>
     </modules>
 
-    
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/shortenedurl/${project.version}</url>
-        </site>
-    </distributionManagement>
-    
 	<dependencyManagement>
 		<dependencies>
 			
@@ -76,29 +53,12 @@
 		    
 		    <!-- external dependencies -->
 		    <dependency>
-		      	<groupId>commons-logging</groupId>
-		      	<artifactId>commons-logging</artifactId>
-		      	<version>${sakai.commons-logging.version}</version>
-		      	<scope>provided</scope>
-		    </dependency>
-		     <dependency>
-		      	<groupId>commons-lang</groupId>
-		      	<artifactId>commons-lang</artifactId>
-		      	<version>2.5</version>
-		      	<scope>provided</scope>
-		    </dependency>
-		    <dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.0</version>
+				<version>4.5.3</version>
 				<scope>compile</scope>
 			</dependency>
-			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
-				<version>2.4</version>
-				<scope>provided</scope>
-			</dependency>
+
 			
 			<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
 			<dependency>

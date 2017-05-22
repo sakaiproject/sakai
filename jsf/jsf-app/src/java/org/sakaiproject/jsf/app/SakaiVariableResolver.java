@@ -26,8 +26,8 @@ import javax.faces.el.EvaluationException;
 import javax.faces.el.VariableResolver;
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.web.context.WebApplicationContext;
@@ -44,7 +44,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class SakaiVariableResolver extends VariableResolver
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SakaiVariableResolver.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiVariableResolver.class);
 
 	/** The VariableResolver already in place that we add features to. */
 	protected VariableResolver m_resolver = null;

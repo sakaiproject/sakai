@@ -24,8 +24,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -62,7 +62,7 @@ public class EventProcessHandler implements SignupBeanConstants {
 
 	protected SignupRESTfulSessionManager signupRESTfulSessionManager;
 
-	protected Log logger = LogFactoryImpl.getLog(getClass());
+	protected Logger logger = LoggerFactory.getLogger(EventProcessHandler.class);
 
 	public SignupEvent getSignupEvent(Long eventId, String siteId, String userId, boolean mustAccessDB) {
 		SignupEvent event = null;

@@ -107,7 +107,7 @@ public interface MenuItem
 	 * 
 	 * @return The sub-items of the item.
 	 */
-	List getItems();
+	List<MenuItem> getItems();
 
 	/**
 	 * Count the sub-items of the item. Note: if !isContainer(), the count is 0.
@@ -138,6 +138,13 @@ public interface MenuItem
 	 * @return True if the item is a field, false if not.
 	 */
 	boolean getIsField();
+
+	/**
+	 * Access the is-current flag.
+	 * 
+	 * @return True if the item is the currently selected one, false if not.
+	 */
+	boolean getIsCurrent();
 	
 	/**
 	 * Get the optional label that may be set by components to provide accessiblity information, eg alt tags, title attributes etc

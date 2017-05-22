@@ -1,9 +1,6 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-
-<hibernate-mapping
-	package="org.sakaiproject.component.app.help.model">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.component.app.help.model">
 
 	<class name="ResourceBean" table="SAKAI_HELP_RESOURCE_T">
 
@@ -17,7 +14,7 @@
 		</id>
 
 		<property name="docId">
-			<column name="document_id" length="36" not-null="true"/>
+			<column name="document_id" length="255" not-null="true"/>
 		</property>
 
 		<property name="defaultForTool">

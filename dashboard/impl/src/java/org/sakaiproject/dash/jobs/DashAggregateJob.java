@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
@@ -49,7 +49,7 @@ import org.sakaiproject.dash.logic.EventCopy;
 //TODO: Find all statsUpdateManager and replace with this dashboard job
 
 public class DashAggregateJob implements StatefulJob {
-	private Log					LOG					= LogFactory.getLog(DashAggregateJob.class);
+	private Logger					LOG					= LoggerFactory.getLogger(DashAggregateJob.class);
 
 	// Spring fields
 	private int					maxEventsPerRun		= 0;
@@ -357,7 +357,7 @@ public class DashAggregateJob implements StatefulJob {
 						sessionId = rs.getString("SESSION_ID");
 						if(isEventContextSupported)
 							context = rs.getString("CONTEXT");
-						EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0);
+						EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0, null);
 						eventsQueue.add(eventcopy);
 						
 						counter++;					
@@ -530,7 +530,7 @@ public class DashAggregateJob implements StatefulJob {
 					sessionUser = rs.getString("SESSION_USER");
 					sessionId = rs.getString("SESSION_ID");
 					context = rs.getString("CONTEXT");
-					EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0);
+					EventCopy eventcopy = new EventCopy(date,event,ref,context,sessionUser,sessionId, ' ',0, null);
 					eventsQueue.add( eventcopy );					
 					counter++;				
 				}catch(Exception e){

@@ -31,8 +31,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.InterruptableJob;
@@ -64,7 +64,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SchedulerTool
 {
 
-  private static final Log LOG = LogFactory.getLog(SchedulerTool.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SchedulerTool.class);
 
   private static final String CRON_CHECK_ASTERISK = "**";
   private static final String CRON_CHECK_QUESTION_MARK = "??";
@@ -545,7 +545,7 @@ public class SchedulerTool
      }
      catch (Exception e)
      {
-       LOG.error("Failed to trigger job now");
+       LOG.error("Failed to trigger job now", e);
        return 2;
      }
   }
@@ -637,7 +637,7 @@ public class SchedulerTool
     }
     catch (Exception e)
     {
-      LOG.error("Failed to create job. Exception message is: " + e.getMessage());
+      LOG.error("Failed to create job.", e);
       return "error";
     }
   }
@@ -748,7 +748,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to create job. Exception message is: " + e.getMessage());
+          LOG.error("Failed to create job.", e);
           return "error";          
       }
   }
@@ -788,30 +788,28 @@ public class SchedulerTool
       LOG.error("Scheduler is down!");
       return "error";
     }
-    try
-    {
-    	JobDetail
-    		jd = selectedJobDetailWrapper.getJobDetail();
+    try {
+        JobDetail jobDetail = selectedJobDetailWrapper.getJobDetail();
 
-    	Trigger trigger = TriggerBuilder.newTrigger()
-    	        .withIdentity(jd.getKey().getName(), Scheduler.DEFAULT_GROUP)
-    	        .withSchedule(CronScheduleBuilder.cronSchedule(triggerExpression))
-    	        .build();
-    	        
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity(triggerName, Scheduler.DEFAULT_GROUP)
+                .withSchedule(CronScheduleBuilder.cronSchedule(triggerExpression))
+                .forJob(jobDetail.getKey())
+                .build();
+
     	TriggerWrapper tempTriggerWrapper = new TriggerWrapperImpl();
     	tempTriggerWrapper.setTrigger(trigger);
-      
-      	JobBeanWrapper
-      		job = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
 
-      	if (job != null)
+        JobBeanWrapper jobWrapper = getSchedulerManager().getJobBeanWrapper(selectedJobDetailWrapper.getJobType());
+
+        if (jobWrapper != null)
       	{
-		    if (ConfigurableJobBeanWrapper.class.isAssignableFrom(job.getClass()))
+		    if (ConfigurableJobBeanWrapper.class.isAssignableFrom(jobWrapper.getClass()))
 		    {
 		        final ConfigurableJobBeanWrapper
-		            configurableJob = (ConfigurableJobBeanWrapper)job;
+		            configurableJob = (ConfigurableJobBeanWrapper)jobWrapper;
 		
-                setJobDetail (jd);
+                setJobDetail (jobDetail);
 		        setConfigurableJobBeanWrapper (configurableJob);
 		        setTriggerWrapper (tempTriggerWrapper);
 		        
@@ -831,7 +829,7 @@ public class SchedulerTool
     }
     catch (Exception e)
     {
-      LOG.error("Failed to create trigger. Exception message is: " + e.getMessage());
+      LOG.error("Failed to create trigger.", e);
       return "error";
     }
     finally
@@ -939,7 +937,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to create job. Exception message is: " + e.getMessage());
+          LOG.error("Failed to create job.", e);
           return "error";          
       }
 
@@ -985,7 +983,7 @@ public class SchedulerTool
     }
     catch (SchedulerException e)
     {
-      LOG.error("Scheduler Down");
+      LOG.error("Failed to delete jobs.", e);
     }
     processRefreshJobs();
     return "jobs";
@@ -1005,7 +1003,7 @@ public class SchedulerTool
     }
     catch (SchedulerException e)
     {
-      LOG.error("Scheduler Down");
+      LOG.error("Failed to delete triggers.", e);
     }
     return "edit_triggers";
   }
@@ -1035,7 +1033,7 @@ public class SchedulerTool
     }
     catch (SchedulerException e)
     {
-      LOG.error("scheduler error while getting job detail");
+      LOG.error("Failed to get job details.", e);
     }
 
     // test for select all
@@ -1102,7 +1100,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-    	LOG.error("Failed to run job now. Exception message is: " + e.getMessage());
+    	LOG.error("Failed to run job now.", e);
         return "error";
       }
   }
@@ -1202,7 +1200,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to trigger job now");
+          LOG.error("Failed to trigger job now", e);
           return "error";
       }
   }
@@ -1269,7 +1267,7 @@ public class SchedulerTool
      }
      catch (Exception e)
      {
-       LOG.error("Failed to trigger job now");
+       LOG.error("Failed to trigger job now", e);
        return "error";
      }
   }

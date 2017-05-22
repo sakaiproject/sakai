@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums;
 
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -62,8 +63,9 @@ import net.sf.json.JsonConfig;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -146,7 +148,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -154,7 +156,7 @@ import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureExcep
  */
 public class DiscussionForumTool
 {
-  private static final Log LOG = LogFactory.getLog(DiscussionForumTool.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumTool.class);
 
   /**
    * List individual forum details
@@ -684,8 +686,8 @@ public class DiscussionForumTool
 	    	 List<Object[]> topicMessageCounts = forumManager.getMessageCountsForMainPage(topicIdsForCounts);
 	    	 for (Object[] counts: topicMessageCounts) {
 	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    		 decoTopic.setTotalNoMessages((Integer)counts[1]);
-	    		 decoTopic.setUnreadNoMessages((Integer)counts[1]);
+	    		 decoTopic.setTotalNoMessages(((Long) counts[1]).intValue());
+	    		 decoTopic.setUnreadNoMessages(((Long) counts[1]).intValue());
 	    	 }
 
 	    	 // get the total read message count for the current user of non-moderated and add them to the discussion
@@ -697,7 +699,7 @@ public class DiscussionForumTool
 	    	 topicMessageCounts = forumManager.getReadMessageCountsForMainPage(topicIdsForCounts);
 	    	 for (Object[] counts: topicMessageCounts) {
 	    		 DiscussionTopicBean decoTopic = topicBeans.get(counts[0]);
-	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - (Integer)counts[1]);
+	    		 decoTopic.setUnreadNoMessages(decoTopic.getTotalNoMessages() - ((Long) counts[1]).intValue());
 	    	 }
 
 	    	 // get the assignments for use later
@@ -4267,14 +4269,14 @@ public class DiscussionForumTool
 	    try{
 	    	messageId = Long.valueOf(messageIdStr);
 	    }catch (NumberFormatException e) {
-	    	LOG.error(e);
+	    	LOG.error(e.getMessage());
 	    	setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	    	return gotoMain();
 		}
 	    try{
 	    	topicId = Long.valueOf(topicIdStr);
 	    }catch (NumberFormatException e) {
-	    	LOG.error(e);
+	    	LOG.error(e.getMessage());
 	    	setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	    	return gotoMain();
 		}
@@ -4460,7 +4462,7 @@ public class DiscussionForumTool
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
 	  
-	  Assignment assignment = gradebookService.getAssignment(gradebookUid, gradebookUid);
+	  Assignment assignment = gradebookService.getAssignment(gradebookUid, selAssignmentName);
 	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
 	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
@@ -4501,7 +4503,8 @@ public class DiscussionForumTool
 		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
-		      gbItemScore = gradeDef.getGrade();
+		      String decSeparator = FormattedText.getDecimalSeparator();
+		      gbItemScore = StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator);
 		  }
 
 		  if (gradeDef.getGradeComment() != null) {
@@ -6547,9 +6550,7 @@ public class DiscussionForumTool
     		lrss.registerStatement(getStatementForGrade(studentUid, lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), 
     				gradeAsDouble), "msgcntr");
     	} catch (Exception e) {
-    		if (LOG.isDebugEnabled()) {
-    			LOG.debug(e);
-    		}
+            LOG.debug(e.getMessage());
     	}
     }
     
@@ -7219,10 +7220,7 @@ public class DiscussionForumTool
    */
   private void setSelectedForumForCurrentTopic(DiscussionTopic topic)
   {
-    if (selectedForum != null)
-    {
-      return;
-    }
+    DiscussionForumBean oldSelectedForum = selectedForum;
     DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
     if (forum == null)
     {
@@ -7230,17 +7228,20 @@ public class DiscussionForumTool
       String forumId = getExternalParameterByKey(FORUM_ID);
       if (forumId == null || forumId.trim().length() < 1)
       {
-        selectedForum = null;
+        selectedForum = oldSelectedForum;
         return;
       }
       forum = forumManager.getForumById(Long.valueOf(forumId));
       if (forum == null)
       {
-        selectedForum = null;
+        selectedForum = oldSelectedForum;
         return;
       }
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+    if (selectedForum == null) {
+    	selectedForum = oldSelectedForum;
+    }
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
     	selectedForum.setReadFullDesciption(true);
@@ -8358,7 +8359,7 @@ public class DiscussionForumTool
 			url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
 			LOG.debug("url: " + url);
 		}catch (Exception e) {
-			LOG.warn(e);
+			LOG.warn(e.getMessage());
 		}
 		return url;
 	}
@@ -9754,14 +9755,12 @@ public class DiscussionForumTool
             if (newValue == null) {
                 return "";
             }
-            try {
-                FileItem item = (FileItem) event.getNewValue();
-                if (!validateImageSize(item)) {
-                    return null;
-                }
-
+            FileItem item = (FileItem) event.getNewValue();
+            if (!validateImageSize(item)) {
+              return null;
+            }
+            try (InputStream inputStream = item.getInputStream()) {
                 String fileName = item.getName();
-                byte[] fileContents = item.get();
                 ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
                 String tempS = fileName;
 
@@ -9770,14 +9769,16 @@ public class DiscussionForumTool
                     fileName = tempS.substring(lastSlash + 1);
                 }
                 props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
-                ContentResource thisAttach = contentHostingService.addAttachmentResource(fileName, item.getContentType(), fileContents,
-                        props);
+                ContentResourceEdit thisAttach = contentHostingService.addAttachmentResource(fileName);
+                thisAttach.setContentType(item.getContentType());
+                thisAttach.setContent(inputStream);
+                thisAttach.getPropertiesEdit().addAll(props);
+                contentHostingService.commitResource(thisAttach);
                 RankImage attachObj = rankManager.createRankImageAttachmentObject(thisAttach.getId(), fileName);
                 attachment = attachObj;
 
             } catch (Exception e) {
-                LOG.error(this + ".processUpload() in DiscussionForumTool " + e);
-                e.printStackTrace();
+                LOG.error(this + ".processUpload() in DiscussionForumTool", e);
             }
             just_created = true;
             return VIEW_RANK;

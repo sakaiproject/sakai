@@ -25,8 +25,8 @@ import java.util.*;
 import java.text.MessageFormat;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.util.ByteArrayDataSource;
 
@@ -53,7 +53,7 @@ public class SakaiProxy {
 
     public static final int ATTACH_MAX_DEFAULT = 10;
 
-	private static final Log logger = LogFactory.getLog(SakaiProxy.class);
+	private static final Logger logger = LoggerFactory.getLogger(SakaiProxy.class);
 
     private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.feedback");
 
@@ -177,15 +177,7 @@ public class SakaiProxy {
 
 		if (fileItems.size() > 0) {
 			for (FileItem fileItem : fileItems) {
-				String name = fileItem.getName();
-
-				if (name.contains("/")) {
-					name = name.substring(name.lastIndexOf("/") + 1);
-                } else if (name.contains("\\")) {
-					name = name.substring(name.lastIndexOf("\\") + 1);
-                }
-
-				attachments.add(new Attachment(new ByteArrayDataSource(fileItem.get(), fileItem.getContentType()), name));
+				attachments.add(new Attachment(new FileItemDataSource(fileItem)));
 			}
 		}
 
@@ -229,11 +221,17 @@ public class SakaiProxy {
         final ResourceLoader rb = new ResourceLoader("org.sakaiproject.feedback");
 
         String subjectTemplate = null;
-        
+
         if (feedbackType.equals(Constants.CONTENT)) {
             subjectTemplate = rb.getString("content_email_subject_template");
         } else if (feedbackType.equals(Constants.HELPDESK)) {
             subjectTemplate = rb.getString("help_email_subject_template");
+        } else if (feedbackType.equals(Constants.SUGGESTIONS)) {
+            subjectTemplate = rb.getString("suggestion_email_subject_template");
+        } else if (feedbackType.equals(Constants.SUPPLEMENTAL_A)) {
+            subjectTemplate = rb.getString("supplemental_a_email_subject_template");
+        } else if (feedbackType.equals(Constants.SUPPLEMENTAL_B)) {
+            subjectTemplate = rb.getString("supplemental_b_email_subject_template");
         } else {
             subjectTemplate = rb.getString("technical_email_subject_template");
         }

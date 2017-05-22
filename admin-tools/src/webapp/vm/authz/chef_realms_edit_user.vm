@@ -1,0 +1,68 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_edit_user.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $ 
+#javascript("/library/js/spinner.js")
+<script type="text/javascript">
+  focus_path = ["id"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+		<h3>
+			$tlang.getString("realm.user.edit") $validator.escapeHtml($!realm.Id)
+		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.user.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<p class="instruction">$tlang.getString("realm.user.used") $validator.escapeHtml($!realm.Description)</p>
+		
+		<p class="instruction">
+			$tlang.getString("realm.user.set")
+		</p>
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h4>
+				$tlang.getString("realm.user.user")
+			</h4>	
+			<p class="shorttext required">
+				#if(!$user)<span class="reqStar">*</span>#end
+				<label #if(!$user) for="eid" #end>
+					 $tlang.getString("realm.user.id")
+				</label>
+					#if(!$user)<input type="text" name="eid" id="eid" />#else$validator.escapeHtml($user.Eid)#end
+			</p>
+			<h4>
+				$tlang.getString("realm.user.role")
+			</h4>	
+			#foreach ($role in $allRoles)
+				<p class="checkbox">
+					<input type="radio" name="roles" id="role$velocityCount" value="$role.Id" #if($roles.Id==$role.Id)checked="checked"#end  />
+					<label for="role$velocityCount">$role.Id</label>
+				</p>	
+			#end
+			
+			##Active/Inactive user (SAK-14378 )
+			<h4>
+				$tlang.getString("realm.edit.status")
+			</h4>				
+			<p class="checkbox">
+					<input type="radio" name="status" id="active" value="true" #if($grant.Active!=false)checked="checked"#end/>
+					<label for="active">$tlang.getString("realm.edit.active")</label><br>
+					<input type="radio" name="status" id="inactive" value="false" #if($grant.Active==false)checked="checked"#end /> 
+					<label for="inactive">$tlang.getString("realm.edit.inactive")</label>
+			</p>					
+				<h4>	
+					$tlang.getString("realm.user.continue")
+				</h4>	
+
+					<div class="act">
+						<input type="submit" name="eventSubmit_doDone_user" value="$tlang.getString("realm.user.done")" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</div>
+				<h4>	
+					$tlang.getString("realm.user.complete")
+				</h4>	
+
+					<div class="act">
+						<input type="submit" class="active"  name="eventSubmit_doSave_user" value="$tlang.getString("realm.user.save")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+						<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.user.cancel")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

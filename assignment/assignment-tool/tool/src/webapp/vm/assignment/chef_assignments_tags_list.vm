@@ -34,7 +34,7 @@
 							#if ($column.isSortable())
 								<th>
 									<div class="spinnerBesideContainer">
-										<a href="javascript:void(0)" title="$!column.getDescription()" onclick="SPNR.insertSpinnerAfter( this, null, 'pagingHeader' ); ASN.saveChanges('form', '$name_submission_text'); ASN.doTagsListAction( form, 'doSort_tags', '$provider.provider.id' ); form.criteria.value='$column.name'; form.submit(); return false;">
+										<a href="javascript:void(0)" title="$!column.getDescription()" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.saveChanges('form', '$name_submission_text'); ASN.doTagsListAction( form, 'doSort_tags', '$provider.provider.id' ); form.criteria.value='$column.name'; form.submit(); return false;">
 											$!column.getDisplayName()
 									#if ($provider.getSort().getSort().equals($!column.getName()))
 										#if ($provider.getSort().isAscending())

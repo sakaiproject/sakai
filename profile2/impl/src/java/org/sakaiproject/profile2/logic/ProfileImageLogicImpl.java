@@ -16,7 +16,6 @@
 package org.sakaiproject.profile2.logic;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -24,12 +23,9 @@ import java.net.URLConnection;
 import java.util.Collections;
 import java.util.List;
 
-import lombok.Setter;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageOfficial;
@@ -45,7 +41,10 @@ import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfileImageLogic API
@@ -55,11 +54,12 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ProfileImageLogicImpl implements ProfileImageLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileImageLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileImageLogicImpl.class);
 
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileImage getBlankProfileImage() {
 
 		ProfileImage profileImage = new ProfileImage();
@@ -71,6 +71,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size) {
 		return getProfileImage(userUuid, prefs, privacy, size, null);
 	}
@@ -78,6 +79,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileImage getOfficialProfileImage(String userUuid, String siteId) {
 		
 		ProfileImage profileImage = new ProfileImage();
@@ -103,6 +105,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileImage getProfileImage(String userUuid, ProfilePreferences prefs, ProfilePrivacy privacy, int size, String siteId) {
 		
 		ProfileImage image = new ProfileImage();
@@ -340,6 +343,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileImage getProfileImage(Person person, int size) {
 		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size, null);
 	}
@@ -347,6 +351,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public ProfileImage getProfileImage(Person person, int size, String siteId) {
 		return getProfileImage(person.getUuid(), person.getPreferences(), person.getPrivacy(), size, siteId);
 	}
@@ -355,6 +360,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean setUploadedProfileImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
 		
 		//check auth and get currentUserUuid
@@ -438,6 +444,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl, String avatar) {
 		
 		//check auth and get currentUserUuid
@@ -470,6 +477,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean saveOfficialImageUrl(final String userUuid, final String url) {
 		
 		ProfileImageOfficial officialImage = new ProfileImageOfficial(userUuid, url);
@@ -485,6 +493,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean addGalleryImage(String userUuid, byte[] imageBytes, String mimeType, String fileName) {
 
 		// check auth and get currentUserUuid
@@ -529,6 +538,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<GalleryImage> getGalleryImages(String userUuid) {
 
 		// check auth and get currentUserUuid
@@ -543,6 +553,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public List<GalleryImage> getGalleryImagesRandomized(String userUuid) {
 		
 		List<GalleryImage> images = getGalleryImages(userUuid);
@@ -553,6 +564,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean removeGalleryImage(String userId, long imageId) {
 		if(userId == null || Long.valueOf(imageId) == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogicImpl.removeGalleryImage()"); 
@@ -598,6 +610,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public String getGravatarUrl(final String userUuid) {
 		
 		String email = sakaiProxy.getUserEmail(userUuid);
@@ -611,6 +624,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean resetProfileImage(final String userUuid) {
 		if(dao.invalidateCurrentProfileImage(userUuid)) {
 			log.info("Invalidated profile image for user: " + userUuid);
@@ -622,6 +636,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
  	 * {@inheritDoc}
  	 */
+	@Override
 	public boolean profileImageIsDefault(final String userUuid) {
 		ProfileImage image = getProfileImage(userUuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
 		return image.isDefault();
@@ -643,6 +658,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getUnavailableImageURL() {
 		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_FULL);
 	}
@@ -650,6 +666,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getUnavailableImageThumbnailURL() {
 		return getUnavailableImageURL(ProfileConstants.UNAVAILABLE_IMAGE_THUMBNAIL);
 	}
@@ -657,6 +674,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public String getProfileImageEntityUrl(String userUuid, int size) {
 	
 		StringBuilder sb = new StringBuilder();
@@ -673,6 +691,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public int getGalleryImagesCount(final String userUuid) {
 		return dao.getGalleryImagesCount(userUuid);
 	}

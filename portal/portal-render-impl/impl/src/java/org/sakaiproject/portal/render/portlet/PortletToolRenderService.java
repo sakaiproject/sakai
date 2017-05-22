@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.pluto.PortletContainer;
 import org.apache.pluto.PortletContainerException;
 import org.apache.pluto.PortletContainerFactory;
@@ -83,9 +83,9 @@ public class PortletToolRenderService implements ToolRenderService
 {
 
 	/**
-	 * Log instance used for all instances of this service.
+	 * Logger instance used for all instances of this service.
 	 */
-	private static final Log LOG = LogFactory.getLog(PortletToolRenderService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PortletToolRenderService.class);
 
 	/**
 	 * Portlet Container instance used by this service.

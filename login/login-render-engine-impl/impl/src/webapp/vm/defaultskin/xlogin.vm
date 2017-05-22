@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
+    <head>
+        <meta charset="utf-8">
+        <title>${loginRequired} - ${uiService}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">        
+		<link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+    </head>
+    <body class="portalBody Mrphs-portalBody">
+    	<form id="Mrphs-xlogin" method="post" action="${action}" #if (${notify}) class="with-errors" #end>
+            <h1>${loginRequired}</h1>
+            <aside class="logo"></aside>
+            #if (${xloginChoice})
+                <div class="xloginMessage">${xloginChoice}&nbsp;<a href="${loginContainerUrl}">${containerText}</a></div>
+            #end
+            #if (${notify})
+        		<div class="alertMessage" role="alert">${notify}</div>
+        	#end
+    		<fieldset>	
+    			<label for="eid">${loginEidWording}</label>
+    			<input name="eid" id="eid" value="${eid}" type="text" size="15"/>
+    			<label for="pw">${loginPwWording}</label>
+    			<input name="pw" id="pw" value="${password}" type="password" onfocus="this.passwordfocus = true; " size="15"/>
+    			#if (${loginAdvice})
+    				<aside>${loginAdvice}</aside>
+    			#end
+    			<p class="buttons">
+    			#if (${doCancel})
+    				<input name="submit" type="submit" id="submit" class="loginsubmit" value="${loginWording}"/>
+    				<input name="cancel" type="submit" class="loginsubmit" value="${cancelWording}"/>
+    			#else
+    				<input name="submit" type="submit" id="submit" value="${loginWording}"/>
+    			#end
+    			</p>
+    			#if (${passwordResetUrl})
+    				<p>
+    					<a href="${passwordResetUrl}">${passwordResetWording}</a>
+    				</p>
+    			#end
+    		</fieldset>
+    	</form>
+    	#set ( $d = "$")
+    	<script>
+    		var portal       = 'body';
+    	    var needJQuery   = true;
+    	    var secondJQuery = false;
+    	    if ( window.jQuery ) {
+    	        tver = jQuery.fn.jquery;
+    	        if ( tver.indexOf('1.9.') == 0 ) {
+    	            needJQuery = false;
+    	        } else {
+    	            secondJQuery = true;
+    	        }
+    	    }
+    	    if ( needJQuery ) {
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	    }
+    	</script>
+    	<script>
+    	    ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+    	</script>
+    	<script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
+    	<script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
+    	<script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+    </body>
+</html>

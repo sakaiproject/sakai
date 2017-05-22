@@ -1,0 +1,335 @@
+##
+## the Page part of the standard view, with no page navigation
+##
+
+#if ($pageColumnLayout == 'col1')
+
+    #set($columnClasses = "Mrphs-pageColumns Mrphs-pageColumns--single")
+
+#elseif ($pageColumnLayout == 'col1of2')
+
+    #set($columnClasses = "Mrphs-pageColumns Mrphs-pageColumns--first")
+
+#end
+
+#set($i = 0) ## Counter for directUrl ids 
+
+<!-- START VM includePageBody.vm -->
+
+<h1 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
+
+    #if ( $pageColumn1Tools ) 
+        #set( $numberTools = $pageColumn0Tools.size() + $pageColumn1Tools.size() )
+    #else
+        #set( $numberTools = $pageColumn0Tools.size() )
+    #end
+
+    <main id="$pageWrapperClass" class="Mrphs-mainContent #if( $numberTools > 1 )Mrphs-multipleTools #end" role="main">
+
+        #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
+
+        <div id="$pageColumnLayout" class="${columnClasses}">
+
+            #foreach ( $tool in $pageColumn0Tools )
+
+                #set( $i = $i + 1 )
+
+                #if ($tool)
+                    
+                    <!-- start Tool Container -->
+                    
+                    #set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+                    <div class="Mrphs-container Mrphs-${toolTitleClass}">
+                    
+                    <!-- start Tool Header -->
+
+                    #if (${tool.suppressTitle}) 
+                        <!-- Tool has requested the title be suppressed -->
+                    #else
+
+                        #if (${tool.hasRenderResult})
+
+
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav">
+
+                                #if (${tool.toolShowResetButton})
+
+                                    #if ($!{tool.toolInline})
+
+                                        <h2 class="Mrphs-toolTitleNav__title">
+                                            <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                                <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
+                                            </a>
+					    <span class="Mrphs-toolTitleNav__addLeft"></span>
+                                        </h2>
+
+                                    #else
+
+                                        <h2 class="Mrphs-toolTitleNav__title">
+                                            <a class="Mrphs-toolTitleNav__link--inline" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                                <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
+                                            </a>
+					    <span class="Mrphs-toolTitleNav__addLeft"></span>
+                                        </h2>
+
+                                    #end ## END of IF ($!{tool.toolInline})
+
+                                #else 
+
+                                    <h2 class="Mrphs-toolTitleNav__title"><span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span><span class="Mrphs-toolTitleNav__addLeft"></span></h2>
+
+                                #end ## END of IF (${tool.toolShowResetButton})
+
+                                <div class="Mrphs-toolTitleNav__button_container">
+                                
+                                #if (${tool.toolJSR168Edit})
+
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
+                                    </a>
+
+                                #end ## END of IF (${tool.toolJSR168Edit} )
+
+				                <span class="Mrphs-toolTitleNav__addRight"></span>
+                                #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
+
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
+                                    </a>
+                                    <div id="${tool.toolPlacementIDJS}_directurl" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
+                                        <i class="fa fa-times dropDown_close" aria-hidden="true"></i>
+                                        #if($toolShortUrlEnabled)
+
+                                            <input type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
+
+                                        #end ## END of IF ($toolShortUrlEnabled)
+
+                                        <textarea class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
+                                    </div>
+
+                                #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
+
+                                #if (${tool.toolShowHelpButton})
+
+                                    #if (${tool.toolJSR168Help})
+
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
+
+                                    #else
+
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
+
+                                    #end ## END of IF (${tool.toolJSR168Help})
+
+                                #end ## END of IF (${tool.toolShowHelpButton})
+
+                                </div>
+
+                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+
+                        #else
+
+                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+
+                                #if (${tool.toolShowResetButton})
+
+                                    <h2 class="Mrphs-toolTitleNav__title">
+                                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset">
+                                                <span class="Mrphs-itemTitle">${sitReset}</span>
+                                            </span>
+                                            ${tool.toolTitle}
+                                        </a>
+                                    </h2>
+
+                                #else  
+
+                                     <h2 class="Mrphs-toolTitleNav__title">${tool.toolTitle}</h2>
+
+                                #end ## END of IF (${tool.toolShowResetButton})
+
+                                #if (${tool.toolShowHelpButton})
+
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help"  href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+
+                                #end ## END of IF (${tool.toolShowHelpButton})
+
+                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+
+                        #end ## END of IF (${tool.hasRenderResult})
+
+                    #end ## END of IF ( ${tool.suppressTitle} )
+
+                    <!-- END Tool Header -->
+
+                    <!-- START Tool Body -->
+
+                    #if ( ${bufferedResponse} && ${responseBody} )
+
+                        <!-- Buffered Body Tool Content -->
+                        ${responseBody}
+                        <!-- End Buffered Body Tool Content -->
+
+                    #else
+
+                        #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
+
+                    #end ## END of IF ( ${bufferedResponse} && ${responseBody} )
+
+                    <!-- end Tool Body -->
+                    
+                    </div>
+
+                    <!-- end Tool Container -->
+
+                #end ## END of IF ($tool)
+
+            #end ## END of FOREACH ( $tool in $pageColumn0Tools )
+
+        </div>
+
+        #if ($pageTwoColumn)
+
+            <div id="col2of2" class="Mrphs-pageColumns Mrphs-pageColumns--second">
+
+                #foreach ( $tool in $pageColumn1Tools )
+
+                    #set( $i = $i + 1)
+
+                    #if ($tool) 
+
+                        <!-- start Tool Container -->
+
+                        #set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+                        <div class="Mrphs-container Mrphs-${toolTitleClass}">
+
+                        <!-- start include tool -->
+                        <!-- start Tool Col2 -->
+                        
+                        <!-- start Tool Header -->
+
+                      #if (${tool.suppressTitle}) 
+                   		<!-- Tool has requested the title be suppressed -->
+                      #else
+
+                        #if (${tool.hasRenderResult})
+                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+                                    
+                                #if (${tool.toolShowResetButton})
+                                    <h2 class="Mrphs-toolTitleNav__title">
+                                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                            ${tool.toolRenderResult.getTitle()}
+                                        </a>
+                                    </h2>
+                                    
+                                #else 
+                                    <h2 class="Mrphs-toolTitleNav__title">${tool.toolRenderResult.getTitle()}</h2>
+                                
+                                #end ## END of IF (${tool.toolShowResetButton})
+                            
+                                <div class="Mrphs-toolTitleNav__button_container">
+
+                                #if (${tool.toolJSR168Edit})
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_edit}</span>
+                                    </a>
+                                #end ## END of IF (${tool.toolJSR168Edit})
+                                 
+                                #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+                                        <span class="Mrphs-itemTitle">${rloader.tool_direct_button_link}</span>
+                                    </a>
+                                    <div id="${tool.toolPlacementIDJS}_directurl" class="Mrphs-directUrl Mrphs-directUrl__dropDown">
+                                        <i class="fa fa-times dropDown_close" aria-hidden="true"></i>
+                                        #if($toolShortUrlEnabled)
+                                            <input type="checkbox" id="directToolUrl-${i}" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" class="Mrphs-directUrl__checkbox"><label for="directToolUrl-${i}">${rloader.short_url}</label>
+                                        #end ## END of IF ($toolShortUrlEnabled)
+                                        
+                                        <textarea class="Mrphs-directUrl__textarea ${tool.toolPlacementIDJS}_urlholder" >${tool.directToolUrl}</textarea>
+                                    </div>
+                                #end ## END of IF ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
+                                
+                                #if (${tool.toolShowHelpButton})
+                                
+                                    #if (${tool.toolJSR168Help})
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
+                                    #else
+                                        <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                                            <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                            <span class="skip">${rloader.site_newwindow}</span>
+                                        </a>
+                                    #end ## END of IF (${tool.toolJSR168Help})
+                                     
+                                #end ## END of IF (${tool.toolShowHelpButton})
+
+                                </div>
+                                
+                            </nav> ## END nav.Mrphs-toolTitleNav.Mrphs-container.Mrphs-container--toolTitleNav
+                            
+                        #else
+                        
+                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+
+                                #if (${tool.toolShowResetButton})
+                                    <h2 class="Mrphs-toolTitleNav__title">
+                                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                            ${tool.toolTitle}
+                                        </a>
+                                    </h2>
+                                #else 
+                                    <h2 class="Mrphs-toolTitleNav__title">${tool.toolTitle}</h2>
+                                #end ## END of IF (${tool.toolShowResetButton})
+                                
+                                #if (${tool.toolShowHelpButton})
+                                    <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help" href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">
+                                        <span class="Mrphs-itemTitle">${rloader.sit_help}</span>
+                                        <span class="skip">${rloader.site_newwindow}</span>
+                                    </a>
+                                #end ## END of IF (${tool.toolShowHelpButton})
+                                    
+                            </nav><!-- End of nav.portlet portlet-title wrapper -->
+                            
+                        #end ## END of IF (${tool.hasRenderResult})
+                      
+                      #end ## END of IF ( ${tool.suppressTitle} )
+
+	                  <!-- end Tool Col2 -->
+	                  <!-- start Tool Body -->
+	
+	                  #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
+	
+	                  <!-- end Tool Body -->
+	
+	                  <!-- end include tool -->
+	
+	                  </div>
+	                    
+	                  <!-- end Tool Container -->
+                        
+
+                    #end ## END of IF ($tool)
+
+                #end ## END of FOREACH ( $tool in $pageColumn1Tools )
+
+            </div> <!-- end of #col2of2 -->
+
+        #end ## END of IF ($pageTwoColumn)
+
+    </main> <!-- END of main.Mrphs-mainContent -->
+
+<!-- END VM includePageBody.vm -->

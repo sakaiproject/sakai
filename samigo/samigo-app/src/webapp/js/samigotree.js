@@ -131,7 +131,7 @@ function flagRows(){
   for (var i = 0; i < divs.length; i++) {
      var d = divs[i];
      if (d.className == "treefolder"){
-        d.style.backgroundImage = "url(../../images/folder-closed.gif)";
+        d.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
      }
   }
 }
@@ -148,7 +148,7 @@ function toggleRows(elm) {
  var rows = tables[t].getElementsByTagName("TR");
 
  //var rows = document.getElementsByTagName("TR");
- elm.style.backgroundImage = "url(../../images/folder-closed.gif)";
+ elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
  var newDisplay = "none";
  var spannode = elm.parentNode;
  var inputnode = spannode.getElementsByTagName("INPUT")[0];
@@ -169,7 +169,7 @@ function toggleRows(elm) {
     if (r.style.display == "none") {
      if (document.all) newDisplay = "block"; //IE4+ specific code
      else newDisplay = "table-row"; //Netscape and Mozilla
-     elm.style.backgroundImage = "url(../../images/folder-open.gif)";
+     elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-open.gif)";
     }
     break;
    }
@@ -196,7 +196,7 @@ function toggleRows(elm) {
      var tier = cell.getElementsByTagName("SPAN")[0];
      var folder = tier.getElementsByTagName("A")[0];
      if (folder.getAttribute("onclick") != null) {
-      folder.style.backgroundImage = "url(../../images/folder-closed.gif)";
+      folder.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
      }
    }
   }
@@ -268,7 +268,7 @@ function toggleRowsForSelectList(elm) {
  var rows = tables[t].getElementsByTagName("TR");
 
  //var rows = document.getElementsByTagName("TR");
- elm.style.backgroundImage = "url(../../images/folder-closed.gif)";
+ elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
  var newDisplay = "none";
  var spannode = elm.parentNode;
  var inputnode = spannode.getElementsByTagName("INPUT")[0];
@@ -292,7 +292,7 @@ if (cells.length !=7) {
     if (r.style.display == "none") {
      if (document.all) newDisplay = "block"; //IE4+ specific code
      else newDisplay = "table-row"; //Netscape and Mozilla
-     elm.style.backgroundImage = "url(../../images/folder-open.gif)";
+     elm.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-open.gif)";
     }
     break;
    }
@@ -322,7 +322,7 @@ if (cells.length !=7) {
      var tier = cell.getElementsByTagName("SPAN")[0];
      var folder = tier.getElementsByTagName("A")[0];
      if (folder.getAttribute("onclick") != null) {
-      folder.style.backgroundImage = "url(../../images/folder-closed.gif)";
+      folder.style.backgroundImage = "url(${pageContext.request.contextPath}/images/folder-closed.gif)";
      }
    }
  }
@@ -480,6 +480,41 @@ function checkUpdate(){
  }
 }
 
+// convenience function for single button arrays, see next function
+function updateButtonStatusOnCheck(button, checkboxContainer)
+{
+    updateButtonStatusesOnCheck([button], checkboxContainer);
+}
+
+// enables/disables the given buttons depending on whether or not
+// any checkbox child element of the given container is checked
+function updateButtonStatusesOnCheck(buttons, checkboxContainer)
+{
+    if (buttons === null || checkboxContainer === null)
+    {
+        return;
+    }
+
+    var inputs = checkboxContainer.getElementsByTagName("input");
+    var foundChecked = false;
+    for (i = 0; i < inputs.length; ++i)
+    {
+        if (inputs[i].type === "checkbox" && inputs[i].checked)
+        {
+            foundChecked = true;
+            break;
+        }
+    }
+
+    for (i = 0; i < buttons.length; ++i)
+    {
+        if (buttons[i] !== null)
+        {
+            buttons[i].disabled = !foundChecked;
+        }
+    }
+}
+
 function inIt()
 {
   var inputs= document.getElementsByTagName("INPUT");
@@ -592,8 +627,12 @@ function checkChildrenCheckboxes(item) {
 }
 
 function getTierDigit(tierString) {
-	var classNameDigit = tierString.substr(4, tierString.length - 4);
-    return classNameDigit;
+	if (tierString !== undefined) {
+		return tierString.substr(4, tierString.length - 4);
+	}
+	else {
+		return -1;
+	}
 }
 
 function checkAllCheckboxes( selectAllCheckbox )
@@ -620,22 +659,13 @@ function checkAllCheckboxes( selectAllCheckbox )
 }
 
 function passSelectedPoolIds() {
-	var allCheckboxes = jQuery(':checkbox:checked');
+	var allCheckboxes = jQuery('#transferPool\\:TreeTable').find(':checkbox:checked');
 	var poolIds = new Array();
-	var checkAllChecked = jQuery('input[name$=checkAllCheckbox]').is(':checked');
 	var checkboxValue;
 	
-	// If check all checked, ignore the first value;
-	if (checkAllChecked) {
-		for (var index = 0; index < (allCheckboxes.length - 1); index++) {
-			checkboxValue = jQuery(allCheckboxes.get(index + 1)).val();
-			poolIds[index] = checkboxValue;
-		}
-	} else {
-		for (var index = 0; index < allCheckboxes.length; index++) {
-			checkboxValue = jQuery(allCheckboxes.get(index)).val();
-			poolIds[index] = checkboxValue;
-		}
+	for (var index = 0; index < allCheckboxes.length; index++) {
+		checkboxValue = jQuery(allCheckboxes.get(index)).val();
+		poolIds[index] = checkboxValue;
 	}
 	
 	var hideInput = jQuery('input[name$=transferPoolIds]');
@@ -645,12 +675,12 @@ function passSelectedPoolIds() {
 function checkChildrenCheckboxesDisable(item) {
 	var localItem = jQuery(item);
 	var itemChecked = localItem.is(':checked');
-	var itemParentTable = localItem.parent().parent().parent().parent().parent();
+	var itemParentTable = localItem.closest('table');
 
 	if (itemParentTable.length == 1) {
 		var itemTierClassName = itemParentTable.attr("class");
 		var itemCheckboxTierDigit = getTierDigit(itemTierClassName);
-		var itemParentTr = itemParentTable.parent().parent().parent();
+		var itemParentTr = itemParentTable.closest('tr');
 		var itemPeerTrs = itemParentTr.nextAll(); // Get all sibling tr's AFTER this tr.
 		var isKeepLooping = true;
 
@@ -786,4 +816,19 @@ function toggleSelectAllCheck(checkbox,checkboxtargetname) {
 		else 
 			return;
 	}
+}
+
+  
+var orderUpdate = null;
+  
+function enableOrderUpdate() {  
+	if(orderUpdate != null) return;  
+	var inputs = document.getElementsByTagName("INPUT");  
+	for(var i = 0; i < inputs.length; i++) {  
+		if(inputs[i].name.indexOf("orderUpdate") != -1) {  
+			orderUpdate = inputs[i];  
+			orderUpdate.disabled=false;  
+			break;  
+		}  
+	}  
 }

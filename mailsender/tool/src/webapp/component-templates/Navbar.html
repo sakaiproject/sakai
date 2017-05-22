@@ -12,12 +12,13 @@
 
 <body>
 <!-- everything outside this div is thrown away -->
-<div rsf:id="navigation:" class="navIntraTool">
-	<div rsf:id="navigation-cell:" style="display:inline">
-		<a rsf:id="item-link" href="add_entry.htm" id="navConfig">Config Link</a>
-		<span rsf:id="item-text" id="configNavLink" class='navStatic'>Config Text</span>
-		<span rsf:id="item-separator" class='navSeparator'>|</span>
-	</div>
-</div>
+<ul rsf:id="navigation:" class="navIntraTool">
+	<li rsf:id="navigation-cell:" >
+		<span>
+			<a rsf:id="item-link" href="add_entry.htm" id="navConfig">Config Link</a>
+		</span>
+		<span rsf:id="item-text" id="configNavLink" class='current'>Config Text</span>
+	</li>
+</ul>
 </body>
 </html>

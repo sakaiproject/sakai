@@ -35,8 +35,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
@@ -65,7 +65,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
  */
 public class ResponseHeaderFilter implements Filter {
 
-    private static Log log = LogFactory.getLog(ResponseHeaderFilter.class);
+    private static Logger log = LoggerFactory.getLogger(ResponseHeaderFilter.class);
 
     private Map<String,String> headerMap = new ConcurrentHashMap<String, String>();
 

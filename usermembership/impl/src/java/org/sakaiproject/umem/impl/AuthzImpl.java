@@ -21,8 +21,8 @@
 
 package org.sakaiproject.umem.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.site.cover.SiteService;
@@ -31,7 +31,7 @@ import org.sakaiproject.umem.api.Authz;
 
 
 public class AuthzImpl implements Authz {
-	private static Log				LOG								= LogFactory.getLog(AuthzImpl.class);
+	private static Logger				LOG								= LoggerFactory.getLogger(AuthzImpl.class);
 
 	/** Sakai services */
 	private SecurityService			M_secs;

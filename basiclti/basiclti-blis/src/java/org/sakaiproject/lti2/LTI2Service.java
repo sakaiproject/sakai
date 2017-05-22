@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.json.IMSJSONRequest;
 import org.tsugi.lti2.LTI2Config;
@@ -56,7 +56,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.foorm.SakaiFoorm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -73,10 +72,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class LTI2Service extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(LTI2Service.class);
+	private static Logger M_log = LoggerFactory.getLogger(LTI2Service.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
-
-	protected static SakaiFoorm foorm = new SakaiFoorm();
 
 	protected static LTIService ltiService = null;
 
@@ -231,7 +228,7 @@ public class LTI2Service extends HttpServlet {
 		// Not yet supported in Sakai
 		// consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_ACCOUNTNAVIGATION);
 
-		if ( foorm.getLong(deploy.get(LTIService.LTI_ALLOWCONTENTITEM)) > 0 ) {
+		if ( SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_ALLOWCONTENTITEM)) > 0 ) {
 			consumer.addCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
 			// Not yet supported in Sakai
 			// consumer.addCapability(SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTANY);
@@ -242,11 +239,11 @@ public class LTI2Service extends HttpServlet {
 			consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_CONTENTIMPORT);
 		}
 
-		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
+		if (SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			consumer.allowEmail();
 		}
 
-		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
+		if (SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
 			consumer.allowName();
 		}
 
@@ -254,7 +251,7 @@ public class LTI2Service extends HttpServlet {
 		services.add(StandardServices.LTI2Registration(serverUrl + LTI2_PATH + SVC_tc_registration + "/" + profile_id));
 
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-		if ("true".equals(allowOutcomes) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+		if ("true".equals(allowOutcomes) && SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
 			consumer.allowResult();
 
 			services.add(LTI2ResultItem);
@@ -263,12 +260,12 @@ public class LTI2Service extends HttpServlet {
 		}
 
 		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
-		if ("true".equals(allowRoster) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
+		if ("true".equals(allowRoster) && SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
 			services.add(SakaiLTI2Services.BasicRoster(serverUrl+LTI1_PATH));
 		}
 
 		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		if ("true".equals(allowSettings) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
+		if ("true".equals(allowSettings) && SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
 			consumer.allowSettings();
 
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+LTI1_PATH));
@@ -298,10 +295,10 @@ public class LTI2Service extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
 			return;
 		}
-		Long deployKey = foorm.getLong(deploy.get(LTIService.LTI_ID));
+		Long deployKey = SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_ID));
 
 		// See if we can even register...
-		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
+		Long reg_state = SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_REG_STATE));
 		String key = null;
 		String secret = null;
 		String new_secret = null;
@@ -444,7 +441,8 @@ public class LTI2Service extends HttpServlet {
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
+		// TODO: Check if this is needed in LTI 2.1
+		// jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
 		if ( tc_half_shared_secret != null ) jsonResponse.put(LTI2Constants.TC_HALF_SHARED_SECRET, tc_half_shared_secret);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
@@ -575,6 +573,7 @@ public class LTI2Service extends HttpServlet {
 		if ( "PUT".equals(request.getMethod()) ) {
 			try {
 				jsonRequest = new IMSJSONRequest(request);
+				M_log.debug("Settings PUT "+jsonRequest.getPostBody());
 				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -629,9 +628,9 @@ public class LTI2Service extends HttpServlet {
 			ltiService.filterContent(content, tool);
 
 			// Check settings to see if we are allowed to do this 
-			if (foorm.getLong(content.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ||
-				foorm.getLong(tool.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
-				// Good news 
+			if (SakaiBLTIUtil.getLong(content.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ||
+				SakaiBLTIUtil.getLong(tool.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+				// Good news
 			} else {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				doErrorJSON(request,response, jsonRequest, "Item does not allow tool settings", null);
@@ -677,7 +676,7 @@ public class LTI2Service extends HttpServlet {
 
 		// Check settings to see if we are allowed to do this 
 		if ( deploy != null ) {
-			if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+			if (SakaiBLTIUtil.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
 				// Good news 
 			} else {
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);

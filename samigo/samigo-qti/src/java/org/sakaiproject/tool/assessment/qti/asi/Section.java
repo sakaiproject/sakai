@@ -32,8 +32,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -62,7 +62,7 @@ import org.sakaiproject.util.FormattedText;
  */
 public class Section extends ASIBaseClass
 {
-  private static Log log = LogFactory.getLog(Section.class);
+  private static Logger log = LoggerFactory.getLogger(Section.class);
   public String basePath;
 
   /**

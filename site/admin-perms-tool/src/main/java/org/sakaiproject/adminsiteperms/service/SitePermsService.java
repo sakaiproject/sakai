@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -49,7 +49,7 @@ import org.springframework.context.NoSuchMessageException;
  */
 public class SitePermsService {
 
-    final protected Log log = LogFactory.getLog(getClass());
+    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     private static final String STATUS_COMPLETE = "COMPLETE";
 

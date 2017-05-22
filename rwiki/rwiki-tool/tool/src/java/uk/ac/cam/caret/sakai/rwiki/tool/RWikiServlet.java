@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -52,7 +52,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
  */
 public class RWikiServlet extends HttpServlet
 {
-	private static Log log = LogFactory.getLog(RWikiServlet.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiServlet.class);
 
 	/**
 	 * Required for serialization... also to stop eclipse from giving me a

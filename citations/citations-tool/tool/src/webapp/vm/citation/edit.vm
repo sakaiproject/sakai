@@ -5,6 +5,7 @@
 </script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
+<link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
 
 <div class="indnt1" class="portletBody">
 	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">

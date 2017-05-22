@@ -21,7 +21,7 @@
 -->
 <h:panelGrid  rendered="#{questionpool.actionType == 'pool'}" columns="2">
 
-	<h:selectManyCheckbox id="checkboxes" layout="pageDirection" value="#{questionpool.destPools}">
+	<h:selectManyCheckbox id="checkboxes" layout="pageDirection" value="#{questionpool.destPools}" onclick="updateButtonStatusOnCheck(document.getElementById('copyPool:copypoolsubmit'), document.getElementById('copyPool'));">
 		<f:selectItem itemValue="0" itemLabel=""/>
 	</h:selectManyCheckbox>
 
@@ -39,7 +39,7 @@
 </f:facet>
 
 <h:selectManyCheckbox  rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" id="checkboxes" layout="pageDirection"
-		value="#{questionpool.destPools}">
+					   value="#{questionpool.destPools}" onclick="updateButtonStatusesOnCheck([document.getElementById('copyPool:copypoolsubmit'), document.getElementById('copyPool:copyitemsubmit')], document.getElementById('copyPool'));">
                 <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel=""/>
 </h:selectManyCheckbox>
 

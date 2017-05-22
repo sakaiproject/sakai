@@ -1,8 +1,8 @@
 ## version: $Id:  $
 <!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <!-- this is the reorder template -->
-<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
-<script type="text/javascript" src="/library/js/reorderer.js"></script>
+#javascript("/library/js/fluid/1.5/MyInfusion.js")
+#javascript("/library/js/reorderer.js")
 
 <div class="portletBody specialLink">
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
@@ -12,7 +12,8 @@
 		<div class ="breadCrumb specialLink">
 			<h3>
 				$tlang.getString("sort.title")
-				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+				<span class = "$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
+				<span class="sr-only">$tlang.getString('gen.folder1')</span>
 				#foreach ($item in $collectionPath)
 					$validator.escapeHtml("$item.name")
 					#if(! $item.isLast()) / #end
@@ -46,28 +47,28 @@
 		
 
 		
-		<ul id="reorder-list">
+		<ul id="reorder-list" class="container-fluid">
 			#foreach($root in $this_site)
 				#set($collectionMembers = $root.members)
 				#set($count = 1)
 				#foreach($member in $collectionMembers)
-					<li class="sortable"  id="listitem.orderable$count">
+					<li class="sortable row well"  id="listitem.orderable$count">
 						<span style="display:none" class="grabHandle">
 							<input type="text" size="3" value="$count" id="index$count"/>
 							<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
 						</span>
-						<span title="$member.name" class="title">
+						<div title="$member.name" class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 								#if($member.isFolder())
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+									<span class = "$contentTypeImageService.getContentTypeImageClass("folder")" aria-hidden="true"></span>
 								#else
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+									<span class = "$contentTypeImageService.getContentTypeImageClass("$member.type")" aria-hidden="true"></span>
 								#end
 								$validator.escapeHtml($member.name)
-						</span>
-						<span headers="creator">
+						</div>
+						<div class="col-lg-4 col-md-4 hidden-xs hidden-sm">
 							$validator.escapeHtml($member.createdBy)
-						</span>
-						<span headers="modified">
+						</div>
+						<div class="col-lg-2 col-md-2 hidden-xs hidden-sm">
 							$member.ModifiedTime
 						</span>
 						<span headers="position" style="display:none">

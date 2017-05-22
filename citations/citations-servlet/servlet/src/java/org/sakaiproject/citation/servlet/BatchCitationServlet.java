@@ -38,8 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.content.api.ContentResource;
@@ -56,7 +56,7 @@ import org.sakaiproject.util.Validator;
 public class BatchCitationServlet extends CitationServlet
 {
 
-	private static Log log = LogFactory.getLog(BatchCitationServlet.class);
+	private static Logger log = LoggerFactory.getLogger(BatchCitationServlet.class);
 	
 	/**
 	 * respond to an HTTP GET request

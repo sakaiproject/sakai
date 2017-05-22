@@ -238,6 +238,18 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 
 	public void setExcludeQuoted(boolean m_excludeQuoted);
 	
+	public boolean isExcludeSelfPlag();
+	
+	public void setExcludeSelfPlag(boolean m_excludeSelfPlag);
+	
+	public boolean isStoreInstIndex();
+	
+	public void setStoreInstIndex(boolean m_storeInstIndex);
+
+	public boolean isStudentPreview();
+
+	public void setStudentPreview(boolean m_studentPreview);
+	
 	/**
 	 * Exclude type options:
 	 * 0 none

@@ -15,7 +15,6 @@ create index lesson_builder_item_altgb on lesson_builder_items(altGradebook);
 create index lesson_builder_prop_idx on lesson_builder_properties(attribute);
 create index lesson_builder_qr_questionId_userId on lesson_builder_q_responses(questionId, userId);
 create index lesson_builder_qr_total_qi on lesson_builder_qr_totals(questionId);
-create index lesson_builder_qr_questionId on lesson_builder_q_responses(questionId);
 create index lesson_builder_comments_itemid_author on lesson_builder_comments(itemId, author);
 create index lesson_builder_student_pages_pageId on lesson_builder_student_pages(pageId);
 create index lesson_builder_student_pages_itemId on lesson_builder_student_pages(itemId);

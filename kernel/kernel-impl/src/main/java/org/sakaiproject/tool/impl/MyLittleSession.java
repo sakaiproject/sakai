@@ -20,19 +20,32 @@
  **********************************************************************************/
 package org.sakaiproject.tool.impl;
 
-import org.apache.commons.collections.iterators.IteratorChain;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.*;
-import org.sakaiproject.util.IteratorEnumeration;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.collections4.iterators.IteratorChain;
+import org.apache.commons.collections4.iterators.IteratorEnumeration;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.ContextSession;
+import org.sakaiproject.tool.api.NonPortableSession;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionAttributeListener;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.SessionStore;
+import org.sakaiproject.tool.api.ToolSession;
 
 /**********************************************************************************************************************************************************************************************************************************************************
  * Entity: ToolSession, ContextSession (and even HttpSession)

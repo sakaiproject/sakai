@@ -146,8 +146,8 @@ li.sortable_hover
 	background-color: #99F;
 }
 #page-list{
-	width: 50%;
-	max-width: 825px;
+	width: 100%;
+	max-width: 600px;
 }
 #page-list td
 {

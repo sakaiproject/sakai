@@ -45,6 +45,16 @@ public interface ProfileConnectionsLogic {
 	 * @return
 	 */
 	public List<Person> getConnectionsForUser(final String userUuid);
+
+	/**
+	 * Gets a list of Persons that are connected to this user. Current user, prefs
+	 * and privacy are skipped.
+	 * 
+	 * @param userUuid		uuid of the user to retrieve the list of connections for
+	 * @return
+	 */
+	public List<User> getConnectedUsersForUserInsecurely(final String userUuid);
+
 	
 	/**
 	 * Gets a count of the number of connections a user has.
@@ -60,6 +70,14 @@ public interface ProfileConnectionsLogic {
 	 * @return
 	 */
 	public List<Person> getConnectionRequestsForUser(final String userId);
+
+	/**
+	 * Gets a list of Persons's that have unconfirmed connection requests from this person
+	 *
+	 * @param userId		the user whose outgoing outgoing connections will be retrieved
+	 * @return A list of Persons who have had a request from the supplied user
+	 */
+	public List<Person> getOutgoingConnectionRequestsForUser(final String userId);
 	
 	/**
 	 * Gets a count of the number of unconfirmed incoming connection requests

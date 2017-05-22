@@ -31,8 +31,8 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Text;
@@ -72,7 +72,7 @@ import org.sakaiproject.content.api.ContentHostingService;
  */
 
 public class ManifestGenerator {
-	private static Log log = LogFactory.getLog(ManifestGenerator.class);
+	private static Logger log = LoggerFactory.getLogger(ManifestGenerator.class);
 
 	/**default namespace and metadata namespace*/
 	private static String DEFAULT_NAMESPACE_URI = "http://www.imsglobal.org/xsd/imscp_v1p1";
@@ -262,7 +262,7 @@ public class ManifestGenerator {
 			while (itemIter.hasNext()) {
 				itemData = (ItemData) itemIter.next();
 				// Question Text
-				if (itemData.getTypeId().equals(TypeIfc.MATCHING)) {
+				if (itemData.getTypeId().equals(TypeIfc.MATCHING) || itemData.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
 					processDescription(itemData.getInstruction());
 				}
 				Set itemTextSet = itemData.getItemTextSet();

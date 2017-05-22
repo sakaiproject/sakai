@@ -20,6 +20,11 @@
       <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+    </properties>
+
     <dependencies>
 
         <!-- Sakai dependencies -->
@@ -78,13 +83,6 @@
             <artifactId>joda-time</artifactId>
             <version>${joda.time.version}</version>
         </dependency>
-
-        <!-- Sakai uses apache commons logging -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-
     </dependencies>
 
     <build>

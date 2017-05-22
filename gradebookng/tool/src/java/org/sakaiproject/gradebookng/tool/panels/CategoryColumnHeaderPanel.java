@@ -5,7 +5,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -22,7 +21,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class CategoryColumnHeaderPanel extends Panel {
+public class CategoryColumnHeaderPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -61,14 +60,11 @@ public class CategoryColumnHeaderPanel extends Panel {
 					settings.setCategorySortOrder(sortOrder);
 				}
 
-				// clear any assignment sort order to prevent conflicts
-				settings.setAssignmentSortOrder(null);
-
 				// save settings
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(new GradebookPage());
+				setResponsePage(GradebookPage.class);
 			}
 
 		};
@@ -86,12 +82,7 @@ public class CategoryColumnHeaderPanel extends Panel {
 
 		add(title);
 
-		String categoryColor = settings.getCategoryColor(category.getName());
-		if (categoryColor == null) {
-			categoryColor = gradebookPage.generateRandomRGBColorString();
-			settings.setCategoryColor(category.getName(), categoryColor);
-			gradebookPage.setUiSettings(settings);
-		}
+		final String categoryColor = settings.getCategoryColor(category.getName());
 
 		final Component colorSwatch = gradebookPage.buildFlagWithPopover("categorySwatch",
 				(new StringResourceModel("label.gradeitem.categoryaverage", this, null,

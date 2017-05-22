@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Setter;
-
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -36,7 +34,11 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+
+import lombok.Setter;
 
 /**
  * Implementation of ProfileWorksiteLogic API
@@ -45,7 +47,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
-	private static final Logger log = Logger.getLogger(ProfileWorksiteLogicImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileWorksiteLogicImpl.class);
 	
 	/**
 	 * Profile2 creates <code>project</code> type worksites.
@@ -152,6 +154,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public boolean createWorksite(final String siteTitle, final String ownerId,
 			final Collection<Person> members, boolean notifyByEmail) {
 
@@ -350,7 +353,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
 	private boolean isToolAlreadyAdded(SitePage homePage, String homeToolId) {
 		for (ToolConfiguration tool : homePage.getTools()) {
-			if (tool.getToolId().equals(homeToolId)) {
+			if (StringUtils.equals(tool.getToolId(), homeToolId)) {
 				return true;
 			}
 		}
@@ -362,7 +365,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	}
 	
 	private boolean isToolToIgnore(String toolId) {
-		return toolId.equals(TOOL_ID_IFRAME) || toolId.equals(HOME_TOOL);
+		return StringUtils.equals(toolId, TOOL_ID_IFRAME) || StringUtils.equals(toolId, HOME_TOOL);
 	}
 
 	private void emailSiteMembers(final String siteTitle, final String ownerId,
@@ -372,6 +375,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		if (true == notifyByEmail) {
 			
 			Thread thread = new Thread() {
+				@Override
 				public void run() {
 					emailSiteMembers(siteTitle, site.getUrl(), ownerId, members);		
 				}

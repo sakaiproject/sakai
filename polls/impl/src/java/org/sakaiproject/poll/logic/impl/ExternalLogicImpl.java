@@ -39,8 +39,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -87,7 +87,7 @@ import org.xml.sax.SAXException;
 
 public class ExternalLogicImpl implements ExternalLogic {
 
-	 private static Log log = LogFactory.getLog(ExternalLogicImpl.class);
+	 private static Logger log = LoggerFactory.getLogger(ExternalLogicImpl.class);
 	
 	 private static final String
 	 	/* Email template constants */

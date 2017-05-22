@@ -219,25 +219,111 @@ function initCalcQuestion() {
  });
 }
 
-// this is to disable the 'copy' button when importing questions from pool to assessement. itemtype =10
+$( document ).ready( function() {
 
-var disabledImport= 'false';
-function disableImport(){
-  if (disabledImport== 'false'){
-    disabledImport= 'true'
-  }
-  else{ // any subsequent click disable button & action
-    if (document.forms[0].elements['editform:import'])
-    {
-      document.forms[0].elements['editform:import'].disabled=true;
-    }
-  }
-}
+    // inputText with class ConvertPoint changes
+    $( "input.ConvertPoint[type='text']" ).change( function() {
+        var value = $( this ).val();
+        if (value) {
+            $( this ).val(value.replace(',','.'));
+        } else {
+            $( this ).val("0")
+        }
+    });
 
-function toPoint(id)
-{
-  var x=document.getElementById(id).value
-  document.getElementById(id).value=x.replace(',','.')
+    // validation for points
+    $( "#itemForm\\:answerptr" ).change( function() {
+        var pointValue = parseFloat( $( this ).val() );
+        var negField = $( "#itemForm\\:answerdsc" );
+        var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+        // do not allow negative points for point value
+        if (pointValue < 0) {
+            validationWarningSetDefault($( this ), "0");
+            validationWarningSetDefault(negField, "0");
+            validationWarningSetDefault(minField, "");
+        } else {
+            // negValue should be less than pointValue
+            var negValue = parseFloat(negField.val());
+            if (negValue < 0 || negValue > pointValue) {
+                validationWarningSetDefault(negField, "0");
+            }
+            // minField may not be on the page if disabled
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue < 0 || minValue >= pointValue) {
+                    validationWarningSetDefault(minField, "");
+                }
+            }
+        }
+    });
+
+    // validation for minPoints
+    $( "#itemForm\\:minPoints\\:answerminptr" ).change( function() {
+        var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
+        var minValue = parseFloat( $( this ).val() );
+        // minValue should not be equal to or greater than pointValue
+        if (minValue < 0 || minValue >= pointValue) {
+            validationWarningSetDefault($( this ), "0")
+        } else {
+            // minValue is valid disable negative points
+            var negField = $( "#itemForm\\:answerdsc" );
+            if (negField) {
+                var negValue = parseFloat(negField.val());
+                if (negValue > 0) {
+                    validationWarningSetDefault(negField, "0");
+                }
+            }
+        }
+    });
+
+    // validation for negative points
+    $( "#itemForm\\:answerdsc" ).change( function() {
+        var pointValue = parseFloat( $( "#itemForm\\:answerptr" ).val() );
+        var negValue = parseFloat ( $( this ).val() );
+        // minValue should not be equal to or greater than pointValue
+        if (negValue < 0 || negValue > pointValue) {
+            validationWarningSetDefault($( this ), "0")
+        } else {
+            // negValue should 0 if using minPoints
+            var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue > 0) {
+                    validationWarningSetDefault(minField, "");
+                }
+            }
+        }
+    });
+
+    $( function() {
+        // negValue should be 0 and minValue should be empty if using partial credit
+        var pcValue = $( "input[name='itemForm\\:partialCredit_NegativeMarking']:checked", "#itemForm" ).val();
+        if (pcValue == "true") {
+            var negField = $( "#itemForm\\:answerdsc" );
+            if (negField) {
+                var negValue = parseFloat(negField.val());
+                if (negValue > 0) {
+                    validationWarningSetDefault(negField, "0");
+                }
+            }
+
+            var minField = $( "#itemForm\\:minPoints\\:answerminptr" );
+            if (minField) {
+                var minValue = parseFloat(minField.val());
+                if (minValue > 0) {
+                    validationWarningSetDefault(minField, "");
+                }
+            }
+        }
+
+    });
+
+});
+
+function validationWarningSetDefault(element, value) {
+    $( element ).animate({ backgroundColor: "red" });
+    $( element ).val(value);
+    $( element ).animate({ backgroundColor: "transparent" });
 }
 
 /**
@@ -654,26 +740,6 @@ function mySetMainFrameHeight(id, minHeight)
 	}
 }
 
-//To allow reset the datepickers in the settings
-function resetDatePicker(name){
-    var datePicker = document.getElementById("assessmentSettingsAction:"+name);
-    datePicker.value="";
-    var hiddenDate = document.getElementById(name+"ISO8601");
-    hiddenDate.value="";
-}
-
-function toggleNegativePointVal(val){
-	var negPointField = document.getElementById('itemForm:answerdsc');
-	if(negPointField){
-		if(val){
-			negPointField.value = 0;
-			negPointField.disabled = true;
-		}else{
-			negPointField.disabled = false;
-		}
-	}
-}
-
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
 
@@ -690,3 +756,9 @@ function clickInsertLink(field){
   $(hiddenSelector).click();
 }
 
+// Show MathJax warning messages if applicable
+if (typeof MathJax != 'undefined') {
+  $(document).ready(function() {
+    $(".mathjax-warning").show();
+  });
+}

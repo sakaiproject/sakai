@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
@@ -57,7 +58,7 @@ import org.sakaiproject.tool.assessment.qti.helper.item.ItemHelperIfc;
  */
 public class Item extends ASIBaseClass
 {
-  private static Log log = LogFactory.getLog(Item.class);
+  private static Logger log = LoggerFactory.getLogger(Item.class);
   private ItemHelperIfc helper;
 
 
@@ -168,9 +169,29 @@ public class Item extends ASIBaseClass
     setFieldentry("ITEM_KEYWORD",
       item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD));
     setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
-    setFieldentry("ATTACHMENT", getAttachment(item));
-    
-    // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
+
+
+      Set<ItemTagIfc> tagIfcSet = item.getItemTagSet();
+      String tagsString = "";
+      Boolean first=true;
+      for (ItemTagIfc tagIfc: tagIfcSet) {
+         if (!first){
+            tagsString += ", ";
+         }
+         tagsString += tagIfc.getTagLabel();
+         if (!(tagIfc.getTagCollectionName().isEmpty())){
+             tagsString += " ("+tagIfc.getTagCollectionName() + ")";
+         }else{
+           tagsString += " (No tag collection)";
+         }
+         first=false;
+      }
+
+    setFieldentry("ITEM_TAGS", tagsString);
+
+      setFieldentry("ATTACHMENT", getAttachment(item));
+
+      // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
     if (item.getDuration()!=null){
     	setFieldentry("TIMEALLOWED",
     			item.getDuration().toString()); 
@@ -204,6 +225,7 @@ public class Item extends ASIBaseClass
     if(item !=null &&(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK))) {
     	setFieldentry("MUTUALLY_EXCLUSIVE", item.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB ));
        	setFieldentry("CASE_SENSITIVE", item.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB ));
+        setFieldentry("IGNORE_SPACES", item.getItemMetaDataByLabel(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB ));
     }
     
     if(item !=null && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION))) {

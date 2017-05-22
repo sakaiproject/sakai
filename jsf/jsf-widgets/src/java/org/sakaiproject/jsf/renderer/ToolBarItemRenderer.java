@@ -31,101 +31,130 @@ import javax.faces.context.ResponseWriter;
 import org.sakaiproject.jsf.util.JSFDepends;
 import org.sakaiproject.jsf.util.RendererUtil;
 
-
 public class ToolBarItemRenderer extends JSFDepends.CommandLinkRenderer
 {
-  public boolean supportsComponentType(UIComponent component)
-  {
-    return (component instanceof org.sakaiproject.jsf.component.ToolBarItemComponent);
-  }
-
-  public void encodeBegin(FacesContext context, UIComponent component) throws IOException
-  {
-      if (!component.isRendered()) return;
-
-    if (!isDisabled(context, component))
+    public boolean supportsComponentType(UIComponent component)
     {
-        // use default link rendering, after closing open span tag
-	  ResponseWriter writer = context.getResponseWriter();
-	  	writer.write(""); // normaly just close the span
-      super.encodeBegin(context, component);
-    }
-    else
-    {
-        // setup to render the disabled link ourselves - close open span tag after adding inactive attributes
-      ResponseWriter writer = context.getResponseWriter();
-      writer.write(""); //normally, add aria and class attributes and close the span
+        return (component instanceof org.sakaiproject.jsf.component.ToolBarItemComponent);
     }
 
-  }
-
-  public void encodeChildren(FacesContext context, UIComponent component) throws IOException
-  {
-      if (!component.isRendered()) return;
-
-      if (!isDisabled(context, component))
-      {
-          // use default rendering
-          super.encodeChildren(context, component);
-      }
-      else
-      {
-          // render the text of the disabled link ourselves
-      String label = "";
-      Object value = ((UICommand) component).getValue();
-      if (value != null)
-      {
-      label = value.toString();
-      }
-
-      ResponseWriter writer = context.getResponseWriter();
-      writer.write(label);
-      }
-  }
-
-  public void encodeEnd(FacesContext context, UIComponent component) throws IOException
-  {
-      if (!component.isRendered()) return;
-
-    if (!isDisabled(context, component))
+    public void encodeBegin(FacesContext context, UIComponent component) throws IOException
     {
-        // use default link rendering
-      super.encodeEnd(context, component);
-    }
-    else
-    {
-        // rendering of end of disabled link taken care of already
-    }
-  }
-
-  /**
-   * Check if the component is disabled.
-   * @param component
-   * @return true if the component has a boolean "disabled" attribute set, false if not
-   */
-  protected boolean isDisabled(FacesContext context, UIComponent component)
-  {
-    boolean disabled = false;
-    Object value = RendererUtil.getAttribute(context, component, "disabled");
-    if (value != null)
-    {
-      if (value instanceof Boolean)
-      {
-        disabled = ((Boolean) value).booleanValue();
-      }
-      else
-      {
-        if (!(value instanceof String))
+        if (!component.isRendered())
         {
-          value = value.toString();
+            return;
         }
-        disabled = (new Boolean((String) value)).booleanValue();
-      }
+
+        if (!isDisabled(context, component) && !isCurrent( context, component ))
+        {
+            // use default link rendering, after closing open span tag
+            ResponseWriter writer = context.getResponseWriter();
+            writer.write(""); // normaly just close the span
+            super.encodeBegin(context, component);
+        }
+        else
+        {
+            // setup to render the disabled/current link ourselves - close open span tag after adding inactive attributes
+            ResponseWriter writer = context.getResponseWriter();
+            writer.write(""); //normally, add aria and class attributes and close the span
+        }
     }
 
-    return disabled;
-  }
+    public void encodeChildren(FacesContext context, UIComponent component) throws IOException
+    {
+        if (!component.isRendered())
+        {
+            return;
+        }
+
+        if (!isDisabled(context, component) && !isCurrent( context, component ))
+        {
+            // use default rendering
+            super.encodeChildren(context, component);
+        }
+        else
+        {
+            // render the text of the disabled/current link ourselves
+            String label = "";
+            Object value = ((UICommand) component).getValue();
+            if (value != null)
+            {
+                label = value.toString();
+            }
+
+            ResponseWriter writer = context.getResponseWriter();
+            writer.write(label);
+        }
+    }
+
+    public void encodeEnd(FacesContext context, UIComponent component) throws IOException
+    {
+        if (!component.isRendered())
+        {
+            return;
+        }
+
+        if (!isDisabled(context, component) && !isCurrent( context, component ))
+        {
+            // use default link rendering
+            super.encodeEnd(context, component);
+        }
+        else
+        {
+            // rendering of end of disabled/current link taken care of already
+        }
+    }
+
+    /**
+     * Check if the component is the currently active tool bar item
+     * @param context
+     * @param component
+     * @return true if the component is the active tool bar item, false if not
+     */
+    protected boolean isCurrent( FacesContext context, UIComponent component )
+    {
+        return getBooleanAttribute( context, component, "current" );
+    }
+
+    /**
+     * Check if the component is disabled.
+     * @param context
+     * @param component
+     * @return true if the component has a boolean "disabled" attribute set, false if not
+     */
+    protected boolean isDisabled(FacesContext context, UIComponent component)
+    {
+        return getBooleanAttribute( context, component, "disabled" );
+    }
+
+    /**
+     * Utility method to retrieve an arbitrary Boolean attribute from the component's attribute map
+     * @param context
+     * @param component
+     * @param attributeName
+     * @return The value of the boolean attribute requested
+     */
+    private boolean getBooleanAttribute( FacesContext context, UIComponent component, String attributeName )
+    {
+        boolean retVal = false;
+        Object value = RendererUtil.getAttribute( context, component, attributeName );
+        if( value != null )
+        {
+            if( value instanceof Boolean )
+            {
+                retVal = (Boolean) value;
+            }
+            else
+            {
+                if( !(value instanceof String) )
+                {
+                    value = value.toString();
+                }
+
+                retVal = Boolean.valueOf( (String) value );
+            }
+        }
+
+        return retVal;
+    }
 }
-
-
-

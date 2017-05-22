@@ -34,8 +34,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.MessagingBean;
 
@@ -49,7 +49,7 @@ import org.sakaiproject.time.cover.TimeService;
  *
  */
 public class JsfUtil {
-	private static final Log log = LogFactory.getLog(JsfUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(JsfUtil.class);
 
 	/**
 	 * As part of the crutch for JSF's inability to do validation on relative

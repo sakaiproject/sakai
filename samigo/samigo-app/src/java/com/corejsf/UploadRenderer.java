@@ -39,12 +39,12 @@ import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UploadRenderer extends Renderer {
 
-  private static Log log = LogFactory.getLog(UploadRenderer.class);
+  private static Logger log = LoggerFactory.getLogger(UploadRenderer.class);
   private static final String UPLOAD = ".upload";
 
   public UploadRenderer() {

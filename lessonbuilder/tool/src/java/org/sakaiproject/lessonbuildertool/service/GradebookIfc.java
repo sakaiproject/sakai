@@ -23,8 +23,11 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.util.Map;
 import java.util.Date;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 /**
@@ -35,6 +38,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
  */
 public class GradebookIfc {
 
+    private static final Logger log = LoggerFactory.getLogger(GradebookIfc.class);
     private static GradebookExternalAssessmentService gbExternalService = null;
 
     public void setGradebookExternalAssessmentService (GradebookExternalAssessmentService s) {
@@ -49,7 +53,7 @@ public class GradebookIfc {
 	    // already exists. Say it worked
 	    return true;
 	} catch (Exception e) {
-	    System.out.println("failed add " + e);
+	    log.info("failed add " + e);
 	    return false;
 	}
 	return true;
@@ -71,7 +75,7 @@ public class GradebookIfc {
 	try {
 	    gbExternalService.removeExternalAssessment(gradebookUid, externalId);
 	} catch (Exception e) {
-	    System.out.println("failed remove " + e);
+	    log.info("failed remove " + e);
 	    return false;
 	}
 	return true;

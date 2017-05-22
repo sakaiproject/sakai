@@ -42,8 +42,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -112,7 +112,7 @@ import org.sakaiproject.util.Validator;
  */
 public class EditorIntegrationHelperAction extends CitationHelperAction
 {
-	protected final static Log m_log = LogFactory.getLog(EditorIntegrationHelperAction.class);
+	protected final static Logger m_log = LoggerFactory.getLogger(EditorIntegrationHelperAction.class);
 
   /**
    * Editor Integration Library Resources Search

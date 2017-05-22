@@ -35,13 +35,9 @@
       <artifactId>sakai-privacy-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
-      <version>1.1.10</version>
+      <version>1.1.14</version>
     </dependency>
     <!-- pull through the JSF tool dependencies -->
     <dependency>
@@ -82,7 +78,6 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
-      <version>1.7.0</version>
     </dependency>
     <dependency>
       <groupId>taglibs</groupId>
@@ -120,6 +115,10 @@
     <dependency>
       <groupId>org.springframework</groupId>
 	  <artifactId>spring-beans</artifactId>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.commons</groupId>
+    	<artifactId>commons-lang3</artifactId>
     </dependency>
   </dependencies>
   <build>

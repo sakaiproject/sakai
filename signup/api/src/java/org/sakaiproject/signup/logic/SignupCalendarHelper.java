@@ -20,6 +20,7 @@
 package org.sakaiproject.signup.logic;
 
 import java.util.List;
+import java.util.Set;
 
 import net.fortuna.ical4j.model.component.VEvent;
 
@@ -95,7 +96,7 @@ public interface SignupCalendarHelper {
 	 * @param users		List of Users to add
 	 * @return
 	 */
-	public VEvent addUsersToVEvent(VEvent vevent, List<User> users);
+	public VEvent addUsersToVEvent(VEvent vevent, Set<User> users);
 	
 	/**
 	 * Add the list of SignupAttendees to the VEvent as attendees
@@ -103,7 +104,7 @@ public interface SignupCalendarHelper {
 	 * @param attendees	List of Attendees to add
 	 * @return
 	 */
-	public VEvent addAttendeesToVEvent(VEvent vevent, List<SignupAttendee> attendees);
+	public VEvent addAttendeesToVEvent(VEvent vevent, Set<SignupAttendee> attendees);
 	
 	/**
 	 * Is ICS calendar generation enabled in the external calendaring service?

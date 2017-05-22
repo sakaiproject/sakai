@@ -161,6 +161,10 @@ public class DefaultHandler implements AssessmentHandler, DiscussionHandler, Aut
 
   public void startManifestMetadata(String schema, String schema_version) {}
 
+  public void addFile(Element elem) {}
+
+  public void preProcessFile(String the_file_id) {}
+
   public void addFile(String the_file) {}
 
   public void endLearningApplicationResource() {}

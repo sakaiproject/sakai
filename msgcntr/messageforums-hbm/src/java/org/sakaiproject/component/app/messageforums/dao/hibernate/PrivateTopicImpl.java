@@ -26,14 +26,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 
 public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
 
-    private static final Log LOG = LogFactory.getLog(PrivateTopicImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrivateTopicImpl.class);
     
     private String userId;
     private String contextId;

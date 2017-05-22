@@ -19,8 +19,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class OpenUrlPartStructure implements org.osid.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(OpenUrlPartStructure.class);
-		
     private org.osid.shared.Id OPENURL_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
     		"openUrl", "OpenURL" );

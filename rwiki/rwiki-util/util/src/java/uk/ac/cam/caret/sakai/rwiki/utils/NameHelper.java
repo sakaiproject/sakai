@@ -24,8 +24,8 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 import java.nio.CharBuffer;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -39,7 +39,7 @@ public class NameHelper
 
 	public static final char SPACE_SEPARATOR = '/';
 
-	private static final Log log = LogFactory.getLog(NameHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(NameHelper.class);
 
 	public static final String DEFAULT_PAGE = "home";
 

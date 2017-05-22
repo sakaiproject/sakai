@@ -19,9 +19,6 @@
 
 <wicket:head>
     <style>
-    	div.my-tree{
-            overflow: -moz-scrollbars-horizontal;
-        }
         table.wicket-tree-content {
             width: 100%;
         }
@@ -36,9 +33,18 @@
             margin: 0px; padding: 0px;
         }
         div.my-tree div.wicket-tree-table {
-        }   
-        div.wicket-tree-table{
-        	min-width: 950px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        div.my-tree div.wicket-tree-table-body {
+            height: 20em;
+        } 
+        div.wicket-tree-table a{
+        	float: none !important;
+        }
+        div.my-tree{
+        	width: 100%;
+        	overflow: auto;
         }
         
         div.my-tree div.wicket-tree-table-body {
@@ -73,7 +79,11 @@
 		div.header{
         	height: auto !important;
         	white-space: normal !important;
-        	overflow: auto !important;
+        	padding-right: 0 !important;
+        }
+        
+        div.header > div {
+        	width: 100% !important;
         }
         
         div.header div span.b_ span.c_{
@@ -83,10 +93,15 @@
         	height: auto !important;
         }
         
+        div.header div span:first-child {
+        	margin-right: 6px;
+        }
+        
         .fieldsetVis{
         	border: 1px solid #ccc;
 			padding: 1em;
 			width: 200px;
+			margin-top: 10px;
         }
         
         .fieldsetVis legend{
@@ -98,6 +113,10 @@
                 
 		.filterMatch{
 			background-color: yellow;
+		}
+		
+		.delegatedAccessTree .row {
+			margin: 0;
 		}
     </style>
 </wicket:head>
@@ -111,7 +130,6 @@
 		<span><wicket:message key="shoppingAdminTitle"/></span>
 		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
 	</div>
-	<br/>
 	
 	<span class="instruction information" style="white-space: normal; display:none">
 		<wicket:message key="shoppingAdminInstructions"/>
@@ -119,10 +137,10 @@
 	</span>
 	<form wicket:id="filterform">
 		<div style="padding-bottom: 1.8em;">
-			<div style="float:left; margin-left: 1em;">
+			<div style="float:left;">
 				<a wicket:id="bulkEditLink"><wicket:message key="bulkEditLink"/></a>
 			</div>
-			<div style="float:right; margin-right: 1em;">
+			<div style="float:right;">
 				<b><wicket:message key="filterBy"/>:</b>
 				&nbsp;
 				<wicket:message key="hierarchyLevel"/>:
@@ -152,7 +170,7 @@
 	<br/>
 	</wicket:enclosure>
 	<form wicket:id="form">
-        <div wicket:id="treeTable" class="my-tree">
+        <div wicket:id="treeTable" class="my-tree delegatedAccessTree">
         </div>
         <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
     </form>

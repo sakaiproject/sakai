@@ -193,7 +193,8 @@
 		</h:panelGrid>
 		<h:outputText rendered="#{empty mfStatisticsBean.userAuthoredStatistics}" value="#{msgs.stat_no_authored_message}" styleClass="instruction" style="display:block"/>
 
-  		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.userAuthoredStatistics}" var="stat" rendered="#{!empty mfStatisticsBean.userAuthoredStatistics}"
+		<div class="table-responsive">
+  		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.userAuthoredStatistics}" var="stat" rendered="#{!empty mfStatisticsBean.userAuthoredStatistics}"
    	 		columnClasses="bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header"> 				
@@ -262,12 +263,14 @@
 		  			</h:commandLink>
   			</h:column>
   		</h:dataTable>
+  		</div>
   		
   			<f:verbatim><h4></f:verbatim>
 		   <h:outputText value="#{msgs.stat_forum_read}" />
   			<f:verbatim></h4></f:verbatim>
 		<h:outputText rendered="#{empty mfStatisticsBean.userReadStatistics}" value="#{msgs.stat_no_read_message}" styleClass="instruction" style="display:block"/>
-  		<h:dataTable styleClass="listHier lines nolines" id="members2" value="#{mfStatisticsBean.userReadStatistics}" var="stat2" rendered="#{!empty mfStatisticsBean.userReadStatistics}"
+  		<div class="table-responsive">
+  		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members2" value="#{mfStatisticsBean.userReadStatistics}" var="stat2" rendered="#{!empty mfStatisticsBean.userReadStatistics}"
    	 	 columnClasses="bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">
@@ -313,7 +316,7 @@
   				<h:outputText value="#{stat2.forumSubject}" />
   			</h:column>
   		</h:dataTable>
-  		
+  		</div>
   	</h:form>
   </sakai:view>
  </f:view>

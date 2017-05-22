@@ -21,9 +21,9 @@
 
 package org.sakaiproject.event.impl;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Edit;
@@ -54,7 +54,7 @@ import java.util.*;
 public abstract class BaseNotificationService implements NotificationService, Observer, SingleStorageUser, CacheRefresher
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseNotificationService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseNotificationService.class);
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
@@ -480,6 +480,26 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 		return null;
 	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public List<Notification> findNotifications(String function, String filter)
+	{
+		List<Notification> notificationsFound = new ArrayList<Notification>();
+		// start with all those for this function (just 'cause we have a nice method to get them -ggolden)
+		List notifications = getNotifications(function);
+		for (Iterator iNotifications = notifications.iterator(); iNotifications.hasNext();)
+		{
+			Notification notification = (Notification) iNotifications.next();
+			if (notification.getResourceFilter().startsWith(filter) && !notificationsFound.contains(notification))
+			{
+				notificationsFound.add(notification);
+			}
+		}
+
+		return notificationsFound;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -703,6 +723,8 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		return notification;
 
 	} // refresh
+	
+	
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * CacheRefresher implementation (no container)
@@ -1113,6 +1135,18 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			stack.pop();
 
 			return notification;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == this) {
+	            return true;
+	        }
+	        if (!(obj instanceof BaseNotification)) {
+	            return false;
+	        }
+	        BaseNotification other = (BaseNotification) obj;
+	        return this.getId().equals(other.getId());
 		}
 	}
 

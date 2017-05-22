@@ -30,8 +30,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
@@ -63,7 +63,7 @@ public abstract class ToolServlet extends VmServlet
 	private static final long serialVersionUID = 1L;
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(ToolServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(ToolServlet.class);
 
 	/** ToolSession attribute name holding the helper id, if we are in helper mode. NOTE: promote to Tool -ggolden */
 	protected static final String HELPER_ID = "sakai.tool.helper.id";

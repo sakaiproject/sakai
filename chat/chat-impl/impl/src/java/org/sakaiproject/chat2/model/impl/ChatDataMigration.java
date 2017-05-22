@@ -30,8 +30,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.util.ResourceLoader;
@@ -46,7 +46,7 @@ import org.w3c.dom.Element;
  *
  */
 public class ChatDataMigration { 
-   protected final transient Log logger = LogFactory.getLog(getClass());
+   protected final transient Logger logger = LoggerFactory.getLogger(getClass());
    
    private boolean debug = false;
    

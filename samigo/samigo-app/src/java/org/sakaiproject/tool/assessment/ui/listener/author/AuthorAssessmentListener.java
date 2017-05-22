@@ -24,7 +24,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -32,8 +32,9 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.samigo.util.SamigoConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -48,7 +49,6 @@ import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.samlite.NameListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>2
@@ -60,7 +60,7 @@ import org.sakaiproject.util.FormattedText;
 public class AuthorAssessmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(AuthorAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(AuthorAssessmentListener.class);
 
   public AuthorAssessmentListener()
   {
@@ -102,7 +102,7 @@ public class AuthorAssessmentListener
 
     // create an assessment based on the title entered and the assessment
     // template selected
-    // #1 - read from form authorIndex.jsp
+    // #1 - read from form authorIndex_content.jsp
     String assessmentTitle = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, author.getAssessTitle());
 
     //HUONG's EDIT
@@ -134,7 +134,7 @@ public class AuthorAssessmentListener
     try{
       assessment = createAssessment(
          assessmentTitle.trim(), description, typeId, templateId);
-      EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.create", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId(), true));
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_CREATE, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId(), true));
     }
     catch(Exception e){
       // can't create assesment because gradebookService is not ready
@@ -156,7 +156,7 @@ public class AuthorAssessmentListener
     author.setIsEditPendingAssessmentFlow(true);
 
     // #3c - update core AssessmentList
-    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);
+    List<AssessmentFacade> list = assessmentService.getBasicInfoOfAllActiveAssessments(AssessmentFacadeQueries.TITLE,true);
     // get the managed bean, author and set the list
     author.setAssessments(list);
     author.setOutcome("createAssessment");

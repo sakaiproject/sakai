@@ -32,9 +32,9 @@ import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -64,7 +64,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class BaseResourceProperties implements ResourceProperties, SerializablePropertiesAccess, SerializableEntity
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseResourceProperties.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseResourceProperties.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

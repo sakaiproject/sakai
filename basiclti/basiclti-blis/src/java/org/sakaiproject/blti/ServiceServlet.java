@@ -62,8 +62,8 @@ import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathConstants;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -92,8 +92,6 @@ import org.sakaiproject.util.FormattedText;
 import org.tsugi.pox.IMSPOXRequest;
 
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.util.foorm.SakaiFoorm;
-import org.sakaiproject.util.foorm.FoormUtil;
 
 /**
  * Notes:
@@ -120,10 +118,8 @@ import org.sakaiproject.util.foorm.FoormUtil;
 public class ServiceServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(ServiceServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(ServiceServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("blis");
-
-	protected static SakaiFoorm foorm = new SakaiFoorm();
 
 	protected static LTIService ltiService = null;
 
@@ -327,8 +323,21 @@ public class ServiceServlet extends HttpServlet {
 
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
-			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
-			return;
+			// no parameter for key, check header
+			final String authorizationHeader = request.getHeader("authorization");
+			if(authorizationHeader.contains("oauth_consumer_key") ) {
+				String[] keys = authorizationHeader.split(",");
+				for(String key : keys) {
+					if(key.startsWith("oauth_consumer_key")) {
+						int end = key.length() - 1;
+						oauth_consumer_key = key.substring(20, end);
+					}
+				}
+			}
+			if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+				doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
+				return;
+			}
 		}
 
 		// Truncate this to the maximum length to insure no cruft at the end
@@ -348,7 +357,7 @@ public class ServiceServlet extends HttpServlet {
 				placement_id = dec2.substring(pos+3);
 			}
 		} catch (Exception e) {
-			// Log some detail for ourselves
+			// Logger some detail for ourselves
 			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
 			signature = null;
 			placement_id = null;
@@ -506,7 +515,7 @@ public class ServiceServlet extends HttpServlet {
 				} else {
 					Map<String,Object> content = null;
 					String contentStr = pitch.getProperty("contentKey");
-					Long contentKey = foorm.getLongKey(contentStr);
+					Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
 					if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
 					if ( content != null ) {
 						if ( "basic-lti-savesetting".equals(lti_message_type) ) {
@@ -838,7 +847,7 @@ public class ServiceServlet extends HttpServlet {
 				placement_id = dec2.substring(pos+3);
 			}
 		} catch (Exception e) {
-			// Log some detail for ourselves
+			// Logger some detail for ourselves
 			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
 			signature = null;
 			placement_id = null;

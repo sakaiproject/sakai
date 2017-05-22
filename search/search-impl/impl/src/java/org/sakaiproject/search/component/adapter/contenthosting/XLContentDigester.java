@@ -28,8 +28,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -44,7 +44,7 @@ import org.sakaiproject.content.api.ContentResource;
  */
 public class XLContentDigester extends BaseContentDigester
 {
-	private static Log log = LogFactory.getLog(XLContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(XLContentDigester.class);
 
 	static {
 		System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.NullLogger");
@@ -118,7 +118,7 @@ public class XLContentDigester extends BaseContentDigester
 				}
 				catch (IOException e)
 				{
-					log.debug(e);
+					log.debug(e.getMessage());
 				}
 			}
 		}

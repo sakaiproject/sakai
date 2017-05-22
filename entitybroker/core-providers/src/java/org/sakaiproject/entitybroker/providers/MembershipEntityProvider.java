@@ -33,8 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -64,6 +67,8 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -78,7 +83,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MembershipEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
 RESTful, ActionsExecutable {
 
-    private static Log log = LogFactory.getLog(MembershipEntityProvider.class);
+    private static Logger log = LoggerFactory.getLogger(MembershipEntityProvider.class);
 
     private SiteService siteService;
     private AuthzGroupService authzGroupService;
@@ -111,6 +116,16 @@ RESTful, ActionsExecutable {
     private SecurityService securityService;
     public void setSecurityService(SecurityService securityService){
     	this.securityService = securityService;
+    }
+
+    private static UserDirectoryService userDirectoryService;
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
+
+    private static UserAuditRegistration userAuditRegistration;
+    public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
+        this.userAuditRegistration = userAuditRegistration;
     }
 
     public static String PREFIX = "membership";
@@ -175,6 +190,7 @@ RESTful, ActionsExecutable {
         } else if ("site".equals(siteId)) {
             siteId = view.getPathSegment(3);
         }
+
         if (siteId == null) {
             throw new IllegalArgumentException(
                     "siteId must be set in order to unjoin sites, set in params or in the URL /unjoin/site/siteId");
@@ -182,6 +198,11 @@ RESTful, ActionsExecutable {
         checkSiteSecurity(siteId);
         try {
             siteService.unjoin(siteId);
+            //String user = sessionManager().getCurrentSessionUserId();
+            String currentUserEid = userEntityProvider.getCurrentUser(view).getEid(); //userDirectoryService.getCurrentUser().getEid();
+            String roleId = siteService.getSite(siteId).getJoinerRole();
+            List<String[]> userAuditList = Collections.singletonList(new String[]{siteId,currentUserEid,roleId, UserAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid});
+            userAuditRegistration.addToUserAuditing(userAuditList);
         } catch (IdUnusedException e) {
             throw new IllegalArgumentException("The siteId provided (" + siteId
                     + ") could not be found: " + e, e);
@@ -498,8 +519,11 @@ RESTful, ActionsExecutable {
 
                     if (group.getMember(userId) == null && (role != null && role.getId() != null)) {
                         // Every user added via this EB is defined as non-provided
-                        group.addMember(userId, role.getId(), m != null ? m.isActive() : true,
-                                false);
+                        try {
+                            group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
+                        } catch (IllegalStateException e) {
+                            log.error(".getGroupMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                        }
                     }
                 }
             } else if ("update".equals(action)) {
@@ -508,7 +532,11 @@ RESTful, ActionsExecutable {
                             + site.getId() + ") cannot be updated by the current user.");
                 }
                 // replace the current membership with the provided list
-                group.removeMembers();
+                try {
+                    group.deleteMembers();
+                } catch (IllegalStateException e) {
+                    log.error(".getGroupMemberships: Members from group with id {} cannot be deleted because the group is locked", group.getId());
+                }
                 for (String user : userIds) {
                     String userId = userEntityProvider.findAndCheckUserId(null, user.trim());
                     if (userId == null) {
@@ -520,8 +548,12 @@ RESTful, ActionsExecutable {
 
                     if (group.getMember(userId) == null && (role != null && role.getId() != null)) {
                         // Every user added via this EB is defined as non-provided
-                        group.addMember(userId, role.getId(), m != null ? m.isActive() : true,
+                        try {
+                            group.insertMember(userId, role.getId(), m != null ? m.isActive() : true,
                                 false);
+                        } catch (IllegalStateException e) {
+                            log.error(".getGroupMemberships: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                        }
                     }
                 }
             } else if ("remove".equals(action)) {
@@ -532,7 +564,11 @@ RESTful, ActionsExecutable {
                         log.warn("Unable to remove user ("+userId+") from group ("+group.getId()+") in site ("+site.getId()+"), could not find user record by id or eid");
                         continue;
                     }
-                    group.removeMember(userId);
+                    try {
+                        group.deleteMember(userId);
+                    } catch (IllegalStateException e) {
+                        log.error(".getGroupMemberships: User with id {} cannot be deleted from group with id {} because the group is locked", userId, group.getId());
+                    }
                 }
             } else {
                 throw new IllegalArgumentException(
@@ -825,11 +861,15 @@ RESTful, ActionsExecutable {
 
         checkSiteSecurity(sg.site.getId());
 
+        String[] userAuditString;
+        List<String[]> userAuditList = new ArrayList<>();
+        
         // check for a batch add
         String[] userIds = checkForBatch(params, userId);
-        // now add all the memberships
         String memberId = "";
         String currentUserId = developerHelperService.getCurrentUserId();
+        
+        // now add all the memberships
         for (int i = 0; i < userIds.length; i++) {
             if (sg.group == null) {
                 // site only
@@ -847,10 +887,25 @@ RESTful, ActionsExecutable {
                     sg.site.addMember(userIds[i], roleId, active, false);
                     saveSiteMembership(sg.site);
                 }
+                User user = null;
+                // Add change to user_audits_log table.
+                try {
+                    user = userDirectoryService.getUser(userIds[i]);
+                }
+                catch (UserNotDefinedException e) {
+                    log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
+                }
+                userAuditString = new String[]{sg.site.getId(),user.getDisplayId(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+                                               userAuditRegistration.getDatabaseSourceKey(), currentUserId};
+                userAuditList.add(userAuditString);
             } else {
                 // group and site
-                sg.group.addMember(userIds[i], roleId, active, false);
-                saveGroupMembership(sg.site, sg.group);
+                try {
+                    sg.group.insertMember(userIds[i], roleId, active, false);
+                    saveGroupMembership(sg.site, sg.group);
+                } catch (IllegalStateException e) {
+                    log.error(".createEntity: User with id {} cannot be inserted in group with id {} because the group is locked", userIds[i], sg.group.getId());
+                }
             }
             if (i == 0) {
                 EntityMember em = new EntityMember(userIds[0], sg.locationReference, roleId,
@@ -858,6 +913,11 @@ RESTful, ActionsExecutable {
                 memberId = em.getId();
             }
         }
+
+        if (userAuditList.size() > 0) {
+            userAuditRegistration.addToUserAuditing(userAuditList);
+        }
+
         if (userIds.length > 1) {
             log.info("Batch add memberships: siteId="
                     + ((sg.site == null) ? "none" : sg.site.getId()) + ",groupId="
@@ -889,19 +949,48 @@ RESTful, ActionsExecutable {
         }
         String userId = parts[0];
         SiteGroup sg = findLocationByReference(parts[1]);
+
+        String[] userAuditString;
+        List<String[]> userAuditList = new ArrayList<>();
+        
         // check for a batch
         String[] userIds = checkForBatch(params, userId);
         for (int i = 0; i < userIds.length; i++) {
             if (sg.group == null) {
                 // site only
-                sg.site.removeMember(userIds[i]);
-                saveSiteMembership(sg.site);
+                Site site = sg.site;
+
+                // Add change to user_audits_log table.
+                String role = site.getUserRole(userIds[i]).getId();
+                String displayId = null;
+                try {
+                    displayId = userDirectoryService.getUser(userIds[i]).getDisplayId();
+                } catch (UserNotDefinedException e) {
+                    log.error(".deleteEntity: User with id {} not defined", userIds[i]);
+                }
+
+                userAuditString = new String[]{site.getId(), displayId, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                                               userAuditRegistration.getDatabaseSourceKey(), developerHelperService.getCurrentUserId()};
+                userAuditList.add(userAuditString);
+
+                site.removeMember(userIds[i]);
+                saveSiteMembership(site);
+
             } else {
                 // group and site
-                sg.group.removeMember(userIds[i]);
-                saveGroupMembership(sg.site, sg.group);
+                try {
+                    sg.group.deleteMember(userIds[i]);
+                    saveGroupMembership(sg.site, sg.group);
+                } catch (IllegalStateException e) {
+                    log.error(".deleteEntity: User with id {} cannot be deleted from group with id {} because the group is locked", userIds[i], sg.group.getId());
+                }
             }
         }
+
+        if (userAuditList.size() > 0) {
+            userAuditRegistration.addToUserAuditing(userAuditList);
+        }
+
         if (userIds.length > 1) {
             log.info("Batch remove memberships: siteId="
                     + ((sg.site == null) ? "none" : sg.site.getId()) + ",groupId="
@@ -1190,7 +1279,11 @@ RESTful, ActionsExecutable {
 
             if (group.getUserRole(userId) == null && role.getId() != null) {
                 // Every user added via this EB is defined as non-provided
-                group.addMember(userId, role.getId(), m != null ? m.isActive() : true, false);
+                try {
+                    group.insertMember(userId, role.getId(), m != null ? m.isActive() : true, false);
+                } catch (IllegalArgumentException e) {
+                    log.error(".addUsersToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userId, group.getId());
+                }
             }
         }
     }

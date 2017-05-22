@@ -36,8 +36,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Add the ability to look in sakai.properties for properties
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -81,7 +81,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class RemoteHostFilter implements Filter {
 
     // Our logger
-	private static Log M_log = LogFactory.getLog(RemoteHostFilter.class);
+	private static Logger M_log = LoggerFactory.getLogger(RemoteHostFilter.class);
 	
     /**
      * Define an empty pattern to save re-constructing a null array multiple

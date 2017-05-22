@@ -37,12 +37,6 @@
 		</pluginRepository>
     </pluginRepositories>
 
-	<issueManagement>
-        <system>JIRA</system>
-        <url>https://jira.oucs.ox.ac.uk/jira/browse/WL-3179</url>
-    </issueManagement>
-
-
   	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -58,14 +52,6 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
             <scope>compile</scope>
-        </dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
@@ -116,8 +102,8 @@
             <artifactId>activation</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>net.tanesha.recaptcha4j</groupId>
@@ -153,7 +139,7 @@
                                     <templates>
                                         <template>content</template>
                                         <template>home</template>
-                                        <template>technical</template>
+                                        <template>emailForm</template>
                                         <template>toolbar</template>
                                     </templates>
                                 </configuration>
@@ -189,7 +175,7 @@
                             <templates>
                                 <template>content</template>
                                 <template>home</template>
-                                <template>technical</template>
+                                <template>emailForm</template>
                                 <template>toolbar</template>
                             </templates>
                         </configuration>

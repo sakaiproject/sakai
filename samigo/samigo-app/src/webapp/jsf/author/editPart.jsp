@@ -36,6 +36,7 @@
       <title><h:outputText value="#{authorMessages.create_modify_p}" /></title>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
+      <script src="/library/js/spinner.js" type="text/javascript"></script>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -60,7 +61,7 @@
         <div class="infoEditor">
             <h:outputLabel value="#{authorMessages.information}" />
             <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}" hasToggle="yes" mode="author">
-              <f:validateLength minimum="1" maximum="4000"/>
+              <f:validateLength minimum="1" maximum="60000"/>
             </samigo:wysiwyg>
         </div>
         
@@ -69,9 +70,13 @@
         
         <%-- Type --%>
         <fieldset>
-            <legend><h:outputText value="#{authorMessages.type}" /></legend>
-            <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();"
-                       onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}"
+            <legend>
+                <h:outputText value="#{authorMessages.type}" />
+                <div id="typeSpinner" class="allocatedSpinPlaceholder"></div>
+            </legend>
+            <h:selectOneRadio id="typeTable" value="#{sectionBean.type}" layout="pageDirection" valueChangeListener="#{sectionBean.toggleAuthorType}"
+                       onclick="SPNR.insertSpinnerInPreallocated( this, null, 'typeSpinner' );this.form.onsubmit();document.forms[0].submit();"
+                       onkeypress="this.form.onsubmit();document.forms[0].submit();" 
                        disabled="#{!author.isEditPendingAssessmentFlow}" disabledClass="inactive">
                 <f:selectItems value="#{sectionBean.authorTypeList}" />
             </h:selectOneRadio>
@@ -114,12 +119,12 @@
             <t:fieldset styleClass="roundedBorder" legend="#{authorMessages.scoring}" rendered="#{sectionBean.type == '2'}">
                 <t:div id="pointsOption" rendered="#{sectionBean.type == '2'}">
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_correct_prefix}"/>
-                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" onchange="toPoint(this.id);"/>
+                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numPointsRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartScore}" styleClass="ConvertPoint"/>
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_correct_suffix}"/>
                 </t:div>
                 <t:div id="deductOption" rendered="#{sectionBean.type == '2'}">
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_deduct_prefix}"/>
-                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" onchange="toPoint(this.id);"/>
+                    <h:inputText rendered="#{sectionBean.type == '2'}" id="numDiscountRandom" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.randomPartDiscount}" styleClass="ConvertPoint"/>
                     <h:outputText rendered="#{sectionBean.type == '2'}" value="#{authorMessages.random_draw_deduct_suffix}"/>
                 </t:div>
             </t:fieldset>
@@ -140,12 +145,12 @@
         </fieldset>
 
   <p class="act">
-     <h:commandButton value="#{commonMessages.action_save}" type="submit" 
+     <h:commandButton value="#{commonMessages.action_save}" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );"
        styleClass="active" action="#{sectionBean.getOutcome}" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />
      </h:commandButton>
-     <h:commandButton value="#{commonMessages.cancel_action}" style="act" immediate="true" action="editAssessment" >
+     <h:commandButton value="#{commonMessages.cancel_action}" style="act" immediate="true" action="editAssessment" onclick="SPNR.disableControlsAndSpin( this, null );" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPartAttachmentListener" />
         <f:actionListener

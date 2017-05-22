@@ -27,8 +27,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class TestActionListener implements ActionListener
 {
-	private static Log log = LogFactory.getLog(TestActionListener.class);
+	private static Logger log = LoggerFactory.getLogger(TestActionListener.class);
   public TestActionListener()
   {
   }

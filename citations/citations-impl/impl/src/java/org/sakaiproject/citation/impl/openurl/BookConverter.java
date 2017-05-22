@@ -5,8 +5,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.BidiMap;
 import org.apache.commons.collections.bidimap.TreeBidiMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationService;
 
@@ -17,7 +17,7 @@ import org.sakaiproject.citation.api.CitationService;
  */
 public class BookConverter extends AbstractConverter implements Converter {
 
-	final static Log log = LogFactory.getLog(BookConverter.class);
+	final static Logger log = LoggerFactory.getLogger(BookConverter.class);
 	
 	public final static String ID = "info:ofi/fmt:kev:mtx:book";
 	

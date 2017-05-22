@@ -26,14 +26,15 @@ package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
@@ -49,7 +50,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class TemplateListener extends TemplateBaseListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(TemplateListener.class);
+  private static Logger log = LoggerFactory.getLogger(TemplateListener.class);
   private static BeanSort bs;
 
   public TemplateListener()
@@ -78,12 +79,12 @@ public class TemplateListener extends TemplateBaseListener
     	templateIndex.setAutomaticSubmissionEnabled(true);
     }
     
-    ArrayList templates = new ArrayList();
+    List<TemplateBean> templates = new ArrayList();
     try
     {
 	FacesContext.getCurrentInstance().
 	getExternalContext().getSessionMap().put("template", new TemplateBean());
-	ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
+	List<AssessmentTemplateFacade> list = assessmentService.getBasicInfoOfAllActiveAssessmentTemplates("title");
         Iterator iter = list.iterator();
         while (iter.hasNext())
         {

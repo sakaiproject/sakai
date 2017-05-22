@@ -10,7 +10,7 @@
 	</head>
 
 	<body>
-		<div class="portletBody">
+		<div class="portletBody container-fluid">
 	
   <div rsf:id="message-for:*">
 	<span>Message for user here</span>
@@ -23,12 +23,14 @@
 				</ul>
 			</div>
 
-			<h3 rsf:id="modify-template-header">Modify reminder email template</h3>
+		<div class="page-header">
+			<h1 rsf:id="modify-template-header">Modify reminder email template</h1>
+		</div>
 
 			<form rsf:id="emailTemplateForm" name="emailTemplateForm" method="post">
 				<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
-					<p rsf:id="msg=modifyemail.modify.text.instructions" class="instruction">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
-					<div rsf:id="email_templates_fieldhints" class="highlightPanel" style="background:#eee;">
+					<p rsf:id="msg=modifyemail.modify.text.instructions" class="text-info">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
+					<div rsf:id="email_templates_fieldhints" class="bs-callout-info">
 ${EvalTitle} - the title of this evaluation <br/>
 ${EvalStartDate} - the start date of this evaluation <br/>
 ${EvalDueDate} - the due date of this evaluation <br/>
@@ -42,34 +44,49 @@ ${URLtoSystem} - the main URL to the system this is running in <br/>
 ${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
 ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation <br/>
 					</div>
-                    <div class="shorttext etsrow" id="etsEmailSubject">
-                        <label rsf:id="msg=modifyemail.template.subject" for="emailSubject">Subject:</label>
-                        <input rsf:id="emailSubject" type="text" id="emailSubject" size="80" maxlength="250" />
-                    </div>
-                    <div class="shorttext etsrow" id="etsEmailFrom">
-	                    <label rsf:id="msg=modifyemail.template.from" for="emailFrom">From:</label>
-                        <input rsf:id="emailFrom" type="text" id="emailFrom" size="80" maxlength="250" />
-                    </div>
-				<div class="shorttext etsrow" id="etsEmailKey">
-					<label rsf:id="msg=modifyemail.template.key" for="emailKey">key:</label>
-					<input rsf:id="emailKey" type="text" id="emailKey" size="80" maxlength="250" />
+
+		<div class="form-container">
+			<div class="form-group row" id="etsEmailSubject">
+				<label class="col-md-2" rsf:id="msg=modifyemail.template.subject" for="emailSubject">Subject:</label>
+				<div class="col-md-6">
+					<input class="form-control" rsf:id="emailSubject" type="text" id="emailSubject" size="80" maxlength="250" />
 				</div>
-				<div class="shorttext etsrow" id="etsEmailKey">
-					<label rsf:id="msg=modifyemail.template.locale" for="emailLocale">locale:</label>
-					<input rsf:id="emailLocale" type="text" id="email:Locale" size="80" maxlength="250" />
+			</div>
+			<div class="form-group row" id="etsEmailFrom">
+				<label class="col-md-2" rsf:id="msg=modifyemail.template.from" for="emailFrom">From:</label>
+				<div class="col-md-6">
+					<input class="form-control" rsf:id="emailFrom" type="text" id="emailFrom" size="80" maxlength="250" />
 				</div>
-				<div class="shorttext etstext" id="etsEmailMessage">
-					<label rsf:id="msg=textInput" for="emailMessage">Plain text</label>
-					<textarea rsf:id="emailMessage" rows="20" cols="100" name="emailMessage" id="emailMessage">
+			</div>
+				<div class="form-group row" id="etsEmailKey">
+					<label class="col-md-2" rsf:id="msg=modifyemail.template.key" for="emailKey">key:</label>
+					<div class="col-md-6">
+						<input class="form-control" rsf:id="emailKey" type="text" id="emailKey" size="80" maxlength="250" />
+					</div>
+				</div>
+				<div class="form-group row" id="etsEmailKey">
+					<label class="col-md-2" rsf:id="msg=modifyemail.template.locale" for="emailLocale">locale:</label>
+					<div class="col-md-6">
+						<input class="form-control" rsf:id="emailLocale" type="text" id="email:Locale" size="80" maxlength="250" />
+					</div>
+				</div>
+				<div class="form-group row" id="etsEmailMessage">
+					<label class="col-md-2" rsf:id="msg=textInput" for="emailMessage">Plain text</label>
+					<div class="col-md-6">
+						<textarea class="form-control" rsf:id="emailMessage" rows="10" cols="100" name="emailMessage" id="emailMessage">
                          The text of the email message will appear here
-                    </textarea>
+                    	</textarea>
+					</div>
 				</div>
-				<div class="shorttext etstext" id="etsEmailHtml">
-					<label rsf:id="msg=htmlInput" for="emailHtmlMessage">Html text</label>
-					<textarea rsf:id="emailHtmlMessage" rows="20" cols="100">
+				<div class="form-group row" id="etsEmailHtml">
+					<label class="col-md-2" rsf:id="msg=htmlInput" for="emailHtmlMessage">Html text</label>
+					<div class="col-md-6">
+						<textarea class="form-control" rsf:id="emailHtmlMessage" rows="10" cols="100">
                          The HTML text of the email message will appear here
-                    </textarea>
+                    	</textarea>
+					</div>
 				</div>
+		</div>
 
 				<p class="act">
                     <input rsf:id="saveEmailTemplate" name="saveEmailTemplate" type="submit" value="Save Changes" accesskey="s" class="active" />

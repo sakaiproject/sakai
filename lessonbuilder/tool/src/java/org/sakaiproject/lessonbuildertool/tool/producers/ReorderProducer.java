@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.util.FormattedText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -65,6 +67,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class ReorderProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(ReorderProducer.class);
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private ShowPageProducer showPageProducer;
@@ -85,7 +88,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			try {
 				simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
 			} catch (Exception e) {
-				System.out.println("Reorder permission exception " + e);
+				log.info("Reorder permission exception " + e);
 				return;
 			}
 		}
@@ -109,6 +112,9 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		if (simplePageBean.canEditPage()) {
 
 		    // make sure the order is right
+		    // go to the database for reads, to make sure we get most recent item data
+			simplePageToolDao.setRefreshMode();
+
 			simplePageBean.fixorder();
 
 			SimplePage page = simplePageBean.getCurrentPage();
@@ -177,10 +183,23 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					                   String.valueOf(i.getSequence()));
 
 				if (i.getType() == 5) {
-				    String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
-				    if (text.length() > 100)
-					text = text.substring(0,100);
-				    UIOutput.make(row, "text-snippet", text);
+				    if (i.getAttribute("isFolder")!=null && i.getAttribute("isFolder").equals("true")){
+					    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.resources-snippet"));
+				    }
+				    else {
+					    String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
+					    if (text.length() > 100)
+						    text = text.substring(0, 100);
+					    UIOutput.make(row, "text-snippet", text);
+				    }
+				} else if (SimplePageItem.ANNOUNCEMENTS == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.announcements-snippet"));
+				} else if (SimplePageItem.FORUM_SUMMARY == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.forums-snippet"));
+				} else if (SimplePageItem.TWITTER == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.twitter-snippet"));
+				} else if (SimplePageItem.CALENDAR == i.getType()) {
+					UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.calendar-snippet"));
 				} else if ("1".equals(subtype)) {
 				    // embed code, nothing useful to show
 				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video"));

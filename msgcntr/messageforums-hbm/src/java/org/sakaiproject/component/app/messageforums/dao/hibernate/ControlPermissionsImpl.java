@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.ControlPermissions;
@@ -29,7 +29,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 
 public class ControlPermissionsImpl implements ControlPermissions {
 
-    private static final Log LOG = LogFactory.getLog(ControlPermissionsImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ControlPermissionsImpl.class);
 
     private String role;
 

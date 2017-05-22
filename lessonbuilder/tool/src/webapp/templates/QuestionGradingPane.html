@@ -29,6 +29,8 @@
 <script type="text/javascript" language="JavaScript" src="../js/questionGrading.js"></script>
 <script type="text/javascript" language="JavaScript" src="../js/gradingAjax.js"></script>
 
+<div class="gradingPane">
+
 	<a href="#" rsf:id="back-link"></a>
 
 	<br />
@@ -36,14 +38,14 @@
 	<h2 rsf:id="page-header"></h2>
 
 	<div rsf:id="permissionsError" class="ui-widget" role="alert">
-		<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
+		<div class="messageError">
 			<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 			<div rsf:id="msg=simplepage.permissions-general" ></div>
 		</div>
 	</div>
 	
 	<div rsf:id="noEntriesWarning" class="ui-widget">
-		<div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; margin-top:10px; padding: 0 .7em;"> 
+		<div class="messageError">
 			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
 			<span rsf:id="msg=simplepage.nothing-here"></span></p>
 		</div>
@@ -76,11 +78,22 @@
 		  <td></td>
 		  <td rsf:id="clickfiller"></td>
           <td></td>
-		  <td><a id="clickToSubmit" href="#" class="usebutton toggleButton" style="" onclick="return false;" rsf:id="clickToSubmit"></a> </td>
+		  <td><a id="clickToSubmit" href="#" class="usebutton toggleButton" style="" onclick="return false;" rsf:id="clickToSubmit"></a></td>
 		</tr>
 
 	</table>
+	<h3 rsf:id="missing-head"><span rsf:id="msg=simplepage.missing-title"></span></h3>
+	<div rsf:id="missing-div" style="margin-bottom:1em">
+	  <div rsf:id="missing:"><span rsf:id="missing-entry"></span></div>
+	</div>
 	
+	<a id="zeroMissing" href="#" class="zeroMissing usebutton toggleButton" style="" rsf:id="zeroMissing"></a> 
+	<form rsf:id="zero-form" action="#" id="zero-form" method="post" enctype="multipart/form-data" style="display:none">
+	  <input type="hidden" rsf:id="zero-csrf" />
+	  <input type="hidden" rsf:id="zero-item" />
+	  <input type="submit" rsf:id="zero" id="zero" />
+	</form>
+
 	<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
 		<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
 		<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
@@ -89,9 +102,11 @@
 		<input type="hidden" class="csrfField" id="csrf" rsf:id="csrf"/>
 	</form>
 		
+
 	<script rsf:id="gradingForm-init" type="text/javascript">
     	// a real function call with real values which come from the 
     	// "emitJavascriptCall" method will be placed here by RSF
 	</script>
+</div>
 </body>
 </html>

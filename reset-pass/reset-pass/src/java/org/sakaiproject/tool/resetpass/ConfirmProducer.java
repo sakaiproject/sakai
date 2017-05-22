@@ -50,9 +50,9 @@ public class ConfirmProducer implements ViewComponentProducer {
 		String supportInstructions = placement == null ? "" :  placement.getConfig().getProperty("supportInstructions");
 		if(supportInstructions != null && !"".equals(supportInstructions)){
 			UIVerbatim.make(tofill, "supportMessage", supportInstructions);
-		}else if (serverConfigurationService.getString("support.email", null) != null) {
+		}else if (serverConfigurationService.getString("mail.support", null) != null) {
 			UIMessage.make(tofill, "supportMessage", "supportMessage");
-			UILink.make(tofill, "supportEmail",serverConfigurationService.getString("support.email", ""),"mailto:" + serverConfigurationService.getString("support.email", ""));
+			UILink.make(tofill, "supportEmail",serverConfigurationService.getString("mail.support", ""),"mailto:" + serverConfigurationService.getString("mail.support", ""));
 		}
 	}
 

@@ -1,11 +1,6 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
 
-    <section class="gb-import-export-section">
-        <h2><wicket:message key="importExport.export.heading" /></h2>
-          
-        <p><wicket:message key="importExport.export.description" /></p>
-        <p><input type="button" wicket:id="downloadFullGradebook" wicket:message="value:importExport.template.button.fullGradebook"/></p>
-    </section>
+    <div wicket:id="export">[export panel will be placed here]</div>
 
     <section class="gb-import-export-section">
         <h2><wicket:message key="importExport.import.heading" /></h2>
@@ -24,6 +19,21 @@
             </div>
         </form>
 
+    </section>
+    
+    <!--  conventions -->
+    <section>
+    	<div class="instruction">
+    		<h2><wicket:message key="importExport.instructions.title" /></h2>
+    		<p><wicket:message key="importExport.instructions.summary" /></p>
+    		<ol>
+    			<li><wicket:message key="importExport.instructions.1" /></li>
+    			<li><wicket:message key="importExport.instructions.2" /></li>
+    			<li><wicket:message key="importExport.instructions.3" /></li>
+    			<li><wicket:message key="importExport.instructions.4" /></li>
+    		</ol>
+    	</div>
+    
     </section>
 
 </wicket:panel>

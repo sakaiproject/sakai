@@ -1,0 +1,103 @@
+.#{$namespace}sakai-signup {
+
+	.form-required{
+		&:after{
+			content: "*";
+			color: $error-color;
+			position: relative;
+			top: 3px;
+		}		
+	}
+
+	.toggleMeetings{
+		cursor:pointer;
+		&.toggleDownload{
+			left: 5px;
+			top: -2px;
+			position: relative;
+			margin: 0 0 0 0;
+		}
+	}
+
+	table#items\:eventlist th input[type="checkbox"] {
+		margin-right: 5px;
+	}
+	
+	#meeting{
+		input{
+			margin-right: 0.5em;
+		}
+
+		&\:startTime\.minutes, &\:endTime\.minutes{
+			margin-left: 0.5em;
+		}
+	
+		&\:startTime select, &\:endTime select{
+			margin-right: 0.5em;
+		}
+		
+		&\:startTime, &\:endTime{
+			@media #{$phone}{
+				input,select{
+					margin-top: 0.5em;
+				}
+			}
+		}		
+	
+		&\:meeting-participants{
+			margin-bottom: 0;
+			td{
+				border:none;
+			}
+		}
+		
+		&\:utilCalendar{
+			input{
+				margin-top: 0.5em;
+			}
+		}
+		
+		&\:until\.year{
+			margin-left: 0.5em;
+		}
+		
+		&\:emailAttendeeOnly{
+			margin-top: 0.5em;
+			margin-left: 0.5em;
+		}
+		
+		//This is for jsf labels and checkboxes
+		input[type="checkbox"],input[type="radio"]{
+			@media #{$phone}{
+				float:left;
+				& + label {
+					display:block;
+				}
+			}
+		}
+	}
+
+	#userdef-add{
+		position:relative;
+	}
+
+	.calendarImageIcon{
+		vertical-align: middle;
+		margin-left: 3px;
+		margin-right: 7px;
+	}
+
+	#imageOpen_otherSites,#imageClose_otherSites{
+		margin-right: 0.3em;
+	}
+	
+	.userDefineTsTable{
+		select{
+			margin-right: 1em;
+		}
+
+		input[id*='minutes']{
+				margin-left: 1em;
+		}
+	}
+}

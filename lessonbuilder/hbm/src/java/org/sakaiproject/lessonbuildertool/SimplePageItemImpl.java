@@ -58,9 +58,10 @@ public class SimplePageItemImpl implements SimplePageItem  {
     public static final int BLTI = 12;
     public static final int PEEREVAL = 13;
     public static final int BREAK = 14;
+    public static final int CHECKLIST = 15;
 
     // must agree with definition in hbm file
-	public static final int MAXNAME = 100;
+	public static final int MAXNAME = 255;
 
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
@@ -132,8 +133,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.type = type;
 		this.sakaiId = sakaiId;
 		this.name = maxlength(name, MAXNAME);
-		height = "300px";
-		width = "100%";
+		height = "";
+		width = "";
 		description = "";
 		alt = "";
 		subrequirement = false;
@@ -158,8 +159,8 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.type = type;
 		this.sakaiId = sakaiId;
 		this.name = maxlength(name, MAXNAME);
-		height = "300px";
-		width = "100%";
+		height = "";
+		width = "";
 		description = "";
 		alt = "";
 		subrequirement = false;
@@ -174,6 +175,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		    attributes = simplePageToolDao.newJSONObject();
 	}
 
+    // this should seldom truncate anything. The UI makes sure the user can't enter namss that
+    // are too long. The main case this will happen is if we generate a name, which we do for URLs
+    // and uploaded files.
 	private String maxlength(String s, int maxlen) {
 	    if (s == null)
 		s = "";  // oracle turns "" into null
@@ -378,8 +382,11 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public String getURL() {
 		// Will Update to take type into account when adding more than just resources
 		if (type == RESOURCE || type == MULTIMEDIA) {
+			if (getAttribute("multimediaUrl") != null)
+			    return getAttribute("multimediaUrl");
 			return "/access/content" + getSakaiId();
 		} else if (type == URL) {
+		    // not used, apparently
 			return getSakaiId();
 		} else {
 			return "";
@@ -399,8 +406,11 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	        // no one else should do anything with sakai id's other than
 	        // hand them to Content
 		if (type == RESOURCE || type == MULTIMEDIA) {
+		    if (getAttribute("multimediaUrl") != null)
+			return getAttribute("multimediaUrl");
 		    return "/access/lessonbuilder/item/" + getId() + getSakaiId();
 		} else if (type == URL) {
+		    // not used, I'm pretty sure
 			return getSakaiId();
 		} else {
 			return "";

@@ -34,8 +34,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -79,7 +79,7 @@ public class PrivacyBean {
 	/** Inject PrivacyManager */
 	private PrivacyManager privacyManager;
 
-	private Log LOG = LogFactory.getLog(PrivacyBean.class);
+	private Logger LOG = LoggerFactory.getLogger(PrivacyBean.class);
 
 	public void setPrivacyManager(PrivacyManager privacyManager) {
 		this.privacyManager = privacyManager;

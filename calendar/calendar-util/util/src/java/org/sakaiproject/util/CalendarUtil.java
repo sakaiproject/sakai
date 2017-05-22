@@ -23,12 +23,22 @@ package org.sakaiproject.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Month;
+import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.HashMap;
+import java.util.Enumeration;
 
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -39,12 +49,14 @@ import org.joda.time.format.DateTimeFormatterBuilder;
 public class CalendarUtil
 {	
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(CalendarUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(CalendarUtil.class);
+
+	private Clock clock = Clock.systemDefaultZone();
 	
 	/** The calendar object this is based upon. */
 	Calendar m_calendar = null;
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	ResourceLoader rb = new ResourceLoader("calendar");
+	ResourceLoader rb;
 
 	Date dateSunday = null;
 	Date dateMonday = null;
@@ -66,18 +78,20 @@ public class CalendarUtil
 	Date dateOctober = null;
 	Date dateNovember = null;
 	Date dateDecember = null;
+	private Map<String, String> eventIconMap = new HashMap<String, String>();
 
 	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 	
 	/**
 	* Construct.
 	*/
-	public CalendarUtil() 
+	public CalendarUtil()
 	{
+		rb = new ResourceLoader("calendar");
 		Locale locale = rb.getLocale();
 		m_calendar = Calendar.getInstance(locale);
 		initDates();
-		
+
 	}	// CalendarUtil
 	
 	/**
@@ -85,19 +99,42 @@ public class CalendarUtil
 	*/
 	public CalendarUtil(Calendar calendar) 
 	{
+		rb = new ResourceLoader("calendar");
 		m_calendar = calendar;
 		initDates();
 		
 	}	// CalendarUtil
 
+	/**
+	 * Constructor for testing.
+	 * @param clock the clock to use for the current time.
+	 */
+	public CalendarUtil(Clock clock, ResourceLoader rb)
+	{
+		this.clock = clock;
+		this.rb = rb;
+		m_calendar = getCalendarInstance();
+		initDates();
+	}
+
+	/**
+	 * This creates a calendar based on the clock. This is to allow testing of the class.
+	 * @return A calendar.
+	 */
+	private Calendar getCalendarInstance() {
+		Calendar instance = Calendar.getInstance();
+		instance.setTime(Date.from(clock.instant()));
+		return instance;
+	}
+
 	void initDates() {
-	  Calendar calendarSunday = Calendar.getInstance();
-	  Calendar calendarMonday = Calendar.getInstance();
-	  Calendar calendarTuesday = Calendar.getInstance();
-	  Calendar calendarWednesday = Calendar.getInstance();
-	  Calendar calendarThursday = Calendar.getInstance();
-	  Calendar calendarFriday = Calendar.getInstance();
-	  Calendar calendarSaturday = Calendar.getInstance();
+	  Calendar calendarSunday = getCalendarInstance();
+	  Calendar calendarMonday = getCalendarInstance();
+	  Calendar calendarTuesday = getCalendarInstance();
+	  Calendar calendarWednesday = getCalendarInstance();
+	  Calendar calendarThursday = getCalendarInstance();
+	  Calendar calendarFriday = getCalendarInstance();
+	  Calendar calendarSaturday = getCalendarInstance();
 
 	  calendarSunday.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 	  calendarMonday.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -115,46 +152,40 @@ public class CalendarUtil
 	  dateFriday = calendarFriday.getTime();
 	  dateSaturday = calendarSaturday.getTime();
 
-	  Calendar calendarJanuary = Calendar.getInstance();
-	  Calendar calendarFebruary = Calendar.getInstance();
-	  Calendar calendarMarch = Calendar.getInstance();
-	  Calendar calendarApril = Calendar.getInstance();
-	  Calendar calendarMay = Calendar.getInstance();
-	  Calendar calendarJune = Calendar.getInstance();
-	  Calendar calendarJuly = Calendar.getInstance();
-	  Calendar calendarAugust = Calendar.getInstance();
-	  Calendar calendarSeptember = Calendar.getInstance();
-	  Calendar calendarOctober = Calendar.getInstance();
-	  Calendar calendarNovember = Calendar.getInstance();
-	  Calendar calendarDecember = Calendar.getInstance();
+	  // Previously Calendar was used, but it had problems getting the month right
+	  // when the current day of the month was 31.
+	  YearMonth currentYearMonth = YearMonth.now(clock);
+	  YearMonth jan = currentYearMonth.with(Month.JANUARY);
+	  YearMonth feb = currentYearMonth.with(Month.FEBRUARY);
+	  YearMonth mar = currentYearMonth.with(Month.MARCH);
+	  YearMonth apr = currentYearMonth.with(Month.APRIL);
+	  YearMonth may = currentYearMonth.with(Month.MAY);
+	  YearMonth jun = currentYearMonth.with(Month.JUNE);
+	  YearMonth jul = currentYearMonth.with(Month.JULY);
+	  YearMonth aug = currentYearMonth.with(Month.AUGUST);
+	  YearMonth sep = currentYearMonth.with(Month.SEPTEMBER);
+	  YearMonth oct = currentYearMonth.with(Month.OCTOBER);
+	  YearMonth nov = currentYearMonth.with(Month.NOVEMBER);
+	  YearMonth dec = currentYearMonth.with(Month.DECEMBER);
 
-	  calendarJanuary.set(Calendar.MONTH, Calendar.JANUARY); 
-	  calendarFebruary.set(Calendar.MONTH, Calendar.FEBRUARY); 
-	  calendarMarch.set(Calendar.MONTH, Calendar.MARCH); 
-	  calendarApril.set(Calendar.MONTH, Calendar.APRIL); 
-	  calendarMay.set(Calendar.MONTH, Calendar.MAY); 
-	  calendarJune.set(Calendar.MONTH, Calendar.JUNE); 
-	  calendarJuly.set(Calendar.MONTH, Calendar.JULY); 
-	  calendarAugust.set(Calendar.MONTH, Calendar.AUGUST); 
-	  calendarSeptember.set(Calendar.MONTH, Calendar.SEPTEMBER); 
-	  calendarOctober.set(Calendar.MONTH, Calendar.OCTOBER); 
-	  calendarNovember.set(Calendar.MONTH, Calendar.NOVEMBER); 
-	  calendarDecember.set(Calendar.MONTH, Calendar.DECEMBER); 
-
-	  dateJanuary = calendarJanuary.getTime();
-	  dateFebruary = calendarFebruary.getTime();
-	  dateMarch = calendarMarch.getTime();
-	  dateApril = calendarApril.getTime();
-	  dateMay = calendarMay.getTime();
-	  dateJune = calendarJune.getTime();
-	  dateJuly = calendarJuly.getTime();
-	  dateAugust = calendarAugust.getTime();
-	  dateSeptember = calendarSeptember.getTime();
-	  dateOctober = calendarOctober.getTime();
-	  dateNovember = calendarNovember.getTime();
-	  dateDecember = calendarDecember.getTime();
+	  dateJanuary = getDateFromYearMonth(jan);
+	  dateFebruary = getDateFromYearMonth(feb);
+	  dateMarch = getDateFromYearMonth(mar);
+	  dateApril = getDateFromYearMonth(apr);
+	  dateMay = getDateFromYearMonth(may);
+	  dateJune = getDateFromYearMonth(jun);
+	  dateJuly = getDateFromYearMonth(jul);
+	  dateAugust = getDateFromYearMonth(aug);
+	  dateSeptember = getDateFromYearMonth(sep);
+	  dateOctober = getDateFromYearMonth(oct);
+	  dateNovember = getDateFromYearMonth(nov);
+	  dateDecember = getDateFromYearMonth(dec);
 
 	}
+
+	private Date getDateFromYearMonth(YearMonth ym) {
+        return Date.from(ym.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
 
 	/**
 	* Access the current user.
@@ -219,8 +250,7 @@ public class CalendarUtil
 	}	// getNextMonth
 
 	/**
-	* Set the calendar to the next year, and return this.
-	* @return the next year.
+	* Set the calendar to the next year
 	*/
 	public void setNextYear()
 	{
@@ -242,8 +272,7 @@ public class CalendarUtil
 	}	// getPrevMonth	
 
 	/**
-	* Set the calendar to the prev year, and return this.
-	* @return the prev year.
+	* Set the calendar to the prev year.
 	*/
 	public void setPrevYear()
 	{
@@ -274,8 +303,7 @@ public class CalendarUtil
 	}	// getDay_Of_Week
 
 	/**
-	* Set the calendar to the next week, and return this.
-	* @return the next week.
+	* Set the calendar to the next week
 	*/
 	public void setNextWeek()
 	{
@@ -284,8 +312,7 @@ public class CalendarUtil
 	}	// setNextWeek
 
 	/**
-	* Set the calendar to the prev week, and return this.
-	* @return the prev week.
+	* Set the calendar to the prev week
 	*/
 	public void setPrevWeek()
 	{
@@ -332,8 +359,7 @@ public class CalendarUtil
 	*/
 	public int getDayOfMonth() 
 	{
-		int dayofmonth = m_calendar.get(Calendar.DAY_OF_MONTH);
-		return dayofmonth;
+		return m_calendar.get(Calendar.DAY_OF_MONTH);
 
 	}	// getDayOfMonth
 	
@@ -410,7 +436,7 @@ public class CalendarUtil
 	public String[] getCalendarMonthNames(boolean longNames) {
 
 		Locale currentLocale = rb.getLocale();
-		String[] months = null; 
+		String[] months;
 		
 		if (longNames) {
 
@@ -492,7 +518,7 @@ public class CalendarUtil
 		SimpleDateFormat longDay = new SimpleDateFormat("EEEE", currentLocale);
 		SimpleDateFormat shortDay = new SimpleDateFormat("EEE", currentLocale);
 		
-		String[] weekDays = null; 
+		String[] weekDays;
 		String[] longWeekDays = new String[] 
 		{
 			longDay.format(dateSunday),
@@ -579,5 +605,27 @@ public class CalendarUtil
 		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
 		return df.print(dt);
 	}
-	
+
+	/**
+	 * get Map for eventType and image
+	 * @param configProps
+	 * @return
+	 */
+	public Map<String, String> getEventImageMap(Properties configProps){
+		if(eventIconMap.size() == 0){
+			//load keys for locale root
+			Map<String, String> eventKeyMap = new HashMap<String, String>();
+			ResourceBundle bundle = ResourceBundle.getBundle("calendar", Locale.ROOT);
+			for(Enumeration e = bundle.getKeys(); e.hasMoreElements();){
+				String bundleKey = (String)e.nextElement();
+				eventKeyMap.put(bundleKey, bundle.getString(bundleKey));
+			}
+			for(int i=1; i<=20; i++){
+				String key = eventKeyMap.get("legend.key" + i);
+				String value = configProps.getProperty("legend.icon" + i);
+				eventIconMap.put(key, value);
+			}
+		}
+		return eventIconMap;
+	}
 }	 // CalendarUtil

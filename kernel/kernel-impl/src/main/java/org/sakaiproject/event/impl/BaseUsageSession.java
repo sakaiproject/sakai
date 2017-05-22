@@ -191,6 +191,19 @@ public class BaseUsageSession implements UsageSession, SessionBindingListener
 		{
 			m_browserId = LIN_MZ;
 		}
+		//KNL-1490 Android => Linux
+		else if (agent.startsWith("Mozilla") && agent.indexOf("Android") >= 0)
+		{
+			m_browserId = LIN_MZ;
+		}
+		else if (agent.startsWith("Mozilla") && agent.indexOf("iPad") >= 0)
+		{
+			m_browserId = IOS_MZ;
+		}
+		else if (agent.startsWith("Mozilla") && agent.indexOf("iPhone") >= 0)
+		{
+			m_browserId = IOS_MZ;
+		}
 		else
 		{
 			m_browserId = UNKNOWN;

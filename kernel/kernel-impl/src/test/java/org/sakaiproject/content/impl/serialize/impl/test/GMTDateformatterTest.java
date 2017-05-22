@@ -26,15 +26,15 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sakaiproject.content.impl.util.GMTDateformatter;
 
 public class GMTDateformatterTest
 {
-	private static final Log log = LogFactory.getLog(GMTDateformatterTest.class);
+	private static final Logger log = LoggerFactory.getLogger(GMTDateformatterTest.class);
 
 	@Test
 	public void testPad()

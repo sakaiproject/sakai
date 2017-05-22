@@ -10,6 +10,15 @@
 	padding: 10px;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
+  position: fixed !important;
+  top: 10% !important;
+  left: 10% !important;
+  width: 80% !important;
+  height: 80% !important;
+}
+
+#dialogDiv{
+  height: 100% !important;
 }
  
 .ui-dialog-container {
@@ -50,9 +59,12 @@
   border-width: 0pt;
   margin: 0pt;
   padding: 0pt;
-  position: absolute;
+  position: fixed;
   top: 0pt;
   left: 0pt;
+  max-height: 100%;
+  max-width: 100%;
+  overflow: hidden;
 /*  width: 1390px;
   height: 899px; */
   opacity: 0.50;

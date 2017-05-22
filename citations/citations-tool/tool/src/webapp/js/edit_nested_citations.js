@@ -308,11 +308,11 @@
                             reportSuccess(value);
                         } else if(key === 'sectionToRemove') {
                             // remove section from page
-                            $(value).parent().remove();
+                            $(value).closest("li[id*='link']").remove();
                         } else if (key === 'secondsBetweenSaveciteRefreshes') {
                             citations_new_resource.secondsBetweenSaveciteRefreshes = value;
                         } else if ($.isArray(value)) {
-                            reportError('result for key ' + key + ' is an array: ' + value);
+                            reportError(key + value);
                         } else {
                             $('input[name=' + key + ']').val(value);
                         }
@@ -397,6 +397,11 @@
 
         function toggleEditor() {
             if ( isEditingEnabled ) {  // clicked 'Finish Editing'
+
+                // re-enable editing of 'Search Library' and nested list
+                $('#Search').closest('li').show();
+                $(".act *").removeAttr("disabled");
+
                 disableEditing(this.id.replace(TOGGLE, SECTION_INLINE_EDITOR));
                 $('#' + this.id.replace(TOGGLE, SECTION_INLINE_EDITOR)).attr( 'contenteditable', false );
                 this.value = $('#startEditingText').val();
@@ -421,6 +426,11 @@
                 $("ol.serialization").sortable("enable"); //call widget-function enable
             }
             else { // clicked 'Edit'
+
+                // disable editing of 'Search Library' and nested list functionality (except 'Finish 'Editing' button)
+                $('#Search').closest('li').hide();
+                $(".act *").not("#" + this.id).attr("disabled", "disabled");
+
                 $('#' + this.id.replace(TOGGLE, SECTION_INLINE_EDITOR)).attr( 'contenteditable', true );
                 var container = $(this).parent().parent();
                 var showBasicEditor = !container.hasClass('serialization') && container.data('sectiontype')!='DESCRIPTION';
@@ -434,10 +444,16 @@
         }
 
         function removeSection() {
-            var confirmMessage = $('#deleteButtonConfirmText').val();
+            var section = $(this).parent().parent();
+            var confirmMessage;
+            if (section != null && section.data('sectiontype')=='DESCRIPTION'){
+                confirmMessage = $('#deleteButtonDescConfirmText').val();
+            }
+            else {
+               confirmMessage = $('#deleteButtonConfirmText').val();
+            }
             if(confirm(confirmMessage)) {
 
-                var section = $(this).parent().parent();
                 var addButton;
                 if (section != null && section.data('sectiontype')=='DESCRIPTION'){
                     addButton = $(this).parent().parent().parent().prev();
@@ -515,13 +531,23 @@
                 onDrop: function (item, container, _super) {
 
                     // put the editor's value in the link data-value
-                    $('li[id^="link"]').each(function( ) {
+                    $('li[id^="link"]').each(function(index) {
                         var editorId = $(this).attr('id').replace('link', 'sectionInlineEditor');
                         var outerHTML = '';
                         if ($('#' + editorId).html()!=null){
                             outerHTML = $('#' + editorId).html().trim();
                         }
                         $(this).data('value', outerHTML);
+
+                        var sectiontype = $(this).data('sectiontype');
+                        if (sectiontype=='CITATION'){
+                            $(this).find('a').each(function(){
+                                var href = $(this).attr('href');
+                                if (href.indexOf("location=0")!=-1){
+                                    $(this).attr('href', href.replace("location=0", "location=" + index));
+                                }
+                            });
+                        }
                     });
 
                     // if it's a citation dropped into nest then increase page height
@@ -571,7 +597,7 @@
 
             $('.h1NestedLevel li[data-sectiontype="HEADING1"] > div > div[id^=sectionInlineEditor]').click(function() {
                 $(this).parent().parent().find('ol').slideToggle();
-                var image =  $('#' + this.id.replace('linkClick', 'toggleImg')).get(0);
+                var image =  $('#' + this.id.replace('linkClick', 'toggleImg').replace('sectionInlineEditor', 'toggleImg')).get(0);
 
                 if( image.src.indexOf("/library/image/sakai/white-arrow-right.gif")!=-1 ) {
                     image.src = "/library/image/sakai/white-arrow-down.gif";
@@ -587,8 +613,16 @@
                 });
             }
 
-            $('.h2NestedLevel li[data-sectiontype="HEADING2"] > div[id^=sectionInlineEditor]').click(function() {
-                $(this).parent().find('ol').slideToggle();
+            $('.h2NestedLevel li[data-sectiontype="HEADING2"] > div > div[id^=sectionInlineEditor], .h3NestedLevel li[data-sectiontype="HEADING3"] > div > div[id^=sectionInlineEditor]').click(function() {
+                $(this).parent().parent().find('ol').slideToggle();
+
+                var image =  $('#' + this.id.replace('linkClick', 'toggleImg').replace('sectionInlineEditor', 'toggleImg')).get(0);
+
+                if( image.src.indexOf("/library/image/sakai/expand.gif")!=-1 ) {
+                    image.src = "/library/image/sakai/collapse.gif";
+                } else {
+                    image.src = "/library/image/sakai/expand.gif";
+                }
             });
 
             // h3 level collapse expand
@@ -597,10 +631,6 @@
                 $(this).hide();
                 });
             }
-
-            $('.h3NestedLevel li[data-sectiontype="HEADING3"] > div[id^=sectionInlineEditor]').click(function() {
-                $(this).parent().find('ol').slideToggle();
-            });
         }
 
 

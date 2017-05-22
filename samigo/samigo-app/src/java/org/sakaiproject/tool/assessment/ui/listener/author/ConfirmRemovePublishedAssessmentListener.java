@@ -38,8 +38,8 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>
@@ -50,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class ConfirmRemovePublishedAssessmentListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ConfirmRemovePublishedAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(ConfirmRemovePublishedAssessmentListener.class);
 
   public ConfirmRemovePublishedAssessmentListener()
   {

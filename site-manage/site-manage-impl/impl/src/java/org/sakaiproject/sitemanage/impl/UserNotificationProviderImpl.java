@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.email.api.EmailService;
@@ -26,7 +26,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class UserNotificationProviderImpl implements UserNotificationProvider {
 	
-	private static Log M_log = LogFactory.getLog(UserNotificationProviderImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(UserNotificationProviderImpl.class);
 	private EmailService emailService; 
 	
 	public void setEmailService(EmailService es) {
@@ -499,7 +499,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		return from;
 	}
 	
-	public void notifySiteImportCompleted(String toEmail, String siteId, String siteTitle){
+	public void notifySiteImportCompleted(String toEmail, Locale locale, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){
 			String headerTo = toEmail;
 			String replyTo = toEmail;

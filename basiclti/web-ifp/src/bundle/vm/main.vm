@@ -29,7 +29,8 @@ window.addEventListener('message', function(e) {
     var idval = 'wciframe';
     if ( message.subject == 'lti.frameResize' ) {
       var height = message.height;
-      document.getElementById(idval).height = height;
+      document.getElementById(idval).style.height = height;
+      document.getElementById(idval).style.width = '100%';
       console.log('Reveived lti.frameResize height='+height);
     }
   } catch (error) {

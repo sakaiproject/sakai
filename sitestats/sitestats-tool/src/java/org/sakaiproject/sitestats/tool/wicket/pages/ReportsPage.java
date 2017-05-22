@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -46,7 +46,7 @@ import org.sakaiproject.sitestats.tool.wicket.providers.ReportDefsProvider;
 
 public class ReportsPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(ReportsPage.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(ReportsPage.class);
 
 	private String					realSiteId;
 	private String					siteId;

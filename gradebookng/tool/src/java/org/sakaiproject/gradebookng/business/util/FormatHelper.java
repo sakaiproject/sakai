@@ -7,12 +7,15 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.routines.DoubleValidator;
+import org.sakaiproject.util.ResourceLoader;
 
-import lombok.extern.apachecommons.CommonsLog;
-
-@CommonsLog
+@Slf4j
 public class FormatHelper {
+
+	private static ResourceLoader rl = new ResourceLoader();
 
 	/**
 	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
@@ -21,13 +24,44 @@ public class FormatHelper {
 	 * @param score as a double
 	 * @return double to decimal places
 	 */
-	public static String formatDoubleToTwoDecimalPlaces(final Double score) {
+	public static String formatDoubleToDecimal(final Double score) {
+		return formatDoubleToDecimal(score, 2);
+	}
+
+	/**
+	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with 'n' decimal places precision. And drop off any .0
+	 * if no decimal places.
+	 *
+	 * @param score as a double
+	 * @param n as an int
+	 * @return double to n decimal places
+	 */
+	private static String formatDoubleToDecimal(final Double score, final int n) {
 		final NumberFormat df = NumberFormat.getInstance();
 		df.setMinimumFractionDigits(0);
-		df.setMaximumFractionDigits(2);
+		df.setMaximumFractionDigits(n);
+		df.setGroupingUsed(false);
 		df.setRoundingMode(RoundingMode.HALF_DOWN);
 
 		return formatGrade(df.format(score));
+	}
+
+	/**
+	 * Convert a double score to match the number of decimal places exhibited in the
+	 * toMatch string representation of a number
+	 *
+	 * @param score as a double
+	 * @param toMatch the number as a string
+	 * @return double to decimal places
+	 */
+	public static String formatDoubleToMatch(final Double score, final String toMatch) {
+		int numberOfDecimalPlaces = 0;
+
+		if (toMatch.indexOf(".") >= 0) {
+			numberOfDecimalPlaces = toMatch.split("\\.")[1].length();
+		}
+
+		return FormatHelper.formatDoubleToDecimal(score, numberOfDecimalPlaces);
 	}
 
 	/**
@@ -38,12 +72,12 @@ public class FormatHelper {
 	 */
 	public static String formatDoubleAsPercentage(final Double score) {
 		// TODO does the % need to be internationalised?
-		return formatDoubleToTwoDecimalPlaces(score) + "%";
+		return formatDoubleToDecimal(score) + "%";
 	}
 
 	/**
 	 * Format the given string as a percentage with two decimal precision. String should be something that can be converted to a number.
-	 * 
+	 *
 	 * @param string string representation of the number
 	 * @return percentage to decimal places with a '%' for good measure
 	 */
@@ -72,7 +106,7 @@ public class FormatHelper {
 		try {
 			final Double d = Double.parseDouble(grade);
 
-			final DecimalFormat df = new DecimalFormat();
+			final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
 			df.setMinimumFractionDigits(0);
 			df.setGroupingUsed(false);
 
@@ -92,7 +126,8 @@ public class FormatHelper {
 	 * @return
 	 */
 	private static String formatDate(final Date date) {
-		final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy"); // TODO needs to come from i18n
+		final String dateFormatString = MessageHelper.getString("format.date");
+		final SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
 		return df.format(date);
 	}
 
@@ -118,7 +153,42 @@ public class FormatHelper {
 	 * @return
 	 */
 	public static String formatDateTime(final Date date) {
-		final SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm"); // TODO needs to come from i18n
+		final String dateTimeFormatString = MessageHelper.getString("format.datetime");
+		final SimpleDateFormat df = new SimpleDateFormat(dateTimeFormatString);
 		return df.format(date);
+	}
+
+	/**
+	 * Abbreviate a string via {@link StringUtils#abbreviateMiddle(String, String, int)}
+	 *
+	 * Set at 45 chars
+	 *
+	 * @param s String to abbreviate
+	 * @return abbreviated string or full string if it was shorter than the setting
+	 */
+	public static String abbreviateMiddle(final String s) {
+		return StringUtils.abbreviateMiddle(s, "...", 45);
+	}
+
+	/**
+	 * Validate if a string is a valid Double using the specified Locale.
+	 *
+	 * @param value - The value validation is being performed on.
+	 * @return true if the value is valid
+	 */
+	public static boolean isValidDouble(String value) {
+		DoubleValidator dv = new DoubleValidator();
+		return dv.isValid(value, rl.getLocale());
+	}
+
+	/**
+	 * Validate/convert a Double using the user's Locale.
+	 *
+	 * @param value - The value validation is being performed on.
+	 * @return The parsed Double if valid or null if invalid.
+	 */
+	public static Double validateDouble(String value) {
+		DoubleValidator dv = new DoubleValidator();
+		return dv.validate(value, rl.getLocale());
 	}
 }

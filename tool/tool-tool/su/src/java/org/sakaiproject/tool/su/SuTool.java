@@ -21,15 +21,17 @@
 
 package org.sakaiproject.tool.su;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Vector;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -55,7 +57,7 @@ public class SuTool
 	private static final long serialVersionUID = 1L;
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SuTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(SuTool.class);
 
 	protected static final String SU_BECOME_USER = "su.become";
 	protected static final String SU_VIEW_USER = "su.view";
@@ -212,8 +214,15 @@ public class SuTool
 				M_log.error(e.getMessage(), e);
 			}
 		}
-		
-		return "redirect";
+
+		//as user is authorised redirect back to portal instead of going to admin workspace
+		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+		try {
+			context.redirect(getPortalUrl());
+		} catch (IOException e) {
+			M_log.error("Failed to redirect to portal : " + e.getMessage());
+		}
+		return "";
 	}
 
 	// simple way to support 2 buttons that do almost the same thing

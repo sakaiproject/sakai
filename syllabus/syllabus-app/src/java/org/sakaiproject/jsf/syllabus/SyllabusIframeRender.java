@@ -55,7 +55,7 @@ public class SyllabusIframeRender extends Renderer
     
     if (heightIn == null) 
     {
-      heightIn = new Integer(80).toString();
+      heightIn = "80vh";
     }
     
     if((redirectUrl != null) && (!redirectUrl.equals("")))
@@ -82,11 +82,10 @@ public class SyllabusIframeRender extends Renderer
     	  writer.write("<script type='text/javascript'>window.open('" + redirectUrl + "');</script>");
     	  writer.write(rb.getFormattedMessage("iframeSecurity", new String[]{redirectUrl}));
       }else{
-    	  writer.write("<script type='text/javascript'>setTimeout(function(){mySetMainFrameHeight(mainframeId);}, 1000);</script>");
     	  writer.write("<iframe src=\"" + redirectUrl + "\"");
     	  writer.write(" width=\"" + widthIn + "\"");
     	  writer.write(" height=\"" + heightIn + "\"");
-    	  writer.write(" style=\"margin-top:1em;clear:both\"");
+    	  writer.write(" style=\"margin-top:1em;clear:both;border:0;height:" + heightIn + "\"");
     	  writer.write(" frameborder=\"0\"");
     	  writer.write(" scrolling=\"auto\"");      
     	  writer.write("><script type='text/javascript'>window.onbeforeunload = function(){ return ''; }; $(window).load(function () {window.onbeforeunload = null;});</script></iframe>");

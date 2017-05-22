@@ -5,13 +5,16 @@
 	<groupId>org.sakaiproject.profile2</groupId>
 	<artifactId>profile2-impl</artifactId>
 
-	<packaging>jar</packaging>
+	<packaging>sakai-component</packaging>
 	
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
 	    <version>12-SNAPSHOT</version>
 	</parent>
+	<properties>
+		<deploy.target>components</deploy.target>
+	</properties>
   	
   	<dependencies>
 		<dependency>
@@ -43,10 +46,6 @@
 			<artifactId>quartz</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.twitter4j</groupId>
 			<artifactId>twitter4j-core</artifactId>
 		</dependency>
@@ -63,10 +62,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
-        <dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>net.sf.opencsv</groupId>
 			<artifactId>opencsv</artifactId>

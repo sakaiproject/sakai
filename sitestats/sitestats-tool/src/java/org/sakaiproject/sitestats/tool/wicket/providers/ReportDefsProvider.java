@@ -28,8 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
@@ -56,7 +56,7 @@ public class ReportDefsProvider implements IDataProvider {
 	private boolean 				filterWithToolsInSite;
 	private boolean 				includeHidden;
 	private List<ReportDef>			data;
-	private static Log log = LogFactory.getLog(ReportDefsProvider.class);
+	private static Logger log = LoggerFactory.getLogger(ReportDefsProvider.class);
 
 	
 	public ReportDefsProvider(String siteId, int mode, boolean filterWithToolsInSite, boolean includeHidden) {

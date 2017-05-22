@@ -37,8 +37,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.el.ValueBinding;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -353,7 +353,7 @@ public class podPermBean {
 	private List checkboxTableValues;
 
 	// injected beans
-	private Log LOG = LogFactory.getLog(podPermBean.class);
+	private Logger LOG = LoggerFactory.getLogger(podPermBean.class);
 	private PodcastService podcastService;
 
 	/**

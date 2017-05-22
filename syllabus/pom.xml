@@ -13,7 +13,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>components</module>
     <module>syllabus-api</module>
     <module>syllabus-app</module>
     <module>syllabus-hbm</module>

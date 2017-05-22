@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -38,7 +38,7 @@ import org.sakaiproject.coursemanagement.api.Section;
  * Resolves users roles in sections.
  */
 public class SectionRoleResolver extends BaseRoleResolver {
-	static final Log log = LogFactory.getLog(SectionRoleResolver.class);
+	static final Logger log = LoggerFactory.getLogger(SectionRoleResolver.class);
 
 	// Configuration keys.
 	public static final String OFFICIAL_INSTRUCTOR_TO_SITE_ROLE = "officialInstructorToSiteRole";

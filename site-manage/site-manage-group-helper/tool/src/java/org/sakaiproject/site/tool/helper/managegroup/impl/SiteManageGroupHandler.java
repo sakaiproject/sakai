@@ -7,10 +7,11 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -40,7 +41,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class SiteManageGroupHandler {
 	
     /** Our log (commons). */
-    private static final Log M_log = LogFactory.getLog(SiteManageGroupHandler.class);
+    private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupHandler.class);
    
     private Collection<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
@@ -187,7 +188,7 @@ public class SiteManageGroupHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn( e );
+                M_log.warn(e.getMessage());
             }
         }
         title = "";
@@ -282,7 +283,7 @@ public class SiteManageGroupHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn( e );
+            M_log.warn(e.getMessage());
         }
 
         return "";
@@ -357,7 +358,12 @@ public class SiteManageGroupHandler {
 
 				}
 				if (!found) {
-					group.removeMember(mId);
+					try {
+						group.deleteMember(mId);
+					} catch (IllegalStateException e) {
+						M_log.error(".processAddGroup: User with id {} cannot be deleted from group with id {} because the group is locked", mId, group.getId());
+						return null;
+					}
 				}
 			}
 
@@ -374,9 +380,14 @@ public class SiteManageGroupHandler {
                     // non-provided
                     // get role first from site definition.
                     // However, if the user is inactive, getUserRole would return null; then use member role instead
-                    group.addMember(memberId, r != null ? r.getId()
+                    try {
+                        group.insertMember(memberId, r != null ? r.getId()
                                               : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
                                               false);
+                    } catch (IllegalStateException e) {
+                        M_log.error(".processAddGroup: User with id {} cannot be inserted in group with id {} because the group is locked", memberId, group.getId());
+                        return null;
+                    }
                 }
             }
 	            
@@ -427,15 +438,32 @@ public class SiteManageGroupHandler {
     {
     	// reset the warning messages
     	resetTargettedMessageList();
-    	
+
+    	// Trick to refresh site
+    	site = null;
+    	this.init();
+
     	if (site != null)
     	{
+            List<String> notDeletedGroupsTitles = new ArrayList<String>();
             for( String groupId : deleteGroupIds )
             {
                 Group g = site.getGroup(groupId);
                 if (g != null) {
-                    site.removeGroup(g);
+                    try {
+                        site.deleteGroup(g);
+                    } catch (IllegalStateException e) {
+                        notDeletedGroupsTitles.add(g.getTitle());
+                        M_log.error(".processDeleteGroups: Group with id {} cannot be removed because is locked", g.getId());
+                    }
                 }
+            }
+            if (!notDeletedGroupsTitles.isEmpty()) {
+                StringJoiner groupsTitles = new StringJoiner(", ");
+                for (String groupTitle:notDeletedGroupsTitles) {
+                    groupsTitles.add(groupTitle.toString());
+                }
+                messages.addMessage(new TargettedMessage("deletegroup.notallowed.groups.remove", new Object[]{groupsTitles.toString()}, TargettedMessage.SEVERITY_ERROR));
             }
 			try {
 				siteService.save(site);

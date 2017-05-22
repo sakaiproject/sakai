@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="org.sakaiproject.mailsender.logic.ConfigLogic"
+		class="org.sakaiproject.mailsender.logic.impl.ConfigLogicImpl">
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
+	</bean>
+
+	<bean id="org.sakaiproject.mailsender.logic.ExternalLogic"
+			class="org.sakaiproject.mailsender.logic.impl.ExternalLogicImpl"
+			init-method="init">
+		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+	</bean>
+
+	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"
+		class="org.sakaiproject.mailsender.logic.impl.ComposeLogicImpl">
+		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+
+	<!--
+	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"
+		class="org.sakaiproject.mailsender.logic.impl.CachingComposeLogicImpl"
+		init-method="init" destroy-method="destroy">
+		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+	</bean>
+	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+		</property>
+		<property name="cacheName" value="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"/>
+		<property name="maxElementsInMemory" value="10000" />
+	</bean>
+	-->
+</beans>

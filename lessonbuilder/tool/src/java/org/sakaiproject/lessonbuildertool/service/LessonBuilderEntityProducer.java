@@ -52,8 +52,8 @@ import java.util.regex.Pattern;
 import java.lang.reflect.Method;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -79,6 +79,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.ToolApi;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -93,6 +94,7 @@ import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.OrphanPageFinder;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -130,7 +132,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     implements EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator, Serializable, 
 	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
 
-   protected final Log logger = LogFactory.getLog(getClass());
+   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
    private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
    private static final String VERSION_ATTR = "version";
@@ -243,8 +245,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  if (linkMigrationHelper != null)
 	      migrateAllLinks = linkMigrationHelper.getMethod("migrateAllLinks", new Class[] { Set.class, String.class });
       } catch (Exception e) {
-	  System.out.println("Exception in introspection " + e);
-	  System.out.println("loader " + RequestFilter.class.getClassLoader());
+	  logger.info("Exception in introspection " + e);
+	  logger.info("loader " + RequestFilter.class.getClassLoader());
       }
 
       // Builds a Regexp selector.
@@ -284,7 +286,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       servers.add("localhost");
       // if neither is defined we're in trouble;
       if (servers.size() == 0)
-	  System.out.println("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
+	  logger.info("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
 
       // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
       // otherwise we have to restart sakai, since the entity stuff can't be restarted
@@ -319,7 +321,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 
       } catch (Exception e) {
-	  System.out.println(e);
+	  logger.info(e.getMessage(), e);
       } finally {
 	  securityService.popAdvisor();
       }
@@ -532,6 +534,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       //prepare the buffer for the results log
        StringBuilder results = new StringBuilder();
 
+      // Orphaned pages need not apply!
+       SimplePageBean simplePageBean = makeSimplePageBean(siteId);
+       OrphanPageFinder orphanFinder = simplePageBean.getOrphanFinder(siteId);
+
       try 
       {
 	 Site site = siteService.getSite(siteId);
@@ -543,11 +549,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
          Element lessonbuilder = doc.createElement(LESSONBUILDER);
 
+	 int orphansSkipped = 0;
+
 	 List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 	 if (sitePages != null && !sitePages.isEmpty()) {
-	     for (SimplePage page: sitePages)
+	     for (SimplePage page: sitePages) {
+	       if (!orphanFinder.isOrphan(page.getPageId())) {
 		 addPage(doc, lessonbuilder, page, site);
+	       } else {
+		 orphansSkipped++;
+	       }
+	     }
 	 }
+
+	 logger.info("Skipped over " + orphansSkipped + " orphaned pages while archiving site " + siteId);
 
          Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 	 int count = 0;
@@ -1547,7 +1562,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	  }
 
 	  for (Group group: delGroups) {
-	      site.removeGroup(group);      
+	      try {
+	        site.deleteGroup(group);
+	      } catch (IllegalStateException e) {
+	        logger.error(".fixupGroupRefs: Group with id {} cannot be removed because is locked", group.getId());
+	      }
 	  }
 	  try {
 	      siteService.save(site);
@@ -1688,7 +1707,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
     public final static String[] EVENT_KEYS= 
-	new String[] {"lessonbuilder.create", "lessonbuilder.delete", "lessonbuilder.update", "lessonbuilder.read"};
+	new String[] {LessonBuilderEvents.PAGE_CREATE,
+                    LessonBuilderEvents.PAGE_READ,
+                    LessonBuilderEvents.PAGE_UPDATE,
+                    LessonBuilderEvents.PAGE_DELETE,
+                    LessonBuilderEvents.ITEM_CREATE,
+                    LessonBuilderEvents.ITEM_READ,
+                    LessonBuilderEvents.ITEM_UPDATE,
+                    LessonBuilderEvents.ITEM_DELETE,
+                    LessonBuilderEvents.COMMENT_CREATE,
+                    LessonBuilderEvents.COMMENT_UPDATE,
+                    LessonBuilderEvents.COMMENT_DELETE};
 
     /**
      * Return an array of all the event keys which should be tracked for statistics
@@ -1892,7 +1921,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    }
 	    return uri.toString();
 	} catch (URISyntaxException e) {
-	    // Log this so we may get an idea of the things that are breaking
+	    // Logger this so we may get an idea of the things that are breaking
 	    // the parser.
 	    System.err.println("Failed to parse URL: " + value + " " + e.getMessage());
 	}
@@ -2006,7 +2035,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		// don't set until we know the save worked
 		dummyPageId = page.getId();
 	    } catch (Exception e) {
-		System.out.println("can't add dummy page to site " + e);
+		logger.info("can't add dummy page to site " + e);
 	    }
 	    toolSession = ses.getToolSession(tool.getId());
 	    sessionManager.setCurrentToolSession(toolSession);
@@ -2052,7 +2081,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		return ret;
 
 	    } catch (Exception e) {
-		System.out.println("exception in createentity " + e);
+		logger.info("exception in createentity " + e);
 		e.printStackTrace();
 		return "exception in createentity " + e;
 	    } finally {
@@ -2080,6 +2109,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		}
 	    }
 
+    }
+    
+    public String deleteOrphanPages(String siteId) {
+    	SimplePageBean spb = makeSimplePageBean(siteId);
+    	return spb.deleteOrphanPagesInternal();
     }
 
     SimplePageBean makeSimplePageBean(String siteId) {

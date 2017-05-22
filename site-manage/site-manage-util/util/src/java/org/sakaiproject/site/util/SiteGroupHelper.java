@@ -2,11 +2,13 @@ package org.sakaiproject.site.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Pattern;
 
 /**
- * Helper for managing groups in a site.
+ * Helper for managing groups in a site, this is used to pack role IDs into the
+ * {@link SiteConstants#GROUP_PROP_ROLE_PROVIDERID} property on a group. This is different
+ * from when the provider IDs are packed into a provider ID.
  *
+ * @see SiteConstants#GROUP_PROP_ROLE_PROVIDERID
  * @author Matthew Buckett
  */
 public class SiteGroupHelper {

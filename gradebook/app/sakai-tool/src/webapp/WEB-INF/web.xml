@@ -4,10 +4,6 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 	<display-name>sakai-gradebook-tool</display-name>
 	<description>Sakai Gradebook Tool Integration</description>
-	<context-param>
-		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-		<param-value>client</param-value>
-	</context-param>
 	
 	<!-- the following context-param allows the gradebook to generate a random secret for 
 	MyFaces ViewState encryption. The encryption algorithm can be customized by 

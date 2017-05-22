@@ -1,9 +1,10 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.io.Serializable;
+import java.util.Date;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Wrapper for the course grade that contains the the calculated grade (ie 46.67), the mapped grade (ie F) and any entered grade override (ie D-).
@@ -18,6 +19,7 @@ public class CourseGrade implements Serializable {
 	private String mappedGrade;
 	private Double pointsEarned;
 	private Double totalPointsPossible;
+	private Date dateRecorded;
 	
 	public CourseGrade() {}
 
@@ -77,6 +79,14 @@ public class CourseGrade implements Serializable {
 
 	public void setTotalPointsPossible(Double totalPointsPossible) {
 		this.totalPointsPossible = totalPointsPossible;
+	}
+
+	public Date getDateRecorded() {
+		return dateRecorded;
+	}
+
+	public void setDateRecorded(Date dateRecorded) {
+		this.dateRecorded = dateRecorded;
 	}
 
 	@Override

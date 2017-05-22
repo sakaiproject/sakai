@@ -18,7 +18,10 @@
     </parent>
 
     <!-- Packaging -->
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <!-- Dependencies -->
     <dependencies>
@@ -67,6 +70,10 @@
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>lessonbuilder-api</artifactId>
       	</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.course-management</groupId>
+            <artifactId>coursemanagement-api</artifactId>
+        </dependency>
 
         <!-- Spring & Hibernate -->
         <dependency>
@@ -101,27 +108,12 @@
             <artifactId>commons-pool</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-beanutils</groupId>
-                    <artifactId>commons-beanutils</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-betwixt</groupId>
@@ -129,7 +121,7 @@
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils-core</artifactId>
+            <artifactId>commons-beanutils</artifactId>
         </dependency>
 
         <!-- Apache others -->
@@ -144,10 +136,8 @@
 
         <!-- Quartz -->
         <dependency>
-            <groupId>org.opensymphony.quartz</groupId>
+            <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>1.6.6</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- JFreeChart -->
@@ -181,12 +171,6 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
-            <version>4.11</version>
         </dependency>
         <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
             <scope>test</scope> </dependency> -->
@@ -223,8 +207,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -232,27 +215,6 @@
             <artifactId>servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <type>jar</type>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
     </dependencies>
     <build>
 
@@ -270,6 +232,16 @@
                 <directory>src/bundle</directory>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.sql</include>
+                </includes>
+            </testResource>
+        </testResources>
     </build>
 
     <profiles>

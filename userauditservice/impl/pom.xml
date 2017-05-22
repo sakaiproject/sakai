@@ -17,10 +17,10 @@
     </organization>
     <inceptionYear>2013</inceptionYear>
     <description>Userauditservice implementation</description>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
 
     <properties>
-        <deploy.target />
+        <deploy.target>components</deploy.target>
     </properties>
 
     <dependencies>
@@ -29,8 +29,16 @@
             <artifactId>userauditservice-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>userauditservice-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
         </dependency>
     </dependencies>
 

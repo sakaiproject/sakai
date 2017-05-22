@@ -20,6 +20,9 @@
  **********************************************************************************/
 
 package org.sakaibrary.osid.loader;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * OsidLoader loads a specific implementation of an Open Service Interface
  * Definition (OSID) with its getManager method. The getManager method loads
@@ -83,14 +86,10 @@ package org.sakaibrary.osid.loader;
  * O.K.I&#46; OSID Definition License}.
  * </p>
  */
-
+@Slf4j
 public class OsidLoader implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.loader.OsidLoader" ); 
 
 /**
    * Returns an instance of the org.osid.OsidManager of the OSID specified by the OSID
@@ -160,11 +159,11 @@ public class OsidLoader implements java.io.Serializable {
         String managerClassName = makeFullyQualifiedClassName(implPackageName,
             className);
 
-        LOG.debug( "osid interface name: " + osidInterfaceName);
+        log.debug( "osid interface name: " + osidInterfaceName);
         Class osidInterface = Class.forName(osidInterfaceName);
 
         if (null != osidInterface) {
-          LOG.debug("osid manager class name: " + managerClassName);
+          log.debug("osid manager class name: " + managerClassName);
           Class managerClass = Class.forName(managerClassName);
 
           if (null != managerClass) {
@@ -208,7 +207,7 @@ public class OsidLoader implements java.io.Serializable {
                   }
                   
                   manager.assignConfiguration( configuration );
-                  LOG.debug( "configuration has been assigned done." );
+                  log.debug( "configuration has been assigned done." );
 
                   return manager;
                 } catch (Exception ex) {
@@ -230,10 +229,10 @@ public class OsidLoader implements java.io.Serializable {
 
       throw new org.osid.OsidException(org.osid.OsidException.NULL_ARGUMENT);
     } catch (org.osid.OsidException oex) {
-      LOG.error( oex.getMessage() );
+      log.error( oex.getMessage() );
       throw new org.osid.OsidException(oex.getMessage());
     } catch (java.lang.Throwable ex) {
-      LOG.error( ex.getMessage() );
+      log.error( ex.getMessage() );
       throw new org.osid.OsidException(org.osid.OsidException.OPERATION_FAILED);
     }
   }
@@ -345,9 +344,9 @@ public class OsidLoader implements java.io.Serializable {
 				  properties.load(is);
 			  }
 			  
-			  LOG.debug( "Read osid manager properties from: " + propertyName );
+			  log.debug( "Read osid manager properties from: " + propertyName );
 		  } catch (Throwable ex) {
-			  LOG.error( "Error reading " + propertyName + " property file --" +
+			  log.error( "Error reading " + propertyName + " property file --" +
 			  		ex.getMessage() );
 		  }
 	  }

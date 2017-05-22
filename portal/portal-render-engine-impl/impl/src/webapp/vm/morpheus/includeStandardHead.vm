@@ -1,0 +1,83 @@
+##
+## Standard Header used by all portal views
+## Don't put anything before the <!DOCTYPE or it breaks IE9
+## DOCTYPE detection and puts it in quirks mode.
+##
+
+<!DOCTYPE html>
+<html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        #parse("/vm/morpheus/snippets/title-snippet.vm")
+
+        #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
+        
+        <link href="${pageWebjarsPath}jquery-ui/1.11.3/jquery-ui.min.css$!{portalCDNQuery}" rel="stylesheet" />  
+        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}pnotify/2.1.0/pnotify.core.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageWebjarsPath}cropper/2.3.2/dist/cropper.min.css$!{portalCDNQuery}" rel="stylesheet">
+        <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+    #if ($useBullhornAlerts)
+        <script src="/profile2-tool/javascript/profile2-eb.js$!{portalCDNQuery}"></script>
+        <script src="${pageWebjarsPath}momentjs/2.11.1/min/moment-with-locales.min.js$!{portalCDNQuery}"></script>
+    #end
+
+        <script> ## Include this at the top so tool markup and headscripts.js can use it
+            ## SAK-16484 Allow Javascript to easily get at user details.
+            ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
+            var portal = {
+                "bullhorns": {
+                    "enabled": $!{useBullhornAlerts},
+                    #if ($useBullhornAlerts)
+                    "pollInterval": $!{bullhornsPollInterval}
+                    #end
+                },
+                "chat": {
+                    "enabled": $!{neoChat},
+                    "pollInterval": $!{portalChatPollInterval},
+                    "video" : {
+                        "enabled": $!{neoChatVideo}
+                    }
+                },
+                "loggedIn": $!{loggedIn},
+                "portalPath": "$!{portalPath}",
+                "loggedOutUrl": "$!{loggedOutUrl}",
+                "siteId": "$!{siteId}",
+                "siteTitle": "$!{siteTitle}",
+                "shortDescription" : "$!{shortDescription}",
+                "locale": "$!{locale}",
+                "user": {
+                    "id": "$!{userId}",
+                    "eid": "$!{userEid}"
+                },
+                "timeoutDialog" : {
+                "enabled": $!{timeoutDialogEnabled},
+                "seconds": $!{timeoutDialogWarningSeconds}
+                },
+                "toggle" : {
+                    "allowauto": false,
+                    "tools": false,
+                    "sitenav": false // This is not allowed in morpheus
+                },
+                "pageScriptPath" : "$!{pageScriptPath}",
+                "portalCDNQuery" : "$!{portalCDNQuery}"
+            };
+        </script>
+        
+        <!-- inlined tool header contribution -->
+        ## if any of the tools requested an inline render, their header content gets aggregated here
+        #foreach ( $tool in $pageColumn0Tools )
+        	#if (${tool.hasRenderResult})
+        		${tool.toolRenderResult.getHead()}
+        	#end
+        #end
+        #foreach ( $tool in $pageColumn1Tools )
+        	#if (${tool.hasRenderResult})
+        		${tool.toolRenderResult.getHead()}
+        	#end
+        #end
+        <!-- end inlined tool header contribution -->
+    </head>

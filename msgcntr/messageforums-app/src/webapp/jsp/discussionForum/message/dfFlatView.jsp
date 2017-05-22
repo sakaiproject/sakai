@@ -73,8 +73,8 @@
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
  		</sakai:tool_bar>
-			<h:panelGrid columns="2" width="100%" styleClass="navPanel specialLink">
-			    <h:panelGroup>
+		<div class="row">
+			<div class="col-md-9 col-xs-12">
 					<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
 			      		rendered="#{ForumTool.messagesandForums}" />
@@ -88,23 +88,22 @@
 				  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 				  	  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 					  <f:verbatim></h3></div></f:verbatim>
-				 </h:panelGroup>
-				 <h:panelGroup styleClass="itemNav">
-				   <h:outputText   value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}"  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" 
+			</div>
+			<div class="pull-right">
+				   <h:outputText  styleClass="button formButtonDisabled"  value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
+					 <h:commandLink  styleClass="button" action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}"  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" 
 					                title=" #{msgs.cdfm_previous_topic}">
 						 <f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
 						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
-					 <f:verbatim><h:outputText  id="blankSpace1" value=" |  " /></f:verbatim>				
-					 <h:outputText   value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}" rendered="#{ForumTool.selectedTopic.hasNextTopic}" 
+					 <h:outputText styleClass="button formButtonDisabled" value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
+					 <h:commandLink  styleClass="button" action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}" rendered="#{ForumTool.selectedTopic.hasNextTopic}" 
 					                title=" #{msgs.cdfm_next_topic}">
 						<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
-				 </h:panelGroup>
-			</h:panelGrid>
+ 			</div>
+ 		</div>
 	
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
 	<span class="skip" id="firstNewItemTitleHolder"><h:outputText value="#{msgs.cdfm_gotofirstnewtitle}" /></span>
@@ -127,26 +126,27 @@
 		</div>
 		
 		<h:outputText  value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.messages}"   styleClass="instruction" style="display:block" />
-		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
-   	 		noarrows="true" styleClass="listHier messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
-			<h:column id="_msg_subject">
-				<%@ include file="dfViewThreadBodyInclude.jsp" %>
-			</h:column>
-		</mf:hierDataTable>
+		<div class="table-responsive clear">
+			<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
+	   	 		noarrows="true" styleClass="table-hover messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
+				<h:column id="_msg_subject">
+					<%@ include file="dfViewThreadBodyInclude.jsp" %>
+				</h:column>
+			</mf:hierDataTable>
+		</div>
 		
 		<f:verbatim><br/><br/></f:verbatim>
 		<h:panelGrid columns="1" width="100%" styleClass="navPanel specialLink">
 				 <h:panelGroup styleClass="itemNav">
-				   <h:outputText   value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
-					 <h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}"  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" 
+				   <h:outputText  styleClass="button formButtonDisabled" value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
+					 <h:commandLink  styleClass="button" action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}"  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" 
 					                title=" #{msgs.cdfm_previous_topic}">
 						 <f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
 						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
-					 <f:verbatim><h:outputText  id="blankSpace2" value=" |  " /></f:verbatim>				
-					 <h:outputText   value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
+					 <h:outputText  styleClass="button formButtonDisabled" value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 					 <h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}" rendered="#{ForumTool.selectedTopic.hasNextTopic}" 
-					                title=" #{msgs.cdfm_next_topic}">
+					                title=" #{msgs.cdfm_next_topic}"  styleClass="button">
 						<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>

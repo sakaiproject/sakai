@@ -35,8 +35,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -59,7 +59,7 @@ import org.springframework.util.PropertiesPersister;
  * PropertiesFactoryBean, PropertyPlaceholderConfigurer, and PropertyOverrideConfigurer.
  */
 public class SakaiProperties implements BeanFactoryPostProcessorCreator, InitializingBean {
-    private static Log log = LogFactory.getLog(SakaiProperties.class);
+    private static Logger log = LoggerFactory.getLogger(SakaiProperties.class);
     private SakaiPropertiesFactoryBean propertiesFactoryBean = new SakaiPropertiesFactoryBean();
     //private PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
     private ReversiblePropertyOverrideConfigurer propertyOverrideConfigurer = new ReversiblePropertyOverrideConfigurer();
@@ -260,7 +260,7 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
      */
     public class SakaiPropertiesFactoryBean implements FactoryBean, InitializingBean {
         public static final String XML_FILE_EXTENSION = ".xml";
-        final Log log = LogFactory.getLog(SakaiPropertiesFactoryBean.class);
+        final Logger log = LoggerFactory.getLogger(SakaiPropertiesFactoryBean.class);
         
         private Map<String, Properties> loadedProperties = new LinkedHashMap<String, Properties>();
         /**

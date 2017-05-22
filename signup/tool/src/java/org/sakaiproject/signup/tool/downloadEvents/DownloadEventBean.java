@@ -30,8 +30,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
@@ -49,7 +49,7 @@ import au.com.bytecode.opencsv.CSVWriter;
  */
 public class DownloadEventBean extends SignupMeetingsBean {
 
-	private static Log log = LogFactory.getLog(DownloadEventBean.class);
+	private static Logger log = LoggerFactory.getLogger(DownloadEventBean.class);
 
 	private static final String DOWNLOAD_ACT_URL = "downloadEvents";
 

@@ -22,8 +22,8 @@
 
 package org.sakaiproject.tool.assessment.services.shared;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  */
 public class MediaService
 {
-  private Log log = LogFactory.getLog(MediaService.class);
+  private Logger log = LoggerFactory.getLogger(MediaService.class);
 
   /**
    * Creates a new QuestionPoolService object.

@@ -36,9 +36,9 @@ import java.util.Set;
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.util.MathUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.jsf.model.PhaseAware;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.AttachmentUtil;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -90,14 +91,14 @@ public class QuestionScoresBean
   private RecordingData recordingData;
   private String totalPeople;
   private String typeId;
-  private HashMap scoresByItem;
-  private static Log log = LogFactory.getLog(QuestionScoresBean.class);
+  private Map scoresByItem;
+  private static Logger log = LoggerFactory.getLogger(QuestionScoresBean.class);
 
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;
   
   private String selectedSARationaleView =SHOW_SA_RATIONALE_RESPONSES_POPUP;
-  private ArrayList allAgents;
+  private List allAgents;
   private boolean haveModelShortAnswer;
   
   //Paging.
@@ -113,10 +114,12 @@ public class QuestionScoresBean
   private String defaultSearchString;
   
   private Map userIdMap;
-  private HashMap agentResultsByItemGradingId;
+  private Map agentResultsByItemGradingId;
   private boolean isAnyItemGradingAttachmentListModified;
   private Boolean releasedToGroups = null;
-  
+
+    private String showTagsInEvaluationStyle;
+
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -138,7 +141,7 @@ public class QuestionScoresBean
 			allAgents = getAllAgents();
 		}
 		
-		ArrayList matchingAgents;
+		List matchingAgents;
 		if (isFilteredSearch()) {
 			matchingAgents = findMatchingAgents(searchString);
 		}
@@ -146,7 +149,7 @@ public class QuestionScoresBean
 			matchingAgents = allAgents;
 		}
 		scoreDataRows = matchingAgents.size();
-		ArrayList newAgents = null;
+		List newAgents = null;
 		if (maxDisplayedScoreRows == 0) {
 			newAgents = matchingAgents;
 		} else {
@@ -339,7 +342,7 @@ public class QuestionScoresBean
    */
   public double getMaxScore()
   {
-    return MathUtils.round(maxScore, 2);
+    return Precision.round(maxScore, 2);
   }
 
   /**
@@ -753,12 +756,12 @@ public class QuestionScoresBean
     this.recordingData = rd;
   }
 
-  public HashMap getScoresByItem()
+  public Map getScoresByItem()
   {
     return scoresByItem;
   }
 
-  public void setScoresByItem(HashMap newScores)
+  public void setScoresByItem(Map newScores)
   {
     scoresByItem = newScores;
   }
@@ -787,11 +790,11 @@ public class QuestionScoresBean
 
   // itemScoresMap = (publishedItemId, HashMap)
   //               = (Long publishedItemId, (Long publishedItemId, Array itemGradings))
-  private HashMap itemScoresMap; 
-  public void setItemScoresMap(HashMap itemScoresMap){
+  private Map itemScoresMap;
+  public void setItemScoresMap(Map itemScoresMap){
     this.itemScoresMap = itemScoresMap;
   }
-  public HashMap getItemScoresMap(){
+  public Map getItemScoresMap(){
     return itemScoresMap;
   }
 
@@ -850,11 +853,11 @@ public int getDataRows() {
     return scoreDataRows;
 }
 
-public void setAllAgents(ArrayList allAgents) {
+public void setAllAgents(List allAgents) {
 	  this.allAgents = allAgents;
 }
 
-public ArrayList getAllAgents()
+public List getAllAgents()
 {
 	  String publishedId = ContextUtil.lookupParam("publishedId");
 	  QuestionScoreListener questionScoreListener = new QuestionScoreListener();
@@ -893,8 +896,8 @@ public void clear(ActionEvent event) {
       return !StringUtils.equals(searchString, defaultSearchString);
 	}
 	
-	public ArrayList findMatchingAgents(final String pattern) {
-		ArrayList filteredList = new ArrayList();
+	public List findMatchingAgents(final String pattern) {
+		List filteredList = new ArrayList();
 		// name1 example: John Doe
 		StringBuilder name1;
 		// name2 example: Doe, John
@@ -959,12 +962,12 @@ public void clear(ActionEvent event) {
 		}
 	}
 	
-	public HashMap getAgentResultsByItemGradingId()
+	public Map getAgentResultsByItemGradingId()
 	{
 		return agentResultsByItemGradingId;
 	}
 
-	public void setAgentResultsByItemGradingId(HashMap agentResultsByItemGradingId)
+	public void setAgentResultsByItemGradingId(Map agentResultsByItemGradingId)
 	{
 		this.agentResultsByItemGradingId = agentResultsByItemGradingId;
 	}
@@ -977,4 +980,16 @@ public void clear(ActionEvent event) {
 	{
 		this.isAnyItemGradingAttachmentListModified = isAnyItemGradingAttachmentListModified;
 	}
+
+    public String getShowTagsInEvaluationStyle() {
+        if (ServerConfigurationService.getBoolean("samigo.evaluation.usetags", Boolean.FALSE)){
+            return "";
+        }else{
+            return "display:none;";
+        }
+    }
+
+    public void setShowTagsInEvaluationStyle(String showTagsInEvaluationStyle) {
+        this.showTagsInEvaluationStyle = showTagsInEvaluationStyle;
+    }
 }

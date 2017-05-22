@@ -33,8 +33,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import org.sakaiproject.util.ByteStorageConversion;
 
 public class MySQLByteStorage
 {
-	private static final Log log = LogFactory.getLog(MySQLByteStorage.class);
+	private static final Logger log = LoggerFactory.getLogger(MySQLByteStorage.class);
 
 	private SharedPoolDataSource tds;
 

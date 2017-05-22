@@ -32,8 +32,8 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -76,7 +76,7 @@ import org.w3c.dom.Element;
 public class BaseDbDoubleStorage
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseDbDoubleStorage.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseDbDoubleStorage.class);
 
 	/** Table name for container records. */
 	protected String m_containerTableName = null;

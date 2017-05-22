@@ -67,7 +67,6 @@ public class NavBarRenderer
 		if (extLogic.isUserAllowedInLocation(extLogic.getCurrentUserId(), ExternalLogic.PERM_ADMIN,
 				extLogic.getCurrentLocationId()))
 		{
-			UIOutput.make(cell, "item-separator");
 
 			// options link
 			cell = UIBranchContainer.make(joint, "navigation-cell:", "2");
@@ -87,7 +86,6 @@ public class NavBarRenderer
 			comp.decorate(new UIIDStrategyDecorator("navConfig"));
 
 			// permissions link
-			UIOutput.make(cell, "item-separator");
 
 			cell = UIBranchContainer.make(joint, "navigation-cell:", "3");
 			if (currentViewID.equals(PermissionsProducer.VIEW_ID))

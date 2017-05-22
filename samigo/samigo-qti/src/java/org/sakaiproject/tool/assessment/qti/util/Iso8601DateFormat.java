@@ -30,8 +30,8 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.qti.exception.Iso8601FormatException;
 public class Iso8601DateFormat
 {
   public static final String BASIC_FORMAT = "yyyyMMdd'T'HHmmssZ";
-  private static Log log = LogFactory.getLog(Iso8601DateFormat.class);
+  private static Logger log = LoggerFactory.getLogger(Iso8601DateFormat.class);
   private static final String GMT = "GMT";
 
   // 20031107T152420-0500  or

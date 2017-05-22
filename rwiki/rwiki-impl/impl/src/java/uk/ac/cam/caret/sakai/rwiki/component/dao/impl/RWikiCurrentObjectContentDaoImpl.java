@@ -22,13 +22,11 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectContentImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiObjectContentDao;
@@ -42,40 +40,23 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 public class RWikiCurrentObjectContentDaoImpl extends HibernateDaoSupport
 		implements RWikiObjectContentDao
 {
-	private static Log log = LogFactory
-			.getLog(RWikiCurrentObjectContentDaoImpl.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiCurrentObjectContentDaoImpl.class);
 
 	public RWikiObjectContent getContentObject(final RWikiObject parent)
 	{
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
-			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
-				{
-					return session.createCriteria(
-							RWikiCurrentObjectContent.class).add(
-							Expression.eq("rwikiid", parent.getId())).list();
-				}
-
-			};
-			List found = (List) getHibernateTemplate().execute(callback);
+			HibernateCallback<List> callback = session -> session.createCriteria(
+                    RWikiCurrentObjectContent.class).add(
+                    Expression.eq("rwikiid", parent.getId())).list();
+			List found = getHibernateTemplate().execute(callback);
 			if (found.size() == 0)
 			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("Found " + found.size() + " objects with id "
-							+ parent.getId());
-				}
+				log.debug("Found {} objects with id {}", found.size(), parent.getId());
 				return null;
 			}
-			if (log.isDebugEnabled())
-			{
-				log.debug("Found " + found.size() + " objects with name "
-						+ parent.getId() + " returning most recent one.");
-			}
+			log.debug("Found {} objects with name {} returning most recent one.", found.size(), parent.getId());
 			return (RWikiObjectContent) found.get(0);
 		}
 		finally

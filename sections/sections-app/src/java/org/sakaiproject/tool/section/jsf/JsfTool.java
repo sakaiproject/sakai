@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.facade.manager.Authn;
 import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.section.api.facade.manager.Context;
@@ -38,7 +38,7 @@ import org.springframework.web.context.WebApplicationContext;
 public class JsfTool extends org.sakaiproject.jsf.util.JsfTool {
 
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(JsfTool.class);
+	private static final Logger log = LoggerFactory.getLogger(JsfTool.class);
 	
 	/**
 	 * @inheritDoc

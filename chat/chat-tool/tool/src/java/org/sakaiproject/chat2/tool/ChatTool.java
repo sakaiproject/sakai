@@ -22,9 +22,7 @@
 package org.sakaiproject.chat2.tool;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,9 +41,8 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatChannel;
@@ -74,6 +71,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.DirectRefreshDelivery;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -143,7 +141,7 @@ import org.sakaiproject.util.Web;
 public class ChatTool implements RoomObserver, PresenceObserver {
 
    /** Our logger. */
-   private static Log logger = LogFactory.getLog(ChatTool.class);
+   private static Logger logger = LoggerFactory.getLogger(ChatTool.class);
    
    /*  */
    private static final String IFRAME_ROOM_USERS = "Presence";
@@ -184,6 +182,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final int DEFAULT_DAYS = 10;
    private static final int DEFAULT_ITEMS = 3;
    private static final int DEFAULT_LENGTH = 50;
+   
+   private static final String HIDDEN_START_ISO_DATE = "chatStartDateISO8601";
+   private static final String HIDDEN_END_ISO_DATE = "chatEndDateISO8601";
    
    /* All the managers */
    /**   The work-horse of chat   */
@@ -667,7 +668,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String getDatesMessage() {
        String msg = null;
        if (this.currentChannel != null) {
-           DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
            if (this.currentChannel.getStartDate() != null && this.currentChannel.getEndDate() != null) {
                msg = getMessageFromBundle("custom_date_display", 
                        new Object[] {TimeService.newTime(this.currentChannel.getStartDate().getTime()).toStringLocalDate(), 
@@ -797,9 +797,17 @@ public class ChatTool implements RoomObserver, PresenceObserver {
            else
                retView = PAGE_LIST_ROOMS;
 
-           // copy the dates into the channel for saving
-           channel.setStartDate(dChannel.getStartDate());
-           channel.setEndDate(dChannel.getEndDate());
+           // If the hidden values contain valid ISO dates set them
+           Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+           String startISODate = params.get(HIDDEN_START_ISO_DATE);
+           String endISODate = params.get(HIDDEN_END_ISO_DATE);
+           if(DateFormatterUtil.isValidISODate(startISODate)){
+                channel.setStartDate(DateFormatterUtil.parseISODate(startISODate));
+           }
+
+           if(DateFormatterUtil.isValidISODate(endISODate)){
+                channel.setEndDate(DateFormatterUtil.parseISODate(endISODate));
+           }
 
            if (validateChannel(channel))
                try {

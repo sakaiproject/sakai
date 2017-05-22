@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
@@ -42,7 +42,7 @@ import org.sakaiproject.sitestats.tool.facade.Locator;
 
 public class VisitsWidget extends Panel {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(VisitsWidget.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(VisitsWidget.class);
 
 	/** The site id. */
 	private String					siteId				= null;

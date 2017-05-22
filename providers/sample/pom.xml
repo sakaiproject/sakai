@@ -21,6 +21,11 @@
   </properties>
   <dependencies>
     <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-userdetail-provider</artifactId>
+    </dependency>
+    
+    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
@@ -29,8 +34,8 @@
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
     </dependency>
     <dependency>
     	<groupId>commons-lang</groupId>

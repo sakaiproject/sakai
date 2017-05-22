@@ -37,11 +37,12 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
@@ -65,6 +66,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariabl
 import org.sakaiproject.tool.assessment.ui.bean.author.ImageMapItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.ItemTagBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
@@ -82,7 +84,7 @@ import org.sakaiproject.util.FormattedText;
 
 public class ItemModifyListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(ItemModifyListener.class);
+  private static Logger log = LoggerFactory.getLogger(ItemModifyListener.class);
   //private String scalename;  // used for multiple choice Survey
 
   /**
@@ -145,59 +147,58 @@ public class ItemModifyListener implements ActionListener
     try {
       ItemFacade itemfacade = delegate.getItem(itemId);
 
-      // Check permissions: if sequence is null, the item is *not* in a pool then the poolId would be null
-      if (itemauthorbean.getQpoolId() == null) {
-        AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-        // the way to get assessment ID is completely different for published and core
-        // you'd think a slight variant of the published would work for core, but it generates an error
-        Long assessmentId = null;
-        String createdBy = null;
-        if (isEditPendingAssessmentFlow) {
-          Long sectionId = itemfacade.getSection().getSectionId();
-          AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
-          assessmentId = af.getAssessmentBaseId();
-          createdBy = af.getCreatedBy();
-        }
-        else {
-          PublishedAssessmentIfc assessment = (PublishedAssessmentIfc)itemfacade.getSection().getAssessment();
-          assessmentId = assessment.getPublishedAssessmentId();
-          createdBy = assessment.getCreatedBy();
-        }
-        if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, !isEditPendingAssessmentFlow)) {
-          String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
-          context.addMessage(null,new FacesMessage(err));
-          itemauthorbean.setOutcome("author");
-          if (log.isDebugEnabled()) {
-            log.debug("itemID " + itemId + " for assignment " + assessmentId.toString() + " is being returned null from populateItemBean because it fails isUSerAllowedToEditAssessment for " + createdBy);
-          }
-          return false;
-        }
-      }
-      else {
-          // This item is in a question pool
-          UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
-          String currentUserId = userDirectoryService.getCurrentUser().getId();
-          QuestionPoolService qpdelegate = new QuestionPoolService();
-          List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
-          boolean authorized = false;
-          poolloop:
-          for (Long poolId: poolIds) {
-              List agents = qpdelegate.getAgentsWithAccess(poolId);
-              for (Object agent: agents) {
-                  if (currentUserId.equals(((AgentDataIfc)agent).getIdString())) {
-                      authorized = true;
-                      break poolloop;
+      if (isEditPendingAssessmentFlow) {
+          // Check permissions: if sequence is null, the item is *not* in a pool then the poolId would be null
+          String target = itemauthorbean.getTarget();
+          if ("assessment".equals(target)) {
+              AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+              // the way to get assessment ID is completely different for published and core
+              // you'd think a slight variant of the published would work for core, but it generates an error
+              Long assessmentId = null;
+              String createdBy = null;
+              if (isEditPendingAssessmentFlow) {
+                  Long sectionId = itemfacade.getSection().getSectionId();
+                  AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
+                  assessmentId = af.getAssessmentBaseId();
+                  createdBy = af.getCreatedBy();
+              } else {
+                  PublishedAssessmentIfc assessment = (PublishedAssessmentIfc) itemfacade.getSection().getAssessment();
+                  assessmentId = assessment.getPublishedAssessmentId();
+                  createdBy = assessment.getCreatedBy();
+              }
+              if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, !isEditPendingAssessmentFlow)) {
+                  String err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+                  context.addMessage(null, new FacesMessage(err));
+                  itemauthorbean.setOutcome("author");
+                  log.warn("itemID " + itemId + " for assignment " + assessmentId.toString() + " is being returned null from populateItemBean because it fails isUserAllowedToEditAssessment for " + createdBy);
+                  return false;
+              }
+          } else if ("questionpool".equals(target)) {
+              // This item is in a question pool
+              UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+              String currentUserId = userDirectoryService.getCurrentUser().getId();
+              QuestionPoolService qpdelegate = new QuestionPoolService();
+              List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
+              boolean authorized = false;
+              poolloop:
+              for (Long poolId : poolIds) {
+                  List agents = qpdelegate.getAgentsWithAccess(poolId);
+                  for (Object agent : agents) {
+                      if (currentUserId.equals(((AgentDataIfc) agent).getIdString())) {
+                          authorized = true;
+                          break poolloop;
+                      }
                   }
               }
-          }
-          if (!authorized) {
-              String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
-              context.addMessage(null,new FacesMessage(err));
-              itemauthorbean.setOutcome("author");
-              if (log.isDebugEnabled()) {
-                  log.debug("itemID " + itemId + " in pool is being returned null from populateItemBean because it fails isUSerAllowedToEditAssessment for user " + currentUserId);
+              if (!authorized) {
+                  String err = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+                  context.addMessage(null, new FacesMessage(err));
+                  itemauthorbean.setOutcome("author");
+                  log.warn("itemID " + itemId + " in pool is being returned null from populateItemBean because it fails isUserAllowedToEditAssessment for user " + currentUserId);
+                  return false;
               }
-              return false;
+          } else {
+              log.warn("Skip authorization for unknown target '" + target + "' for itemId '" + itemId + "', this should probably never happen.");
           }
       }
 
@@ -219,16 +220,7 @@ public class ItemModifyListener implements ActionListener
       bean.setItemScore(score);
       bean.setItemScoreDisplayFlag(itemfacade.getScoreDisplayFlag() ? "true" : "false");
  
-      Double minPoints = itemfacade.getMinScore();
-      Double minScore;
-      if (minPoints!=null && !"".equals(minPoints))
-       {
-    	  minScore = minPoints;
-    	  bean.setItemMinScore(minScore);
-       }else{
-    	   bean.setItemMinScore(0.0d);
-       }
-      
+      bean.setItemMinScore(itemfacade.getMinScore());
 
       Double discount = itemfacade.getDiscount();
       if (discount == null)
@@ -289,6 +281,8 @@ public class ItemModifyListener implements ActionListener
       List attachmentList = itemfacade.getData().getItemAttachmentList(); 
       itemauthorbean.setAttachmentList(attachmentList);
       itemauthorbean.setResourceHash(null);
+      Set<ItemTagIfc> tagsList = itemfacade.getData().getItemTagSet();
+      itemauthorbean.setTagsList(tagsList);
       
       int itype=0; // default to true/false
       if (itemauthorbean.getItemType()!=null) {
@@ -388,6 +382,7 @@ public class ItemModifyListener implements ActionListener
 
       // set current ItemBean in ItemAuthorBean
       itemauthorbean.setCurrentItem(bean);
+      itemauthorbean.setTagsTempListToJson("[]");
 
 	// set outcome for action
 	itemauthorbean.setOutcome(nextpage);
@@ -1018,6 +1013,12 @@ public class ItemModifyListener implements ActionListener
     	   bean.setMutuallyExclusiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
 
+       // get settings for ignore spaces for fib
+       // If metadata doesn't exist, by default it is false.
+       if (meta.getLabel().equals(ItemMetaDataIfc.IGNORE_SPACES_FOR_FIB)){
+           bean.setIgnoreSpacesForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
+       }
+
        // get settings for add_to_favorites for matrix 
        // If metadata doesn't exist, by default it is false. 
        if (meta.getLabel().equals(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX)){
@@ -1078,5 +1079,18 @@ public class ItemModifyListener implements ActionListener
     	bean.setSelectedSection(itemfacade.getData().getSection().getSectionId().toString());
     }
   }
+
+  private void populateItemTags(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean) {
+      final Set<ItemTagIfc> itemTagSet = itemfacade.getItemTagSet();
+      final List<ItemTagBean> itemTagIfcList = new ArrayList<>(itemTagSet.size());
+      for ( ItemTagIfc itemTagIfc : itemTagSet ) {
+          itemTagIfcList.add(itemTagBeanFrom(itemTagIfc));
+      }
+      bean.setItemTags(itemTagIfcList);
+  }
+
+    private ItemTagBean itemTagBeanFrom(ItemTagIfc itemTagIfc) {
+        return new ItemTagBean(itemTagIfc.getTagId(), itemTagIfc.getTagLabel(), itemTagIfc.getTagCollectionName());
+    }
 
 }

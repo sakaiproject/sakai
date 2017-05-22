@@ -34,17 +34,16 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
-import org.sakaiproject.entity.cover.EntityManager;
 
 import org.apache.commons.codec.binary.Base64;
 
 
 public class CombineDuplicateSubmissionsConversionHandler implements SchemaConversionHandler 
 {
-	private static final Log log = LogFactory.getLog(CombineDuplicateSubmissionsConversionHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(CombineDuplicateSubmissionsConversionHandler.class);
 	
 	// db driver
 	private String m_dbDriver = null;

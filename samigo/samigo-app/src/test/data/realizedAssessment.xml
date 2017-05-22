@@ -125,12 +125,6 @@
       <!--Possible Values -->
       <!--True, False -->
       <qtimetadatafield>
-        <fieldlabel>USERID</fieldlabel>
-        <fieldentry />
-      </qtimetadatafield>
-      <!--Possible Values -->
-      <!--#PCDATA -->
-      <qtimetadatafield>
         <fieldlabel>PASSWORD</fieldlabel>
         <fieldentry />
       </qtimetadatafield>

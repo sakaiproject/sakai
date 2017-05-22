@@ -46,9 +46,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -110,7 +110,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		EntityTransferrer, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAnnouncementService.class);
 
 	/** private constants definitions */
 	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
@@ -1239,7 +1239,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 					
 					// not to import any assignment-generated announcement
-					String assignmentReference = StringUtil.trimToNull(oMessage.getProperties().getProperty(AnnouncementService.ASSIGNMENT_REFERENCE));
+					String assignmentReference = StringUtils.trimToNull(oMessage.getProperties().getProperty(AnnouncementService.ASSIGNMENT_REFERENCE));
 					if (toBeImported && assignmentReference != null)
 					{
 						toBeImported = false;
@@ -1258,7 +1258,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						nMessageHeader.setDate(oMessageHeader.getDate());
 						nMessageHeader.setMessage_order(oMessageHeader.getMessage_order());
 						// when importing, refer to property to determine draft status
-						if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+						if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
 						{
 							nMessageHeader.setDraft(oMessageHeader.getDraft());
 						}
@@ -1435,7 +1435,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	 * AnnouncementChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseAnnouncementChannelEdit extends BaseMessageChannelEdit implements AnnouncementChannelEdit
+	public class BaseAnnouncementChannelEdit extends BaseMessageChannelEdit<AnnouncementMessageEdit> implements AnnouncementChannelEdit
 	{
 		/**
 		 * Construct with a reference.
@@ -1668,7 +1668,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 					}
 				}
 			} catch (PermissionException ex) {
-				M_log.error(ex);
+				M_log.error(ex.getMessage());
 			}
 		}
 		
@@ -1689,7 +1689,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 				}
 				msg.getHeaderEdit().setMessage_order(++currentMax);
 			} catch (PermissionException ex) {
-				M_log.error(ex);
+				M_log.error(ex.getMessage());
 			}
 			return currentMax;
 		}

@@ -23,7 +23,8 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
@@ -36,7 +37,7 @@ import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 
 public class DelegatedAccessAddToolToMyWorkspacesJob implements ScheduledInvocationCommand{
 	
-	private static final Logger log = Logger.getLogger(DelegatedAccessAddToolToMyWorkspacesJob.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessAddToolToMyWorkspacesJob.class);
 	@Getter @Setter
 	private DelegatedAccessDao dao;
 	@Getter @Setter
@@ -88,7 +89,7 @@ public class DelegatedAccessAddToolToMyWorkspacesJob implements ScheduledInvocat
 					}
 				}
 			}catch (Exception e) {
-				log.error(e);
+				log.error(e.getMessage(), e);
 			}finally{
 				sakaiProxy.setSessionUserId(currentUserId);
 			}

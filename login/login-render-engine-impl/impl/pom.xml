@@ -15,10 +15,7 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target />
-  </properties>
+  <packaging>war</packaging>
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -37,10 +34,6 @@
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -52,6 +45,10 @@
       <groupId>velocity-tools</groupId>
       <artifactId>velocity-tools</artifactId>
       <version>1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.velocity</groupId>
+      <artifactId>sakai-velocity-util</artifactId>
     </dependency>
   </dependencies>
   <build>

@@ -24,8 +24,8 @@ package org.sakaiproject.tool.assessment.shared.impl.assessment;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -56,7 +56,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmen
  */
 public class PublishedAssessmentServiceImpl implements PublishedAssessmentServiceAPI
 {
-  private Log log = LogFactory.getLog(PublishedAssessmentServiceImpl.class);
+  private Logger log = LoggerFactory.getLogger(PublishedAssessmentServiceImpl.class);
 
   /**
   * Get list of all active published assessments with basic info populated.
@@ -231,26 +231,7 @@ public class PublishedAssessmentServiceImpl implements PublishedAssessmentServic
     }
   }
 
-  /**
-   * Publish an assessment.
-   * @param assessment
-   * @return
-   */
-  public PublishedAssessmentIfc publishAssessment(AssessmentIfc assessment)
-  {
-    try
-    {
-      PublishedAssessmentService service = new PublishedAssessmentService();
-      AssessmentService assessmentService = new AssessmentService();
-      AssessmentFacade facade = assessmentService.getAssessment(
-        assessment.getAssessmentId().toString());
-      return service.publishAssessment(facade);
-    }
-    catch (Exception ex)
-    {
-      throw new AssessmentServiceException(ex);
-    }
-  }
+
 
   /**
    * Preview a published assessment.

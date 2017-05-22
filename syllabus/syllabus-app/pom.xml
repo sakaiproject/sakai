@@ -18,6 +18,15 @@
   <packaging>war</packaging>
 
   <dependencies>
+      <dependency>
+          <groupId>javax.servlet</groupId>
+          <artifactId>jstl</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>taglibs</groupId>
+          <artifactId>standard</artifactId>
+          <version>1.1.2</version>
+      </dependency>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
@@ -83,7 +92,7 @@
     <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
-      <version>1.1.11</version>
+      <version>1.1.14</version>
     </dependency>
     <dependency>
       <groupId>commons-fileupload</groupId>
@@ -92,11 +101,6 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.calendar</groupId>
@@ -113,10 +117,6 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-lang</groupId>

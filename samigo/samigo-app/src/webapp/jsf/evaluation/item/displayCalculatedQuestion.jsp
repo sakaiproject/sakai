@@ -26,5 +26,6 @@ include file for displaying fill in the numeric questions
 <h:outputText value="#{question.description}" escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{question.text}"  escape="false"/>
+<%@ include file="/jsf/evaluation/item/displayTags.jsp" %>
 
 

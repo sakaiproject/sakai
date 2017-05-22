@@ -106,6 +106,14 @@
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
   <f:param name="outCome" value="editPool"/>
 </h:commandLink>
+
+<!-- Preview Pool -->
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" #{questionPoolMessages.separator} " />
+<h:commandLink title="#{questionPoolMessages.t_previewPool}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="previewlink" immediate="true" action="#{questionpool.startPreviewPool}">
+  <h:outputText id="preview" value="#{questionPoolMessages.preview}"/>
+  <f:param name="qpid" value="#{pool.questionPoolId}"/>
+</h:commandLink>
+
  <f:verbatim></span></f:verbatim>
 
 </h:panelGroup>

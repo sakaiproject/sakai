@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.tsugi</groupId>
+  <artifactId>tsugi-util</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <inceptionYear>2014</inceptionYear>
+  <packaging>jar</packaging>
+
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Tsugi Java LTI Library</description>
+  <url>http://www.tsugi.org</url>
+
+  <properties>
+    <additionalparam>-Xdoclint:none</additionalparam>
+  </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.21</version>
+      </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
+        </dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+            <version>2.3.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+            <version>2.3.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+            <version>2.3.5</version>
+		</dependency>
+    </dependencies>
+
+
+<distributionManagement>
+  <snapshotRepository>
+    <id>ossrh</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+  </snapshotRepository>
+</distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.12.4</version>
+        <configuration>
+          <systemPropertyVariables>
+            <tsugi.unit.test>true</tsugi.unit.test>
+            <tsugi.datasource.url>jdbc:mysql://localhost:8889/tsugi</tsugi.datasource.url>
+            <tsugi.datasource.username>ltiuser</tsugi.datasource.username>
+            <tsugi.datasource.password>ltipassword</tsugi.datasource.password>
+            <tsugi.datasource.driverClassName>com.mysql.jdbc.Driver</tsugi.datasource.driverClassName>
+            <tsugi.factory.tsugiClassName>org.tsugi.impl.jdbc.Tsugi_JDBC</tsugi.factory.tsugiClassName>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.3</version>
+        <configuration>
+          <reportOutputDirectory>apidocs</reportOutputDirectory>
+          <bottom>Copyright 2015- Charles R. Severance and licensed CC-BY Attribution 4.0</bottom>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>1.6.3</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+
+    <sourceDirectory>
+        src/java
+    </sourceDirectory>
+    
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+        </resource>
+    </resources>
+  </build>
+
+  <developers>
+    <developer>
+      <id>drchuck</id>
+      <name>Charles R. Severance</name>
+      <email>drchuck@gmail.org</email>
+      <url>http://www.dr-chuck.com/</url>
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+  </developers>
+
+  <licenses>
+     <license>
+       <name>The Apache License, Version 2.0</name>
+       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+     </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:csev/tsugi-java.git</connection>
+    <developerConnection>scm:git:git@github.com:csev/tsugi-java.git</developerConnection>
+    <url>git@github.com:csev/tsugi-java.git</url>
+  </scm>
+
+</project>

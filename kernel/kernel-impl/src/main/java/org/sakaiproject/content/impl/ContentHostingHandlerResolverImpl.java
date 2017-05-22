@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -51,7 +51,7 @@ import org.sakaiproject.util.SingleStorageUser;
 public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerResolver
 {
 
-	private static final Log log = LogFactory.getLog(ContentHostingHandlerResolverImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ContentHostingHandlerResolverImpl.class);
 
 	protected SingleStorageUser resourceStorageUser;
 
@@ -84,7 +84,7 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 			if (id.equals(Entity.SEPARATOR)) {
 				// If the entity is the root and we didn't get anything, there is nothing we can do
 				// no root, no content, no point in trying to get another one
-				log.fatal("Unable to get Root node of the repository");
+				log.error("Unable to get Root node of the repository");
 				throw new AssertionError("Unable to Get Root repository "+Entity.SEPARATOR);
 			}
 			int lastSlash = id.lastIndexOf(Entity.SEPARATOR, id.length() - 2);

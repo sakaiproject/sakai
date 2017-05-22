@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.contentreview.dao">
+
+    <class name="org.sakaiproject.contentreview.dao.ContentReviewItem" table="CONTENTREVIEW_ITEM" optimistic-lock="version">
+        <id name="id" type="long">
+            <generator class="native">
+                <param name="sequence">contentreview_ITEM_ID_SEQ</param>
+            </generator>
+        </id>
+        <version      name="version"            type="integer" />
+        <properties   name="content_provider_constraint" unique="true" insert="true">
+            <property name="providerId"         type="integer"              not-null="true"/>
+            <property name="contentId"          type="string" length="255"  not-null="true"/>
+        </properties>
+        <property     name="userId"             type="string" length="255"  not-null="false" />
+        <property     name="siteId"             type="string" length="255"  not-null="false" />
+        <property     name="taskId"             type="string" length="255"  not-null="false" />
+        <property     name="externalId"         type="string" length="255"  not-null="false" />
+        <property     name="dateQueued"         type="java.util.Date"       not-null="true" />
+        <property     name="dateSubmitted"      type="java.util.Date"       not-null="false" />
+        <property     name="dateReportReceived" type="java.util.Date"       not-null="false" />
+        <property     name="status"             type="long" length="255"    not-null="false" />
+        <property     name="reviewScore"        type="java.lang.Integer"    not-null="false" />
+        <property     name="lastError"          type="text"                 not-null="false" />
+        <property     name="retryCount"         type="long"                 not-null="false" />
+        <property     name="nextRetryTime"      type="java.util.Date"       not-null="true" />
+        <property     name="errorCode"          type="integer"              not-null="false" />
+    </class>
+</hibernate-mapping>

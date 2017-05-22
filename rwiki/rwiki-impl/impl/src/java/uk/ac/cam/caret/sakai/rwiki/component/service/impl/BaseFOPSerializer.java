@@ -36,8 +36,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.fop.apps.FOPException;
 import org.apache.fop.apps.FOUserAgent;
 import org.apache.fop.apps.Fop;
@@ -61,8 +61,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class BaseFOPSerializer extends ToSAXHandler implements ContentHandler
 {
 
-	private static final Log logger = LogFactory
-			.getLog(BaseFOPSerializer.class);
+	private static final Logger logger = LoggerFactory.getLogger(BaseFOPSerializer.class);
 
 	private static final String configfile = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/fop.cfg.xml";
 
@@ -351,7 +350,7 @@ public class BaseFOPSerializer extends ToSAXHandler implements ContentHandler
 		}
 		catch (SAXException e)
 		{
-			logger.error(e);
+			logger.error(e.getMessage(), e);
 		}
 		contentHandler.setDocumentLocator(locator);
 		
@@ -458,7 +457,7 @@ public class BaseFOPSerializer extends ToSAXHandler implements ContentHandler
 		try {
 			initContentHandler();
 		} catch (SAXException e) {
-			logger.error(e);
+			logger.error(e.getMessage(), e);
 		}
 		sax.serialize(arg0);
 	}

@@ -12,9 +12,7 @@
 		</h1>
 	</div>
 
-	<div class="navPanel">
 		<div class="viewNav">
-			<br />
 			#if (!$hasAtLeastOneAnonAssignment)
 			<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="option" id="option" value="x" />
@@ -27,15 +25,15 @@
 				<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
 				<div class="spinnerBesideContainer">
-					<select id="view" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">nchange="ASN.disableControls(); ASN.disableLink( 'downloadAll' ); ASN.showSpinner( 'groupSpinner' );blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+					<select id="view" name="viewgroup" size="1" tabindex="3" onchange="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'viewForm', 'changeView', null, null ); return false;">
 
 					#if (!$showSubmissionByFilterSearchOnly)
-						<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+						<option value="all" #if($!viewString.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
 					#else
 						<option value="" >$tlang.getString('please_select_group')</option>
 					#end
 					#foreach($aGroup in $groups)
-						<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+						<option value="$!aGroup.Reference" #if($!viewString.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 					#end
 					</select>
 				</div>
@@ -64,9 +62,8 @@
 			<a href="$accessPointUrl" title="$!tlang.getString('downspr')" id="downloadAll">$!tlang.getString('downspr')</a>
 
 
-			</div>
-			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		</div>
+			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
@@ -102,6 +99,11 @@
 								#end
 							</a>
 						</th>
+						#if($!isAdditionalNotesEnabled)
+						<th id="notes">
+							<a href="#">$tlang.getString("gen.notes")</a>
+						</th>
+						#end
 						<th id="grade">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_grade")'; return false;"
 							  title=" $tlang.getString("gen.sorbygra")">
@@ -180,6 +182,17 @@
 								#assignmentTitleIcon($assignment)
 								$validator.escapeHtml($validator.limit($assignment.Title, 40))
 							</td>
+							#if($!isAdditionalNotesEnabled)
+							<td headers="notes">
+								#set($notes = [])
+								#set($notes = $notesMap.get($submission.user.id))
+								<ul>
+								#foreach($note in $!notes)
+									#if($!note) <li>$!note</li> #end
+								#end
+								</ul>
+							</td>
+							#end
 							<td headers="grade">
 								#if ($submission.getSubmission())
 									#if ($submission.getSubmission().Graded)

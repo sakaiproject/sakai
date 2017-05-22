@@ -10,7 +10,8 @@ import java.util.Map;
 
 import net.sf.ehcache.Cache;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.app.DashboardUserLogic;
 import org.sakaiproject.dash.app.SakaiProxy;
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DashboardUserLogicImpl implements DashboardUserLogic {
 
-	private static Logger logger = Logger.getLogger(DashboardUserLogicImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(DashboardUserLogicImpl.class);
 	
 	/************************************************************************
 	 * Spring-injected classes

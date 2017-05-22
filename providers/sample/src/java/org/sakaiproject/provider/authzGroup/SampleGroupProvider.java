@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.apache.commons.lang.StringUtils;
 
@@ -59,7 +59,7 @@ import org.apache.commons.lang.StringUtils;
 public class SampleGroupProvider implements GroupProvider
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SampleGroupProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(SampleGroupProvider.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -142,7 +142,7 @@ public class SampleGroupProvider implements GroupProvider
 
 			M_log.info("init()");
 		}
-		catch (Throwable t)
+		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
@@ -314,11 +314,11 @@ public class SampleGroupProvider implements GroupProvider
 	/**
 	 * {@inheritDoc}
 	 */
-	public Map getGroupRolesForUser(String userId)
+	public Map<String, String> getGroupRolesForUser(String userId)
 	{
 		update();
 
-		Map rv = new HashMap();
+		Map<String, String> rv = new HashMap<>();
 
 		if (m_usersa.contains(userId))
 		{

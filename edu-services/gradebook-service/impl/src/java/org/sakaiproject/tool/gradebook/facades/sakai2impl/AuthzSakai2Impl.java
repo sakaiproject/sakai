@@ -24,8 +24,8 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -47,7 +47,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  * role-determined group-scoped authz.
  */
 public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
-    private static final Log log = LogFactory.getLog(AuthzSakai2Impl.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthzSakai2Impl.class);
 
     public static final String
     	PERMISSION_GRADE_ALL = "gradebook.gradeAll",

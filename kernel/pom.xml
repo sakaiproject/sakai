@@ -27,12 +27,10 @@
     <module>api</module>
     <module>component-manager</module>
     <module>kernel-private</module>
-    <module>kernel-component</module>
     <module>kernel-common</module>
     <module>kernel-impl</module>
     <module>kernel-util</module>
     <module>kernel-storage-util</module>
-    <module>deploy</module>
   </modules>
 
   <profiles>
@@ -47,95 +45,7 @@
         <module>kernel-tim</module>
       </modules>
     </profile>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <additionalparam>-Xdoclint:none</additionalparam>
-                  <failOnError>false</failOnError>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>2.4</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>sakai-release</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <distributionManagement>
-        <site>
-          <id>sakai-site</id>
-          <name>Sakai release Site</name>
-          <url>scpexe://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url>
-        </site>
-      </distributionManagement>
-    </profile>
   </profiles>
-
-  <dependencyManagement>
-    <dependencies>
-      <!-- centralize the versions for hazelcast -->
-      <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast</artifactId>
-        <version>3.2.3</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.hazelcast</groupId>
-        <artifactId>hazelcast-client</artifactId>
-        <version>3.2.3</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- centralize the versions for distributed ehcache -->
-      <dependency>
-        <groupId>org.terracotta</groupId>
-        <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-        <version>5.6.0</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-terracotta</artifactId>
-        <version>${sakai.ehcache.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <!-- Java 8 Maven Artifact -->
-      <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>2.4.3</version>
-        <scope>compile</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
 
   <issueManagement>
     <system>jira</system>
@@ -532,20 +442,6 @@
           <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.4</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
 
     <extensions>
@@ -558,76 +454,4 @@
     </extensions>
 
   </build>
-
-  <repositories>
-    <repository>
-      <id>central</id>
-      <name>Maven Repository Switchboard</name>
-      <layout>default</layout>
-      <url>http://repo1.maven.org/maven2</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>sakai-maven</id>
-      <name>Sakai Maven Repo</name>
-      <layout>default</layout>
-      <url>http://source.sakaiproject.org/maven2</url>
-      <releases>
-        <enabled>true</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-        <checksumPolicy>ignore</checksumPolicy>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>terracotta-releases</id>
-      <url>http://www.terracotta.org/download/reflector/releases</url>
-    </repository>
-  </repositories>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>central</id>
-      <name>Maven Plugin Repository</name>
-      <url>http://repo1.maven.org/maven2</url>
-      <layout>default</layout>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>Sakai Plugin Repo</id>
-      <url>http://source.sakaiproject.org/maven2</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>opencast</id>
-      <name>Opencast Repo</name>
-      <url>http://repository.opencastproject.org/nexus/content/groups/public</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>terracotta-repository</id>
-      <url>http://www.terracotta.org/download/reflector/maven2</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
 </project>

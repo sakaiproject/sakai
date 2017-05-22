@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Copyright: Copyright (c) 2003-5</p>
@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TextFormat
 {
-  private Log log = LogFactory.getLog(TextFormat.class);
+  private Logger log = LoggerFactory.getLogger(TextFormat.class);
   private static final String HTML;
   private static final String SMART;
   private static final String PLAIN;
@@ -317,7 +317,7 @@ public class TextFormat
     return min;
   }
 
-  public static String convertPlaintextToFormattedTextNoHighUnicode(Log log, String value) {
+  public static String convertPlaintextToFormattedTextNoHighUnicode(Logger log, String value) {
 	  if (value == null) return "";
 
 	  try
@@ -374,7 +374,7 @@ public class TextFormat
 	  }
 	  catch (Exception e)
 	  {
-		  log.warn("convertPlaintextToFormattedTextNoHighUnicode: ", e);
+		  log.warn("convertPlaintextToFormattedTextNoHighUnicode: {}", e.getMessage());
 		  return "";
 	  }
 

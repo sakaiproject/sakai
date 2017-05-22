@@ -25,13 +25,13 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
-import org.w3c.dom.html.*;
 import org.xml.sax.*;
 
+@Slf4j
 public class DomUtils
 {
-  private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.class);
 	/**
 	 * Default encoding (NekoHTML)
 	 */
@@ -627,7 +627,7 @@ public class DomUtils
       factory = DocumentBuilderFactory.newInstance();
       factory.setNamespaceAware(namespaceAware);
 
-      _log.debug("DOM parse: namespace aware = " + namespaceAware);
+      log.debug("DOM parse: namespace aware = " + namespaceAware);
       return factory.newDocumentBuilder();
 
     }

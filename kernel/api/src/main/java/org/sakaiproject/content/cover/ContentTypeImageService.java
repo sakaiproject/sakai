@@ -64,6 +64,14 @@ public class ContentTypeImageService
 
 		return service.getContentTypeImage(param0);
 	}
+	
+	public static java.lang.String getContentTypeImageClass(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentTypeImageService service = getInstance();
+		if (service == null) return null;
+
+		return service.getContentTypeImageClass(param0);
+	}
 
 	public static java.lang.String getContentTypeDisplayName(java.lang.String param0)
 	{

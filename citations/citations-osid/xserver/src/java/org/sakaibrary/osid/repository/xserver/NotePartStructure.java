@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class NotePartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.NotePartStructure" );
-
 	private org.osid.shared.Id NOTE_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"note", "Note attached to resource metadata" );
@@ -48,7 +47,7 @@ public class NotePartStructure implements org.osid.repository.PartStructure
 		}
 		catch (Throwable t)
 		{
-			LOG.warn( "NotePartStructure() failed to get partStructure id: "
+			log.warn( "NotePartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}        
 	}

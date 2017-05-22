@@ -33,8 +33,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.SaLengthException;
@@ -54,7 +54,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class TableOfContentsActionListener implements ActionListener
 {
-  private static Log log = LogFactory.getLog(TableOfContentsActionListener.class);
+  private static Logger log = LoggerFactory.getLogger(TableOfContentsActionListener.class);
   private static ContextUtil cu;
 
   /**

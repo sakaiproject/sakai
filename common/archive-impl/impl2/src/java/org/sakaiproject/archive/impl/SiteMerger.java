@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -52,7 +52,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class SiteMerger {
-	private static Log M_log = LogFactory.getLog(SiteMerger.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteMerger.class);
 	
 	protected static HashMap userIdTrans = new HashMap();
 	
@@ -388,7 +388,7 @@ public class SiteMerger {
 			}
 			catch(Exception any)
 			{
-				M_log.warn(any,any);
+				M_log.warn(any.getMessage(), any);
 			}
 			
 			Site site = null;
@@ -417,7 +417,7 @@ public class SiteMerger {
 						mergeSiteRoles(element3, siteId, useIdTrans, filterSakaiRoles, filteredSakaiRoles);
 					} 
 					catch (PermissionException e1) {
-						M_log.warn(e1,e1);
+						M_log.warn(e1.getMessage(), e1);
 					}
 				}	
 			}

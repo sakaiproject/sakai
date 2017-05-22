@@ -40,8 +40,8 @@
 			<f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 			<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 	    <f:verbatim></h3></div></f:verbatim>
-      
-  		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
+		<div class="table-responsive">      
+  		<mf:hierDataTable id="allMessagesForOneTopic" value="#{ForumTool.messages}" var="msgDecorateBean" noarrows="true" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column id="_msg_subject">
 	   			<h:panelGroup rendered="#{ForumTool.selectedMsgId!=msgDecorateBean.message.id}">
 					<f:verbatim><div class="printBlock" style="margin:0"></f:verbatim>
@@ -97,7 +97,7 @@
 				</h:panelGroup>
 	 		</h:column>
 		</mf:hierDataTable>
-
+		</div>
   	</h:form>
   </sakai:view>
  </f:view>

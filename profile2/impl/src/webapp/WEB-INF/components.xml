@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--  SakaiProxy -->
+ 	<bean id="org.sakaiproject.profile2.logic.SakaiProxy"
+    	class="org.sakaiproject.profile2.logic.SakaiProxyImpl"
+        init-method="init">
+        <!-- API injection -->
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+		<property name="activityService" ref="org.sakaiproject.event.api.ActivityService" />
+		
+		<!-- inject other resources -->
+		<property name="emailTemplates" ref="org.sakaiproject.profile2.emailtemplates.List" />
+		
+	</bean>
+	
+	<!-- setup a DAO, accessed via the transaction proxy -->
+	<bean id="org.sakaiproject.profile2.dao.ProfileDaoTarget"
+    	class="org.sakaiproject.profile2.dao.impl.ProfileDaoImpl"
+    	init-method="init">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+        
+	<!--  register the DAO as a transactional interceptor. Use the classloader proxy from gendao because this is a protected DAO
+-->
+	<bean id="org.sakaiproject.profile2.dao.ProfileDao"
+		class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">		
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="org.sakaiproject.profile2.dao.ProfileDaoTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>	
+	
+	<!-- ProfileLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfileLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileLogicImpl"
+    	init-method="init">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+    	<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    	<property name="converter" ref="org.sakaiproject.profile2.conversion.ProfileConverter" />
+    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+	</bean>
+	
+	<!-- ProfileLinkLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfileLinkLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileLinkLogicImpl">
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
+    
+    <!-- ProfilePrivacyLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
+    	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
+    	init-method="init">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    </bean>
+    
+    <!-- ProfilePreferencesLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
+    	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
+    	init-method="init">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+    </bean>
+    
+    <!-- ProfileStatusLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfileStatusLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileStatusLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    </bean>
+    
+    <!-- ProfileImageLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileImageLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileImageLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    </bean>
+    
+    <!-- ProfileMessagingLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileMessagingLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileMessagingLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    </bean>
+    
+    <!-- ProfileConnectionsLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileConnectionsLogicImpl"
+    	init-method="init">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+    	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+    	<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+    </bean>
+    
+    <!-- ProfileKudosLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
+    	init-method="init">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+    </bean>
+    
+    <!-- ProfileExternalIntegrationLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogicImpl">
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
+    
+    <!-- ProfileWallLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileWallLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileWallLogicImpl">
+    		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+    		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+        	<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
+        	<property name="linkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
+    </bean>
+    
+    <!-- ProfileSearchLogic -->
+	<bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
+		class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl"
+		init-method="init">
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
+	</bean>
+	
+	    <!-- ProfileWorksiteLogic -->
+    <bean id="org.sakaiproject.profile2.logic.ProfileWorksiteLogic"
+    	class="org.sakaiproject.profile2.logic.ProfileWorksiteLogicImpl">
+    		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    </bean>
+    
+    <!-- CacheManager -->
+    <bean id="org.sakaiproject.profile2.cache.CacheManager"
+    	class="org.sakaiproject.profile2.cache.CacheManagerImpl">
+    	<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+    </bean>
+
+	<!-- Add our HBM files to the Sakai global session factory -->
+	<bean id="org.sakaiproject.profile2.hbm.HBMMappingList"
+    	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+
+	    <property name="mappingResources">
+	      <list>
+	      	<value>org/sakaiproject/profile2/hbm/ProfileStatus.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ProfilePrivacy.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileFriend.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileImageUploaded.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/Message.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/MessageThread.hbm.xml</value>
+	       	<value>org/sakaiproject/profile2/hbm/MessageParticipant.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/GalleryImage.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/CompanyProfile.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ProfileImageOfficial.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/WallItem.hbm.xml</value>
+	        <value>org/sakaiproject/profile2/hbm/WallItemComment.hbm.xml</value>
+	      </list>
+	    </property>
+
+  	</bean>
+  	
+	<!-- Setup email templates -->
+	<bean id="org.sakaiproject.profile2.emailtemplates.List" class="java.util.ArrayList">
+		<constructor-arg>
+      		<list>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageReply.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallEventNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostMyWallNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostConnectionWallNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallStatusNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-worksiteNew.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-profileChangeNotification.xml</value>
+        		
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageNew_zh_CN.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_zh_CN.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_zh_CN.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_zh_CN.xml</value>
+				
+				<value>org/sakaiproject/profile2/emailtemplates/template-messageNew_sv_SE.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_sv_SE.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_sv_SE.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_sv_SE.xml</value>
+
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallEventNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostMyWallNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostConnectionWallNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallStatusNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-worksiteNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-profileChangeNotification_es_ES.xml</value>
+      		</list>      
+    	</constructor-arg>
+  	</bean>
+  	
+  	<!-- jobs -->
+	<bean id="org.sakaiproject.profile2.job.KudosJob"
+		class="org.sakaiproject.profile2.job.KudosJob"
+		init-method="init">
+		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="kudosLogic" ref="org.sakaiproject.profile2.logic.ProfileKudosLogic" />
+		<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+		<property name="messagingLogic" ref="org.sakaiproject.profile2.logic.ProfileMessagingLogic" />
+		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
+		<property name="externalIntegrationLogic" ref="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic" />
+		
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+	
+	<bean id="org.sakaiproject.profile2.job.KudosJobBeanWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+		<property name="jobName" value="Profile2 Kudos Calculator" />
+		<property name="beanId" value="org.sakaiproject.profile2.job.KudosJob" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+    
+    <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551
+-->
+	<bean id="org.sakaiproject.profile2.service.ProfileService"
+    	class="org.sakaiproject.profile2.service.ProfileServiceImpl">
+    	<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
+	</bean>
+	
+	<!-- ProfileConverter -->
+	<bean id="org.sakaiproject.profile2.conversion.ProfileConverter"
+    	class="org.sakaiproject.profile2.conversion.ProfileConverter"
+    	init-method="init">
+    	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
+    	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
+    	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+	</bean>
+
+	<bean id="org.sakaiproject.profile2.service.ProfileImageService"
+				class="org.sakaiproject.profile2.service.ProfileImageServiceImpl">
+		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
+	<bean id="org.sakaiproject.profile2.logic.ProfileContentProducer"
+		class="org.sakaiproject.profile2.logic.ProfileContentProducer" init-method="init">
+		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
+		<property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
+		<property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+	</bean>
+
+</beans>

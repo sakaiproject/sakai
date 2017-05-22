@@ -1,7 +1,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 
 
@@ -9,7 +9,7 @@ public class EventLogFacade
 implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
-	private Log log = LogFactory.getLog(EventLogFacade.class);
+	private Logger log = LoggerFactory.getLogger(EventLogFacade.class);
 
 	private EventLogData data;
 	

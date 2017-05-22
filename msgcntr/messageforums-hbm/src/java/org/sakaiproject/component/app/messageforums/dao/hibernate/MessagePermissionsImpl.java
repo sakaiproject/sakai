@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.MessagePermissions;
@@ -29,7 +29,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 
 public class MessagePermissionsImpl implements MessagePermissions {
 
-    private static final Log LOG = LogFactory.getLog(MessagePermissionsImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MessagePermissionsImpl.class);
 
     private String role;
 

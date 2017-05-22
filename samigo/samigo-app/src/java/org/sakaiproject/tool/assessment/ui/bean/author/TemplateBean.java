@@ -19,22 +19,23 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
-//import org.navigoproject.osid.assessment.AssessmentServiceDelegate;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>  JSF backing bean for Template pages
@@ -44,7 +45,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class TemplateBean implements Serializable
 {
   private static final long serialVersionUID = 7526471155622776147L;
-  private HashMap values = new HashMap();
+  private Map values = new HashMap();
   private String newName;
   private String templateName;
   private String templateAuthor;
@@ -54,9 +55,11 @@ public class TemplateBean implements Serializable
   private String questionNumbering = "1";
   private String displayScoreDuringAssessments = "1";
   private Boolean markForReview = Boolean.TRUE;
+  private boolean honorPledge;
   private String submissionModel = "1";
   private String submissionNumber;
   private String lateHandling = "2";
+  private String instructorNotification = String.valueOf(SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT);
   private Boolean automaticSubmission = Boolean.FALSE;
   private String autoSave = "1";
   private String feedbackType = "1";
@@ -70,7 +73,7 @@ public class TemplateBean implements Serializable
   private Boolean feedbackComponent_SelectionLevel = Boolean.FALSE;
   private Boolean feedbackComponent_GraderComments = Boolean.TRUE;
   private Boolean feedbackComponent_Statistics = Boolean.TRUE;
-  private HashMap feedbackTypes = new HashMap();
+  private Map feedbackTypes = new HashMap();
   private String anonymousGrading = "1";
   private String toGradebook = "1";
   private String recordedScore = "1";
@@ -100,7 +103,9 @@ public class TemplateBean implements Serializable
     values.put("feedbackAuthoring_isInstructorEditable", Boolean.TRUE);
     values.put("feedbackComponents_isInstructorEditable", Boolean.TRUE);
     values.put("anonymousRelease_isInstructorEditable", Boolean.TRUE);
-    values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);     
+    values.put("authenticatedRelease_isInstructorEditable", Boolean.TRUE);
+    values.put("instructorNotification_isInstructorEditable", Boolean.TRUE);
+    values.put("honorpledge_isInstructorEditable", Boolean.TRUE);
   }
 
     public void setOutcome(String outcome){
@@ -143,7 +148,7 @@ public class TemplateBean implements Serializable
    *
    * @param newMap
    */
-  public void setValueMap(HashMap newMap)
+  public void setValueMap(Map newMap)
   {
     values = newMap;
   }
@@ -153,7 +158,7 @@ public class TemplateBean implements Serializable
    *
    * @return
    */
-  public HashMap getValueMap()
+  public Map getValueMap()
   {
     return values;
   }
@@ -225,7 +230,7 @@ public class TemplateBean implements Serializable
    *
    * @return
    */
-  public HashMap getFeedbackTypeMap()
+  public Map getFeedbackTypeMap()
   {
     return feedbackTypes;
   }
@@ -441,6 +446,10 @@ public class TemplateBean implements Serializable
     return markForReview;
   }
 
+  public boolean isHonorPledge() { return honorPledge; }
+
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
+
   /**
    * submission model
    *
@@ -545,6 +554,30 @@ public class TemplateBean implements Serializable
       return "2";
     }
     return checker(lateHandling, "2");
+  }
+
+  /**
+   * Submission Emails
+   *
+   * @param newInstructorNotification submission emails
+     */
+  public void setInstructorNotification(String newInstructorNotification)
+  {
+    instructorNotification = newInstructorNotification;
+  }
+
+  /**
+   * submission emails
+   *
+   * @return submission emails
+     */
+  public String getInstructorNotification()
+  {
+    if ("0".equals(instructorNotification))
+    {
+      return String.valueOf(SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT);
+    }
+    return checker(instructorNotification, String.valueOf(SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT));
   }
 
   // Feedback
@@ -986,7 +1019,8 @@ public class TemplateBean implements Serializable
   }
   
   public boolean getShowAssessmentTypes() {
-	  return ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
+	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+	  return authorizationBean.isSuperUser() || ServerConfigurationService.getBoolean("samigo.showAssessmentTypes", false);
   }
 
   public boolean isSecureDeliveryAvailable() {

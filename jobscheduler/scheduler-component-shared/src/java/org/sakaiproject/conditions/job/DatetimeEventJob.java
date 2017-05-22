@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.conditions.job;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -32,8 +32,6 @@ import org.sakaiproject.event.cover.EventTrackingService;
 
 public class DatetimeEventJob implements Job
 {
-
-  private static final Log LOG = LogFactory.getLog(DatetimeEventJob.class);
 
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)

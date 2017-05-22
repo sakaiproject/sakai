@@ -13,11 +13,11 @@ Si desea modificar las opciones de notificación, acceda a Mi Sitio > ${toolName
 	<htmlMessage>${senderDisplayName} ha creado el nuevo sitio de trabajo '${worksiteTitle}' para que colaboréis en ${localSakaiName}
 &lt;p&gt;
 Para acceder al nuevo sitio de trabajo puedes hacer clic en el siguiente enlace:
-&lt;br /&gt;${worksiteLink}
+&lt;br /&gt;&lt;a href="${worksiteLink}"&gt;${worksiteLink}&lt;/a&gt;
 &lt;/p&gt;
 &lt;p&gt;
 ---
-&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;Este mensaje de notificación automática ha sido enviado por &lt;a href="${localSakaiUrl}"&gt;${localSakaiName}&lt;/a&gt;
 &lt;br /&gt;Si desea modificar las opciones de notificación, acceda a Mi Sitio &gt; ${toolName} &gt; Preferencias
 &lt;/p&gt;
 	</htmlMessage>

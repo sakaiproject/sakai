@@ -4,8 +4,8 @@ package org.sakaiproject.site.util;
 import java.text.Collator;
 import java.util.Comparator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
@@ -22,7 +22,7 @@ import java.text.RuleBasedCollator;
  * The comparator to be used in Worksite Setup/Site Info tool
  */
 public class SiteComparator implements Comparator {
-	private static Log log = LogFactory.getLog(SiteComparator.class);
+	private static Logger log = LoggerFactory.getLogger(SiteComparator.class);
 
 	Collator collator = Collator.getInstance();
 	Collator localeCollator = null;

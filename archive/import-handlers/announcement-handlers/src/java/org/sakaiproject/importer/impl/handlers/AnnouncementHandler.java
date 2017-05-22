@@ -17,8 +17,8 @@
 
 package org.sakaiproject.importer.impl.handlers;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -38,7 +38,7 @@ import org.sakaiproject.site.api.SiteService;
  */
 public class AnnouncementHandler implements HandlesImportable {
 
-	private static Log log = LogFactory.getLog(AnnouncementHandler.class);
+	private static Logger log = LoggerFactory.getLogger(AnnouncementHandler.class);
 
 	protected AnnouncementService announcementService = null;
 	

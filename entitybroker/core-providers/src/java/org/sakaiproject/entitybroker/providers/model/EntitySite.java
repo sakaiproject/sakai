@@ -671,6 +671,17 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
+    public void deleteGroup(Group arg0) throws IllegalStateException {
+        if (site != null) {
+            try {
+                site.deleteGroup(arg0);
+            } catch (IllegalStateException e) {
+                throw e;
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
     public void removePage(SitePage arg0) {
         if (site != null) {
             site.removePage(arg0);

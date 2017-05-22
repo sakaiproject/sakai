@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.courier.api.CourierService;
@@ -55,7 +55,7 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
 	  
 	public final static String ENTITY_PREFIX = "chat-channel";
 
-	protected final Log LOG = LogFactory.getLog(getClass());
+	protected final Logger LOG = LoggerFactory.getLogger(getClass());
 	
 	public class SimpleChatChannel {
 

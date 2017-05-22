@@ -22,8 +22,10 @@ package org.sakaiproject.signup.tool.jsf;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
@@ -35,8 +37,8 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -58,6 +60,7 @@ import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * <p>
@@ -222,7 +225,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private int maxAttendeesPerSlot;
 
-	private Log logger = LogFactory.getLog(getClass());
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	/* used for jsf parameter passing */
 	private final static String PARAM_NAME_FOR_ATTENDEE_USERID = "attendeeUserId";
@@ -231,6 +234,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private int maxNumOfSlots;
 	/* Used for populate the drop down box for the allowed number of meeting slots */
 	private List<SelectItem> slots;
+	
+	private String startTimeString;
+	private String endTimeString;
+	private String repeatUntilString;
+	private static String HIDDEN_ISO_STARTTIME = "startTimeISO8601";
+	private static String HIDDEN_ISO_ENDTIME = "endTimeISO8601";
+	private static String HIDDEN_ISO_UNTILTIME = "untilISO8601";
 	
 	public int getMaxNumOfSlots() {
 		return maxNumOfSlots;
@@ -378,6 +388,30 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setRepeatUntil(Date repeatUntil) {
 		this.repeatUntil = repeatUntil;
+	}
+
+	public String getStartTimeString() {
+		return startTimeString;
+	}
+
+	public String getEndTimeString() {
+		return endTimeString;
+	}
+
+	public void setStartTimeString(String startTimeString) {
+		this.startTimeString = startTimeString;
+	}
+
+	public void setEndTimeString(String endTimeString) {
+		this.endTimeString = endTimeString;
+	}
+
+	public String getRepeatUntilString() {
+		return repeatUntilString;
+	}
+
+	public void setRepeatUntilString(String repeatUntilString) {
+		this.repeatUntilString = repeatUntilString;
 	}
 
 	/** Initialize all the default setting for creating new events. */
@@ -625,10 +659,41 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 					this.signupMeeting.setCategory(selectedCategory);
 				}
 			}
-			
+
+			// Need to filter for bad HTML
+			StringBuilder descriptionErrors = new StringBuilder();
+			String filteredDescription = sakaiFacade.getFormattedText()
+					.processFormattedText(this.signupMeeting.getDescription(), descriptionErrors, true);
+			this.signupMeeting.setDescription(filteredDescription);
+			if (descriptionErrors.length() > 0) {
+				validationError = true;
+				Utilities.addErrorMessage(descriptionErrors.toString());
+				return;
+			}
+
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			}
+
+			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			}
+
+			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+				setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+			}
+
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
 			/*user defined own TS case*/
@@ -2141,7 +2206,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return	List<String> of eids.
 	 */
 	public List<String> getEidsForEmail(String email) {
-		List<User> users = sakaiFacade.getUsersByEmail(email);
+		Collection<User> users = sakaiFacade.getUsersByEmail(email);
 		
 		List<String> eids = new ArrayList<String>();
 		for(User u:users) {

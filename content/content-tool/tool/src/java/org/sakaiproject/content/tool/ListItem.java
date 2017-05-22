@@ -35,39 +35,33 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
-import org.sakaiproject.content.api.ContentHostingHandlerResolver;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.metadata.logic.MetadataService;
 import org.sakaiproject.content.metadata.model.MetadataType;
@@ -80,20 +74,25 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.cover.NotificationService;
-import org.sakaiproject.exception.*;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ListItem
@@ -115,7 +114,7 @@ public class ListItem
 	/** Resource bundle using current language locale */
     private static ResourceLoader trb = new ResourceLoader("types");
 
-    private static final Log logger = LogFactory.getLog(ListItem.class);
+    private static final Logger logger = LoggerFactory.getLogger(ListItem.class);
     
     protected static final Comparator<ContentEntity> DEFAULT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
 
@@ -371,6 +370,7 @@ public class ListItem
 	protected String expandLabel;
 	protected String accessUrl;
 	protected String iconLocation;
+	protected String iconClass;
 	protected String mimetype;
 	protected String resourceType;
 	protected ResourceType resourceTypeDef = null;
@@ -618,9 +618,11 @@ public class ListItem
 		{
 			this.hoverText = typeDef.getLocalizedHoverText(entity);
 			this.iconLocation = typeDef.getIconLocation(entity);
+			this.iconClass = typeDef.getIconClass(entity);
 			if(typeDef.isExpandable())
 			{
 				this.expandIconLocation = ((ExpandableResourceType) typeDef).getIconLocation(this.entity, this.isExpanded);
+				this.iconClass = ((ExpandableResourceType) typeDef).getIconClass(this.entity, this.isExpanded);
 				this.expandLabel = ((ExpandableResourceType) typeDef).getLocalizedHoverText(this.entity, this.isExpanded);
 			}
 			String[] args = { typeDef.getLabel() };
@@ -729,6 +731,10 @@ public class ListItem
 			else if(this.iconLocation == null)
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+			}
+			if(this.iconClass == null && this.mimetype != null)
+			{ 
+				this.iconClass = ContentTypeImageService.getContentTypeImageClass(this.mimetype);
 			}
 			if (SecurityService.isSuperUser())
 			{
@@ -1016,6 +1022,7 @@ public class ListItem
 		{
 			this.hoverText = resourceTypeDef.getLocalizedHoverText(null);
 			this.iconLocation = resourceTypeDef.getIconLocation(this.entity);
+			this.iconClass = resourceTypeDef.getIconClass(this.entity);
 			String[] args = { resourceTypeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 			// NOTE: Don't do this at home kids, this is hackery of the worst order!
@@ -1058,6 +1065,10 @@ public class ListItem
 			else if(this.iconLocation == null)
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+			}
+			if(this.iconClass == null && this.mimetype != null)
+			{ 
+				this.iconClass = ContentTypeImageService.getContentTypeImageClass(this.mimetype);
 			}
 			String size = "";
 			if(pipe.getContent() != null)
@@ -2345,6 +2356,14 @@ public class ListItem
 	{
 		return this.iconLocation;
 	}
+	
+	/**
+	 * @return the iconClass
+	 */
+	public String getIconClass()
+	{
+		return this.iconClass;
+	}
 
 	/**
 	 * @return
@@ -2648,28 +2667,12 @@ public class ListItem
      */
     public boolean isPossible(Group group)
     {
-    	boolean isPossible = false;
+    	if (group == null || group.getContainingSite() == null) return false;
     	
-    	Collection<Group> groupsToCheck = this.possibleGroups;
-    	if(AccessMode.GROUPED == this.inheritedAccessMode)
-    	{
-    		groupsToCheck = this.inheritedGroups;
-    	}
+    	String userId = UserDirectoryService.getCurrentUser().getId();
+    	if (group.getContainingSite().isAllowed(userId, ContentHostingService.AUTH_RESOURCE_ALL_GROUPS)) return true;
     	
-    	for(Group gr : groupsToCheck)
-    	{
-    		if(gr == null)
-    		{
-    			// ignore
-    		}
-    		else if(gr.getId().equals(group.getId()))
-    		{
-    			isPossible = true;
-    			break;
-    		}
-    	}
-    	
-    	return isPossible;
+    	return group.isAllowed(userId, SiteService.SITE_VISIT);
     }
     
 	/**
@@ -2965,6 +2968,7 @@ public class ListItem
     	if(this.resourceTypeDef != null && this.resourceTypeDef instanceof ExpandableResourceType)
     	{
  			this.expandIconLocation = ((ExpandableResourceType) resourceTypeDef).getIconLocation(this.entity, this.isExpanded);
+ 			this.iconClass = ((ExpandableResourceType) resourceTypeDef).getIconClass(this.entity, this.isExpanded);
 			this.expandLabel = ((ExpandableResourceType) resourceTypeDef).getLocalizedHoverText(this.entity, this.isExpanded);
 		}
     }
@@ -3024,6 +3028,14 @@ public class ListItem
 	public void setIconLocation(String iconLocation)
 	{
 		this.iconLocation = iconLocation;
+	}
+	
+	/**
+	 * @param iconClass the iconClass to set
+	 */
+	public void setIconClass(String iconClass)
+	{
+		this.iconClass = iconClass;
 	}
 
 	/**

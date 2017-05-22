@@ -20,8 +20,8 @@ package org.sakaiproject.tool.assessment.util;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -47,7 +47,7 @@ public class MediaContentConverter {
 	private int recordsNotMarked = 0;
 	private int recordsInError = 0;
 
-	Log log = LogFactory.getLog(MediaContentConverter.class);
+ Logger log = LoggerFactory.getLogger(MediaContentConverter.class);
 
 	public void init() {
 		boolean convertMedia = ServerConfigurationService.getBoolean(CONVERT_MEDIA_PROP, false);

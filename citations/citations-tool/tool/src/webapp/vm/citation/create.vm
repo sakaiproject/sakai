@@ -1,11 +1,11 @@
-
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
 
-<script type="text/javascript" src="#libraryLink('js/jquery.js')">
+<script type="text/javascript" src="#libraryLink('webjars/jquery/1.11.3/jquery.js')">
 </script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>
+<link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
 
 <div class="portletBody">
         #set ($fromListPage = $state.getAttribute("fromListPage"))

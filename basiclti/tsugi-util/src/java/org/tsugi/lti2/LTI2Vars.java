@@ -48,6 +48,11 @@ public class LTI2Vars {
 	public static final String CONTEXT_ID_HISTORY = "Context.id.history";
 	public static final String TOOLCONSUMERPROFILE_URL = "ToolConsumerProfile.url";
 
+	/* HACK: This was not in 2.0, makes no sense at all, but appeared
+	 * randomly in the certification tests late 2016.
+	 */
+	public static final String CONTEXT_SOURCEDID = "Context.sourcedId";
+
 	/**
 	 * COURSEOFFERING_ACADEMICSESSION
 	 *
@@ -959,6 +964,13 @@ public class LTI2Vars {
 	 *  The username that identifies the user within the Tool Consumer system.
 	 */
 	public static final String USER_USERNAME = "User.username";
+
+	/**
+	 * MESSAGE_LOCALE
+	 *
+	 *  The locale of this launch
+	 */
+	public static final String MESSAGE_LOCALE = "Message.locale";
 
 	/**
 	 * ALL_VARIABLES - A list of all of the subsitution variables

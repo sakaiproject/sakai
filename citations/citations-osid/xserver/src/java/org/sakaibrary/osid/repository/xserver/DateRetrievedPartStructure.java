@@ -21,13 +21,12 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class DateRetrievedPartStructure
 implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.DateRetrievedPartStructure" );
-
 	private org.osid.shared.Id DATE_RETRIEVED_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"dateRetrieved", "Date Retrieved" );
@@ -46,7 +45,7 @@ implements org.osid.repository.PartStructure
 			this.DATE_RETRIEVED_PART_STRUCTURE_ID = Managers.getIdManager().getId(
 					"b1asbd8f09s3450909751910168500100");
 		} catch (Throwable t) {
-			LOG.warn( "DateRetrievedPartStructure() failed to get partStructure id: "
+			log.warn( "DateRetrievedPartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}
 	}

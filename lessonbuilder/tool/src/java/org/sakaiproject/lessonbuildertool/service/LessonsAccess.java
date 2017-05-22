@@ -31,8 +31,8 @@ import java.util.Set;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -76,7 +76,7 @@ import org.sakaiproject.memory.api.MemoryService;
 
 public class LessonsAccess {
 
-    private Log log = LogFactory.getLog(LessonsAccess.class);
+    private Logger log = LoggerFactory.getLogger(LessonsAccess.class);
 
     // caching
     private static Cache cache = null;
@@ -285,7 +285,7 @@ public class LessonsAccess {
 
 	// if it's a student page, have to handle specially. Find item that has the student content section
 	// if usePrerequistes false, this can't happen, since no graded items will occur there
-	if (page.getOwner() != null) {
+	if (page.getOwner() != null && !page.isOwned()) {
 	    SimpleStudentPage student = dao.findStudentPage(page.getTopParent());
 	    SimplePageItem item = dao.findItem(student.getItemId());
 	    items = new ArrayList<SimplePageItem>();
@@ -552,6 +552,31 @@ public class LessonsAccess {
 	}
 
 	return true;
+    }
+
+    // shoud be the same as canEditPage in SimplePageBean, but without the caching from the bean.
+    public boolean canEditPage (String siteId, SimplePage page) {
+	String ref = "/site/" + siteId;
+	if (securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref))
+	    return true;
+	if (page != null && isPageOwner(page))
+	    return true;
+	return false;
+    }
+
+    // copied from SimplePageBean, for use at service level. 
+    public boolean isPageOwner(SimplePage page) {
+	String owner = page.getOwner();
+	String group = page.getGroup();
+	if (group != null)
+	    group = "/site/" + page.getSiteId() + "/group/" + group;
+	if (owner == null)
+	    return false;
+	String currentUserId = UserDirectoryService.getCurrentUser().getId();
+	if (group == null)
+	    return owner.equals(currentUserId);
+	else
+	    return authzGroupService.getUserRole(currentUserId, group) != null;
     }
 
     public void setAuthzGroupService(AuthzGroupService authzGroupService) {

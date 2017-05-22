@@ -23,7 +23,7 @@
         </thead>
         <tbody>
           <tr th:each="property : ${listModifiedMessageProperties}">
-            <td><a href="edit" class="btn btn-default btn-xs btn-block" role="button" th:href="@{/edit(id=${property?.id})}" th:text="#{modified.edit}">Edit</a></td>
+            <td><a href="edit" role="button" th:href="@{/edit(id=${property?.id})}" th:text="#{modified.edit}">Edit</a></td>
             <td th:text="${property?.id}">0</td>
             <td th:text="${property?.moduleName}">moduleName</td>
             <td th:text="${property?.propertyName}">propertyName</td>

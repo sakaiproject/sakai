@@ -25,8 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -48,7 +48,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 public class SakaiClusterService implements ClusterService
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SakaiClusterService.class);
+	private static Logger M_log = LoggerFactory.getLogger(SakaiClusterService.class);
 
 	/** The maintenance. */
 	protected Maintenance m_maintenance = null;

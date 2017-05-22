@@ -23,8 +23,8 @@ package org.sakaiproject.presence.impl;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.UsageSession;
 
@@ -36,7 +36,7 @@ import org.sakaiproject.event.api.UsageSession;
 public class ClusterPresenceService extends BasePresenceService
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(ClusterPresenceService.class);
+	private static Logger M_log = LoggerFactory.getLogger(ClusterPresenceService.class);
 
 	/**
 	 * Allocate a new storage object.

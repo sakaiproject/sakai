@@ -8,16 +8,16 @@
     <div class="portletBody">
       <div id="menu" th:include="fragments/menus :: main (modules)" />
       <h3 th:text="#{modules.modules}">Messages by Module</h3>
-      <form id="filterForm" class="form-inline" action="#" th:action="@{/modules}" th:object="${modulesFilterEntity}" method="post">
-        <label for="moduleSelect" class="control-label" th:text="#{modules.module.select}">Select a Module</label>
-        <select id="moduleSelect" class="form-control" th:field="*{module}">
+      <form id="filterForm" action="#" th:action="@{/modules}" th:object="${modulesFilterEntity}" method="post">
+        <label for="moduleSelect" th:text="#{modules.module.select}">Select a Module</label>
+        <select id="moduleSelect" th:field="*{module}">
           <option th:each="module : ${listMessagePropertyModules}" th:value="${module}" th:text="${module}">module</option>
         </select>
-        <label for="localeSelect" class="control-label" th:text="#{modules.locale.select}">Select a Locale</label>
-        <select id="localeSelect" class="form-control" th:field="*{locale}">
+        <label for="localeSelect" th:text="#{modules.locale.select}">Select a Locale</label>
+        <select id="localeSelect" th:field="*{locale}">
           <option th:each="locale : ${listMessagePropertyLocales}" th:value="${locale}" th:text="${locale}">locale</option>
         </select>
-        <button type="submit" class="btn btn-primary" name="filter" th:text="#{modules.filter}">Filter</button>
+        <button type="submit" name="filter" th:text="#{modules.filter}">Filter</button>
       </form>
       <div th:switch="${ #lists.isEmpty(properties) }">
         <div th:case="true">

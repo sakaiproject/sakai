@@ -17,7 +17,10 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2003</inceptionYear>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -39,10 +42,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-taggable-hbm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>

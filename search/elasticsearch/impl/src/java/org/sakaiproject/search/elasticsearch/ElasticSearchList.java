@@ -1,8 +1,8 @@
 package org.sakaiproject.search.elasticsearch;
 
 import com.google.common.collect.ForwardingList;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.facet.terms.InternalTermsFacet;
@@ -19,7 +19,7 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class ElasticSearchList extends ForwardingList<SearchResult> implements SearchList {
-    private static final Log log = LogFactory.getLog(ElasticSearchList.class);
+    private static final Logger log = LoggerFactory.getLogger(ElasticSearchList.class);
     private final List<SearchResult> results;
     private final SearchResponse response;
     private final SearchItemFilter filter;
@@ -37,7 +37,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
 
 
         try {
-            highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<String>(), 0, references.size(), references);
+            highlightedResponse = elasticSearchService.search(searchTerms, new ArrayList<String>(), 0, references.size(), references, searchIndexBuilder.getName());
         } catch (Exception e) {
             log.error("problem running hightlighted and facetted search: " + e.getMessage(), e);
             return;
@@ -46,7 +46,7 @@ public class ElasticSearchList extends ForwardingList<SearchResult> implements S
         int i=0;
         for (SearchHit hit : highlightedResponse.getHits()) {
             InternalTermsFacet facet = null;
-            if (elasticSearchService.getUseFacetting()){
+            if (searchIndexBuilder.getUseFacetting()){
                 facet = (InternalTermsFacet) highlightedResponse.getFacets().facet(facetName);
             }
             ElasticSearchResult result = new ElasticSearchResult(hit, facet, searchIndexBuilder, searchTerms);

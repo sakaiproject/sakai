@@ -21,9 +21,9 @@
 
 package org.sakaiproject.user.impl;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
@@ -47,7 +47,7 @@ import java.util.*;
 public abstract class DbUserService extends BaseUserDirectoryService
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(DbUserService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbUserService.class);
 
 	/** Table name for users. */
 	protected String m_tableName = "SAKAI_USER";

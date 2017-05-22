@@ -10,8 +10,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -22,7 +22,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class SaCharCountListener implements ActionListener
 {
-	private static Log log = LogFactory.getLog(SaCharCountListener.class);
+	private static Logger log = LoggerFactory.getLogger(SaCharCountListener.class);
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException
 	{

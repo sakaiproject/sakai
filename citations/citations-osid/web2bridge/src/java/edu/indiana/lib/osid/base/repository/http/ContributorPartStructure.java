@@ -29,9 +29,6 @@ package edu.indiana.lib.osid.base.repository.http;
 
 public class ContributorPartStructure extends edu.indiana.lib.osid.base.repository.PartStructure
 {
-
-	private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(ContributorPartStructure.class);
-
     private org.osid.shared.Id CONTRIBUTOR_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","contributor","Contributor");
     private String displayName = "Contributor";

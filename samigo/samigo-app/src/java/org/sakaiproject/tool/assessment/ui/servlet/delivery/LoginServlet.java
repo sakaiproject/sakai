@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
+
 import javax.faces.component.UICommand;
 import javax.faces.component.UIComponent;
 import javax.faces.event.ActionEvent;
@@ -38,8 +40,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
@@ -71,7 +73,7 @@ public class LoginServlet
 	 * 
 	 */
 	private static final long serialVersionUID = -5495078878170443939L;
-	private static Log log = LogFactory.getLog(LoginServlet.class);
+	private static Logger log = LoggerFactory.getLogger(LoginServlet.class);
 
 	private SiteService siteService;
 
@@ -135,8 +137,8 @@ public class LoginServlet
     }
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
-    delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    		pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
+    Boolean honorPledge = BooleanUtils.toBoolean(pub.getAssessmentAccessControl().getHonorPledge());
+    delivery.setHonorPledge(honorPledge);
     delivery.setPublishedAssessment(pub);
 
     BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
@@ -175,6 +177,8 @@ public class LoginServlet
           // in 2.2, agentId is differnt from req.getRemoteUser()
           agentIdString = AgentFacade.getAgentString();
         }
+        delivery.setAnonymousLogin(false);
+        person.setAnonymousId(null);
       }
 
       log.debug("*** agentIdString: "+agentIdString);

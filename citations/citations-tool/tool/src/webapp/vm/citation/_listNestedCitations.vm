@@ -1,14 +1,22 @@
 <input type="hidden" id="sectionTitleText" value="$tlang.getString("nested.section.title")"/>
 <input type="hidden" id="sectionDescriptionText" value="$tlang.getString("nested.section.description.text")"/>
-<input type="hidden" id="startEditingDescriptionText" value="$tlang.getString("nested.edit.description.section.button")"/>
-<input type="hidden" id="finishEditingDescriptionText" value="$tlang.getString("nested.finish.editing.description.button")"/>
 <input type="hidden" id="startEditingText" value="$tlang.getString("nested.start.editing.button")"/>
 <input type="hidden" id="finishEditingText" value="$tlang.getString("nested.finish.editing.button")"/>
 <input type="hidden" id="deleteSectionText" value="$tlang.getString("nested.delete.section.button")"/>
 <input type="hidden" id="addSubsectionButtonText" value="$tlang.getString("nested.add.subsection.button")"/>
 <input type="hidden" id="deleteButtonConfirmText" value="$tlang.getString("nested.delete.section.confirm")"/>
+<input type="hidden" id="deleteButtonDescConfirmText" value="$tlang.getString("nested.delete.description.confirm")"/>
 
 #if(!$resourceAdd)
+<!-- Markup for Export/RIS -->
+	#if( $!exportUrlAll )
+    <div style="float:right;"><span class="searchTargetLink" style="float:right;">
+				    <a name="ExportCitation" id="ExportCitation" title="$tlang.getString("resource.export.file")"
+                       href="$exportUrlAll"> $tlang.getString("resource.export")
+                    </a>
+				  </span>
+    </div>
+	#end
 	##Banner
 	<div class="listTitle sectionButtons" style="background-color:$officialInstBackColour">
 	    <h1 style="color:$officialInstTextColour">$resourceTitle</h1>
@@ -19,12 +27,12 @@
 	#else
 		#set( $introduction = 'Reading List Introduction' )
 	#end
-	<div id='sectionInlineEditorDescription' class='editor sectionEditorsectionInlineEditorDescription sectionButtons buttonsDescription'>
+	<div id='sectionInlineEditorDescription' class='editor sectionEditorsectionInlineEditorDescription buttonsDescription'>
 		$introduction
 	</div>
-	<div id="buttonsDescription" class="sectionButtons buttonsDescription">
-		<input type="button" id="toggleDescription" class="active" value='$tlang.getString("nested.start.editing.button")'/>
-	</div>
+    <div id="buttonsDescription" class="buttonsDescription">
+        <input type="button" id="toggleDescription" class="active" value='$tlang.getString("nested.start.editing.button")'/>
+    </div>
 #end
 
 #set( $num = 1 )
@@ -42,7 +50,6 @@
 		#set( $addH1SubsectionButtonId = 'addH1SubsectionButton' + $nestedSection.getLocation() )
 		#set( $buttonsDiv = 'buttonsDiv' + $nestedSection.getLocation() )
 		#set( $num = $num + 1)
-		<li id='$linkId' class='h1Editor' data-value='$nestedSection.getValue()' data-location='$nestedSection.getLocation()'
 		#if ($nestedSection.getChildren().size() > 0)
 			#set( $hasSectionsClass = ' hasSections')
 		#end
@@ -51,7 +58,7 @@
 			<div id="$linkClickId" class="h1TopBar">
 				#if ($nestedSection.getChildren().size() > 0)
 					<div id="$toggleImgDiv"><img border="0" width="16" height="16" align="top" id="$toggleImg"
-							class="toggleIcon accordionArrow" style="padding-top: 11px;" src="/library/image/sakai/white-arrow-right.gif" alt="$tlang.getString("link.show.readonly")">
+							class="toggleIcon accordionArrow" style="padding: 0px;" src="/library/image/sakai/white-arrow-right.gif" alt="$tlang.getString("link.show.readonly")">
 					</div>
 				#end
 				<div id='$editorDivId' class='editor h1Editor #if($nestedSection.getChildren().size() > 0)sectionEditor#end'>
@@ -76,13 +83,15 @@
 
 			## h2 sections and citations
 			#if($nestedSection.getChildren().size() > 0)
-				<ol class="h2NestedLevel holdCitations"></ol>
-				<ol id="$addSubsectionId" class="h2NestedLevel">
+				<ol id="$addSubsectionId" class="h2NestedLevel holdCitations">
 					#foreach($h2Section in $nestedSection.getChildren())
 						#set( $num = $num + 1)
 						#set( $editorDivId = 'sectionInlineEditor' + $h2Section.getLocation() )
 						#set( $linkId = 'link' + $h2Section.getLocation() )
 						#set( $toogleId = 'toggle' + $h2Section.getLocation())
+						#set( $toggleImgDiv = 'toggleImgDiv' + $h2Section.getLocation())
+						#set( $toggleImg = 'toggleImg' + $h2Section.getLocation() )
+						#set( $linkClickId = 'linkClickId' + $h2Section.getLocation() )
 						#set( $removeDivId = 'removeSection' + $h2Section.getLocation() )
 						#set( $addSubsectionId = 'addSubsection' + $h2Section.getLocation() )
 						#set( $addH2SubsectionButtonId = 'addH2SubsectionButton' + $h2Section.getLocation() )
@@ -93,15 +102,25 @@
 							#set( $class = 'description' )
 							#set( $descriptionStyle = 'descriptionButtons' )
 						#end
+						#if ($h2Section.getChildren().size() > 0)
+							#set( $hasSectionsClass = ' hasSections')
+						#end
 
 
 					## if it's a h1 section or description
 					#if ($h2Section.getSectiontype()=='HEADING2' || $h2Section.getSectiontype()=='DESCRIPTION')
 
-						<li id='$linkId' class='h2Section $class' data-value='$h2Section.getValue()' data-location='$h2Section.getLocation()' data-sectiontype='$h2Section.getSectiontype()'>
-							<div id='$editorDivId' class='editor h2Editor sectionEditor $class' >
-								$!h2Section.getValue()
-							</div>
+						<li id='$linkId' class='h2Section $class $hasSectionsClass' data-value='$h2Section.getValue()' data-location='$h2Section.getLocation()' data-sectiontype='$h2Section.getSectiontype()'>
+                            <div id="$linkClickId" class="h1TopBar">
+								#if ($h2Section.getChildren().size() > 0)
+                                    <div id="$toggleImgDiv">
+	                                    <img border="0" width="16" height="16" align="top" id="$toggleImg" class="toggleIcon accordionArrow" style="padding: 0px;" src="/library/image/sakai/collapse.gif" alt="$tlang.getString("link.show.readonly")">
+                                    </div>
+								#end
+                                <div id='$editorDivId' class='editor h2Editor sectionEditor $class' >
+		                            $!h2Section.getValue()
+                                </div>
+                            </div>
 							<div id="$buttonsDiv" class="sectionButtons $descriptionStyle" >
 								<input type="button" id="$toogleId" class="active" value='$tlang.getString("nested.start.editing.button")'/>
 								<input type="button" id="$removeDivId" class="active" value='$tlang.getString("nested.delete.section.button")'/>
@@ -118,13 +137,15 @@
 
 							## h3 sections and citations
 							#if($h2Section.getChildren().size() > 0)
-								<ol class="h3NestedLevel holdCitations"></ol>
-								<ol id="$addSubsectionId" class="h3NestedLevel ">
+								<ol id="$addSubsectionId" class="h3NestedLevel holdCitations">
 									#foreach($h3Section in $h2Section.getChildren())
 										#set( $num = $num + 1)
 										#set( $editorDivId = 'sectionInlineEditor' + $h3Section.getLocation() )
 										#set( $linkId = 'link' + $h3Section.getLocation() )
 										#set( $toogleId = 'toggle' + $h3Section.getLocation())
+										#set( $toggleImgDiv = 'toggleImgDiv' + $h3Section.getLocation())
+										#set( $toggleImg = 'toggleImg' + $h3Section.getLocation() )
+										#set( $linkClickId = 'linkClickId' + $h3Section.getLocation() )
 										#set( $removeDivId = 'removeSection' + $h3Section.getLocation() )
 										#set( $addSubsectionId = 'addSubsection' + $h3Section.getLocation() )
 										#set( $buttonsDiv = 'buttonsDiv' + $h3Section.getLocation() )
@@ -135,16 +156,26 @@
 											#set( $class = 'description' )
 											#set( $descriptionStyle = 'descriptionButtons' )
 										#end
+										#if ($h3Section.getChildren().size() > 0)
+											#set( $hasSectionsClass = ' hasSections')
+										#end
 
 
 									    ## if it's a h3 section
 										#if ($h3Section.getSectiontype()=='HEADING3' || $h3Section.getSectiontype()=='DESCRIPTION')
 
 
-										<li id='$linkId' class='h3Section $class' data-value='$h3Section.getValue()' data-location='$h3Section.getLocation()' data-sectiontype='$h3Section.getSectiontype()'>
-											<div id='$editorDivId' class='editor h3Editor sectionEditor $class'>
-												$!h3Section.getValue()
-											</div>
+										<li id='$linkId' class='h3Section $class $hasSectionsClass' data-value='$h3Section.getValue()' data-location='$h3Section.getLocation()' data-sectiontype='$h3Section.getSectiontype()'>
+                                            <div id="$linkClickId" class="h1TopBar">
+												#if ($h2Section.getChildren().size() > 0)
+                                                    <div id="$toggleImgDiv">
+                                                        <img border="0" width="16" height="16" align="top" id="$toggleImg" class="toggleIcon accordionArrow" style="padding: 0px;" src="/library/image/sakai/collapse.gif" alt="$tlang.getString("link.show.readonly")">
+                                                    </div>
+												#end
+                                                <div id='$editorDivId' class='editor h3Editor sectionEditor $class'>
+		                                            $!h3Section.getValue()
+                                                </div>
+                                            </div>
 											<div id="$buttonsDiv" class="$descriptionStyle">
 												<input type="button" id="$toogleId" class="active" value='$tlang.getString("nested.start.editing.button")'/>
 												<input type="button" id="$removeDivId" class="active" value='$tlang.getString("nested.delete.section.button")'/>
@@ -195,7 +226,8 @@
 														</li>
 													#end
 												</ol>
-											#else
+											## this stops dragging inside a description at this level
+											#elseif ($h3Section.getSectiontype()!='DESCRIPTION')
 												<ol class="h4NestedLevel holdCitations"></ol>
 											#end ##  end of nested citations
 										</li>

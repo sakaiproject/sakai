@@ -6,13 +6,14 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -25,9 +26,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -57,20 +60,31 @@ public class PermissionsPage extends BasePage {
 		disableLink(this.permissionsPageLink);
 	}
 
-	public PermissionsPage(final GbUser taSelected) {
-		disableLink(this.permissionsPageLink);
-		this.taSelected = taSelected;
-	}
-
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
+		// grab the selected parameter (if provided)
+		final PageParameters params = getPageParameters();
+		final String taUuid = params.get("selected").toOptionalString();
+
 		// get the list of TAs
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
 
+		// get the TA GbUser for selected (if provided)
+		if (!StringUtils.isBlank(taUuid)) {
+			for (final GbUser gbUser : teachingAssistants) {
+				if (taUuid.equals(gbUser.getUserUuid())) {
+					this.taSelected = gbUser;
+					break;
+				}
+			}
+		}
+
 		// get list of categories
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// add the default 'all' category
 		categories.add(0, new CategoryDefinition(this.ALL_CATEGORIES, getString("categories.all")));
@@ -143,13 +157,17 @@ public class PermissionsPage extends BasePage {
 				final GbUser selection = (GbUser) taChooser.getDefaultModelObject();
 
 				// refresh with the selected user
-				setResponsePage(new PermissionsPage(selection));
+				final PageParameters pageParameters = new PageParameters();
+				pageParameters.add("selected", selection.getUserUuid());
+				setResponsePage(PermissionsPage.class, pageParameters);
 			}
 
 		});
 
 		taChooser.setNullValid(false);
-		taChooser.setModelObject(this.taSelected);
+		if (this.taSelected != null) {
+			taChooser.setModelObject(this.taSelected);
+		}
 
 		add(taChooser);
 
@@ -233,11 +251,20 @@ public class PermissionsPage extends BasePage {
 					permissions.add(viewCourseGradePermission);
 				}
 
-				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(), permissions);
+				//remove any dupes - we also present a message if dupes were removed
+				final List<PermissionDefinition> distinctPermissions = permissions.stream().distinct().collect(Collectors.toList());
 
-				getSession().info(getString("permissionspage.update.success"));
+				PermissionsPage.this.businessService.updatePermissionsForUser(PermissionsPage.this.taSelected.getUserUuid(), distinctPermissions);
 
-				setResponsePage(new PermissionsPage(PermissionsPage.this.taSelected));
+				getSession().success(getString("permissionspage.update.success"));
+
+				if(distinctPermissions.size() < permissions.size()) {
+					getSession().success(getString("permissionspage.update.dupes"));
+				}
+
+				final PageParameters pageParameters = new PageParameters();
+				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
+				setResponsePage(PermissionsPage.class, pageParameters);
 			}
 
 			@Override
@@ -253,7 +280,9 @@ public class PermissionsPage extends BasePage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(new PermissionsPage(PermissionsPage.this.taSelected));
+				final PageParameters pageParameters = new PageParameters();
+				pageParameters.add("selected", PermissionsPage.this.taSelected.getUserUuid());
+				setResponsePage(PermissionsPage.class, pageParameters);
 			}
 
 			@Override
@@ -329,7 +358,10 @@ public class PermissionsPage extends BasePage {
 				// set selected or first item
 				categoryChooser.setModelObject((permission.getCategoryId() != null) ? permission.getCategoryId() : categoryIdList.get(0));
 				categoryChooser.setNullValid(false);
+				categoryChooser.setVisible(categoriesEnabled);
 				item.add(categoryChooser);
+
+				item.add(new WebMarkupContainer("allGradeItems").setVisible(!categoriesEnabled));
 
 				// in
 				item.add(new Label("in", new ResourceModel("permissionspage.item.in")));
@@ -357,7 +389,7 @@ public class PermissionsPage extends BasePage {
 				item.add(groupChooser);
 
 				// remove button
-				final AjaxButton remove = new AjaxButton("remove") {
+				final GbAjaxButton remove = new GbAjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -384,7 +416,7 @@ public class PermissionsPage extends BasePage {
 		form.add(permissionsView);
 
 		// 'add a rule' button
-		final AjaxButton addRule = new AjaxButton("addRule") {
+		final GbAjaxButton addRule = new GbAjaxButton("addRule") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -442,4 +474,5 @@ public class PermissionsPage extends BasePage {
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-permissions.css?version=%s", version)));
 	}
+
 }

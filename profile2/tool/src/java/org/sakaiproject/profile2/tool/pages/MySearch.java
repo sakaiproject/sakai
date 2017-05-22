@@ -27,7 +27,8 @@ import java.util.List;
 import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -77,7 +78,7 @@ import org.sakaiproject.site.api.Site;
 public class MySearch extends BasePage {
 
 	private List<Person> results = new ArrayList<Person>();
-	private static final Logger log = Logger.getLogger(MySearch.class); 
+	private static final Logger log = LoggerFactory.getLogger(MySearch.class); 
 	
 	private WebMarkupContainer numSearchResultsContainer;
 	private Label numSearchResults;

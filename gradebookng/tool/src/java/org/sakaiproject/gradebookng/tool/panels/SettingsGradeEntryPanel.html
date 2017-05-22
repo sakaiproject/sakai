@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org">
 
 <body>
 	<wicket:panel>
@@ -14,7 +14,7 @@
 			</div>
 			<div wicket:id="settingsGradeEntryPanel" id="settingsGradeEntry" class="panel-collapse collapse" role="tabpanel" aria-labelledby="settingsGradeEntryHeader">
 				<div class="panel-body">
-					<p><wicket:message key="settingspage.gradeentry.text">How will graders enter grades...</wicket:message></p>
+					<p><wicket:message key="settingspage.gradeentry.instructions">How will graders enter grades...</wicket:message></p>
 
 					<div wicket:id="gradeEntry">
 						<div class="radio"><label><input wicket:id="points" type="radio"/><wicket:message key="settingspage.gradeentry.points" /></label></div>
@@ -23,7 +23,7 @@
 				</div>
 			</div>
 		</div>
-
+		
 	</wicket:panel>
 </body>
 </html>

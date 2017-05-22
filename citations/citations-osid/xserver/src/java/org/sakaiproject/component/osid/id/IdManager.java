@@ -21,12 +21,11 @@
 
 package org.sakaiproject.component.osid.id;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class IdManager implements org.osid.id.IdManager
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaiproject.component.osid.id.IdManager" );
-
 	org.osid.OsidContext context = null;
 
 	java.util.Properties configuration = null;
@@ -48,7 +47,7 @@ public class IdManager implements org.osid.id.IdManager
 
 	private void log(String entry) throws org.osid.id.IdException
 	{
-		LOG.debug("IdManager.log() entry: " + entry);
+		log.debug("IdManager.log() entry: " + entry);
 	}
 
 	public org.osid.shared.Id createId() throws org.osid.id.IdException

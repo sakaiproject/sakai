@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -191,7 +191,6 @@ public class MessageForumSynopticBean {
 	private final String CONTEXTID="contextId";
 
 	/** Used to retrieve non-notification sites for MyWorkspace page */
-	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
 	private final String TAB_EXCLUDED_SITES = "exclude";
 	
 	/** Preferences service (injected dependency) */
@@ -203,7 +202,7 @@ public class MessageForumSynopticBean {
 	private boolean sitesToViewSet = false;
 	
 	/** to get accces to log file */
-	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBean.class);
 
 	/** Needed if within a site so we only need stats for this site */
 	private MessageForumsMessageManager messageManager;
@@ -552,7 +551,7 @@ public class MessageForumSynopticBean {
 		Iterator countIter = counts.iterator(); 
 
 		Object [] aCount = (Object []) countIter.next();
-		int forumCount = ((Integer) aCount[3]).intValue();
+		int forumCount = ((Long) aCount[3]).intValue();
 		Long currentTopicId = (Long) aCount[1];
 		String currentContextId = (String) aCount[0];
 		String oldContextId;
@@ -568,7 +567,7 @@ public class MessageForumSynopticBean {
 				if (currentTopicId.longValue() != ((Long) anotherCount[1]) &&
 						currentUserMemberships.contains((String) anotherCount[2]) )
 				{
-					forumCount += ((Integer) anotherCount[3]).intValue();
+					forumCount += ((Long) anotherCount[3]).intValue();
 					
 					currentTopicId = (Long) anotherCount[1];
 				}
@@ -582,7 +581,7 @@ public class MessageForumSynopticBean {
 				results.add(finalCount);
 
 				// set up for new site
-				forumCount = ((Integer) anotherCount[3]).intValue();
+				forumCount = ((Long) anotherCount[3]).intValue();
 				currentTopicId = (Long) anotherCount[1];
 				oldContextId = currentContextId;
 				currentContextId = (String) anotherCount[0];
@@ -720,7 +719,7 @@ public class MessageForumSynopticBean {
 	
 		for (Object [] nonMIReadCount: nonMIReadCounts)
 		{
-			nonMIReadCountsMap.put((String) nonMIReadCount[0], (Integer) nonMIReadCount[1]); 
+			nonMIReadCountsMap.put((String) nonMIReadCount[0], ((Long) nonMIReadCount[1]).intValue());
 		}
 	
 		// Loop through all elements of nonMICounts and 
@@ -731,7 +730,7 @@ public class MessageForumSynopticBean {
 				if (nonMIReadCount != null)
 			{
 				// Need to subtract int values, not Integer
-				nonMIcount[1] = Integer.valueOf(((Integer) nonMIcount[1]).intValue() - nonMIReadCount.intValue());
+				nonMIcount[1] = ((Long) nonMIcount[1]).intValue() - nonMIReadCount;
 			}
 		}
 		
@@ -934,7 +933,7 @@ public class MessageForumSynopticBean {
 				}
 				catch (IdUnusedException e) {
 					// Wierdness has happened - pulled from SiteService but now can't
-					// find it. Log and skip
+					// find it. Logger and skip
 					LOG.error("IdUnusedException attempting to access site " + siteId);
 					continue;
 				}
@@ -987,7 +986,7 @@ public class MessageForumSynopticBean {
 			}
 			catch (IdUnusedException e) {
 				// Wierdness has happened - pulled from SiteService but now can't
-				// find it. Log and skip
+				// find it. Logger and skip
 				LOG.error("IdUnusedException attempting to access site " + siteId);
 				continue;
 			}
@@ -1341,8 +1340,7 @@ public class MessageForumSynopticBean {
 			if (pos != -1) {
 				final Object [] dfReadMessageCountForASite = (Object []) readMessages.get(pos);
 				
-				siteDFInfo[1] = Integer.valueOf(((Integer) dfMessageCountForASite[2]).intValue()
-												- ((Integer) dfReadMessageCountForASite[2]).intValue());
+				siteDFInfo[1] = ((Long) dfMessageCountForASite[2]).intValue() - ((Long) dfReadMessageCountForASite[2]).intValue();
 				
 				// done with it, remove from list
 				readMessages.remove(pos);
@@ -1350,7 +1348,7 @@ public class MessageForumSynopticBean {
 			} 
 			else {
 				// No messages read for this site so message count = unread message count
-				siteDFInfo[1] = (Integer) dfMessageCountForASite[2];
+				siteDFInfo[1] = ((Long) dfMessageCountForASite[2]).intValue();
 			}
 
 			unreadDFMessageCounts.add(siteDFInfo);
@@ -1770,7 +1768,7 @@ public class MessageForumSynopticBean {
 		final Preferences prefs = preferencesService.getPreferences(
 								SessionManager.getCurrentSessionUserId());
 
-		final ResourceProperties props = prefs.getProperties(TABS_EXCLUDED_PREFS);
+		final ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 		final List l = props.getPropertyList(TAB_EXCLUDED_SITES);
 
 		return l;		

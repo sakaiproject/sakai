@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
@@ -19,6 +19,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventDelayHandler;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -28,7 +29,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 {
 	private boolean autoDdl;
 
-	private static final Log LOG = LogFactory.getLog(BaseEventDelayHandler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BaseEventDelayHandler.class);
 
 	private SqlService sqlService;
 	private ScheduledInvocationManager schedInvocMgr;
@@ -231,16 +232,7 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 	public boolean deleteDelayById(String delayId)
 	{
 		// Remove any existing notifications for this notification
-		DelayedInvocation[] prevInvocs = schedInvocMgr.findDelayedInvocations(
-				BaseEventDelayHandler.class.getName(), delayId);
-		if (prevInvocs != null && prevInvocs.length > 0)
-		{
-			for (DelayedInvocation invoc : prevInvocs)
-			{
-				LOG.debug("Deleting delayed event [" + invoc.contextId + "]");
-				schedInvocMgr.deleteDelayedInvocation(invoc.uuid);
-			}
-		}
+		schedInvocMgr.deleteDelayedInvocation(BaseEventDelayHandler.class.getName(), delayId);
 		boolean ret = sqlService
 				.dbWrite(baseEventDelayHandlerSql.getDelayDeleteSql(), new Object[] { Long.parseLong(delayId) });
 		return ret;
@@ -389,6 +381,12 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 		}
 
 		public Date getEventTime() {
+			return null;
+		}
+
+		@Override
+		public LRS_Statement getLrsStatement() {
+			//Don't do anything right now on a rerun
 			return null;
 		}
 	}

@@ -3,25 +3,28 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="help.DataSource"
-		class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<property name="driverClassName">
-			<value>org.hsqldb.jdbcDriver</value>
-		</property>
-		<property name="url">
-			<value>jdbc:hsqldb:mem:sakai-help</value>
-		</property>
-		<property name="username">
-			<value>sa</value>
-		</property>
-		<property name="password">
-			<value></value>
+	<bean id="helpDataSourceConfig"
+		  class="com.zaxxer.hikari.HikariConfig">
+		<property name="poolName" value="helpCP" />
+		<property name="connectionTestQuery" value="select 1 from INFORMATION_SCHEMA.SYSTEM_USERS" />
+		<property name="dataSourceClassName" value="org.hsqldb.jdbc.JDBCDataSource"/>
+		<property name="dataSourceProperties">
+			<props>
+				<prop key="url">jdbc:hsqldb:mem:help</prop>
+				<prop key="user">sa</prop>
+				<prop key="password"></prop>
+			</props>
 		</property>
 	</bean>
 
+	<bean id="helpDataSource"
+		  class="com.zaxxer.hikari.HikariDataSource"
+		  destroy-method="close">
+		<constructor-arg ref="helpDataSourceConfig" />
+	</bean>
+
 	<bean id="helpTransactionManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory">
 			<ref bean="helpSessionFactory" />
 		</property>
@@ -65,54 +68,30 @@
 	</bean>
 	
 	<bean id="helpSessionFactory"
-		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-
-		<property name="dataSource">
-			<ref bean="help.DataSource" />
-		</property>
-
+		  class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="helpDataSource"/>
 		<property name="hibernateProperties">
 			<props>
-				<prop key="hibernate.dialect">
-					org.hibernate.dialect.HSQLDialect
-				</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
 				<prop key="hibernate.show_sql">false</prop>
-				<prop key="hibernate.query.substitutions">
-					true 1, false 0, yes 'Y', no 'N'
-				</prop>
-				<prop key="hibernate.jdbc.use_streams_for_binary">
-					true
-				</prop>
+				<prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
+				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">false</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
 			</props>
 		</property>
-
-		<!--  update the database schema when starting -->
-		<property name="schemaUpdate">
-			<value>true</value>
-		</property>
-
 		<property name="mappingResources">
 			<list>
-				<value>
-					org/sakaiproject/component/app/help/model/ResourceBean.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/component/app/help/model/SourceBean.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/component/app/help/model/ContextBean.hbm.xml
-				</value>
-				<value>
-					org/sakaiproject/component/app/help/model/CategoryBean.hbm.xml
-				</value>
+				<value>org/sakaiproject/component/app/help/model/ResourceBean.hbm.xml</value>
+				<value>org/sakaiproject/component/app/help/model/SourceBean.hbm.xml</value>
+				<value>org/sakaiproject/component/app/help/model/ContextBean.hbm.xml</value>
+				<value>org/sakaiproject/component/app/help/model/CategoryBean.hbm.xml</value>
 			</list>
 		</property>
-
 	</bean>
-	
+
 	<bean id="org.sakaiproject.api.app.help.RestConfiguration"
-		class="org.sakaiproject.component.app.help.RestConfigurationImpl">
+		  class="org.sakaiproject.component.app.help.RestConfigurationImpl">
 		<property name="organization">
 			<value>sakai</value>
 		</property>
@@ -126,10 +105,11 @@
 			<value>sakaihelp</value>
 		</property>
 		<property name="cacheInterval">
-		    <value>7200000</value>
+			<value>7200000</value>
 		</property>
 	</bean>
+
 	<bean id="org.sakaiproject.api.app.help.TutorialEntityProvider"
-            class="org.sakaiproject.component.app.help.TutorialEntityProviderImpl">
-        </bean>
+		  class="org.sakaiproject.component.app.help.TutorialEntityProviderImpl">
+	</bean>
 </beans>

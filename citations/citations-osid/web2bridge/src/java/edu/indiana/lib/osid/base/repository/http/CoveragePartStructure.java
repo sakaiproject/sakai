@@ -26,8 +26,6 @@ package edu.indiana.lib.osid.base.repository.http;
  */
 public class CoveragePartStructure extends edu.indiana.lib.osid.base.repository.PartStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(CoveragePartStructure.class);
-		
     private org.osid.shared.Id COVERAGE_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type("mit.edu","partStructure","coverage","Coverage");
     private String displayName = "Coverage";

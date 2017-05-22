@@ -37,8 +37,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.util.HelperAwareJsfTool;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
@@ -75,7 +75,7 @@ public class SignupServlet extends JsfTool {
 	/** the set of alternate views */
 	public static final String ALTERNATE_DONE_URL_MAP = "altDoneURLSet";
 
-	private static Log M_log = LogFactory.getLog(HelperAwareJsfTool.class);
+	private static Logger M_log = LoggerFactory.getLogger(HelperAwareJsfTool.class);
 
 	/**
 	 * Initialize the Servlet class.

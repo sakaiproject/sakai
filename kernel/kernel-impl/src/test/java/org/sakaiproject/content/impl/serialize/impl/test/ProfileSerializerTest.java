@@ -21,14 +21,14 @@
 
 package org.sakaiproject.content.impl.serialize.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 import org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer;
 
 public class ProfileSerializerTest
 {
-	private static final Log log = LogFactory.getLog(ProfileSerializerTest.class);
+	private static final Logger log = LoggerFactory.getLogger(ProfileSerializerTest.class);
 
 	/**
 	 * Test method for

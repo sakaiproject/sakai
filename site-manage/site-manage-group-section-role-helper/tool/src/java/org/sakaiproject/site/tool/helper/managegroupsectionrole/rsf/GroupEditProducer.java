@@ -2,6 +2,7 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,10 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Group;
@@ -39,8 +41,11 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIDeletionBinding;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UICSSDecorator;
+import uk.org.ponder.rsf.components.decorators.UIDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
+import uk.org.ponder.rsf.components.decorators.UIDisabledDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -57,10 +62,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class GroupEditProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter{
 
 	/** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(GroupEditProducer.class);
-	
-	private static final String SECTION_PREFIX = "Section: ";
-	private static final String ROLE_PREFIX = "Role: ";
+	private static final Logger M_log = LoggerFactory.getLogger(GroupEditProducer.class);
 	
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupEdit";
@@ -100,7 +102,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	// group provider id
     	String groupProviderId = null;
     	// list of group role provider ids
-    	List<String> groupRoleProviderRoles = null;
+    	Collection<String> groupRoleProviderRoles = null;
     	
     	UIForm groupForm = UIForm.make(arg0, "groups-form");
 
@@ -161,10 +163,15 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	 
          UIOutput.make(groupForm, "prompt", headerText);
          UIOutput.make(groupForm, "emptyGroupTitleAlert", messageLocator.getMessage("editgroup.titlemissing"));
-         UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
+         
+         if (g != null && g.isLocked()) {
+            UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.notallowed", null)); 
+         } else {
+            UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
+         }
          
          UIOutput.make(groupForm, "group_title_label", messageLocator.getMessage("group.title"));
-         UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
+         UIInput groupTitleInput = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);     
 		 
 		
 		 UIMessage groupDescrLabel = UIMessage.make(groupForm, "group_description_label", "group.description"); 
@@ -238,7 +245,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 // not include in the group yet
 			 if ((groupProviderId == null || !groupProviderId.contains(roster)) && !membersSelected.contains( roster ))
 			 {
-				 siteMemberLabels.add( SECTION_PREFIX + handler.getRosterLabel(roster) + " (" + roster + ")");
+				 siteMemberLabels.add( messageLocator.getMessage("group.section_prefix") + handler.getRosterLabel(roster) + " (" + roster + ")");
 				 siteMemberValues.add( roster );
 			 }
 		 }
@@ -248,7 +255,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 // not include in the group yet
 			 if ((groupRoleProviderRoles == null || !groupRoleProviderRoles.contains(role.getId())) && !membersSelected.contains( role.getId() ))
 			 {
-				 siteMemberLabels.add( ROLE_PREFIX + role.getId() );
+				 siteMemberLabels.add( messageLocator.getMessage("group.role_prefix") + role.getId() );
 				 siteMemberValues.add( role.getId() );
 			 }
 		 }
@@ -264,13 +271,13 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	}
 	        }
 
-	     UISelect.makeMultiple( groupForm, "siteMembers", siteMemberValues.toArray( new String[siteMemberValues.size()] ), 
+	     UISelect siteMembersSelect = UISelect.makeMultiple( groupForm, "siteMembers", siteMemberValues.toArray( new String[siteMemberValues.size()] ), 
 	     	     	     	     siteMemberLabels.toArray( new String[siteMemberLabels.size()] ), 
 	     	     	     	     "#{SiteManageGroupSectionRoleHandler.selectedSiteMembers}", new String[] {} );
 
 	     /********************** for the group members list **************************/
 	     List<String> groupRosters = handler.getGroupRosters(g);
-	     List<String> groupProviderRoles = handler.getGroupProviderRoles(g);
+	     Collection<String> groupProviderRoles = handler.getGroupProviderRoles(g);
 	     List<Member> groupMembersCopy = new ArrayList<>();
 	     groupMembersCopy.addAll(groupMembers);
 	     for( Member p : groupMembersCopy )
@@ -302,7 +309,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 {
 			 for (String groupRoster:groupRosters)
 			 {
-				 groupMemberLabels.add( SECTION_PREFIX + handler.getRosterLabel(groupRoster) + " (" + groupRoster + ")" );
+				 groupMemberLabels.add( messageLocator.getMessage("group.section_prefix") + handler.getRosterLabel(groupRoster) + " (" + groupRoster + ")" );
 				 groupMemberValues.add( groupRoster );
 			 }
 		 }
@@ -311,7 +318,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 {
 			 for (String groupProviderRole:groupProviderRoles)
 			 {
-				 groupMemberLabels.add( ROLE_PREFIX + groupProviderRole );
+				 groupMemberLabels.add( messageLocator.getMessage("group.role_prefix") + groupProviderRole );
 				 groupMemberValues.add( groupProviderRole );
 			 }
 		 }
@@ -345,14 +352,14 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
                 // Selected roster...
                 if( siteRosters.contains( memberID ) )
                 {
-                    groupMemberLabels.add( SECTION_PREFIX + handler.getRosterLabel(memberID) + " (" + memberID + ")" );
+                    groupMemberLabels.add( messageLocator.getMessage("group.section_prefix") + handler.getRosterLabel(memberID) + " (" + memberID + ")" );
                     groupMemberValues.add( memberID );
                 }
 
                 // Selected role...
                 else if( siteRoleIDs.contains( memberID ) )
                 {
-                    groupMemberLabels.add( ROLE_PREFIX + memberID );
+                    groupMemberLabels.add( messageLocator.getMessage("group.role_prefix") + memberID );
                     groupMemberValues.add( memberID );
                 }
 
@@ -374,9 +381,9 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
             }
         }
 
-         UISelect.make( groupForm, "groupMembers", groupMemberValues.toArray( new String[groupMemberValues.size()] ),
+         UISelect groupMembersSelect = UISelect.make( groupForm, "groupMembers", groupMemberValues.toArray( new String[groupMemberValues.size()] ),
                                                 groupMemberLabels.toArray( new String[groupMemberLabels.size()] ), null );
-    	 UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupSectionRoleHandler.processAddGroup}");
+    	 UICommand saveButton = UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupSectionRoleHandler.processAddGroup}");
 
          UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
          cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
@@ -385,6 +392,17 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
          
          // hidden field for group id
          UIInput.make(groupForm, "groupId", "#{SiteManageGroupSectionRoleHandler.id}", groupId);
+         
+         if (g != null && g.isLocked()) {
+            UIDisabledDecorator disable = new UIDisabledDecorator(true);
+            groupTitleInput.decorate(disable);
+            groupDescr.decorate(disable);
+            viewMemCheckbox.decorate(disable);
+            joinableSetSelect.decorate(disable);
+            siteMembersSelect.decorate(disable);
+            groupMembersSelect.decorate(disable);
+            saveButton.decorate(disable);
+         }
          
          //process any messages
          tml = handler.messages;

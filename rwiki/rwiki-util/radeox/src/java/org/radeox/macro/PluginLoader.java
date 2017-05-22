@@ -25,8 +25,8 @@ package org.radeox.macro;
 
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.util.Service;
 
 /**
@@ -38,7 +38,7 @@ import org.radeox.util.Service;
 
 public abstract class PluginLoader
 {
-	private static Log log = LogFactory.getLog(PluginLoader.class);
+	private static Logger log = LoggerFactory.getLogger(PluginLoader.class);
 
 	protected Repository repository;
 

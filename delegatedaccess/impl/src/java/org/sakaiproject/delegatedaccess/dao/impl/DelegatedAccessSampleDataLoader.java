@@ -19,7 +19,9 @@ package org.sakaiproject.delegatedaccess.dao.impl;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.joda.time.DateTime;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -55,13 +57,15 @@ public class DelegatedAccessSampleDataLoader {
 	private UsageSessionService usageSessionService;
 	private SessionManager sessionManager;
 	private UserDirectoryService userDirectoryService;
-	private static final Logger log = Logger.getLogger(DelegatedAccessSampleDataLoader.class);
+	private static final Logger log = LoggerFactory.getLogger(DelegatedAccessSampleDataLoader.class);
 
 	private List<String> schools = Arrays.asList("MUSIC", "MEDICINE", "EDUCATION");
 	private List<String> depts = Arrays.asList("DEPT1", "DEPT2", "DEPT3");
 	private List<String> subjs = Arrays.asList("SUBJ1", "SUBJ2","SUBJ3");
 	
 	public void init(){
+		log.info("init()");
+		
 		if(siteService == null || securityService == null || delegatedAccessSiteHierarchyJob == null){
 			return;
 		}
@@ -76,6 +80,9 @@ public class DelegatedAccessSampleDataLoader {
 			loginToSakai();
 			securityService.pushAdvisor(yesMan);
 			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.template.course");
+		
+			DateTime date = new DateTime();
+			String term = "Spring " + date.getYear();
 			for(String school : schools){
 				for(String dept : depts){
 					for(String subject : subjs){
@@ -129,7 +136,7 @@ public class DelegatedAccessSampleDataLoader {
 									//Gradebook
 									page = siteEdit.addPage();
 									page.setTitle("Gradebook");
-									page.addTool("sakai.gradebook.tool");
+									page.addTool("sakai.gradebookng");
 									
 									//Schedule
 									page = siteEdit.addPage();
@@ -163,6 +170,9 @@ public class DelegatedAccessSampleDataLoader {
 								propEdit.addProperty("Department", dept);
 								propEdit.addProperty("Subject", subject);
 								
+								propEdit.addProperty("term", term);
+								propEdit.addProperty("term_eid", term);
+								
 								siteService.save(siteEdit);
 								
 								//Make sure roles exist:
@@ -175,17 +185,13 @@ public class DelegatedAccessSampleDataLoader {
 								group.addMember("datest", group.getMaintainRole(), true, false);
 								authzGroupService.save(group);
 
-							} catch (IdInvalidException e) {
-								log.warn(e);
+							} catch (IdInvalidException | PermissionException e) {
+								log.warn(e.getMessage(), e);
 							} catch (IdUsedException e) {
-								log.warn(e);
-								//this means that we have already ran this, lets quit
+								log.debug("IdUsedException: " + e.getId(), e);
 								return;
-							} catch (PermissionException e) {
-								log.warn(e);
-							} catch (Exception e){
-								//who knows what happened... let's quit!
-								log.warn(e);
+							} catch (Exception e) {
+								log.warn(e.getMessage(), e);
 								return;
 							}
 						}
@@ -197,11 +203,10 @@ public class DelegatedAccessSampleDataLoader {
 			try {
 				delegatedAccessSiteHierarchyJob.execute(null);
 			} catch (JobExecutionException e) {
-				log.warn(e);
+				log.warn(e.getMessage(), e);
 			}
-		
-		}catch(Exception e){
-			log.warn(e);
+		} catch(Exception e){
+			log.warn(e.getMessage(), e);
 		}finally{
 			securityService.popAdvisor(yesMan);
 			logoutFromSakai();

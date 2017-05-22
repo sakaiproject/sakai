@@ -36,8 +36,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
@@ -64,7 +64,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 public class QuestionScorePagerListener
   implements ActionListener, ValueChangeListener
 {
-  private static Log log = LogFactory.getLog(QuestionScorePagerListener.class);
+  private static Logger log = LoggerFactory.getLogger(QuestionScorePagerListener.class);
   //private static EvaluationListenerUtil util;
   //private static BeanSort bs;
   //private static ContextUtil cu;

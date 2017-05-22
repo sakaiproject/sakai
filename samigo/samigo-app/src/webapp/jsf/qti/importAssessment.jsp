@@ -47,7 +47,6 @@
       </div>
       <br />
 
-   <h:panelGrid columns="1">
      <h:panelGroup>
        <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file} "/>
        <%-- target represents location where import will be temporarily stored
@@ -55,17 +54,13 @@
        <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}" valueChangeListener="#{xmlImport.importAssessment}"/>
      </h:panelGroup>
      <f:verbatim>&nbsp;</f:verbatim>
-     <h:panelGrid columns="1">
        <h:outputText value="#{authorImportExport.file_is}"/>
-       <h:panelGrid columns="2">
-         <f:verbatim>&nbsp;</f:verbatim>
-         <h:selectOneRadio id="sourceType" layout="pageDirection" value="1">
+       <h:panelGroup>
+         <h:selectOneRadio id="sourceType" layout="pageDirection" value="1" styleClass="samigo-inline-form">
            <f:selectItem itemLabel="#{authorImportExport.from_samigo}" itemValue="1"/>
            <f:selectItem itemLabel="#{authorImportExport.from_respondus}" itemValue="2"/>
          </h:selectOneRadio>
-       </h:panelGrid>
-     </h:panelGrid>
-   </h:panelGrid>
+       </h:panelGroup>
    </div>
     <br/>
     <br/>

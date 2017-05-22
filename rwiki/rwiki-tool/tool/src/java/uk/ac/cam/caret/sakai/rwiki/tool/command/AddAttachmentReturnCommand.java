@@ -31,8 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -57,7 +57,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 public class AddAttachmentReturnCommand implements HttpCommand
 {
 
-	private static Log log = LogFactory.getLog(AddAttachmentReturnCommand.class);
+	private static Logger log = LoggerFactory.getLogger(AddAttachmentReturnCommand.class);
 	
 	private static final String MULTIPLE_ATTACHMENT_HEADER_START = "";
 

@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class PagesPartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.PagesPartStructure" );
-
     private org.osid.shared.Id PAGES_PART_STRUCTURE_ID = null;
     private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
     		"pages", "Pages" );
@@ -44,7 +43,7 @@ public class PagesPartStructure implements org.osid.repository.PartStructure
             this.PAGES_PART_STRUCTURE_ID = Managers.getIdManager().getId(
             		"9jkds919283123b9sp6578909654sa88x" );
         } catch( Throwable t ) {
-        	LOG.warn( "PagesPartStructure() failed to get partStructure id: "
+        	log.warn( "PagesPartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
         }
     }

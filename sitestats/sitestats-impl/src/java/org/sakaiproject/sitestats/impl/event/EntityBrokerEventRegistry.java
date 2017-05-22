@@ -18,8 +18,8 @@
  */
 package org.sakaiproject.sitestats.impl.event;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
@@ -39,7 +39,7 @@ import java.util.*;
 
 
 public class EntityBrokerEventRegistry extends Observable implements EventRegistry, EntityProviderListener<Statisticable> {
-	private static Log				LOG						= LogFactory.getLog(EntityBrokerEventRegistry.class);
+	private static Logger				LOG						= LoggerFactory.getLogger(EntityBrokerEventRegistry.class);
 	private static final String		CACHENAME				= EntityBrokerEventRegistry.class.getName();
 
 	/** Event Registry members */
@@ -110,30 +110,35 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 	public String getEventName(String eventId) {
 		Locale currentUserLocale = getCurrentUserLocale();
 		EventLocaleKey key = new EventLocaleKey(eventId, currentUserLocale.toString());
-		if(eventNamesCache.containsKey(key.toString())) {
-			return (String) eventNamesCache.get(key.toString());
-		}else{
-			String eventName = null;
-			try{
-				String prefix = eventIdToEPPrefix.get(eventId);
-				Statisticable s = M_epm.getProviderByPrefixAndCapability(prefix, Statisticable.class);
-				Map<String, String> eventIdNamesMap = s.getEventNames(currentUserLocale);
-				if(eventIdNamesMap != null) {
-					for(String thisEventId : eventIdNamesMap.keySet()) {
-						EventLocaleKey thisCacheKey = new EventLocaleKey(thisEventId, currentUserLocale.toString());
-						String thisEventName = eventIdNamesMap.get(thisEventId);
-						eventNamesCache.put(thisCacheKey.toString(), thisEventName);
-						if(thisEventId.equals(eventId)) {
-							eventName = thisEventName;
-						}
-					}
-					LOG.debug("Cached event names for EB prefix '"+prefix+"', locale: "+currentUserLocale);
-				}
-			}catch(Exception e) {
-				eventName = null;
+		String keyString = key.toString();
+		String eventName = null;
+		if(eventNamesCache.containsKey(keyString)) {
+			eventName = (String) eventNamesCache.get(keyString);
+			if(eventName != null) {
+				return eventName;
 			}
-			return eventName;
+			/* If there's an exception we won't re-establish the cache entry below */
+			eventNamesCache.remove(keyString);
 		}
+		try{
+			String prefix = eventIdToEPPrefix.get(eventId);
+			Statisticable s = M_epm.getProviderByPrefixAndCapability(prefix, Statisticable.class);
+			Map<String, String> eventIdNamesMap = s.getEventNames(currentUserLocale);
+			if(eventIdNamesMap != null) {
+				for(String thisEventId : eventIdNamesMap.keySet()) {
+					EventLocaleKey thisCacheKey = new EventLocaleKey(thisEventId, currentUserLocale.toString());
+					String thisEventName = eventIdNamesMap.get(thisEventId);
+					eventNamesCache.put(thisCacheKey.toString(), thisEventName);
+					if(thisEventId.equals(eventId)) {
+						eventName = thisEventName;
+					}
+				}
+				LOG.debug("Cached event names for EB prefix '"+prefix+"', locale: "+currentUserLocale);
+			}
+		}catch(Exception e) {
+			eventName = null;
+		}
+		return eventName;
 	}
 	
 
@@ -265,7 +270,7 @@ public class EntityBrokerEventRegistry extends Observable implements EventRegist
 			}
 			EventLocaleKey o = (EventLocaleKey) obj;
 			if(o.getEventId().equals(getEventId())
-					&& o.getLocale().equals(o.getLocale())) {
+					&& o.getLocale().equals(getLocale())) {
 				return true;
 			}
 			return false;

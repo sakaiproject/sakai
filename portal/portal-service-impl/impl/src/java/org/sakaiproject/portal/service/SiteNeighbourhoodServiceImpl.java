@@ -32,8 +32,8 @@ import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -59,7 +59,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 
 	private static final String SITE_ALIAS = "/sitealias/";
 
-	private static final Log log = LogFactory.getLog(SiteNeighbourhoodServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SiteNeighbourhoodServiceImpl.class);
 
 	private SiteService siteService;
 
@@ -137,7 +137,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		if (session.getUserId() != null)
 		{
 			Preferences prefs = preferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+			ResourceProperties props = prefs.getProperties(PreferencesService.SITENAV_PREFS_KEY);
 
 			List l = props.getPropertyList("exclude");
 			if (l != null)
@@ -164,6 +164,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		// Prepare to put sites in the right order
 		Vector<Site> ordered = new Vector<Site>();
 		Set<String> added = new HashSet<String>();
+		
+		List<String> actualOrder = new ArrayList<String>(mySites.size());
+		for (Site site : mySites) {
+			actualOrder.add(site.getId());
+		}
 
 		// First, place or remove MyWorkspace as requested
 		Site myWorkspace = getMyWorkspace(session);
@@ -176,8 +181,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			}
 			else
 			{
-				int pos = listIndexOf(myWorkspace.getId(), mySites);
-				if (pos != -1) mySites.remove(pos);
+				int pos = actualOrder.indexOf(myWorkspace.getId());
+				if (pos != -1) {
+					mySites.remove(pos);
+					actualOrder.remove(pos);
+				};
 			}
 		}
 
@@ -187,7 +195,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			String id = (String) i.next();
 
 			// find this site in the mySites list
-			int pos = listIndexOf(id, mySites);
+			int pos = actualOrder.indexOf(id);
 			if (pos != -1)
 			{
 				Site s = mySites.get(pos);
@@ -374,30 +382,6 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		return site;
 	}
 
-	/**
-	 * Find the site in the list that has this id - return the position.
-	 * 
-	 * @param value
-	 *        The site id to find.
-	 * @param siteList
-	 *        The list of Site objects.
-	 * @return The index position in siteList of the site with site id = value,
-	 *         or -1 if not found.
-	 */
-	private int listIndexOf(String value, List siteList)
-	{
-		for (int i = 0; i < siteList.size(); i++)
-		{
-			Site site = (Site) siteList.get(i);
-			if (site.getId().equals(value))
-			{
-				return i;
-			}
-		}
-
-		return -1;
-	}
-
 	// Return the list of tabs for the anonymous view (Gateway)
 	// If we have a list of sites, return that - if not simply pull in the
 	// single
@@ -545,11 +529,11 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				return (String)originalId;
 			}
 		}
-		List<Alias> aliases = aliasService.getAliases(id);
 		if (!useSiteAliases)
 		{
 			return null;
 		}
+		List<Alias> aliases = aliasService.getAliases(id);
 		if (aliases.size() > 0)
 		{
 			if (aliases.size() > 1 && log.isInfoEnabled())

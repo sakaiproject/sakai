@@ -20,8 +20,8 @@ package edu.indiana.lib.twinpeaks.util;
 import java.lang.*;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.*;
 import javax.xml.parsers.*;
@@ -34,27 +34,27 @@ import org.xml.sax.*;
 
 public class LogUtils {
   /**
-   * Get a Log instance
+   * Get a Logger instance
    * @param logClass Java Class being logged
    */
-	public static Log getLog(Class logClass) {
-  	return LogFactory.getLog(logClass);
+	public static Logger getLog(Class logClass) {
+  	return LoggerFactory.getLogger(logClass);
 	}
 
   /**
-   * Get a Log instance
+   * Get a Logger instance
    * @param logName Name being logged
    */
-	public static Log getLog(String logName) {
-  	return LogFactory.getLog(logName);
+	public static Logger getLog(String logName) {
+  	return LoggerFactory.getLogger(logName);
 	}
 
 	/**
 	 * Serialize an XML object (Document or Element) to the log
-	 * @param log Apache Log object
-	 * @param recordElement The XML object to disolay (Document, Element)
+	 * @param log Apache Logger object
+	 * @param xmlObject The XML object to disolay (Document, Element)
 	 */
-	public static void displayXml(org.apache.commons.logging.Log log,
+	public static void displayXml(Logger log,
 																Object xmlObject) {
 		displayXml(log, null, xmlObject);
 	}
@@ -62,11 +62,11 @@ public class LogUtils {
 	/**
 	 * Serialize an XML object (Document or Element) to the log (with an
 	 * optional warning header)
-	 * @param log Apache Log object
+	 * @param log Apache Logger object
 	 * @param errorText Error message (null for none)
-	 * @param recordElement The XML object to disolay (Document, Element)
+	 * @param xmlObject The XML object to disolay (Document, Element)
 	 */
-	public static void displayXml(org.apache.commons.logging.Log log,
+	public static void displayXml(Logger log,
 																String errorText,
 																Object xmlObject) {
 
@@ -95,7 +95,7 @@ public class LogUtils {
 	 */
   public static void main(String[] args) {
 
-		Log log = LogUtils.getLog(LogUtils.class);
+	 Logger log = LogUtils.getLog(LogUtils.class);
 
 		//		log.debug("Debug");
 		//		log.error("Error");

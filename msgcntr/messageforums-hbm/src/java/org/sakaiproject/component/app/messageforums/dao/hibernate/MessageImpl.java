@@ -26,8 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -35,7 +35,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 public class MessageImpl extends MutableEntityImpl implements Message
 {
 
-	private static final Log LOG = LogFactory.getLog(MessageImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MessageImpl.class);
 
 	private String title;
 	private String body;

@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -64,13 +64,16 @@
       <artifactId>sakai-common-composite-component-data</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils</artifactId>
+      <groupId>org.sakaiproject.profile2</groupId>
+      <artifactId>profile2-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
     </dependency>
     <dependency>
 		<groupId>commons-lang</groupId>

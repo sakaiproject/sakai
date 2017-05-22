@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.user.api.*;
 import org.apache.commons.lang.StringUtils;
 
@@ -96,7 +96,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
 
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(JLDAPDirectoryProvider.class);
+	private static Logger M_log = LoggerFactory.getLogger(JLDAPDirectoryProvider.class);
 
 	/** LDAP host address */
 	private String ldapHost;
@@ -436,17 +436,18 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		}
 		catch (LDAPException e)
 		{
-			if (e.getResultCode() == LDAPException.INVALID_CREDENTIALS) {
-				if ( M_log.isWarnEnabled() ) {
-					M_log.warn("authenticateUser(): invalid credentials [userLogin = "
-							+ userLogin + "]");
-				}
-				return false;
-			} else {
-				throw new RuntimeException(
-						"authenticateUser(): LDAPException during authentication attempt [userLogin = "
-						+ userLogin + "][result code = " + e.resultCodeToString() + 
-						"][error message = "+ e.getLDAPErrorMessage() + "]", e);
+			switch (e.getResultCode()) {
+				case LDAPException.INVALID_CREDENTIALS:
+					M_log.warn("authenticateUser(): invalid credentials [userLogin = " + userLogin + "]");
+					return false;
+				case LDAPException.UNWILLING_TO_PERFORM:
+					M_log.warn("authenticateUser(): ldap service is unwilling to authenticate [userLogin = " + userLogin + "][reason = " + e.getLDAPErrorMessage() + "]");
+					return false;
+				default:
+					throw new RuntimeException(
+							"authenticateUser(): LDAPException during authentication attempt [userLogin = " +
+									userLogin + "][result code = " + e.resultCodeToString() +
+									"][error message = " + e.getLDAPErrorMessage() + "]", e);
 			}
 		} catch ( Exception e ) {
 			throw new RuntimeException(

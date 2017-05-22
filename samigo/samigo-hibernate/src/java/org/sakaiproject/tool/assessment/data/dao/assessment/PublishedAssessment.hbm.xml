@@ -1,9 +1,8 @@
-<?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC
-  "-//Hibernate/Hibernate Mapping DTD//EN"
-  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.tool.assessment.data.dao.assessment"
+                   default-lazy="false">
 
-<hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
     table="SAM_PUBLISHEDASSESSMENT_T">
     <id name="publishedAssessmentId" column="ID" type="java.lang.Long" unsaved-value="0">
@@ -16,7 +15,7 @@
 -->
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
     <property name="assessmentId" type="long" column="ASSESSMENTID" not-null="false" index="SAM_PUBA_ASSESSMENT_I" />
-    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="materialized_clob" column="DESCRIPTION" not-null="false" />
     <property name="comments" type="string" length="255" column="COMMENTS" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="false" />
     <property name="instructorNotification" type="integer" column="INSTRUCTORNOTIFICATION" not-null="false" />
@@ -81,6 +80,7 @@
     <property name="timedAssessment" type="integer" column="TIMEDASSESSMENT" not-null="false" />
     <property name="retryAllowed" type="integer" column="RETRYALLOWED" not-null="false" />
     <property name="lateHandling" type="integer" column="LATEHANDLING" not-null="false" />
+    <property name="instructorNotification" type="integer" column="INSTRUCTORNOTIFICATION" not-null="false" />
     <property name="startDate" type="timestamp" column="STARTDATE" not-null="false" />
     <property name="dueDate" type="timestamp" column="DUEDATE" not-null="false" />
     <property name="scoreDate" type="timestamp" column="SCOREDATE" not-null="false" />
@@ -93,10 +93,10 @@
     
     <property name="submissionMessage" type="string" length="4000" column="SUBMISSIONMESSAGE" not-null="false" />
     <property name="releaseTo" type="string" length="255" column="RELEASETO" not-null="false" />
-    <property name="username" type="string" length="255" column="USERNAME" not-null="false" />
     <property name="password" type="string" length="255" column="PASSWORD" not-null="false" />
     <property name="finalPageUrl" type="string" length="1023" column="FINALPAGEURL" not-null="false" />
     <property name="markForReview" type="integer" column="MARKFORREVIEW" not-null="false" />
+    <property name="honorPledge" type="boolean" column="HONORPLEDGE" not-null="false" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel"
@@ -154,8 +154,8 @@
     </id>
     <many-to-one name="assessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
       column="ASSESSMENTID" not-null="true" />
-    <property name="label" type="string" length="255" column="LABEL" not-null="true" />
-    <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
+    <property name="label" type="string" length="99" column="LABEL" not-null="true" index="SAM_PUBMETADATA_IDX" />
+    <property name="entry" type="string" length="255" column="ENTRY" not-null="false" index="SAM_PUBMETADATA_IDX" />
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData" table="SAM_PUBLISHEDSECTION_T">
@@ -166,11 +166,11 @@
     </id>
     <many-to-one name="assessment"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-      column="ASSESSMENTID" index="SAM_PUBSECTION_ASSESSMENT_I" not-null="true" />
+      column="ASSESSMENTID" not-null="true" />
     <property name="duration" type="integer" column="DURATION" not-null="false" />
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="title" type="string" length="255" column="TITLE" not-null="false" />
-    <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+    <property name="description" type="materialized_clob" column="DESCRIPTION" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="true" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
     <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
@@ -204,7 +204,7 @@
       </generator>
     </id>
     <many-to-one name="section" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"
-      column="SECTIONID" index="SAM_PUBSECTIONMETA_SECTION_I" not-null="true" />
+      column="SECTIONID" not-null="true" />
     <property name="label" type="string" length="255" column="LABEL" not-null="true" />
     <property name="entry" type="string" length="255" column="ENTRY" not-null="false" />
   </class>
@@ -218,7 +218,7 @@
     </id>
     <many-to-one name="assessment"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-      column="ASSESSMENTID" index="SAM_PUBIP_ASSESSMENT_I" not-null="true" />
+      column="ASSESSMENTID" not-null="true" />
     <property name="hostname" type="string" length="255" column="HOSTNAME" not-null="false" />
     <property name="ipAddress" type="string" length="255" column="IPADDRESS" not-null="false" />
   </class>
@@ -239,5 +239,6 @@
     <property name="endDate" type="timestamp" column="ENDDATE" not-null="false" />
     <property name="eclipseTime" type="integer" column="ECLIPSETIME" not-null="false" />
     <property name="errorMsg" type="string" length="255" column="ERRORMSG" not-null="false" />
+    <property name="ipAddress" type="string" length="99" column="IPADDRESS" not-null="false" />
  </class>
 </hibernate-mapping>

@@ -37,8 +37,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
@@ -62,7 +62,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 public class SampleDataLoader implements BeanFactoryAware {
-	private static final Log log = LogFactory.getLog(SampleDataLoader.class);
+	private static final Logger log = LoggerFactory.getLogger(SampleDataLoader.class);
 
 	protected static final int ACADEMIC_SESSION_YEAR;
 	protected static final String[] ACADEMIC_SESSION_EIDS = new String[4];

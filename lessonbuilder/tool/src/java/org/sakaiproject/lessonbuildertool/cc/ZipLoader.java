@@ -54,6 +54,12 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * 
  * This is a simple example of a cartridge loader. This class needs to provide access to files within a cartridge. The 
@@ -72,7 +78,7 @@ import java.util.zip.ZipInputStream;
  */
 
 public class ZipLoader implements CartridgeLoader {
-
+  private static final Logger log = LoggerFactory.getLogger(ZipLoader.class);
   private File root;
   private String rootPath;
   private File cc;
@@ -107,12 +113,14 @@ public class ZipLoader implements CartridgeLoader {
 	      fis = cc_inputStream;
 	  else
 	      fis = new FileInputStream(cc);
-	  System.out.println("unzip fis " + fis);
+	  log.debug("unzip fis " + fis);
 	  zis = new ZipInputStream(new BufferedInputStream(fis));
 	  ZipEntry entry;
 	  while ((entry = zis.getNextEntry())!=null) {
-	      System.out.println("zip name " + entry.getName());
-	      File target=new File(root, entry.getName());
+	      log.debug("zip name " + entry.getName());
+	      //Fix the path to be correct for the system extracting it to
+	      String fileName = FilenameUtils.separatorsToSystem(entry.getName());
+	      File target=new File(root, fileName);
 	      // not sure if you can put things like .. into a zip file, but be careful
 	      if (!target.getCanonicalPath().startsWith(rootPath))
 		  throw new FileNotFoundException(target.getCanonicalPath());
@@ -133,11 +141,11 @@ public class ZipLoader implements CartridgeLoader {
 		  dest.flush();
 		  dest.close();
 		  dest = null;
-		  System.out.println("wrote file " + target);
+		  log.debug("wrote file " + target);
 	      }
 	  }
       } catch (Exception x) {
-	  System.out.println("exception " + x);
+	  log.warn("exception " + x);
       } finally {
 	  if (zis != null) {
 	      try {zis.close();} catch (Exception ignore) {}
@@ -159,7 +167,7 @@ public class ZipLoader implements CartridgeLoader {
   public InputStream
   getFile(String the_target) throws FileNotFoundException, IOException {
     unzip();
-    // System.out.println("getfile " + root + "::"  + the_target + "::" + (new File(root, the_target)).getCanonicalPath());
+    log.debug("getfile {} :: {} :: {}", root, the_target, (new File(root, the_target)).getCanonicalPath());
     File f = new File(root, the_target);
     // check for people using .. or other tricks
     if (!f.getCanonicalPath().startsWith(rootPath))

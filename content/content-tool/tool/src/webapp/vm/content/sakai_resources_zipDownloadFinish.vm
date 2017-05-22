@@ -1,0 +1,79 @@
+<!-- sakai_resources_zipDownloadFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<script type="text/javascript">
+function disableButton()
+{
+	//Idea copied from SAK-27831
+    var btnzip = document.getElementById("zipDownloadButton");
+    var btnzipclone = document.createElement("input");
+    var btnzipcloneparent = btnzip.parentNode;
+    btnzipclone.setAttribute( "type", "button" );
+    btnzipclone.setAttribute( "id", btnzip.getAttribute( "id" ) + "Disabled" );
+    btnzipclone.setAttribute( "name", btnzip.getAttribute( "name" ) + "Disabled" );
+    btnzipclone.setAttribute( "className", btnzip.getAttribute( "className" ) );
+    btnzipclone.value = btnzip.value;
+    btnzipclone.setAttribute( "disabled", "true" );
+    btnzip.style.display = "none";
+    btnzipcloneparent.insertBefore( btnzipclone, btnzip );
+}
+</script>
+<div class="portletBody">
+    #if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+    <div class="alertMessage">$tlang.getString("zipdownload.sure")</div><div style="display:block;clear:both" ></div>
+    <h3>
+        $tlang.getString("zipdownload.show")
+    </h3>
+    <form action="#toolForm("ResourcesAction")" id="zipDownloadFileForm" name="zipDownloadFileForm" method="post" >
+        <input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+        #if ($zipDownloadItems.size()>0)
+            <table class ="listHier lines" cellspacing="0" summary="$tlang.getString("zipdownload.table")" border="0" cellpadding="0">
+                <tr>
+                    <th id="title">
+                        $tlang.getString("title.name")
+                    </th>
+                    <th id="size">
+                        $tlang.getString("title.size")
+                    </th>
+                    <th id="created">
+                        $tlang.getString("title.created")
+                    </th>
+                    <th id="last">
+                        $tlang.getString("title.last")
+                    </th>
+                </tr>
+                #foreach ($member in $zipDownloadItems)
+                    <tr>
+                        <td headers="title">
+                            <h4>
+                                #if($member.isCollection())
+                                    <span class="fa fa-folder" aria-hidden="true"></span>
+                                #else
+                                    <span class="$member.iconClass" aria-hidden="true"></span>
+                                #end
+                                <span class="sr-only">$!member.label</span>
+                                <a href="$member.accessUrl" target="_blank">
+                                    $member.name
+                                </a>
+                            </h4>
+                        </td>
+                        <td headers="size">
+                            $member.size
+                        </td>
+                        <td headers="created">
+                            $member.createdBy
+                        </td>
+                        <td headers="last">
+                            $member.modifiedTime
+                        </td>
+                    </tr>
+                #end
+            </table>
+            <p class ="act">
+            #if (!$zipDownloadIndividualFileSizeExceeded && !$zipDownloadTotalFileSizeExceeded)
+                <input type="submit" class="active" onclick="disableButton();" id="zipDownloadButton" name="eventSubmit_doFinalizeZipDownload" value="$tlang.getString("zipdownload.show1")" accesskey="s" />
+            #end
+                <input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("label.continue")" accesskey="x" />
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            </p>
+        #end
+    </form>
+</div>

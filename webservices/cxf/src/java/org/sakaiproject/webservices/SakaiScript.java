@@ -27,6 +27,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Date;
 import java.util.Collections;
+import java.util.Collection;
+import java.util.Map.Entry;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -40,8 +42,8 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.LocaleUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -54,11 +56,13 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -76,6 +80,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.Web;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -91,7 +96,7 @@ import org.w3c.dom.Node;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiScript extends AbstractWebService {
 
-    private static final Log LOG = LogFactory.getLog(SakaiScript.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SakaiScript.class);
 
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
@@ -634,8 +639,13 @@ public class SakaiScript extends AbstractWebService {
 
             Role r = site.getUserRole(userid);
             Member m = site.getMember(userid);
-            group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
-            siteService.saveGroupMembership(site);
+            try {
+                group.insertMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
+                siteService.saveGroupMembership(site);
+            } catch (IllegalStateException e) {
+                LOG.error(".addMemberToGroup: User with id {} cannot be inserted in group with id {} because the group is locked", userid, group.getId());
+                return false;
+            }
             return true;
         } catch (Exception e) {
             LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -1198,6 +1208,50 @@ public class SakaiScript extends AbstractWebService {
             siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    /**
+     * Add a user to a site with a given role
+     *
+     * @param 	sessionid 	the id of a valid session
+     * @param 	siteid 		the id of the site to add the user to
+     * @param 	eids		the login usernames (ie jsmith26) separated by commas of the user you want to add to the site
+     * @param 	roleid		the id of the role to to give the user in the site
+     * @return				success or exception message
+     *
+     * TODO: fix for if the role doesn't exist in the site, it is still returning success - SAK-15334
+     */
+    @WebMethod
+    @Path("/addMemberToSiteWithRoleBatch")
+    @Produces("text/plain")
+    @GET
+    public String addMemberToSiteWithRoleBatch(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eids", partName = "eids") @QueryParam("eids") String eids,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
+
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
+            throw new RuntimeException("NonSuperUser trying to addMemberToSiteWithRoleBatch: " + session.getUserId());
+        }
+
+        try {
+            Site site = siteService.getSite(siteid);
+            List<String> eidsList = Arrays.asList(eids.split(","));
+            for (String eid : eidsList) {
+                String userid = userDirectoryService.getUserByEid(eid).getId();
+                site.addMember(userid,roleid,true,false);
+            }
+            siteService.save(site);
+        }
+        catch (Exception e) {
+            LOG.error("WS addMemberToSiteWithRoleBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -2575,6 +2629,47 @@ public class SakaiScript extends AbstractWebService {
             siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    /**
+     * Removes a member from a given site, similar to removeMembeForAuthzGroup but acts on Site directly and uses a
+     * list of users
+     *
+     * @param	sessionid	the id of a valid session
+     * @param	siteid		the id of the site you want to remove the users from
+     * @param   eids         comma separated list of users eid
+     * @return				success or string containing error
+     * @throws	AxisFault
+     *
+     */
+    @Path("/removeMemberFromSiteBatch")
+    @Produces("text/plain")
+    @GET
+    public String removeMemberFromSiteBatch(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eids", partName = "eid") @QueryParam("eids") String eids) {
+
+        Session session = establishSession(sessionid);
+
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
+            throw new RuntimeException("NonSuperUser trying to removeMemberFromSiteBatch: " + session.getUserId());
+        }
+
+        try {
+            Site site = siteService.getSite(siteid);
+            List<String> eidsList = Arrays.asList(eids.split(","));
+            for (String eid : eidsList) {
+                String userid = userDirectoryService.getUserByEid(eid).getId();
+                site.removeMember(userid);
+            }
+            siteService.save(site);
+        } catch (Exception e) {
+            LOG.error("WS removeMemberFromSiteBatch(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
         }
         return "success";
@@ -4057,8 +4152,8 @@ public class SakaiScript extends AbstractWebService {
 
             // If not admin, check maintainer membership in the source site
             if (!isSuperUser && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-                throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+                LOG.warn("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+                throw new RuntimeException("WS copySiteContent(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
             }
 
             List<SitePage> pages = site.getPages();
@@ -4091,12 +4186,26 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
 
-            for (String toolId : toolIds) {
-                //transfer content
-                transferCopyEntities(
-                        toolId,
-                        contentHostingService.getSiteCollection(sourcesiteid),
-                        contentHostingService.getSiteCollection(destinationsiteid));
+            for (String toolId : toolIds)
+            {
+                Map<String,String> entityMap;
+                Map transversalMap = new HashMap();
+                
+        		if (!toolId.equalsIgnoreCase("sakai.resources"))
+        		{
+        			entityMap = transferCopyEntities(toolId, sourcesiteid, destinationsiteid);
+        		}
+        		else
+        		{
+        			entityMap = transferCopyEntities(toolId, contentHostingService.getSiteCollection(sourcesiteid), contentHostingService.getSiteCollection(destinationsiteid));
+        		}
+        		
+        		if(entityMap != null)
+        		{
+        			transversalMap.putAll(entityMap);
+        		}
+
+        		updateEntityReferences(toolId, sourcesiteid, transversalMap, site);
             }
         } catch (Exception e) {
             LOG.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
@@ -4119,36 +4228,52 @@ public class SakaiScript extends AbstractWebService {
     @Produces("text/plain")
     @GET
     public String copySiteContentForTool(
-            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
-            @WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid,
-            @WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid) {
+    		@WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+    		@WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
+    		@WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid,
+    		@WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid)
+    {
+    	Session session = establishSession(sessionid);
+    	Set<String> toolsCopied = new HashSet<String>();
+    	Map transversalMap = new HashMap();
 
-        Session session = establishSession(sessionid);
+    	try
+    	{
+    		//check if both sites exist
+    		Site site = siteService.getSite(sourcesiteid);
+    		site = siteService.getSite(destinationsiteid);
 
-        try {
-            //check if both sites exist
-            Site site = siteService.getSite(sourcesiteid);
-            site = siteService.getSite(destinationsiteid);
+    		// If not admin, check maintainer membership in the source site
+    		if (!securityService.isSuperUser(session.getUserId()) && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
+    		{
+    			LOG.warn("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+    			throw new RuntimeException("WS copySiteContentForTool(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+    		}
 
-            // If not admin, check maintainer membership in the source site
-            if (!securityService.isSuperUser(session.getUserId()) && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-                throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
-            }
+    		Map<String,String> entityMap;
+    		if (!toolid.equalsIgnoreCase("sakai.resources"))
+    		{
+    			entityMap = transferCopyEntities(toolid, sourcesiteid, destinationsiteid);
+    		}
+    		else
+    		{
+    			entityMap = transferCopyEntities(toolid, contentHostingService.getSiteCollection(sourcesiteid), contentHostingService.getSiteCollection(destinationsiteid));
+    		}
+    		
+    		if(entityMap != null)
+    		{
+    			transversalMap.putAll(entityMap);
+    		}
 
-            //transfer content
-            transferCopyEntities(
-                    toolid,
-                    contentHostingService.getSiteCollection(sourcesiteid),
-                    contentHostingService.getSiteCollection(destinationsiteid));
-        } catch (Exception e) {
-            LOG.error("WS copySiteContentForTool(): " + e.getClass().getName() + " : " + e.getMessage(), e);
-            return e.getClass().getName() + " : " + e.getMessage();
-        }
-        return "success";
+    		updateEntityReferences(toolid, sourcesiteid, transversalMap, site);
+    	}
+    	catch (Exception e)
+    	{
+    		LOG.error("WS copySiteContentForTool(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+    		return e.getClass().getName() + " : " + e.getMessage();
+    	}
+    	return "success";
     }
-
 
     /**
      * Transfer a copy of all entites from another context for any entity
@@ -4158,24 +4283,178 @@ public class SakaiScript extends AbstractWebService {
      * @param fromContext The context to import from.
      * @param toContext   The context to import into.
      */
-    private void transferCopyEntities(String toolId, String fromContext, String toContext) {
-        // offer to all EntityProducers
-        for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext(); ) {
-            EntityProducer ep = (EntityProducer) i.next();
-            if (ep instanceof EntityTransferrer) {
-                try {
-                    EntityTransferrer et = (EntityTransferrer) ep;
+    protected Map transferCopyEntities(String toolId, String fromContext, String toContext)
+    {
+    	Map transversalMap = new HashMap();
 
-                    // if this producer claims this tool id
-                    if (ArrayUtil.contains(et.myToolIds(), toolId)) {
-                        et.transferCopyEntities(fromContext, toContext, new ArrayList());
-                    }
-                } catch (Throwable t) {
-                    LOG.warn(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
-                }
-            }
-        }
+    	// offer to all EntityProducers
+    	for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
+    	{
+    		EntityProducer ep = (EntityProducer) i.next();
+    		if (ep instanceof EntityTransferrer)
+    		{
+    			try
+    			{
+    				EntityTransferrer et = (EntityTransferrer) ep;
+
+    				// if this producer claims this tool id
+    				if (ArrayUtil.contains(et.myToolIds(), toolId))
+    				{
+    					if(ep instanceof EntityTransferrerRefMigrator)
+    					{
+    						EntityTransferrerRefMigrator etMp = (EntityTransferrerRefMigrator) ep;
+    						Map<String,String> entityMap = etMp.transferCopyEntitiesRefMigrator(fromContext, toContext, new ArrayList(), true);
+    						if(entityMap != null)
+    						{
+    							transversalMap.putAll(entityMap);
+    						}
+    					}
+    					else
+    					{
+    						et.transferCopyEntities(fromContext, toContext,	new ArrayList(), true);
+    					}
+    				}
+    			}
+    			catch (Throwable t)
+    			{
+    				LOG.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
+    			}
+    		}
+    	}
+    	
+    	// record direct URL for this tool in old and new sites, so anyone using the URL in HTML text will 
+		// get a proper update for the HTML in the new site
+		// Some tools can have more than one instance. Because getTools should always return tools
+		// in order, we can assume that if there's more than one instance of a tool, the instances
+		// correspond
+
+		Site fromSite = null;
+		Site toSite = null;
+		Collection<ToolConfiguration> fromTools = null;
+		Collection<ToolConfiguration> toTools = null;
+		try
+		{
+		    fromSite = siteService.getSite(fromContext);
+		    toSite = siteService.getSite(toContext);
+		    fromTools = fromSite.getTools(toolId);
+		    toTools = toSite.getTools(toolId);
+		}
+		catch (Exception e)
+		{
+			LOG.warn("transferCopyEntities: can't get site:" + e.getMessage());
+		}
+
+		// getTools appears to return tools in order. So we should be able to match them
+		if (fromTools != null && toTools != null)
+		{
+		    Iterator<ToolConfiguration> toToolIt = toTools.iterator();
+		    for (ToolConfiguration fromTool: fromTools)
+		    {
+				if (toToolIt.hasNext())
+				{
+				    ToolConfiguration toTool = toToolIt.next();
+				    String fromUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(fromTool.getId()) + "/";
+				    String toUrl = serverConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(toTool.getId()) + "/";
+				    if (transversalMap.get(fromUrl) == null)
+				    {
+				    	transversalMap.put(fromUrl, toUrl);
+				    }
+				    if (shortenedUrlService.shouldCopy(fromUrl))
+				    {
+						fromUrl = shortenedUrlService.shorten(fromUrl, false);
+						toUrl = shortenedUrlService.shorten(toUrl, false);
+						if (fromUrl != null && toUrl != null)
+						{
+						    transversalMap.put(fromUrl, toUrl);
+						}
+				    }
+				}
+				else
+				{
+				    break;
+				}
+		    }
+		}
+
+    	return transversalMap;
     }
+    
+    
+    protected void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite)
+    {
+		if (toolId.equalsIgnoreCase("sakai.iframe.site"))
+		{
+			updateSiteInfoToolEntityReferences(transversalMap, newSite);
+		}
+		else
+		{		
+			for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
+			{
+				EntityProducer ep = (EntityProducer) i.next();
+				if (ep instanceof EntityTransferrerRefMigrator && ep instanceof EntityTransferrer)
+				{
+					try
+					{
+						EntityTransferrer et = (EntityTransferrer) ep;
+						EntityTransferrerRefMigrator etRM = (EntityTransferrerRefMigrator) ep;
+
+						// if this producer claims this tool id
+						if (ArrayUtil.contains(et.myToolIds(), toolId))
+						{
+							etRM.updateEntityReferences(toContext, transversalMap);
+						}
+					}
+					catch (Throwable t)
+					{
+						LOG.error("Error encountered while asking EntityTransfer to updateEntityReferences at site: " + toContext, t);
+					}
+				}
+			}
+		}
+	}
+    
+	private void updateSiteInfoToolEntityReferences(Map transversalMap, Site newSite)
+	{
+		if(transversalMap != null && transversalMap.size() > 0 && newSite != null)
+		{
+			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+			
+			String msgBody = newSite.getDescription();
+			if(msgBody != null && !"".equals(msgBody))
+			{
+				boolean updated = false;
+				Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+				while(entryItr.hasNext())
+				{
+					Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+					String fromContextRef = entry.getKey();
+					if(msgBody.contains(fromContextRef))
+					{
+						msgBody = msgBody.replace(fromContextRef, entry.getValue());
+						updated = true;
+					}
+				}	
+				if(updated)
+				{
+					//update the site b/c some tools (Lessonbuilder) updates the site structure (add/remove pages) and we don't want to
+					//over write this
+					try
+					{
+						newSite = siteService.getSite(newSite.getId());
+						newSite.setDescription(msgBody);
+						siteService.save(newSite);
+					}
+					catch (IdUnusedException e) {
+						// TODO:
+					}
+					catch (PermissionException p)
+					{
+						// TODO:
+					}
+				}
+			}
+		}
+	}
     
     /**
      * Get any subsites for a given site

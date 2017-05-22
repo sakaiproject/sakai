@@ -30,5 +30,14 @@ public interface CacheManager {
 	 * @param cacheName
 	 * @return
 	 */
-	public Cache createCache(String cacheName);
+	@SuppressWarnings("rawtypes")
+	Cache createCache(String cacheName);
+
+	/**
+	 * Helper to evict an item from a given cache. 
+	 * @param cache the cache to evict from
+	 * @param cacheKey	the id for the data in the cache
+	 */
+	@SuppressWarnings("rawtypes")
+	void evictFromCache(Cache cache, String cacheKey);
 }

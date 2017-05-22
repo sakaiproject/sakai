@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This service allows us to track all the properties files related to describing the capabilities
  * of our entities and the entities themselves, it allows lookup of strings as well<br/>
@@ -35,6 +37,7 @@ import org.sakaiproject.entitybroker.providers.EntityPropertiesService;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public abstract class AbstractEntityPropertiesService implements EntityPropertiesService {
 
     public static interface MessageBundle {
@@ -106,9 +109,9 @@ public abstract class AbstractEntityPropertiesService implements EntityPropertie
         }
         List<String> keys = registerLocaleMessages(prefix, baseName, locale, classLoader);
         if (keys.size() > 0) {
-            System.out.println("INFO EntityPropertiesService: Added "+keys.size()+" properties for entity prefix (" + prefix + ") and basename ("+baseName+")");
+            log.info("EntityPropertiesService: Added "+keys.size()+" properties for entity prefix (" + prefix + ") and basename ("+baseName+")");
         } else {
-            System.out.println("INFO EntityPropertiesService: No properties to load for entity prefix (" + prefix + ") and basename ("+baseName+")");
+            log.info("EntityPropertiesService: No properties to load for entity prefix (" + prefix + ") and basename ("+baseName+")");
         }
     }
 

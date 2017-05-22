@@ -28,17 +28,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -54,8 +54,10 @@ import org.sakaiproject.roster.api.RosterGroup;
 import org.sakaiproject.roster.api.RosterMember;
 import org.sakaiproject.roster.api.RosterSite;
 import org.sakaiproject.roster.api.SakaiProxy;
+import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <code>RosterPOIEntityProvider</code> allows Roster to export to Excel via
@@ -63,11 +65,10 @@ import lombok.Setter;
  * 
  * @author d.b.robinson@lancaster.ac.uk
  */
+@Setter @Slf4j
 public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		AutoRegisterEntityProvider, ActionsExecutable, RequestAware {
     
-	private static final Log log = LogFactory.getLog(RosterPOIEntityProvider.class);
-	
 	public final static String ENTITY_PREFIX		= "roster-export";
 	public final static String DEFAULT_ID			= ":ID:";
 	
@@ -107,20 +108,17 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	public final static String DEFAULT_FACET_STATUS		= "Status";
 	public final static String DEFAULT_FACET_CREDITS	= "Credits";
 	public final static String DEFAULT_GROUP_ID			= "all";
-	public final static String DEFAULT_ENROLLMENT_STATUS= "All";
+	public final static String DEFAULT_ENROLLMENT_STATUS= "all";
 	public final static String DEFAULT_VIEW_TYPE		= VIEW_OVERVIEW;
 	public final static boolean DEFAULT_BY_GROUP		= false;
 	
 	// misc
-	public final static String FILE_EXTENSION		= ".xls";
+	public final static String FILE_EXTENSION		= ".xlsx";
 	public final static String FILENAME_SEPARATOR	= "_";
 	public final static String FILENAME_BYGROUP		= "ByGroup";
 	public final static String FILENAME_UNGROUPED	= "Ungrouped";
 		
-    @Setter
 	private SakaiProxy sakaiProxy;
-	
-    @Setter
 	private RequestGetter requestGetter;
 		
 	/**
@@ -133,11 +131,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	@EntityCustomAction(action = "export-to-excel", viewKey = EntityView.VIEW_SHOW)
 	public void exportToExcel(OutputStream out, EntityReference reference, Map<String, Object> parameters) {
 
-        String userId = developerHelperService.getCurrentUserId();
+		String userId = developerHelperService.getCurrentUserId();
 
-        if (userId == null) {
-            throw new EntityException(MSG_NO_SESSION, reference.getReference());
-        }
+		if (userId == null) {
+			throw new EntityException(MSG_NO_SESSION, reference.getReference());
+		}
 
 		HttpServletResponse response = requestGetter.getResponse();
 
@@ -166,7 +164,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	private void addResponseHeader(HttpServletResponse response, String filename) {
 		
 		response.addHeader("Content-Encoding", "base64");
-		response.addHeader("Content-Type", "application/vnd.ms-excel");
+		response.addHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		response.addHeader("Content-Disposition", "attachment; filename=" + filename);
 	}
 	
@@ -234,12 +232,12 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		addResponseHeader(response, createFilename(site, groupId, viewType,
 				byGroup, enrollmentSetTitle, enrollmentStatus));
 
-		List<List<String>> dataInRows = new ArrayList<List<String>>();
+		List<List<String>> dataInRows = new ArrayList<>();
 
 		createSpreadsheetTitle(dataInRows, site, groupId, viewType,
 				enrollmentSetTitle);
 
-		List<String> header = createColumnHeader(parameters, viewType, site.getId());
+		List<String> header = createColumnHeader(viewType, site.getId());
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
 
@@ -258,7 +256,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			}
 		}
 
-		Workbook workBook = new HSSFWorkbook();
+		Workbook workBook = new XSSFWorkbook();
 		Sheet sheet = workBook.createSheet();
 
 		for (int i = 0; i < dataInRows.size(); i++) {
@@ -298,7 +296,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		if (DEFAULT_ENROLLMENT_STATUS.equals(enrollmentStatusId)) {
 			membersByStatus = rosterMembers;
 		} else {
-			membersByStatus = new ArrayList<RosterMember>();
+			membersByStatus = new ArrayList<>();
 			for (RosterMember rosterMember : rosterMembers) {
 				if (enrollmentStatusId.equals(rosterMember.getEnrollmentStatusId())) {
 					membersByStatus.add(rosterMember);
@@ -311,11 +309,13 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 	private void addOverviewRows(List<List<String>> dataInRows,
 			List<RosterMember> rosterMembers, List<String> header, String siteId) {
-		
+
+		String userId = developerHelperService.getCurrentUserId();
+
 		dataInRows.add(header);
 		// blank line
 		dataInRows.add(new ArrayList<String>());
-		
+
 		for (RosterMember member : rosterMembers) {
 
 			List<String> row = new ArrayList<String>();
@@ -325,7 +325,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			} else {
 				row.add(member.getSortName());
 			}
-			
+
 			if (sakaiProxy.getViewUserDisplayId()) {
 				row.add(member.getDisplayId());
 			}
@@ -335,10 +335,15 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			}
 
 			row.add(member.getRole());
+
+			if (sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
+				row.add(member.getGroups().values().stream().collect(Collectors.joining(", ")));
+			}
+
 			dataInRows.add(row);
 		}
 	}
-	
+
 	private void addGroupMembershipUngroupedRows(List<List<String>> dataInRows,
 			List<RosterMember> rosterMembers, List<String> header) {
 		
@@ -414,28 +419,30 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			List<String> header, String enrollmentSetTitle,
 			String enrollmentStatus, String siteId) {
 
-		List<String> enrollmentSetTitleRow = new ArrayList<String>();
+		String userId = developerHelperService.getCurrentUserId();
+
+		List<String> enrollmentSetTitleRow = new ArrayList<>();
 		enrollmentSetTitleRow.add(enrollmentSetTitle);
 		dataInRows.add(enrollmentSetTitleRow);
 
 		// blank line
-		dataInRows.add(new ArrayList<String>());
+		dataInRows.add(new ArrayList<>());
 
-		List<String> enrollmentStatusRow = new ArrayList<String>();
+		List<String> enrollmentStatusRow = new ArrayList<>();
 		enrollmentStatusRow.add(enrollmentStatus);
 		dataInRows.add(enrollmentStatusRow);
 
 		// blank line
-		dataInRows.add(new ArrayList<String>());
+		dataInRows.add(new ArrayList<>());
 
 		dataInRows.add(header);
 		
 		// blank line
-		dataInRows.add(new ArrayList<String>());
-		
+		dataInRows.add(new ArrayList<>());
+
 		for (RosterMember member : enrollmentSet) {
 
-			List<String> row = new ArrayList<String>();
+			List<String> row = new ArrayList<>();
 
 			if (sakaiProxy.getFirstNameLastName()) {
 				row.add(member.getDisplayName());
@@ -453,6 +460,10 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 			
 			row.add(member.getEnrollmentStatusText());
 			row.add(member.getCredits());
+
+			if (sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
+				row.add(member.getGroups().values().stream().collect(Collectors.joining(", ")));
+			}
 			
 			dataInRows.add(row);
 		}
@@ -469,7 +480,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	private String getEnrollmentStatusValue(Map<String, Object> parameters) {
 		String enrollmentStatus = null;
 		if (null != parameters.get(KEY_ENROLLMENT_STATUS)) {
-			enrollmentStatus = parameters.get(KEY_ENROLLMENT_STATUS).toString();
+			enrollmentStatus = parameters.get(KEY_ENROLLMENT_STATUS).toString().toLowerCase();
 		}
 		return enrollmentStatus;
 	}
@@ -509,55 +520,43 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		return null;
 	}
 
-	private List<String> createColumnHeader(Map<String, Object> parameters,
-			String viewType, String siteId) {
-		
-		List<String> header = new ArrayList<String>();
-		header.add(parameters.get(KEY_FACET_NAME) != null ? parameters.get(
-				KEY_FACET_NAME).toString() : DEFAULT_FACET_NAME);
-		
+	private List<String> createColumnHeader(String viewType, String siteId) {
+
+		String userId = developerHelperService.getCurrentUserId();
+
+		ResourceLoader rl = new ResourceLoader("org.sakaiproject.roster.i18n.ui");
+
+		List<String> header = new ArrayList<>();
+		header.add(rl.getString("facet_name"));
+
 		if (sakaiProxy.getViewUserDisplayId()) {
-			header.add(parameters.get(KEY_FACET_USER_ID) != null ? parameters.get(
-					KEY_FACET_USER_ID).toString() : DEFAULT_FACET_USER_ID);
+		    header.add(rl.getString("facet_userId"));
+		}
+		if (sakaiProxy.getViewEmail(siteId)) {
+			header.add(rl.getString("facet_email"));
 		}
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
-
-			if (sakaiProxy.getViewEmail(siteId)) {
-
-				header.add(parameters.get(KEY_FACET_EMAIL) != null ? parameters
-						.get(KEY_FACET_EMAIL).toString() : DEFAULT_FACET_EMAIL);
-			}
-
-			header.add(parameters.get(KEY_FACET_ROLE) != null ? parameters.get(
-					KEY_FACET_ROLE).toString() : DEFAULT_FACET_ROLE);
-
+			header.add(rl.getString("facet_role"));
 		} else if (VIEW_ENROLLMENT_STATUS.equals(viewType)) {
-
-			if (sakaiProxy.getViewEmail(siteId)) {
-
-				header.add(parameters.get(KEY_FACET_EMAIL) != null ? parameters
-						.get(KEY_FACET_EMAIL).toString() : DEFAULT_FACET_EMAIL);
-			}
-
-			header.add(parameters.get(KEY_FACET_STATUS) != null ? parameters
-					.get(KEY_FACET_STATUS).toString() : DEFAULT_FACET_STATUS);
-
-			header.add(parameters.get(KEY_FACET_CREDITS) != null ? parameters
-					.get(KEY_FACET_CREDITS).toString() : DEFAULT_FACET_CREDITS);
+			header.add(rl.getString("facet_status"));
+			header.add(rl.getString("facet_credits"));
+		}
+		if (sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
+			header.add(rl.getString("facet_groups"));
 		}
 
 		return header;
 	}
-	
+
 	private void createSpreadsheetTitle(List<List<String>> dataInRows,
 			RosterSite site, String groupId, String viewType, String enrollmentSet) {
 
-		List<String> title = new ArrayList<String>();
+		List<String> title = new ArrayList<>();
 		title.add(site.getTitle());
 		dataInRows.add(title);
 		// blank line
-		dataInRows.add(new ArrayList<String>());
+		dataInRows.add(new ArrayList<>());
 
 		// SAK-18513
 		if (VIEW_OVERVIEW.equals(viewType)) {
@@ -567,11 +566,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				for (RosterGroup group : site.getSiteGroups()) {
 					
 					if (group.getId().equals(groupId)) {
-						List<String> groupTitle = new ArrayList<String>();
+						List<String> groupTitle = new ArrayList<>();
 						groupTitle.add(group.getTitle());
 						dataInRows.add(groupTitle);
 						// blank line
-						dataInRows.add(new ArrayList<String>());
+						dataInRows.add(new ArrayList<>());
 						
 						break;
 					}

@@ -39,6 +39,8 @@
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
@@ -108,8 +110,8 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
  	</bean>
 
- 	<bean name="ltiFileItemProducer" 
-		class="org.sakaiproject.lessonbuildertool.tool.producers.LtiFileItemProducer" init-method="init">
+ 	<bean name="ltiImportItemProducer" 
+		class="org.sakaiproject.lessonbuildertool.tool.producers.LtiImportItemProducer" init-method="init">
  		<property name="messageLocator" ref="messageLocator"/>
  		<property name="simplePageBean" ref="simplePageBean" />
  		<property name="simplePageToolDao">
@@ -174,6 +176,13 @@
 		<property name="showPageProducer" ref="showPageProducer" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.FolderPickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+	</bean>
 	
  	 <bean class="org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
@@ -192,6 +201,8 @@
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     	</property>
+	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     	<property name="messageLocator" ref="messageLocator"/>
 	<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
@@ -201,6 +212,8 @@
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     	</property>
+	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     	<property name="messageLocator" ref="messageLocator"/>
 	<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
@@ -211,6 +224,11 @@
       <property name="simplePageToolDao">
 				<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
       </property>
+      <property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+      <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+      <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+      <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+      <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
       <property name="httpServletRequest" ref="httpServletRequest" />
       <property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
@@ -238,6 +256,25 @@
 		<property name="showPageProducer" ref="showPageProducer" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
     </bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ChecklistProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="showPageProducer" ref="showPageProducer" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ChecklistProgressProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="showPageProducer" ref="showPageProducer" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+	</bean>
 
 	<!-- backing beans -->
 	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
@@ -291,5 +328,12 @@
           <property name="httpServletResponse" ref="httpServletResponse" />
         </bean>
 
+	<bean id="checklistBean"
+		  class="org.sakaiproject.lessonbuildertool.tool.beans.ChecklistBean">
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+	</bean>
 
 </beans>

@@ -64,7 +64,7 @@
 				 });
 			 });				 
         </script>
-      <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
+        <h1><h:outputText value="#{msgs.cdfm_discussion_forum_settings}" /></h1>
 		<div class="instruction">
 		  <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 		  <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
@@ -105,18 +105,17 @@
       		
 			<%--RTEditor area - if enabled--%>
 			<h:panelGroup rendered="#{! ForumTool.disableLongDesc}">
-				<h:outputText id="outputLabel2" value="#{msgs.cdfm_fullDescription}" style="display:block;padding:.5em 0"/>
+				<h:outputText id="outputLabel2" value="#{msgs.cdfm_fullDescription}" styleClass="labeled"/>
 			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_description" value="#{ForumTool.selectedForum.forum.extendedDescription}">
-				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 	      	</h:panelGroup>
 	      	
 			
 			<%--Attachment area  --%>
-	      <h4>
+	      <h2>
 		        <h:outputText value="#{msgs.cdfm_att}"/>
-	      </h4>
-			<div style="padding-left:1em">
+	      </h2>
+			<div>
 				<%--designNote: would be nice to make this an include, as well as a more comprehensive MIME type check  --%> 
 			<h:dataTable styleClass="attachPanel" id="attmsg"  value="#{ForumTool.attachments}" var="eachAttach"  cellpadding="0" cellspacing="0" columnClasses="attach,bogus,specialLink,bogus,bogus" rendered="#{!empty ForumTool.attachments}">
 				<h:column>
@@ -158,9 +157,9 @@
 					</h:column>
 					</h:dataTable>   
 
-			<div class="instruction">	        
-				<h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty ForumTool.attachments}"/>
-			</div>
+			<h:panelGroup rendered="#{empty ForumTool.attachments}" styleClass="instruction">
+				<h:outputText value="#{msgs.cdfm_no_attachments}" />
+			</h:panelGroup>
 			<p class="act" style="padding:0 0 1em 0;">
 				<h:commandButton  action="#{ForumTool.processAddAttachmentRedirect}"
 					value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}"  
@@ -174,9 +173,10 @@
 			</p>	
 			</div>		
 			<%--general posting  forum settings --%>
-			<h4 style="margin: 0"><h:outputText
-				value="#{msgs.cdfm_forum_posting}" /></h4>
-			<div class="indnt1">
+			<h2>
+				<h:outputText value="#{msgs.cdfm_forum_posting}" />
+			</h2>
+			
 				<p class="checkbox">
 					<h:selectBooleanCheckbox
 						title="ForumLocked" value="#{ForumTool.selectedForum.forumLocked}"
@@ -195,18 +195,18 @@
 						id="postFirst">
 					</h:selectBooleanCheckbox> <h:outputLabel for="postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>
-			</div>
-			<h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>
+
+			<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
 			
 			<div class="indnt1">
-			<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0">
-              <h:panelGroup>
+			<%-- <h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0"> --%>
+              <h:panelGroup styleClass="checkbox">
                  <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedForum.availabilityRestricted}">
                   <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_forum_avail_show}"/>
                   <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}"/>
                </h:selectOneRadio>
                </h:panelGroup>
-               <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
+               <h:panelGroup id="openDateSpan" styleClass="checkbox indnt2 openDateSpan calWidget" style="display: #{ForumTool.selectedForum.availabilityRestricted ? '' : 'none'}">
                	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
 
 	               <h:inputText id="openDate" styleClass="openDate" value="#{ForumTool.selectedForum.openDate}"/>
@@ -217,7 +217,7 @@
 	               <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedForum.closeDate}"/>
 
               	</h:panelGroup>
-           </h:panelGrid>
+           <%-- </h:panelGrid> --%>
  		</div>
 
 
@@ -226,6 +226,7 @@
  		<script type="text/javascript">
  		      localDatePicker({
  		      	input:'.openDate', 
+ 		      	allowEmptyDate:true, 
  		      	ashidden: { iso8601: 'openDateISO8601' },
  		      	getval:'.openDate',
  		      	useTime:1 
@@ -233,6 +234,7 @@
 
  		      localDatePicker({
  		      	input:'.closeDate', 
+ 		      	allowEmptyDate:true, 
  		      	ashidden: { iso8601: 'closeDateISO8601' },
  		      	getval:'.closeDate',
  		      	useTime:1 
@@ -240,39 +242,42 @@
  		</script>
 
 
-		<h4><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h4>
-			<table><tr><td>
-			<p class="indnt1 checkbox"><h:selectBooleanCheckbox
-				title="autoMarkThreadsRead"
-				value="#{ForumTool.selectedForum.forumAutoMarkThreadsRead}"
-				id="autoMarkThreadsRead">
-			</h:selectBooleanCheckbox> <h:outputLabel for="autoMarkThreadsRead"
-				value="#{msgs.cdfm_auto_mark_threads_read}" /></p>
-				</td></tr></table>
+		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
+			
+			<p class="checkbox">
+				<h:selectBooleanCheckbox
+					title="autoMarkThreadsRead"
+					value="#{ForumTool.selectedForum.forumAutoMarkThreadsRead}"
+					id="autoMarkThreadsRead">
+				</h:selectBooleanCheckbox>
+				<h:outputLabel for="autoMarkThreadsRead"	value="#{msgs.cdfm_auto_mark_threads_read}" />
+			</p>
 
 	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
 				<%--designNote:  How is this a "permission" item? --%>  
-				<h4><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h4>
+				<h2><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h2>
 
-				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist}" style="margin-top:.5em;clear:both" styleClass="itemSummary">
-			    <h:panelGroup style="white-space:nowrap;">
-						<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
-			      </h:panelGroup>
-				  <h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
-						<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-			   	    <f:selectItems value="#{ForumTool.assignments}" />
-			      </h:selectOneMenu>
-						<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
-						<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
-						<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
-			    </h:panelGroup>
-						<h:panelGroup styleClass="displayMorePanel" style="display:none" >
-			    </h:panelGroup>
-					<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
-
-						<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
-			    </h:panelGroup>
-			  </h:panelGrid>
+				<div class="row form-group" id="forum_grading">
+					<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}" styleClass="col-md-2 col-sm-2"></h:outputLabel>  
+					<div class="col-md-10 col-sm-10">
+						<div class="row">
+				  		<h:panelGroup  styleClass="gradeSelector  itemAction actionItem"> 
+							<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
+			   	    			<f:selectItems value="#{ForumTool.assignments}" />
+			      			</h:selectOneMenu>
+							<h:outputText value="#{msgs.perm_choose_assignment_none_f}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+							<h:outputText value=" #{msgs.perm_choose_instruction_forum} " styleClass="instrWithGrades" style="margin-left:0;"/>
+							<h:outputLink value="#" style="text-decoration:none" styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+			    		</h:panelGroup>
+			    		</div>
+			    		<div class="row">
+							<h:panelGroup styleClass="displayMorePanel" style="display:none" ></h:panelGroup>
+							<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none" >
+								<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_forum_more}"/>
+			    			</h:panelGroup>
+			    		</div>
+					</div>
+				</div>
 
 			<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 

@@ -24,6 +24,8 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 
@@ -44,6 +46,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
  */
 public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsReporter {
 
+	private static final Logger log = LoggerFactory.getLogger(IFrameWindowProducer.class);
 	private SimplePageBean simplePageBean;
 	public LocaleGetter localeGetter;                                                                                             
 
@@ -64,7 +67,7 @@ public class IFrameWindowProducer implements ViewComponentProducer, ViewParamsRe
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
 		    } catch (Exception e) {
-			System.out.println("IFrameWindowsProducer permission exception " + e);
+			log.info("IFrameWindowsProducer permission exception " + e);
 			return;
 		    }			
 		}

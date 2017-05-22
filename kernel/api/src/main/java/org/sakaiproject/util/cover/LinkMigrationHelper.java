@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -18,7 +18,7 @@ public class LinkMigrationHelper {
 
 	private static org.sakaiproject.util.api.LinkMigrationHelper thisLinkMigrationHelper=null;
 	
-	private static final Log LOG = LogFactory.getLog(LinkMigrationHelper.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LinkMigrationHelper.class);
 	
 
 	private static org.sakaiproject.util.api.LinkMigrationHelper getLinkMigrationHelper(){

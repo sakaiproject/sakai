@@ -2,7 +2,7 @@
 #set($hometoolId=$hometool.getId())
 <li id="row-home">
 	<div class="toolListControl">
-		<input type="checkbox" name="selectedTools" value="$!hometoolId" id="$!hometoolId"
+		<input type="checkbox" name="selectedTools" value="$!hometoolId" id="sakai.home"
         	#if ($!hometool.getSelected())
         	    checked="checked"
         	#end

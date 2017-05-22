@@ -29,8 +29,8 @@ import java.util.Set;
 
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.SectionManager.ExternalIntegrationConfig;
@@ -48,7 +48,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(CourseDependentBean.class);
+	private static final Logger log = LoggerFactory.getLogger(CourseDependentBean.class);
 
 	private transient CourseBean courseBean;
 

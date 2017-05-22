@@ -30,8 +30,8 @@
 		  </h:panelGroup>
         </h:panelGrid>
   	
-
-  		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.allUserStatistics}" var="stat" rendered="true"
+      <div class="table-responsive">
+  		<h:dataTable styleClass="table table-hover table-striped table-bordered lines nolines" id="members" value="#{mfStatisticsBean.allUserStatistics}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">
@@ -90,7 +90,7 @@
   				</h:outputText>
   			</h:column>
   		</h:dataTable>
-  
+      </div>
   	</h:form>
   </sakai:view>
 </f:view>

@@ -18,15 +18,15 @@
  */
 package org.sakaiproject.dash.jobs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 //TODO: Find all statsUpdateManager and replace with this dashboard job
 
 public class DashCheckAdminChangesJob extends DashQuartzJob {
-	private Log	logger = LogFactory.getLog(DashCheckAdminChangesJob.class);
+	private Logger	logger = LoggerFactory.getLogger(DashCheckAdminChangesJob.class);
 	
 	//Matches the bean id
 	final static String beanId = "dashCheckAdminChangesJob";

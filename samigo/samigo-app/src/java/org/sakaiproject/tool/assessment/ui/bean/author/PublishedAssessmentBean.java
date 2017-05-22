@@ -26,8 +26,8 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author rshastri
@@ -39,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PublishedAssessmentBean implements Serializable
 {
-  private static Log log = LogFactory.getLog(PublishedAssessmentBean.class);
+  private static Logger log = LoggerFactory.getLogger(PublishedAssessmentBean.class);
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 206375673822116682L;
@@ -49,7 +49,6 @@ public class PublishedAssessmentBean implements Serializable
   private int minutes;
   private int weeks;
   private int days;
-  private String username;
   private String publishedID;
   private String publish_start_day;
   private int publish_start_hours;
@@ -307,14 +306,6 @@ public class PublishedAssessmentBean implements Serializable
   /**
    * @return
    */
-  public String getUsername()
-  {
-    return username;
-  }
-
-  /**
-   * @return
-   */
   public int getWeeks()
   {
     return weeks;
@@ -534,14 +525,6 @@ public class PublishedAssessmentBean implements Serializable
   public void setPublish_start_minutes(int i)
   {
     publish_start_minutes = i;
-  }
-
-  /**
-   * @param string
-   */
-  public void setUsername(String string)
-  {
-    username = string;
   }
 
   /**

@@ -1,5 +1,5 @@
 body {
-	width: 98%;
+	width: 100%;
 }
 
 .indnt1 {
@@ -9,6 +9,14 @@ body {
 .indnt2 {
     position: relative;
     left: 18px;
+}
+
+.feedUrl {
+	padding-left: 30px;
+}
+
+.podTitle {
+	margin-left: 30px;
 }
 
 .podDateFormat {
@@ -22,6 +30,7 @@ body {
 .rssIcon {
 	position: relative;
 	top: 6px;
+	text-decoration: none;
 }
 
 .podDelDescPosition {

@@ -25,8 +25,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.print.PDFAssessmentBean;
@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
  * @version $Id$
  */
 public class ActionSelectListener implements ValueChangeListener {
-	private static Log log = LogFactory.getLog(ActionSelectListener.class);
+	private static Logger log = LoggerFactory.getLogger(ActionSelectListener.class);
 
 	/**
 	 * Standard process action method.

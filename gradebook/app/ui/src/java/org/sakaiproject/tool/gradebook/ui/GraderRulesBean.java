@@ -34,8 +34,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.tool.gradebook.Permission;
@@ -49,7 +49,7 @@ import org.sakaiproject.service.gradebook.shared.GraderPermission;
 
 public class GraderRulesBean extends GradebookDependentBean implements Serializable
 {
-	private static final Log logger = LogFactory.getLog(GraderRulesBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(GraderRulesBean.class);
 	
 	private List graderList;
 	private String selectedGraderId;

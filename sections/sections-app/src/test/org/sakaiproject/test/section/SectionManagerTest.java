@@ -28,8 +28,8 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.CourseManager;
 import org.sakaiproject.section.api.SectionManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
@@ -53,7 +53,7 @@ import org.sakaiproject.component.section.support.UserManager;
  *
  */
 public class SectionManagerTest extends SectionsTestBase{
-	private static final Log log = LogFactory.getLog(SectionManagerTest.class);
+	private static final Logger log = LoggerFactory.getLogger(SectionManagerTest.class);
 	
 	private AuthnTestImpl authn;
 	private Context context;

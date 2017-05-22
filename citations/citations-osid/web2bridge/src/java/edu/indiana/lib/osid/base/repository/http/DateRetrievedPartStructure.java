@@ -3,10 +3,6 @@ package edu.indiana.lib.osid.base.repository.http;
 public class DateRetrievedPartStructure
 implements org.osid.repository.PartStructure
 {
-
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(DateRetrievedPartStructure.class);
-
-		
 	private org.osid.shared.Id DATE_RETRIEVED_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"dateRetrieved", "Date Retrieved" );

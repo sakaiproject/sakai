@@ -43,8 +43,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
@@ -65,7 +65,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 public class RosterBean extends CourseDependentBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(RosterBean.class);
+	private static final Logger log = LoggerFactory.getLogger(RosterBean.class);
 	private static final String CAT_COLUMN_PREFIX = "cat";
 
 	private String searchText;
@@ -75,7 +75,8 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	private List<SelectItem> filterItems;
 	private List<EnrollmentDecorator> enrollments;
 	private List<String> categories;
-    private List<EnrollmentRecord> siteStudents;
+	private List<EnrollmentRecord> siteStudents;
+	private List<EnrollmentDecorator> unpagedEnrollments;
 
     public void init() {
 		// Determine whether this course is externally managed
@@ -126,7 +127,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
 	}
 
 	private void decorateEnrollments(List<EnrollmentRecord> siteStudents, SectionEnrollments sectionEnrollments, List<CourseSection> assignedSections) {
-		List<EnrollmentDecorator> unpagedEnrollments = new ArrayList<EnrollmentDecorator>();
+		unpagedEnrollments = new ArrayList<EnrollmentDecorator>();
 		for(Iterator<EnrollmentRecord> studentIter = siteStudents.iterator(); studentIter.hasNext();) {
 			EnrollmentRecord enrollment = studentIter.next();
 
@@ -338,17 +339,15 @@ public class RosterBean extends CourseDependentBean implements Serializable {
         	
         } 
         spreadsheetData.add(header);
-        for(Iterator enrollmentIter = siteStudents.iterator(); enrollmentIter.hasNext();) {
-            //EnrollmentDecorator enrollment = enrollmentIter.next();
-        	ParticipationRecord record = (ParticipationRecord)enrollmentIter.next();
+        for (EnrollmentDecorator enrollment : unpagedEnrollments ) {
             List<Object> row = new ArrayList<Object>();
             
-            row.add(record.getUser().getSortName());
-            row.add(record.getUser().getDisplayId());
+            row.add(enrollment.getUser().getSortName());
+            row.add(enrollment.getUser().getDisplayId());
 
             for (Iterator iter = getUsedCategories().iterator(); iter.hasNext();){
                 String category = (String)iter.next();
-                CourseSection section = sectionEnrollments.getSection(record.getUser().getUserUid(), category);
+                CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
 
                 if(section!=null){
                 	row.add(section.getTitle());

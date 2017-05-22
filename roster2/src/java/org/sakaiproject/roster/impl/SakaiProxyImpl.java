@@ -19,22 +19,11 @@
 
 package org.sakaiproject.roster.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -49,6 +38,8 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
@@ -82,11 +73,12 @@ import lombok.Setter;
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
 @Setter
-public class SakaiProxyImpl implements SakaiProxy {
+public class SakaiProxyImpl implements SakaiProxy, Observer {
 
-	private static final Log log = LogFactory.getLog(SakaiProxyImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(SakaiProxyImpl.class);
 		
 	private CourseManagementService courseManagementService;
+	private EventTrackingService eventTrackingService;
 	private FunctionManager functionManager;
 	private GroupProvider groupProvider;
 	private PrivacyManager privacyManager;
@@ -140,6 +132,8 @@ public class SakaiProxyImpl implements SakaiProxy {
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
         }
+
+        eventTrackingService.addObserver(this);
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
 	}
@@ -503,10 +497,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		log.debug("filterHiddenMembers");
 		
+		boolean viewHidden = false;
 		if (isAllowed(currentUserId,
 				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
 			log.debug("permission to view all, including hidden");
-			return members;
+			viewHidden = true;
 		}
 
 		List<RosterMember> filtered = new ArrayList<RosterMember>();
@@ -519,10 +514,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 			userIds.add(userId);
 
-            // If this member is not in the authzGroup, remove them.
-            if (authzGroup.getMember(userId) == null) {
-                i.remove();
-            }
 		}
 
 		Set<String> hiddenUserIds
@@ -541,8 +532,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		for (RosterMember member : members) {
 			String userId = member.getUserId();
 			
-			// skip if privacy restricted and not the current user
-			if (!userId.equals(currentUserId) && hiddenUserIds.contains(userId)) {
+			// skip if not the current user and privacy restricted or user not in group
+			if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId)) || authzGroup.getMember(userId) == null)) {
 				continue;
 			}
 			
@@ -745,6 +736,7 @@ public class SakaiProxyImpl implements SakaiProxy {
                 String gId = group.getId();
                 Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId), memberComparator);
                 for (Role role : roles) {
+                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + role.getId()), memberComparator);
                     Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId + "#" + role.getId()), memberComparator);
                 }
             }
@@ -778,9 +770,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Trying to get '" + siteId + "' from enrollments cache ...");
-        }
+        log.debug("Trying to get '{}' from enrollments cache ...", siteId);
 
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
 
@@ -822,12 +812,15 @@ public class SakaiProxyImpl implements SakaiProxy {
             List<RosterMember> waiting = new ArrayList<RosterMember>();
             List<RosterMember> enrolled = new ArrayList<RosterMember>();
 
+            Map<String, String> statusCodes
+                = courseManagementService.getEnrollmentStatusDescriptions(new ResourceLoader().getLocale());
+
             for (Enrollment enrollment : courseManagementService.getEnrollments(enrollmentSet.getEid())) {
                 RosterMember member = membership.get(enrollment.getUserId());
                 member.setCredits(enrollment.getCredits());
                 String enrollmentStatusId = enrollment.getEnrollmentStatus();
                 member.setEnrollmentStatusId(enrollmentStatusId);
-                //member.setEnrollmentStatus(statusCodes.get(enrollmentStatusId));
+                member.setEnrollmentStatusText(statusCodes.get(enrollmentStatusId));
 
                 if (enrollmentStatusId.equals("wait")) {
                     waiting.add(member);
@@ -1147,5 +1140,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
+    }
+
+    public void update(Observable o, Object arg) {
+
+        if (arg instanceof Event) {
+            Event event = (Event) arg;
+            if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(event.getEvent())) {
+                if (log.isDebugEnabled()) log.debug("Site membership updated. Clearing caches ...");
+                String siteId = event.getContext();
+
+                Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
+                enrollmentsCache.remove(siteId);
+
+                Cache searchIndexCache = memoryService.getCache(SEARCH_INDEX_CACHE);
+                searchIndexCache.remove(siteId);
+
+                Cache membershipsCache = getCache(MEMBERSHIPS_CACHE);
+                membershipsCache.remove(siteId);
+                Site site = getSite(siteId);
+                if (site != null) {
+                    Set<Role> roles = site.getRoles();
+                    for (Group group : site.getGroups()) {
+                        String gId = group.getId();
+                        membershipsCache.remove(siteId + "#" + gId);
+                        for (Role role : roles) {
+                            membershipsCache.remove(siteId + "#" + gId + "#" + role.getId());
+                        }
+                    }
+                }
+            }
+        }
     }
 }

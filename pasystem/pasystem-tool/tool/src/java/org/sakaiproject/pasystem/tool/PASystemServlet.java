@@ -42,7 +42,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.pasystem.api.I18n;
@@ -72,11 +74,13 @@ public class PASystemServlet extends HttpServlet {
     private static final Logger LOG = LoggerFactory.getLogger(PASystemServlet.class);
 
     private PASystem paSystem;
+    private ClusterService clusterService;
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        paSystem = (PASystem) ComponentManager.get(PASystem.class);
+        paSystem = ComponentManager.get(PASystem.class);
+        clusterService = ComponentManager.get(ClusterService.class);
     }
 
     private Handler handlerForRequest(HttpServletRequest request) {
@@ -89,7 +93,7 @@ public class PASystemServlet extends HttpServlet {
         if (path.contains("/popups/")) {
             return new PopupsHandler(paSystem);
         } else if (path.contains("/banners/")) {
-            return new BannersHandler(paSystem);
+            return new BannersHandler(paSystem, clusterService);
         } else {
             return new IndexHandler(paSystem);
         }

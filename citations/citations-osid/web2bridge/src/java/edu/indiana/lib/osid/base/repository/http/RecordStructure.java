@@ -20,14 +20,16 @@ package edu.indiana.lib.osid.base.repository.http;
  * limitations under the License.
  *
  **********************************************************************************/
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author Massachusetts Institute of Techbology, Sakai Software Development Team
  * @version
  */
+@Slf4j
 public class RecordStructure extends edu.indiana.lib.osid.base.repository.RecordStructure
 {
-		private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(RecordStructure.class);
-		
     private String idString = "af106d4f201080006d751920168000100";
     private String displayName = "Library Content";
     private String description = "Holds metadata for an asset of no particular kind";
@@ -51,7 +53,7 @@ public class RecordStructure extends edu.indiana.lib.osid.base.repository.Record
 		}
 		catch (Throwable t)
 		{
-			_log.warn(t.getMessage());
+			log.warn(t.getMessage());
 		}
 	}
 

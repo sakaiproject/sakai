@@ -63,8 +63,6 @@ package edu.indiana.lib.osid.base.loader;
  * </p>
  */
 public class OsidLoader implements java.io.Serializable {
-
-private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(OsidLoader.class);
     /**
      * Returns an instance of the org.osid.OsidManager of the OSID specified by the OSID
      * package org.osid.OsidManager interface name and the implementation package name.

@@ -24,8 +24,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.EntityView;
@@ -53,7 +53,7 @@ import lombok.Setter;
 @Setter
 public class SiteStatsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
-    private final Log logger = LogFactory.getLog(SiteStatsEntityProvider.class);
+    private final Logger logger = LoggerFactory.getLogger(SiteStatsEntityProvider.class);
 
     public static final String PREFIX = "sitestats";
 

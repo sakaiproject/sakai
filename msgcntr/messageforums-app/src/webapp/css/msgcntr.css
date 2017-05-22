@@ -1,10 +1,11 @@
 /*PART 1 - FORUM AND TOPIC LISTINGS*/
 .forumHeader{
 	/*panel holding all forum metadata in forum list view*/
-	width: 99%;
-	background: #ffe;
-	border: 1px solid #fc6;
-	margin-bottom: 1em;
+	width: 100%;
+    background: #F8F8F3;
+    border: 1px solid #D9C9A7;
+    margin-bottom: 0;
+    margin-top: 1em;
 }
 .forumHeader td{
 	/*inner container forum metadata in forum list view*/
@@ -45,20 +46,19 @@
 }
 .topicBloc{
 	/*inner container topic metadata in forum list view, or single topic view*/
-	margin: .5em 0 1em 1em;
+	margin: 0 0 0 1em;
 	border-left: 2px solid #fc6;
-	width: 95%;
+	width: calc(100% - 1em);
 }
 .topicBloc td{
 	padding-left: .5em;
+	padding-top: .5em;
+
 }
 .topicBloc td td{
 	padding-left: 0;
 }
-.topicBlocLone{
-	/*inner container topic metadata adjutments in single topic view*/
-	margin: .5em 0 1em 0;
-}
+
 .singleMessage .title, .singleMessageReply .title, .topicBloc .title,.pendingApproval .title{
 	/*	title for all the above cases*/
 	font-weight: bold;
@@ -144,15 +144,13 @@
 	padding: 1px 2px;
 	margin-right: 5px;
 }
-.markAsReadIcon{
+a.markAsReadIcon{
 	cursor: pointer;
 	margin-left:.5em;
-	background: #fff url(../images/silk/email.png) center left no-repeat;
-	padding-bottom: 2px;
-	padding-top: 2px;
+	background: #fff url(../images/silk/email.png) 5px 5px no-repeat;
 }
-.markAsReadIcon:hover{
-	background: #fff url(../images/silk/email_open.png) center left no-repeat
+a.markAsReadIcon:hover{
+	background: #fff url(../images/silk/email_open.png) 5px 3px no-repeat
 }
 .messagesFlat,.messagesThreaded{
 	width: 98% !important;
@@ -218,10 +216,7 @@
 	padding-left: .5em;
 	font-size: .9em;
 }
-.itemToolBar a{
-	/*	all links associated with an item in thread + body view*/
-	text-decoration: none !important;
-}
+
 .otherActions{
 	/*parent of all links in the "other actions" link list*/
 	padding: 0 !important;
@@ -235,13 +230,9 @@
 	}
 .allMessages .messageTitle .firstChild{
 	/*first post in a thread in topic listing (no body)*/
-	border-left: 1px solid #cd5;
-	padding-left: 5px;
 }
 .allMessages .hierItemBlock .messageTitle .firstChild{
 	/*first post in a thread in topic listing ( + body) */
-	border-left: 1px solid #69d;
-	padding-left: 5px;
 }
 
 .allMessages td.attach{
@@ -299,13 +290,20 @@ table.messageActions td{
 	background:#ffe;
 	position:absolute;
 	padding:5px;
+	z-index: 1;
 }
 
 #permalinkHolder a{
 	font-weight:bold;
 	top:0;right:4px;
 	outline:none;padding:0;
-	display:block;position:absolute;
+	display:block;
+	float:right;
+}
+
+#permalinkHolder textarea{
+	width: 100%;
+	height: 200px;
 }
 .messageActions td.otherOtherActions {
 	/*rightmost column of single message action links - not used*/
@@ -393,11 +391,7 @@ td div.title{
 	display:inline-block;
 	width:14em;
 }
-.permissionRow {
-	padding: .25em;
-	border: 1px solid #C0C0C0;
-	display:block;
-}
+
 .permissionPanel > table {
 	padding-top: .3em;
 }
@@ -424,7 +418,7 @@ td div.title{
 .permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
 .permissionRow .ui-accordion-content { background: #eee; border: 1px solid #ccc; }
 .permissionRow span.ui-accordion-header {
-	margin-left: 4em;
+	margin: 0 0 0.5em 4em;
 	display:inline-block;
 }
 .permissionRow .ui-accordion-header.ui-state-active {
@@ -493,24 +487,11 @@ table.discTria:hover{
 	padding: 3px;
 	margin-right: 5px;
 }
-.itemNav{
-	border: 1px solid #fff;
-	white-space: nowrap;
-	padding: 0 .3em;
-	background: #fff;
-}
-.itemNav:hover{
-	border: 1px solid #eee;
-	white-space: nowrap;
-	padding: 0 .3em;
-	background: #ffe;
-}
+
 .messageMetadata{
 	padding:1px 0;
 }
-.messageMetadata span.md{
-	border-bottom:1px solid #ccc;
-}
+
 a .textPanelFooter{
 	color: inherit;
 }
@@ -657,4 +638,46 @@ div.msgcntr-profile-qtip {
 
 .disable_a_href{
     pointer-events: none;
+}
+
+#msgForum\:grade-message-options{
+	width: 100%;
+}
+
+#msgForum\:grade-message-options label{
+	width: 25%;
+	display:inline-block;
+}
+#msgForum\:assignment{
+	margin-right: 0.5em;
+}
+
+ /* Styles for synoptic */
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable{
+	width:auto;
+	table-layout:fixed;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable th{
+	white-space: normal;
+	vertical-align: initial;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .messagesHeader{
+	width:20%;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .forumsHeader{
+	width:20%;
+}
+
+#synopticForm\:myWorkspaceUnread\:myWorkspaceTable .siteHeader{
+	width:60%;
+}
+
+/* Styles for modal */
+.close-button {
+	float: right;
+	cursor: pointer;
+	font-size: 20px !important;
 }

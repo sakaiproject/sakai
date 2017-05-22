@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.site.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import java.util.List;
 
 public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(SiteAliasCleanupNotificationActionIntegrationTest.class);
+	private static Logger log = LoggerFactory.getLogger(SiteAliasCleanupNotificationActionIntegrationTest.class);
 	private Session session;
 
 	@BeforeClass
@@ -51,7 +51,7 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		try {
 			oneTimeSetup();
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	
@@ -60,19 +60,9 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		startSession();
 	}
 
-    /**
-     * This does not test anything, it just makes sure we have one active test in the class
-     */
-	@Test
-    public void testNothing() {
-        Assert.assertEquals(1, 1);
-    }
 
-    /**
-     * DISABLED this test since it no longer works, the functionality still does though - KNL-1162
-     */
 	@Test
-	public void disabledTestSiteDeletionTriggersSiteAliasDeletion()
+	public void testSiteDeletionTriggersSiteAliasDeletion()
 	throws IdInvalidException, IdUsedException, PermissionException {
 		IdManager idManager = getService(IdManager.class);
 		SiteService siteService = getService(SiteService.class);
@@ -92,6 +82,9 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		
 		// the "real" code exercise
 		try {
+			// Mark as deleted.
+			siteService.removeSite(site);
+			// Remove the deleted site.
 			siteService.removeSite(site);
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block

@@ -33,10 +33,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>basiclti-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>portlet-util</artifactId>
         </dependency>
         <dependency>
@@ -54,10 +50,6 @@
         <dependency>
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -84,6 +76,10 @@
             <artifactId>json-simple</artifactId>
             <version>1.1</version>
         </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
 
         <!-- for the entityprovider -->
         <dependency>
@@ -103,11 +99,6 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        
     </dependencies>
 
     <build>

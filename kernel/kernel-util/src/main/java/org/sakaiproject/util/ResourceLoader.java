@@ -21,9 +21,9 @@
 
 package org.sakaiproject.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.i18n.InternationalizedMessages;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("rawtypes")
 public class ResourceLoader extends DummyMap implements InternationalizedMessages
 {
-	protected static final Log M_log = LogFactory.getLog(ResourceLoader.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(ResourceLoader.class);
 
 	// name of ResourceBundle
 	protected String baseName = null;
@@ -691,8 +691,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
                 bundleMap.putAll(bundleFromDbMap);
                 bundle = new MapResourceBundle(bundleMap, baseName, loc);
             }
-            if (M_log.isDebugEnabled()) { 
-                M_log.debug("Bundle from db added " + bundleFromDbMap.size() + 
+            if (M_log.isDebugEnabled()) {
+                M_log.debug("Bundle from db added " + bundleFromDbMap.size() +
                         " properties to " + baseName + "/" + context + "/" + loc.toString());
             }
         }

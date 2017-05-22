@@ -44,35 +44,7 @@ $Id$
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script type="text/javascript">
-/*
-function escapeApostrophe(name) {
-	//alert(name);
-	if (name.indexOf('\'') < 0) {
-		//alert("<0");
-		finalName = name;
-	}
-	else {
-		//alert(">=0");
-	var finalName;
-	for (i=0; i<name.length; i++) {
-	  //alert(name.charAt(i));
-	  
-    if (name.charAt(i) != '\'') {
-		finalName = finalName + name.charAt(i);
-    }
-	else {
-		finalName = finalName + '\\' + name.charAt(i);
-	}
-  }
-}
-  //alert("finalName=" + finalName);
-  return finalName;
-}
-*/
-</script>
-
- <div class="portletBody">
+<div class="portletBody container-fluid">
 <h:form id="editTotalResults">
   <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
   <h:inputHidden id="itemId" value="#{totalScores.firstItem}" />
@@ -80,24 +52,17 @@ function escapeApostrophe(name) {
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
   
-  <h:panelGrid columns="1">
-  <h:panelGroup>
-  <f:verbatim><h3></f:verbatim>
-  	<h:outputText value="#{evaluationMessages.sub_status}#{evaluationMessages.column} " escape="false"/>
-  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
-  	<h:outputText value="#{totalScores.assessmentName} " escape="false"/>
-  <f:verbatim></span></f:verbatim>
-  <f:verbatim></h3></f:verbatim>
-  </h:panelGroup>
-  </h:panelGrid>
-  
-  <!-- Per UX, for formatting -->
-  <div class="textBelowHeader">
-    <h:outputText value=""/>
+  <div class="page-header">
+    <h1>
+  	  <h:outputText value="#{evaluationMessages.sub_status}#{evaluationMessages.column} " escape="false"/>
+      <small>
+  	    <h:outputText value="#{totalScores.assessmentName} " escape="false"/>
+      </small>
+    </h1>
   </div>
   
   <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
-    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span>" escape="false"/>
+    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span class='current'>" escape="false"/>
     <h:outputText value="#{evaluationMessages.sub_status}" />
     
     <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
@@ -157,28 +122,28 @@ function escapeApostrophe(name) {
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
 <sakai:flowState bean="#{submissionStatus}" />
-<h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%">
-  <h:panelGroup>
-  
-    <h:panelGrid rendered="#{!totalScores.hasRandomDrawPart}">
-        <h:outputText value="<h4>#{evaluationMessages.max_score_poss}<span style='font-weight:normal !important;'>: #{totalScores.maxScore}</span></h4>" escape="false"/>
-    </h:panelGrid>
-      
-    <h:panelGrid columns="2" columnClasses="samLeftNav" style="padding-top:.5em;">
-      <h:outputText value="#{evaluationMessages.view}"/>
-	  <h:panelGroup>
+
+  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
+    <h:outputText value="<h2>#{evaluationMessages.max_score_poss}<small>: #{totalScores.maxScore}</small></h2>" escape="false"/>
+  </h:panelGroup>
+
+  <h:panelGroup styleClass="row" layout="block">
+	<h:panelGroup styleClass="col-md-6" layout="block">
+	  <div class="form-group row">
+        <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}" rendered="#{totalScores.availableSectionSize > 0}" />
         <!-- SECTION AWARE -->
-        <h:outputText value="&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1}"/>
-        
-     	<h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
-          <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
-          <f:valueChangeListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener"/>
-        </h:selectOneMenu>
-      </h:panelGroup>
+        <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1}"/>
+        <div class="col-md-10">
+     	  <h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
+            <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener"/>
+          </h:selectOneMenu>
+        </div>
+      </div>
 	
-	  <h:outputText value="#{evaluationMessages.search}"/>
-	  <h:panelGroup>
+	  <h:panelGroup styleClass="form-group row search-box" layout="block">
+	    <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
+        <div class="col-md-10">
 			<h:inputText
 				id="searchString"
 				value="#{submissionStatus.searchString}"
@@ -188,21 +153,18 @@ function escapeApostrophe(name) {
 			<h:commandButton actionListener="#{submissionStatus.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
 			<h:outputText value="&nbsp;" escape="false" />
 			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{evaluationMessages.search_clear}"/>
+	    </div>
 	  </h:panelGroup>
-    </h:panelGrid>
-  </h:panelGroup>
-
-  <h:panelGroup>
-	<div>
-	<sakai:pager id="pager" totalItems="#{submissionStatus.dataRows}" firstItem="#{submissionStatus.firstRow}" pageSize="#{submissionStatus.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
+    </h:panelGroup>
+	<div class="pager-holder col-md-6" style="text-align: right">
+	  <sakai:pager id="pager" totalItems="#{submissionStatus.dataRows}" firstItem="#{submissionStatus.firstRow}" pageSize="#{submissionStatus.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
 	</div>
   </h:panelGroup>
-</h:panelGrid>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<div class="tier2">
-  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="totalScoreTable" value="#{submissionStatus.agents}"
+<div class="table-responsive">
+  <h:dataTable styleClass="table table-striped table-bordered" id="totalScoreTable" value="#{submissionStatus.agents}"
     var="description">
     <!-- NAME/SUBMISSION ID -->
 
@@ -225,8 +187,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{description.firstName}" />
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
-	   <span class="itemAction">
-	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup styleClass="itemAction" rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" escape="false" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -234,7 +195,6 @@ function escapeApostrophe(name) {
          <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
          <h:outputText value="</a>" escape="false" />
 	   </h:panelGroup>
-	 </span>
      </h:panelGroup>
 
 	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
@@ -476,7 +436,6 @@ function escapeApostrophe(name) {
     </h:column>
 
   </h:dataTable>
-</div>
 </div>
 
 </h:form>

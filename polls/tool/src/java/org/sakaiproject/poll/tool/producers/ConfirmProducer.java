@@ -24,8 +24,8 @@ package org.sakaiproject.poll.tool.producers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -46,7 +46,7 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 
 	public static final String VIEW_ID = "voteThanks";
 
-	private static Log log = LogFactory.getLog(PollVoteProducer.class);
+	private static Logger log = LoggerFactory.getLogger(PollVoteProducer.class);
 
 	
 	

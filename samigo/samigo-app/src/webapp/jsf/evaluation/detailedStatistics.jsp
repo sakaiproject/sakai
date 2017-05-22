@@ -92,7 +92,7 @@ $Id: histogramScores.jsp 38982 2007-12-06 13:05:38Z gopal.ramasammycook@gmail.co
     </h:commandLink>
 
 
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+    <h:outputText value="</span><li role='menuitem'><span class='current'>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
     
     <h:outputText value="#{evaluationMessages.item_analysis}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
 

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="org.sakaiproject.search.elasticsearch.ElasticSearchService"
+          class="org.sakaiproject.search.elasticsearch.ElasticSearchService" init-method="init" destroy-method="destroy">
+        <property name="triggerFunctions">
+            <list/>
+        </property>
+        <property name="notificationService"><ref bean="org.sakaiproject.event.api.NotificationService" /></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+        <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" /></property>
+    </bean>
+    
+    <!-- Let the ES impl be known as *the* SearchService impl. Historically this was more dynamic, with an
+    adapter layer that found the implementation by looking for a configurable bean name. That worked fine for
+    SearchService, of which there is only ever one live impl, but not for SearchIndexBuilder, of which there
+    might be many. Didn't really need that flexibility once 'leagcy' search was retired, so switcher to the
+    simpler aliasing mechanism here. Can no longer select the impl from config, but nobody should need to do that
+    on the assumption nobody's got a "better" impl than the ES impl. -->
+    <alias name="org.sakaiproject.search.elasticsearch.ElasticSearchService" alias="org.sakaiproject.search.api.SearchService" />
+    
+    <bean id="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder"
+          class="org.sakaiproject.search.elasticsearch.SiteElasticSearchIndexBuilder"
+          destroy-method="destroy">
+        <!-- No internal defaulting on indexName nor name b/c we really cannot have multiple index builders falling
+        back to the same values in either of those fields. But there is such a thing as a historical default at least
+        for indexName, and some functionality is potentially keyed off the default builder name, so we keep those two
+        *values* in code, even though their assignment occurs here in config. -->
+        <property name="indexName">
+            <bean id="org.sakaiproject.search.api.SearchIndexBuilder.DEFAULT_INDEX_NAME"
+                  class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+            </bean>
+        </property>
+        <property name="name">
+            <bean id="org.sakaiproject.search.api.SearchIndexBuilder.DEFAULT_INDEX_BUILDER_NAME"
+                  class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+            </bean>
+        </property>
+        <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="filter"><ref bean="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"/></property>
+    </bean>
+
+    <!-- To avoid changing the way legacy searchable content producer register themselves, we need the default index
+    builder (which indexes almost all content as a 'sakai doc') to be available as the historically well-known
+    'org.sakaiproject.search.api.SearchIndexBuilder' bean. -->
+    <alias name="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder" alias="org.sakaiproject.search.api.SearchIndexBuilder" />
+    
+    <bean id="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"
+      class="org.sakaiproject.search.elasticsearch.filter.impl.SearchSecurityFilter"
+      init-method="init">
+      <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>
+      <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+    </bean>
+
+    <bean id="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilderAutoRegistrar"
+          class="org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilderAutoRegistrar"
+          init-method="init">
+        <property name="elasticSearchService"><ref bean="org.sakaiproject.search.elasticsearch.ElasticSearchService" /></property>
+    </bean>
+</beans>

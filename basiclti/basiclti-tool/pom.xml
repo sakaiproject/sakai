@@ -19,12 +19,7 @@
     <packaging>war</packaging>
     
     <dependencies>
-        <!-- HACK -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>basiclti-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <!-- HACK -->
 
         <dependency>
@@ -51,11 +46,6 @@
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>${sakai.commons-logging.version}</version>
         </dependency>
         <dependency>
             <groupId>${sakai.velocity.groupId}</groupId>

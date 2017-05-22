@@ -3,8 +3,8 @@ package org.sakaiproject.user.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -32,7 +32,7 @@ import org.sakaiproject.util.api.FormattedText;
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ vt.edu)
  */
 public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
-    private static Log log = LogFactory.getLog(BaseUserDirectoryServiceTest.class);
+    private static Logger log = LoggerFactory.getLogger(BaseUserDirectoryServiceTest.class);
     private static String USER_SOURCE_PROPERTY = "user.source";
 
     private static Map<String, String> eidToId = new HashMap<String, String>();
@@ -57,7 +57,7 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
             oneTimeSetupAfter();
             if (log.isDebugEnabled()) log.debug("finished setup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -52,7 +52,7 @@ import org.sakaiproject.site.api.SiteService;
 public class ContentHostingContentProducer implements EntityContentProducer, StoredDigestContentProducer
 {
 
-	private static Log log = LogFactory.getLog(ContentHostingContentProducer.class);
+	private static Logger log = LoggerFactory.getLogger(ContentHostingContentProducer.class);
 
 	/**
 	 * resolved dep
@@ -682,17 +682,9 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 			}
 			return cp;
 		}
-		catch (PermissionException e)
+		catch (PermissionException | IdUnusedException | TypeException e)
 		{
-			log.debug(e);
-		}
-		catch (IdUnusedException e)
-		{
-			log.debug(e);
-		}
-		catch (TypeException e)
-		{
-			log.debug(e);
+			log.debug(e.getMessage());
 		}
 		return null;
 	}

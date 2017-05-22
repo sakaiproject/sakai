@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -53,7 +53,7 @@ import org.sakaiproject.util.BaseResourceProperties;
  *
  */
 public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(UserDirectoryServiceGetTest.class);
+	private static Logger log = LoggerFactory.getLogger(UserDirectoryServiceGetTest.class);
 	private static String USER_SOURCE_PROPERTY = "user.source";
 	
 	private static Map<String, String> eidToId = new HashMap<String, String>();
@@ -79,7 +79,7 @@ public class UserDirectoryServiceGetTest extends SakaiKernelTestBase {
 			oneTimeSetupAfter();
 			if (log.isDebugEnabled()) log.debug("finished setup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

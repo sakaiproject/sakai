@@ -200,12 +200,6 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
 	public void setReviewScore(int score);
 	
 	/**
-	 * Set the URL of the Review Report
-	 * @param url
-	 */
-	public void setReviewIconUrl(String url);
-	
-	/**
 	 * Set the content review status
 	 * @param status
 	 */

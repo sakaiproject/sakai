@@ -1,5 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourse.vm,v 1.3 2005/05/25 17:42:01 gsilver.umich.edu Exp $ -->
-<div class="portletBody">
+<div class="portletBody container-fluid">
 	#if (!$!site)
 		<h3>$tlang.getString("nscourse.creating")</h3>
 		<p class="step">
@@ -18,23 +18,25 @@
 	</p>
 	<form name = "addCourseForm" method="post" action="#toolForm($action)">
 		#if ($site)
-			<p class="shorttext  required">
-				<span class ="reqStar">*</span>
-				<label for="selectTerm">
+			<div class="form-group row ">				
+				<label for="selectTerm" class="col-sm-3 form-control-label">
+					<span class ="reqStar">*</span>
 					$tlang.getString("nscourse.acad2")
 				</label>	
-				<select name="selectTerm" id="selectTerm" onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('option').value='change';document.addCourseForm.submit();">
-					#foreach($t in $termList)
-						<option value ="$t.eid"
-							#if($t.eid == $term.eid)
-								selected="selected"
-							#end
-						>
-						$t.title
-						</option>
-					#end
-				</select> 
-			</p>
+				<div class="col-sm-6">
+					<select name="selectTerm" id="selectTerm" onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('option').value='change';document.addCourseForm.submit();">
+						#foreach($t in $termList)
+							<option value ="$t.eid"
+								#if($t.eid == $term.eid)
+									selected="selected"
+								#end
+							>
+							$t.title
+							</option>
+						#end
+					</select> 
+				</div>
+			</div>
 		#end
 		
 		
@@ -51,7 +53,7 @@
 				<input type="text" name="userId" id="userId-id" value="$userId"/>
 				<input type="hidden" name="itemType" value="$!siteType" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
-				<input type="button" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
+				<input type="submit" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
 					onclick="SPNR.disableControlsAndSpin( this, null );document.getElementById('option').value='change_user'; document.addCourseForm.submit(); return false;"
 				 />
 				#if ($campusDirectory)
@@ -66,7 +68,7 @@
 
 			#if ($!termCourseList && $!termCourseList.size() > 0)
 				#if (($!providerCourseList && $!providerCourseList.size() != 0) || ($!requestedCourseList && $!requestedCourseList.size() != 0))
-					<p class="instruction">$tlang.getString("nscourse.youmay")</p>
+					<p>$tlang.getString("nscourse.youmay")</p>
 				#end
 				
 				## display only subject, course number and section
@@ -177,28 +179,30 @@
 				<input type="hidden" name="find_course"  value="x" id="find_course"/>
 				
 
-		
-		## SAK-29000
 		#if ($authorizationRequired)
 			#if ($termCourseList && $currentUserId != $userId)
-					<div class="shorttext required">
-						<span class="reqStar">*</span>						
-						<label for="uniqname">		
+					<div class="shorttext required form-group row ">											
+						<label for="uniqname" class="col-sm-3 form-control-label">		
+						   <span class="reqStar">*</span>	
 						   $tlang.getString("man.authoriz")
 						</label>
-						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!authorizers" />
+						<div class="col-sm-6">
+							<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!authorizers" />
+						</div>
 					</div>
-					<p class="labelindnt instruction">
-					   $tlang.getString("man.email")
+					<p class="labelindnt">
+					   <span class="textPanelFooter">$tlang.getString("man.email")</span>
 					</p>
-					<div class="shorttext">
-						<label for="additional" class="block">
+					<div class="shorttext form-group row">
+						<label for="additional" class="col-sm-3 form-control-label">
 							$tlang.getString("man.spec")
 						</label>
-						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						<div class="col-sm-6">
+							<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+						</div>
 					</div>
-					<p  class="instruction labelindnt">
-						$tlang.getString("man.please")
+					<p  class="labelindnt">
+						<span class="textPanelFooter">$tlang.getString("man.please")</span>
 					</p>
 			#end
 		#end
@@ -208,7 +212,7 @@
 		<input type="hidden" name="option" id="option" value="x" />
 		<input type="hidden" name="eventSubmit_doContinue_new_course" value="x" />
 			#if (!$site)
-				## Added by bjones86 - determine to skip manual course site create link in worksite setup
+				## determine to skip manual course site create link in worksite setup
 				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
 					<!-- Add Not Listed Courses -->
 					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
@@ -223,7 +227,7 @@
 				<input
 					class="active"
 					disabled="true"
-					type="button" 
+					type="submit" 
 					accesskey="s"
 					name="Continue" 
 					id="continueButton" 
@@ -231,7 +235,7 @@
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="b"
 					name="Back" 
 					id="backButton" 
@@ -239,7 +243,7 @@
 					onclick="SPNR.disableControlsAndSpin( this, null );document.addCourseForm.option.value='back'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="x"
 					name="Cancel" 
 					id="cancelButton" 
@@ -249,7 +253,7 @@
 				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled
 				#if( $!contNoRosterEnabled )
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="x"
 					name="Cancel" 
 					id="cancelButton" 
@@ -260,17 +264,14 @@
 				</p>
 			#else
 				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
-					## SAK-29000
-					#if( $authorizationRequired )
-						<!-- Add Not Listed Courses -->
-						<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
-					#end
+					<!-- Add Not Listed Courses -->
+					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				#end
 				<p class="act">
 				<input type="hidden" name="option" id="option" value="x" />
 				<input
 					disabled="true"
-					type="button" 
+					type="submit" 
 					accesskey="s"
 					name="AddClass" 
 					id="addClassButton" name="addClassButton"
@@ -278,7 +279,7 @@
 					onclick="SPNR.disableControlsAndSpin( this, null ); document.getElementById('option').value='add'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
-					type="button" 
+					type="submit" 
 					accesskey="x"
 					name="Cancel" 
 					id="Cancel" 

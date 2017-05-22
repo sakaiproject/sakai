@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class EndPagePartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.EndPagePartStructure" );
-
 	private org.osid.shared.Id END_PAGE_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"endPage", "Page number that the resource content ends on" );
@@ -44,7 +43,7 @@ public class EndPagePartStructure implements org.osid.repository.PartStructure
 			this.END_PAGE_PART_STRUCTURE_ID = Managers.getIdManager().getId(
 			"x323sd84h8kr98239823h543tg0982340");
 		} catch (Throwable t) {
-			LOG.warn( "EndPagePartStructure() failed to get partStructure id: "
+			log.warn( "EndPagePartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}
 	}

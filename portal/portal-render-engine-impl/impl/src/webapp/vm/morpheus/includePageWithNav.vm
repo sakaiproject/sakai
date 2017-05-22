@@ -1,0 +1,33 @@
+##
+## the Page part of the standard view, with page navigation
+##
+<!-- START VM includePageWithNav.vm -->
+
+    <div id="pageBody">
+    
+    #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+        #parse("/vm/morpheus/includePageNav.vm")
+
+    #else 
+
+        <!-- no page nav requested -->
+
+    #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+    <div class="Mrphs-pagebody">
+        #parse("/vm/morpheus/includeSiteHierarchy.vm")
+
+        #parse("/vm/morpheus/includePageBody.vm")
+        
+        #parse("/vm/morpheus/includeFooter.vm")
+
+    </div>
+    
+    </div>
+    
+
+</div>
+
+    
+<!-- END VM includePageWithNav.vm -->

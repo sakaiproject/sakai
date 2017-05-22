@@ -21,15 +21,15 @@
 
 package uk.ac.cam.caret.sakai.rwiki.utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ieb
  */
 public class TimeLogger
 {
-	private static Log log = LogFactory.getLog(TimeLogger.class);
+	private static Logger log = LoggerFactory.getLogger(TimeLogger.class);
 
 	private TimeLogger()
 	{

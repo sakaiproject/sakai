@@ -1,20 +1,20 @@
 package org.sakaiproject.util.impl;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import java.util.Map.Entry;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
 
 
 public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 
-	private static final Log LOG = LogFactory.getLog(LinkMigrationHelperImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(LinkMigrationHelperImpl.class);
 	private static final String ESCAPED_SPACE= "%"+"20";
 
 	private ServerConfigurationService serverConfigurationService;
@@ -36,11 +36,11 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 		String[] linksToBracket = lbTmp.split(",");
 		String lnTmp = serverConfigurationService.getString("LinkMigrationHelper.linksToNullify","sam_pub,/posts/");
 		String[] linksToNullify = lnTmp.split(",");
-		List existingLinks = findLinks(m);
-		Iterator l = existingLinks.iterator();
+		List<String> existingLinks = findLinks(m);
+		Iterator<String> l = existingLinks.iterator();
 		while(l.hasNext()){
 			
-			String nextLink = (String) l.next();
+			String nextLink = l.next();
 			boolean bracketIt = matchLink(nextLink, linksToBracket);
 			boolean nullIt = matchLink(nextLink, linksToNullify);
 			if(bracketIt | nullIt){
@@ -105,9 +105,9 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 		return msgBody;
 	}
 
-	private List findLinks(String msgBody) throws Exception {
+	private List<String> findLinks(String msgBody) throws Exception {
 		
-		Vector links = new Vector();
+		List<String> links = new ArrayList<>();
 		int nextLinkAt = 0;
 		nextLinkAt = msgBody.indexOf("<a", nextLinkAt);
 		boolean done = false;
@@ -118,7 +118,7 @@ public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 			
 			int closingTagLocation = msgBody.indexOf("</a>", nextLinkAt);
 			if(closingTagLocation<0){
-				throw new Exception("unbalanced anchor tag");
+				throw new IllegalArgumentException("unbalanced anchor tag");
 			}else{
 				String thisAnchor = msgBody.substring(nextLinkAt, closingTagLocation+4);
 				links.add(thisAnchor);

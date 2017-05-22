@@ -27,12 +27,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.gradebook.ui.InitializableBean;
 
 public class LoginAsBean extends InitializableBean {
-	private static final Log logger = LogFactory.getLog(LoginAsBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(LoginAsBean.class);
 
 	private List loginChoices;
 

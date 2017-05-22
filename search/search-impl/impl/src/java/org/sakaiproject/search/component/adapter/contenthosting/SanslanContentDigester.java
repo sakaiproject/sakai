@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.IImageMetadata;
@@ -41,7 +41,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 
 public class SanslanContentDigester extends BaseContentDigester {
-	private static Log log = LogFactory.getLog(TikaContentDigester.class);
+	private static Logger log = LoggerFactory.getLogger(TikaContentDigester.class);
 	
 	public String getContent(ContentResource contentResource) {
 		log.debug("digesting: " + contentResource.getId());

@@ -13,8 +13,8 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
@@ -36,7 +36,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class SiteParticipantHelper {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(SiteParticipantHelper.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteParticipantHelper.class);
 	
 	private static String NULL_STRING = "";
 	
@@ -551,7 +551,6 @@ public class SiteParticipantHelper {
 	/**
 	 * Get a list of restricted roles, taking into account the current site type
 	 * 
-	 * @author bjones86
 	 * @param siteType
 	 * 				the current site's type
 	 * @return a list of restricted role IDs for the given site type
@@ -576,7 +575,7 @@ public class SiteParticipantHelper {
 	 * If the properties are not found, just return all the roles.
 	 * If the user is an admin, return all the roles.
 	 * 
-	 * @author bjones86 - SAK-23257
+	 * SAK-23257
 	 * 
 	 * @param siteType
 	 * 				the current site's type

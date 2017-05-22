@@ -1,8 +1,8 @@
 package org.sakaiproject.memory.util;
 
 import net.sf.ehcache.config.CacheConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class CacheInitializer {
 
-	private static final Log M_log = LogFactory.getLog(CacheInitializer.class);
+	private static final Logger M_log = LoggerFactory.getLogger(CacheInitializer.class);
 
 	private Map<String, String> configMap;
 
@@ -70,7 +70,7 @@ public class CacheInitializer {
 				String key = Character.toLowerCase(method.getName().charAt(
 						"set".length()))
 						+ method.getName().substring("set".length() + 1);
-				M_log.debug("Looking in config map for: " + key);
+				M_log.debug("Looking in config map for: {}", key);
 				String value = configMap.get(key);
 				if (value != null) {
 					Class clazz = method.getParameterTypes()[0];
@@ -79,7 +79,7 @@ public class CacheInitializer {
 
 					if (obj != null) {
 						invokeMethod(method, cacheConfig, obj);
-						M_log.debug("Setting " + clazz + "#" + key + " to " + value);
+						M_log.debug("Setting {}#{} to {}", clazz, key, value);
 					}
 
 				}
@@ -109,10 +109,10 @@ public class CacheInitializer {
 					|| char.class.equals(clazz)) {
 				obj = Character.valueOf(value.charAt(0));
 			} else {
-				M_log.debug("Can't convert to :" + clazz);
+				M_log.debug("Can't convert to :{}", clazz);
 			}
 		} catch (NumberFormatException nfe) {
-			M_log.debug("Ignored bad number: " + value);
+			M_log.debug("Ignored bad number: {}", value);
 		}
 		return obj;
 	}
@@ -121,7 +121,7 @@ public class CacheInitializer {
 		try {
 			method.invoke(obj, value);
 		} catch (Exception e) {
-			M_log.debug(e);
+			M_log.debug(e.getMessage(), e);
 		}
 	}
 

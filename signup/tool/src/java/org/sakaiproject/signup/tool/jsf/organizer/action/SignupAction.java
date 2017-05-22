@@ -26,8 +26,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -57,7 +57,7 @@ public abstract class SignupAction implements SignupBeanConstants{
 
 	protected SignupEventTrackingInfo signupEventTrackingInfo;
 
-	protected Log logger = LogFactory.getLog(getClass());
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected final boolean isOrganizer;
 

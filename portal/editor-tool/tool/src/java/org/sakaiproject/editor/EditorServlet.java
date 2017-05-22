@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -42,6 +42,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.portal.util.CSSUtils;
 
 public class EditorServlet extends HttpServlet
 {
@@ -54,7 +55,7 @@ public class EditorServlet extends HttpServlet
 	public static final EditorRegistry editorRegistry = (EditorRegistry) ComponentManager.get(EditorRegistry.class);
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(EditorServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(EditorServlet.class);
 
 	/**
 	 * Access the Servlet's information display.
@@ -119,6 +120,7 @@ public class EditorServlet extends HttpServlet
 			
 			String placementId = req.getParameter("placement");
 			ToolConfiguration tool = SiteService.findTool(placementId);
+			String skin = (tool == null) ? null : tool.getSkin();
 			
 			Editor editor = portalService.getActiveEditor(tool);
 
@@ -142,6 +144,9 @@ public class EditorServlet extends HttpServlet
 				out.print("sakai.editor.collectionId = '" + portalService.getBrowserCollectionId(tool) + "';\n");
 				out.print("sakai.editor.enableResourceSearch = '" + EditorConfiguration.enableResourceSearch() + "';\n");
 				out.print("sakai.editor.editors.ckeditor.browser = '" + EditorConfiguration.getCKEditorFileBrowser() + "';\n");
+				out.print("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
+				out.print("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
+
 				out.print(editor.getPreloadScript());
 			}
 			else {

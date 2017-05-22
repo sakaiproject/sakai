@@ -15,9 +15,9 @@
 	<h4>
 		$tlang.getString("sitegen.addcourse.class")
 	</h4>
-	<p class="instruction">
+	<h5>
 		$tlang.getString("sitegen.addcourse.foll")<br />
-	</p>
+	</h5>
 	<ul class="attachList indnt2">
 		#foreach($id in $providerCourseTitles)
 			<li>
@@ -35,9 +35,9 @@
 			</li>
 		#end
 	</ul>
-	<p class="instruction">
+	<h5>
 		$tlang.getString("sitegen.addcourse.you")<br />
-	</p>
+	</h5>
 	<ul class="attachList indnt2">
 		#foreach($id in $selectedProviderCourseTitles.keySet())
 			<li>

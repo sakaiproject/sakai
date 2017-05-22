@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.sakaiproject.oauth</groupId>
         <artifactId>oauth-base</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
     </parent>
 
     <artifactId>oauth-api</artifactId>
@@ -24,22 +24,14 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-component-manager</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

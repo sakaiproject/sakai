@@ -1090,6 +1090,8 @@ INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
       WHERE SRRFI.REALM_KEY=SRRFD.REALM_KEY AND SRRFI.ROLE_KEY=SRRFD.ROLE_KEY AND SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
   );
 
+DROP TABLE PERMISSIONS_TEMP;
+DROP TABLE PERMISSIONS_SRC_TEMP;
 -- END SAK-25862 Default permissions for signup, and backfill.
 
 -- BEGIN SAK-25879 fix line breaks in email templates
@@ -1161,7 +1163,6 @@ alter table lesson_builder_items modify altGradebook varchar2(100 char);
 
 create index lb_qr_questionId_userId on lesson_builder_q_responses(questionId, userId);
 create index lb_qr_total_qi on lesson_builder_qr_totals(questionId);
-create index lb_qr_questionId on lesson_builder_q_responses(questionId);
 -- END LSNBLDR-329
 
 -- BEGIN LSNBLDR-376

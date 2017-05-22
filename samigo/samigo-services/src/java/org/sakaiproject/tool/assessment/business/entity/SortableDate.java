@@ -25,8 +25,8 @@ package org.sakaiproject.tool.assessment.business.entity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -56,7 +56,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SortableDate
 {
-  private Log log = LogFactory.getLog(SortableDate.class);
+  private Logger log = LoggerFactory.getLogger(SortableDate.class);
 
   /**
    * standard date format string used in AAM

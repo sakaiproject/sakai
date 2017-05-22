@@ -35,7 +35,7 @@
       <body>
          <h:form enctype="multipart/form-data">
             Upload a file:
-            <corejsf:upload target="assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{delivery.username}/"/>
+            <corejsf:upload target="assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/"/>
             <h:commandButton value="Upload" action="submit"/>
          </h:form>
       </body>

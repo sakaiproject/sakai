@@ -1,13 +1,4 @@
-/*
- * Copyright (c) Orchestral Developments Ltd and the Orion Health group of companies (2001 - 2016).
- *
- * This document is copyright. Except for the purpose of fair reviewing, no part
- * of this publication may be reproduced or transmitted in any form or by any
- * means, electronic or mechanical, including photocopying, recording, or any
- * information storage and retrieval system, without permission in writing from
- * the publisher. Infringers of copyright render themselves liable for
- * prosecution.
- */
+
 package org.sakaiproject.gradebookng.tool.component;
 
 import org.apache.wicket.AttributeModifier;
@@ -34,15 +25,39 @@ public class GbFeedbackPanel extends FeedbackPanel {
 
 		if (message.getLevel() == FeedbackMessage.ERROR ||
 				message.getLevel() == FeedbackMessage.DEBUG ||
-				message.getLevel() == FeedbackMessage.FATAL ||
-				message.getLevel() == FeedbackMessage.WARNING) {
+				message.getLevel() == FeedbackMessage.FATAL) {
 			add(AttributeModifier.replace("class", "messageError"));
 			add(AttributeModifier.append("class", "feedback"));
+		} else if (message.getLevel() == FeedbackMessage.WARNING) {
+			add(AttributeModifier.replace("class", "messageWarning"));
+			add(AttributeModifier.append("class", "feedback"));
 		} else if (message.getLevel() == FeedbackMessage.INFO) {
+			add(AttributeModifier.replace("class", "messageInformation"));
+			add(AttributeModifier.append("class", "feedback"));
+		} else if (message.getLevel() == FeedbackMessage.SUCCESS) {
 			add(AttributeModifier.replace("class", "messageSuccess"));
 			add(AttributeModifier.append("class", "feedback"));
 		}
 
 		return newMessageDisplayComponent;
+	}
+
+	@Override
+	public void onBeforeRender() {
+		if (getFeedbackMessages().isEmpty()) {
+			// ensure class is removed from feedback panel
+			// when there are no messages to avoid empty
+			// colored rectangle
+			clear();
+		}
+		super.onBeforeRender();
+	}
+
+	/**
+	 * Clear all messages from the feedback panel
+	 */
+	public void clear() {
+		getFeedbackMessages().clear();
+		this.add(AttributeModifier.remove("class"));
 	}
 }

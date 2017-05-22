@@ -40,15 +40,14 @@ import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.basiclti.BasicLTIUtil;
-import org.tsugi.basiclti.BasicLTIProviderUtil;
 
 import org.tsugi.casa.objects.Application;
 
@@ -119,7 +118,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class ProviderServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(ProviderServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(ProviderServlet.class);
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
@@ -340,7 +339,7 @@ public class ProviderServlet extends HttpServlet {
 		// site_id as is,
 		// ie without prefixing them with the oauth_consumer_key first.
 		// We also don't both checking their roles in the site.
-		boolean isTrustedConsumer = BasicLTIProviderUtil.isHighlyTrustedConsumer(payload);
+		boolean isTrustedConsumer = SakaiLTIProviderUtil.isHighlyTrustedConsumer(payload);
 
 		/*
 		 * Get the list of email trusted consumers from sakai.properties. If the
@@ -350,7 +349,7 @@ public class ProviderServlet extends HttpServlet {
 		 * acting as TP and TC referring to same user and can be uniquely
 		 * identified by email address. more details SAK-29372
 		 */
-		boolean isEmailTrustedConsumer = BasicLTIProviderUtil.isEmailTrustedConsumer(payload);
+		boolean isEmailTrustedConsumer = SakaiLTIProviderUtil.isEmailTrustedConsumer(payload);
 
 		/*
 		 * Checking if the email trusted consumer property and trusted consumer

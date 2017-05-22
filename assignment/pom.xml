@@ -17,27 +17,12 @@
     <module>assignment-api/api</module>
     <module>assignment-bundles</module>
     <module>assignment-impl/impl</module>
-    <module>assignment-impl/pack</module>
     <module>assignment-tool/tool</module>
   </modules>
-
-
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
-    </site>
-  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-                <groupId>net.sf.opencsv</groupId>
-                 <artifactId>opencsv</artifactId>
-                 <version>2.3</version>
-            </dependency>
-            <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sakai-assignment-impl</artifactId>
         <version>${project.version}</version>

@@ -16,19 +16,9 @@
   <modules>
     <module>messageforums-api</module>
     <module>messageforums-app</module>
-    <module>messageforums-components</module>
     <module>messageforums-component-impl</module>
     <module>messageforums-hbm</module>
   </modules>
-
-
-  <distributionManagement>
-    <site>
-      <id>sakai-site</id>
-      <name>Sakai release Site</name>
-      <url>scpexe://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}</url>
-    </site>
-  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>

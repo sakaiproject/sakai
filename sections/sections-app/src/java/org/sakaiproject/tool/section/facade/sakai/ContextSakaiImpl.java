@@ -20,8 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.facade.sakai;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.facade.manager.Context;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.cover.SiteService;
@@ -35,7 +35,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  *
  */
 public class ContextSakaiImpl implements Context {
-	private static final Log log = LogFactory.getLog(ContextSakaiImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ContextSakaiImpl.class);
 
 	/**
 	 * @inheritDoc

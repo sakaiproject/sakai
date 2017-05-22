@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.ImportedGroup;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
@@ -43,7 +45,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  */
 public class GroupImportStep2Producer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter, ActionResultInterceptor {
 
-	private static Log M_log = LogFactory.getLog(GroupImportStep2Producer.class);
+	private static Logger M_log = LoggerFactory.getLogger(GroupImportStep2Producer.class);
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupImportStep2";
     public MessageLocator messageLocator;
@@ -89,26 +91,30 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             //if group already exists, get the users that are already in the group,
             //merge so we get one list, then display the new or merged ones appropriately.
             Set<String> userIds = importedGroup.getUserIds();
-            List<String> existingUserIds = new ArrayList<String>();
+            List<String> existingUserIds = new ArrayList<>();
             if(groupExists) {
-            	existingUserIds = handler.getGroupUserIds(existingGroup);
-            	userIds.addAll(existingUserIds);
-        	}
+                existingUserIds = handler.getGroupUserIds(existingGroup);
+                userIds.addAll(existingUserIds);
+            }
             
             //print each user
+            SortedSet<String> foundUserIds = new TreeSet<>();
             for(String userId: importedGroup.getUserIds()) {
             	
             	UIOutput output = UIOutput.make(branch,"member:",userId);
             	
-            	//check user is valid
-            	if(handler.isValidSiteUser(userId)){
+                //check user is valid
+                String foundUserId = handler.lookupUser(userId);
+                if(foundUserId != null && handler.isValidSiteUser(foundUserId)){
             		//is user existing?
             		if(existingUserIds.contains(userId)) {
             			//highlight grey
             			Map<String,String> cssMap = new HashMap<String,String>();
                 		cssMap.put("color","grey");
                 		output.decorate(new UICSSDecorator(cssMap));
-            		}
+            		} else {
+            		    foundUserIds.add(foundUserId);
+                    }
             		
             	} else {
             		badData = true;
@@ -118,6 +124,7 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             		output.decorate(new UICSSDecorator(cssMap));
             	}
             }
+            importedGroup.setUserIds(foundUserIds);
         }
         
         UIForm createForm = UIForm.make(content, "form");

@@ -17,7 +17,8 @@ package org.sakaiproject.profile2.tool.pages;
 
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.form.Form;
@@ -31,7 +32,7 @@ import org.sakaiproject.profile2.tool.pages.panels.MessageView;
 
 public class MyMessages extends BasePage {
 
-	private static final Logger log = Logger.getLogger(MyMessages.class);
+	private static final Logger log = LoggerFactory.getLogger(MyMessages.class);
 	
 	private Panel tabPanel;
 	

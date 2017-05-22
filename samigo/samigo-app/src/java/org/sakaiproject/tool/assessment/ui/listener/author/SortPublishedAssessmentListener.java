@@ -23,22 +23,20 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Description: SortPublishedAssessmentListener</p>
@@ -47,7 +45,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class SortPublishedAssessmentListener
     implements ActionListener
 {
-  private static Log log = LogFactory.getLog(SortPublishedAssessmentListener.class);
+  private static Logger log = LoggerFactory.getLogger(SortPublishedAssessmentListener.class);
 
   public SortPublishedAssessmentListener()
   {
@@ -66,7 +64,7 @@ public class SortPublishedAssessmentListener
     AuthorActionListener authorActionListener = new AuthorActionListener();
     GradingService gradingService = new GradingService();
 
-    ArrayList publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
+    List publishedAssessmentList = publishedAssessmentService.getBasicInfoOfAllPublishedAssessments2(
  		   this.getPublishedOrderBy(author), author.isPublishedAscending(), AgentFacade.getCurrentSiteId());
     authorActionListener.prepareAllPublishedAssessmentsList(author, gradingService, publishedAssessmentList);
     author.setJustPublishedAnAssessment(true);

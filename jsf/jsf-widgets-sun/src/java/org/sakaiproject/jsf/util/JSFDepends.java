@@ -21,8 +21,8 @@
 
 package org.sakaiproject.jsf.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This source file collects the dependencies of the Sakai tag library
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class JSFDepends
 {
-    private static final Log logger = LogFactory.getLog(JSFDepends.class);
+    private static final Logger logger = LoggerFactory.getLogger(JSFDepends.class);
 
 	  /** Sun JSF RI dependent classes */
 	  public static class CommandButtonTag extends com.sun.faces.taglib.html_basic.CommandButtonTag {}

@@ -27,15 +27,15 @@ import java.util.Map;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.dash.app.DashboardConfig;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DashboardConfigImpl implements DashboardConfig {
 	
-	private static Log logger = LogFactory.getLog(DashboardConfigImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(DashboardConfigImpl.class);
 	
 	public static final String DASHBOARD_CACHE_PREFIX = "org.sakaiproject.dash.app.DashboardConfig.";
 

@@ -29,8 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.api.SessionManager;
@@ -59,7 +59,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  */
 public class SaveCommand implements HttpCommand
 {
-	private static Log log = LogFactory.getLog(SaveCommand.class);
+	private static Logger log = LoggerFactory.getLogger(SaveCommand.class);
 
 	private static final String ATTACHMENT_HELPER = "sakai.filepicker";
 

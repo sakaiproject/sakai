@@ -8,43 +8,34 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.component.GbCourseGradeLabel;
-import org.sakaiproject.gradebookng.tool.pages.BasePage;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * The panel that is rendered for students for both their own grades view, and also when viewing it from the instructor review tab
  */
-public class StudentGradeSummaryGradesPanel extends Panel {
+public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	GbCategoryType configuredCategoryType;
 
 	// used as a visibility flag. if any are released, show the table
 	boolean someAssignmentsReleased = false;
+	boolean isGroupedByCategory = false;
+	boolean categoriesEnabled = false;
+	boolean isAssignmentsDisplayed = false;
 
 	public StudentGradeSummaryGradesPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -54,48 +45,63 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
+		final Gradebook gradebook = this.businessService.getGradebook();
+
+		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
+		final boolean groupedByCategoryByDefault = (Boolean) modelData.get("groupedByCategoryByDefault");
+
+		this.configuredCategoryType = GbCategoryType.valueOf(gradebook.getCategory_type());
+		this.isGroupedByCategory = groupedByCategoryByDefault && this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
+		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
+		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
+
+		setOutputMarkupId(true);
+	}
+
+	@Override
+	public void onBeforeRender() {
+		super.onBeforeRender();
+
 		// unpack model
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final String userId = (String) modelData.get("userId");
 
-		// get grades
-		final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
-		final List<Assignment> assignments = new ArrayList(grades.keySet());
+		final Gradebook gradebook = getGradebook();
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				GbRole.STUDENT,
+				gradebook.isCourseGradeDisplayed(),
+				gradebook.isCoursePointsDisplayed(),
+				true);
 
-		// get gradebook
-		final Gradebook gradebook = this.businessService.getGradebook();
+		// build up table data
+		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
 
-		// get configured category type
-		// TODO this can come from the Gradebook object above rather than a separate lookup
-		this.configuredCategoryType = this.businessService.getGradebookCategoryType();
-
-		// setup
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
-		final Map<String, String> categoryAverages = new HashMap<>();
+		final Map<Long, Double> categoryAverages = new HashMap<>();
 
 		// if gradebook release setting disabled, no work to do
-		if (!gradebook.isAssignmentsDisplayed()) {
-
+		if (this.isAssignmentsDisplayed) {
 			// iterate over assignments and build map of categoryname to list of assignments as well as category averages
 			for (final Assignment assignment : assignments) {
-
 				// if an assignment is released, update the flag (but don't set it false again)
 				// then build the category map. we don't do any of this for unreleased gradebook items
 				if (assignment.isReleased()) {
 					this.someAssignmentsReleased = true;
-
 					final String categoryName = getCategoryName(assignment);
 
 					if (!categoryNamesToAssignments.containsKey(categoryName)) {
 						categoryNames.add(categoryName);
 						categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
 
-						final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId);
-						if (categoryAverage == null || categoryName.equals(GradebookPage.UNCATEGORISED)) {
-							categoryAverages.put(categoryName, getString("label.nocategoryscore"));
-						} else {
-							categoryAverages.put(categoryName, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+						if (assignment.getCategoryId() != null) {
+							final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(),
+									userId);
+							if (categoryAverage != null) {
+								categoryAverages.put(assignment.getCategoryId(), categoryAverage);
+							}
 						}
 					}
 
@@ -105,95 +111,24 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			Collections.sort(categoryNames);
 		}
 
-		// output all of the categories
-		// within each we then add the assignments in each category
-		add(new ListView<String>("categoriesList", categoryNames) {
-			private static final long serialVersionUID = 1L;
+		// build the model for table
+		final Map<String, Object> tableModel = new HashMap<>();
+		tableModel.put("grades", grades);
+		tableModel.put("categoryNamesToAssignments", categoryNamesToAssignments);
+		tableModel.put("categoryNames", categoryNames);
+		tableModel.put("categoryAverages", categoryAverages);
+		tableModel.put("categoriesEnabled", this.categoriesEnabled);
+		tableModel.put("isCategoryWeightEnabled", isCategoryWeightEnabled());
+		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
+		tableModel.put("showingStudentView", true);
+		tableModel.put("gradingType", GradingType.valueOf(gradebook.getGrade_type()));
 
+		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override
-			protected void populateItem(final ListItem<String> categoryItem) {
-				final String categoryName = categoryItem.getModelObject();
-
-				final List<Assignment> categoryAssignments = categoryNamesToAssignments.get(categoryName);
-
-				categoryItem.add(new Label("category", categoryName));
-				categoryItem.add(new Label("categoryGrade", categoryAverages.get(categoryName)));
-
-				String categoryWeight = "";
-				if (!categoryAssignments.isEmpty()) {
-					final Double weight = categoryAssignments.get(0).getWeight();
-					if (weight != null) {
-						categoryWeight = FormatHelper.formatDoubleAsPercentage(weight * 100);
-					}
-				}
-				categoryItem.add(new Label("categoryWeight", categoryWeight));
-
-				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					protected void populateItem(final ListItem<Assignment> assignmentItem) {
-						final Assignment assignment = assignmentItem.getModelObject();
-
-						if (!assignment.isReleased()) {
-							assignmentItem.setVisible(false);
-						}
-
-						final GbGradeInfo gradeInfo = grades.get(assignment);
-
-						final String rawGrade;
-						String comment;
-						if (gradeInfo != null) {
-							rawGrade = gradeInfo.getGrade();
-							comment = gradeInfo.getGradeComment();
-						} else {
-							rawGrade = "";
-							comment = "";
-						}
-
-						final Label title = new Label("title", assignment.getName());
-						assignmentItem.add(title);
-
-						final BasePage page = (BasePage) getPage();
-						final WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit"))
-								.setVisible(assignment.getExtraCredit()));
-						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted"))
-								.setVisible(!assignment.isCounted()));
-						assignmentItem.add(flags);
-
-						assignmentItem.add(new Label("dueDate",
-								FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
-						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
-						assignmentItem.add(new Label("outOf",
-								new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
-							@Override
-							public boolean isVisible() {
-								return StringUtils.isNotBlank(rawGrade);
-							}
-						});
-						assignmentItem.add(new Label("comments", comment));
-					}
-
-					@Override
-					public void renderHead(final IHeaderResponse response) {
-						super.renderHead(response);
-
-						// hide the weight column if weightings are not enabled
-						if (!isCategoryWeightEnabled()) {
-							response.render(OnDomReadyHeaderItem.forScript("$('.weight-col').hide();"));
-						}
-
-					}
-				});
+			public Map<String, Object> load() {
+				return tableModel;
 			}
-
-			// used as a general visiblity for the entire table. If no assignments, either there are none or none are released.
-			@Override
-			public boolean isVisible() {
-				return StudentGradeSummaryGradesPanel.this.someAssignmentsReleased;
-			}
-		});
+		}).setVisible(this.isAssignmentsDisplayed && this.someAssignmentsReleased));
 
 		// no assignments message
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments") {
@@ -204,20 +139,12 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				return !StudentGradeSummaryGradesPanel.this.someAssignmentsReleased;
 			}
 		};
-		add(noAssignments);
+		addOrReplace(noAssignments);
 
-		// course grade
-		// GbCourseGradeLabel takes care of all permissions, settings and formatting, we just give it the data
+		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
 
-		final Map<String, Object> courseGradeModelData = new HashMap<>();
-		courseGradeModelData.put("currentUserUuid", userId);
-		courseGradeModelData.put("currentUserRole", GbRole.STUDENT);
-		courseGradeModelData.put("courseGrade", courseGrade);
-		courseGradeModelData.put("gradebook", gradebook);
-		courseGradeModelData.put("showPoints", true);
-		courseGradeModelData.put("showOverride", true);
-		add(new GbCourseGradeLabel("courseGrade", Model.ofMap(courseGradeModelData)));
+		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 
 		add(new AttributeModifier("data-studentid", userId));
 	}
@@ -229,8 +156,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 	 * @return
 	 */
 	private String getCategoryName(final Assignment assignment) {
-		if (this.configuredCategoryType == GbCategoryType.NO_CATEGORY) {
-			return getString("gradebookpage.uncategorised");
+		if (!this.categoriesEnabled) {
+			return getString(GradebookPage.UNCATEGORISED);
 		}
 		return StringUtils.isBlank(assignment.getCategoryName()) ? getString(GradebookPage.UNCATEGORISED) : assignment.getCategoryName();
 	}

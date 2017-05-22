@@ -24,8 +24,8 @@ package org.sakaiproject.user.impl.test;
 
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -50,7 +50,7 @@ import org.sakaiproject.user.impl.DbUserService;
  * and display names.
  */
 public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
-	private static Log log = LogFactory.getLog(ContextualDisplayServiceTest.class);
+	private static Logger log = LoggerFactory.getLogger(ContextualDisplayServiceTest.class);
 
 	private static final String FIRST_NAME = "Alice";
 	// Also use EIDs as last names.
@@ -80,7 +80,7 @@ public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
 			oneTimeSetupAfter();
             log.debug("finished oneTimeSetup");
 		} catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 	

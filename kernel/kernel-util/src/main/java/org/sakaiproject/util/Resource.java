@@ -21,8 +21,8 @@
 
 package org.sakaiproject.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -34,7 +34,7 @@ import org.sakaiproject.util.ResourceLoader;
  *
  */
 public class Resource {
-	private static Log log = LogFactory.getLog(Resource.class);
+	private static Logger log = LoggerFactory.getLogger(Resource.class);
 	
 	public Resource() {
 		// constructor

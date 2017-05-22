@@ -81,7 +81,7 @@ import org.w3c.dom.Element;
  * 
  * @author Sakai Software Development Team
  */
-public interface MessageChannel extends Entity
+public interface MessageChannel<T extends Message> extends Entity
 {
 	/**
 	 * Access the context of the resource.
@@ -127,7 +127,7 @@ public interface MessageChannel extends Entity
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
 	 */
-	List<Message> getMessages(Filter filter, boolean ascending) throws PermissionException;
+	List<T> getMessages(Filter filter, boolean ascending) throws PermissionException;
 
         /**
 	 * Return a list of all or filtered messages in the channel. The order in which the 
@@ -145,7 +145,7 @@ public interface MessageChannel extends Entity
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
 	 */
-	List<Message> getMessages(Filter filter, boolean ascending, PagingPosition pages) throws PermissionException;
+	List<T> getMessages(Filter filter, boolean ascending, PagingPosition pages) throws PermissionException;
 
 	/**
 	 * Return a list of all public messages in the channel. 
@@ -158,7 +158,7 @@ public interface MessageChannel extends Entity
 	 *        Order of messages, ascending if true, descending if false
 	 * @return a list of channel Message objects or specializations of Message objects (may be empty).
 	 */
-	List<Message> getMessagesPublic(Filter filter, boolean ascending);
+	List<T> getMessagesPublic(Filter filter, boolean ascending);
 
 	/**
 	 * Return a specific channel message, as specified by message name.

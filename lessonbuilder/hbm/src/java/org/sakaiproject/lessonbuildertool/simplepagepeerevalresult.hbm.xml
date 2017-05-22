@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sakaiproject.lessonbuildertool">
+
+      <!-- create the primary key id, using native is typically the best way -->
+	<class name="org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResultImpl" table="lesson_builder_p_eval_results">
+    		<id name="peerEvalResultId" column="PEER_EVAL_RESULT_ID" type="long">
+					<generator class="native">
+						<param name="sequence">LB_PEER_EVAL_RESULT_S</param>
+					</generator>
+		</id>
+		<property name="pageId" type="long" >
+			<column name="PAGE_ID" not-null="true"/>
+		</property>
+		<property name="timePosted" type="java.util.Date" >
+			<column name="TIME_POSTED" not-null="false"/>
+		</property>
+		<property name="grader" type="java.lang.String" >
+			<column name="GRADER" length="99" not-null="true"/>
+		</property>
+		<property name="gradee" type="java.lang.String" >
+			<column name="GRADEE" length="99" not-null="false"/>
+		</property>
+		<property name="gradeeGroup" type="java.lang.String" >
+			<column name="GRADEE_GROUP" length="99" not-null="false"/>
+		</property>
+		<property name="rowText" type="java.lang.String" >
+            	<column name="ROW_TEXT" not-null="false"/>
+     	</property>
+		<property name="rowId" type="long" >
+			<column name="ROW_ID" default="0"/>
+		</property>
+     	<property name="columnValue" type="integer">
+     		<column name="COLUMN_VALUE" not-null="true"/>
+     	</property>
+     	<property name="selected" type="boolean">
+     		<column name="SELECTED" not-null="false"/>
+     	</property>
+   
+   </class>
+   
+</hibernate-mapping>

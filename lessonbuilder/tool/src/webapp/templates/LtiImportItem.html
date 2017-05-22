@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title rsf:id="msg=simplepage.blti.chooser"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody" id="portletBody">
+		<div rsf:id="error-div" class="ui-widget">
+			<div class="messageError below-link-help">
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span rsf:id="error"></span> </p>
+				<div rsf:id="errors:">
+					<p rsf:id="error-message"></p>
+				</div>
+			</div>
+		</div>
+
+		<h2 rsf:id="mainhead" id="mainhead"></h2>
+
+		<div rsf:id="lti-import-notes">
+			<p rsf:id="msg=simplepage.lti.import.notes"></p>
+		</div>
+
+		<a href="#" onclick="parent.closeIframe();return false;" rsf:id="blti-continue">Click Here</a>
+
+		<div rsf:id="blti-launch:" style="margin-left:2em">
+                  <i class="" rsf:id="blti-import-icon"></i>
+		  <a href="#" target="sakai-basiclti-launch-iframe" onclick="showIframe(this.title);" rsf:id="blti-launch-link"></a>
+		</div>
+
+		<form action="#" rsf:id="blti-cancel" id="blti-cancel">
+			<input type="hidden" rsf:id="csrf"/>
+			<input type="hidden" rsf:id="cancel2"/>
+			<input type="submit" rsf:id="cancel" id="cancel-button" class='cancelButton'/>
+		</form>
+		<div id="modal-iframe-div" style="display:none">
+			<iframe name="sakai-basiclti-launch-iframe" id="sakai-basiclti-launch-iframe" src="/library/image/sakai/spinner.gif" style="height:800px"></iframe>
+		</div>
+	</div>
+
+<script>
+includeLatestJQuery('LtiImportItem.html');
+</script>
+
+<script>
+//<![CDATA[
+function showIframe(title) {
+	$("#modal-iframe-div").dialog({
+		title: title,
+		width: modalDialogWidth(),
+		modal: true,
+		draggable: false,
+		open: function() {
+			$('#sakai-basiclti-launch-iframe').width('100%');
+		},
+		close: function() {
+			$('#modal-iframe-div').css('z-index',1);
+			$('.ui-dialog').css('z-index',1);
+			$('#sakai-basiclti-launch-iframe').attr('src','/library/image/sakai/spinner.gif');
+		}
+	});
+
+	var maxz = getMaxZIndex();
+
+        // In order to float above the BootStrap navigation
+	$('#modal-iframe-div').css('z-index',maxz+1);
+	$('.ui-dialog').css('z-index',maxz+1);
+
+	$(window).resize(function() {
+		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+		$('#sakai-basiclti-launch-iframe').width('100%');
+	});
+}
+
+function closeIframe() {
+	$("#modal-iframe-div").dialog("close");
+	$('#cancel').trigger('click');
+}
+//]]>
+</script>
+
+
+</body>
+</html>

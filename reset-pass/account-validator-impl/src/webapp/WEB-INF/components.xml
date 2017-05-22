@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Bring in the HBM related beans beans -->
+	<import resource="hibernate-hbms.xml" />
+
+	<!-- Bring in the hibernate related beans -->
+	<import resource="spring-hibernate.xml" />
+
+	<!-- create a logic bean, give it the dao from above and some sakai services -->
+	<bean id="org.sakaiproject.accountvalidator.logic.ValidationLogic"
+			class="org.sakaiproject.accountvalidator.logic.impl.ValidationLogicImpl"
+			init-method="init">
+		<property name="dao" ref="org.sakaiproject.accountvalidator.dao.ValidationLogicDao" />
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" 	/>
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="authzGroupService"  ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
+
+	<!-- Entity broker bean -->
+	<bean class="org.sakaiproject.accountvalidator.entity.impl.ValidationEntityProviderImpl">
+	</bean>
+
+
+   <!-- this is the actual bean to execute.  This will have all
+   spring injected values intact when executed -->
+   <bean id="validateJob"
+      class="org.sakaiproject.accountvalidator.impl.jobs.CheckAccountsJob">
+	<property name="userDirectoryService">
+				<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+			</property>
+		<property name="validationLogic">
+		<ref bean="org.sakaiproject.accountvalidator.logic.ValidationLogic" />
+		</property>
+		
+   </bean>
+
+   <!-- this is the helper that will register the above bean with the schedule manager
+        things to set here are the beanId (from bean above) and the jobName
+   -->
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.validateJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      init-method="init">
+      <property name="beanId">
+         <value>validateJob</value>
+      </property>
+      <property name="jobName">
+         <value>Account Validation Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+   
+   
+      <!-- this is the actual bean to execute.  This will have all
+   spring injected values intact when executed -->
+   <bean id="checkValidationsJob"
+      class="org.sakaiproject.accountvalidator.impl.jobs.CheckValidations">
+		<property name="validationLogic">
+		<ref bean="org.sakaiproject.accountvalidator.logic.ValidationLogic" />
+		</property>
+	        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
+
+   </bean>
+
+   <!-- this is the helper that will register the above bean with the schedule manager
+        things to set here are the beanId (from bean above) and the jobName
+   -->
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.checkvalidationJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      init-method="init">
+      <property name="beanId">
+         <value>checkValidationsJob</value>
+      </property>
+      <property name="jobName">
+         <value>Check Validation Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+
+
+</beans>

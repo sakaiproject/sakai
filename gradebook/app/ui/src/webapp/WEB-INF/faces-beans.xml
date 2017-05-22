@@ -12,6 +12,11 @@
 			<value>#{org_sakaiproject_tool_gradebook_business_GradebookManager}</value>
 		</managed-property>
 		<managed-property>
+			<description>Gradebook FrameworkService</description>
+			<property-name>gradebookFrameworkService</property-name>
+			<value>#{org_sakaiproject_service_gradebook_GradebookFrameworkService}</value>
+		</managed-property>
+		<managed-property>
 			<description>Section Awareness Service</description>
 			<property-name>sectionAwareness</property-name>
 			<value>#{org_sakaiproject_section_api_SectionAwareness}</value>

@@ -23,17 +23,13 @@ package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.repository.Asset;
 import org.osid.repository.Part;
 import org.osid.repository.PartIterator;
@@ -50,12 +46,8 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.InteractionAction;
-import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceAction;
 import org.sakaiproject.content.util.BasicSiteSelectableResourceType;
@@ -80,8 +72,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
@@ -1542,7 +1532,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public boolean importFromRisList(List risImportList)
 		{
-			Log logger = LogFactory.getLog(BasicCitation.class);
+		 Logger logger = LoggerFactory.getLogger(BasicCitation.class);
 			String currentLine = null; // The active line being parsed from the list (e.g. "TY - BOOK")
 			String RIScode = null; // The RIS Code (e.g. "TY" for "TY - BOOK")
 			String RISvalue = null; // The RIS Value (e.g. "BOOK" for "TY - BOOK")
@@ -3203,6 +3193,7 @@ public abstract class BaseCitationService implements CitationService
 				this.m_citations = new Hashtable<String, Citation>();
 			}
 			this.m_citations.clear();
+			this.m_nestedCitationCollectionOrders.clear();
 			if(this.m_order == null)
 			{
 				this.m_order = new TreeSet<String>(this.m_comparator);
@@ -3908,6 +3899,12 @@ public abstract class BaseCitationService implements CitationService
 
 		public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
 
+		public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId);
+
+		public String getNextCitationCollectionOrderId(String collectionId);
+
+		public CitationCollectionOrder getCitationCollectionOrder(String collectionId, int locationId);
+
 		public void removeLocation(String collectionId, int locationId);
 
 		public void updateSchema(Schema schema);
@@ -4001,7 +3998,7 @@ public abstract class BaseCitationService implements CitationService
 	public static ResourceLoader rb;
 
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseCitationService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseCitationService.class);
 
 	protected static final String PROPERTY_DEFAULTVALUE = "sakai:defaultValue";
 
@@ -4811,12 +4808,11 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
-	    typedef.addAction(makeSitePageAction);
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
 
-	    registry.register(typedef);
+	    registry.register(typedef, new CitationContentChangeHandler());
     }
 
 	/**
@@ -5584,6 +5580,33 @@ public abstract class BaseCitationService implements CitationService
 	}
 
 	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getNestedCollectionAsList(java.lang.String)
+	 */
+	public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId) {
+		return this.m_storage.getNestedCollectionAsList(citationCollectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getNextCitationCollectionOrderId(java.lang.String)
+	 */
+	public String getNextCitationCollectionOrderId(String collectionId) {
+		return this.m_storage.getNextCitationCollectionOrderId(collectionId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.citation.api.CitationService#getCitationCollectionOrder(java.lang.String, java.lang.String)
+	 */
+	public CitationCollectionOrder getCitationCollectionOrder(String collectionId, int locationId) {
+		return this.m_storage.getCitationCollectionOrder(collectionId, locationId);
+	}
+
+	/*
 	* (non-Javadoc)
 
 	* @see org.sakaiproject.citation.api.CitationService#removeLocation(java.lang.String, int)
@@ -5704,7 +5727,7 @@ public abstract class BaseCitationService implements CitationService
 	/**
      * @param reference
      */
-    private void copyCitationCollection(Reference reference)
+    public void copyCitationCollection(Reference reference)
     {
         ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 		try
@@ -5753,8 +5776,13 @@ public abstract class BaseCitationService implements CitationService
         }
         return citation;
     }
-
-
+    
+    @Override    
+    public Citation copyCitation(Citation citation) {
+    	BasicCitation c = new BasicCitation();
+    	c.copy(citation);
+    	return c;
+    }
 
 } // BaseCitationService
 

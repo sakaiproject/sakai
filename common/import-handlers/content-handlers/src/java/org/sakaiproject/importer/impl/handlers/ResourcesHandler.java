@@ -68,8 +68,8 @@ import org.sakaiproject.util.Validator;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class ResourcesHandler implements HandlesImportable {
 	private static final String COPYRIGHT = "(c) 2007";
@@ -80,7 +80,7 @@ public class ResourcesHandler implements HandlesImportable {
 	private SecurityService securityService;
 	private ServerConfigurationService serverConfigurationService;
 	
-	private Log m_log = LogFactory.getLog(org.sakaiproject.importer.impl.handlers.ResourcesHandler.class);
+	private Logger m_log = LoggerFactory.getLogger(org.sakaiproject.importer.impl.handlers.ResourcesHandler.class);
 
 	public boolean canHandleType(String typeName) {
 		return (("sakai-file-resource".equals(typeName) || ("sakai-folder".equals(typeName)) || 

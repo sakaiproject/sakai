@@ -2,10 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
+<!DOCTYPE html>
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
@@ -14,64 +11,57 @@
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;initHelpValue('<h:outputText value="#{eventLogMessages.search_hint}"/>', 'eventLogId:filteredUser');">
 
-<div class="portletBody">
-
+<div class="portletBody container-fluid">
   <h:form id="eventLogId">
   <!-- HEADINGS -->
   <%@ include file="/jsf/event/eventLogHeadings.jsp" %>
   
   <h:messages rendered="#{! empty facesContext.maximumSeverity}" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
-<!-- content... -->
- <h3>
-    <h:outputText value="#{eventLog.siteTitle} "/>
-    <h:outputText value="#{eventLogMessages.log}"/>
- </h3>
+  <div class="page-header">
+    <h1>
+      <h:outputText value="#{eventLog.siteTitle} "/>
+      <small>
+        <h:outputText value="#{eventLogMessages.log}"/>
+      </small>
+    </h1>
+  </div>
 
- <div align="right">
- 	<h:panelGroup>
- 	  <h:outputText   value="#{eventLogMessages.previous}"  rendered="#{!eventLog.hasPreviousPage}" />
-	  <h:commandLink action="eventLog" value="#{eventLogMessages.previous}" rendered="#{eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}">
-		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
-	  </h:commandLink>
-	  <h:outputText escape="false" value="&nbsp;&nbsp;&nbsp;" />
+  <h:panelGroup layout="block" styleClass="pull-right">
+    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
+    </h:commandButton>
+    <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
+    </h:commandButton>
+  </h:panelGroup>
 
-	  <h:outputText   value="#{eventLogMessages.next}"  rendered="#{!eventLog.hasNextPage}" />
-	  <h:commandLink action="eventLog" value="#{eventLogMessages.next}" rendered="#{eventLog.hasNextPage}" title="#{eventLogMessages.previous}">
-		  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogNextPageListener" />
-	  </h:commandLink>
-	  <h:outputText escape="false" value="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" />
-
-	</h:panelGroup>
- </div>
-
- <div class="divContainer">
-   <span class="divLeft">
-     <h:outputText   value="#{eventLogMessages.filterBy}"  />
+ <div class="divContainer row">
+   <div class="divLeft col-lg-6 col-md-4 col-sm-5 col-xs-12">
+     <h:outputLabel value="#{eventLogMessages.filterBy}"  />
      <h:selectOneMenu value="#{eventLog.filteredAssessmentId}" id="assessmentTitle"
          required="true" onchange="document.forms[0].submit();">
         <f:selectItems value="#{eventLog.assessments}"/>
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
      </h:selectOneMenu>
-   </span>
-   <span class="divRight">
+   </div>
+   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12">
       <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
       <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30"
          onfocus="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"
          onclick="resetHelpValue('#{eventLogMessages.search_hint}', 'eventLogId:filteredUser')"/>
-
+      <h:outputText value="&#160;" escape="false" />
       <h:commandButton value="#{eventLogMessages.search}" type="submit" id="search" accesskey="#{eventLogMessages.a_search}">
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
       </h:commandButton>
       <h:commandButton value="#{eventLogMessages.clear}" type="submit" id="clear" accesskey="#{eventLogMessages.a_clear}">
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
       </h:commandButton>
-   </span>
+   </div>
  </div>
 
-
- <div>
- <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier listHierEventLog" value="#{eventLog.eventLogDataList}" var="log">
+ <div class="table-responsive">
+ <h:dataTable styleClass="table table-striped" value="#{eventLog.eventLogDataList}" var="log">
  	<!-- AssessmentID... -->
    	<h:column>
 	  <f:facet name="header">
@@ -88,6 +78,7 @@
 
 	 <h:panelGroup>
 	  <h:outputText value="#{log.shortenedTitle}"/><h:outputText rendered="#{log.title != log.shortenedTitle}" value="#{eventLogMessages.dotdotdot}"/>
+	  <h:outputText value="-deleted" rendered="#{eventLog.isDeleted(log.assessmentId)}"/>
 	  <f:verbatim><span class="info"></f:verbatim>
 	  <h:graphicImage id="infoImg" url="/images/info_icon.gif" alt="" styleClass="infoDiv"/>
 	   <h:panelGroup styleClass="makeLogInfo" style="display:none;z-index:2000;" >
@@ -97,6 +88,7 @@
                <f:param value="#{log.assessmentIdStr}" />
             </h:outputFormat>
 		</h:panelGroup>
+		<h:panelGroup styleClass="deleted" style="display:none" rendered="#{eventLog.isDeleted(log.assessmentId)}"/>		
 	  <f:verbatim></span></f:verbatim>
 
      </h:panelGroup>
@@ -195,7 +187,7 @@
 	</h:column>
 
 	<!-- IP Address -->
-	<h:column>
+	<h:column rendered="#{eventLog.enabledIpAddress}">
 	  <f:facet name="header">
         <h:commandLink title="#{eventLogMessages.t_sortIP}" action="eventLog">
         <h:outputText value="#{eventLogMessages.ipAddress}"/>

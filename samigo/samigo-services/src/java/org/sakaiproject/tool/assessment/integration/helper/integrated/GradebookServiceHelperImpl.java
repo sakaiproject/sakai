@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/sam/tags/sakai-10.4/samigo-services/src/java/org/sakaiproject/tool/assessment/integration/helper/integrated/GradebookServiceHelperImpl.java $
+ * $Id: GradebookServiceHelperImpl.java 127473 2013-07-21 00:04:12Z nbotimer@unicon.net $
  ***********************************************************************************
  *
  * Copyright (c) 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.util.MathUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -64,7 +64,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  */
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-  private Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
+  private Logger log = LoggerFactory.getLogger(GradebookServiceHelperImpl.class);
 
   /**
    * Does a gradebook exist?
@@ -259,22 +259,36 @@ public void removeExternalAssessment(String gradebookUId,
     //log.info("GradebookService instance=" + g);
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     GradingService gradingService = new GradingService();
-    PublishedAssessmentIfc pub = (PublishedAssessmentIfc) gradingService.getPublishedAssessmentByAssessmentGradingId(ag.getAssessmentGradingId().toString());
+
+    //Following line seems just for the need of getting publishedAssessmentId
+    //use ag.getPublishedAssessmentId() instead of pub.getPublishedAssessmentId() to
+    //get publishedAssessmentId 
+    //comment out following 3 lines since it returns null for not submitted students which we 
+    //need not save to assessmentgrading table but will need to notify gradebook only  
+    
+   /* PublishedAssessmentIfc pub = (PublishedAssessmentIfc) gradingService.getPublishedAssessmentByAssessmentGradingId(ag.getAssessmentGradingId().toString());
 
     String gradebookUId = pubService.getPublishedAssessmentOwner(
-        pub.getPublishedAssessmentId());
+           pub.getPublishedAssessmentId());*/
+    String gradebookUId = pubService.getPublishedAssessmentOwner(
+            ag.getPublishedAssessmentId());
     if (gradebookUId == null)
     {
       return;
     }
     
-    //SAM-1562 We need to round the double score and covert to a double -DH
-    double fScore = MathUtils.round(ag.getFinalScore(), 2);
-    Double score = Double.valueOf(fScore).doubleValue();
-    log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
+    //Will pass to null value when last submission is deleted
+    String points = null;
+    if(ag.getFinalScore() != null) {
+        //SAM-1562 We need to round the double score and covert to a double -DH
+        double fScore = Precision.round(ag.getFinalScore(), 2);
+        Double score = Double.valueOf(fScore).doubleValue();
+        points = score.toString();
+        log.info("rounded:  " + ag.getFinalScore() + " to: " + score.toString() );
+    }
     g.updateExternalAssessmentScore(gradebookUId,
       ag.getPublishedAssessmentId().toString(),
-      ag.getAgentId(),  score.toString());
+      ag.getAgentId(),  points);
     if (testErrorHandling){
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
     }

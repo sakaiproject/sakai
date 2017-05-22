@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class RemoveAttachmentListener implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(RemoveAttachmentListener.class);
+  //private static Logger log = LoggerFactory.getLogger(RemoveAttachmentListener.class);
 
   public RemoveAttachmentListener()
   {
@@ -55,7 +55,7 @@ public class RemoveAttachmentListener implements ActionListener
     String attachmentId = attachmentBean.getAttachmentId().toString();
     Long attachmentType = attachmentBean.getAttachmentType();
     if ((AttachmentIfc.ITEM_ATTACHMENT).equals(attachmentType))
-      assessmentService.removeItemAttachment(attachmentId);
+      throw new UnsupportedOperationException();
     else if ((AttachmentIfc.SECTION_ATTACHMENT).equals(attachmentType))
       assessmentService.removeSectionAttachment(attachmentId);
     else if ((AttachmentIfc.ASSESSMENT_ATTACHMENT).equals(attachmentType))

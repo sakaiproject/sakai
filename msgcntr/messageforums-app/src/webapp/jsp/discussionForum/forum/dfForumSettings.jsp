@@ -44,7 +44,7 @@ if (thisId == null)
 <!--jsp/discussionForum/forum/dfForumSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_forum_title}" />--%>
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the forum (with an editable permissions block!) to comfirm deletion --%>
-		<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}" style="display:block" />	
+		<h:outputText id="alert-delete" styleClass="messageAlert" value="#{msgs.cdfm_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}" style="display:block" />	
         <h:outputText styleClass="messageAlert" value="#{msgs.cdfm_duplicate_forum_confirm}" rendered="#{ForumTool.selectedForum.markForDuplication}" style="display:block" />
 		<table class="forumHeader">
 			  <tr>
@@ -76,7 +76,7 @@ if (thisId == null)
 			</p>
 			<div class="textPanel toggle" id="toggle">
 				<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true" value="#{ForumTool.selectedForum.forum.extendedDescription}"/>
-				<h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="listHier" columnClasses="bogus">
+				<h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="table table-hover table-striped table-bordered" columnClasses="bogus">
 			    <h:column>
 			    	<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />						
@@ -141,7 +141,7 @@ if (thisId == null)
 	   	  	   	   	   
       
       <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
-          <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
+          <h:dataTable styleClass="table table-hover table-striped table-bordered" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
 				<h:outputText value="#{cntrl_settings.role}"/>
@@ -173,7 +173,7 @@ if (thisId == null)
 		</h:dataTable>
       </mf:forumHideDivision>
       <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">
-     	 <h:dataTable styleClass="listHier" id="message_permissions" value="#{ForumTool.forumMessagePermissions}" var="msg_settings">
+     	 <h:dataTable styleClass="table table-hover table-striped table-bordered" id="message_permissions" value="#{ForumTool.forumMessagePermissions}" var="msg_settings">
    			<h:column>
 				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
 				<h:outputText value="#{msg_settings.role}"/>

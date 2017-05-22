@@ -28,8 +28,8 @@ import lombok.Setter;
 import net.fortuna.ical4j.model.component.VEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
@@ -84,7 +84,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	@Setter
 	private SignupCalendarHelper calendarHelper;
 	
-	private Log logger = LogFactoryImpl.getLog(getClass());
+	private Logger logger = LoggerFactory.getLogger(SignupEmailFacadeImpl.class);
 	
 	
 	/**
@@ -543,7 +543,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 				logger.warn("User is not found for userId: " + meeting.getCreatorUserId());
 			} catch (Exception e) {
 				isException = true;
-				logger.error("Exception: " + e.getClass() + ": " + e.getMessage());
+				logger.error("Exception: " + e.getClass() + ": " + e.getMessage(), e);
 			}
 		}
 		
@@ -727,7 +727,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		if(StringUtils.isNotBlank(emailAddress) && EmailValidator.getInstance().isValid(emailAddress)) {
 			message.addRecipient(EmailAddress.RecipientType.TO, recipient.getDisplayName(), emailAddress);
 		} else {
-			logger.error("Invalid email for user:" + recipient.getDisplayId() + ". No email will be sent to this user");
+			logger.debug("Invalid email for user: " + recipient.getDisplayId() + ". No email will be sent to this user");
 			return null;
 		}
 		
@@ -765,7 +765,10 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		final List<VEvent> events = email.generateEvents(user, calendarHelper);
 		
 		if (events.size() > 0) {
-			attachments.add(formatICSAttachment(events, method));
+			Attachment a = formatICSAttachment(events, method);
+			if (a != null) {
+				attachments.add(a);
+			}
 		}
 		
 		/*
@@ -806,6 +809,10 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 */
 	private Attachment formatICSAttachment(List<VEvent> vevents, String method) {
 		String path = calendarHelper.createCalendarFile(vevents, method);
+		// It's possible that ICS creation failed
+		if (StringUtils.isBlank(path)) {
+			return null;
+		}
 
 		// Explicitly define the Content-Type and Content-Diposition headers so the invitation appears inline
 		String filename = StringUtils.substringAfterLast(path, File.separator);

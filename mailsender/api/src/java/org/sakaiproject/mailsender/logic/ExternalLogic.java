@@ -167,15 +167,16 @@ public interface ExternalLogic
 	/**
 	 * Append email to Email Archive
 	 *
-	 * @param config
-	 * @param channelRef
-	 * @param sender
-	 * @param subject
-	 * @param body
+	 * @param config The config used by the user, can be <code>null</code>.
+	 * @param channelRef The Email Archive channel reference to add the email to.
+	 * @param sender The email sender (eg John Smith &lt;john.smith@example.com&gt;)
+	 * @param subject The Subject of the email.
+	 * @param body The body of the email message.
+	 * @param attachments A list of attachments, can be <code>null</code>.
 	 * @return true if success
 	 */
 	boolean addToArchive(ConfigEntry config, String channelRef, String sender, String subject,
-			String body);
+			String body, List<Attachment> attachments);
 
 	/**
 	 * @return the current location id of the current user

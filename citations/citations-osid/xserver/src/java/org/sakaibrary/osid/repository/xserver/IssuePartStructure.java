@@ -21,12 +21,11 @@
 
 package org.sakaibrary.osid.repository.xserver;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class IssuePartStructure implements org.osid.repository.PartStructure
 {
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.osid.repository.xserver.IssuePartStructure" );
-
 	private org.osid.shared.Id ISSUE_PART_STRUCTURE_ID = null;
 	private org.osid.shared.Type type = new Type( "sakaibrary", "partStructure",
 			"issue", "Issue of resource container (i.e. Journal title, issue " +
@@ -49,7 +48,7 @@ public class IssuePartStructure implements org.osid.repository.PartStructure
 		}
 		catch (Throwable t)
 		{
-			LOG.warn( "IssuePartStructure() failed to get partStructure id: "
+			log.warn( "IssuePartStructure() failed to get partStructure id: "
 					+ t.getMessage() );
 		}
 	}

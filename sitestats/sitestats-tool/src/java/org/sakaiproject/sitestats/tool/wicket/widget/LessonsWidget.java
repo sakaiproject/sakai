@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
@@ -45,7 +45,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class LessonsWidget extends Panel {
 
     private static final long       serialVersionUID    = 1L;
-    private static Log              LOG                 = LogFactory.getLog(LessonsWidget.class);
+    private static Logger              LOG                 = LoggerFactory.getLogger(LessonsWidget.class);
 
     /** The site id. */
     private String                  siteId              = null;

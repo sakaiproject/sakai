@@ -19,8 +19,8 @@ package org.sakaiproject.tool.gradebook.ui;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -31,7 +31,7 @@ import java.io.Serializable;
  */
 public class SpreadsheetRemoveBean extends GradebookDependentBean implements Serializable {
 
-    private static final Log logger = LogFactory.getLog(SpreadsheetRemoveBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpreadsheetRemoveBean.class);
 
     private Long spreadsheetId;
     private boolean removeConfirmed;

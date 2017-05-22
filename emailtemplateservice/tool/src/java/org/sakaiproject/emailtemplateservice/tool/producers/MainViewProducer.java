@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
@@ -32,7 +32,7 @@ public class MainViewProducer implements ViewComponentProducer, DefaultView {
 		return VIEW_ID;
 	}
 
-	private static Log log = LogFactory.getLog(MainViewProducer.class);
+	private static Logger log = LoggerFactory.getLogger(MainViewProducer.class);
 
 	private EmailTemplateService emailTemplateService;
 	public void setEmailTemplateService(EmailTemplateService ets) {

@@ -22,10 +22,7 @@
 
 package org.sakaiproject.sitestats.test.mocks;
 
-import java.util.Date;
-
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.sitestats.test.data.FakeData;
 
 /**
  * Why must I be made to suffer like this? Why can't I instantiate an Event object? Is that really
@@ -36,7 +33,7 @@ import org.sakaiproject.sitestats.test.data.FakeData;
  * 
  * @author Aaron Zeckoski (aaronz@vt.edu)
  */
-public class FakeEvent implements Event {
+public abstract class FakeEvent implements Event {
 
    private String event = "test.event.name";
    private String resource = "/prefix/id";
@@ -44,24 +41,13 @@ public class FakeEvent implements Event {
    private boolean modify = true;
    private int priority = 3;
 
-   public FakeEvent() {
-   }
-   
-   public FakeEvent(String event, String resource, boolean modify) {
-	   this(event, resource, FakeData.SITE_A_ID, modify, 3);
-   }
-   
-   public FakeEvent(String event, String resource, boolean modify, int priority) {
-	   this(event, resource, FakeData.SITE_A_ID, modify, priority);
-   }
-
-   public FakeEvent(String event, String resource, String context, boolean modify, int priority) {
-      super();
+   public FakeEvent set(String event, String resource, String context, boolean modify, int priority) {
       this.event = event;
       this.modify = modify;
       this.priority = priority;
       this.resource = resource;
       this.context = context;
+      return this;
    }
 
    /*
@@ -126,10 +112,5 @@ public class FakeEvent implements Event {
    public String getUserId() {
       return "userId";
    }
-
-public Date getEventTime() {
-	// TODO Auto-generated method stub
-	return null;
-}
 
 }

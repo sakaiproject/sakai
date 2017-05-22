@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -24,10 +22,12 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class UpdateSynopticMessageCounts implements Job{
@@ -39,8 +39,10 @@ public class UpdateSynopticMessageCounts implements Job{
 	private UIPermissionsManager uiPermissionsManager;
 	private MessageForumsMessageManager messageManager;
 	private SiteService siteService;
+	private SecurityService securityService;
+	private SqlService sqlService;
 	
-	private static final Log LOG = LogFactory.getLog(UpdateSynopticMessageCounts.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UpdateSynopticMessageCounts.class);
 	
 	
 	private static final boolean runOracleSQL = false;
@@ -106,7 +108,7 @@ public class UpdateSynopticMessageCounts implements Job{
 		LOG.info("UpdateSynopticMessageCounts job launched: " + new Date());
 
 		try {
-			clConnection = SqlService.borrowConnection();
+			clConnection = sqlService.borrowConnection();
 			statement = clConnection.createStatement();	
 			
 			//CREATE HASHMAP OF UNREAD MESSAGES COUNT
@@ -185,45 +187,45 @@ public class UpdateSynopticMessageCounts implements Job{
 			}
 						
 		} catch (Exception e1) {
-			LOG.error(e1);			
+			LOG.error(e1.getMessage(), e1);
 		} finally {
 			try {
 				if(unreadMessageCountRS != null)
 					unreadMessageCountRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if(allTopicsAndForumsRS != null)
 					allTopicsAndForumsRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if(synotpicSitesRS != null)
 					synotpicSitesRS.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if(statement != null)
 					statement.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}	
 			try{
 				if(unreadMessagesbySitePS != null)
 					unreadMessagesbySitePS.close();				
 			}catch(Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try{
 				if(findSitesbySitePS != null)
 					findSitesbySitePS.close();				
 			}catch(Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
-			SqlService.returnConnection(clConnection);
+			sqlService.returnConnection(clConnection);
 		}
 		
 		LOG.info("UpdateSynopticMessageCounts job finished: " + new Date());
@@ -264,25 +266,25 @@ public class UpdateSynopticMessageCounts implements Job{
 					isForumsPageInSite = true;
 				}
 			}catch (Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}finally{
 				try{
 					if(rsMessagesForums != null)
 						rsMessagesForums.close();
 				}catch (Exception e){
-					LOG.warn(e);
+					LOG.warn(e.getMessage());
 				}
 				try{
 					if(rsMessages != null)
 						rsMessages.close();
 				}catch (Exception e){
-					LOG.warn(e);
+					LOG.warn(e.getMessage());
 				}
 				try{
 					if(rsForusm != null)
 						rsForusm.close();
 				}catch (Exception e){
-					LOG.warn(e);
+					LOG.warn(e.getMessage());
 				}
 			}
 		}
@@ -327,7 +329,7 @@ public class UpdateSynopticMessageCounts implements Job{
 					}
 				}
 
-				boolean isSuperUser = SecurityService.isSuperUser(userId); 
+				boolean isSuperUser = securityService.isSuperUser(userId); 
 
 				//forums count:
 				HashMap<Long, DecoratedForumInfo> dfHM = null;
@@ -399,38 +401,38 @@ public class UpdateSynopticMessageCounts implements Job{
 			}
 			SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userIds, siteId, siteTitle, unreadCountMap);
 		}catch (Exception e){
-			LOG.warn(e);
+			LOG.warn(e.getMessage(), e);
 		}finally{
 
 			try{
 				if(usersMap != null)
 					usersMap.close();
 			}catch(Exception e){
-				LOG.warn(e);
+				LOG.warn(e.getMessage(), e);
 			}
 			try{
 				if(getAllUsersInSiteQuery != null)
 					getAllUsersInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if (isForumsPageInSiteQuery != null)
 					isForumsPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if (isMessagesPageInSiteQuery != null)
 					isMessagesPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 			try {
 				if (isMessageForumsPageInSiteQuery != null)
 					isMessageForumsPageInSiteQuery.close();
 			} catch (Exception e) {
-				LOG.warn(e);
+				LOG.warn(e.getMessage());
 			}
 		}
 	}
@@ -488,7 +490,7 @@ public class UpdateSynopticMessageCounts implements Job{
 					}
 				}
 			}catch(Exception e){
-				LOG.error(e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		
@@ -518,7 +520,7 @@ public class UpdateSynopticMessageCounts implements Job{
 				}				
 			}
 			}catch(Exception e){
-				LOG.error(e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		
@@ -584,6 +586,14 @@ public class UpdateSynopticMessageCounts implements Job{
 		this.siteService = siteService;
 	}
 	
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
+
 	public class DecoratedForumInfo{
 		
 		private Long forumId;

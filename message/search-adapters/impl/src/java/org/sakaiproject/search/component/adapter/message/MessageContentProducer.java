@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
@@ -68,7 +68,7 @@ public class MessageContentProducer implements EntityContentProducer
 	/**
 	 * debug logger
 	 */
-	private static Log log = LogFactory.getLog(MessageContentProducer.class);
+	private static Logger log = LoggerFactory.getLogger(MessageContentProducer.class);
 
 	// runtime dependency
 	private String toolName = null;
@@ -149,7 +149,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
-			log.debug(ex);
+			log.debug(ex.getMessage());
 		}
 		return null;
 	}
@@ -162,7 +162,7 @@ public class MessageContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
-			log.debug(ex);
+			log.debug(ex.getMessage());
 		}
 		return null;
 	}
@@ -681,7 +681,7 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
-				log.debug(ex);
+				log.debug(ex.getMessage());
 			}
 		}
 		return false;
@@ -709,7 +709,7 @@ public class MessageContentProducer implements EntityContentProducer
 			String r = getReference(reference).getId();
 			if (log.isDebugEnabled())
 			{
-				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
+				log.debug("Message.{}.getContainer{}:{}", toolName, reference, r);
 			}
 			return r;
 		}
@@ -731,7 +731,7 @@ public class MessageContentProducer implements EntityContentProducer
 			String r = getReference(reference).getSubType();
 			if (log.isDebugEnabled())
 			{
-				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
+				log.debug("Message.{}.getContainer{}:{}", toolName, reference, r);
 			}
 			return r;
 		}
@@ -753,7 +753,7 @@ public class MessageContentProducer implements EntityContentProducer
 			String r = getReference(reference).getType();
 			if (log.isDebugEnabled())
 			{
-				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
+				log.debug("Message.{}.getContainer{}:{}", toolName, reference, r);
 			}
 			return r;
 		}
@@ -773,10 +773,7 @@ public class MessageContentProducer implements EntityContentProducer
 		try
 		{
 			String r = getReference(reference).getContainer();
-			if (log.isDebugEnabled())
-			{
-				log.debug("Message." + toolName + ".getContainer" + reference + ":" + r);
-			}
+			log.debug("Message.{}.getContainer{}:{}", toolName, reference, r);
 			return r;
 		}
 		catch (Exception ex)

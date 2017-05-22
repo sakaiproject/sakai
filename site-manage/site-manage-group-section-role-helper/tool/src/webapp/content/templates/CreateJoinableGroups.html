@@ -21,50 +21,64 @@
                     </div>
                 </div>
                 <div id="groupFields" class="indnt1">
-                    <div id="setName">
-                        <p class="shorttext">
-                            <span class="reqStar">*</span>
-                            <label rsf:id="group-title-group">Set name:</label>
-                        </p>
-                        <input rsf:id="groupTitle-group" id="groupTitle-group" type="text" />
-                        <span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
+                
+                    <div id="setName" class="form-group row">                        
+                        <div class="col-sm-3">
+                        	<span class="reqStar">*</span>
+                        	<label rsf:id="group-title-group"  class="form-control-label">Set name:</label>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                        	<input rsf:id="groupTitle-group" id="groupTitle-group" type="text" />
+                        	<span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span>
+                        </div>
                     </div>
+                    
                     <div rsf:id="allowunjoinEdit-row:" id="allowunjoinEdit-row:">
                         <input rsf:id="allowUnjoinEdit" id="allowUnjoinEdit" type="checkbox" />
                         <label rsf:id="allowUnjoinEdit-label">Allow members to unjoinEdit (leave) groups in this setEdit after joining</label>
                     </div>
-                    <div id="groupList">
-                        <div id="groupListLabel">
+                    
+                    <div id="groupList" class="row">
+                        <div id="groupListLabel" class="col-sm-3">
                             <p class="shortext">
-                                <label rsf:id="current-groups-title">Current Groups:</label>
+                                <label rsf:id="current-groups-title" class="form-control-label">Current Groups:</label>
                             </p>
                         </div>
-                        <div id="groupsContainer">
+                        <div id="groupsContainer" class="col-sm-6">
                             <div rsf:id="current-groups-row:">
                                 <span rsf:id="current-group"></span>
                             </div>
                         </div>
                     </div>
+                    
                     <div id="genPanel">
                         <div rsf:id="additional-title-row:">
                             <h4 rsf:id="additional-title" onclick="togglePanel( this, false ); adjustDivHeights();"></h4>
                         </div>
-                        <div rsf:id="num-groups-row:">
-                            <p class="shorttext">
+                        
+                        <div rsf:id="num-groups-row:" class="form-group row">
+                            <div class="col-sm-3">
                                 <span class="reqStar">*</span>
-                                <label rsf:id="group-unit" id="group-unit">Number of groups:</label>
-                            </p>
-                            <input rsf:id="num-groups" id="num-groups" type="text" size="3" />
-                            <span class="validFMess" rsf:id="msg=numGroups.empty.alert">Need a number here</span>
+                                <label rsf:id="group-unit" id="group-unit" class="form-control-label">Number of groups:</label>
+                            </div>
+                            <div class="col-sm-6">
+                            	<input rsf:id="num-groups" id="num-groups" type="text" size="3" />
+                            	<span class="validFMess" rsf:id="msg=numGroups.empty.alert">Need a number here</span>
+                            </div>
                         </div>
-                        <div rsf:id="max-members-row:">
-                            <p class="shorttext">
+                        
+                        <div rsf:id="max-members-row:" class="form-group row">
+                            <div class="col-sm-3">
                                 <span class="reqStar">*</span>
-                                <label rsf:id="group-max-members" id="group-max-members">Max members per group:</label>
-                            </p>
-                            <input rsf:id="num-max-members" id="num-max-members" type="text" size="3" />
-                            <span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span>
+                                <label rsf:id="group-max-members" id="group-max-members" class="form-control-label">Max members per group:</label>
+                            </div>
+                            <div class="col-sm-6">
+                            	<input rsf:id="num-max-members" id="num-max-members" type="text" size="3" />
+                            	<span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span>
+                            </div>
                         </div>
+                        
                         <div rsf:id="allowpreview-row:">
                             <input rsf:id="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" />
                             <label rsf:id="allowPreviewMembership-label">Allow users to see group membership before joining</label>
@@ -77,31 +91,32 @@
                             <input accesskey="g" rsf:id="generate" class="active" value="Generate" type="submit" id="generate" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>
                     </div>
+                    
                     <div rsf:id="allowunjoin-row:" id="allowunjoin-row:">
                         <input rsf:id="allowUnjoin" id="allowUnjoin" type="checkbox" />
                         <label rsf:id="allowUnjoin-label">Allow members to unjoin (leave) groups in this set after joining</label>
                     </div>
-                    <div id="pendingGroupList">
-                        <div id="pendingGroupListLabel">
+                    
+                    <div id="pendingGroupList" class="form-group row">
+                        <div id="pendingGroupListLabel" class="col-sm-3">
                             <p class="shortext">
-                                <label rsf:id="pending-groups-title">Pending Groups:</label>
+                                <label rsf:id="pending-groups-title" class="form-control-label">Pending Groups:</label>
                             </p>
                             <label rsf:id="pending-groups-disclaimer" class="messageInstruction">Pending groups disclaimer</label>
                         </div>
-                        <div id="pendingGroupsContainer">
+                        <div id="pendingGroupsContainer" class="col-sm-6">
                             <div rsf:id="pending-groups-row:">
                                 <span rsf:id="pending-group"></span>
                             </div>
                         </div>
                     </div>
+                    
                     <div class="act">
                         <div class="left">
                             <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="SPNR.disableControlsAndSpin( this, null );" />
-                            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
-                        </div>
-                        <div class="right">
                             <input accesskey ="d" rsf:id="delete" value="Delete Set" type="submit" id="delete" onclick="SPNR.disableControlsAndSpin( this, null );" />
-                        </div>
+                            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                        </div>  
                     </div>
                 <input type="hidden" rsf:id="groupTitle-group-orig"/>
                 </div>

@@ -17,29 +17,20 @@
 **********************************************************************************/
 package edu.indiana.lib.twinpeaks.search.singlesearch.web2;
 
-import edu.indiana.lib.twinpeaks.net.*;
 import edu.indiana.lib.twinpeaks.search.*;
 import edu.indiana.lib.twinpeaks.search.singlesearch.CqlParser;
 import edu.indiana.lib.twinpeaks.util.*;
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Send a query to the Muse Web2 interface
  */
+@Slf4j
 public class Web2Query extends HttpTransactionQueryBase {
-
-	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(Web2Query.class);
 	/**
 	 * Records displayed "per page"
 	 */
@@ -184,7 +175,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 
 			try
 			{
-				_log.debug(DomUtils.serialize(getResponseDocument()));
+				log.debug(DomUtils.serialize(getResponseDocument()));
 			}
 			catch (Exception ignore) { }
 			/*
@@ -207,8 +198,8 @@ public class Web2Query extends HttpTransactionQueryBase {
 
 			try
 			{
-				_log.debug("Search response:");
-				_log.debug(DomUtils.serialize(getResponseDocument()));
+				log.debug("Search response:");
+				log.debug(DomUtils.serialize(getResponseDocument()));
 			}
 			catch (Exception ignore) { }
 
@@ -345,16 +336,16 @@ public class Web2Query extends HttpTransactionQueryBase {
 		 * Pick up the database(s) to examine, sort mode
 		 */
 		targets = getRequestParameter("targets");
-		_log.debug("Targets for search source " + _database + ": " + targets);
+		log.debug("Targets for search source " + _database + ": " + targets);
 
-		_log.debug("SEARCH FOR: " + getSearchString());
+		log.debug("SEARCH FOR: " + getSearchString());
 
 		sortBy = getRequestParameter("sortBy");
 		if (StringUtils.isNull(sortBy))
 		{
 			sortBy = "ICERankingKeyRelevance";
 		}
-		_log.debug("RANKING_KEY: " + sortBy);
+		log.debug("RANKING_KEY: " + sortBy);
 		/*
 		 * And generate the search command
 		 */
@@ -409,8 +400,8 @@ public class Web2Query extends HttpTransactionQueryBase {
 		targets = getRequestParameter("targets");
 		targetCount = new StringTokenizer(targets).countTokens();
 
-		_log.debug("Targets for search source " + _database + ", " + targetCount + " targets: " + targets);
-		_log.debug("Search for: " + searchCriteria);
+		log.debug("Targets for search source " + _database + ", " + targetCount + " targets: " + targets);
+		log.debug("Search for: " + searchCriteria);
 
 		sortBy = getRequestParameter("sortBy");
 		if (StringUtils.isNull(sortBy))
@@ -418,10 +409,10 @@ public class Web2Query extends HttpTransactionQueryBase {
 			sortBy = "ICERankingKeyRelevance";
 		}
 		sortBy = "";
-		_log.debug("RANKING_KEY: " + sortBy);
+		log.debug("RANKING_KEY: " + sortBy);
 
 		pageSize = getIntegerRequestParameter("pageSize").toString();
-		_log.debug("PAGE SIZE: " + pageSize);
+		log.debug("PAGE SIZE: " + pageSize);
 
 		/*
 		 * And generate the FIND command
@@ -485,8 +476,8 @@ public class Web2Query extends HttpTransactionQueryBase {
   {
 		Element combineElement;
 
-		_log.debug("COMBINE find sets: " + getFindResultSetId());
-		_log.debug("COMBINE output: " + getTransactionResultSetName());
+		log.debug("COMBINE find sets: " + getFindResultSetId());
+		log.debug("COMBINE output: " + getTransactionResultSetName());
 
 		try
 		{
@@ -519,8 +510,8 @@ public class Web2Query extends HttpTransactionQueryBase {
 
     _nextResult += Math.min(start, pageSize);
 
-		_log.debug("Results commmand: " + resultSetId);
-		_log.debug("Active = " + active + ", start record = " + _nextResult + ", page size = " + pageSize + ", per=target = " + perTarget);
+		log.debug("Results commmand: " + resultSetId);
+		log.debug("Active = " + active + ", start record = " + _nextResult + ", page size = " + pageSize + ", per=target = " + perTarget);
 
 		try
 		{
@@ -573,12 +564,12 @@ public class Web2Query extends HttpTransactionQueryBase {
 		CqlParser	parser;
 		String		result;
 
-		_log.debug( "Initial CQL Criteria: " + cql );
+		log.debug( "Initial CQL Criteria: " + cql );
 
 		parser 	= new CqlParser();
 		result	= parser.doCQL2MetasearchCommand(cql);
 
-		_log.debug("Processed Result: " + result);
+		log.debug("Processed Result: " + result);
 		return result;
 	}
 
@@ -705,7 +696,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 			}
 			active++;
 		}
-		_log.debug(active + " result set ids: " + ids);
+		log.debug(active + " result set ids: " + ids);
 		getSessionContext().putInt("active", active);
 		return (ids.length() == 0) ? null : ids;
 	}
@@ -736,7 +727,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 			resultSetName = name.toString();
 			setSessionParameter(APPLICATION, "resultSetName", resultSetName);
 		}
-		_log.debug("Transaction result set name: " + resultSetName);
+		log.debug("Transaction result set name: " + resultSetName);
 		return resultSetName;
 	}
 
@@ -851,7 +842,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 										+ ", for activity "
 										+ action;
 
-			LogUtils.displayXml(_log, text, document);
+			LogUtils.displayXml(log, text, document);
 
 			if (status.equals(NO_SESSION)) {
 				/*
@@ -888,7 +879,7 @@ public class Web2Query extends HttpTransactionQueryBase {
 									+ ", found "
 									+	id;
 
-			LogUtils.displayXml(_log, text, document);
+			LogUtils.displayXml(log, text, document);
 			StatusUtils.setGlobalError(getSessionContext(), "<internal>", text);
 
 			throw new SearchException(text);

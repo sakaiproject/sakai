@@ -45,8 +45,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.RequestDispatcher;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Title: Samigo</p>
@@ -61,7 +61,7 @@ public class ShowMediaServlet extends HttpServlet
 	 * 
 	 */
 	private static final long serialVersionUID = 2203681863823855810L;
-    private static Log log = LogFactory.getLog(ShowMediaServlet.class);
+    private static Logger log = LoggerFactory.getLogger(ShowMediaServlet.class);
     private static final Pattern HTTP_RANGE_PATTERN = Pattern.compile("bytes=(?<start>\\d*)-(?<end>\\d*)");
 
   public ShowMediaServlet()

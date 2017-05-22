@@ -20,7 +20,7 @@
 #end
 
 #macro(getMultivalued $field $multiValues $count)
-	<div id="div_$!{field.identifier}">
+	<div id="div_$!{field.identifier}" class="multiValue">
 		<table>
 			#if($multiValues && ($multiValues.size() > 0))
 				#set($index = 0)

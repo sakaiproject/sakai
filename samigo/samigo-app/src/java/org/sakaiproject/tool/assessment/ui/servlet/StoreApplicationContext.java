@@ -26,8 +26,8 @@ package org.sakaiproject.tool.assessment.ui.servlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -39,7 +39,7 @@ public class StoreApplicationContext extends HttpServlet{
 	 * 
 	 */
 	private static final long serialVersionUID = -930231313808212406L;
-private static Log log = LogFactory.getLog(StoreApplicationContext.class);
+private static Logger log = LoggerFactory.getLogger(StoreApplicationContext.class);
   private WebApplicationContext ctx = null;
 
   public void init (ServletConfig config) throws ServletException {

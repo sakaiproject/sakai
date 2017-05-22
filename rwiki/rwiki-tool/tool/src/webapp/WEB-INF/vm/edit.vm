@@ -203,7 +203,8 @@
 				      </div>
 				      <div class="rwiki_editControl" id="editControl">
 									 #if (${requestScope.withnotification} )
-											<p class="checkbox" style="border:none"><input type="checkbox" id="smallchange" name="smallchange" value="smallchange" /> <label for ="smallchange">${rlb.jsp_minor_change}</label></p>
+											<p class="checkbox" style="border:none">
+											<label for ="smallchange"><input type="checkbox" id="smallchange" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}</label></p>
 										#end
 
 						       <p class="act" style="padding:0">

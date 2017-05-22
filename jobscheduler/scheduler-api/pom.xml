@@ -31,6 +31,11 @@
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-private</artifactId>
+      <version>12-SNAPSHOT</version>
+    </dependency>
   </dependencies>
   
   <build>

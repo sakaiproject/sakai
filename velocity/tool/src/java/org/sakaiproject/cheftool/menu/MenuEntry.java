@@ -21,8 +21,8 @@
 
 package org.sakaiproject.cheftool.menu;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import org.sakaiproject.cheftool.api.MenuItem;
 
@@ -41,6 +41,9 @@ public class MenuEntry implements MenuItem
 
 	/** The enabled flag for the entry. */
 	protected boolean m_enabled = true;
+
+	/** The current flag for the entry. */
+	protected boolean m_current = false;
 
 	/** The action string for the entry. */
 	protected String m_action = null;
@@ -231,9 +234,9 @@ public class MenuEntry implements MenuItem
 	 * 
 	 * @return The sub-items of the item.
 	 */
-	public List getItems()
+	public List<MenuItem> getItems()
 	{
-		return new Vector();
+		return new ArrayList<>();
 
 	} // getItems
 
@@ -305,6 +308,21 @@ public class MenuEntry implements MenuItem
 		return false;
 
 	} // getIsField
+
+	/**
+     * {@inheritDoc}
+     */
+	public boolean getIsCurrent()
+	{
+		return m_current;
+	}
+
+	/**
+	 * If you set this to true, this menu item will be displayed as the current selected item.
+	 */
+	public void setIsCurrent(boolean current) {
+		m_current = current;
+	}
 
 	@Override
 	public String getAccessibilityLabel() {

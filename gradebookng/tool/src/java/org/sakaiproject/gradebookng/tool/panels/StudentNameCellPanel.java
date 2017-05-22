@@ -1,17 +1,18 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -21,7 +22,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class StudentNameCellPanel extends Panel {
+public class StudentNameCellPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,7 +46,7 @@ public class StudentNameCellPanel extends Panel {
 		final GbStudentNameSortOrder nameSortOrder = (GbStudentNameSortOrder) modelData.get("nameSortOrder");
 
 		// link
-		final AjaxLink<String> link = new AjaxLink<String>("link") {
+		final GbAjaxLink<String> link = new GbAjaxLink<String>("link") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -53,8 +54,12 @@ public class StudentNameCellPanel extends Panel {
 
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-				final Component content = new StudentGradeSummaryPanel(window.getContentId(), StudentNameCellPanel.this.model, window);
+				final Map<String, Object> windowModel = new HashMap<>(StudentNameCellPanel.this.model.getObject());
+				windowModel.put("groupedByCategoryByDefault", settings.isCategoriesEnabled());
+
+				final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(windowModel), window);
 
 				if (window.isShown() && window.isVisible()) {
 					window.replace(content);
@@ -67,8 +72,8 @@ public class StudentNameCellPanel extends Panel {
 				}
 
 				content.setOutputMarkupId(true);
-				String modalTitle = (new StringResourceModel("heading.studentsummary",
-						null, new Object[]{displayName, eid})).getString();
+				final String modalTitle = (new StringResourceModel("heading.studentsummary",
+						null, new Object[] { displayName, eid })).getString();
 				target.appendJavaScript(String.format(
 						"new GradebookGradeSummary($(\"#%s\"), false, \"%s\");",
 						content.getMarkupId(), modalTitle));

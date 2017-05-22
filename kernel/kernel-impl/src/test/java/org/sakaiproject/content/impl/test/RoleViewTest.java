@@ -1,7 +1,7 @@
 package org.sakaiproject.content.impl.test;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.*;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -17,7 +17,7 @@ import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 @FixMethodOrder(NAME_ASCENDING)
 public class RoleViewTest extends SakaiKernelTestBase {
 
-    private static final Log log = LogFactory.getLog(RoleViewTest.class);
+    private static final Logger log = LoggerFactory.getLogger(RoleViewTest.class);
 
     protected static final String PHOTOS_COLLECTION = "/private/images/photos/";
     protected static final String TEST_ROLE         = "com.roles.test";

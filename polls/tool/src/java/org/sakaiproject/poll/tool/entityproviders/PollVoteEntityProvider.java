@@ -32,8 +32,8 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -68,7 +68,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class PollVoteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, 
     Createable, CollectionResolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable {
 
-	private static Log log = LogFactory.getLog(PollVoteEntityProvider.class);
+	private static Logger log = LoggerFactory.getLogger(PollVoteEntityProvider.class);
     private PollListManager pollListManager;
     public void setPollListManager(final PollListManager pollListManager) {
         this.pollListManager = pollListManager;
@@ -119,7 +119,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         	pollId = Long.valueOf((String)params.get("pollId"));
         }
         catch (Exception e) {
-			log.warn(e);
+			log.warn(e.getMessage());
 		}
         
         if (pollId == null) {
@@ -133,7 +133,7 @@ public class PollVoteEntityProvider extends AbstractEntityProvider implements Co
         	optionId = Long.valueOf((String)params.get("pollOption"));
         }
         catch (Exception e) {
-        	log.warn(e);
+        	log.warn(e.getMessage());
 		}
         
         if (optionId == null) {

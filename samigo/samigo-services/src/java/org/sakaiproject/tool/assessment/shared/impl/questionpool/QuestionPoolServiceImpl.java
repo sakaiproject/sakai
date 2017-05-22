@@ -30,8 +30,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.osid.shared.SharedException;
 
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
@@ -66,7 +66,7 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 public class QuestionPoolServiceImpl
   implements QuestionPoolServiceAPI
 {
-  private Log log = LogFactory.getLog(QuestionPoolServiceImpl.class);
+  private Logger log = LoggerFactory.getLogger(QuestionPoolServiceImpl.class);
 
   /**
    * Creates a new QuestionPoolServiceImpl object.
@@ -198,7 +198,7 @@ public class QuestionPoolServiceImpl
   /**
    * Get the size of a subpool.
    */
-  public int getSubPoolSize(Long poolId)
+  public long getSubPoolSize(Long poolId)
   {
     try
     {
@@ -220,22 +220,6 @@ public class QuestionPoolServiceImpl
     {
       QuestionPoolService service = new QuestionPoolService();
       return service.hasSubPools(poolId);
-    }
-    catch (Exception ex)
-    {
-      throw new QuestionPoolServiceException(ex);
-    }
-  }
-
-  /**
-   * Get all items sorted by orderby
-   */
-    public List getAllItemsSorted(Long poolId, String orderBy, String ascending)
-  {
-    try
-    {
-      QuestionPoolService service = new QuestionPoolService();
-      return service.getAllItemsSorted(poolId, orderBy, ascending);
     }
     catch (Exception ex)
     {

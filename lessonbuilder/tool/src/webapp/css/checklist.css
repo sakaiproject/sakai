@@ -1,0 +1,183 @@
+.checklistForm {
+    margin-left: 1em;
+}
+#checklistItems {
+    display: inline-block;
+    width: 90%;
+    max-width: 500px;
+}
+#createdChecklistItems {
+    margin-bottom: 1em;
+    list-style: none;
+}
+#createdChecklistItems li {
+    background: #eee;
+    margin: 0 3px 3px 3px;
+    padding: 0.2em 0.4em 0.2em 1.5em;
+    font-size: 1.4em;
+}
+.handle {
+    margin-left: -1em;
+}
+
+.checklist-icons {
+    margin-top: .3em;
+}
+#createdChecklistItems li:hover {
+    border-color: #0074D9;
+    background-color: #ddd;
+}
+.checklist-item-name {
+    line-height: 1.7em;
+    width: 85%;
+    max-width: 500px;
+}
+.checklistDescription {
+    display: block;
+}
+#description{
+    height: 80px;
+    width: 90%;
+    max-width: 500px;
+}
+.actionContainer {
+    float: right;
+}
+.deleteItemLink {
+    margin-top: -3px;
+}
+
+ul#createdChecklistItems .handle, ul#createdChecklistItems .handle:hover {
+    cursor: move;
+}
+
+#addChecklistItemButton { /** Have to use important because tool.css overrides **/
+    display: block !important;
+}
+#addChecklistItemButton:hover { /** Have to use important because tool.css overrides **/
+    display: block !important;
+}
+.titleBorder {
+    border-bottom: 1px solid #ccc;
+}
+#name{
+    vertical-align: middle;
+}
+.checklistFormInput input, .checklistFormInput textarea {
+    margin-left: 2em;
+    margin-top: .5em;
+}
+.checklistFormInput label{
+    margin-left: 0;
+    font-weight: bold;
+    color: #555;
+    font-size: 110%;
+}
+p.edit-group {
+    margin-top: 2em;
+}
+.checklist-checkbox {
+    /** Hide from sighted users **/
+    position: absolute;
+    left:-10000px;
+    top:auto;
+}
+.checklist-checkbox ~ span.checklist-checkbox-label {
+    background-image: url("../images/gray_unchecked.png");
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+.checklist-checkbox:checked ~ span.checklist-checkbox-label {
+    background-image: url("../images/green_checkmark.png");
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+.checklist-checkbox-label {
+    padding: 0.5em 0.5em 0.5em 22px;
+}
+label.checklistLabel.disabled:hover input.checklist-checkbox ~ span.checklist-checkbox-label {
+    background-image: none;
+    cursor: not-allowed;
+}
+label.checklistLabel:hover .checklist-checkbox ~ span.checklist-checkbox-label {
+    background-image: url("../images/gray_checkmark.png");
+    background-position: left center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+label.checklistLabel:hover .checklist-checkbox:checked ~ span.checklist-checkbox, label.checklistLabel:hover .checklist-checkbox:checked ~ span.checklist-checkbox-label {
+    background-image: url("../images/green_checkmark.png");
+}
+.checklistLabel {
+    line-height: 2em;
+}
+.hideNameCheckbox {
+    margin: 1em .5em 0 4em !important;
+}
+.hideNameCheckboxLabel {
+    font-size: 100% !important;
+}
+h3.checklistTitle {
+    display: inline-block;
+    margin-top: 0;
+}
+legend.no-border {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+#additionalSettings {
+    margin: 1em 0;
+    max-width: 600px;
+}
+/* Override the jquery ui optional settings stylings. */
+.ui-accordion-header.ui-state-default.ui-state-active {
+    border-color: #c5c5c5;
+    background-color: #ededed;
+    color: #212121;
+}
+
+.checklistList {
+    display: inline;
+}
+
+.checklistList-item {
+    display:flex;
+}
+
+.checklistList-radio {
+    margin-right: 4px;
+}
+
+.external-link, .external-unlink {
+    cursor: pointer;
+}
+
+.dialogs {
+    display: none;
+}
+
+
+.checklistLabel.disabled:hover .externally-linked {
+    margin-right: -19px;
+    display: inline-block;
+}
+
+.tooltip-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    padding: .5em;
+    border: 1px solid black;
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.5);
+    width: 20em;
+    height: auto;
+    line-height: normal;
+    font-weight: normal;
+    z-index: 900001;
+    cursor: pointer;
+}
+
+span.externally-linked, label input.checklist-checkbox:checked + span.externally-linked {
+    display: none;
+}

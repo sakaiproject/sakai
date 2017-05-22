@@ -15,9 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2004</inceptionYear>
-  <packaging>jar</packaging>
+  <packaging>sakai-component</packaging>
   <properties>
-    <deploy.target />
+    <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
     <dependency>
@@ -44,7 +44,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-privacy-api</artifactId>
@@ -53,12 +52,6 @@
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>sakai-privacy-hbm</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-
   </dependencies>
   <build>
     <resources>

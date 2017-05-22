@@ -123,4 +123,46 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+      <repository>
+          <id>central</id>
+          <name>Maven Repository Switchboard</name>
+          <layout>default</layout>
+          <url>http://repo1.maven.org/maven2</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+      </repository>
+      <repository>
+          <id>terracotta-releases</id>
+          <!-- You might need to use http://repo.spring.io/libs-release-remote to build this -->
+          <url>http://www.terracotta.org/download/reflector/releases</url>
+      </repository>
+  </repositories>
+  <pluginRepositories>
+      <pluginRepository>
+          <id>central</id>
+          <name>Maven Plugin Repository</name>
+          <url>http://repo1.maven.org/maven2</url>
+          <layout>default</layout>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+          <releases>
+              <updatePolicy>never</updatePolicy>
+          </releases>
+      </pluginRepository>
+      <pluginRepository>
+          <id>terracotta-repository</id>
+          <!-- You might need to use http://repo.spring.io/libs-release-remote to build this -->
+          <url>http://www.terracotta.org/download/reflector/maven2</url>
+          <releases>
+              <enabled>true</enabled>
+          </releases>
+          <snapshots>
+              <enabled>true</enabled>
+          </snapshots>
+      </pluginRepository>
+  </pluginRepositories>
+
 </project>

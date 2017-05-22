@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -34,7 +34,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.cover.ToolManager;
 
 public class CalendarServiceHelperImpl implements CalendarServiceHelper {
-	private static final Log log = LogFactory.getLog(CalendarServiceHelperImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(CalendarServiceHelperImpl.class);
 	private CalendarService calendarService;
 	private Boolean calendarExistsForSite = null;
 	private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();
@@ -68,26 +68,15 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 				try{
 					CalendarEvent calendarEvent = calendar.getEvent(eventId);
 					calendar.removeEvent(calendar.getEditEvent(calendarEvent.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-				}catch (PermissionException e)
+				}catch (PermissionException | InUseException | IdUnusedException e)
 				{
-					log.warn(e);
-				}
-				catch (InUseException e)
-				{
-					log.warn(e);
-				}
-				catch (IdUnusedException e)
-				{
-					log.warn(e);
+					log.warn(e.getMessage(), e);
 				}
 			}
 
-		}catch (IdUnusedException e)
+		}catch (IdUnusedException | PermissionException e)
 		{
-			log.warn(e);
-		}catch (PermissionException e)
-		{
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 	}
 
@@ -126,14 +115,9 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					calendar.commitEvent(edit);
 				}
 			}
-		} catch (IdUnusedException e) {
-			log.warn(e);
-		} catch  (InUseException e) {
-			log.warn(e);
-		}catch (PermissionException e){
-			log.warn(e);
+		} catch (IdUnusedException | InUseException | PermissionException e) {
+			log.warn(e.getMessage(), e);
 		}
-
 
 		return eventId;
 	}
@@ -150,7 +134,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 			}
 		}catch(Exception e){
 			//user could have manually removed the calendar event
-			log.warn(e);
+			log.warn(e.getMessage(), e);
 		}
 
 		//add any new  calendar events
@@ -209,7 +193,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 				}
 			}
 			catch (IdUnusedException ex) {
-				// No site available
+				log.debug(ex.getMessage());
 			}		  
 		}
 		return authorizedGroups;

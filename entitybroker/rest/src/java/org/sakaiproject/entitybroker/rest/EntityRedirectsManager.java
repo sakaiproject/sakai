@@ -41,12 +41,15 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil.ProcessedTemplate;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Handles everything related the URL redirects handling and processing
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
+@Slf4j
 public class EntityRedirectsManager {
 
     /**
@@ -144,7 +147,7 @@ public class EntityRedirectsManager {
                         try {
                             requestStorage.setStoredValue(entry.getKey(), entry.getValue());
                         } catch (IllegalArgumentException e) {
-                            System.out.println("WARN: EntityRedirectsManager: Had to skip key (" + entry.getKey() + ") while adding keys to request storage: " + e);
+                            log.warn("EntityRedirectsManager: Had to skip key (" + entry.getKey() + ") while adding keys to request storage: " + e);
                         }
                     }
                     // do the redirect
@@ -227,7 +230,7 @@ public class EntityRedirectsManager {
                             targetURL = TemplateParseUtil.mergeTemplate(redirect.outgoingTemplate, segmentValues);
                         } catch (IllegalArgumentException e) {
                             targetURL = null;
-                            System.out.println("WARN: EntityRedirectsManager: Unable to merge target template ("+redirect.outgoingTemplate+") with available variables: " + e);
+                            log.warn("EntityRedirectsManager: Unable to merge target template ("+redirect.outgoingTemplate+") with available variables: " + e);
                         }
                     } else {
                         // should never get here

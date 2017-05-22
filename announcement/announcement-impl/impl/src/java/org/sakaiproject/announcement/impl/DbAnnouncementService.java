@@ -27,8 +27,8 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Stack;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -60,7 +60,7 @@ import org.w3c.dom.Element;
 public class DbAnnouncementService extends BaseAnnouncementService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(DbAnnouncementService.class);
+	private static Logger M_log = LoggerFactory.getLogger(DbAnnouncementService.class);
 
 	/** The name of the db table holding announcement channels. */
 	protected String m_cTableName = "ANNOUNCEMENT_CHANNEL";

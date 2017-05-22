@@ -29,10 +29,12 @@ import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import javax.sql.rowset.serial.SerialBlob;
+
 import org.hibernate.Hibernate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.common.edu.person.InetOrgPerson;
 import org.sakaiproject.api.common.edu.person.OrganizationalPerson;
 import org.sakaiproject.api.common.edu.person.Person;
@@ -43,7 +45,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  */
 public class InetOrgPersonImpl extends OrganizationalPersonImpl implements Person, OrganizationalPerson, InetOrgPerson
 {
-	private static final Log LOG = LogFactory.getLog(InetOrgPersonImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InetOrgPersonImpl.class);
 
 	/**
 	 * @see org.sakaiproject.service.profile.InetOrgPerson#getAudio()
@@ -545,7 +547,12 @@ public class InetOrgPersonImpl extends OrganizationalPersonImpl implements Perso
 		{
 			return null;
 		}
-		return Hibernate.createBlob(this.jpegPhoto);
+		try {
+			return new SerialBlob(this.jpegPhoto);
+		} catch (SQLException e) {
+			LOG.warn(e.getMessage(), e);
+			return null;
+		}
 	}
 
 	public void setBlobImage(Blob blobImage)

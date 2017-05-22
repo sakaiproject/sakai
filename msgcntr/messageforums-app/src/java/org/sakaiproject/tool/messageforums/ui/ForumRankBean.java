@@ -23,15 +23,15 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.Rank;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl;
 
 /**
  * @author lydial@stanford.edu
  */
 public class ForumRankBean {
-    private static final Log LOG = LogFactory.getLog(ForumRankBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ForumRankBean.class);
 
     private boolean assignErr;
     private Set<String> assignToIds;

@@ -13,15 +13,14 @@ import java.util.*;
 
 import javax.xml.parsers.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.*;
 import org.w3c.dom.html.*;
 import org.xml.sax.*;
 
-
+@Slf4j
 public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 {
-	private static org.apache.commons.logging.Log	_log = edu.indiana.lib.twinpeaks.util.LogUtils.getLog(Repository.class);
-
 	private java.util.Vector assetVector = new java.util.Vector();
 
 	private org.osid.id.IdManager idManager = null;
@@ -75,20 +74,20 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		}
 		catch (Throwable t)
 		{
-			_log.error(t.getMessage());
+			log.error(t.getMessage());
 		}
 		
 		if (this.id == null)
 		{
-			_log.debug("Could not set HTTP Repository() " + displayName);
+			log.debug("Could not set HTTP Repository() " + displayName);
 			return;
 		}
 		
-		_log.debug("new HTTP Repository(): " + displayName + ", id: " + this.id);
+		log.debug("new HTTP Repository(): " + displayName + ", id: " + this.id);
 
 		try
 		{
-		  _log.debug("    HTTP Repository(): " + this.id.getIdString() + ", is equal? " + this.id.isEqual(idManager.getId(this.idString)));
+		  log.debug("    HTTP Repository(): " + this.id.getIdString() + ", is equal? " + this.id.isEqual(idManager.getId(this.idString)));
 		}
 		catch (Throwable ignore) { }
 	}
@@ -128,7 +127,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		}
 		catch (Throwable t)
 		{
-			_log.error(t.getMessage());
+			log.error(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 	}
@@ -167,7 +166,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		}
 		catch (Throwable t)
 		{
-			_log.error(t.getMessage());
+			log.error(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 	}
@@ -183,7 +182,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		}
 		catch (Throwable t)
 		{
-			_log.error(t.getMessage());
+			log.error(t.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 	}
@@ -281,7 +280,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		catch (Throwable throwable)
 		{
 			throwable.printStackTrace();
-			_log.error(throwable.getMessage());
+			log.error(throwable.getMessage());
 
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
@@ -325,7 +324,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
     }
     catch (Throwable throwable)
     {
-      _log.error(throwable.getMessage());
+      log.error(throwable.getMessage());
       throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
     }
   }
@@ -373,7 +372,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
     }
     catch (Throwable t)
     {
-      _log.error(t.getMessage());
+      log.error(t.getMessage());
       throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
     }
   }
@@ -452,7 +451,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 				statusMap.put(entry.getKey(), singleMap);
 			}
 
-			_log.debug(this.getDisplayName() + ": " + active + " searches active");
+			log.debug(this.getDisplayName() + ": " + active + " searches active");
 
 			statusMap.put("databaseNames", dbList);
 
@@ -469,7 +468,7 @@ public class Repository extends edu.indiana.lib.osid.base.repository.Repository
 		}
 		catch (Throwable throwable)
 		{
-			_log.error(throwable.getMessage());
+			log.error(throwable.getMessage());
 			throw new org.osid.repository.RepositoryException(org.osid.OsidException.OPERATION_FAILED);
 		}
 	}

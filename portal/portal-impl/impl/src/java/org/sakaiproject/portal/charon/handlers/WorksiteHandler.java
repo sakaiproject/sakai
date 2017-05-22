@@ -27,8 +27,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -57,7 +57,7 @@ public class WorksiteHandler extends PageHandler
 
 	private static final String URL_FRAGMENT = "worksite";
 	
-	private static final Log log = LogFactory.getLog(WorksiteHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(WorksiteHandler.class);
 
 	public WorksiteHandler()
 	{
@@ -152,7 +152,7 @@ public class WorksiteHandler extends PageHandler
 
 		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + page.getTitle();
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);

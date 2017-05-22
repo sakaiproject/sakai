@@ -25,13 +25,13 @@ import java.util.List;
 
 import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
-import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -96,7 +96,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 	private UIInput selectedTimeslotId;
 
-	private Log logger = LogFactoryImpl.getLog(getClass());
+	private Logger logger = LoggerFactory.getLogger(OrganizerSignupMBean.class);
 
 	private boolean addNewAttendee;
 
@@ -1238,7 +1238,11 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 * @return a list of SignupSite objects.
 	 */
 	public List<SignupSite> getPublishedSignupSites() {
-		return getMeetingWrapper().getMeeting().getSignupSites();
+		SignupMeetingWrapper signupMeetingWrapper = getMeetingWrapper();
+		if (signupMeetingWrapper!=null){
+			return getMeetingWrapper().getMeeting().getSignupSites();
+		}
+		return null;
 	}
 
 	/* proxy method */

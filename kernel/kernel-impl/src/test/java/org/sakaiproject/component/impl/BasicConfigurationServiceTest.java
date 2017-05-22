@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.Locale;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ import org.sakaiproject.util.BasicConfigItem;
  */
 public class BasicConfigurationServiceTest {
 
-    private static Log log = LogFactory.getLog(BasicConfigurationServiceTest.class);
+    private static Logger log = LoggerFactory.getLogger(BasicConfigurationServiceTest.class);
 
     private BasicConfigurationService basicConfigurationService;
     private String SOURCE = "TEST";
@@ -65,7 +65,7 @@ public class BasicConfigurationServiceTest {
         basicConfigurationService.addConfigItem( new ConfigItemImpl("test7", "${AZ}"), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("intVal", 11), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal", true), SOURCE);
-        log.info(basicConfigurationService.getConfigData());
+        log.info(basicConfigurationService.getConfigData().toString());
     }
 
     @Test

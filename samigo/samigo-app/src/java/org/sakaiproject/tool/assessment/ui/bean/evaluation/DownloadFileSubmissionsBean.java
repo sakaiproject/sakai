@@ -38,8 +38,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -65,7 +65,7 @@ public class DownloadFileSubmissionsBean implements Serializable {
 	public static String ONE_SECTION_GROUP = "one";
 	public static String SITE = "site";
 
-	private static Log log = LogFactory.getLog(ExportResponsesBean.class);
+	private static Logger log = LoggerFactory.getLogger(ExportResponsesBean.class);
 
 	/**
 	 * Creates a new TotalScoresBean object.

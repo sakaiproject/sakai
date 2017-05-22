@@ -94,7 +94,7 @@
 		         		</h:selectOneRadio> 
 					</h:panelGroup>
 				</h:panelGrid>
-			   	    
+			   <h:panelGroup layout="block" styleClass="table-responsive">
 			   <h:dataTable id="preSignup" value="#{NewSignupMeetingBean.timeSlotWrappers}" var="timeSlot"
 			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable"  style="width: 55%"
 			   		binding="#{NewSignupMeetingBean.timeslotWrapperTable}">
@@ -151,10 +151,10 @@
 								</h:column>
 							</h:dataTable>
 							<h:panelGroup id="addAttendee">
-								<h:outputLabel onclick="showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
+								<h:outputLink value="javascript:showHideAddPanel('#{timeSlot.positionInTSlist}');" styleClass="addAttendee">
 						   			<h:graphicImage value="/images/add.png"  alt="add an attendee" title="#{msgs.event_tool_tips_add}" styleClass="addButton" style="border:none" />
 						   			<h:outputText value="#{msgs.event_add_attendee}" escape="false"/>
-						   		</h:outputLabel>
+						   		</h:outputLink>
 						   	</h:panelGroup>
 						   	
 				   			<h:panelGroup id="addPanel" style="display: none;" >
@@ -175,7 +175,7 @@
 				   		</h:panelGrid>
 			   		</h:column>
 			   </h:dataTable>
-			   
+			   </h:panelGroup>
 						   
 			    <sakai:doc_section>
 					<h:panelGrid columns="2" styleClass="instruction">

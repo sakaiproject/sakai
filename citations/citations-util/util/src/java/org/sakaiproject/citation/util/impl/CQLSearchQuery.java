@@ -1,13 +1,10 @@
 package org.sakaiproject.citation.util.impl;
 
-import org.sakaiproject.citation.util.api.SearchQuery;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CQLSearchQuery
 implements org.sakaiproject.citation.util.api.CQLSearchQuery {
-	
-	private static final org.apache.commons.logging.Log LOG =
-		org.apache.commons.logging.LogFactory.getLog(
-				"org.sakaibrary.common.search.impl.CQLSearchQuery" ); 
 
 	private org.sakaiproject.citation.util.api.SearchQuery searchQuery;
 	private String cqlQuery;
@@ -35,7 +32,7 @@ implements org.sakaiproject.citation.util.api.CQLSearchQuery {
 		String yearString = getYearString();
 		
 		// debugging
-		LOG.debug( "going to parse - keyword: " + keywordString +
+		log.debug( "going to parse - keyword: " + keywordString +
         "; title: " + titleString + "; author: " + authorString + "; subject: "
         + subjectString + "; year: " + yearString );
     
@@ -64,7 +61,7 @@ implements org.sakaiproject.citation.util.api.CQLSearchQuery {
 		searchString = searchString.replaceAll( "\\s", " and " );
 		
 		// debugging
-		LOG.debug( "full search string to parse: " + searchString );
+		log.debug( "full search string to parse: " + searchString );
 		
 		// convert the searchString to CQL
 		org.z3950.zing.cql.CQLParser parser = new org.z3950.zing.cql.CQLParser();
@@ -74,10 +71,10 @@ implements org.sakaiproject.citation.util.api.CQLSearchQuery {
 			// parse the criteria
 			root = parser.parse( searchString );
 		} catch( java.io.IOException ioe ) {
-			LOG.warn( "CQLSearchQuery.getCQLSearchQueryString() IO " +
+			log.warn( "CQLSearchQuery.getCQLSearchQueryString() IO " +
 					"exception while parsing: " + ioe.getMessage() ); 
 		} catch( org.z3950.zing.cql.CQLParseException e ) {
-			LOG.warn( "CQLSearchQuery.getCQLSearchQueryString() CQL " +
+			log.warn( "CQLSearchQuery.getCQLSearchQueryString() CQL " +
 					"parsing exception while parsing: " + e.getMessage() ); 
 		}
 		

@@ -43,6 +43,6 @@ public class MenuBean implements Serializable {
 	}
 
 	public boolean isSubscribeEnabled() {
-		return serverConfigurationService.getBoolean("ical.opaqueurl.subscribe", true);
+		return serverConfigurationService.getBoolean("ical.public.secureurl.subscribe", serverConfigurationService.getBoolean("ical.opaqueurl.subscribe", true));
 	}
 }

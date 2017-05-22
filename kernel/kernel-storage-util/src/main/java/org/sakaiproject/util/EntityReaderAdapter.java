@@ -23,8 +23,8 @@ package org.sakaiproject.util;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
 import org.sakaiproject.entity.api.serialize.EntityReaderHandler;
@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 public class EntityReaderAdapter implements EntityReaderHandler
 {
 
-	private static final Log log = LogFactory.getLog(EntityReaderAdapter.class);
+	private static final Logger log = LoggerFactory.getLogger(EntityReaderAdapter.class);
 
 	private SingleStorageUser storageUser = null;
 

@@ -99,7 +99,7 @@ public interface AssignmentSubmission extends Entity
 	 * 
 	 * @return List of user ids
 	 */
-	public List getSubmitterIds();
+	public List<String> getSubmitterIds();
 	
 	/**
 	 * Access the concat the submitter id together and form a String
@@ -276,12 +276,6 @@ public interface AssignmentSubmission extends Entity
 	* Method to get the status of the review
 	*/
 	public String getReviewStatus();
- 	
-	/**
-	 *  the URL of the content review Icon associated with this submission
-	 * @return
-	 */
-	public String getReviewIconUrl();
 
 	/**
 	 *
@@ -309,4 +303,11 @@ public interface AssignmentSubmission extends Entity
 	 * @return 
 	 */
 	public boolean isUserSubmission();
+	
+	/**
+	 * SAK-30441
+	 * Overwrite grades in a GradeBook Item associated with an Assignment type "Group Submission" doesn't work.
+	 * @return 
+	 */
+	public String getGradeForUserInGradeBook(String userId);
 }

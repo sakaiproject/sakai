@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<name>Content Review Implementation</name>
+	<artifactId>content-review-impl</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.sakaiproject.contentreview</groupId>
+		<artifactId>content-review</artifactId>
+		<version>12-SNAPSHOT</version>
+	</parent>
+
+	<modules>
+		<module>dao</module>
+		<module>service</module>
+		<module>turnitin</module>
+		<module>vericite</module>
+		<module>compilatio</module>
+		<module>urkund</module>
+	</modules>
+	
+	<dependencyManagement>
+		<dependencies>
+		  <!-- the API is seperately versioned from the impl -->
+		  <dependency>
+			  <groupId>net.sf.json-lib</groupId>
+			  <artifactId>json-lib</artifactId>
+			  <classifier>jdk15</classifier>
+			  <version>2.4</version>
+		  </dependency>
+		  <dependency>
+			  <groupId>org.apache.httpcomponents</groupId>
+			  <artifactId>httpclient</artifactId>
+			  <version>4.3.1</version>
+		  </dependency>
+		  <dependency>
+			  <groupId>org.apache.httpcomponents</groupId>
+			  <artifactId>httpmime</artifactId>
+			  <version>4.3.1</version>
+		  </dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>

@@ -19,8 +19,8 @@
  */
 package org.sakaiproject.accountvalidator.tool.otp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AcountValidationLocator implements BeanLocator  {
-	private static Log log = LogFactory.getLog(AcountValidationLocator.class);
+	private static Logger log = LoggerFactory.getLogger(AcountValidationLocator.class);
 	
 	public static final String NEW_PREFIX = "new";
 	public static final String UNKOWN_PREFIX = "unkown";
@@ -361,7 +361,7 @@ public class AcountValidationLocator implements BeanLocator  {
 			// Send password reset acknowledgement email for password reset scenarios
 			if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus)
 			{
-				String supportEmail = serverConfigurationService.getString("support.email");
+				String supportEmail = serverConfigurationService.getString("mail.support");
 				Map<String, String> replacementValues = new HashMap<String, String>();
 				replacementValues.put("emailSupport", supportEmail);
 				emailTemplateService.sendRenderedMessages(TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, supportEmail, supportEmail);

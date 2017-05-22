@@ -30,6 +30,7 @@ public class StudentPage extends BasePage {
 
 		final Map<String, Object> userData = new HashMap<>();
 		userData.put("userId", u.getId());
+		userData.put("groupedByCategoryByDefault", true);
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));
 		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));
@@ -41,9 +42,23 @@ public class StudentPage extends BasePage {
 
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
+		// tablesorted used by student grade summary
+		response.render(CssHeaderItem
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/css/theme.bootstrap.min.css?version=%s", version)));
+		response.render(JavaScriptHeaderItem
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.min.js?version=%s", version)));
+		response.render(JavaScriptHeaderItem
+			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.widgets.min.js?version=%s", version)));
+
 		// GradebookNG Grade specific styles and behaviour
-		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
 		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
+				CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
+		response.render(
+				CssHeaderItem.forUrl(
+						String.format("/gradebookng-tool/styles/gradebook-print.css?version=%s", version),
+						"print"));
+		response.render(
+				JavaScriptHeaderItem.forUrl(
+						String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
 	}
 }

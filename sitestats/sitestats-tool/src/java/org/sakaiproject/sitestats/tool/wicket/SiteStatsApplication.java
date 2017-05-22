@@ -21,6 +21,8 @@ package org.sakaiproject.sitestats.tool.wicket;
 import java.util.Locale;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.core.request.mapper.CryptoMapper;
+import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -36,6 +38,7 @@ import org.apache.wicket.devutils.debugbar.InspectorDebugPanel;
 import org.apache.wicket.devutils.debugbar.PageSizeDebugPanel;
 import org.apache.wicket.devutils.debugbar.SessionSizeDebugPanel;
 import org.apache.wicket.devutils.debugbar.VersionDebugContributor;
+import org.apache.wicket.request.IRequestMapper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
@@ -102,6 +105,11 @@ public class SiteStatsApplication extends WebApplication {
 				}
 			});
 		}
+
+		// Encrypt URLs. This immediately sets up a session (note that things like CSS now becomes bound to the session)
+		getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // Different key per user
+		final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this); 
+		setRootRequestMapper(cryptoMapper);
 	}
 	
 	@SuppressWarnings("unchecked")

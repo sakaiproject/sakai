@@ -158,12 +158,6 @@
       <!--True, False -->
 
       <qtimetadatafield>
-        <fieldlabel>USERID</fieldlabel>
-        <fieldentry/>
-      </qtimetadatafield>
-      <!--Possible Values -->
-      <!--#PCDATA -->
-      <qtimetadatafield>
         <fieldlabel>PASSWORD</fieldlabel>
         <fieldentry/>
       </qtimetadatafield>
@@ -692,6 +686,12 @@
       <!--True, False -->
       <qtimetadatafield>
         <fieldlabel>lateHandling_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>instructorNotification_isInstructorEditable</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>
       <qtimetadatafield>

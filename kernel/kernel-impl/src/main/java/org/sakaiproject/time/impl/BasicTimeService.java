@@ -29,8 +29,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -51,7 +51,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class BasicTimeService implements TimeService
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(TimeService.class);
+	private static Logger M_log = LoggerFactory.getLogger(TimeService.class);
 
 	/** The time zone for our GMT times. */
 	protected TimeZone M_tz = null;
@@ -80,7 +80,7 @@ public class BasicTimeService implements TimeService
 	private Hashtable<String, LocalTzFormat> M_localeTzMap = new Hashtable<String, LocalTzFormat>();
 
 	// Cache of userIds to Timezone/Locales
-	private Cache M_userTzCache;
+	private Cache<String, String[]> M_userTzCache;
 
 	// Default Timezone/Locale
 	protected String[] M_tz_locale_default = new String[] { TimeZone.getDefault().getID(), Locale.getDefault().toString() };
@@ -149,7 +149,7 @@ public class BasicTimeService implements TimeService
 		
 		
 		//register the Cache
-		M_userTzCache = memoryService.newCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
+		M_userTzCache = memoryService.getCache("org.sakaiproject.time.impl.BasicTimeService.userTimezoneCache");
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class BasicTimeService implements TimeService
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (userId == null) return M_tz_locale_default;
 
-		String[] timeZoneLocale = (String[]) M_userTzCache.get(userId);
+		String[] timeZoneLocale = M_userTzCache.get(userId);
 		if (timeZoneLocale != null) return timeZoneLocale;
 
 		// Otherwise, get the user's preferred time zone
@@ -195,7 +195,7 @@ public class BasicTimeService implements TimeService
 		//we need to convert the String[] to a string key
 		String tzLocaleString = stringAraytoKeyString(timeZoneLocale);
 		
-		LocalTzFormat tzFormat = (LocalTzFormat) M_localeTzMap.get(tzLocaleString);
+		LocalTzFormat tzFormat = M_localeTzMap.get(tzLocaleString);
 		if (M_log.isDebugEnabled()) 
 		{
 			M_log.debug("M_localeTzMap contains: " + M_localeTzMap.size() + " members");

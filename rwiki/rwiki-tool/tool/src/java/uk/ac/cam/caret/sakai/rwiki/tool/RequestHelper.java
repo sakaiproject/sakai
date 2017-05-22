@@ -23,15 +23,15 @@ package uk.ac.cam.caret.sakai.rwiki.tool;
 import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 
 public class RequestHelper
 {
-	private static Log log = LogFactory.getLog(RequestHelper.class);
+	private static Logger log = LoggerFactory.getLogger(RequestHelper.class);
 
 	public static final String PANEL = "panel";
 

@@ -71,12 +71,12 @@ import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 
 import javax.activation.MimetypesFileTypeMap;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class LBCCHandler implements HandlesImportable {
 	
-	private Log m_log = LogFactory.getLog(org.sakaiproject.importer.impl.handlers.LBCCHandler.class);
+	private Logger m_log = LoggerFactory.getLogger(org.sakaiproject.importer.impl.handlers.LBCCHandler.class);
 
 	public boolean canHandleType(String typeName) {
 	    return "lessonbuilder-cc-file".equals(typeName);

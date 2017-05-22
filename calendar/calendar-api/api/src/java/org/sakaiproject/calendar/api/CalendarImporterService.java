@@ -47,9 +47,9 @@ public interface CalendarImporterService
 	/**
 	 * Get the default column mapping (keys are column headers, values are property names).
 	 * @param importType Type such as Outlook, MeetingMaker, etc. defined in the CalendarImporterService interface.
-	 * @throws ImportException
+	 * @throws ImportException if the importType can't be found.
 	 */
-	public Map getDefaultColumnMap(String importType)  throws ImportException;
+	public Map<String, String> getDefaultColumnMap(String importType)  throws ImportException;
 	
 	/**
 	 * Perform an import given the import type.
@@ -61,7 +61,7 @@ public interface CalendarImporterService
 	 * must be copied into CalendarEvents created by the Calendar service.
 	 * @throws ImportException
 	 */
-	public List doImport(String importType, InputStream importStream, Map columnMapping, String[] customFieldPropertyNames)
+	public List<CalendarEvent> doImport(String importType, InputStream importStream, Map<String, String> columnMapping, String[] customFieldPropertyNames)
 		throws ImportException;
 
 }

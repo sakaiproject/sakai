@@ -28,7 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -50,6 +51,7 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
+import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -65,6 +67,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class ForumPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(ForumPickerProducer.class);
 	public static final String VIEW_ID = "ForumPicker";
 
 	private SimplePageBean simplePageBean;
@@ -96,7 +99,7 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 		    } catch (Exception e) {
-			System.out.println("AssignmentPicker permission exception " + e);
+			log.info("AssignmentPicker permission exception " + e);
 			return;
 		    }
 		}
@@ -125,13 +128,15 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 			}
 
 			List<UrlItem> createLinks = forumEntity.createNewUrls(simplePageBean);
+			int toolNum = 0;
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "forum-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
+			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
+			    view.setSource("CREATE/FORUM/" + (toolNum++));
 			    view.setReturnView(VIEW_ID);
+			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
 			    view.setTitle(messageLocator.getMessage("simplepage.return_forum"));
 			    UIInternalLink.make(link, "forum-create-link", createLink.label , view);
 			}
@@ -181,10 +186,16 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 				UIBranchContainer row = UIBranchContainer.make(form, "forum:", String.valueOf(topics.indexOf(topic)));
 
 				if (topic.isUsable()) {
+				    // this is the right code:
+				    // String titleTemplate = messageLocator.getMessage("simplepage.forum.title." + (topic.getLevel() == 2 ? "topic" : "forum"));
+				    // to avoid adding a string this late in the cycle for 11, use this. Only real disadvantage is for languages where colon isn't right.
+				    String titleTemplate = messageLocator.getMessage("simplepage.cc-default" + (topic.getLevel() == 2 ? "topic" : "forum")) + ": {}";
+				    String title = titleTemplate.replace("{}", topic.getTitle());
 				    UISelectChoice.make(row, "select", select.getFullID(), topics.indexOf(topic)).
-					decorate(new UIFreeAttributeDecorator("title", topic.getTitle()));
+					decorate(new UIFreeAttributeDecorator("title", title)).
+					decorate(new UIStyleDecorator(topic.getLevel() == 2 ? "forumTopic" : "forumForum"));
 
-				    UILink.make(row, "link", topic.getTitle(), topic.getUrl());
+				    UILink.make(row, "link", title, topic.getUrl());
 				} else {
 				    UIOutput.make(row, "name", topic.getTitle());
 				}

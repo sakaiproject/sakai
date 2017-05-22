@@ -24,7 +24,8 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -34,7 +35,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.tree.AbstractTree;
+import org.apache.wicket.extensions.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
@@ -50,7 +51,7 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 
 public abstract class BaseTreePage extends BasePage
 {
-	private static final Logger log = Logger.getLogger(BaseTreePage.class);
+	private static final Logger log = LoggerFactory.getLogger(BaseTreePage.class);
 
 	/**
 	 * Returns the tree on this pages. This is used to collapse, expand, ect
@@ -164,7 +165,7 @@ public abstract class BaseTreePage extends BasePage
 					getTree().getTreeState().collapseAll();
 					expandCollapse.setDefaultModel(new StringResourceModel("exapndNodes", null));
 				}
-				target.addComponent(expandCollapse);
+				target.add(expandCollapse);
 				getTree().updateTree(target);
 				expand = !expand;
 

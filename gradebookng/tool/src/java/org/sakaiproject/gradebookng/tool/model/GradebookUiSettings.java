@@ -2,10 +2,13 @@ package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -13,10 +16,12 @@ import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
- * DTO for storing data in the session so that state is preserved between requests. Things like filters and ordering go in here and are
- * persisted whenever something is set.
+ * DTO for storing data in the session so that state is preserved between
+ * requests. Things like filters and ordering go in here and are persisted
+ * whenever something is set.
  *
  * They are then retrieved on the GradebookPage load and passed around.
  *
@@ -36,11 +41,9 @@ public class GradebookUiSettings implements Serializable {
 	 * For sorting based on assignment grades
 	 */
 	@Getter
-	@Setter
 	private GbAssignmentGradeSortOrder assignmentSortOrder;
 
 	@Getter
-	@Setter
 	private boolean categoriesEnabled;
 
 	private final Map<Long, Boolean> assignmentVisibility;
@@ -48,7 +51,7 @@ public class GradebookUiSettings implements Serializable {
 	private final Map<String, String> categoryColors;
 
 	/**
-	 * For sorting based on first name / last name
+	 * For sorting of student based on first name / last name
 	 */
 	@Getter
 	@Setter
@@ -58,8 +61,21 @@ public class GradebookUiSettings implements Serializable {
 	 * For sorting based on category
 	 */
 	@Getter
-	@Setter
 	private GbCategoryAverageSortOrder categorySortOrder;
+
+	/**
+	 * The direction to sort the student column
+	 */
+	@Getter
+	private SortDirection studentSortOrder;
+
+	/**
+	 * For sorting based on coursegrade
+	 *
+	 * TODO this could be its own class to bring it in to line with the others
+	 */
+	@Getter
+	private SortDirection courseGradeSortOrder;
 
 	/**
 	 * For showing/hiding the points
@@ -68,18 +84,34 @@ public class GradebookUiSettings implements Serializable {
 	@Setter
 	private Boolean showPoints;
 
+
+	/**
+	 * For toggling the group by categories option in the course grade summary table 
+	 */
+	@Getter
+	@Setter
+	private boolean gradeSummaryGroupedByCategory;
+
+
 	public GradebookUiSettings() {
-		// defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks
+		// defaults. Note there is no default for assignmentSortOrder as that
+		// requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
 		this.assignmentVisibility = new HashMap<Long, Boolean>();
 		this.categoryScoreVisibility = new HashMap<String, Boolean>();
+
+		// default sort order to student
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
+		this.studentSortOrder = SortDirection.ASCENDING;
+
 		this.categoryColors = new HashMap<String, String>();
 		this.showPoints = false;
+		this.gradeSummaryGroupedByCategory = false;
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
-		return (this.assignmentVisibility.containsKey(assignmentId)) ? this.assignmentVisibility.get(assignmentId) : true;
+		return (this.assignmentVisibility.containsKey(assignmentId)) ? this.assignmentVisibility.get(assignmentId)
+				: true;
 	}
 
 	public void setAssignmentVisibility(final Long assignmentId, final Boolean visible) {
@@ -99,7 +131,68 @@ public class GradebookUiSettings implements Serializable {
 	}
 
 	public String getCategoryColor(final String categoryName) {
+		if (!this.categoryColors.containsKey(categoryName)) {
+			setCategoryColor(categoryName, generateRandomRGBColorString());
+		}
+
 		return this.categoryColors.get(categoryName);
+	}
+
+	public void setCategoryColors(final List<CategoryDefinition> categories) {
+		if (categories != null) {
+			for (CategoryDefinition category : categories) {
+				if (!this.categoryColors.containsKey(category.getName())) {
+					setCategoryColor(category.getName(), generateRandomRGBColorString());
+				}
+			}
+		}
+	}
+
+	public void setCategoriesEnabled(final boolean categoriesEnabled){
+		this.categoriesEnabled = categoriesEnabled;
+		this.gradeSummaryGroupedByCategory = categoriesEnabled;
+	}
+
+	/**
+	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
+	 */
+	private String generateRandomRGBColorString() {
+		final Random rand = new Random();
+		final int min = 180;
+		final int max = 250;
+
+		final int r = rand.nextInt((max - min) + 1) + min;
+		final int g = rand.nextInt((max - min) + 1) + min;
+		final int b = rand.nextInt((max - min) + 1) + min;
+
+		return String.format("rgb(%d,%d,%d)", r, g, b);
+	}
+
+	public void setCourseGradeSortOrder(SortDirection direction) {
+		resetSortOrder();
+		this.courseGradeSortOrder = direction;
+	}
+
+	public void setCategorySortOrder(GbCategoryAverageSortOrder sortOrder) {
+		resetSortOrder();
+		this.categorySortOrder = sortOrder;
+	}
+
+	public void setAssignmentSortOrder(GbAssignmentGradeSortOrder sortOrder) {
+		resetSortOrder();
+		this.assignmentSortOrder = sortOrder;
+	}
+
+	public void setStudentSortOrder(SortDirection sortOrder) {
+		resetSortOrder();
+		this.studentSortOrder = sortOrder;
+	}
+
+	private void resetSortOrder() {
+		this.courseGradeSortOrder = null;
+		this.categorySortOrder = null;
+		this.assignmentSortOrder = null;
+		this.studentSortOrder = null;
 	}
 
 	@Override

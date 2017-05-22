@@ -21,8 +21,8 @@
 
 package org.sakaiproject.authz.impl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -54,7 +54,7 @@ import java.util.*;
 public abstract class BaseAuthzGroupService implements AuthzGroupService
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseAuthzGroupService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAuthzGroupService.class);
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
@@ -327,6 +327,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * AuthzGroupService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Map<String, List<String>> getProviderIDsForRealms(List<String> realmIDs)
+	{
+		return m_storage.getProviderIDsForRealms(realmIDs);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -949,7 +957,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	/**
 	 * {@inheritDoc}
 	 */
-	public Set getUsersIsAllowed(String function, Collection azGroups)
+	public Set<String> getUsersIsAllowed(String function, Collection<String> azGroups)
 	{
 		return m_storage.getUsersIsAllowed(function, azGroups);
 	}
@@ -1366,6 +1374,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		void remove(AuthzGroup azGroup);
 
 		/**
+		 * Get all provider IDs for the realms given.
+		 *
+		 * @param realmIDs a List of the realms you want the provider IDs for.
+		 * @return a Map, where the key is the realm ID, and the value is a List of Strings of provider IDs for that realm
+		 */
+		public Map<String, List<String>> getProviderIDsForRealms(List<String> realmIDs);
+
+		/**
 		 * Access a list of AuthzGroups that meet specified criteria, naturally sorted.
 		 * 
 		 * @param criteria
@@ -1463,7 +1479,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 *        A collection of the ids of AuthzGroups to consult.
 		 * @return the Set (String) of user ids of users who are allowed to perform the function in the named AuthzGroups.
 		 */
-		Set getUsersIsAllowed(String function, Collection azGroups);
+		Set<String> getUsersIsAllowed(String function, Collection<String> azGroups);
 
 		/**
 		 * Get the set of user ids per group of users who are allowed to perform the function in the named AuthzGroups.

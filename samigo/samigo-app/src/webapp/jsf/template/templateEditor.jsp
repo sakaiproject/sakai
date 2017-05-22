@@ -40,8 +40,6 @@
         $(document).ready(function() {
           // set up the accordion for settings
           $("#jqueryui-accordion").accordion({ heightStyle: "content",collapsible: true });
-          // adjust the height of the iframe to accomodate the expansion from the accordion
-          $("body").height($("body").outerHeight() + 800);
         });
       </script>
      
@@ -92,7 +90,7 @@
     <div class="tier2">
        <h:selectBooleanCheckbox id="infocanbeviewed"
           value="#{template.valueMap.templateInfo_isInstructorEditable}"/>
-     <h:outputText value="#{templateMessages.template_canbeviewed}"/>
+     <h:outputLabel for="infocanbeviewed" value="#{templateMessages.template_canbeviewed}"/>
   <div class="tier3">
  <h:panelGrid columns="2" columnClasses="samigoCell"
       summary="#{templateMessages.enter_template_info_section}">
@@ -114,14 +112,20 @@
       
       <h:outputText value=""/>
       <h:outputText value=""/>
-       <!-- Honor Pledge -->
-	  <h:outputLabel value="#{templateMessages.honor_pledge}"/>
+    </h:panelGrid>
+    <h:panelGrid columns="1">
+      <!-- Honor Pledge -->
       <h:panelGroup>
-		<h:selectBooleanCheckbox id="honor_pledge" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
-		<h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
-      </h:panelGroup> 
-	</div>
-     
+        <h:outputText value="#{templateMessages.honor_pledge}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge_can_edit" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
+        <h:outputLabel for="honor_pledge_can_edit" value="#{templateMessages.template_canbedefault}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge" value="#{template.honorPledge}"/>
+	    <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
+      </h:panelGroup>
     </h:panelGrid>
     </div></div>
   </samigo:hideDivision>
@@ -138,40 +142,12 @@
           value="#{template.valueMap.assessmentAuthor_isInstructorEditable}"/>
       <h:outputLabel for="authors" value="#{templateMessages.authors}"/>
 
-<%-- bug# SAM156 - i don't think creator should be editable, daisyf 01/26/05
-      <h:selectBooleanCheckbox id="creator"
-          value="#{template.valueMap.assessmentCreator_isInstructorEditable}"/>
-      <h:outputLabel for="creator" value="#{templateMessages.creator}"/>
---%>
       <h:selectBooleanCheckbox id="description_intro"
           value="#{template.valueMap.description_isInstructorEditable}"/>
       <h:outputLabel for="description_intro" value="#{templateMessages.description_intro}"/>
     </h:panelGrid>
     </div> </div>
   </samigo:hideDivision>
-
-<%-- get rid of delivery dates according to the new mockup,
-  <!-- *** DELIVERY DATES *** -->
-  <samigo:hideDivision title="#{templateMessages.delivery_dates}" id="div3">
-   <div class="tier2">
-  <div class="longtext">
-    <h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
- <div class="tier3">
-    <h:panelGrid columns="2"
-      summary="#{templateMessages.delivery_dates_sec}">
-
-      <h:selectBooleanCheckbox id="due_date"
-        value="#{template.valueMap.dueDate_isInstructorEditable}"/>
-      <h:outputLabel for="due_date" value="#{templateMessages.due_date}"/>
-
-      <h:selectBooleanCheckbox id="retract_date"
-        value="#{template.valueMap.retractDate_isInstructorEditable}"/>
-      <h:outputLabel for="retract_date" value="#{templateMessages.retract_date}"/>
-
-    </h:panelGrid>
-   </div></div>
-  </samigo:hideDivision>
- --%>
 
   <!-- *** RELEASED TO  *** -->
   <samigo:hideDivision title="#{templateMessages.released_to}" id="div4">
@@ -225,13 +201,6 @@
       <h:selectBooleanCheckbox id="timed_assmt"
         value="#{template.valueMap.timedAssessment_isInstructorEditable}"/>
       <h:outputLabel for="timed_assmt" value="#{templateMessages.timed_assmt}"/>
-
-<%-- SAK-3578: auto submit when time expired will always be true, 
-     so no need to provide "can edit" option
-      <h:selectBooleanCheckbox id="auto_submit_expires"
-        value="#{template.valueMap.timedAssessmentAutoSubmit_isInstructorEditable}"/>
-      <h:outputLabel for="auto_submit_expires" value="#{templateMessages.auto_submit_expires}"/>
---%>
 
     </h:panelGrid>
    </div></div>
@@ -302,6 +271,7 @@
     </h:selectOneRadio>
     </h:panelGroup>
     </h:panelGrid>
+          </div>
 
 <!-- Display Scores -->
       <div class="longtext"><h:outputLabel value="#{templateMessages.displayScores}"/></div>
@@ -310,7 +280,7 @@
      
         <h:selectBooleanCheckbox id="displayScores"
           value="#{template.valueMap.displayScores_isInstructorEditable}"/>
-        <h:outputLabel for="numbering" value="#{templateMessages.template_canbedefault}"/>
+        <h:outputLabel for="displayScores" value="#{templateMessages.template_canbedefault}"/>
 
        <h:outputText value=" "/>
        <h:panelGroup>
@@ -324,25 +294,25 @@
   </samigo:hideDivision>
 
   <!-- MARK FOR REVIEW -->
-  <samigo:hideDivision title="#{templateMessages.mark_for_review}">
+  <samigo:hideDivision title="#{templateMessages.mark_for_review}" id="div8">
     <div class="tier3">
       <h:panelGrid columns="2" summary="#{templateMessages.mark_for_review}">
         <h:selectBooleanCheckbox id="mark_for_review"
           value="#{template.valueMap.markForReview_isInstructorEditable}"/>
-        <h:outputLabel for="question_layout" value="#{templateMessages.template_canbedefault}"/>
+        <h:outputLabel for="mark_for_review" value="#{templateMessages.template_canbedefault}"/>
         <h:outputText value=" "/>
        
 	    <h:panelGroup>
           <h:selectBooleanCheckbox id="add_mark_for_review"
            value="#{template.markForReview}"/>
-           <h:outputLabel value="#{templateMessages.add_mark_for_review}"/>
+           <h:outputLabel for="add_mark_for_review" value="#{templateMessages.add_mark_for_review}"/>
         </h:panelGroup>
       </h:panelGrid>
     </div>
   </samigo:hideDivision>
 
   <!-- *** SUBMISSIONS *** -->
-  <samigo:hideDivision title="#{templateMessages.submissions}" id="div8">
+  <samigo:hideDivision title="#{templateMessages.submissions}" id="div9">
  <div class="tier2">
 
     <!-- NUMBER OF SUBMISSIONS -->
@@ -364,7 +334,7 @@
        <f:selectItem itemValue="0" itemLabel="#{templateMessages.only}"/>
     </h:selectOneRadio>
     <h:inputText value="#{template.submissionNumber}"
-       id="submissions_allowed" size="5"/> <h:outputText value=" #{templateMessages.submissions_allowed}"/>
+       id="submissions_allowed" size="5"/> <h:outputLabel for="submissions_allowed" value=" #{templateMessages.submissions_allowed}"/>
     </h:panelGroup>
     </h:panelGrid>
 </div>
@@ -390,6 +360,24 @@
     </h:panelGrid>
 </div>
 
+     <!-- SUBMISSION EMAILS / INSTRUCTOR NOTIFICATION -->
+     <div class="longtext"><h:outputLabel value="#{templateMessages.submission_emails}" /></div>
+     <div class="tier3">
+         <h:panelGrid columns="2" summary="#{templateMessages.submission_emails_sub}" >
+             <h:selectBooleanCheckbox id="submission_emails" value="#{template.valueMap.instructorNotification_isInstructorEditable}" />
+             <h:outputLabel for="submission_emails" value="#{templateMessages.template_canbedefault}" />
+
+             <h:outputText value=" " />
+             <h:panelGroup>
+                 <h:selectOneRadio layout="pageDirection" value="#{template.instructorNotification}" required="true">
+                     <f:selectItem itemValue="3" itemLabel="#{templateMessages.submission_emails_one_email}" />
+                     <f:selectItem itemValue="2" itemLabel="#{templateMessages.submission_emails_digest_email}" />
+                     <f:selectItem itemValue="1" itemLabel="#{templateMessages.submission_emails_no_email}" />
+                 </h:selectOneRadio>
+             </h:panelGroup>
+         </h:panelGrid>
+     </div>
+
     <!-- AUTOMATIC SUBMISSION -->
     <div class="longtext"><h:outputLabel value="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}"/></div>
         <div class="tier3">
@@ -410,31 +398,10 @@
     </h:panelGrid>
     </div></div>
 
-    <!-- AUTOSAVE -->
-<%-- hide for 1.5 release SAM-148
-    <h:outputText style="h4" styleClass="tier2"
-      value="#{templateMessages.auto_save}"/>
-
-     <h:panelGrid columns="2"
-      summary="#{templateMessages.auto_save_sub}">
-
-        <h:selectBooleanCheckbox id="auto_save"
-          value="#{template.valueMap.autoSave_isInstructorEditable}"/>
-        <h:outputLabel for="auto_save" value="#{templateMessages.template_canbedefault}"/>
-
-       <h:outputText value=" "/>
-      <h:panelGroup>
-    <h:selectOneRadio layout="pageDirection" value="#{template.autoSave}" required="true">
-      <f:selectItem itemValue="0" itemLabel="#{templateMessages.user_must_click}"/>
-      <f:selectItem itemValue="1" itemLabel="#{templateMessages.all_input_saved_auto}"/>
-    </h:selectOneRadio>
-   </h:panelGroup>
-   </h:panelGrid>
---%>
   </samigo:hideDivision>
 
   <!-- *** SUBMISSION MESSAGE *** -->
-  <samigo:hideDivision title="#{templateMessages.submission_message}" id="div9">
+  <samigo:hideDivision title="#{templateMessages.submission_message}" id="div10">
  <div class="tier2">
   <div class="longtext">
     <h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
@@ -455,7 +422,7 @@
 
   <!-- *** FEEDBACK *** -->
 
-  <samigo:hideDivision title="#{commonMessages.feedback}" id="div10">
+  <samigo:hideDivision title="#{commonMessages.feedback}" id="div11">
  <div class="tier2">
 
   <!-- FEEDBACK AUTHORING--> 
@@ -578,7 +545,7 @@
   </samigo:hideDivision>
 
   <!-- *** GRADING *** -->
-  <samigo:hideDivision title="#{templateMessages.grading}" id="div11">
+  <samigo:hideDivision title="#{templateMessages.grading}" id="div12">
   <div class="tier2">
 
     <!-- ANON GRADING-->
@@ -656,7 +623,7 @@
   </samigo:hideDivision>
 
  <!-- *** HUONG COLORS AND GRAPHICS	*** -->
- <samigo:hideDivision title="#{templateMessages.graphics}" id="div12">
+ <samigo:hideDivision title="#{templateMessages.graphics}" id="div13">
     <div class="tier2">
  <div class="longtext"><h:outputLabel value="#{templateMessages.template_canbeedited}"/></div>
  <div class="tier3">
@@ -669,7 +636,7 @@
   </samigo:hideDivision>
 
   <!-- *** META *** -->
-  <samigo:hideDivision title="#{templateMessages.metadata}" id="div13">
+  <samigo:hideDivision title="#{templateMessages.metadata}" id="div14">
   <div class="tier2">
    <div class="longtext">
     <h:outputLabel value="#{templateMessages.record_data_for}"/></div>
@@ -680,11 +647,6 @@
       <h:selectBooleanCheckbox id="record_meta_full"
         value="#{template.valueMap.metadataAssess_isInstructorEditable}"/>
       <h:outputLabel for="record_meta_full" value="#{templateMessages.record_meta_full}"/>
-<%-- see bug# SAM-117 -- no longer required in Samigo
-      <h:selectBooleanCheckbox id="record_meta_parts"
-        value="#{template.valueMap.metadataParts_isInstructorEditable}"/>
-      <h:outputLabel for="record_meta_parts" value="#{templateMessages.record_meta_parts}"/>
---%>
       <h:selectBooleanCheckbox id="record_meta_questions"
         value="#{template.valueMap.metadataQuestions_isInstructorEditable}"/>
       <h:outputLabel for="record_meta_questions" value="#{templateMessages.record_meta_questions}"/>

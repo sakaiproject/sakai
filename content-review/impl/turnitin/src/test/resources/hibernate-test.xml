@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- read in the hibernate.properties file properties -->
+	<bean id="testPropertiesConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/hibernate.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- create a data source -->
+	<bean id="testDataSource"
+		  class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+		<property name="url" value="${hibernate.connection.url}"/>
+		<property name="username" value="${hibernate.connection.username}"/>
+		<property name="password" value="${hibernate.connection.password}"/>
+	</bean>
+
+	<!-- create a SessionFactory bean from the data source and point it at our HBMs, name it the same as the Sakai global one so we can reuse our other spring files -->
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="testDataSource" />
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>ContentReviewItem.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+				<prop key="hibernate.query.substitutions">true 1, false 0</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Create a transaction manager from the SessionFactory, name it the same as the Sakai one so we can reuse our other spring config files -->
+	<bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+</beans>

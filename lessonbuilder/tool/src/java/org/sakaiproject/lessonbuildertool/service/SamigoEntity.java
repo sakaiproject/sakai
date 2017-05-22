@@ -23,8 +23,8 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -85,7 +85,7 @@ import java.util.*;
 
 public class SamigoEntity implements LessonEntity, QuizEntity {
 
-    private static Log log = LogFactory.getLog(SamigoEntity.class);
+    private static Logger log = LoggerFactory.getLogger(SamigoEntity.class);
 
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -134,43 +134,11 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     public void init () {
 	assessmentCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.SamigoEntity.cache");
-	String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
 
-	// the samigo distributed with 2.8 final has the link
-	boolean defaultEditLink = false;
-	int cle = 2;
-	int major = 6;
-	int minor = 0;
-	if (sakaiVersion != null) {
-	    String []parts = sakaiVersion.split("\\.");
-	    if (parts.length >= 1) {
-		try {
-		    cle = Integer.parseInt(parts[0]);
-		} catch (Exception e) {
-		};
-	    }
-	    if (parts.length >= 2) {
-		try {
-		    String[] s = parts[1].split("\\D");
-		    major = Integer.parseInt(s[0]);
-		} catch (Exception e) {
-		};
-	    }
-	    // may be something like 2.8.1-foo, so must terminate on non-digit
-	    if (parts.length >= 3) {
-		try {
-		    String[] s = parts[2].split("\\D");
-		    minor = Integer.parseInt(s[0]);
-		} catch (Exception e) {
-		};
-	    }
-	    // samigo starting with 2.8.1 has the edit link
-	    if (cle > 2 || (cle == 2 && (major == 8 && minor > 0 || major > 8)))
-		defaultEditLink = true;
-	}
-	System.out.println("SamigoEntity thinks this is Sakai verison " + cle + "." + major + "." + minor + ", defaulting Samigo edit link to " + defaultEditLink);
 
-	samigo_linked = ServerConfigurationService.getBoolean("lessonbuilder.samigo.editlink", defaultEditLink);
+
+	samigo_linked = ServerConfigurationService.getBoolean("lessonbuilder.samigo.editlink", true);
+	log.info("SamigoEntity edit link " + samigo_linked);
 
 	log.info("init()");
 
@@ -271,7 +239,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	Session ses = SessionManager.getCurrentSession();
 
-	ArrayList<PublishedAssessmentFacade> plist = pService.getBasicInfoOfAllPublishedAssessments2("title", true, ToolManager.getCurrentPlacement().getContext());
+	List<PublishedAssessmentFacade> plist = pService.getBasicInfoOfAllPublishedAssessments2("title", true, ToolManager.getCurrentPlacement().getContext());
 
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
@@ -284,22 +252,22 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    }
 
 	    if (false) {  // testing
-		System.out.println(entity.getGroups(true));
+		log.info(entity.getGroups(true).toString());
 		List<String> oldGroups = entity.getGroups(true);
 		//5c51c1fb-bf48-475f-99a6-a303f5ad9520
 		//d579a252-204e-46cd-9720-7eca7bd47630
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups(true));
+		log.info("null " + entity.getGroups(true));
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups(true));
+		log.info("null " + entity.getGroups(true));
 		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520"));
-		System.out.println("5c51 " + entity.getGroups(true));
+		log.info("5c51 " + entity.getGroups(true));
 		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520","d579a252-204e-46cd-9720-7eca7bd47630"));
-		System.out.println("5c51,d579 " + entity.getGroups(true));
+		log.info("5c51,d579 " + entity.getGroups(true));
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups(true));
+		log.info("null " + entity.getGroups(true));
 		entity.setGroups(oldGroups);
-		System.out.println(oldGroups + " " + entity.getGroups(true));
+		log.info(oldGroups + " " + entity.getGroups(true));
 	    }
 
 	}
@@ -316,7 +284,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public LessonEntity getEntity(String ref, SimplePageBean o) {
 	// if the site was copied, all sakaiids for tests are set to something like /sam_core/NNN
-	// the problem is that published asessments aren't copied. So all we can do is poitn to
+	// the problem is that published assessments aren't copied. So all we can do is poitn to
 	// the core assessment. Of course you can't really take that, so we try to find a published
 	// assessment based on that core. If we find one, we fix up the sakaiids, and we're ok.
 	if (o != null && ref.startsWith("/sam_core/")) {
@@ -384,7 +352,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    else 
 		return a.getAssessmentMetaDataByLabel("ALIAS");
 	} catch (Exception ex) {
-	    System.out.println("exception " + ex);
+	    log.info("exception " + ex);
 	    return null;
 	}
     }
@@ -609,7 +577,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    String aid = assessment.getAssessmentId().toString();
 	    
 	    Document doc = exportObject(aid);
-	    System.out.println("foo " + doc.getElementsByTagName("questestinterop"));
+	    log.info("foo " + doc.getElementsByTagName("questestinterop"));
 	}
 
 	if (samigo_linked)
@@ -639,7 +607,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    QTIService qtiService = new QTIService();
 	    return qtiService.getExportedAssessment(assessmentId, QTIVersion.VERSION_1_2);
 	} catch (Exception e) {
-	    System.out.println("exception in exportobject " + e);
+	    log.info("exception in exportobject " + e);
 	    return null;
 	}
     }

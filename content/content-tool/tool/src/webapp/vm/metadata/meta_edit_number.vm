@@ -13,7 +13,7 @@
 
 #if($multipleMetadataType.contains($metadataType.uniqueName))
   #foreach($value in $metadataValue)
-    <input type="number" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}" value="$value"
+    <input class="form-control" type="number" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}" value="$value"
     	#if($metadataType.width)style='width:${metadataType.width}'#end 
     	#if($metadataType.minimumValue)min=${metadataType.minimumValue}#end
     	#if($metadataType.maximumValue)max=${metadataType.maximumValue}#end
@@ -21,7 +21,7 @@
     />
   #end
 #else
-  <input type="number" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}" value="$metadataValue"
+  <input class="form-control" type="number" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}" value="$metadataValue"
     #if($metadataType.width)style='width:${metadataType.width}'#end 
 	#if($metadataType.minimumValue)min=${metadataType.minimumValue}#end
     #if($metadataType.maximumValue)max=${metadataType.maximumValue}#end

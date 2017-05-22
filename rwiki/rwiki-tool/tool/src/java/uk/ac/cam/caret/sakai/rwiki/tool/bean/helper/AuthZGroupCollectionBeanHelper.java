@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -42,8 +42,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 
 public class AuthZGroupCollectionBeanHelper
 {
-	private static Log log = LogFactory
-			.getLog(AuthZGroupCollectionBeanHelper.class);
+	private static Logger log = LoggerFactory.getLogger(AuthZGroupCollectionBeanHelper.class);
 
 	public static AuthZGroupCollectionBean createAuthZCollectionBean(
 			AuthzGroupService realmService, RWikiObject currentRWikiObject,

@@ -15,6 +15,7 @@ import org.sakaiproject.user.api.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -93,7 +94,7 @@ public class AttendeeEmailTest {
     private void assertGenerates(int n) {
         final List<VEvent> events = _email.generateEvents(_mockedAttendingUser, _mockedCalendarHelper);
         assertEquals(n, events.size());
-        verify(_mockedCalendarHelper, times(n)).addUsersToVEvent(eq(_mockedEvent), any(List.class));
+        verify(_mockedCalendarHelper, times(n)).addUsersToVEvent(eq(_mockedEvent), any(Set.class));
     }
 
     private void userIsAttendingTimeslot(String userId, SignupTimeslot mockedTimeslot) {

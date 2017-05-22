@@ -28,20 +28,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
-    </dependency>
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-db-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
   </dependencies>
   <build>
     <resources>

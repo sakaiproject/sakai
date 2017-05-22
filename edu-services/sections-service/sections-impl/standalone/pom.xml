@@ -77,9 +77,8 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>jta</groupId>
+            <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
-            <version>h2.1.8</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
@@ -92,8 +91,8 @@
             <version>3.0</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -102,20 +101,10 @@
         <dependency>
             <groupId>commons-digester</groupId>
             <artifactId>commons-digester</artifactId>
-            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
         </dependency>
         <dependency>
             <groupId>dom4j</groupId>

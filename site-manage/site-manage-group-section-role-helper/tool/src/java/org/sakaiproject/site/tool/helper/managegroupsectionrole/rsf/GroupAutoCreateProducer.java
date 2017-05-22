@@ -2,8 +2,8 @@ package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
@@ -47,7 +47,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class GroupAutoCreateProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
 	/** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(GroupAutoCreateProducer.class);
+	private static final Logger M_log = LoggerFactory.getLogger(GroupAutoCreateProducer.class);
 	
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupAutoCreate";

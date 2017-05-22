@@ -11,6 +11,12 @@
 	<artifactId>sakai-message-bundle-manager-tool</artifactId>
 	<packaging>war</packaging>
 
+	<properties>
+		<maven.deploy.skip>true</maven.deploy.skip>
+		<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+	</properties>
+
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -27,7 +33,7 @@
 		<!-- thymeleaf template engine -->
 		<dependency>
 			<groupId>org.thymeleaf</groupId>
-			<artifactId>thymeleaf-spring3</artifactId>
+			<artifactId>thymeleaf-spring4</artifactId>
 			<version>2.1.4.RELEASE</version>
 		</dependency>
 		<!-- dandelion datatables -->
@@ -69,15 +75,6 @@
         </dependency>
 
 		<!-- third party dependencies -->
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
     	<dependency>
 	      <groupId>commons-lang</groupId>
 	      <artifactId>commons-lang</artifactId>

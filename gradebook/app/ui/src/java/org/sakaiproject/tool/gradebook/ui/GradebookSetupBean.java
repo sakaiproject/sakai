@@ -34,8 +34,8 @@ import java.math.BigDecimal;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
@@ -51,7 +51,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class GradebookSetupBean extends GradebookDependentBean implements Serializable
 {
-	private static final Log logger = LogFactory.getLog(GradebookSetupBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(GradebookSetupBean.class);
 
 	private String gradeEntryMethod;
 	private String categorySetting;
@@ -679,7 +679,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				return "failure";
 			}
 			catch (StaleObjectModificationException e) {
-				logger.error(e);
+				logger.error(e.getMessage());
 				FacesUtil.addErrorMessage(getLocalizedString("cat_locking_failure"));
 				return "failure";
 			}

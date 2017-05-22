@@ -33,19 +33,16 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.Locale;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.datetime.StyleDateConverter;
-import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.markup.html.form.select.IOptionRenderer;
 import org.apache.wicket.extensions.markup.html.form.select.Select;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.extensions.markup.html.form.select.SelectOptions;
-import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -95,6 +92,7 @@ import org.sakaiproject.sitestats.tool.wicket.models.ReportDefModel;
 import org.sakaiproject.sitestats.tool.wicket.models.ToolModel;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.DateFormatterUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -102,7 +100,7 @@ import org.sakaiproject.util.Web;
  */
 public class ReportsEditPage extends BasePage {
 	private static final long		serialVersionUID	= 1L;
-	private static Log				LOG					= LogFactory.getLog(ReportsEditPage.class);
+	private static Logger				LOG					= LoggerFactory.getLogger(ReportsEditPage.class);
 	private static final String		REPORT_THISSITE		= "this";
 	private static final String		REPORT_ALLSITES		= "all";
 
@@ -127,9 +125,14 @@ public class ReportsEditPage extends BasePage {
 	/** Ajax update lock */
 	private final ReentrantLock		ajaxUpdateLock	= new ReentrantLock();
 	private boolean					usersLoaded		= false;
-	private static Log log = LogFactory.getLog(ReportsEditPage.class);
+	private static Logger log = LoggerFactory.getLogger(ReportsEditPage.class);
 	
 	private transient Collator		collator		= Collator.getInstance();
+	
+	private static String 			HIDDEN_WHENFROM_ISO8601 = "whenFromISO8601";
+	private static String 			HIDDEN_WHENTO_ISO8601 = "whenToISO8601";
+	private static String 			DATEPICKER_FORMAT = "yyyy-MM-dd HH:mm:ss";
+	
 	{
 		try{
 			collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
@@ -197,6 +200,8 @@ public class ReportsEditPage extends BasePage {
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYUISCRIPT));
+		response.render(JavaScriptHeaderItem.forUrl(DATEPICKERSCRIPT));
 		response.render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP + "/script/reports.js"));
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("checkWhatSelection();");
@@ -205,6 +210,8 @@ public class ReportsEditPage extends BasePage {
         onDomReady.append("checkHowSelection();");
         onDomReady.append("checkReportDetails();");
         onDomReady.append("checkHowChartSelection();");
+        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenFrom", DateFormatterUtil.format(getReportParams().getWhenFrom(), DATEPICKER_FORMAT, getSession().getLocale())));
+        onDomReady.append(String.format("loadJQueryDatePicker('%s','%s');", "whenTo", DateFormatterUtil.format(getReportParams().getWhenTo(), DATEPICKER_FORMAT, getSession().getLocale())));
 		response.render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
 	}
 	
@@ -263,6 +270,7 @@ public class ReportsEditPage extends BasePage {
 		final Button generateReport = new Button("generateReport") {
 			@Override
 			public void onSubmit() {
+				setISODates();
 				if(validReportParameters()) {
 					if(predefined) {
 						getReportParams().setSiteId(siteId);
@@ -276,6 +284,7 @@ public class ReportsEditPage extends BasePage {
 		final Button saveReport = new Button("saveReport") {
 			@Override
 			public void onSubmit() {
+				setISODates();
 				if(validReportParameters()) {
 					if(getReportDef().getTitle() == null || getReportDef().getTitle().trim().length() == 0) {
 						error((String) new ResourceModel("report_reporttitle_req").getObject());
@@ -546,18 +555,8 @@ public class ReportsEditPage extends BasePage {
 		form.add(when);
 		
 		// custom dates
-		form.add(new DateTimeField("reportParams.whenFrom") {			
-			@Override
-			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
-				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
-			}
-		});
-		form.add(new DateTimeField("reportParams.whenTo") {			
-			@Override
-			protected DateTextField newDateTextField(String id, PropertyModel dateFieldModel) {
-				return new DateTextField(id, dateFieldModel, new StyleDateConverter("S-", true));
-			}
-		});
+		form.add(new TextField<String>("whenFrom", Model.of("")));
+		form.add(new TextField<String>("whenTo", Model.of("")));
 	}
 	
 	
@@ -605,7 +604,6 @@ public class ReportsEditPage extends BasePage {
 			protected void onUpdate(AjaxRequestTarget target) {
 				if(ReportManager.WHO_CUSTOM.equals(getReportParams().getWho())) {
 					addUsers(selectOptionsRV);
-					whoUserIds.add(new AttributeModifier("style", new Model("width: 300px")));
 					who.remove(this);
 					whoUserIds.add(new AttributeModifier("onchange", new Model("checkWhoSelection();")));
 					target.add(who);
@@ -1363,6 +1361,18 @@ public class ReportsEditPage extends BasePage {
 			
 		}
 		
+	}
+
+	private void setISODates(){
+		String whenFrom = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENFROM_ISO8601).toString("");
+		String whenTo = getRequest().getRequestParameters().getParameterValue(HIDDEN_WHENTO_ISO8601).toString("");
+		if(DateFormatterUtil.isValidISODate(whenFrom)){
+			getReportParams().setWhenFrom(DateFormatterUtil.parseISODate(whenFrom));
+		}
+
+		if(DateFormatterUtil.isValidISODate(whenTo)){
+			getReportParams().setWhenTo(DateFormatterUtil.parseISODate(whenTo));
+		}
 	}
 }
 

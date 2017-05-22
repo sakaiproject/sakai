@@ -28,8 +28,8 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.filter.regex.LocaleRegexTokenFilter;
 import org.radeox.regex.MatchResult;
@@ -45,7 +45,7 @@ import org.radeox.regex.MatchResult;
 
 public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 {
-	private static Log log = LogFactory.getLog(ListFilter.class);
+	private static Logger log = LoggerFactory.getLogger(ListFilter.class);
 
 	private final static Map openList = new HashMap();
 
@@ -70,7 +70,7 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 		super();
 		openList.put(new Character('-'), "<ul class=\"minus\">");
 		openList.put(new Character('*'), "<ul class=\"star\">");
-		openList.put(new Character('#'), "<ol>");
+		openList.put(new Character('#'), "<ol class=\"decimal\">");
 		openList.put(new Character('i'), "<ol class=\"roman\">");
 		openList.put(new Character('I'), "<ol class=\"ROMAN\">");
 		openList.put(new Character('a'), "<ol class=\"alpha\">");

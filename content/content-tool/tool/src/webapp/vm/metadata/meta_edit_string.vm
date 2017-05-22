@@ -14,17 +14,17 @@
 #if($multipleMetadataType.contains($metadataType.uniqueName))
   #foreach($value in $metadataValue)
     #if($metadataType.longText)
-    <textarea name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}">$value</textarea>
+    <textarea class="form-control" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}">$value</textarea>
     #else
-    <input type="text" size="40" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}"
+    <input class="form-control" type="text" size="40" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}"
            value="$value"/>
     #end
   #end
 #else
   #if($metadataType.longText)
-  <textarea name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}">$metadataValue</textarea>
+  <textarea class="form-control" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}">$metadataValue</textarea>
   #else
-  <input type="text" size="40" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}"
+  <input class="form-control" type="text" size="40" name="${metadataType.uniqueName}${suffix}" id="${metadataType.uniqueName}${suffix}"
          value="$metadataValue"/>
   #end
 #end

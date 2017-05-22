@@ -30,8 +30,8 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationCollectionOrder;
@@ -64,7 +64,7 @@ public class CitationListAccessServlet implements HttpAccess
 	protected static ResourceLoader rb = new ResourceLoader("citations");
 	
 	/** Our logger. */
-	private static Log m_log = LogFactory.getLog(CitationListAccessServlet.class);
+	private static Logger m_log = LoggerFactory.getLogger(CitationListAccessServlet.class);
 
 	private static final Collection<String> specialKeys = new HashSet<String>();
 	static {
@@ -321,9 +321,9 @@ public class CitationListAccessServlet implements HttpAccess
 					+ Validator.escapeHtml(title)
 					+ "</title>\n"
 					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
-					+ "<link href=\"/library/skin/default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+					+ "<link href=\"/library/skin/" + ServerConfigurationService.getString("skin.default") + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/sakai-citations-tool/css/citations.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
-					+ "<script type=\"text/javascript\" src=\"/library/js/jquery.js\"></script>\n"
+					+ "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.11.3/jquery.min.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/view_nested_citations.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/jquery.googlebooks.thumbnails.js\"></script>\n"
@@ -345,13 +345,14 @@ public class CitationListAccessServlet implements HttpAccess
     		}
 
 		out.println("<div class=\"portletBody\">\n\t<div class=\"listWidth citationList\">");
+		boolean isPrintView = req.getParameter("printView")!=null;
 		out.println("\t<div style=\"width: 100%; height: 90px; line-height: 90px; background-color:" +
 					ServerConfigurationService.getString("official.institution.background.colour") +"; \">" +
 					"<div class=\"banner\"><h1 style=\" margin-left:15px; color:" + ServerConfigurationService.getString("official.institution.text.colour") + ";\">" +
 					Validator.escapeHtml(title) + "</h1></div> " +
 					"<div class=\"bannerLinks\">"  +
-					"<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>" +
-					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" + "" + "    </div>");
+					(!isPrintView ? "<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>"  : "") +
+					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" + "</div>");
     		out.println("<div style=\"clear:both;\"></div>");
     		if( introduction != null && !introduction.trim().equals("") )
     		{
@@ -514,7 +515,10 @@ public class CitationListAccessServlet implements HttpAccess
 			out.println("\t\t\t</table></div></div>");
 
 			// rhs links
-			out.println("\t\t\t<div class=\"itemAction links\" style=\"width:20%\">");
+			out.println("\t\t\t<div>");
+			if( citation.hasCustomUrls() || citation.getCitationProperty("otherIds") instanceof Vector){
+				out.println("\t\t\t<div class=\"itemAction links\" style=\"width:20%\">");
+			}
 			if( citation.hasCustomUrls() )
 			{
 				List<String> customUrlIds = citation.getCustomUrlIds();
@@ -545,6 +549,9 @@ public class CitationListAccessServlet implements HttpAccess
 					out.println("\t\t\t\t<a href=\"" + ((Vector) citation.getCitationProperty("otherIds")).get(0) + "\" target=\"_blank\">"
 							+ "Find it" + " on SOLO" + "</a>");
 				}
+			}
+			if( citation.hasCustomUrls() || citation.getCitationProperty("otherIds") instanceof Vector){
+				out.println("\t\t\t</div>");
 			}
 			// TODO This doesn't need any Inline HTTP Transport.
 			out.println("\t\t\t\t<span class=\"Z3988\" title=\""+ citation.getOpenurlParameters().substring(1).replace("&", "&amp;")+ "\"></span>");
@@ -670,15 +677,23 @@ public class CitationListAccessServlet implements HttpAccess
 					for (CitationCollectionOrder h2Section : nestedSection.getChildren()) {
 						editorDivId = "sectionInlineEditor" + h2Section.getLocation();
 						linkId = "link" + h2Section.getLocation();
+						linkClick = "linkClick" + h2Section.getLocation();
+						toggleImgDiv = "toggleImgDiv" + h2Section.getLocation();
+						toggleImg = "toggleImg" + h2Section.getLocation();
 						addSubsectionId = "addSubsection" + h2Section.getLocation();
 
 
 						if (h2Section.getSectiontype().toString().equals("HEADING2")){
 
-							out.println("<li id = '" + linkId + "' class='h2Section' data-location='" + h2Section.getLocation() + "' data-sectiontype='" +
+							out.println("<li id = '" + linkId + "' class='h2Section " +
+									(h2Section.getChildren().size() > 0 ? " hasSections" : "") + "' data-location='"
+									+ h2Section.getLocation() + "' data-sectiontype='" +
 									h2Section.getSectiontype() + "' style='background: #cef none repeat scroll 0 0;'>" +
+									"<div id='" + linkClick +"' style='width:100%;'><div id='" + toggleImgDiv + "'>" +
+									(h2Section.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
+											"src='/library/image/sakai/collapse.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 									"<div id = '" + editorDivId + "' class='editor h2Editor' style='min-height:30px; padding:5px;'>" +
-									(h2Section.getValue()!=null ? h2Section.getValue() : "") + "</div>");
+									(h2Section.getValue()!=null ? h2Section.getValue() : "") + "</div></div>");
 
 							// h3 sections
 							if (h2Section.getChildren().size() > 0) {
@@ -686,15 +701,22 @@ public class CitationListAccessServlet implements HttpAccess
 								for (CitationCollectionOrder h3Section : h2Section.getChildren()) {
 									editorDivId = "sectionInlineEditor" + h3Section.getLocation();
 									linkId = "link" + h3Section.getLocation();
+									linkClick = "linkClick" + h3Section.getLocation();
+									toggleImgDiv = "toggleImgDiv" + h3Section.getLocation();
+									toggleImg = "toggleImg" + h3Section.getLocation();
 									addSubsectionId = "addSubsection" + h3Section.getLocation();
 
 									if (h3Section.getSectiontype().toString().equals("HEADING3")){
 
-										out.println("<li id = '" + linkId + "' class='h3Section' data-location='" + h3Section.getLocation() + "' data-sectiontype='" +
+										out.println("<li id = '" + linkId + "' class='h3Section " +
+												(h3Section.getChildren().size() > 0 ? " hasSections" : "") + " ' data-location='" + h3Section.getLocation() + "' data-sectiontype='" +
 												h3Section.getSectiontype() + "'>" +
+												"<div id='" + linkClick +"' style='width:100%;'><div id='" + toggleImgDiv + "'>" +
+												(h3Section.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
+														"src='/library/image/sakai/collapse.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 												"<div style='' id = '" + editorDivId + "' class='editor h3Editor' " +
 												"style='padding-left:20px; '>" +
-												"<div style=''>" + (h3Section.getValue()!=null ? h3Section.getValue() : "") + "</div></div>");
+												"<div style=''>" + (h3Section.getValue()!=null ? h3Section.getValue() : "") + "</div></div></div>");
 
 										//  nested citations
 										if (h3Section.getChildren().size() > 0) {

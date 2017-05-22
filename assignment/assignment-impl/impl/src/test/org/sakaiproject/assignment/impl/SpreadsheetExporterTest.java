@@ -16,7 +16,7 @@ public class SpreadsheetExporterTest {
 
     @Test
     public void testSimpleCSV() throws IOException {
-        SpreadsheetExporter exporter = SpreadsheetExporter.getInstance(SpreadsheetExporter.Type.CSV, "title", "type");
+        SpreadsheetExporter exporter = SpreadsheetExporter.getInstance(SpreadsheetExporter.Type.CSV, "title", "type", ",");
         exporter.addHeader("header");
         exporter.addRow("row1", "row1");
         exporter.addRow("row2", "row2");
@@ -29,7 +29,7 @@ public class SpreadsheetExporterTest {
 
     @Test
     public void testSimpleExcel() throws IOException {
-        SpreadsheetExporter exporter = SpreadsheetExporter.getInstance(SpreadsheetExporter.Type.EXCEL, "title", "type");
+        SpreadsheetExporter exporter = SpreadsheetExporter.getInstance(SpreadsheetExporter.Type.EXCEL, "title", "type", ",");
         exporter.addHeader("header");
         exporter.addRow("row1", "row1");
         exporter.addRow("row2", "row2");

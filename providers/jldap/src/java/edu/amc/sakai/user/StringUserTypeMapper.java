@@ -20,8 +20,8 @@
  **********************************************************************************/
 package edu.amc.sakai.user;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.novell.ldap.LDAPEntry;
 
@@ -35,7 +35,7 @@ import com.novell.ldap.LDAPEntry;
 public class StringUserTypeMapper implements UserTypeMapper {
 	
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(StringUserTypeMapper.class);
+	private static Logger M_log = LoggerFactory.getLogger(StringUserTypeMapper.class);
 	
 	private String userType;
 	

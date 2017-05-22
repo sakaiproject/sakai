@@ -22,15 +22,17 @@ package org.sakaiproject.signup.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -66,7 +68,7 @@ import org.springframework.dao.OptimisticLockingFailureException;
  */
 public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, MeetingTypes, SignupMessageTypes {
 
-	private static Log log = LogFactory.getLog(SignupMeetingServiceImpl.class);
+	private static Logger log = LoggerFactory.getLogger(SignupMeetingServiceImpl.class);
 
 	@Getter @Setter
 	private SignupMeetingDao signupMeetingDao;
@@ -1097,13 +1099,21 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 	 */
 	public void removeMeetings(List<SignupMeeting> meetings) throws Exception {
 		signupMeetingDao.removeMeetings(meetings);
+		Set<Long> sent = new HashSet<Long>();
 				
 		for(SignupMeeting m: meetings) {
 			if(!m.isMeetingExpired()) {
-				log.info("Meeting is still available, email notifications will be sent");
-				//SIGNUP-188 :If an event is cancelled, all the site members get an email
-				m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES);
-				signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
+				//Only send once per recurrenceid
+				if (!sent.contains(m.getRecurrenceId())) {
+					sent.add(m.getRecurrenceId());
+					log.info("Meeting is still available, email notifications will be sent");
+					//SIGNUP-188 :If an event is cancelled, all the site members get an email
+					m.setSendEmailToSelectedPeopleOnly(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES);
+					signupEmailFacade.sendEmailAllUsers(m, SignupMessageTypes.SIGNUP_CANCEL_MEETING);
+				}
+				else {
+					log.debug("Not sending email for duplicate reurrenceId: {}", m.getRecurrenceId());
+				}
 			}
 		}
 	}

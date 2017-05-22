@@ -1,0 +1,120 @@
+.checklistProgressPageHeader {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+}
+
+.checklistProgressHeader {
+    margin-left: 1em;
+    padding: .5em .5em 0 .5em;
+}
+
+.checklistItemList {
+    list-style-type: decimal;
+    margin-left: 2em;
+}
+
+/* tables */
+table.checklistProgressTable {
+    border-collapse: collapse;
+    width: auto;
+    background-color: #f0f0f0;
+    margin: 1em 0 1em 2em;
+}
+
+table.checklistProgressTable thead tr th, table.checklistProgressTable tfoot tr th {
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+table.checklistProgressTable thead tr .header {
+    background-image: url(../images/bg.gif);
+    background-repeat: no-repeat;
+    background-position: right center;
+    cursor: pointer;
+}
+
+table.checklistProgressTable tbody td {
+    color: #3D3D3D;
+    vertical-align: middle;
+    width: 50px;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+}
+
+table.checklistProgressTable thead tr .headerSortUp {
+    background-image: url(../images/asc.gif);
+}
+
+table.checklistProgressTable thead tr .headerSortDown {
+    background-image: url(../images/desc.gif);
+}
+
+td.checkedOff {
+    background-color: #BDFCC9 !important;
+}
+
+th.row-header {
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+}
+.progress-navigation {
+    display: inline-block;
+    font-weight: bold;
+}
+
+.progress-navigation ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.progress-navigation li {
+    display: block;
+    margin: 0 12px 0 4px;
+    position: relative;
+    text-decoration: none;
+}
+
+#checklist-title {
+    padding-right: 4px;
+}
+
+.progress-navigation li a, .progress-navigation li span {
+    text-decoration: none;
+}
+
+.progress-navigation li:hover {
+@include transition(background, 0.2s);
+    cursor: pointer;
+}
+
+.progress-navigation ul li ul {
+    visibility: hidden;
+    min-width: 150px;
+    position: absolute;
+    transition: visibility 0.65s ease-in;
+    left: 0;
+    z-index: 999;
+    border: 1px solid #ccc;
+}
+
+.progress-navigation ul li:hover > ul,
+.progress-navigation ul li ul:hover {
+    visibility: visible;
+}
+
+.progress-navigation ul li ul li {
+    clear: both;
+    padding: 5px 10px;
+    width: 100%;
+    background: #f0f0f0;
+    white-space: nowrap;
+    margin: 0;
+}
+
+p.checklistDescription {
+    width: 60%;
+}

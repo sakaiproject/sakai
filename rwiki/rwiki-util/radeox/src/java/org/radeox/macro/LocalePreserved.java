@@ -3,8 +3,8 @@ package org.radeox.macro;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 
@@ -33,7 +33,7 @@ import org.radeox.api.engine.context.RenderContext;
 
 public abstract class LocalePreserved extends Preserved implements LocaleMacro
 {
-	private static Log log = LogFactory.getLog(LocalePreserved.class);
+	private static Logger log = LoggerFactory.getLogger(LocalePreserved.class);
 
 	private String name;
 

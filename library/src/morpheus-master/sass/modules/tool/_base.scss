@@ -1,0 +1,207 @@
+
+.#{$namespace}pageColumns--single {
+	.#{$namespace}toolTitleNav__button_container {
+		top: -34px;
+		right: 10px;
+		position: absolute;
+		float: none;
+		left: initial;
+	}
+}
+
+.#{$namespace}multipleTools{
+	padding-top: 4px;
+
+	.#{$namespace}container {
+		border: 1px solid $overview-portlet-border-color;
+		box-shadow: $overview-portlet-shadow;
+		margin-bottom: 20px;
+
+		@media #{$tablet} {
+		  margin: 0 7px 10px !important;
+		}
+
+		&.#{$namespace}toolTitleNav.#{$namespace}container.#{$namespace}container--toolTitleNav {
+			border-top: 0;
+			border-left: 0;
+			border-right: 0;
+			box-shadow: none;
+			margin: 0 !important;
+		}
+
+		.#{$namespace}container--toolTitleNav {
+			background-color: $overview-portlet-title-background-color;
+			border-bottom: 1px solid $overview-portlet-border-color;
+			padding: 0.6em;
+  	}
+
+		.#{$namespace}toolBody {
+			border-bottom: none;
+		}
+  }
+
+	.#{$namespace}toolTitleNav__button_container {
+		position: absolute;
+		float: right;
+		top: 0;
+		right: 4px;
+
+		@media #{$tablet}{
+			font-size: 1.2em;
+		}
+  }
+
+	.#{$namespace}toolTitleNav{
+		.#{$namespace}toolTitleNav__title{
+			display: inline-block;
+			font-size: 0.9em;
+			font-weight: 400;
+			margin: 0;
+			position: relative;
+			width: calc(100% - 90px);
+			a{
+				margin-right: 0.25em;
+			}
+		}
+	}
+}
+
+.#{$namespace}toolTitleNav{
+	margin: 0;
+	position: relative;
+	.#{$namespace}toolTitleNav__title{
+		display: none;
+		& ~ .#{$namespace}toolTitleNav__button_container > .#{$namespace}directUrl__dropDown{
+			display: none;
+			.dropDown_close{
+				color: #952525;
+				cursor: pointer;
+				float: right;
+				@media #{$phone}{
+					font-size: 1.4em;
+				}
+			}
+			&.active{
+				padding: 0.8em;
+				position:   absolute;
+				display:    block;
+				background: #FFF;
+				width: 250px;
+				margin: 10px 0 0 -250px;
+				z-index: 2;
+				box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
+				label{
+					font-size: $default-font-size;
+					margin: 5px 0 0 5px;
+					vertical-align: middle;
+				}
+				textarea{
+					display: block;
+					height: 120px;
+					margin: 0.5em 0 0 0;
+					width: 98%;
+				}
+				@media #{$phone}{
+					margin: -1px 0 0 -214px;
+				}
+			}
+		}
+	}
+
+	.#{$namespace}toolTitleNav__link{
+		@include sakai_secondary_button();
+
+		margin-right: 0.25em;
+		padding: 0.4em 0.8em 0.45em 0.8em;
+		vertical-align: 0%;
+		line-height: 1em;
+
+		&:before {
+			@extend .fa;
+		}
+
+		@media #{$tablet}{
+			margin-right: 0em;
+		}
+		&--directurl{
+			@extend .fa;
+			@extend .fa-link;
+			/*position: absolute;
+			right: #{$icon-size * 1.5};*/
+		}
+		&--help-popup{
+			@extend .fa;
+			@extend .fa-question;
+		}
+		&--edit{
+			@extend .fa;
+			@extend .fa-pencil;
+		}
+		&--reset{
+			@extend .fa;
+			@extend .fa-share;
+			display: none;
+			font-size: 0.9em;
+			float: left;
+		}
+		.#{$namespace}itemTitle{
+			@media #{$tablet}{
+				display: none;
+			}
+		}
+	}
+
+}
+
+.#{$namespace}toolBody{
+	background: $tool-background-color;
+	border-bottom: 1px solid $tool-border-color;
+	iframe{
+		margin: 0 0 0 0;
+		width: 100%;
+	}
+}
+
+.portletBody{
+	background: $tool-background-color;
+	padding: $default-font-size $default-font-size 40px $default-font-size;
+	@media #{$phone}{
+		margin: 2.3em 0 0 0;
+	}
+	> * {
+		position: relative;
+		top: -2px;
+	}
+	> .modal {
+		position: fixed;
+	}
+}
+
+.itemNav{
+	float: right;
+	vertical-align: bottom;
+	text-align: right;
+	line-height: 2em;
+	clear: both;
+	margin: 1em 0 0.5em 0;
+	white-space: nowrap;
+	a{
+		white-space: nowrap;
+	}
+	@media #{$phone}{
+		text-align: center;
+		white-space: normal;
+		input[type="text"], input[type="button"], input[type="reset"], input[type="submit"],button {
+			margin: 0.25em 0.1em 0.25em 0;
+		}
+	}
+
+}
+
+.validationEmbedded,.validation{
+	@extend .bs-callout-primary;
+}
+
+.alertMessage{
+	@extend .bs-callout-danger;
+}

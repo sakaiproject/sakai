@@ -13,82 +13,46 @@
 	<groupId>org.sakaiproject.dash</groupId>
 	<artifactId>dashboard-impl</artifactId>
 
-	<packaging>jar</packaging>
-	<profiles>
-	    <profile>
-		<id>sakai10</id>
-		<activation>
-		    <activeByDefault>true</activeByDefault>
-		</activation>
-		<!-- Spring, Hibernate & Quartz -->
-		<dependencies>
-		    <dependency>
-			    <groupId>org.hibernate</groupId>
-			    <artifactId>hibernate-core</artifactId>
-		    </dependency>
-		    <!-- needed by hibernate unit tests -->
-		    <dependency>
-			    <groupId>org.hibernate</groupId>
-			    <artifactId>hibernate-ehcache</artifactId>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.springframework</groupId>
-			    <artifactId>spring-core</artifactId>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.springframework</groupId>
-			    <artifactId>spring-beans</artifactId>
-		    </dependency>
-		    <dependency>
-			    <groupId>org.springframework</groupId>
-			    <artifactId>spring-context</artifactId>
-		    </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-orm</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <scope>test</scope>
-            </dependency>
-		    <dependency>
-			    <groupId>org.quartz-scheduler</groupId>
-			    <artifactId>quartz</artifactId>
-		    </dependency>
-		</dependencies>
-	    </profile>
-
-	    <profile>
-		<id>sakai2.9</id>
-		<dependencies>
-		    <dependency>
-			    <groupId>org.hibernate</groupId>
-			    <artifactId>hibernate</artifactId>
-		    </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring</artifactId>
-                <version>${sakai.spring.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-mock</artifactId>
-                <version>2.0.8</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.opensymphony.quartz</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${sakai.quartz.version}</version>
-            </dependency>
-		</dependencies>
-	    </profile>
-	</profiles>
-
-	<dependencies>
-		<!-- project dependencies -->
+	<packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <!-- needed by hibernate unit tests -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <!-- project dependencies -->
         <dependency>
             <groupId>org.sakaiproject.dash</groupId>
             <artifactId>dashboard-api</artifactId>
@@ -100,6 +64,10 @@
         <dependency>
             <groupId>org.sakaiproject.dash</groupId>
             <artifactId>dashboard-hbm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.dash</groupId>
+            <artifactId>dashboard-bundles</artifactId>
         </dependency>
 		<dependency>
 			<groupId>org.sakaiproject.assignment</groupId>
@@ -162,24 +130,15 @@
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>
-            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
         </dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
@@ -195,14 +154,6 @@
             <artifactId>guava</artifactId>
             <version>r09</version>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
 
 		<!-- Non-Spring testing dependencies -->
 		<dependency>
@@ -215,6 +166,12 @@
 			<artifactId>commons-dbcp</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -238,12 +195,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<!-- 
-	                By default, the surefire plugin will automatically include all test classes with the following wildcard patterns:
-	                "**/Test*.java" - includes all of its subdirectory and all java filenames that start with "Test".
-	                "**/*Test.java" - includes all of its subdirectory and all java filenames that end with "Test".
-	                "**/*TestCase.java" - includes all of its subdirectory and all java filenames that end with "TestCase".
-	            -->
 			</plugin>
 		</plugins>
 		<testResources>
@@ -257,6 +208,7 @@
 				<directory>${basedir}/src/test</directory>
 				<includes>
 					<include>test.xml</include>
+					<include>log4j.properties</include>
 					<!-- <include>hibernate.properties</include> -->
 				</includes>
 			</testResource>

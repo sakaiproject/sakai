@@ -12,13 +12,15 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.sql.DataSource;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.MethodUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.sakaiproject.content.impl.ContentServiceSqlDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
@@ -31,7 +33,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
  * @author Jaques
  */
 public class StorageConverter {
-    private static final Log log = LogFactory.getLog(StorageConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(StorageConverter.class);
 
     /**
      * The datasource for the database connections.
@@ -404,6 +406,6 @@ public class StorageConverter {
      * Print the text to the screen.
      */
     private static void print(String text){
-        System.out.println(text);
+        log.info(text);
     }
 }

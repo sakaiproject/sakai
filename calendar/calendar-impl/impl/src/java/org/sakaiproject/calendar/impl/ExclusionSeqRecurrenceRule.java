@@ -28,8 +28,8 @@ import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
@@ -49,7 +49,7 @@ public class ExclusionSeqRecurrenceRule
 	implements RecurrenceRule
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(ExclusionSeqRecurrenceRule.class);
+	private static Logger M_log = LoggerFactory.getLogger(ExclusionSeqRecurrenceRule.class);
 
 	/** The list of sequence number (Integer) values to exclude. */
 	protected List m_exclusions = null;

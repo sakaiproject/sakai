@@ -30,8 +30,8 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.search.util.FileUtils;
 
 /**
@@ -41,7 +41,7 @@ import org.sakaiproject.search.util.FileUtils;
 public class FileUtilsTest extends TestCase
 {
 
-	private static final Log log = LogFactory.getLog(FileUtilsTest.class);
+	private static final Logger log = LoggerFactory.getLogger(FileUtilsTest.class);
 	private File testSpace;
 
 	/**

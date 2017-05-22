@@ -22,8 +22,8 @@
 package org.sakaiproject.memory.impl;
 
 import com.hazelcast.core.IMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.memory.api.CacheLoader;
 import org.sakaiproject.memory.api.CacheStatistics;
 
@@ -37,7 +37,7 @@ import java.util.Set;
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public class HazelcastCache<K, V> extends BasicMapCache<K, V> {
-    final Log log = LogFactory.getLog(HazelcastCache.class);
+    final Logger log = LoggerFactory.getLogger(HazelcastCache.class);
 
     private IMap<K, V> cache;
 

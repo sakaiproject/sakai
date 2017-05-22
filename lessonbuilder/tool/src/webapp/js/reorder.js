@@ -15,7 +15,8 @@
                 dropMarker: "layoutReorderer-dropMarker",
                 avatar: "layoutReorderer-avatar"
             },
-            disableWrap: true
+            disableWrap: true,
+            containerRole: fluid.reorderer.roles.LIST
         });
     };
 })(jQuery, fluid);

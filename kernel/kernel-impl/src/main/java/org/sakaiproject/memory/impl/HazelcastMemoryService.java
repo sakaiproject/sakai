@@ -29,9 +29,9 @@ import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -51,7 +51,7 @@ import java.util.*;
  */
 public class HazelcastMemoryService implements MemoryService {
 
-    final Log log = LogFactory.getLog(HazelcastMemoryService.class);
+    final Logger log = LoggerFactory.getLogger(HazelcastMemoryService.class);
 
     ServerConfigurationService serverConfigurationService;
     SecurityService securityService;

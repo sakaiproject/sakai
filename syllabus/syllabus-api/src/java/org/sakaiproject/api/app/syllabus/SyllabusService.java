@@ -51,6 +51,11 @@ public interface SyllabusService extends EntityProducer
 	
 	//permission convert
 	public static final String PERMISSION_UPDATE = "syllabus.update"; 
+	
+	public static final String SECURE_ADD_ITEM = "syllabus.add.item";
+	public static final String SECURE_BULK_ADD_ITEM = "syllabus.bulk.add.item";
+	public static final String SECURE_BULK_EDIT_ITEM = "syllabus.bulk.edit.item";
+	public static final String SECURE_REDIRECT = "syllabus.redirect";
 		
 	public void postNewSyllabus(SyllabusData data);
 	
@@ -78,5 +83,11 @@ public interface SyllabusService extends EntityProducer
 	public String getSyllabusApplicationSiteReference(String thisSiteId);
 	
 	public boolean checkPermission(String lock, String reference);
-
+	
+	public boolean checkPermission (String lock);
+	
+	//Checks if a user can add or edit on a reference
+	public boolean checkAddOrEdit (String reference);
+	//Checks if a user can add or edit the current site
+	public boolean checkAddOrEdit ();
 }

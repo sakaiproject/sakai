@@ -18,8 +18,8 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 
@@ -30,7 +30,7 @@ import org.sakaiproject.event.api.EventTrackingService;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class StudentViewBean extends ViewByStudentBean implements Serializable {
-	private static Log logger = LogFactory.getLog(StudentViewBean.class);
+	private static Logger logger = LoggerFactory.getLogger(StudentViewBean.class);
 	
 	private String studentUidToView;
 	private String instViewReturnToPage;

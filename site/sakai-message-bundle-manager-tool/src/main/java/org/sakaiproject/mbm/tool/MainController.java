@@ -22,8 +22,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.apachecommons.CommonsLog;
-
+import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -65,7 +64,7 @@ import com.github.dandelion.datatables.extras.spring3.ajax.DatatablesParams;
  *         (earle.nietzel@gmail.com)
  *
  */
-@CommonsLog
+@Slf4j
 @Controller
 public class MainController {
 

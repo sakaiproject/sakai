@@ -30,8 +30,8 @@ import java.util.HashMap;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.Entity;
@@ -60,7 +60,7 @@ import org.sakaiproject.exception.PermissionException;
 
 public class UserPrefsEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, RequestStorable {
 
-	private static Log log = LogFactory.getLog(UserPrefsEntityProvider.class);
+	private static Logger log = LoggerFactory.getLogger(UserPrefsEntityProvider.class);
 	public static String PREFIX = "userPrefs";
 	private PreferencesService preferencesService;
 	private SessionManager sessionManager;
@@ -315,8 +315,16 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 			for (Iterator<String> iNames = p.getPropertyNames(); iNames.hasNext();)
 			{
 				String name = iNames.next();
-				String value = p.getProperty(name);
-				rv.put(name, value);
+				List<String> values = p.getPropertyList(name);
+
+				if (values.size() == 1) {
+					rv.put(name, values.get(0));
+				} else if (values.size() > 1) {
+					rv.put(name, values);
+				} else {
+					rv.put(name, null);
+					log.info("No value for property '%s'. Setting null ...", name);
+				}
 			}
 		}
 		return rv;

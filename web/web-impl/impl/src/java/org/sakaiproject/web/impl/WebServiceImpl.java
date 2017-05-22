@@ -29,8 +29,8 @@ import java.util.Stack;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -56,7 +56,7 @@ import org.w3c.dom.NodeList;
 public class WebServiceImpl implements WebService, EntityTransferrer
 {
 	
-	private static Log M_log = LogFactory.getLog(WebServiceImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(WebServiceImpl.class);
 	
 	private static final String TOOL_ID = "sakai.iframe";
 	

@@ -3,23 +3,20 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.text.MessageFormat;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-public class DeleteItemPanel extends Panel {
+/**
+ * Panel handling the delete of a gb item
+ */
+public class DeleteItemPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
-	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
 
 	private final ModalWindow window;
 
@@ -36,7 +33,7 @@ public class DeleteItemPanel extends Panel {
 
 		final Form<Long> form = new Form("form", Model.of(assignmentId));
 
-		final AjaxButton submit = new AjaxButton("submit") {
+		final GbAjaxButton submit = new GbAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -48,14 +45,14 @@ public class DeleteItemPanel extends Panel {
 
 				DeleteItemPanel.this.businessService.removeAssignment(assignmentIdToDelete);
 
-				getSession().info(MessageFormat.format(getString("delete.success"), assignmentTitle));
-				setResponsePage(new GradebookPage());
+				getSession().success(MessageFormat.format(getString("delete.success"), assignmentTitle));
+				setResponsePage(GradebookPage.class);
 			}
 
 		};
 		form.add(submit);
 
-		final AjaxButton cancel = new AjaxButton("cancel") {
+		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

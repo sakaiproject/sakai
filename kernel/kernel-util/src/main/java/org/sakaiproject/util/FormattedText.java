@@ -21,8 +21,8 @@
 
 package org.sakaiproject.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.api.FormattedText.Level;
 import org.sakaiproject.util.api.MockFormattedText;
@@ -39,14 +39,14 @@ import java.text.NumberFormat;
 @Deprecated
 public class FormattedText {
 
-    private static final Log log = LogFactory.getLog(FormattedText.class);
+    private static final Logger log = LoggerFactory.getLogger(FormattedText.class);
 
     private static Object LOCK = new Object();
     private static org.sakaiproject.util.api.FormattedText formattedText;
     protected static org.sakaiproject.util.api.FormattedText getFormattedText() {
         if (formattedText == null) {
             synchronized (LOCK) {
-                org.sakaiproject.util.api.FormattedText component = (org.sakaiproject.util.api.FormattedText) ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
+                org.sakaiproject.util.api.FormattedText component = ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
                 if (component == null) {
                     log.warn("Unable to find the FormattedText using the ComponentManager (this is OK if this is a unit test)");
                     // we will just make a new mock one each time but we will also keep trying to find one in the CM

@@ -25,11 +25,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
 import java.io.*;
 
-import org.apache.log4j.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PublishedItemFeedback
     implements Serializable, ItemFeedbackIfc {
-  static Category errorLogger = Category.getInstance("errorLogger");
+  static Logger errorLogger = LoggerFactory.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
   public static final String CORRECT_FEEDBACK = "Correct Feedback";

@@ -20,6 +20,7 @@
 package org.sakaiproject.calendaring.api;
 
 import java.util.List;
+import java.util.Set;
 
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
@@ -61,30 +62,45 @@ public interface ExternalCalendaringService {
 	 * <br>If the CalendarEvent has the field 'vevent_url', that will be added to the URL property of the VEvent.
 	 * 
 	 * @param event Sakai CalendarEvent
-	 * @param attendees list of Users that have been invited to the event
+	 * @param attendees set of Users that have been invited to the event
 	 * @return the VEvent for the given event or null if there was an error
 	 */
-	public VEvent createEvent(CalendarEvent event, List<User> attendees);
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees);
+
+	/**
+	 * Creates an iCal VEvent for a Sakai CalendarEvent with the given attendees.
+	 * This must then be turned into a Calendar before it can be turned into an ICS file.
+	 * 
+	 * <br>If the CalendarEvent has the field 'vevent_uuid', that will be used as the UUID of the VEvent preferentially.
+	 * <br>If the CalendarEvent has the field 'vevent_sequence', that will be used as the sequence of the VEvent preferentially.
+	 * <br>If the CalendarEvent has the field 'vevent_url', that will be added to the URL property of the VEvent.
+	 * 
+	 * @param event Sakai CalendarEvent
+	 * @param attendees set of Users that have been invited to the event
+	 * @return the VEvent for the given event or null if there was an error
+	 */
+	public VEvent createEvent(CalendarEvent event, Set<User> attendees, boolean timeIsLocal);
+
 	
 	/**
 	 * Adds a list of attendees to an existing VEvent.
 	 * This must then be turned into a Calendar before it can be turned into an ICS file. 
 	 * 
 	 * @param vevent  The VEvent to add the attendess too
-	 * @param attendees list of Users that have been invited to the event
+	 * @param attendees set of Users that have been invited to the event
 	 * @return the VEvent for the given event or null if there was an error
 	 */
-	public VEvent addAttendeesToEvent(VEvent vevent, List<User> attendees);
+	public VEvent addAttendeesToEvent(VEvent vevent, Set<User> attendees);
 	
 	/**
 	 * Adds a list of attendees to an existing VEvent with the chair role.
 	 * This must then be turned into a Calendar before it can be turned into an ICS file.
 	 *
 	 * @param vevent  The VEvent to add the attendess too
-	 * @param attendees list of Users that will chair the event
+	 * @param attendees set of Users that will chair the event
 	 * @return the VEvent for the given event or null if there was an error
 	 */
-	public VEvent addChairAttendeesToEvent(VEvent vevent, List<User> attendees);
+	public VEvent addChairAttendeesToEvent(VEvent vevent, Set<User> attendees);
 	
 	/**
 	 * Set the status of an existing VEvent to cancelled.

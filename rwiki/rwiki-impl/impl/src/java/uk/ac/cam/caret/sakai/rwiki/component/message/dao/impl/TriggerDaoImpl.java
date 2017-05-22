@@ -24,13 +24,13 @@ package uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.TriggerDao;
@@ -42,7 +42,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
  */
 public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 {
-	private static Log log = LogFactory.getLog(TriggerDaoImpl.class);
+	private static Logger log = LoggerFactory.getLogger(TriggerDaoImpl.class);
 
 	/*
 	 * (non-Javadoc)

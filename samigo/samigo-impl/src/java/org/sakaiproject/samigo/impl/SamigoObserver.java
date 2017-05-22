@@ -22,13 +22,14 @@ import java.util.Observer;
 
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
 public class SamigoObserver implements Observer {
-    private static final Logger log = Logger.getLogger(SamigoObserver.class);
+    private static final Logger log = LoggerFactory.getLogger(SamigoObserver.class);
 
     public void init() {
         log.info("init()");
@@ -53,16 +54,16 @@ public class SamigoObserver implements Observer {
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notiValues, event);
-        } else if(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED.equals(eventType)){
+        } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO.equals(eventType)){
             log.debug("Assessment Auto Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
-            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED, notiValues, event);
-        } else if(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED.equals(eventType)){
+            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues, event);
+        } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD.equals(eventType)){
             log.debug("Assessment Timed Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues = stringToHashMap(hashMapString);
-            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues, event);
+            samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD, notiValues, event);
         }
     }
 

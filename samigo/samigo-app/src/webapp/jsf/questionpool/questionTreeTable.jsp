@@ -19,19 +19,14 @@
 **********************************************************************************/
 --%>
 -->
-<STYLE type="text/css">
-<!-- 
-table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px}
--->
-</STYLE>
 
- <t:dataTable cellpadding="0" cellspacing="0" value="#{questionpool.allItems}" var="question" styleClass="listHier"
- 				rowIndexVar="row">
+<div class="table-responsive">
+  <t:dataTable value="#{questionpool.allItems}" var="question" styleClass="table table-striped tablesorter" id="questionpool-questions" rowIndexVar="row">
 
 <h:column id="colremove" rendered="#{questionpool.importToAuthoring == 'false'}" >
   <f:facet name="header">
     <h:selectManyCheckbox immediate="true" id="selectall" onclick="toggleRemove();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall">
-      <f:selectItem itemValue="1"/>
+      <f:selectItem itemValue="1" itemLabel="<span class=\"hidden\">Select All</span>" escape="false" />
     </h:selectManyCheckbox>
   </f:facet>
   <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value="#{questionpool.destItems}">
@@ -42,28 +37,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
     <h:column>
       <f:facet name="header">      
 		<h:panelGroup>
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionText}" id="sortByTitleAction" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty ne 'text'}">
           <h:outputText value="#{questionPoolMessages.q_text}" />
-          <f:param name="orderBy" value="text"/>
-          <f:param name="ascending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionText}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='text' && questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_text}" />
-          <f:param name="orderBy" value="text"/>
-          <f:param name="ascending" value="false"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTextDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionText}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='text' && !questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_text}" />
-          <f:param name="orderBy" value="text"/>
-          <f:param name="ascending" value="true"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTextAscending}" rendered="#{author.publishedAscending}" url="/images/sortdescending.gif"/>          
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
         </h:panelGroup>
       </f:facet>
 
@@ -98,31 +72,27 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
     </h:column>
 
 
-    <h:column>
+      <h:column rendered="#{questionpool.showTags == 'true'}" >
+          <f:facet name="header">
+              <h:panelGroup>
+                  <h:outputText value="#{questionPoolMessages.t_tags}" />
+              </h:panelGroup>
+          </f:facet>
+          <t:dataList value="#{question.itemTagSet.toArray()}" var="tag" layout="unorderedList">
+              <f:verbatim><span></f:verbatim>
+              <h:outputText value="#{tag.tagLabel}"/>
+              <f:verbatim><span class="collection"></f:verbatim>
+              (<h:outputText value="#{tag.tagCollectionName}"/>)
+              <f:verbatim></span></span></br>  </f:verbatim>
+          </t:dataList>
+      </h:column>
+
+
+
+      <h:column>
       <f:facet name="header">
         <h:panelGroup>
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionType}" id="sortByTypeAction" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty ne 'keyword'}">
           <h:outputText value="#{questionPoolMessages.q_type}" />
-          <f:param name="orderBy" value="keyword"/>
-          <f:param name="ascending" value="true"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionType}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='keyword' && questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_type}" />
-          <f:param name="orderBy" value="keyword"/>
-          <f:param name="ascending" value="false"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTypeDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
-
-        <h:commandLink title="#{questionPoolMessages.t_sortQuestionType}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='keyword' && !questionpool.sortQuestionAscending}">
-          <h:outputText value="#{questionPoolMessages.q_type}" />
-          <f:param name="orderBy" value="keyword"/>
-          <f:param name="ascending" value="true"/>
-          <h:graphicImage alt="#{questionPoolMessages.alt_sortQuestionTypeAscending}" rendered="#{author.publishedAscending}" url="/images/sortdescending.gif"/>          
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
-        </h:commandLink>
         </h:panelGroup>
       </f:facet>
      <h:outputText rendered="#{question.typeId== 1}" value="#{authorMessages.multiple_choice_type}"/>
@@ -142,19 +112,31 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
      <h:outputText rendered="#{question.typeId== 16}" value="#{authorMessages.image_map_question}"/><!-- // IMAGEMAP_QUESTION -->
 
     </h:column>
+    
+    <h:column>
+      <f:facet name="header">
+        <h:panelGroup>
+          <h:outputText value="#{questionPoolMessages.last_mod}" />
+        </h:panelGroup>
+      </f:facet>
+       <h:outputText value="#{question.lastModifiedDate}">
+           <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+       </h:outputText>
+    </h:column>    
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">
         <h:panelGroup>
-        	<h:outputText value="#{questionPoolMessages.impToAuthor} "/>
-			<h:outputText value="#{questionPoolMessages.select_all}"/>
-        	<h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');" value="" />
-      	</h:panelGroup>
+            <h:outputText value="#{questionPoolMessages.impToAuthor} "/>
+            <h:outputText value="#{questionPoolMessages.select_all}"/>
+            <h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));" value="" />
+        </h:panelGroup>
       </f:facet>
- 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');">
+      <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');updateButtonStatusOnCheck(document.getElementById('editform:import'), document.getElementById('editform'));">
         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
- 	  </h:selectManyCheckbox>
-     </h:column>
+      </h:selectManyCheckbox>
+    </h:column>
 
 
   </t:dataTable>
+</div>

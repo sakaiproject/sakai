@@ -22,8 +22,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.DOMException;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.util.FormattedText;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QtiImport {
+
+    private static final Logger log = LoggerFactory.getLogger(QtiImport.class);
 
     String title = null;
     int noscore = 0;
@@ -245,7 +249,7 @@ public class QtiImport {
 	try {
 	    mattextl = (Element)mattext;
 	} catch (Exception e) {
-	    System.err.println("mattext is not an element");
+	    log.debug("mattext is not an element");
 	    return null;
 	}
 
@@ -276,7 +280,7 @@ public class QtiImport {
 	StringBuilder rettext = new StringBuilder("");
   
   	if (material == null) {
-  	    System.err.println("<material> is null");
+  	    log.debug("<material> is null");
   	    return null;
   	}
   
@@ -418,12 +422,12 @@ public class QtiImport {
 	    while (decvar != null) {
 		try {
 		    String varname = getAttribute(decvar, "varname");
-		    // System.out.println("decvar " + varname);
+		    // log.info("decvar " + varname);
 		    String maxval = getAttribute(decvar, "maxvalue");
 		    Double numval = Double.parseDouble(maxval);
 		    if (varname != null && varname.equals("que_score") && numval > score) {
 			score = numval;
-			// System.out.println("scoreset " + numval + " " + maxval);
+			// log.info("scoreset " + numval + " " + maxval);
 			scoreset = true;
 			break;
 		    }
@@ -461,7 +465,7 @@ public class QtiImport {
 				    } else if (action.equalsIgnoreCase("Add")) {
 					if (numval > 0.0) 
 					    score = score + numval;
-					// System.out.println("add " + score + " " + numval);
+					// log.info("add " + score + " " + numval);
 				    }
 				} catch (Exception ignore) {};
 

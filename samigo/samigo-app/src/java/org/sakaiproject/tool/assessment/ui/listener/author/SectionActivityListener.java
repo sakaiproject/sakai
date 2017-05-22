@@ -14,14 +14,16 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -44,7 +46,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 public class SectionActivityListener
 implements ActionListener, ValueChangeListener
 {
-    private static Log log = LogFactory.getLog(SectionActivityListener.class);
+    private static Logger log = LoggerFactory.getLogger(SectionActivityListener.class);
     private static BeanSort bs;
 
     public SectionActivityListener()
@@ -135,7 +137,7 @@ implements ActionListener, ValueChangeListener
             // Hibernate, so we need to initialize them. Unfortunately the current
             // spring-1.0.2.jar does not support HibernateTemplate.intialize(Object)
             // so we need to do it ourselves
-            HashSet sectionSet = PersistenceService.getInstance().
+            Set sectionSet = PersistenceService.getInstance().
             getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(assessmentData);
             assessmentData.setSectionSet(sectionSet);
 
@@ -169,16 +171,8 @@ implements ActionListener, ValueChangeListener
         while (it.hasNext()) {
             EnrollmentRecord enr = (EnrollmentRecord) it.next();
             String uid = enr.getUser().getUserUid();
-            String firstName ="";
-            String lastName="";
-            String displayName="";
-            try {
-                firstName = UserDirectoryService.getUser(uid).getFirstName();
-                lastName = UserDirectoryService.getUser(uid).getLastName();
-                displayName = lastName + ", " + firstName;
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
+            String displayName = enr.getUser().getDisplayName();
+
             nameMap.put(uid, displayName);         
         }
         Map sortedMap = sortByValue(nameMap);
@@ -221,7 +215,7 @@ implements ActionListener, ValueChangeListener
         private String assessmentName;
         private Date submitDate;
         private Double percentage;
-        private Float correct;
+        private Double correct;
         private Double total;
         private Long assessmentGradingId;
         private boolean notAvailableGrade;
@@ -229,10 +223,7 @@ implements ActionListener, ValueChangeListener
         public Long getAssessmentId() {
             return assessmentId;
         }
-        public void setCorrect(Double finalScore) {
-			// TODO Auto-generated method stub
-			
-		}
+
 		public void setAssessmentId(Long assessmentId) {
             this.assessmentId = assessmentId;
         }
@@ -254,10 +245,10 @@ implements ActionListener, ValueChangeListener
         public void setPercentage(Double percentage) {
             this.percentage = percentage;
         }
-        public Float getCorrect() {
+        public Double getCorrect() {
             return correct;
         }
-        public void setCorrect(Float correct) {
+        public void setCorrect(Double correct) {
             this.correct = correct;
         }
         public Double getTotal() {

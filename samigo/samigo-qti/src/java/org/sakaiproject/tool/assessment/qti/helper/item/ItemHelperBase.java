@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 public abstract class ItemHelperBase
   implements ItemHelperIfc
 {
-  private static Log log = LogFactory.getLog(ItemHelperBase.class);
+  private static Logger log = LoggerFactory.getLogger(ItemHelperBase.class);
 
   protected static final long ITEM_AUDIO = TypeIfc.AUDIO_RECORDING.longValue();
   protected static final long ITEM_ESSAY = TypeIfc.ESSAY_QUESTION.longValue();

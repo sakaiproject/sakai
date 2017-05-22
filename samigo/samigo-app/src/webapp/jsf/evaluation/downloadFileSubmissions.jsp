@@ -129,16 +129,16 @@
 
     <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" /> 
     <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
-      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
+      rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" /> 
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" /> 
     <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
-      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
+      rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.item_analysis}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
@@ -147,12 +147,12 @@
 
 
     <h:outputText value="</span><li role='menuitem'><span>" escape="false" />
-    <h:commandLink title="#{evaluationMessages.t_export}" action="exportResponses" immediate="true">
+    <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
       <h:outputText value="#{commonMessages.export_action}" />
   	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
     </h:commandLink>
 
-	<h:outputText value="</span><li role='menuitem'><span>" escape="false" />
+	<h:outputText value="</span><li role='menuitem'><span class='current'>" escape="false" />
 	<h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
 	
   <h:outputText value="</span></li></ul>" escape="false"/>

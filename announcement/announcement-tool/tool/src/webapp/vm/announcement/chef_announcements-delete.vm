@@ -6,50 +6,52 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div>#end
 	<div class="alertMessage">$tlang.getString("del.areyou")</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
-		<table class="listHier lines nolines" cellspacing="0">
-			<tr>
-				<th>$tlang.getString("gen.subject")</th>
-				<th>$tlang.getString("gen.from")</th>
-				<th>$tlang.getString("gen.date")</th>
-				<th>$tlang.getString("gen.visible")</th>
-			</tr>
-			#foreach ($delete_item in $delete_messages)
+		<div class="table-responsive">
+			<table class="table table-bordered table-striped table-hover" cellspacing="0">
 				<tr>
-					<td>
-						<h4>
-						#if ($delete_item.Header.draft)
-							$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($delete_item.Header.subject))
-						#else
-						$validator.escapeHtml($delete_item.Header.subject)
-						#end
-						</h4>
-					</td>
-					<td>$validator.escapeHtml($delete_item.Header.From.DisplayName)</td>
-					<td>$delete_item.Header.Date.toStringLocalFull()</td>
-					<td>
-						#set($publicProperty = $delete_item.getProperties().getProperty("SAKAI:pubview"))
-						#if ($!publicProperty && $publicProperty.equals("true"))
-							$tlang.getString("gen.public")
-						#elseif ($delete_item.getAnnouncementHeader().getAccess().equals($!channelAccess))
-							$tlang.getString("range.allgroups")
-						#else
-							#set($count = 0)
-							#set($allGroupString="")
-							#foreach ($aGroupRef in $delete_item.getAnnouncementHeader().getGroups())
-								#set($aGroup=$!site.getGroup($aGroupRef))
-								#set($count=$count+1)
-								#if ($count > 1)
-									#set($allGroupString = $allGroupString.concat(", ").concat($aGroup.getTitle()))
-								#else
-									#set($allGroupString = $aGroup.getTitle())
-								#end
-							#end
-							$validator.escapeHtml($allGroupString)
-						#end
-					</td>
+					<th>$tlang.getString("gen.subject")</th>
+					<th>$tlang.getString("gen.from")</th>
+					<th>$tlang.getString("gen.date")</th>
+					<th>$tlang.getString("gen.visible")</th>
 				</tr>
-			#end
-		</table>
+				#foreach ($delete_item in $delete_messages)
+					<tr>
+						<td>
+							<h4>
+							#if ($delete_item.Header.draft)
+								$tlang.getFormattedMessage("gen.draft.subject", $validator.escapeHtml($delete_item.Header.subject))
+							#else
+							$validator.escapeHtml($delete_item.Header.subject)
+							#end
+							</h4>
+						</td>
+						<td>$validator.escapeHtml($delete_item.Header.From.DisplayName)</td>
+						<td>$delete_item.Header.Date.toStringLocalFull()</td>
+						<td>
+							#set($publicProperty = $delete_item.getProperties().getProperty("SAKAI:pubview"))
+							#if ($!publicProperty && $publicProperty.equals("true"))
+								$tlang.getString("gen.public")
+							#elseif ($delete_item.getAnnouncementHeader().getAccess().equals($!channelAccess))
+								$tlang.getString("range.allgroups")
+							#else
+								#set($count = 0)
+								#set($allGroupString="")
+								#foreach ($aGroupRef in $delete_item.getAnnouncementHeader().getGroups())
+									#set($aGroup=$!site.getGroup($aGroupRef))
+									#set($count=$count+1)
+									#if ($count > 1)
+										#set($allGroupString = $allGroupString.concat(", ").concat($aGroup.getTitle()))
+									#else
+										#set($allGroupString = $aGroup.getTitle())
+									#end
+								#end
+								$validator.escapeHtml($allGroupString)
+							#end
+						</td>
+					</tr>
+				#end
+			</table>
+		</div>
 	<form name="deleteTemplateForm" action="#toolForm("AnnouncementAction")" method="post">
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete" value="$tlang.getString("gen.delete")" />

@@ -174,10 +174,10 @@ ol.vertical li.placeholder::before {
 	background-color: #002147; color:#FFF; padding: 5px; min-height:30px;
 }
 .h2Editor {
-	background: #cef none repeat scroll 0 0; color:#000; padding: 5px; min-height:20px;
+	color:#000; padding: 5px; min-height:20px;
 }
 .h3Editor {
-	background: #FFF none repeat scroll 0 0; color:#000;padding:5px; min-height:16px;
+	color:#000;padding:5px; min-height:16px;
 }
 .citationNo {
 	color:#fff;
@@ -251,7 +251,7 @@ a.print {
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
-ol.serialization li.hasSections:hover{
+ol.serialization li.hasSections div.h1TopBar:hover, ol.serialization li.hasSections.accordionH1:hover {
 	cursor: pointer;
 	background: #2a4667 none repeat scroll 0 0;
 }
@@ -339,4 +339,51 @@ ol.nav ol.dropdown-menu li.placeholder::before {
 	left: 10px;
 	margin-top: -5px;
 	top: 0;
+}
+.instruction {
+	display: none;
+}
+.shorttext label {
+	float: left;
+	font-weight: normal;
+	margin-right: 1em;
+	width: 14.5em;
+}
+.shorttext .reqStar {
+	color: #009dce;
+	font-size: 1em;
+	font-weight: bold;
+	margin: 0 0 0 -1em;
+	padding: 0;
+	width: auto;
+}
+.shorttext {
+	border: 1px solid #fff;
+	margin: 0.4em 1em;
+}
+.multiValue input[type="text"]{
+	padding: .1em .3em;
+	border: 1px solid #888;
+}
+.reqStar {
+	border-top: 3px solid #fff;
+	color: #009dce;
+	float: left;
+	font-size: 1em;
+	font-weight: bold;
+	margin-left: -1em;
+	padding: 0;
+	width: auto;
+}
+.navIntraTool {
+	border-bottom: 0;
+}
+.navIntraTool li span a {
+	border-bottom: 1px solid #e0e0e0;
+}
+.addCitationsText {
+	padding-bottom: 10px;
+}
+.messageSuccess {
+	height: 3em;
 }

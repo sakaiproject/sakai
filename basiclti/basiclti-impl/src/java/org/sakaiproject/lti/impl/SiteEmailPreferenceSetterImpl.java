@@ -18,8 +18,8 @@ package org.sakaiproject.lti.impl;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -35,7 +35,7 @@ import org.sakaiproject.user.api.User;
  */
 public class SiteEmailPreferenceSetterImpl implements SiteEmailPreferenceSetter {
 
-	private static Log M_log = LogFactory.getLog(SiteEmailPreferenceSetterImpl.class);
+	private static Logger M_log = LoggerFactory.getLogger(SiteEmailPreferenceSetterImpl.class);
 
     private PreferencesService preferencesService = null;
     public void setPreferencesService(PreferencesService  preferencesService) {

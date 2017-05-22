@@ -22,8 +22,8 @@
 
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 public class RemovePublishedAssessmentThread extends Thread
 {
 
-  private static Log log = LogFactory.getLog(RemovePublishedAssessmentThread.class);
+  private static Logger log = LoggerFactory.getLogger(RemovePublishedAssessmentThread.class);
   private String assessmentId;
   private String action;
   public RemovePublishedAssessmentThread(String assessmentId){

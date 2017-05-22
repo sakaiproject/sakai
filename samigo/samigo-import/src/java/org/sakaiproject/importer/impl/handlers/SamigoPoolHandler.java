@@ -37,21 +37,24 @@ import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.AssessmentAnswer;
 import org.sakaiproject.importer.impl.importables.AssessmentQuestion;
 import org.sakaiproject.importer.impl.importables.QuestionPool;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SamigoPoolHandler implements HandlesImportable {
-	private static Log log = LogFactory.getLog(SamigoPoolHandler.class);
+	private static Logger log = LoggerFactory.getLogger(SamigoPoolHandler.class);
 
 	// Samigo identifies each question type with an int
 	public static final int TRUE_FALSE = 4;
@@ -216,6 +219,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			itemFacade.setLastModifiedBy(SessionManager.getCurrentSessionUserId());
 			itemFacade.setLastModifiedDate(new java.util.Date());
 			itemService.saveItem(itemFacade);
+			EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SAVEITEM, "/sam/" + AgentFacade.getCurrentSiteId() + "/saved itemId=" + itemFacade.getItemId().toString(), true));
 			rv.add(itemFacade);
 			
 		}

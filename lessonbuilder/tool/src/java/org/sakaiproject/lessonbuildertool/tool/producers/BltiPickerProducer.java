@@ -41,6 +41,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;     
 import org.sakaiproject.portal.util.ToolUtils;
 
@@ -77,6 +79,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * 
  */
 public class BltiPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(BltiPickerProducer.class);
 	public static final String VIEW_ID = "BltiPicker";
 
 	private SimplePageBean simplePageBean;
@@ -109,7 +112,7 @@ public LocaleGetter localeGetter;
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 		    } catch (Exception e) {
-			System.out.println("QuizPicker permission exception " + e);
+			log.info("QuizPicker permission exception " + e);
 			return;
 		    }
 		}
@@ -140,11 +143,11 @@ public LocaleGetter localeGetter;
 
 		// here is a URL to return to this page
 		String comeBack = ToolUtils.getToolBaseUrl()+ "/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
-		    ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId + (bltiTool == null? "" : "&addTool=" + bltiToolId);
+		    ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId + "&addBefore=" + ((GeneralViewParameters) viewparams).getAddBefore() + (bltiTool == null? "" : "&addTool=" + bltiToolId);
 		if ( bltiEntity instanceof BltiEntity ) ( (BltiEntity) bltiEntity).setReturnUrl(comeBack);
 
 		// here is a URL to return to the main lesson builder page
-		// System.out.println("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/ShowPage?");
+		// log.info("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/ShowPage?");
 
 		if (simplePageBean.canEditPage()) {
 
@@ -206,6 +209,7 @@ public LocaleGetter localeGetter;
 				if (sessionToken != null)
 					UIInput.make(fb, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 				UIInput.make(fb, "select", "simplePageBean.selectedBlti", ltiItemId);
+				UIInput.make(fb, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
 				UIInput.make(fb, "item-id", "#{simplePageBean.itemId}");
 				UICommand.make(fb, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
 				UICommand.make(fb, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");

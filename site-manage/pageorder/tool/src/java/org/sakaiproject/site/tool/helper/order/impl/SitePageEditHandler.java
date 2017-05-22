@@ -2,17 +2,19 @@ package org.sakaiproject.site.tool.helper.order.impl;
 
 import java.util.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.SakaiException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -27,12 +29,14 @@ import uk.org.ponder.util.UniversalRuntimeException;
  * @author Joshua Ryan joshua.ryan@asu.edu
  *
  */
+@Slf4j
 public class SitePageEditHandler {
     public Site site;
     public SiteService siteService;
     public ToolManager toolManager;
     public SessionManager sessionManager;
     public ServerConfigurationService serverConfigurationService;
+    public ContentHostingService contentHostingService;
     public AuthzGroupService authzGroupService;
     private Map<String, SitePage> pages;
     public String[] selectedTools = new String[] {};
@@ -40,11 +44,8 @@ public class SitePageEditHandler {
     private Set<String> uneditables;
     public String state;
     public String title = "";
-    public String test;
     public boolean update;
-    public boolean done;
-    
-    //Just something dumb to bind to in order to supress warning messages
+    //This nil is needed for RSF Producers do not remove!
     public String nil = null;
     
     private final String TOOL_CFG_FUNCTIONS = "functions.require";
@@ -113,7 +114,7 @@ public class SitePageEditHandler {
             init();
         }
         if (update) {
-            pages = new LinkedHashMap<String, SitePage>();
+            pages = new LinkedHashMap<>();
             if (site != null)
             {    
                 List<SitePage> pageList = site.getOrderedPages();
@@ -159,14 +160,14 @@ public class SitePageEditHandler {
         
         String conf = serverConfigurationService.getString(UNHIDEABLES_CFG);
         if (conf != null) {
-            unhideables = new HashSet<String>();
+            unhideables = new HashSet<>();
             String[] toolIds = conf.split(",");
             for (int i = 0; i < toolIds.length; i++) {
                 unhideables.add(toolIds[i].trim());
             }
         }
         String uneditablesConfig = serverConfigurationService.getString(UNEDITABLES_CFG, "");
-        uneditables = new HashSet<String>();
+        uneditables = new HashSet<>();
         for (String tool: uneditablesConfig.split(",")) {
             uneditables.add(tool);
         }
@@ -249,7 +250,7 @@ public class SitePageEditHandler {
      */
     public String addTools () {    
         for (int i = 0; i < selectedTools.length; i++) {
-            SitePage page = null;
+            SitePage page;
             try {
                 page = site.addPage();
                 Tool tool = toolManager.getTool(selectedTools[i]);
@@ -348,7 +349,7 @@ public class SitePageEditHandler {
             init();
         }
 
-        List<String> requiredTools = null;
+        List<String> requiredTools;
         if (site.getType() == null || siteService.isUserSite(site.getId())) {
             requiredTools = serverConfigurationService.getToolsRequired("myworkspace");
         }
@@ -424,9 +425,7 @@ public class SitePageEditHandler {
      * @return true if this tool is allowed to be hidden
      */
     private boolean allowsHide(String toolId) {
-        if (unhideables == null || !unhideables.contains(toolId))
-            return true;
-        return false;
+        return (unhideables == null || !unhideables.contains(toolId));
     }
 
     /**
@@ -482,12 +481,11 @@ public class SitePageEditHandler {
             ToolConfiguration toolConfiguration = tools.get(0);
             String functions = toolConfiguration.getConfig().getProperty(TOOL_CFG_FUNCTIONS);
             if (functions != null && functions.length() > 0) {
-                List<String> permissions = Arrays.asList(StringUtils.split(functions, ','));
-                return permissions;
+                return new ArrayList<>(Arrays.asList(StringUtils.split(functions, ',')));
             }
         }
         // Don't use Collections.EMPTY_LIST as it needs to be mutable.
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
  
     /**
@@ -572,6 +570,7 @@ public class SitePageEditHandler {
         //the page in the site nav of Charon... not sure about the other Sakai portals floating about
         while( iterator.hasNext() ) {
             ToolConfiguration placement = iterator.next();
+            final String toolId = placement.getToolId();
             Properties roleConfig = placement.getPlacementConfig();
             String visibility = roleConfig.getProperty(PORTAL_VISIBLE);
             boolean saveChanges = false;
@@ -585,9 +584,24 @@ public class SitePageEditHandler {
             }
             
             if (saveChanges) {
-                if ( visibility != null ) {
-                    roleConfig.setProperty(PORTAL_VISIBLE, visibility);
+                final boolean specialHidden = getSitePropertySpecialHidden();
+                if(specialHidden && "sakai.resources".equals(toolId)) {
+                    final String siteCollectionId =  contentHostingService.getSiteCollection(placement.getSiteId());
+                    try {
+                        if ("true".equals(visibility)) {
+                            contentHostingService.removeProperty(siteCollectionId, ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT);
+                        } else {
+                            contentHostingService.addProperty(siteCollectionId, ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+                        }
+                    } catch (InUseException | ServerOverloadException e) {
+                        // log & do nothing
+                        log.warn("Exception occurred when attempting to add / remove property from siteColleciton: '"
+                                + siteCollectionId +"' ", e);
+                    }
+
                 }
+                roleConfig.setProperty(PORTAL_VISIBLE, visibility);
+
                 placement.save();
             }
             
@@ -601,7 +615,6 @@ public class SitePageEditHandler {
                 permissions.remove(SITE_VISIT);
                 Set<Role> roles = getRolesWithout(authzGroup, SITE_UPD);
 
-
                 for (Role role : roles) {
                     if (enabled) {
                         role.allowFunctions(permissions);
@@ -612,13 +625,9 @@ public class SitePageEditHandler {
                 // Need to save the authz as saving the site doesn't save the authzgroup (when changing permissions)
                 authzGroupService.save(authzGroup);
             }
-        } catch (GroupNotDefinedException e) {
-            throw new SakaiException(e);
-        } catch (AuthzPermissionException e) {
+        } catch (GroupNotDefinedException | AuthzPermissionException e) {
             throw new SakaiException(e);
         }
-
-
 
         return true;
     }
@@ -626,13 +635,7 @@ public class SitePageEditHandler {
     private Set<Role> getRolesWithout(AuthzGroup authzGroup, String function) {
         // Gets the roles
         Set<Role> roles = authzGroup.getRoles();
-        Iterator<Role> roleIterator = roles.iterator();
-        while (roleIterator.hasNext()) {
-            Role role = roleIterator.next();
-            if (role.isAllowed(function)) {
-                roleIterator.remove();
-            }
-        }
+        roles.removeIf(role -> role.isAllowed(function));
         return roles;
     }
 
@@ -643,7 +646,7 @@ public class SitePageEditHandler {
      * @return the newly added SitePage
      */
     public SitePage addPage (String toolId, String title) {
-        SitePage page = null;
+        SitePage page;
         try {
             page = site.addPage();
             page.setTitle(title);
@@ -689,7 +692,6 @@ public class SitePageEditHandler {
      * 
      * @param pageId
      * @param newTitle
-     * @param newConfig
      * @return the old title of the page
      * @throws IdUnusedException
      * @throws PermissionException
@@ -703,7 +705,7 @@ public class SitePageEditHandler {
         // TODO: Find a way to call each tool to ask what fields they need configured
         // and what methods to use to validate the input..
         if (page.getTools().size() == 1) {
-            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+            ToolConfiguration tool = page.getTools().get(0);
             tool.setTitle(newTitle);
         }
 
@@ -736,7 +738,7 @@ public class SitePageEditHandler {
         // TODO: Find a way to call each tool to ask what fields they need configured
         // and what methods to use to validate the input..
         if (page.getTools().size() == 1) {
-            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+            ToolConfiguration tool = page.getTools().get(0);
             tool.setTitle(newTitle);
         }
 
@@ -768,7 +770,7 @@ public class SitePageEditHandler {
         // TODO: Find a way to call each tool to ask what fields they need configured
         // and what methods to use to validate the input..
         if (page.getTools().size() == 1 && !"nil".equals(value)) {
-            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+            ToolConfiguration tool = page.getTools().get(0);
             tool.getPlacementConfig().setProperty(config, value);
         }
 
@@ -823,6 +825,11 @@ public class SitePageEditHandler {
             }
         }
         return allow;
+    }
+
+    private boolean getSitePropertySpecialHidden() {
+        return serverConfigurationService.getBoolean(SiteConstants.SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN,
+                SiteConstants.SITE_PROPERTY_HIDE_RESOURCES_SPECIAL_HIDDEN_DEFAULT);
     }
 }
 

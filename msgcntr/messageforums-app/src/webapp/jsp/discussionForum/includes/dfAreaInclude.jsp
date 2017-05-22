@@ -51,7 +51,7 @@ $(document).ready(function() {
 	</p>
 <f:subview id="maintainMessages" rendered="#{ForumTool.newForum}">
 <f:verbatim>
-	<p class="instruction defForums highlightPanel"  style="display:none;width:70%">
+	<p class="instruction defForums highlightPanel"  style="display:none;">
 </f:verbatim>
 <h:outputText value="#{msgs.cdfm_forum_inf_init_guide}" escape="false" />
 <f:verbatim>

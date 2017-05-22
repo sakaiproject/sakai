@@ -12,8 +12,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.EmailValidator;
 import org.apache.commons.lang.StringUtils;
 
@@ -61,7 +61,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 public class SiteAddParticipantHandler {
 	
     /** Our log (commons). */
-    private static final Log M_log = LogFactory.getLog(SiteAddParticipantHandler.class);
+    private static final Logger M_log = LoggerFactory.getLogger(SiteAddParticipantHandler.class);
 
 	private static final String EMAIL_CHAR = "@";
     public SiteService siteService = null;
@@ -259,7 +259,7 @@ public class SiteAddParticipantHandler {
                 site = siteService.getSite(siteId);
                 realm = authzGroupService.getAuthzGroup(siteService.siteReference(siteId));
                 
-                // bjones86 - SAK-23257
+                // SAK-23257
                 roles = SiteParticipantHelper.getAllowedRoles( site.getType(), realm.getRoles() );
             
             } catch (IdUnusedException | GroupNotDefinedException e) {
@@ -411,10 +411,6 @@ public class SiteAddParticipantHandler {
 				}
 			}
 	    	
-	    	// check whether there is a no or valid change to current user role
-			if (!checkCurrentUserRoleChange())
-				return null;
-	    	
 	        return "continue";
     	}
     }
@@ -451,39 +447,11 @@ public class SiteAddParticipantHandler {
 				}
 		    }
 		}
-		
-		// check whether there is a no or valid change to current user role
-		if (!checkCurrentUserRoleChange())
-			return null;
-		
+
         return "continue";
     }
 
-	private boolean checkCurrentUserRoleChange() {
-		boolean rv = true;
-		
-		// check the change of roles whether it is valid: changed current user into role without "membership edit" permission? leaving the site without maintain role?
-		User currentUser = userDirectoryService.getCurrentUser();
-		String currentUserEid = currentUser != null ? currentUser.getEid():"";
-		for (UserRoleEntry entry : userRoleEntries)
-		{
-			if (currentUserEid.equals(entry.userEId))
-			{
-				String roleName = entry.role;
-				Role r = realm.getRole(roleName);
-				if (r != null && !r.isAllowed(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP))
-				{
-					// this seems to be down-grading current user's role from being able to update site membership into not being able to
-					// show alert message
-					targettedMessageList.addMessage(new TargettedMessage("java.roleperm.currentuser.downgrade", new Object[] {roleName}, TargettedMessage.SEVERITY_ERROR));
-					rv = false;
-				}
-			}
-			
-		}
-		return rv;
-	}
-    
+
     /**
      * back to the first add participant page
      * @return
@@ -591,7 +559,7 @@ public class SiteAddParticipantHandler {
 								addedUserEIds.add(eId);
 								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false;siteId=" + site.getId());
 								
-								// Add the user to the list for the User Auditing Event Log
+								// Add the user to the list for the User Auditing Event Logger
 								String currentUserId = userDirectoryService.getUserEid(sessionManager.getCurrentSessionUserId());
 								String[] userAuditString = {site.getId(),eId,role,UserAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
 								userAuditList.add(userAuditString);
@@ -878,12 +846,12 @@ public class SiteAddParticipantHandler {
 									// multiple matches
 									for (User user : usersWithEmail)
 									{
-										String eid = user.getEid();
-										eidsForAllMatches.append(eid).append("\n");
-										eidsForAllMatchesAlertBuffer.append(eid).append(", ");
+										String displayId = user.getDisplayId();
+										eidsForAllMatches.append(displayId).append("\n");
+										eidsForAllMatchesAlertBuffer.append(displayId).append(", ");
 										
 										// this is to mark the eid so that it won't be used again for email lookup in the future
-										officialAccountEidOnly.add(eid);
+										officialAccountEidOnly.add(user.getEid());
 									}
 									// trim the alert message
 									String eidsForAllMatchesAlert = eidsForAllMatchesAlertBuffer.toString();
@@ -1079,11 +1047,17 @@ public class SiteAddParticipantHandler {
 									M_log.warn(this + ".checkAddParticipant: user" + userDirectoryService.getCurrentUser()!= null ? userDirectoryService.getCurrentUser().getEid():"" + " don't have permission to add " + userEid);
 								}
 							} else  {
-								M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
-								participant.name = u.getDisplayName();
-								participant.uniqname = u.getEid();
-								participant.active = true;
-								userEid = u.getEid();
+								if (site != null && site.getUserRole(u.getId()) != null) {
+									// user already exists in the site, cannot be added
+									// again
+									existingUsers.add(userEid);
+								} else {
+									M_log.debug("adding: " + u.getDisplayName() + ", " + u.getEid());
+									participant.name = u.getDisplayName();
+									participant.uniqname = u.getEid();
+									participant.active = true;
+									userEid = u.getEid();
+								}
 							}
 							pList.add(participant);
 						}

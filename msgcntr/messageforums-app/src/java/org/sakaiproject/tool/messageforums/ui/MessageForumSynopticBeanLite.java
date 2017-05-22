@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -45,7 +45,7 @@ public class MessageForumSynopticBeanLite {
 	private transient List<DecoratedSynopticMsgcntrItem> myContents = null;
 	private transient DecoratedSynopticMsgcntrItem siteHomepageContent = null;
 	/** to get accces to log file */
-	private static final Log LOG = LogFactory.getLog(MessageForumSynopticBeanLite.class);	
+	private static final Logger LOG = LoggerFactory.getLogger(MessageForumSynopticBeanLite.class);	
 	private SynopticMsgcntrManager synopticMsgcntrManager;
 	private MessageForumsForumManager forumsManager;
 	private MessageForumsTypeManager typeManager;
@@ -54,8 +54,6 @@ public class MessageForumSynopticBeanLite {
 	private int myContentsSize = -1;
 	private HashMap mfPageInSiteMap, sitesMap;
 	private int myDisplayedSites = 0;
-	/** The string that Charon uses for preferences. */
-	private static final String CHARON_PREFS = "sakai:portal:sitenav";
 	private static final String PERFORMANCE_2 = "2";
 	private String performance;
 	private Boolean userRequestSynoptic;
@@ -84,7 +82,7 @@ public class MessageForumSynopticBeanLite {
 			
 			//Grab user's preferences for site order, and remove sites that user has removed
 			Preferences prefs = PreferencesService.getPreferences(getCurrentUser());
-			ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+			ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
 			List<String> orderedSites = props.getPropertyList("order");
 			
 			List<String> excludedSites = props.getPropertyList("exclude");

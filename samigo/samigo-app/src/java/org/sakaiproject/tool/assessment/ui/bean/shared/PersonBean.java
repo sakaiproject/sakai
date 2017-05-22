@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -35,8 +36,8 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * <p> </p>
@@ -53,7 +54,7 @@ public class PersonBean implements Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1884634498046475698L;
-private static Log log = LogFactory.getLog(PersonBean.class);
+private static Logger log = LoggerFactory.getLogger(PersonBean.class);
   private String anonymousId;
   private String previewFromPage;
   
@@ -102,12 +103,12 @@ private static Log log = LogFactory.getLog(PersonBean.class);
     return SecurityService.unlock("site.upd", "/site/"+context);
   }
 
-  private HashMap totalSubmissionPerAssessmentHash = new HashMap();
-  public HashMap getTotalSubmissionPerAssessmentHash(){
+  private Map totalSubmissionPerAssessmentHash = new HashMap();
+  public Map getTotalSubmissionPerAssessmentHash(){
     return totalSubmissionPerAssessmentHash;
   }
 
-  public void setTotalSubmissionPerAssessmentHash(HashMap totalSubmissionPerAssessmentHash){
+  public void setTotalSubmissionPerAssessmentHash(Map totalSubmissionPerAssessmentHash){
     this.totalSubmissionPerAssessmentHash = totalSubmissionPerAssessmentHash;
   }
 

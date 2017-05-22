@@ -31,6 +31,8 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * This is the core abstract DirectServlet class which is meant to extended,
  * extend this to plugin whatever system you have for initiating/retrieving the EB services
@@ -41,10 +43,10 @@ import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
+@Slf4j
 public abstract class DirectServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
-
     protected transient EntityRequestHandler entityRequestHandler;
     public void setEntityRequestHandler(EntityRequestHandler entityRequestHandler) {
         this.entityRequestHandler = entityRequestHandler;
@@ -146,12 +148,16 @@ public abstract class DirectServlet extends HttpServlet {
     protected void handleRequest(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
         // catch the login helper posts
-        String option = req.getPathInfo();
-        String[] parts = option.split("/");
-        if ((parts.length == 2) && ((parts[1].equals("login")))) {
-            handleUserLogin(req, res, null);
-        } else {
-            dispatch(req, res);
+        // Note that with wrapped requests, URLUtils.getSafePathInfo may return null
+        // so we use the request URI
+        String uri = req.getRequestURI();
+        if ( uri != null ) {
+            String[] parts = uri.split("/");
+            if ((parts.length > 0) && ("login".equals(parts[parts.length-1]))) {
+                handleUserLogin(req, res, null);
+            } else {
+                dispatch(req, res);
+            }
         }
     }
 
@@ -182,7 +188,7 @@ public abstract class DirectServlet extends HttpServlet {
             try {
                 entityRequestHandler.handleEntityAccess(req, res, path);
             } catch (EntityException e) {
-                System.out.println("INFO Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
+                log.info("Could not process entity: "+e.entityReference+" ("+e.responseCode+")["+e.getCause()+"]: "+e.getMessage());
                 // no longer catching FORBIDDEN or UNAUTHORIZED here
                 //            if (e.responseCode == HttpServletResponse.SC_UNAUTHORIZED ||
                 //                  e.responseCode == HttpServletResponse.SC_FORBIDDEN) {
@@ -204,7 +210,7 @@ public abstract class DirectServlet extends HttpServlet {
             }
             // otherwise reject the request
             String msg = "Security exception accessing entity URL: " + path + " (current user not allowed): " + e.getMessage();
-            System.out.println("INFO " + msg);
+            log.info(msg);
             sendError(res, HttpServletResponse.SC_FORBIDDEN, msg);
         } catch (Exception e) {
             // all other cases

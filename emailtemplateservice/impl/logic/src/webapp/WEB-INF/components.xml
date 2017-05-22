@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Bring in the hibernate related beans -->
+    <!-- This is on the classpath so it's in the implementation and can be used by tests -->
+    <import resource="classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml" />
+    <import resource="hibernate-hbms.xml" />
+
+    <!-- add sakai application scope bean definitions here -->
+
+    <bean id="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"
+        class="org.sakaiproject.emailtemplateservice.service.impl.EmailTemplateServiceImpl">
+        <property name="dao"
+            ref="org.sakaiproject.emailtemplateservice.dao.EmailTemplateServiceDao" />
+        <property name="preferencesService"
+            ref="org.sakaiproject.user.api.PreferencesService" />
+        <property name="developerHelperService"
+            ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+        <property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
+         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
+         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    </bean>
+
+	<bean
+		id="org.sakaiproject.emailtemplateservice.service.external.ExternalLogic"
+		class="org.sakaiproject.emailtemplateservice.service.external.impl.ExternalLogicImpl">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+
+
+</beans>

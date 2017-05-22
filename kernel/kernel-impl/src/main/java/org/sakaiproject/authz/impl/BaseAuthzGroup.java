@@ -21,9 +21,9 @@
 
 package org.sakaiproject.authz.impl;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -42,15 +42,18 @@ import org.w3c.dom.NodeList;
 
 import java.util.*;
 
+import lombok.ToString;
+
 /**
  * <p>
  * BaseAuthzGroup is an implementation of the AuthGroup API AuthzGroup.
  * </p>
  */
+@ToString(exclude = {"m_properties", "m_userGrants", "m_roles", "m_lastChangedRlFn", "baseAuthzGroupService", "userDirectoryService"})
 public class BaseAuthzGroup implements AuthzGroup
 {
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(BaseAuthzGroup.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseAuthzGroup.class);
 
 	/** A fixed class serian number. */
 	private static final long serialVersionUID = 1L;

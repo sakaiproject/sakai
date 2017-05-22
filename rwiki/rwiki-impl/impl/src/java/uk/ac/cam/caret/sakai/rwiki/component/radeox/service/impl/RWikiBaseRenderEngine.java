@@ -27,8 +27,8 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.EngineManager;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.InitialRenderContext;
@@ -51,7 +51,7 @@ import org.radeox.util.Service;
 // FIXME: Component
 public class RWikiBaseRenderEngine implements RenderEngine
 {
-	private static Log log = LogFactory.getLog(RWikiBaseRenderEngine.class);
+	private static Logger log = LoggerFactory.getLogger(RWikiBaseRenderEngine.class);
 
 	protected InitialRenderContext initialContext;
 

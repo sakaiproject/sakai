@@ -30,7 +30,8 @@ import java.text.DateFormat;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.tool.cover.SessionManager;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -68,6 +69,7 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  */
 public class AssignmentPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	private static final Logger log = LoggerFactory.getLogger(AssignmentPickerProducer.class);
 	public static final String VIEW_ID = "AssignmentPicker";
 
 	private SimplePageBean simplePageBean;
@@ -99,7 +101,7 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 		    try {
 			simplePageBean.updatePageObject(((GeneralViewParameters) viewparams).getSendingPage());
 		    } catch (Exception e) {
-			System.out.println("AssignmentPicker permission exception " + e);
+			log.info("AssignmentPicker permission exception " + e);
 			return;
 		    }
 		}
@@ -129,14 +131,16 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			}
 			
 			List<UrlItem> createLinks = assignmentEntity.createNewUrls(simplePageBean);
+			int toolNum = 0;
 			for (UrlItem createLink: createLinks) {
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "assignment-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
+			    view.setId(Long.toString(((GeneralViewParameters) viewparams).getItemId()));
+			    view.setSource("CREATE/ASSIGN/" + (toolNum++));
 			    view.setReturnView(VIEW_ID);
 			    view.setTitle(messageLocator.getMessage("simplepage.return_assignment"));
+			    view.setAddBefore(((GeneralViewParameters) viewparams).getAddBefore());
 			    UIInternalLink.make(link, "assignment-create-link", createLink.label , view);
 			}
 
@@ -146,7 +150,7 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 			if (createLinks.size() == 0) {
-			    System.out.println("creatlinks " + createLinks.size());
+			    log.info("creatlinks " + createLinks.size());
 			    UIOutput.make(tofill, "error-div");
 			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assignment_tools"));
 			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");

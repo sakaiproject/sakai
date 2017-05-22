@@ -26,8 +26,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -41,7 +41,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 {
 	public static final int STREAM_BUFFER_SIZE = 4096;
 	
-	private static final Log logger = LogFactory.getLog(MockContentResource.class);
+	private static final Logger logger = LoggerFactory.getLogger(MockContentResource.class);
 	
 	
 	protected String collectionId;

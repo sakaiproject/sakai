@@ -2,8 +2,8 @@ package org.sakaiproject.portal.charon.handlers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -11,7 +11,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 public class GenerateBugReportHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "generatebugreport";
-	private static final Log log = LogFactory.getLog(GenerateBugReportHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(GenerateBugReportHandler.class);
 
 	public GenerateBugReportHandler()
 	{

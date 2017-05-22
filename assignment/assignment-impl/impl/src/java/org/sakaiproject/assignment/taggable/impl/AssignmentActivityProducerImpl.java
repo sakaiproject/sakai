@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableItem;
 import org.sakaiproject.taggable.api.TaggingManager;
@@ -47,8 +48,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class AssignmentActivityProducerImpl implements
 		AssignmentActivityProducer {
 
-	private static final Log logger = LogFactory
-			.getLog(AssignmentActivityProducerImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssignmentActivityProducerImpl.class);
 
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 
@@ -63,6 +63,8 @@ public class AssignmentActivityProducerImpl implements
 	protected SecurityService securityService;
 
 	protected UserDirectoryService userDirectoryService;
+
+	protected ServerConfigurationService serverConfigurationService;
 
 	public boolean allowGetItems(TaggableActivity activity,
 			TaggingProvider provider, boolean allowGetItems, String taggedItem) {
@@ -136,7 +138,7 @@ public class AssignmentActivityProducerImpl implements
 
 	public TaggableItem getItem(AssignmentSubmission assignmentSubmission,
 			String userId) {
-		return new AssignmentItemImpl(assignmentSubmission, userId,
+		return new AssignmentItemImpl(this, assignmentSubmission, userId,
 				new AssignmentActivityImpl(
 						assignmentSubmission.getAssignment(), this));
 	}
@@ -148,7 +150,7 @@ public class AssignmentActivityProducerImpl implements
 			try {
 				AssignmentSubmission submission = assignmentService
 						.getSubmission(parseSubmissionRef(itemRef));
-				item = new AssignmentItemImpl(submission, parseAuthor(itemRef),
+				item = new AssignmentItemImpl(this, submission, parseAuthor(itemRef),
 						new AssignmentActivityImpl(submission.getAssignment(),
 								this));
 			} catch (IdUnusedException iue) {
@@ -170,7 +172,7 @@ public class AssignmentActivityProducerImpl implements
 					assignment.getReference(), userDirectoryService
 							.getUser(userId));
 			if (submission != null && submission.getSubmitted() && submission.getTimeSubmitted() != null) {
-				TaggableItem item = new AssignmentItemImpl(submission, userId,
+				TaggableItem item = new AssignmentItemImpl(this, submission, userId,
 						activity);
 				returned.add(item);
 			}
@@ -196,7 +198,7 @@ public class AssignmentActivityProducerImpl implements
 				AssignmentSubmission submission = i.next();
 				if (submission != null && submission.getSubmitted() && submission.getTimeSubmitted() != null) {
 					for (Object submitterId : submission.getSubmitterIds()) {
-						items.add(new AssignmentItemImpl(submission,
+						items.add(new AssignmentItemImpl(this, submission,
 								(String) submitterId, activity));
 					}
 				}
@@ -241,6 +243,10 @@ public class AssignmentActivityProducerImpl implements
 
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 	public void setTaggingManager(TaggingManager taggingManager) {

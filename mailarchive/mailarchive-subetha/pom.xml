@@ -50,12 +50,8 @@
             <version>3.1.7</version>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -77,14 +73,6 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <!-- This is just so that we get some basic logging from subetha when running tests -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -103,6 +91,7 @@
                 <directory>${basedir}/src/test</directory>
                 <includes>
                     <include>**/*.txt</include>
+                    <include>**/log4j.properties</include>
                 </includes>
             </testResource>
         </testResources>

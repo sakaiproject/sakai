@@ -16,59 +16,40 @@
 /* Profile2 styles */
 
 #pageWrapper { 
-	width: 760px;
-	position: relative;
-	left: 5px;
-	top: 5px;
-	min-height: 500px; /*iframe will be tiny if there is no content in their profile */
 }
 
 #leftPanel {
-	position:absolute;
-	top: 0;
-	left:0;
-	width:200px;
 }
 
 #mainPanel {
-	position: relative;
-	top: 0;
-	left: 200px;
-	width: 520px;
-	padding-left: 20px;
 }
 
 #rightPanel {
-	position:absolute;
-	width: 50px;
-	left: 700px;
-	top: 0;
 }
 
 div#footer {
-	width: 760px;
-	clear: both;
-	position: relative;
 }
 
 
 #fullWidth {
-	float:left;
-	margin-left: 5px;
-	margin-right: 165px;
-	padding: 8px;
 }
 
-#leftPanel, #rightPanel, #mainPanel, #fullWidth { 
-	/*padding-bottom: 32767px;
-	margin-bottom: -32767px;*/
-
+.profile-twitter-account td.label{
+	text-align: left;
+	width: 250px;
 }
 
-
+@media only screen and (max-width : 800px ){
+	.profile-twitter-account td{
+		display: block !important;
+	}
+	.profile-twitter-account td.label{
+		width: 100%;
+	}
+}
 
 #myPhoto {
-	max-width: 200px;
+	max-width: 100%;
 	position: relative;	
 	/* centre the image inside this div */
 	text-align:center;
@@ -116,6 +97,13 @@ div#footer {
 	background-color: #ffff77;
 }
 
+.sakai-wicket-iconwithtooltip{
+	float: right;
+}
+
+.profileContent .radio label, .profileContent .checkbox label{
+	font-size: 1.2em;
+}
 
 .edit-button {
 	float:right;
@@ -162,13 +150,13 @@ div#footer {
 
 
 /* generic styles */
-.tiny {
+/*.tiny {
 	font-size: 70%;
 }
 
 .small {
 	font-size: 90%;
-}
+} */
 
 .right {
 	float:right;
@@ -280,8 +268,6 @@ h2 {
 	border-bottom-style: solid;
 	border-bottom-color: #09c;
 	border-bottom-width: thin;
-	margin-left: -40px;
-	padding-left: 5px;
 	list-style-type: none !important;
 }
 
@@ -325,14 +311,13 @@ h2 {
 
 .side-widget-heading {
 	margin-top: 4px;
-	border-top: 1px solid #09c;
-	border-right: 1px solid #d0d0df;
+	border-right: 1px solid #ddd;
 	padding-top: 2px;
 	padding-bottom: 2px;
 	padding-left: 2px;
 	display:block;
 	font-weight: bold;
-	background-color: #B8D5F8;
+	background-color: #F5F5F5;
 	word-wrap: break-word;
 }
 	
@@ -431,12 +416,18 @@ h2 {
 	margin-bottom: 12px;
 }
 
+.profileContent td{
+	padding: 0.5em 1em 0.5em 0em !important;
+}
+.profileContent td:last-child{
+	padding: 0.5em 0 0.5em 0 !important;
+}
+
 .profileContent .label,
 .preferencesContent .label {
-	float: left;
 	color: #000000;
 	/*color: #444444;*/
-	vertical-align: top;
+	vertical-align: middle;
 	font-weight: normal;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -455,7 +446,7 @@ h2 {
 .preferencesContent .content {
 	padding-left: 2px;
 	/*padding-right: 40px;*/
-	vertical-align: top;
+	vertical-align: middle;
 	
 	word-wrap: break-word;
     /* WebKit rule. See http://blog.kenneth.io/blog/2012/03/04/word-wrapping-hypernation-using-css/ */
@@ -482,68 +473,6 @@ h2 {
 	/*padding-right: 40px;*/
 	
 }
-
-
-.profileForm, .form-rounded {
-	background-color: #e9edff;
-	border: 1px solid #d0d0df;
-}
-
-.profileForm {
-}
-
-.form-rounded {
-	padding: 4px;
-	margin-bottom: 4px;
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-}
-
-.profileFormButtons {
-	margin-top: 10px;
-}
-
-.modalWindowButtons {
-	margin-top: 20px;
-}
-
-.pageFormButtons {
-	margin-top: 10px;
-}
-
-.profileFormButtons,
-.modalWindowButtons {
-	text-align:center;
-}
-
-.profileFormButtons input,
-.modalWindowButtons input {
-	margin-left: 6px;
-	margin-right: 6px;
-	
-	/*
-	background-color:#348DD3;
-	border-color:#A3C8E9 #4379C0 #4379C0 #A3C8E9;
-	border-style:solid;
-	border-width:1px;
-	color:#FFFFFF;
-	*/
-}
-
-.profileFormButtons input[type="submit"],
-.modalWindowButtons input[type="submit"] {
-	color: rgb(34, 119, 221);
-}
-	
-.grayed {
-	background-color:#EEEEEE;
-	border-color:#E5E5E5 #AAAAAA #AAAAAA #E5E5E5;
-	border-style:solid;
-	border-width:1px;
-	color:#666666;
-}
-	
-
 
 
 .disabled {
@@ -700,10 +629,10 @@ h2 {
 
 /* people list styles */
 .connections-wrap, .search-results-wrap {
-	/*border: 1px solid red;*/
 	border-bottom: 1px solid #d0d0df;
 	margin-bottom: 12px;
-	width: 520px;
+	max-width: 520px;
+	width: 100%;
 }
 
 
@@ -725,9 +654,6 @@ h2 {
 }
 
 .connection:hover, .search-result:hover {
-	/*background-color: #ffc;*/
-	/*background-color: #FFFFE6;*/
-	/*background-color: #fafdff; */
 	background-color: #FFFFE6;
 }
 
@@ -784,10 +710,18 @@ h2 {
 .connection-actions-wrap, .search-result-actions-wrap {
 	position: absolute;
 	top: 5px;
-	left: 320px;
-	width: 250px;
+	right: 0px;
+	max-width: 250px;
+	width: 50%;
 	font-size: 90%;
 	padding: 0;
+}
+
+@media (max-width: 800px) {
+	.connection-actions-wrap, .search-result-actions-wrap {
+		top: 35px;
+    	width: calc(100% - 114px);
+	}
 }
 
 .connection-actions, .search-result-actions {
@@ -839,7 +773,8 @@ h2 {
 	position: absolute;
 	top: 115px;
 	left: auto;
-	width: 510px;
+	max-width: 510px;
+	width: 100%;
 	height: 50px;
 	font-size: 90%;
 	padding: 0;
@@ -911,16 +846,8 @@ h2 {
 
 /* heading for pages and items */
 .header {
-	/* PRFL-372 - div > h3, added margin-top
-	font-size: 1.1em;
-	font-weight: bold;*/
-	margin-top: 0;
-	border-bottom: thin solid #5D5D5D;
-	margin-bottom: 8px;
-	padding-bottom: 3px;
-	padding-left: 19px;
-	width: 500px;
-	
+	border-bottom: 1px solid #DDD;
+	line-height: 1.55;
 }
 
 
@@ -1023,7 +950,7 @@ div.wicket-aa ul {
 
 div.wicket-aa li {
 	list-style:none;
-	margin-left: -40px; /*strip the default margin */
+	margin-left: -17px; /*strip the default margin */
 	padding-left: 5px;
 	padding-top: 2px;
 	padding-bottom: 2px;
@@ -1294,88 +1221,6 @@ div.wicket-aa ul li.selected {
    	margin:auto;
 }
 
-/* CSS to format the Wicket multi-file upload component */
-.wicket-mfu-container {
-	padding: 5px;
-	margin-top: 3px;
-	background-color: transparent;
-	border: 1px dotted #5D5D5D;
-	font-size: 10px;
-}
-
-.wicket-mfu-container div {
-	padding: 5px;
-	margin-top: 3px;
-	margin-bottom: 3px;
-}
-
-.wicket-mfu-caption {
-	font-weight: bold;
-}
-
-.wicket-mfu-container input {
-	margin-left: 10px;
-	font-size: 10px;
-}
-
-/* tabs */
-.main-profile-tabpanel .tab-row ul {
-	height: 25px;
-    margin: 0;
-    padding-left: 0px;
-    padding-top: 10px;
-}
-
-.company-profile-tabpanel .tab-row ul,
-.messages-tabpanel .tab-row ul {
-    height: 20px;
-    margin: 0;
-    padding-left: 10px;
-}
-
-.main-profile-tabpanel .tab-row li,
-.company-profile-tabpanel .tab-row li,
-.messages-tabpanel .tab-row li {
-    margin: 0;
-    padding: 0;
-    display: inline;
-    list-style-type: none;
-}
-
-.main-profile-tabpanel .tab-row a:link,
-.main-profile-tabpanel .tab-row a:visited,
-.company-profile-tabpanel .tab-row a:link, 
-.company-profile-tabpanel .tab-row a:visited,
-.messages-tabpanel .tab-row a:link, 
-.messages-tabpanel .tab-row a:visited {
-    float: left;
-    background: #f3f3f3;
-    font-size: 12px;
-    line-height: 14px;
-    font-weight: bold;
-    padding: 2px 10px 2px 10px;
-    margin-right: 4px;
-    border: 1px solid #ccc;
-    text-decoration: none;
-    color: #666;
-}
-
-.main-profile-tabpanel .tab-row li.selected a:link,
-main-profile-tabpanel .tab-row a:visited.active,
-.company-profile-tabpanel .tab-row li.selected a:link,
-.company-profile-tabpanel .tab-row a:visited.active, 
-.messages-tabpanel .tab-row li.selected a:link,
-.messages-tabpanel .tab-row a:visited.active {
-    border-bottom: 1px solid #fff;
-    background: #fff;
-    color: #000;
-}
-
-.main-profile-tabpanel .tab-row a:hover,
-.company-profile-tabpanel .tab-row a:hover,
-.messages-tabpanel .tab-row a:hover {
-    background: #fff;
-}
 
 /* wall-related */
 .wall-wrap {
@@ -1478,7 +1323,6 @@ main-profile-tabpanel .tab-row a:visited.active,
 /* create worksite panel */
 .create-worksite-panel {
 	width: 500px;
-	height: 250px;
 	padding: 5px;
 	margin-left: auto;
 	margin-right: auto;
@@ -1534,8 +1378,4 @@ img.ui-datepicker-trigger {
 
 input[type="submit"].secondary {
     color: #555 !important
-}
-
-input[type="file"]{
-    color:transparent;
 }

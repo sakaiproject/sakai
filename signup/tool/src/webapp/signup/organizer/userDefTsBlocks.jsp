@@ -12,36 +12,66 @@
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 			</style>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+			<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>			
 			
 		<script TYPE="text/javascript" LANGUAGE="JavaScript">
-			jQuery.noConflict();//this requried by calendar dropdown tomhawk
-			jQuery(document).ready(function() {				
-				replaceCalendarImageIcon();				
-				});
-					
-			var prefix="meeting:userDefinedTS:";
+			var prefix="meeting_userDefinedTS_";
 			
+			function initLocalDatePicker(pos){
+					localDatePicker({
+						input: '#meeting\\:userDefinedTS\\:'+pos+'\\:startTime',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						allowEmptyDate: false,
+						val: $('#meeting\\:userDefinedTS\\:'+pos+'\\:hiddenStartTime').val(),
+						ashidden: {
+								iso8601: pos + 'startTimeISO8601',
+								month: prefix + pos + "_startTime_month",
+								day: prefix + pos + "_startTime_day",
+								year: prefix + pos + "_startTime_year",
+								hour: prefix + pos + "_startTime_hours",
+								minute: prefix + pos + "_startTime_minutes",
+								ampm: prefix + pos + "_startTime_ampm"}
+					});
+
+					localDatePicker({
+						input: '#meeting\\:userDefinedTS\\:'+pos+'\\:endTime',
+						useTime: 1,
+						parseFormat: 'YYYY-MM-DD HH:mm:ss',
+						allowEmptyDate: false,
+						val: $('#meeting\\:userDefinedTS\\:'+pos+'\\:hiddenEndTime').val(),
+						ashidden: {
+								iso8601: pos + 'endTimeISO8601',
+								month: prefix + pos + "_endTime_month",
+								day: prefix + pos + "_endTime_day",
+								year: prefix + pos + "_endTime_year",
+								hour: prefix + pos + "_endTime_hours",
+								minute: prefix + pos + "_endTime_minutes",
+								ampm: prefix + pos + "_endTime_ampm"}
+					});
+			}
+				
 			function setCustomEndtimeMonthDateYear(pos){
-				var yearTag = document.getElementById(prefix + pos + ":startTime.year");
+				var yearTag = document.getElementById(prefix + pos + "_startTime_year");
 				if(!yearTag)
 					return;
 				
 				var year = yearTag.value;
-				var month = document.getElementById(prefix + pos + ":startTime.month").value;
-				var day = document.getElementById(prefix+ pos + ":startTime.day").value;			
-				var endyear = document.getElementById(prefix + pos + ":endTime.year").value;
-				var endmonth = document.getElementById(prefix + pos + ":endTime.month").value;
-				var endday = document.getElementById(prefix + pos + ":endTime.day").value;
+				var month = document.getElementById(prefix + pos + "_startTime_month").value;
+				var day = document.getElementById(prefix+ pos + "_startTime_day").value;
+				var endyear = document.getElementById(prefix + pos + "_endTime_year").value;
+				var endmonth = document.getElementById(prefix + pos + "_endTime_month").value;
+				var endday = document.getElementById(prefix + pos + "_endTime_day").value;
 						
 				if (endyear > year 
 						||(endyear == year) && ( endmonth > month) 
 						||(endyear == year) && ( endmonth == month)&&( endday >= day) )
 						return;//don't modify
 					
-				document.getElementById(prefix + pos + ":endTime.year").value=year;	
-				document.getElementById(prefix + pos + ":endTime.month").value=month;
-				document.getElementById(prefix + pos + ":endTime.day").value=day;
+				document.getElementById(prefix + pos + "_endTime_year").value=year;	
+				document.getElementById(prefix + pos + "_endTime_month").value=month;
+				document.getElementById(prefix + pos + "_endTime_day").value=day;
 			}
 		
 			var wait=false;
@@ -80,6 +110,10 @@
 				var MIN_ATTENDEES = 1;
 				var MAX_ATTENDEES = 500;
 			    
+				for(i = 0 ; i < 30 ; i++){
+					initLocalDatePicker(i);
+				}
+				
 				/**
 				* check input is only numeric
 				*/
@@ -134,26 +168,14 @@
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_view_userDefined_Timeslot_page_title}"/>
-				
-							
-				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" onmouseover="delayedRecalcDate();">
-				
-					<h:outputText value="&nbsp;" escape="false"/>
-					<h:outputText value="&nbsp;" escape="false"/>
-					
-					<h:outputText value="&nbsp;" escape="false" rendered="#{UserDefineTimeslotBean.someoneSignedUp}"/>
+
 					<h:outputText value="#{msgs.warn_reschedule_event}" styleClass="alertMessage" style="width:85%" escape="false" rendered="#{UserDefineTimeslotBean.someoneSignedUp}"/>
 					
-					<h:panelGroup styleClass="titleText">		           			
-					           <h:outputText value ="&nbsp;" escape="false"/>
-					    </h:panelGroup>
+						<div class="table-responsive">
 					    <t:dataTable id="userDefinedTS" value="#{UserDefineTimeslotBean.timeSlotWrpList}" 
 					    	var="tsWrapper"
 					    	binding="#{UserDefineTimeslotBean.tsTable}"
-					    	styleClass="userDefineTsTable" 
-							rowClasses="oddRow,evenRow"
-							rowStyle="#{tsWrapper.errorStyle}"
-							columnClasses="delTSCol, startTSCol, endTSCol, numAttnTSCol" >
+					    	styleClass="userDefineTsTable table table-striped table-bordered table-hover" >
 								<t:column rendered="#{!tsWrapper.deleted}">
 									<f:facet name="header" >								
 											<h:outputText value="&nbsp;" escape="false"/>
@@ -172,8 +194,8 @@
 									</f:facet>
 						    		<h:panelGrid columns="1">
 							    		<h:panelGroup styleClass="titleText">
-					        				<t:inputDate id="startTime" type="both"  ampm="true" value="#{tsWrapper.timeSlot.startTime}" 
-					        							 style="color:black;" popupCalendar="true" timeZone="#{UserTimeZone.userTimeZoneStr}"/>       						
+											<h:inputText id="startTime" value="#{tsWrapper.timeSlot.startTimeString}"/>
+											<h:inputHidden id="hiddenStartTime" value="#{tsWrapper.timeSlot.startTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>
@@ -184,8 +206,8 @@
 									</f:facet>
 									<h:panelGrid columns="1">
 										<h:panelGroup styleClass="titleText">
-					        				<t:inputDate id="endTime" type="both"  ampm="true" value="#{tsWrapper.timeSlot.endTime}"
-					        							 style="color:black;" popupCalendar="true" timeZone="#{UserTimeZone.userTimeZoneStr}" />										
+											<h:inputText id="endTime" value="#{tsWrapper.timeSlot.endTimeString}"/>
+											<h:inputHidden id="hiddenEndTime" value="#{tsWrapper.timeSlot.endTime}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:inputHidden>
 										</h:panelGroup>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>
@@ -195,10 +217,10 @@
 											<h:outputText value="#{msgs.tab_max_participants}" escape="false"/>
 									</f:facet>
 										<h:panelGroup styleClass="titleText" >
-							        		<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText numericOnly ranged notblank" size="2" style="margin-left:12px;margin-top:6px;" />
+							        		<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText numericOnly ranged notblank" size="2" />
 										</h:panelGroup>
 							</t:column>
-					    </t:dataTable>
+					    </t:dataTable></div>
 					    
 					    <h:outputText id="addMoreTS_1" value ="&nbsp;" escape="false" styleClass="titleText" />
 					    <h:panelGrid columns="1" id="addMoreTS_2">
@@ -206,21 +228,14 @@
 					    		<h:graphicImage value="/images/plus.gif" alt="close" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" />
 					    	 	<h:outputLabel value="#{msgs.add_more_ts}"  style="font-weight:bold" styleClass="activeTag"/>
 					    	 </h:commandLink>					    	  
-					    </h:panelGrid>
-					    
-					    <h:outputText value="&nbsp;" escape="false"/>
-					    <h:outputText value="&nbsp;" escape="false"/>
-					    
-					    <h:outputText value="&nbsp;" escape="false"/>
+					    </h:panelGrid>					    
+
 						<h:panelGroup  styleClass="longtext" >
 								<h:selectBooleanCheckbox value="#{UserDefineTimeslotBean.putInMultipleCalendarBlocks}"/>
 								<h:outputText value="#{msgs.put_In_Multiple_Calendar_Blocks_at_ScheduleTool}" escape="false"/>
-						</h:panelGroup>
-						
-						<h:outputText value="&nbsp;" escape="false"/>
-						<h:outputText value="&nbsp;" escape="false"/>
-				</h:panelGrid>
-				
+						</h:panelGroup>					
+
+
 				<sakai:button_bar>
 					<h:commandButton id="doSave"  action="#{UserDefineTimeslotBean.doSave}" actionListener="#{UserDefineTimeslotBean.validateTimeslots}"   value="#{msgs.continue_button}"/>			
 					<h:commandButton id="cancel" action="#{UserDefineTimeslotBean.doCancel}" value="#{msgs.cancel_button}"/>

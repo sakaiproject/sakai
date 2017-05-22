@@ -108,11 +108,11 @@ public class BannerStorage implements Banners, Acknowledger {
     }
 
     @Override
-    public List<Banner> getRelevantBanners(final String serverId, final String userEid) {
+    public List<Banner> getRelevantBanners(final String serverId, final String userId) {
         final String sql = ("SELECT alert.*, dismissed.state as dismissed_state, dismissed.dismiss_time as dismissed_time" +
                 " from pasystem_banner_alert alert" +
                 " LEFT OUTER JOIN pasystem_banner_dismissed dismissed on dismissed.uuid = alert.uuid" +
-                "  AND ((? = '') OR dismissed.user_eid = ?)" +
+                "  AND ((? = '') OR dismissed.user_id = ?)" +
                 " where ACTIVE = 1 AND" +
 
                 // And either hasn't been dismissed yet
@@ -130,8 +130,8 @@ public class BannerStorage implements Banners, Acknowledger {
                             public List<Banner> call(DBConnection db) throws SQLException {
                                 List<Banner> banners = new ArrayList<Banner>();
                                 try (DBResults results = db.run(sql)
-                                        .param((userEid == null) ? "" : userEid.toLowerCase())
-                                        .param((userEid == null) ? "" : userEid.toLowerCase())
+                                        .param((userId == null) ? "" : userId)
+                                        .param((userId == null) ? "" : userId)
                                         .param(AcknowledgementType.TEMPORARY.dbValue())
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
@@ -245,13 +245,13 @@ public class BannerStorage implements Banners, Acknowledger {
     }
 
     @Override
-    public void acknowledge(final String uuid, final String userEid) {
-        acknowledge(uuid, userEid, calculateAcknowledgementType(uuid));
+    public void acknowledge(final String uuid, final String userId) {
+        acknowledge(uuid, userId, calculateAcknowledgementType(uuid));
     }
 
     @Override
-    public void acknowledge(final String uuid, final String userEid, AcknowledgementType acknowledgementType) {
-        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).acknowledge(uuid, userEid, acknowledgementType);
+    public void acknowledge(final String uuid, final String userId, AcknowledgementType acknowledgementType) {
+        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).acknowledge(uuid, userId, acknowledgementType);
     }
 
     private AcknowledgementType calculateAcknowledgementType(String uuid) {
@@ -265,7 +265,7 @@ public class BannerStorage implements Banners, Acknowledger {
     }
 
     @Override
-    public void clearTemporaryDismissedForUser(String userEid) {
-        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).clearTemporaryDismissedForUser(userEid);
+    public void clearTemporaryDismissedForUser(String userId) {
+        new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).clearTemporaryDismissedForUser(userId);
     }
 }

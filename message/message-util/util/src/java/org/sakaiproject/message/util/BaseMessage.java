@@ -21,8 +21,8 @@
 
 package org.sakaiproject.message.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
@@ -71,7 +71,7 @@ import java.util.*;
 public abstract class BaseMessage implements MessageService, DoubleStorageUser
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseMessage.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseMessage.class);
 
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;
@@ -1979,7 +1979,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 												}
 												// TODO: reall want a draft? -ggolden
 												// set draft status based upon property setting
-												if ("false".equalsIgnoreCase(m_serverConfigurationService.getString("import.importAsDraft")))
+												if (!m_serverConfigurationService.getBoolean("import.importAsDraft", true))
 												{
 													String draftAttribute = element4.getAttribute("draft");
 													if (draftAttribute.equalsIgnoreCase("true") || draftAttribute.equalsIgnoreCase("false"))
@@ -2161,7 +2161,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 * MessageChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseMessageChannelEdit extends Observable implements MessageChannelEdit, SessionBindingListener
+	public class BaseMessageChannelEdit<T extends MessageEdit> extends Observable implements MessageChannelEdit<T>, SessionBindingListener
 	{
 		/** The context in which this channel exists. */
 		protected String m_context = null;
@@ -2703,16 +2703,12 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				// if this message had a future invocation before, delete it because
 				// this modification changed the date of release so either it will notify it now
 				// or set a new future notification
-				ScheduledInvocationManager scheduledInvocationManager = (ScheduledInvocationManager) 
-						ComponentManager.get(org.sakaiproject.api.app.scheduler.ScheduledInvocationManager.class);
+				ScheduledInvocationManager scheduledInvocationManager = ComponentManager.get(ScheduledInvocationManager.class);
 
 				if (edit.getProperties().getProperty(SCHED_INV_UUID) != null)
 				{
 					scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty(SCHED_INV_UUID));
 					edit.getPropertiesEdit().removeProperty(SCHED_INV_UUID);
-
-					//				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
-					//				m_eventTrackingService.post(event);				
 				}
 
 				// For Scheduled Notification, compare header date with now to deterine

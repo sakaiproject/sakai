@@ -1,0 +1,31 @@
+## Adds $viewAsStudentLink options
+
+<div id="roleSwitch" class="Mrphs-roleSwitch Mrphs-toolsNav__menuitem">
+    #if ($roleSwitchState)
+        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor Mrphs-roleSwitch__exit">
+            <span class="Mrphs-toolsNav__menuitem--title">$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span>
+        </a>
+    #else
+        <a id="roleSwitchDropDownToggle" href="javascript:void('0')" aria-hidden='true' aria-haspopup="true" title='${rloader.rs_menuTooltip}'>
+            <i class="fa fa-user-secret" aria-hidden="true"></i>
+        </a>
+        <div id="roleSwitchDropDown">
+            <i class="fa fa-user-secret" aria-hidden="true"></i>
+            #if ($roleswapdropdown)
+            <div class="Mrphs-roleSwitch__anchor">
+                <select id="roleSwitchSelect" class="Mrphs-roleSwitch__dropdown">
+                    <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>
+                #foreach ( $role in $siteRoles )
+                    <option value="$switchRoleUrl$role$panelString">$role</option>
+                #end ## END of FOREACH ( $role in $siteRoles )
+                </select>
+            </div>
+            #else
+                <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link">
+                    <span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span>
+                </a>
+            #end ## END OF IF ($roleswapdropdown)
+        </div>
+    #end ## END of IF ($roleSwitchState)
+</div>
+

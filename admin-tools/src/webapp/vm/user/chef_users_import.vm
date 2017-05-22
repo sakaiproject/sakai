@@ -1,0 +1,87 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_view.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+#javascript("/library/js/spinner.js")
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		<h3>
+			$tlang.getString("import.heading")
+		</h3>
+		#if ($alertMessage)
+			<div class="alertMessage">
+				$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)
+			</div>
+		#end
+		
+		<p>$tlang.getString("import.instr")</p>
+		
+		<p><b>$tlang.getString("import.instr.req.header")</b></p>
+		<ul>
+			<li>$tlang.getString("import.instr.req.1")</li>
+			<li>$tlang.getString("import.instr.req.2")</li>
+			<li>$tlang.getString("import.instr.req.3")</li>
+			<li>$tlang.getString("import.instr.req.4")</li>
+		</ul>
+
+		<form name="importForm" action="#toolForm("$action")" method="post">
+			
+			#set ($size = 0)
+			#if (!$importedUsers.isEmpty())
+				#set ($size =  $importedUsers.size())
+			#end
+			
+			#if ($size == 0) 
+				<div class="act">
+					<input type="submit" name="eventSubmit_doAttachments" value="$tlang.getString('import.file.button')" />
+				</div>
+				
+				<div class="act">
+					<input type="submit" name="eventSubmit_doCancelImport" value="$tlang.getString("useconrem.can")"  accesskey="x" />
+				</div>
+
+			#else
+				<h3>$tlang.getString("import.process.msg")</h3>
+				<div class="instruction">$tlang.getString("import.process.info")</div>
+				<table class="listHier lines" cellspacing="0" summary ="$tlang.getString('import.user.list.accessibility')">
+					<thead>
+						<tr>
+							<th id="Eid">$tlang.getString("useconrem.useid")</th>
+							<th id="FirstName">$tlang.getString("usecre.firnam")</th>
+							<th id="LastName">$tlang.getString("usecre.lasnam")</th>
+							<th id="Email">$tlang.getString("useconrem.ema")</th>
+							<th id="Password">$tlang.getString("useconrem.pass")</th>
+							<th id="Type">$tlang.getString("usecre.typ")</th>
+							<th id="Properties">$tlang.getString("import.user.properties")</th>
+    					</tr>
+					</thead>
+					<tbody>
+					#foreach ($user in $importedUsers)
+						<tr>
+							<td headers="Eid">$validator.escapeHtml($user.eid)</td>
+							<td headers="FirstName">$validator.escapeHtml($user.firstName)</td>
+							<td headers="LastName">$validator.escapeHtml($user.lastName)</td>
+							<td headers="Email">$validator.escapeHtml($user.email)</td>
+							<td headers="Password">$validator.escapeHtml($user.password)</td>
+							<td headers="Type">$validator.escapeHtml($user.type)</td>
+							<td headers="Properties">
+								#set ($paramNames = $user.Properties.PropertyNames)
+								#foreach ($paramName in $paramNames)
+									#set ($paramValue = $user.Properties.getPropertyFormatted($paramName))
+									$validator.escapeHtml($paramName) = $validator.escapeHtml($paramValue)<br />
+								#end
+							</td>
+						</tr>
+					#end
+                    </tbody>
+				</table>
+				
+				<div class="act">
+					<input type="submit" class="active" name="eventSubmit_doImport" value="$tlang.getString("import.file.continue")" accesskey="s" onclick="SPNR.disableControlsAndSpin( this, null );" />
+					<input type="submit" name="eventSubmit_doCancelImport" value="$tlang.getString("useconrem.can")" accesskey="x" onclick="SPNR.disableControlsAndSpin( this, null );" />
+				</div>
+			#end	
+				
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+</div>

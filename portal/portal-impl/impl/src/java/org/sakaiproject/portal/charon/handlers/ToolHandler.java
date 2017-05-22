@@ -24,16 +24,13 @@ package org.sakaiproject.portal.charon.handlers;
 import java.io.IOException;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -64,7 +61,7 @@ import org.sakaiproject.portal.util.URLUtils;
  */
 public class ToolHandler extends BasePortalHandler
 {
-	private static Log M_log = LogFactory.getLog(ToolHandler.class);
+	private static Logger M_log = LoggerFactory.getLogger(ToolHandler.class);
 
 	private static final String URL_FRAGMENT = "tool";
 
@@ -157,13 +154,6 @@ public class ToolHandler extends BasePortalHandler
 		{
 			try
 			{
-				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
-				if (advisors != null) {
-					for (SecurityAdvisor advisor:advisors) {
-						SecurityService.pushAdvisor(advisor);
-						//session.removeAttribute("sitevisit.security.advisor");
-					}
-				}
 				site = SiteService.getSiteVisit(siteTool.getSiteId());
 			}
 			catch (IdUnusedException e)
@@ -199,7 +189,7 @@ public class ToolHandler extends BasePortalHandler
 
 			// form a context sensitive title
 			String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + siteTool.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + siteTool.getTitle();
 
 			PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
 				siteTool.getSkin(), req);

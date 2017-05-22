@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -33,7 +33,7 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
  */
 public class BitlyUrlService implements ShortenedUrlService {
 
-	private static Log log = LogFactory.getLog(BitlyUrlService.class);
+	private static Logger log = LoggerFactory.getLogger(BitlyUrlService.class);
 	private String login;
 	private String apiKey;
 	private final String BITLY_API_URL = "http://api.bit.ly/v3/shorten";

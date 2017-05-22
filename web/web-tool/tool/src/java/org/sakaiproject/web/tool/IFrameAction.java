@@ -29,8 +29,8 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.UrlValidator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -80,7 +80,7 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class IFrameAction extends VelocityPortletPaneledAction
 {
-	private static Log M_log = LogFactory.getLog(IFrameAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(IFrameAction.class);
 	
 	/** Event for accessing the web-content tool */
 	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
@@ -181,8 +181,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	protected static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
 	/** Macro name: Role */
 	protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
-	/** Macro name: Session */
-	protected static final String MACRO_SESSION_ID          = "${SESSION_ID}";
 
 	private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
 	
@@ -658,10 +656,6 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			if (macroName.equals(MACRO_USER_ROLE))
 			{
 				return this.getUserRole();
-			}
-			if (macroName.equals(MACRO_SESSION_ID))
-			{
-				return this.getSessionId();
 			}
 
 			if (macroName.startsWith("${"+MACRO_CLASS_SITE_PROP)) 

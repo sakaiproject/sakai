@@ -33,8 +33,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -53,7 +53,7 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Log log = LogFactory.getLog(EditManagersBean.class);
+	private static final Logger log = LoggerFactory.getLogger(EditManagersBean.class);
 	
 	// For the right-side list box
 	protected List<SelectItem> selectedUsers;

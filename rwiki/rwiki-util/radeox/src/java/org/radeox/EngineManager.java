@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.engine.BaseRenderEngine;
 import org.radeox.util.Service;
@@ -44,7 +44,7 @@ import org.radeox.util.Service;
 
 public class EngineManager
 {
-	private static Log log = LogFactory.getLog(EngineManager.class);
+	private static Logger log = LoggerFactory.getLogger(EngineManager.class);
 
 	public static final String DEFAULT = "radeox";
 

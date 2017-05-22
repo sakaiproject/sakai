@@ -6,11 +6,14 @@
     <parent>
         <groupId>org.sakaiproject.oauth</groupId>
         <artifactId>oauth-base</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>12-SNAPSHOT</version>
     </parent>
 
     <artifactId>oauth-impl</artifactId>
-    <packaging>jar</packaging>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
 
     <name>OAuth Implementation</name>
     <description>Default implementation of the OAuth project for Sakai CLE using OAuth 1.0.</description>
@@ -19,12 +22,16 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>oauth-api</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -41,11 +48,6 @@
             <groupId>net.oauth.core</groupId>
             <artifactId>oauth</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>

@@ -21,14 +21,16 @@
 
 package org.sakaiproject.coursemanagement.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -50,7 +52,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
 {
     // Services
-    private final transient Log log = LogFactory.getLog( getClass() );
+    private final transient Logger log = LoggerFactory.getLogger( getClass() );
     @Getter @Setter private static UserDirectoryService uds;
     @Getter @Setter private static SecurityService ss;
     @Getter @Setter private static CourseManagementService cms;
@@ -80,7 +82,7 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
     /**
      * {@inheritDoc}
      */
-    public String getUserSpecificSiteTitle( Site site, String userID )
+    public String getUserSpecificSiteTitle( Site site, String userID, List<String> siteProviders )
     {
         // Short circuit - only continue if sakai.property set to true
         if( portalUseSectionTitle )
@@ -108,8 +110,14 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
             // Short circuit - only continue if user is not null and user does not have the site.upd permission in the given site
             if( currentUser != null && !ss.unlock( currentUser, SITE_UPDATE_PERMISSION, site.getReference() ) )
             {
+                Collection<String> providerIDs = siteProviders;
+                if( providerIDs == null )
+                {
+                    String realmID = site.getReference();
+                    providerIDs = azgs.getProviderIDsForRealms( ((List<String>) Arrays.asList( new String[] {realmID} )) ).get( realmID );
+                }
+
                 // Short circuit - only continue if there are more than one provider ID (cross listed site)
-                Set<String> providerIDs = azgs.getProviderIds( site.getReference() );
                 if( CollectionUtils.isNotEmpty( providerIDs ) )
                 {
                     // Get the current user's section membership/role map

@@ -1,0 +1,146 @@
+.#{$namespace}quickLinksNav__popup {
+  @extend .view-all-sites-btn;
+  border-right: 1px solid $tool-border-color;
+  @media #{$phone}{
+    display: inline-block;
+  }
+
+  .fa-external-link-square{
+    @extend .all-sites-icon;
+    @media #{$phone}{
+      display: inline-block;
+    }
+  }
+
+  .quicklinks-label{
+    @extend .all-sites-label;
+    padding-top: 3px;
+    @media #{$phone}{
+      display: none;
+    }
+  }
+}
+
+#selectQuickLink {
+  /* Re-use the Sites pop styles. */
+  @extend #selectSite;
+  @extend ul.favoriteSiteList;
+}
+
+#quickLinks{
+
+  .#{$namespace}quickLinksNav__subnav{
+    font-family: $header-font-family;
+    font-weight: $header-font-weight;
+    font-size: $default-font-size;
+    color: $text-color;
+    background-color: $tool-menu-background-color;
+    box-shadow: 5px 0 50px 0px rgba(0,0,0,0.5);
+    position: absolute;
+    top: 45px;
+    right: 170px;
+    z-index: 99;
+    padding: 0 1em 1em 1em;
+    &:after {
+      bottom: 100%;
+      left: 65%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(255, 255, 255, 0);
+      border-bottom-color: $tool-menu-background-color;
+      border-width: 7px;
+      margin-left: -7px;
+      outline: 0;
+    }
+
+    .tab-box{
+      overflow-y:auto;
+    }
+
+    #quickLinks-header{
+      display: inline-block;
+      height: 43px;
+      width: $quicklinks-menu-width;
+      border: none;
+      border-bottom: 1px solid $tool-border-color;
+      padding: 0 0.3em 0 0;
+      background-color: $tool-menu-background-color;
+
+      .#{$namespace}quickLinks-header--info {
+        vertical-align: middle;
+        padding-right: 1em;
+      }
+      #quickLinks-close {
+        font-size: 2em;
+        font-family: $header-font-family;
+        color: black;
+        padding: 0 0 0 0;
+      }
+    }
+    .tab-box {
+      list-style: none;
+      padding: 0 0 0 0;
+    }
+
+    .#{$namespace}quickLinksNav__submenuitem {
+      display: block;
+      width: $quicklinks-menu-width;
+      border: 1px solid $tool-border-color;
+      @include border-radius( 4px );
+      white-space: nowrap;
+      overflow: hidden;
+      margin: 0.3em;
+      padding: 0.3em 0.5em 0.3em 0.5em;
+      list-style: none;
+      background: darken( $background-color, 5% );
+      @include border-radius( 4px );
+      a{
+        display: inline-block;
+        color: $text-color;
+        font-family: $header-font-family;
+        font-size: 0.9em;
+        font-weight: $header-font-weight;
+        padding: 0 0.5em 0 0;
+        text-decoration: none;
+        &.toolMenus{
+          display: inline-block;
+        }
+      }
+      &.is-selected{
+        border: 1px solid darken( $tool-border-color, 30% );
+      }
+
+      #quicklink-icon{
+        width: 20px;
+        height: 20px;
+        top: 1px;
+        position: relative;
+        display: inline-block;
+        background-repeat: initial;
+        background-position: center;
+      }
+
+      .#{$namespace}quickLinks__submenuitem--title {
+        &:hover {
+          text-decoration: underline;
+        }
+        padding-left: 8px;
+      }
+    }
+    @media #{$phone}{
+      margin: 3.3em 0 0 -9.8em;
+      position: fixed;
+      top: 0.3em;
+      right: 1.7em;
+      z-index: 61;
+    }
+  }
+}
+
+.quicklinks-dropdown-overlay{
+  @extend .user-dropdown-overlay;
+}

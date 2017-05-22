@@ -57,10 +57,10 @@
 				</div>
 				<h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}" /></h4>
-				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
+				<h:panelGrid columns="1" columnClasses="shorttext,checkbox">
 				  <h:panelGroup><h:outputText id="outputLabel4"   value="#{msgs.cdfm_moderate_forums}"/>	</h:panelGroup>
 				  <h:panelGroup>
-					  <h:selectOneRadio layout="lineDirection" disabled="#{not ForumTool.editMode}" id="moderated"  value="#{ForumTool.template.moderated}"
+					  <h:selectOneRadio layout="pageDirection" disabled="#{not ForumTool.editMode}" id="moderated"  value="#{ForumTool.template.moderated}"
 					  	onclick="javascript:disableOrEnableModeratePerm();">
     					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
@@ -68,7 +68,7 @@
 				  </h:panelGroup>
 				  <h:panelGroup><h:outputText id="outputLabel15"   value="#{msgs.cdfm_postFirst}"/>	</h:panelGroup>
 				  <h:panelGroup>
-					  <h:selectOneRadio layout="lineDirection" disabled="#{not ForumTool.editMode}" id="postFirst"  value="#{ForumTool.template.postFirst}">
+					  <h:selectOneRadio layout="pageDirection" disabled="#{not ForumTool.editMode}" id="postFirst"  value="#{ForumTool.template.postFirst}">
     					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
@@ -101,6 +101,7 @@
             <script type="text/javascript">
                   localDatePicker({
                   	input:'.openDate',
+                  	allowEmptyDate:true,
                   	ashidden: { iso8601: 'openDateISO8601' }, 
                   	getval:'.openDate',
                   	useTime:1 
@@ -108,6 +109,7 @@
 
                   localDatePicker({
                   	input:'.closeDate', 
+                  	allowEmptyDate:true,
                   	ashidden: { iso8601: 'closeDateISO8601' },
                   	getval:'.closeDate',
                   	useTime:1 
@@ -115,13 +117,11 @@
             </script>
 
 
-				<div class="instruction" style="padding: 0.5em;"><h4>
-					<h:outputText  value="#{msgs.cdfm_forum_mark_read}" />
-				</h4></div>
-				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
+				<h4><h:outputText  value="#{msgs.cdfm_forum_mark_read}" /></h4>
+				<h:panelGrid columns="1" columnClasses="shorttext,checkbox" style="margin-bottom:1em">
 				  <h:panelGroup><h:outputLabel id="outputLabel5" for="autoMarkThreadsRead"  value="#{msgs.cdfm_auto_mark_threads_read}"/>	</h:panelGroup>
 				  <h:panelGroup>
-					  <h:selectOneRadio layout="lineDirection" disabled="#{not ForumTool.editMode}" id="autoMarkThreadsRead" 
+					  <h:selectOneRadio layout="pageDirection" disabled="#{not ForumTool.editMode}" id="autoMarkThreadsRead" 
 					    value="#{ForumTool.template.autoMarkThreadsRead}" onclick="javascript:disableOrEnableModeratePerm();">
     					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>

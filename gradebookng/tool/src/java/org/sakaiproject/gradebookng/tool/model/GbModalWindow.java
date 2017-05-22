@@ -56,8 +56,9 @@ public class GbModalWindow extends ModalWindow {
 
 		// position at the top of the page
 		if (this.positionAtTop) {
-			extraJavascript.append(String.format("setTimeout(function() {$('#%s').closest('.wicket-modal').css('top', '30px');});",
-					getContent().getMarkupId()));
+			extraJavascript.append(
+					String.format("setTimeout(function() {sakai.gradebookng.spreadsheet.positionModalAtTop($('#%s').closest('.wicket-modal'));});",
+							getContent().getMarkupId()));
 		}
 
 		return super.getShowJavaScript().toString() + extraJavascript.toString();
@@ -99,6 +100,11 @@ public class GbModalWindow extends ModalWindow {
 
 			@Override
 			public void onClose(final AjaxRequestTarget target) {
+				// Disable all buttons with in the modal in case it takes a moment to close
+				target.appendJavaScript(
+					String.format("$('#%s :input').prop('disabled', true);",
+						GbModalWindow.this.getContent().getMarkupId()));
+
 				// Ensure the date picker is hidden
 				target.appendJavaScript("$('#ui-datepicker-div').hide();");
 

@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.sitestats.api.event.EventRegistry;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
@@ -36,7 +36,7 @@ import org.springframework.core.io.ClassPathResource;
 public class FileEventRegistry implements EventRegistry {
 	/** Static fields */
 	public final static String		TOOL_EVENTS_DEF_FILE				= "toolEventsDef.xml";
-	private Log						LOG									= LogFactory.getLog(FileEventRegistry.class);
+	private Logger						LOG									= LoggerFactory.getLogger(FileEventRegistry.class);
 	private static ResourceLoader	msgs								= new ResourceLoader("Events");
 
 	/** File based event registry */

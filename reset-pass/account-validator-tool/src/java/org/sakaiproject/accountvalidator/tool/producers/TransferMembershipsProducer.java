@@ -24,8 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.tool.otp.AcountValidationLocator;
 import org.sakaiproject.accountvalidator.tool.params.ValidationViewParams;
@@ -64,7 +64,7 @@ import uk.org.ponder.springutil.SpringMessageLocator;
  */
 public class TransferMembershipsProducer extends BaseValidationProducer implements ViewComponentProducer, ActionResultInterceptor {
 	
-	private static Log log = LogFactory.getLog(NewUserProducer.class);
+	private static Logger log = LoggerFactory.getLogger(NewUserProducer.class);
 	public static final String VIEW_ID = "transferMemberships";
 
 	public String getViewID()
@@ -171,6 +171,8 @@ public class TransferMembershipsProducer extends BaseValidationProducer implemen
 		UILink.make(tofill, "welcome2.2", linkText, activationURL);
 		UIMessage.make(tofill, "transferInstructions", "validate.loginexisting.transfer", args);
 		UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
+
+		addResetPassLink(tofill, va);
 
 		Object[] displayIdArgs = new Object[]{u.getDisplayId()};
 		UIForm claimForm = UIForm.make(tofill, "claimAccountForm");
