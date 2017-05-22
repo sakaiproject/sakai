@@ -2,10 +2,12 @@ package org.sakaiproject.assignment.persistence;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
+import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,5 +120,39 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
             sessionFactory.getCurrentSession().persist(assignment);
         }
+    }
+
+    @Override
+    public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("submitters.submitter", userId))
+                .uniqueResult();
+    }
+
+    @Override
+    public void initializeAssignment(Assignment assignment) {
+        sessionFactory.getCurrentSession().refresh(assignment);
+    }
+
+    @Override
+    public long countSubmittedSubmissionsForAssignment(String assignmentId) {
+        Number number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .setProjection(Projections.rowCount())
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("submitted", Boolean.TRUE))
+                .uniqueResult();
+        return number.longValue();
+    }
+
+    @Override
+    public long countUngradedSubmittedSubmissionsForAssignment(String assignmentId) {
+        Number number = (Number) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
+                .setProjection(Projections.rowCount())
+                .add(Restrictions.eq("assignment.id", assignmentId))
+                .add(Restrictions.eq("submitted", Boolean.TRUE))
+                .add(Restrictions.eq("graded", Boolean.TRUE))
+                .uniqueResult();
+        return number.longValue();
     }
 }

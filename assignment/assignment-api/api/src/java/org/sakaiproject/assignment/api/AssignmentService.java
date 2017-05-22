@@ -389,7 +389,7 @@ public interface AssignmentService extends EntityProducer {
      *                     The User who's Submission you would like.
      * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
      */
-    public AssignmentSubmission getSubmission(String assignmentId, User person);
+    public AssignmentSubmission getSubmission(String assignmentId, User person) throws PermissionException;
 
     /**
      * Access a User or Group's AssignmentSubmission to a particular Assignment.
@@ -400,7 +400,7 @@ public interface AssignmentService extends EntityProducer {
      *                            The string id of the person or group who's Submission you would like.
      * @return AssignmentSubmission The user's submission for that Assignment, or null if one does not exist.
      */
-    public AssignmentSubmission getSubmission(String assignmentReference, String submitterId);
+    public AssignmentSubmission getSubmission(String assignmentReference, String submitterId) throws PermissionException;
 
     /**
      * Access a mapping of users to their corresponding submission on the specified assignment for the specified users

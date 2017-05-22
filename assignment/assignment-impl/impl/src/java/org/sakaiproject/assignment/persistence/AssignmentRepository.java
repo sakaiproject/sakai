@@ -40,4 +40,12 @@ public interface AssignmentRepository extends Repository<Assignment, String>, Se
     boolean existsSubmission(String submissionId);
 
     void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties);
+
+    AssignmentSubmission findSubmissionForUser(String assignmentId, String userId);
+
+    void initializeAssignment(Assignment assignment);
+
+    long countSubmittedSubmissionsForAssignment(String assignmentId);
+
+    long countUngradedSubmittedSubmissionsForAssignment(String assignmentId);
 }

@@ -168,7 +168,7 @@ public class AssignmentActivityProducerImpl implements
 				TaggableItem item = new AssignmentItemImpl(this, submission, userId, activity);
 				returned.add(item);
 			}
-		} catch (UserNotDefinedException unde) {
+		} catch (Exception unde) {
 			logger.error(unde.getMessage(), unde);
 		}
 		return returned;

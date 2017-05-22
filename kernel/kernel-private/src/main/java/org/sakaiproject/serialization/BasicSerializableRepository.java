@@ -22,6 +22,7 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
     public String toJSON(T t) {
         String json = "";
         if (t != null) {
+            sessionFactory.getCurrentSession().refresh(t);
             ObjectMapper mapper = new ObjectMapper();
             try {
                 json = mapper.writeValueAsString(t);
@@ -52,6 +53,7 @@ public abstract class BasicSerializableRepository<T, ID extends Serializable> ex
     public String toXML(T t) {
         String xml = "";
         if (t != null) {
+            sessionFactory.getCurrentSession().refresh(t);
             XmlMapper mapper = new XmlMapper();
             try {
                 xml = mapper.writeValueAsString(t);
