@@ -23,7 +23,7 @@ public interface AssignmentRepository extends Repository<Assignment, String>, Se
 
     void newAssignment(Assignment assignment);
 
-    Assignment saveAssignment(Assignment assignment);
+    void updateAssignment(Assignment assignment);
 
     boolean existsAssignment(String assignmentId);
 
@@ -35,7 +35,7 @@ public interface AssignmentRepository extends Repository<Assignment, String>, Se
 
     AssignmentSubmission findSubmission(String submissionId);
 
-    AssignmentSubmission saveSubmission(AssignmentSubmission submission);
+    void updateSubmission(AssignmentSubmission submission);
 
     boolean existsSubmission(String submissionId);
 

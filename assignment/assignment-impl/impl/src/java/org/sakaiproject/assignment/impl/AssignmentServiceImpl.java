@@ -828,7 +828,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
 
-        assignmentRepository.saveAssignment(assignment);
+        assignmentRepository.updateAssignment(assignment);
     }
 
     @Override
@@ -841,7 +841,7 @@ public class AssignmentServiceImpl implements AssignmentService {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_SUBMISSION, null);
         }
 
-        assignmentRepository.saveSubmission(submission);
+        assignmentRepository.updateSubmission(submission);
     }
 
     @Override

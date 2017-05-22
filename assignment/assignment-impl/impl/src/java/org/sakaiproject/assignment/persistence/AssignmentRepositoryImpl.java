@@ -1,20 +1,18 @@
 package org.sakaiproject.assignment.persistence;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.transaction.Transactional;
-
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.serialization.BasicSerializableRepository;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by enietzel on 2/22/17.
@@ -42,11 +40,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public Assignment saveAssignment(Assignment assignment) {
-        if (existsAssignment(assignment.getId())) {
-            return (Assignment) sessionFactory.getCurrentSession().merge(assignment);
-        }
-        return null;
+    public void updateAssignment(Assignment assignment) {
+        sessionFactory.getCurrentSession().update(assignment);
     }
 
     @Override
@@ -77,7 +72,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             // must call refresh here to ensure the collections are initialized before changing, this is due to lazy loaded entities
             session.refresh(assignment);
             assignment.getSubmissions().remove(submission);
-            session.merge(assignment);
+            session.update(assignment);
             session.flush();
         }
     }
@@ -95,11 +90,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     @Transactional
-    public AssignmentSubmission saveSubmission(AssignmentSubmission submission) {
-        if (existsSubmission(submission.getId())) {
-            return (AssignmentSubmission) sessionFactory.getCurrentSession().merge(submission);
-        }
-        return null;
+    public void updateSubmission(AssignmentSubmission submission) {
+        sessionFactory.getCurrentSession().update(submission);
     }
 
     @Override
@@ -125,7 +117,6 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             assignment.getSubmissions().add(submission);
 
             sessionFactory.getCurrentSession().persist(assignment);
-            // TODO remove the commented items
         }
     }
 }
