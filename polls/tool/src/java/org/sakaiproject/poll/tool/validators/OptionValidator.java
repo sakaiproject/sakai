@@ -72,7 +72,7 @@ public class OptionValidator implements Validator {
 
 		text = PollUtils.cleanupHtmlPtags(text);
 		text = text.replace("&nbsp;", "");
-		text = StringEscapeUtils.unescapeHtml4(text).trim();
+		text = StringEscapeUtils.unescapeHtml3(text).trim();
 		logger.debug("text to validate is: " + text);
 		if (text.trim().length()==0) {
 			logger.debug("OptionText is empty! (after excaping html)");
