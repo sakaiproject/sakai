@@ -131,6 +131,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         disableNativeSpellChecker: false,
         browserContextMenuOnCtrl: true,
 
+        // Fix the smileys to a single location
+        smiley_path: "/library/editor/ckeditor/plugins/smiley/images/",
+
         toolbar_Basic:
         [
             ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']

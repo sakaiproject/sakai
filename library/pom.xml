@@ -36,6 +36,11 @@
 			<artifactId>sakai-fck-connector</artifactId>
 			<type>war</type>
 		</dependency>
+		<dependency>
+			<groupId>org.tuckey</groupId>
+			<artifactId>urlrewritefilter</artifactId>
+			<version>4.0.3</version>
+		</dependency>
 		<!-- At the moment we're unpacking the webjars, so we don't want them bundled into the WAR
 		     but we still need them as dependencies so the plugin unpacks them, that's why they
 		     have a scope of runtime -->
