@@ -4,9 +4,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -128,14 +131,17 @@ public class FormatHelper {
 
 		String s = null;
 		try {
-			final Double d = Double.parseDouble(grade);
-
 			final DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
+			final Double d = df.parse(grade).doubleValue();
+
 			df.setMinimumFractionDigits(0);
 			df.setGroupingUsed(false);
 
 			s = df.format(d);
 		} catch (final NumberFormatException e) {
+			log.debug("Bad format, returning original string: " + grade);
+			s = grade;
+		} catch (final ParseException e) {
 			log.debug("Bad format, returning original string: " + grade);
 			s = grade;
 		}

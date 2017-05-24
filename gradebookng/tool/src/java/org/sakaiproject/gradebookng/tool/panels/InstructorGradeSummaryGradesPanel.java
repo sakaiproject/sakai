@@ -58,7 +58,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 
 		// unpack model
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
-		final String userId = (String) modelData.get("userId");
+		final String userId = (String) modelData.get("studentUuid");
 
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
 
@@ -78,7 +78,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		final GbStudentGradeInfo studentGradeInfo = this.businessService
 				.buildGradeMatrix(
 						assignments,
-						Arrays.asList(userId),
+						new ArrayList<>(Arrays.asList(userId)), // needs to support #remove
 						gradebookPage.getUiSettings())
 				.get(0);
 		final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();

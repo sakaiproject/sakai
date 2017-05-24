@@ -270,4 +270,8 @@ public class BasePage extends WebPage {
 		log.debug("Redirecting to AccessDeniedPage: " + message);
 		throw new RestartResponseException(AccessDeniedPage.class, params);
 	}
+
+	public GbRole getCurrentRole() {
+		return BasePage.this.role;
+	}
 }

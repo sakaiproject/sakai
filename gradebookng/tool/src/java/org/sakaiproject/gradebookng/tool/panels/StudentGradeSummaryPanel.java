@@ -12,8 +12,11 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
  *
@@ -39,11 +42,6 @@ public class StudentGradeSummaryPanel extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		// unpack model
-		// final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
-		// final String eid = (String) modelData.get("eid");
-		// final String displayName = (String) modelData.get("displayName");
-
 		// done button
 		add(new GbAjaxLink("done") {
 			private static final long serialVersionUID = 1L;
@@ -68,14 +66,19 @@ public class StudentGradeSummaryPanel extends BasePanel {
 				return new InstructorGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
 			}
 		});
-		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public Panel getPanel(final String panelId) {
-				return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
-			}
-		});
+		// Disable Student View for TAs as they most likely won't have the access
+		// to view the grade data for every student
+		if (((BasePage)getPage()).getCurrentRole() == GbRole.INSTRUCTOR) {
+			tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Panel getPanel(final String panelId) {
+					return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
+				}
+			});
+		}
 
 		add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
 			@Override

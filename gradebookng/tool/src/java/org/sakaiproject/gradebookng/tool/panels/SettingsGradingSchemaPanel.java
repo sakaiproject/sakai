@@ -56,6 +56,7 @@ import org.sakaiproject.user.api.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.sakaiproject.user.api.User;
 
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 

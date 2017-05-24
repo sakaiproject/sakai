@@ -61,6 +61,7 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
@@ -1234,12 +1235,11 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
-	 * @throws JAXBException
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
 	public void updateAssignmentCategorizedOrder(final long assignmentId, final int order)
-			throws JAXBException, IdUnusedException, PermissionException {
+			throws IdUnusedException, PermissionException {
 		final String siteId = getCurrentSiteId();
 		updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 	}
@@ -1564,8 +1564,19 @@ public class GradebookNgBusinessService {
 	 * @return the comment or null if none
 	 */
 	public String getAssignmentGradeComment(final long assignmentId, final String studentUuid) {
+		return getAssignmentGradeComment(getCurrentSiteId(), assignmentId, studentUuid);
+	}
 
-		final String siteId = getCurrentSiteId();
+
+	/**
+	 * Get the comment for a given student assignment grade
+	 *
+	 * @param siteId site id
+	 * @param assignmentId id of assignment
+	 * @param studentUuid uuid of student
+	 * @return the comment or null if none
+	 */
+	public String getAssignmentGradeComment(final String siteId, final long assignmentId, final String studentUuid) {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		try {
@@ -1579,6 +1590,7 @@ public class GradebookNgBusinessService {
 		}
 		return null;
 	}
+
 
 	/**
 	 * Update (or set) the comment for a student's assignment
@@ -2002,6 +2014,7 @@ public class GradebookNgBusinessService {
 		}
 	}
 
+
 	/**
 	 * Helper to determine the icon class to use depending on the assignment external source
 	 * @param assignment
@@ -2009,15 +2022,54 @@ public class GradebookNgBusinessService {
 	 */
 	public String getIconClass(final Assignment assignment) {
 		final String externalAppName = assignment.getExternalAppName();
-		String iconClass = ICON_SAKAI + "default-tool";
+		String iconClass = getDefaultIconClass();
 		if (StringUtils.equals(externalAppName, "Assignments")) {
-			iconClass = ICON_SAKAI + "sakai-assignment-grades";
+			iconClass = getAssignmentsIconClass();
 		} else if (StringUtils.equals(externalAppName, "Tests & Quizzes")) {
-			iconClass = ICON_SAKAI + "sakai-samigo";
+			iconClass = getSamigoIconClass();
 		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
-			iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
+			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
 	}
 
+
+	/**
+	 * Helper to determine the icon class for possible external app names
+	 * @return
+	 */
+	public Map<String, String> getIconClassMap() {
+		Map<String, String> mapping = new HashMap<>();
+
+		Tool assignment = toolManager.getTool("sakai.assignment.grades");
+		if (assignment != null) {
+			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
+		}
+
+		Tool samigo = toolManager.getTool("sakai.samigo");
+		if (samigo != null) {
+			mapping.put(samigo.getTitle(), getSamigoIconClass());
+		}
+
+		mapping.put("Lesson Builder", getLessonBuilderIconClass());
+
+		return mapping;
+	}
+
+
+	public String getDefaultIconClass() {
+		return ICON_SAKAI + "default-tool";
+	}
+
+	private String getAssignmentsIconClass() {
+		return ICON_SAKAI + "sakai-assignment-grades";
+	}
+
+	private String getSamigoIconClass() {
+		return ICON_SAKAI + "sakai-samigo";
+	}
+
+	private String getLessonBuilderIconClass() {
+		return ICON_SAKAI + "sakai-lessonbuildertool";
+	}
 }

@@ -15,6 +15,9 @@ public class GbModalWindow extends ModalWindow {
 	private static final long serialVersionUID = 1L;
 
 	private Component componentToReturnFocusTo;
+	private String assignmentIdToReturnFocusTo;
+	private String studentUuidToReturnFocusTo;
+	private boolean returnFocusToCourseGrade = false;
 	private List<WindowClosedCallback> closeCallbacks;
 	private boolean positionAtTop = false;
 
@@ -52,13 +55,13 @@ public class GbModalWindow extends ModalWindow {
 
 		// focus the first input field in the content pane
 		extraJavascript.append(String.format("setTimeout(function() {$('#%s :input:first:visible').focus();});",
-				getContent().getMarkupId()));
+			getContent().getMarkupId()));
 
 		// position at the top of the page
 		if (this.positionAtTop) {
 			extraJavascript.append(
-					String.format("setTimeout(function() {sakai.gradebookng.spreadsheet.positionModalAtTop($('#%s').closest('.wicket-modal'));});",
-							getContent().getMarkupId()));
+				String.format("setTimeout(function() {sakai.gradebookng.spreadsheet.positionModalAtTop($('#%s').closest('.wicket-modal'));});",
+					getContent().getMarkupId()));
 		}
 
 		return super.getShowJavaScript().toString() + extraJavascript.toString();
@@ -79,6 +82,28 @@ public class GbModalWindow extends ModalWindow {
 	 */
 	public void setComponentToReturnFocusTo(final Component component) {
 		this.componentToReturnFocusTo = component;
+	}
+
+	/**
+	 * Set the student to return focus to upon closing the window.
+	 *
+	 * @param component
+	 */
+	public void setStudentToReturnFocusTo(final String studentUuid) {
+		this.studentUuidToReturnFocusTo = studentUuid;
+	}
+
+	/**
+	 * Set the assignment to return focus to upon closing the window.
+	 *
+	 * @param component
+	 */
+	public void setAssignmentToReturnFocusTo(final String assignmentId) {
+		this.assignmentIdToReturnFocusTo = assignmentId;
+	}
+
+	public void setReturnFocusToCourseGrade() {
+		this.returnFocusToCourseGrade = true;
 	}
 
 	public void addWindowClosedCallback(final WindowClosedCallback callback) {
@@ -114,7 +139,25 @@ public class GbModalWindow extends ModalWindow {
 				// Return focus to defined component
 				if (GbModalWindow.this.componentToReturnFocusTo != null) {
 					target.appendJavaScript(String.format("setTimeout(function() {$('#%s').focus();});",
-							GbModalWindow.this.componentToReturnFocusTo.getMarkupId()));
+						GbModalWindow.this.componentToReturnFocusTo.getMarkupId()));
+				} else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null &&
+					GbModalWindow.this.studentUuidToReturnFocusTo != null) {
+					target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', '%s');});",
+						GbModalWindow.this.assignmentIdToReturnFocusTo,
+						GbModalWindow.this.studentUuidToReturnFocusTo));
+				} else if (GbModalWindow.this.assignmentIdToReturnFocusTo != null) {
+					target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell('%s', null);});",
+						GbModalWindow.this.assignmentIdToReturnFocusTo));
+				} else if (GbModalWindow.this.studentUuidToReturnFocusTo != null) {
+					if (GbModalWindow.this.returnFocusToCourseGrade) {
+						target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCourseGradeCell('%s');});",
+							GbModalWindow.this.studentUuidToReturnFocusTo));
+					} else {
+						target.appendJavaScript(String.format("setTimeout(function() {GbGradeTable.selectCell(null, '%s');});",
+							GbModalWindow.this.studentUuidToReturnFocusTo));
+					}
+				} else if (GbModalWindow.this.returnFocusToCourseGrade) {
+					target.appendJavaScript("setTimeout(function() {GbGradeTable.selectCourseGradeCell();});");
 				}
 			}
 		});
