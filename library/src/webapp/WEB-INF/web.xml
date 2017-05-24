@@ -77,7 +77,9 @@
 		<filter-name>UrlRewriteFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
+		<!-- We don't include forward so that we can have a for the current version of ckeditor that doesn't break
+		     when an upgrade is done. Once we're off ckeditor 4.5.7 we can re-enable this. -->
+		<!-- <dispatcher>FORWARD</dispatcher> -->
 	</filter-mapping>
 
 	<servlet>
