@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
@@ -54,6 +52,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -63,11 +62,9 @@ import org.sakaiproject.util.ResourceLoader;
  * </p>
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class ErrorReporter
 {
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(ErrorReporter.class);
-
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-util");
 	private static final ResourceBundle rbDefault = ResourceBundle.getBundle("portal-util", Locale.getDefault());
@@ -278,7 +275,7 @@ public class ErrorReporter
 		ResourceBundle rb = rbDefault;
 		
 		// log
-		M_log.warn(rb.getString("bugreport.bugreport") + " "
+		log.warn(rb.getString("bugreport.bugreport") + " "
 				+ rb.getString("bugreport.bugid") + ": " + bugId + " "
 				+ rb.getString("bugreport.user") + ": " + userId + " "
 				+ rb.getString("bugreport.usagesession") + ": " + usageSessionId + " "
@@ -324,7 +321,7 @@ public class ErrorReporter
 					userMail = user.getEmail();
 					userEid = user.getEid();
 				} catch (UserNotDefinedException e) {
-					M_log.warn("logAndMail: could not find userid: " + userId);
+					log.warn("logAndMail: could not find userid: " + userId);
 				}
 			}
 
@@ -557,7 +554,7 @@ public class ErrorReporter
 		}
 		catch (Throwable any)
 		{
-			M_log.warn(rbDefault.getString("bugreport.troublereporting"), any);
+			log.warn(rbDefault.getString("bugreport.troublereporting"), any);
 		}
 	}
 
@@ -586,7 +583,7 @@ public class ErrorReporter
 		}
 		catch (Exception ex)
 		{
-			M_log.error("Failed to generate placement display", ex);
+			log.error("Failed to generate placement display", ex);
 			sb.append("Error " + ex.getMessage());
 		}
 
@@ -703,7 +700,7 @@ public class ErrorReporter
 		}
 		catch (Exception ex)
 		{
-			M_log.error("Failed to generate request display", ex);
+			log.error("Failed to generate request display", ex);
 			sb.append("Error " + ex.getMessage());
 		}
 
@@ -743,7 +740,7 @@ public class ErrorReporter
 		}
 		catch (IOException e)
 		{
-			M_log.warn(rbDefault.getString("bugreport.troubleredirecting"), e);
+			log.warn(rbDefault.getString("bugreport.troubleredirecting"), e);
 		}
 	}
 
@@ -811,7 +808,7 @@ public class ErrorReporter
 		}
 		catch (Throwable any)
 		{
-			M_log.warn(rbDefault.getString("bugreport.troublethanks"), any);
+			log.warn(rbDefault.getString("bugreport.troublethanks"), any);
 		}
 	}
 }
