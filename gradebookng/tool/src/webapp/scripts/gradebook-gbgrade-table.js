@@ -2563,25 +2563,28 @@ GbGradeTable.setupAccessiblityBits = function() {
   };
 
   function setupTableCaption() {
+    // handsontable does not support the <caption>
+    // it causes rendering issues in Firefox.
+    // Instead we create a <div> and link it to the <table>
+    // using aria-describedby.
     var caption = GbGradeTable.templates.caption.process();
-    var $table = $wrapper.find(".ht_master.handsontable table");
-    $table.prepend(caption);
+    $('#gradeTableWrapper').append(caption);
 
     var $captionToggle = $("#captionToggle");
     $captionToggle.on("click", function(event) {
       event.preventDefault();
-      $table.find("caption").toggleClass("maximized");
+      $('#gradeTableCaption').toggleClass("maximized");
     }).on("keyup", function(event) {
       if (event.keyCode == 27) { //ESC
-        $table.find("caption").removeClass("maximized");
+        $('#gradeTableCaption').removeClass("maximized");
       }
     });
 
-    $table.find("caption").on("click", function() {
-      $(this).closest("caption").removeClass("maximized");
+    $("#gradeTableCaption").on("click", function() {
+      $(this).closest("#gradeTableCaption").removeClass("maximized");
       $captionToggle.focus();
     });
-  }
+  };
 
   setupWrapperAccessKey();
   setupTableCaption();

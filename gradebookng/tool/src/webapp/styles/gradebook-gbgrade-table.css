@@ -405,7 +405,7 @@
   font-family: 'gradebook-icons';
   content: '\f11c';
 }
-#gradeTableWrapper table caption {
+#gradeTableWrapper #gradeTableCaption {
   /* hide the caption from users, but retain for screen readers */
   position: absolute;
   width: 1px;
@@ -416,7 +416,7 @@
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
-#gradeTableWrapper table caption.maximized {
+#gradeTableWrapper #gradeTableCaption.maximized {
   position: fixed;
   width: 80%;
   height: 60%;
