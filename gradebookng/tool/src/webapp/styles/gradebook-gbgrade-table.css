@@ -79,6 +79,18 @@
   min-height: 30px;
   height: 30px;
 }
+#gradeTableWrapper .currentCol,
+#gradeTableWrapper .currentRow,
+#gradeTableWrapper .currentCol .relative,
+#gradeTableWrapper .currentRow .relative {
+  background-color: #FAFAFA;
+}
+#gradeTableWrapper th.currentCol,
+#gradeTableWrapper th.currentRow,
+#gradeTableWrapper .handsontable tr > .currentRow:nth-child(1),
+#gradeTableWrapper .handsontable tr > .currentRow:nth-child(2) {
+  background-color: #EEE;
+}
 #gradeTableWrapper .handsontable td {
   white-space: nowrap;
 }
@@ -152,18 +164,7 @@
   color: inherit;
   font-weight: inherit;
 }
-#gradeTableWrapper .currentCol,
-#gradeTableWrapper .currentRow,
-#gradeTableWrapper .currentCol .relative,
-#gradeTableWrapper .currentRow .relative {
-  background-color: #F6F6F6 !important;
-}
-#gradeTableWrapper th.currentCol,
-#gradeTableWrapper th.currentRow,
-#gradeTableWrapper .handsontable tr > .currentRow:nth-child(1),
-#gradeTableWrapper .handsontable tr > .currentRow:nth-child(2) {
-  background-color: #EEE;
-}
+
 #gradebookSpreadsheet.gb-grouped-by-category #gradeTableWrapper th.gb-categorized {
   border-top: 10px solid #F0F0F0;
 }
@@ -231,7 +232,9 @@
 .gb-flag-released {
   display: none;
 }
-#gradeTableWrapper .gb-extra-credit {
+#gradeTableWrapper .gb-extra-credit,
+#gradeTableWrapper .currentRow .gb-extra-credit,
+#gradeTableWrapper .currentCol .gb-extra-credit {
   background-color: #FCF8E3;
 }
 .gb-flag-extra-credit:before {
@@ -260,7 +263,9 @@
 #gradeTableWrapper th .gb-flag-extra-credit:before {
   color: #999;
 }
-#gradeTableWrapper .gb-save-success {
+#gradeTableWrapper .gb-save-success,
+#gradeTableWrapper .currentCol .gb-save-success,
+#gradeTableWrapper .currentRow .gb-save-success {
   background-color: #DFF0D8 !important;
 }
 #gradeTableWrapper .gb-save-success .gb-notification:before {
@@ -268,7 +273,9 @@
   content: "\f05d" !important;
   color: green;
 }
-#gradeTableWrapper .gb-save-error {
+#gradeTableWrapper .gb-save-error,
+#gradeTableWrapper .currentCol .gb-save-error,
+#gradeTableWrapper .currentRow .gb-save-error {
 	background-color: #FFBBBB !important;
 }
 #gradeTableWrapper .gb-save-error .gb-notification:before,
