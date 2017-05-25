@@ -27,8 +27,7 @@
   overflow: visible;
   padding: 0 0.4em;
   width: 100%;
-  white-space: nowrap; /* don't wrap so it stays on one line */
-  height: 40px;
+  margin: 0;
 }
 #gradebookGradesToolbar ul {
   list-style: none;

@@ -1300,7 +1300,7 @@ GbGradeTable.setupToggleGradeItems = function() {
   $panel.append($("#gradeItemsTogglePanel").show());
 
   function repositionPanel() {
-    //TODO $panel.css("right",  - ($button.position().left + $button.outerWidth()));
+    $panel.css('top', $button.position().top + $button.outerHeight() + "px");
   };
 
   var updateCategoryFilterState = function($itemFilter) {
