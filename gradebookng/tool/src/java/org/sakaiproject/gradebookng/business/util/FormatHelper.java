@@ -68,7 +68,7 @@ public class FormatHelper {
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(n);
 		df.setGroupingUsed(false);
-		df.setRoundingMode(RoundingMode.HALF_DOWN);
+		df.setRoundingMode(RoundingMode.HALF_UP);
 
 		return formatGrade(df.format(score));
 	}
@@ -113,7 +113,7 @@ public class FormatHelper {
 			return null;
 		}
 
-		final BigDecimal decimal = new BigDecimal(string).setScale(2, RoundingMode.HALF_DOWN);
+		final BigDecimal decimal = new BigDecimal(string).setScale(2, RoundingMode.HALF_UP);
 
 		return formatDoubleAsPercentage(decimal.doubleValue());
 	}
