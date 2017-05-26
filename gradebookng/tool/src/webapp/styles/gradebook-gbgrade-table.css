@@ -288,6 +288,11 @@
   content: "\f05d" !important;
   color: green;
 }
+#gradeTableWrapper .gb-just-synced,
+#gradeTableWrapper .currentCol .gb-just-synced,
+#gradeTableWrapper .currentRow .gb-just-synced {
+  background-color: #DFF0D8 !important;
+}
 #gradeTableWrapper .gb-save-error,
 #gradeTableWrapper .currentCol .gb-save-error,
 #gradeTableWrapper .currentRow .gb-save-error {

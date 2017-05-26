@@ -123,7 +123,8 @@ $(document).ready(function() {
 GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value, cellProperties) {
 
   var $td = $(td);
-  var cellKey = GbGradeTable.cleanKey(row + '_' + col + '_' + value.join('_'));
+  var scoreState = GbGradeTable.getCellState(row, col, instance);
+  var cellKey = GbGradeTable.cleanKey([row, col, scoreState, value.join('_')].join('_'));
   var wasInitialised = $.data(td, 'cell-initialised');
 
   if (wasInitialised === cellKey) {
@@ -151,6 +152,16 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
     courseGrade: value[0]
   });
   $td.removeAttr('aria-describedby');
+
+  var $cellDiv = $(td.getElementsByClassName('relative')[0]);
+  if (scoreState == "synced") {
+    $cellDiv.addClass("gb-just-synced");
+
+    setTimeout(function() {
+      GbGradeTable.clearCellState(row, col);
+      $cellDiv.removeClass("gb-just-synced", 2000);
+    }, 2000);
+  }
 };
 
 GbGradeTable.cleanKey = function(key) {
@@ -186,7 +197,7 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   // key needs to contain all values the cell requires for render
   // otherwise it won't rerender when those values change
   var hasComment = column.type === "assignment" ? GbGradeTable.hasComment(student, column.assignmentId) : false;
-  var scoreState = column.type === "assignment" ? GbGradeTable.getScoreState(student.userId, column.assignmentId) : false;
+  var scoreState = GbGradeTable.getCellState(row, col, instance);
   var isReadOnly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
   var hasConcurrentEdit = column.type === "assignment" ? GbGradeTable.hasConcurrentEdit(student, column.assignmentId) : false;
   var keyValues = [row, index, value, student.eid, hasComment, isReadOnly, hasConcurrentEdit, column.type, scoreState];
@@ -300,8 +311,15 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
     $cellDiv.addClass("gb-save-success");
 
     setTimeout(function() {
-      GbGradeTable.setScoreState(false, student.userId, column.assignmentId);
+      GbGradeTable.clearCellState(row, col);
       $cellDiv.removeClass("gb-save-success", 2000);
+    }, 2000);
+  } else if (scoreState == "synced") {
+    $cellDiv.addClass("gb-just-synced");
+
+    setTimeout(function() {
+      GbGradeTable.clearCellState(row, col);
+      $cellDiv.removeClass("gb-just-synced", 2000);
     }, 2000);
   } else if (hasConcurrentEdit) {
     $cellDiv.addClass("gb-concurrent-edit");
@@ -1722,32 +1740,35 @@ GbGradeTable.sort = function(colIndex, direction) {
   GbGradeTable.instance.loadData(clone);
 };
 
-GbGradeTable.setScoreState = function(state, studentId, assignmentId) {
-  var student = GbGradeTable.modelForStudent(studentId);
+GbGradeTable.setCellState = function(state, row, col) {
+    var studentId = (GbGradeTable.instance || instance).getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX).userId;
+    var student = GbGradeTable.modelForStudent(studentId);
 
-  if (!student.hasOwnProperty('scoreStatus')) {
-    student.scoreStatus = {};
-  }
+    if (!student.hasOwnProperty('cellStatus')) {
+      student.cellStatus = {};
+    }
 
-  student.scoreStatus[assignmentId] = state;
+    student.cellStatus['col'+col] = state;
 };
 
-GbGradeTable.clearScoreState = function(studentId, assignmentId) {
-  var student = GbGradeTable.modelForStudent(studentId);
+GbGradeTable.clearCellState = function(row, col) {
+    var studentId = GbGradeTable.instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX).userId;
+    var student = GbGradeTable.modelForStudent(studentId);
 
-  if (student.hasOwnProperty('scoreStatus')) {
-    delete student.scoreStatus[assignmentId];
-  }
+    if (student.hasOwnProperty('cellStatus')) {
+      delete student.cellStatus['col'+col];
+    }
 };
 
-GbGradeTable.getScoreState = function(studentId, assignmentId) {
-  var student = GbGradeTable.modelForStudent(studentId);
+GbGradeTable.getCellState = function(row, col, instance) {
+    var studentId = (GbGradeTable.instance || instance).getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX).userId;
+    var student = GbGradeTable.modelForStudent(studentId);
 
-  if (student.hasOwnProperty('scoreStatus')) {
-    return student.scoreStatus[assignmentId];
-  } else {
-    return false;
-  }
+    if (student.hasOwnProperty('cellStatus')) {
+      return student.cellStatus['col'+col] || false;
+    } else {
+      return false;
+    }
 };
 
 GbGradeTable.studentSorter = function(a, b) {
@@ -2266,7 +2287,7 @@ GbGradeTable.setupCellMetaDataSummary = function() {
           if (GbGradeTable.lastValidGrades[studentId] && GbGradeTable.lastValidGrades[studentId][assignmentId]) {
             var validScore = GbGradeTable.lastValidGrades[studentId][assignmentId];
             GbGradeTable.syncScore(studentId, [assignmentId], validScore);
-            GbGradeTable.setScoreState('reverted', studentId, assignmentId);
+            GbGradeTable.setCellState('reverted', row, col);
             GbGradeTable.redrawTable(true);
             GbGradeTable.hideMetadata();
             GbGradeTable.instance.selectCell(row, col);
@@ -2631,6 +2652,7 @@ GbGradeTable.syncScore = function(studentId, assignmentId, value) {
 GbGradeTable.syncCourseGrade = function(studentId, courseGradeData) {
     // update table
     var tableRow = GbGradeTable.rowForStudent(studentId);
+    GbGradeTable.setCellState('synced', tableRow, GbGradeTable.COURSE_GRADE_COLUMN_INDEX);
     GbGradeTable.instance.setDataAtCell(tableRow, GbGradeTable.COURSE_GRADE_COLUMN_INDEX, courseGradeData);
 
     // update model
@@ -2645,6 +2667,7 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
     // update table
     var tableRow = GbGradeTable.rowForStudent(studentId);
     var tableCol = GbGradeTable.colForCategoryScore(categoryId);
+    GbGradeTable.setCellState('synced', tableRow, tableCol);
     GbGradeTable.instance.setDataAtCell(tableRow, tableCol, categoryScoreAsLocaleString);
 
     // update model
@@ -2676,6 +2699,7 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
 
     var row = GbGradeTable.rowForStudent(studentId);
     var assignment = GbGradeTable.colModelForAssignment(assignmentId);
+    var col = GbGradeTable.colForAssignment(assignmentId);
 
     if (assignment.categoryId != null) {
       postData['categoryId']= assignment.categoryId;
@@ -2685,43 +2709,43 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
 
     GbGradeTable.ajax(postData, function (status, data) {
       if (status == "OK") {
-        GbGradeTable.setScoreState("saved", studentId, assignmentId);
+        GbGradeTable.setCellState('saved', row, col);
         delete GbGradeTable.lastValidGrades[studentId][assignmentId];
 
         if ($.isEmptyObject(GbGradeTable.lastValidGrades[studentId])) {
           delete(GbGradeTable.lastValidGrades[studentId])
         }
 
+        // update the course grade cell
+        if (data.courseGrade) {
+          GbGradeTable.syncCourseGrade(studentId, data.courseGrade);
+        }
+
+        // update the category average cell
+        if (assignment.categoryId) {
+          GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
+        }
+
         GbGradeTable.syncScore(studentId, assignmentId, newScore);
       } else if (status == "error") {
-        GbGradeTable.setScoreState("error", studentId, assignmentId);
+        GbGradeTable.setCellState('error', row, col);
 
         if (!GbGradeTable.lastValidGrades[studentId][assignmentId]) {
           GbGradeTable.lastValidGrades[studentId][assignmentId] = oldScore;
         }
       } else if (status == "invalid") {
-        GbGradeTable.setScoreState("invalid", studentId, assignmentId);
+        GbGradeTable.setCellState('invalid', row, col);
 
         if (!GbGradeTable.lastValidGrades[studentId][assignmentId]) {
           GbGradeTable.lastValidGrades[studentId][assignmentId] = oldScore;
         }
       } else if (status == "nochange") {
-        GbGradeTable.clearScoreState(studentId, assignmentId);
+        GbGradeTable.clearCellState(row, col);
       } else {
         console.log("Unhandled saveValue response: " + status);
       }
 
       GbGradeTable.instance.setDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX, GbGradeTable.modelForStudent(studentId));
-
-      // update the course grade cell
-      if (data.courseGrade) {
-        GbGradeTable.syncCourseGrade(studentId, data.courseGrade);
-      }
-
-      // update the category average cell
-      if (assignment.categoryId) {
-        GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
-      }
     });
 };
 
