@@ -488,8 +488,14 @@
 .ht_clone_left.handsontable {
   height: calc(100% - 10px) !important;
 }
+.ht_clone_left.handsontable .wtHolder .wtHider {
+  padding-bottom: 10px;
+}
 .ht_clone_top.handsontable {
   width: calc(100% - 10px) !important;
+}
+.ht_clone_top.handsontable .wtHolder .wtHider {
+  padding-right: 10px;
 }
 .wtHolder::-webkit-scrollbar {
   width: 10px;
