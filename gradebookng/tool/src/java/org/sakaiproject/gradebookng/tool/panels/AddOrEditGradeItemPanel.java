@@ -143,7 +143,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 						if (success) {
 							getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
-							setResponsePage(getPage().getPageClass());
+							setResponsePage(getPage().getPageClass(),
+								new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
 						} else {
 							error(new ResourceModel("message.edititem.error").getObject());
 							target.addChildren(form, FeedbackPanel.class);
@@ -173,7 +174,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 							getSession()
 									.success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 							setResponsePage(getPage().getPageClass(),
-									new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
+									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
 						} else {
 							target.addChildren(form, FeedbackPanel.class);
 						}

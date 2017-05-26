@@ -1,5 +1,7 @@
 GbGradeTable = {};
 
+GbGradeTable._onReadyCallbacks = [];
+
 GbGradeTable.unpack = function (s, rowCount, columnCount) {
   if (/^packed:/.test(s)) {
       return GbGradeTable.unpackPackedScores(s, rowCount, columnCount);
@@ -931,6 +933,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       return cachedWidth;
     }
   }());
+
+  GbGradeTable.runReadyCallbacks();
 };
 
 GbGradeTable.viewGradeSummary = function(studentId) {
@@ -2717,7 +2721,37 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
         GbGradeTable.syncCategoryAverage(studentId, assignment.categoryId, data.categoryScore);
       }
     });
-}
+};
+
+
+GbGradeTable.runReadyCallbacks = function() {
+    $.each(GbGradeTable._onReadyCallbacks, function(i, callback) {
+        if (typeof callback == 'function') {
+            callback();
+        }
+    });
+};
+
+
+GbGradeTable.addReadyCallback = function(callback) {
+    if (GbGradeTable.instance) {
+        if (typeof callback == 'function') {
+            callback();
+        }
+    } else {
+        GbGradeTable._onReadyCallbacks.push(callback);
+    }
+};
+
+
+GbGradeTable.focusColumnForAssignmentId = function(assignmentId) {
+    if (assignmentId) {
+        GbGradeTable.addReadyCallback(function() {
+            var col = GbGradeTable.colForAssignment(assignmentId);
+            GbGradeTable.instance.selectCell(0, col);
+        });
+    }
+};
 
 /**************************************************************************************
  * GradebookAPI - all the GradebookNG entity provider calls in one happy place
