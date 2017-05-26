@@ -1280,7 +1280,7 @@ GbGradeTable.applyStudentFilter = function(data) {
 };
 
 GbGradeTable.getColumnWidths = function() {
-  var studentColumnWidth = 180;
+  var studentColumnWidth = 220;
   var courseGradeColumnWidth = 140;
 
   // if showing points

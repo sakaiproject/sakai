@@ -386,6 +386,10 @@
 #gradebookGradesToolbar button {
   margin: 0;
 }
+#studentFilterInput {
+   height: 28px;
+   font-size: 12px;
+ }
 .gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
 .gb-student-summary .gb-student-summary-counts.warn-students-hidden {
   color: #CA7311;
