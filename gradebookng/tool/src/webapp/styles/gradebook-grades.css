@@ -62,8 +62,9 @@
 #toggleCategoriesToolbarItem:before {
   font-family: 'gradebook-icons';
   content: '\f096';
-  font-size: 0.9em;
-  margin-right: 6px
+  font-size: 15px;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 #toggleCategories.on:before,
 #toggleCategoriesToolbarItem.on:before {
@@ -71,6 +72,10 @@
 }
 #filterByGroup {
   line-height: 1em;
+  max-width: 80%;
+  max-width: calc(100% - 50px);
+  margin-top: 10px;
+  font-size: 12px;
 }
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
   color: #CA7311;
@@ -328,6 +333,7 @@ div.wicket-modal div.w_right > div {
 
 /* Live feedback message container */
 .gb-live-feedback {
+  display: inline-block;
   padding: 4px;
   font-size: 12px;
   line-height: 35px;

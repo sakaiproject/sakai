@@ -386,24 +386,25 @@
 #gradebookGradesToolbar button {
   margin: 0;
 }
-#gradeTableSummary {
-  overflow: hidden;
-  font-size: 0.8em;
-  padding: 0 18px 0 12px;
-  background-color: #FAFAFA;
-  border-top: 1px solid #F6f6f6;
-  color: #555;
-  clear: both;
-}
-#gradeTableSummary .gb-item-summary-counts.warn-items-hidden,
-#gradeTableSummary .gb-student-summary-counts.warn-students-hidden {
+.gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
+.gb-student-summary .gb-student-summary-counts.warn-students-hidden {
   color: #CA7311;
   font-weight: bold;
 }
 /* table caption and toggle */
+#captionToggle {
+  color: #777;
+  vertical-align: middle;
+  text-decoration: none;
+  font-size: 25px;
+  margin-left: 10px;
+}
 #captionToggle:before {
   font-family: 'gradebook-icons';
   content: '\f11c';
+}
+#captionToggle:hover {
+  text-shadow: 0 0 5px #AAA;
 }
 #gradeTableWrapper #gradeTableCaption {
   /* hide the caption from users, but retain for screen readers */

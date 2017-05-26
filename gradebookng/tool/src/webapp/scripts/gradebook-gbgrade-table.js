@@ -2483,23 +2483,23 @@ GbGradeTable.setLiveFeedbackAsSaving = function() {
 
 
 GbGradeTable.refreshSummaryLabels = function() {
-  var $summary = $("#gradeTableSummary");
+  var $toolbar = $("#gradebookGradesToolbar");
 
   function refreshStudentSummary() {
-    $summary.find(".gb-student-summary").html(GbGradeTable.templates.studentSummary.process());
+    $toolbar.find(".gb-student-summary").html(GbGradeTable.templates.studentSummary.process());
     var visible = GbGradeTable.instance.view.settings.data.length;
     var total = GbGradeTable.students.length;
 
-    $summary.find(".gb-student-summary .visible").html(visible);
-    $summary.find(".gb-student-summary .total").html(total);
+    $toolbar.find(".gb-student-summary .visible").html(visible);
+    $toolbar.find(".gb-student-summary .total").html(total);
 
     if (visible < total) {
-      $summary.find(".gb-student-summary-counts").addClass("warn-students-hidden");
+      $toolbar.find(".gb-student-summary-counts").addClass("warn-students-hidden");
     }
-  }
+  };
 
   function refreshGradeItemSummary() {
-    $summary.find(".gb-grade-item-summary").html(GbGradeTable.templates.gradeItemSummary.process());
+    $toolbar.find(".gb-grade-item-summary").html(GbGradeTable.templates.gradeItemSummary.process());
     var visibleColumns = 0;
     var totalColumns = GbGradeTable.columns.length;
     $.each(GbGradeTable.columns, function(i, col) {
@@ -2507,10 +2507,10 @@ GbGradeTable.refreshSummaryLabels = function() {
         visibleColumns = visibleColumns + 1;
       }
     });
-    $summary.find(".gb-grade-item-summary .visible").html(visibleColumns);
-    $summary.find(".gb-grade-item-summary .total").html(totalColumns);
+    $toolbar.find(".gb-grade-item-summary .visible").html(visibleColumns);
+    $toolbar.find(".gb-grade-item-summary .total").html(totalColumns);
     if (visibleColumns < totalColumns) {
-      $summary.find(".gb-item-summary-counts").addClass("warn-items-hidden");
+      $toolbar.find(".gb-item-summary-counts").addClass("warn-items-hidden");
     }
 
     var visibleAssignments = 0;
@@ -2535,7 +2535,7 @@ GbGradeTable.refreshSummaryLabels = function() {
       }
     });
 
-    var title = $summary.find(".gb-grade-item-summary").text();
+    var title = $toolbar.find(".gb-grade-item-summary").text();
 
     if (GbGradeTable.settings.isCategoriesEnabled) {
       title = GbGradeTable.templates.gradeItemSummaryTooltip.process();
@@ -2546,8 +2546,8 @@ GbGradeTable.refreshSummaryLabels = function() {
              });
     }
 
-    $summary.find(".gb-grade-item-summary").attr('title', title);
-  }
+    $toolbar.find(".gb-grade-item-summary").attr('title', title);
+  };
 
   refreshStudentSummary();
   refreshGradeItemSummary();

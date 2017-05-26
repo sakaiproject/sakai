@@ -16,13 +16,26 @@
 
     <div class="row">
         <div class="col-sm-12">
-            <div class="pull-left">
+            <div class="col-sm-6">
                 <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
                     <wicket:message key="button.addgradeitem" />
                 </button>
-            </div>
-            <div class="pull-left">
+
                 <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
+            </div>
+            <div class="col-sm-6 text-right">
+                <wicket:enclosure>
+                    <label for="filterByGroup" class="sr-only"><wicket:message key="filter.groups" /></label>
+                    <select id="filterByGroup" wicket:id="groupFilter">
+                        <option value="1">Section 1</option>
+                        <option value="2">Section 2</option>
+                    </select>
+                </wicket:enclosure>
+                <a wicket:id="captionToggle" href="javascript:void(0);" id="captionToggle" aria-popup="true" aria-controls="gradeTableCaption">
+                    <span class="sr-only">
+                        <wicket:message key="label.toolbar.togglehelp"/>
+                    </span>
+                </a>
             </div>
         </div>
     </div>
@@ -43,32 +56,24 @@
             <label for="studentFilterInput" class="sr-only"><wicket:message key="filter.students"/></label>
             <input type="text" id="studentFilterInput" class="form-control" aria-controls="gradeTable" wicket:message="placeholder:filter.students" accesskey="f">
         </li>
-        <li>
-          <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
-          <select id="filterByGroup" wicket:id="groupFilter">
-            <option value="1">Section 1</option>
-            <option value="2">Section 2</option>
-          </select>
-        </li>
         <wicket:enclosure>
             <li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
         </wicket:enclosure>
+        <li class="gb-student-summary"><!-- Populated by JavaScript --></li>
       </ul>
       <ul class="gb-toolbar-right">
-         <li>
-           <button wicket:id="sortGradeItemsToolbarItem" id="sortGradeItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.sortgradeitems"/></button>
-        </li>
+        <li class="gb-grade-item-summary"><!-- Populated by JavaScript --></li>
         <li>
           <button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel"><wicket:message key="label.toolbar.toggleitems"/></button>
+        </li>
+        <li>
+          <button wicket:id="sortGradeItemsToolbarItem" id="sortGradeItemsToolbarItem" class="button" aria-popup="true"><wicket:message key="label.toolbar.sortgradeitems"/></button>
         </li>
         <wicket:enclosure>
             <li>
               <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradeTable"><wicket:message key="label.toolbar.togglecategories"/></button>
             </li>
         </wicket:enclosure>
-        <li>
-          <button id="captionToggle" class="button" aria-popup="true" aria-controls="gradeTableCaption"></button>
-        </li>
       </ul>
     </div>
 
