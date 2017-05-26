@@ -488,6 +488,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       var points = assignment.points;
       $(this.TEXTAREA_PARENT).find(".out-of")[0].innerHTML = "/" + points;
     }
+    $(this.TEXTAREA_PARENT).find(".out-of").height($(this.TEXTAREA).height() - 3);
 
     if ($(this.TEXTAREA).val().length > 0) {
       $(this.TEXTAREA).select();
@@ -2100,6 +2101,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
   // enter handsontable upon return
   $(GbGradeTable.instance.rootElement).on("keydown", function(event) {
     if ($(this).is(":focus") && event.keyCode == 13) {
+      event.stopImmediatePropagation();
       $(this).blur();
       GbGradeTable.instance.selectCell(0,0);
     }
