@@ -35,6 +35,11 @@
 			<param-value>false</param-value>
 		</init-param>
 	</filter>
+
+	<filter>
+		<filter-name>UrlRewriteFilter</filter-name>
+		<filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+	</filter>
 	
 	<!--  cache everything in the library web applications -->
 	<filter-mapping>
@@ -66,6 +71,15 @@
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>UrlRewriteFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<!-- We don't include forward so that we can have a for the current version of ckeditor that doesn't break
+		     when an upgrade is done. Once we're off ckeditor 4.5.7 we can re-enable this. -->
+		<!-- <dispatcher>FORWARD</dispatcher> -->
 	</filter-mapping>
 
 	<servlet>
