@@ -214,13 +214,19 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
   var valueCell;
 
-  if (!wasInitialised) {
+  if (!wasInitialised || td.getAttribute('scope') == 'row') {
     // First time we've initialised this cell.
+    // Or we're replacing the student name cell
     var html = GbGradeTable.templates.cell.process({
       value: value
     });
 
     td.innerHTML = html;
+
+    if (td.hasAttribute('scope')) {
+      td.removeAttribute('scope');
+      td.removeAttribute('role');
+    }
   } else if (wasInitialised != cellKey) {
     valueCell = td.getElementsByClassName('gb-value')[0];
 
@@ -499,14 +505,19 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
     var col = this.instance.getSelected()[1];
 
+    var outOf = $(this.TEXTAREA_PARENT).find(".out-of")[0];
+
     if (GbGradeTable.settings.isPercentageGradeEntry) {
-      $(this.TEXTAREA_PARENT).find(".out-of")[0].innerHTML = "100%";
+      outOf.innerHTML = "100%";
     } else if (GbGradeTable.settings.isPointsGradeEntry) {
       var assignment = GbGradeTable.instance.view.settings.columns[col]._data_;
       var points = assignment.points;
-      $(this.TEXTAREA_PARENT).find(".out-of")[0].innerHTML = "/" + points;
+      outOf.innerHTML = "/" + points;
     }
-    $(this.TEXTAREA_PARENT).find(".out-of").height($(this.TEXTAREA).height() - 3);
+    var innerHeight = ($(this.TEXTAREA).height() - 3) + 'px';
+    outOf.style.height = innerHeight;
+    outOf.style.lineHeight = innerHeight;
+    this.TEXTAREA.style.lineHeight = innerHeight;
 
     if ($(this.TEXTAREA).val().length > 0) {
       $(this.TEXTAREA).select();
