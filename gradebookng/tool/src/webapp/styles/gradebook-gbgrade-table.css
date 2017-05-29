@@ -79,6 +79,9 @@
 #gradeTableWrapper tbody td .relative {
   height: 100%;
   min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #gradeTableWrapper tbody td .gb-student-cell {
   white-space: normal;
@@ -208,9 +211,12 @@
 }
 #gradeTableWrapper .gb-comment-notification {
   position: absolute;
-  top: 2px;
+  top: 50%;
   right: 8px;
-  line-height: 1em;
+  font-size: 16px;
+  min-width: 16px;
+  height: 20px;
+  margin-top: -14px;
   color: #AAA;
 }
 #gradeTableWrapper .gb-comment-notification:before,
@@ -221,10 +227,12 @@
 
 #gradeTableWrapper .gb-notification {
   position: absolute;
+  top: 50%;
   left: 10px;
-  top: 5px;
   font-size: 16px;
   min-width: 16px;
+  height: 20px;
+  margin-top: -10px;
 }
 [class*="gb-flag"] {
   color: #999;
@@ -507,6 +515,7 @@
 */
 .ht_clone_left.handsontable {
   height: calc(100% - 10px) !important;
+  margin-top: -1px; /* line up floating column rows with fixed table rows */
 }
 .ht_clone_left.handsontable .wtHolder .wtHider {
   padding-bottom: 10px;
