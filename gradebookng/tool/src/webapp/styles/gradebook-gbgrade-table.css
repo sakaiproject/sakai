@@ -515,7 +515,6 @@
 */
 .ht_clone_left.handsontable {
   height: calc(100% - 10px) !important;
-  margin-top: -1px; /* line up floating column rows with fixed table rows */
 }
 .ht_clone_left.handsontable .wtHolder .wtHider {
   padding-bottom: 10px;

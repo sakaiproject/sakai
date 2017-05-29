@@ -542,7 +542,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     colHeaders: true,
     columns: GbGradeTable.getFilteredColumns(),
     colWidths: GbGradeTable.getColumnWidths(),
-    autoRowSize: false,
+    autoRowSize: true,
     autoColSize: false,
     height: GbGradeTable.calculateIdealHeight(),
     width: GbGradeTable.calculateIdealWidth(),
@@ -573,7 +573,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         };
       }
 
-      GbGradeTable.replaceContents(th, GbGradeTable.columnDOMNodeCache[col].dom);
+      // We need to clone the dom elements as they may be reused by the static fixed headers
+      // and we want to avoid one render stealing another headers element instances
+      var clonedDom = GbGradeTable.columnDOMNodeCache[col].dom.map(function(el) {
+        return el.cloneNode(true);
+      });
+
+      GbGradeTable.replaceContents(th, clonedDom);
 
       $th.
         attr("role", "columnheader").
