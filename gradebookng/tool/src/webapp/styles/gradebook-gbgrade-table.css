@@ -85,6 +85,7 @@
 }
 #gradeTableWrapper tbody td .gb-student-cell {
   white-space: normal;
+  word-break: break-all; /* fallback */
   word-break: break-word;
   vertical-align: middle;
 }
@@ -211,12 +212,11 @@
 }
 #gradeTableWrapper .gb-comment-notification {
   position: absolute;
-  top: 50%;
+  top: 4px;
   right: 8px;
   font-size: 16px;
   min-width: 16px;
   height: 20px;
-  margin-top: -14px;
   color: #AAA;
 }
 #gradeTableWrapper .gb-comment-notification:before,
