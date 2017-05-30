@@ -21,7 +21,7 @@
 
 package org.sakaiproject.poll.tool.validators;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.poll.model.Option;
@@ -72,7 +72,7 @@ public class OptionValidator implements Validator {
 
 		text = PollUtils.cleanupHtmlPtags(text);
 		text = text.replace("&nbsp;", "");
-		text = StringEscapeUtils.unescapeHtml(text).trim();
+		text = StringEscapeUtils.unescapeHtml3(text).trim();
 		logger.debug("text to validate is: " + text);
 		if (text.trim().length()==0) {
 			logger.debug("OptionText is empty! (after excaping html)");
