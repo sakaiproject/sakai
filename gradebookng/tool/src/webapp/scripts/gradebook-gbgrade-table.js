@@ -2706,11 +2706,15 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
       GbGradeTable.lastValidGrades[studentId] = {};
     }
 
+    if (GbGradeTable.lastValidGrades[studentId].hasOwnProperty(assignmentId)) {
+      oldScore = GbGradeTable.lastValidGrades[studentId][assignmentId];
+    }
+
     var postData = {
       action: 'setScore',
       studentId: studentId,
       assignmentId: assignmentId,
-      oldScore: (GbGradeTable.lastValidGrades[studentId][assignmentId] || oldScore),
+      oldScore: oldScore,
       newScore: newScore
     };
 
