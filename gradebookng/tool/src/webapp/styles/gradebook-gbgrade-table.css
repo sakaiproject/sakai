@@ -6,6 +6,10 @@
     font-weight:400;
     font-style:normal
 }
+#gradebookSpreadsheet,
+#gradebookGradesToolbar {
+  margin-top: 20px;
+}
 #gradeTableWrapper {
   position: relative;
   overflow: visible;
