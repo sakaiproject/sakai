@@ -1,34 +1,20 @@
 package org.sakaiproject.lti.entityprovider;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.TreeMap;
-
-import javax.servlet.http.*;
 
 import lombok.Setter;
-
-import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.entitybroker.access.EntityViewAccessProvider;
 
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityParameters;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
-import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
 import org.sakaiproject.util.foorm.FoormUtil;
 
@@ -69,7 +55,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	@EntityParameters(accepted = { "order", "first", "last" })
         public LTIListEntity handleDeploysCollection(EntityView view, Map<String, Object> params) {
 		String siteId = view.getEntityReference().getId();
-		Site site = getSiteById(siteId);
+		getSiteById(siteId);
 		requireAdminUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
 		int [] paging = parsePaging(params);
@@ -86,7 +72,7 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
         public Map<String,Object> handleDeploy(EntityView view) {
                 String siteId = view.getPathSegment(2);
                 String deployId = view.getPathSegment(3);
-		Site site = getSiteById(siteId);
+		getSiteById(siteId);
 		requireAdminUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
                 Map<String,Object> deploy = ltiService.getDeployDao(new Long(deployId), siteId, inAdmin);
@@ -99,8 +85,8 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	@EntityParameters(accepted = { "order", "first", "last" })
         public LTIListEntity handleToolsCollection(EntityView view, Map<String, Object> params) {
 		String siteId = view.getEntityReference().getId();
-		Site site = getSiteById(siteId);
-		requireMaintainUser(siteId);
+		getSiteById(siteId);
+		requireMemberUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
 		int [] paging = parsePaging(params);
 
@@ -116,8 +102,8 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
         public Map<String,Object> handleTool(EntityView view) {
                 String siteId = view.getPathSegment(2);
                 String toolId = view.getPathSegment(3);
-		Site site = getSiteById(siteId);
-		requireMaintainUser(siteId);
+		getSiteById(siteId);
+		requireMemberUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
                 Map<String,Object> tool = ltiService.getToolDao(new Long(toolId), siteId, inAdmin);
 		adjustMap(tool, inAdmin, siteId, "tool");
@@ -128,8 +114,8 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 	@EntityParameters(accepted = { "order", "first", "last" })
         public LTIListEntity handleContentsCollection(EntityView view, Map<String, Object> params) {
 		String siteId = view.getEntityReference().getId();
-		Site site = getSiteById(siteId);
-		requireMaintainUser(siteId);
+		getSiteById(siteId);
+		requireMemberUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
 		int [] paging = parsePaging(params);
 
@@ -145,8 +131,8 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
         public Map<String,Object> handleContent(EntityView view) {
                 String siteId = view.getPathSegment(2);
                 String contentId = view.getPathSegment(3);
-		Site site = getSiteById(siteId);
-		requireMaintainUser(siteId);
+		getSiteById(siteId);
+		requireMemberUser(siteId);
 		boolean inAdmin = inAdmin(siteId);
                 Map<String,Object> content = ltiService.getContentDao(new Long(contentId), siteId, inAdmin);
 		adjustMap(content, inAdmin, siteId, "content");
@@ -176,33 +162,21 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		}
 	}
 
-	protected void adjustMap(Map<String, Object> thing, boolean inAdmin, String siteId, String kind) {
+	void adjustMap(Map<String, Object> thing, boolean inAdmin, String siteId, String kind) {
 		Long id = FoormUtil.getLongNull(thing.get(LTIService.LTI_ID));
-		if ( id >= 0 ) {
+		if ( id != null && id >= 0 ) {
 			thing.put("@id","/lti/"+kind+"/"+siteId+"/"+id+".json");
 		}
 
-		if ( inAdmin ) return;
-
 		for (String key : thing.keySet()) {
 			if ( key.startsWith("allow") ) continue;
-			if ( key.indexOf("secret") >= 0 ) {
+			if (key.contains("secret")) {
 				thing.put(key, LTIService.SECRET_HIDDEN);
 			}
-			if ( key.indexOf("password") >= 0 ) {
+			if (key.contains("password")) {
 				thing.put(key, LTIService.SECRET_HIDDEN);
 			}
 		}
-	}
-
-	// Helper features
-	protected String getLoggedInUserId() {
-		String userId = developerHelperService.getCurrentUserId();
-		if (userId == null) {
-			throw new SecurityException(
-				"This action is not accessible to anon and there is no current user.");
-		}
-		return userId;
 	}
 
 	protected String getLoggedInUserReference() {
@@ -214,11 +188,11 @@ public class LTIEntityProvider extends AbstractEntityProvider implements AutoReg
 		return userReference;
 	}
 
-	protected void requireMaintainUser(String siteId) {
-                if (!isMaintain(siteId)) {
-                        throw new SecurityException(
-                                "The requested site is not accessible to the current user.");
-                }
+	protected void requireMemberUser(String siteId) {
+		if (!isMember(siteId)) {
+			throw new SecurityException(
+					"The requested site is not accessible to the current user.");
+		}
 
 	}
 
