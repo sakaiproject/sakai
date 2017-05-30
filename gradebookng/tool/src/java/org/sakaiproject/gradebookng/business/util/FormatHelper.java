@@ -29,7 +29,7 @@ public class FormatHelper {
 	 * @return double to decimal places
 	 */
 	public static String formatDoubleToDecimal(final Double score) {
-		return formatDoubleToDecimal(score, 2, rl.getLocale());
+		return formatDoubleToDecimal(score, 2);
 	}
 
 	/**
@@ -41,36 +41,23 @@ public class FormatHelper {
 	 * @return double to n decimal places
 	 */
 	private static String formatDoubleToDecimal(final Double score, final int n) {
-		return formatDoubleToDecimal(score, n, rl.getLocale());
-	}
-	
-	/**
-	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
-	 * if no decimal places. The locale is used to format with the proper decimal separator.
-	 *
-	 * @param score as a double
-	 * @return double to decimal places
-	 */
-	public static String formatDoubleToDecimal(final Double score, Locale locale) {
-		return formatDoubleToDecimal(score, 2, locale);
-	}
+		// Rounding is problematic due to the use of Doubles in
+		// Gradebook.  A number like 89.065 (which can be produced by
+		// weighted categories, for example) is stored as the double
+		// 89.06499999999999772626324556767940521240234375.  If you
+		// naively round this to two decimal places, you get 89.06 when
+		// you wanted 89.07
+		//
+		// Payten devised a clever trick of rounding to some larger
+		// decimal places first, which rounds these numbers up to
+		// something more manageable.  For example, if you round the
+		// above to 10 places, you get 89.0650000000, which rounds
+		// correctly when rounded up to 2 places.
 
-	/**
-	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with 'n' decimal places precision. And drop off any .0
-	 * if no decimal places. The locale is used to format with the proper decimal separator.
-	 *
-	 * @param score as a double
-	 * @param n as an int
-	 * @return double to n decimal places
-	 */
-	private static String formatDoubleToDecimal(final Double score, final int n, Locale locale) {
-		final NumberFormat df = NumberFormat.getInstance(locale);
-		df.setMinimumFractionDigits(0);
-		df.setMaximumFractionDigits(n);
-		df.setGroupingUsed(false);
-		df.setRoundingMode(RoundingMode.HALF_UP);
-
-		return formatGrade(df.format(score));
+		return formatGrade(new BigDecimal(score)
+				.setScale(10, RoundingMode.HALF_UP)
+				.setScale(n, RoundingMode.HALF_UP)
+				.toString());
 	}
 
 	/**

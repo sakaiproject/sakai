@@ -27,8 +27,6 @@ import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
-import java.math.RoundingMode;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -127,13 +125,7 @@ public class GbGradebookData {
             if (average == null) {
                 return new ReadOnlyScore(null);
             } else {
-                final NumberFormat df = NumberFormat.getInstance();
-                df.setMinimumFractionDigits(0);
-                df.setMaximumFractionDigits(2);
-                df.setGroupingUsed(false);
-                df.setRoundingMode(RoundingMode.HALF_DOWN);
-        
-                return new ReadOnlyScore(df.format(average));
+                return new ReadOnlyScore(FormatHelper.formatDoubleToDecimal(average));
             }
         }
     }
