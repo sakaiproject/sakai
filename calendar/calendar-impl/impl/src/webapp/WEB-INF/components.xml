@@ -23,6 +23,7 @@
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+		<property name="externalCalendarSubscriptionService"><ref bean="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/> </property>
 		<property name="opaqueUrlDao"><ref bean="org.sakaiproject.calendar.api.OpaqueUrlDao"/></property>
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
  		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
@@ -38,6 +39,11 @@
 		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 	</bean>
+
+    <!-- Just handles preloading of the institional calendars -->
+	<bean class="org.sakaiproject.calendar.impl.Preloader" init-method="init">
+		<constructor-arg ref="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/>
+	</bean>
 	
 	<bean id="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"
 		class="org.sakaiproject.calendar.impl.BaseExternalCalendarSubscriptionService"
@@ -52,7 +58,10 @@
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-    <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		<property name="clock">
+			<bean class="java.time.Clock" factory-method="systemUTC"/>
+		</property>
 	</bean>
 
 	<bean id="org.sakaiproject.calendar.api.OpaqueUrlDao" 

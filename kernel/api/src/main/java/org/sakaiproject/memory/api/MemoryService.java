@@ -94,7 +94,7 @@ public interface MemoryService // CacheManager
      *                                       due to the current security settings
      * JSR-107: <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) throws IllegalArgumentException;
      */
-    <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration);
+    <K, V, C extends Configuration<K, V>> Cache<K, V> createCache(String cacheName, C configuration);
 
     //<K, V> Cache<K, V> getCache(String cacheName, Class<K> keyType, Class<V> valueType);
 

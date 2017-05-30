@@ -1,3 +1,6 @@
+-- SAM-3016
+ALTER TABLE SAM_EVENTLOG_T ADD IPADDRESS varchar(99);
+
 -- SAK-30207
 CREATE TABLE IF NOT EXISTS CONTENTREVIEW_ITEM (
     ID                  BIGINT NOT NULL AUTO_INCREMENT,
@@ -416,3 +419,28 @@ CREATE TABLE BULLHORN_ALERTS
 
 -- SAK-32417 Forums permission composite index
 ALTER TABLE MFR_PERMISSION_LEVEL_T ADD INDEX MFR_COMPOSITE_PERM (TYPE_UUID, NAME);
+
+-- SAK-32442 - LTI Column cleanup
+-- These conversions may fail if you started Sakai at newer versions that didn't contain these columns/tables
+alter table lti_tools drop column enabled_capability;
+alter table lti_deploy drop column allowlori;
+alter table lti_tools drop column allowlori;
+drop table lti_mapping;
+-- END SAK-32442
+
+-- SAM-3012 Update samigo events 
+-- Update camel case events
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit' WHERE EVENT = 'sam.assessmentSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.graded.auto' WHERE EVENT = 'sam.assessmentAutoGraded';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.auto"' WHERE EVENT = 'sam.assessmentAutoSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.thread' WHERE EVENT = 'sam.assessmentTimedSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.pubassessment.remove' WHERE EVENT = 'sam.pubAssessment.remove';
+
+-- Update name of submission events
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.from_last' WHERE EVENT = 'sam.submit.from_last_page';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.from_toc' WHERE EVENT = 'sam.submit.from_toc';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.thread' WHERE EVENT = 'sam.assessment.thread_submit';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer' WHERE EVENT = 'sam.assessment.timer_submit';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.url' WHERE EVENT = 'sam.assessment.timer_submit.url';
+
+-- END SAM-3012 Update samigo events 

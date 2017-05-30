@@ -1,4 +1,5 @@
 <div class="portletBody"> 
+	#if($menu)#toolbar($menu)#end
 	<h3>
 		$tlang.getString('merge.merge')
 	</h3>

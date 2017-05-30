@@ -11,6 +11,13 @@
     vertical-align: middle !important;
     text-align:left !important;
   }
+  .table .attach {
+    width:1%;
+    white-space:nowrap;
+  }
+  .selectPageSize {
+    margin-right: 0.7em;
+  }
 </style>
 
 #javascript("/sakai-content-tool/js/content.js")
@@ -116,11 +123,11 @@
             <div class="navigatePanelControls">
               <span class="expand_collapse">
                 <button id="navigatePanelInnerCollapse" style="display:none" class="btn btn-link btn-xs" title="$clang.getString('collapseall')">
-                  <span class="glyphicon glyphicon-chevron-up"></span>
+                  <span class="fa fa-chevron-up" aria-hidden="true"></span>
                   <span class="sr-only">$clang.getString('collapseall')</span>
                 </button> 
               </span>
-              <button id="navigatePanelInnerExpand" class="btn btn-link btn-xs" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-chevron-down"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></span>
+              <button id="navigatePanelInnerExpand" class="btn btn-link btn-xs" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="fa fa-chevron-down" aria-hidden="true"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></span>
               <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label>
               <input placeholder="$clang.getString('list.nav.search')" type="text" id="navigatePanelSearch"/>
               <p class="close">&times;</p>
@@ -234,7 +241,7 @@
             #end
             #if (!$dropboxMode)
               <span class="hidden-sm hidden-xs pull-right">
-                <button style="margin:0" type="button" class="btn btn-default btn-sm dropdown-toggle colPicker" data-toggle="dropdown">
+                <button style="margin:0" type="button" class="btn btn-default btn-sm resources-dropdown colPicker" aria-expanded="false" data-toggle="dropdown">
                   $clang.getString('list.cols.columns')
                   <span class="caret"></span>
                 </button>
@@ -264,18 +271,14 @@
 			<tr class="hidden-sm hidden-xs"> 
 				<th id="expansion" class="attach" scope="col">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
-						<a href="#" onclick="document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
+						<a href="#" class="fa fa-compress" onclick="document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$clang.getString('collapseall')">
 							<span class="sr-only">$clang.getString('collapseall')</span>
-                            <span class="glyphicon glyphicon-chevron-up"></span>
-                            ##<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$clang.getString('collapseall')" alt="$clang.getString('collapseall')" hspace="0" />
 						</a>								 
 					#else
-						<a href="#" onclick="document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
+						<a href="#" class="fa fa-expand" onclick="document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$slang.getString('label.expand.all')">
-                            <span class="sr-only">$slang.getString('label.expand.all')</span>
-                            <span class="glyphicon glyphicon-chevron-down"></span>
-							##<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$slang.getString('label.expand.all')" alt="$slang.getString('label.expand.all')" hspace="0" />
+							<span class="sr-only">$slang.getString('label.expand.all')</span>
 						</a>								 
 					#end
 				</th>
@@ -290,9 +293,11 @@
 						$clang.getString("gen.title1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropDisplayName)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$clang.getString('sh.sorttitas')" alt ="$clang.getString('sh.sorttitas')" /> 
+								<span class="fa fa-chevron-up" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sorttitas')</span>
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sorttitdesc')" alt ="$clang.getString('sh.sorttitdesc')" /> 
+								<span class="fa fa-chevron-down" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sorttitdesc')</span>
 							#end 
 						#end 
 					</a>
@@ -312,9 +317,11 @@
 						$clang.getString("gen.created")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$clang.getString('sh.sortautas')"  alt ="$clang.getString('sh.sortautas')" /> 
+								<span class="fa fa-chevron-up" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sortautas')</span>
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sortautdesc')"  alt ="$clang.getString('sh.sortautdesc')" /> 
+								<span class="fa fa-chevron-down" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sortautdesc')</span>
 							#end 
 						#end 
 					</a>
@@ -325,9 +332,11 @@
 						$clang.getString("gen.last1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropModifiedDate)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$clang.getString('sh.sortdateas')"  alt ="$clang.getString('sh.sortdateas')" /> 
+								<span class="fa fa-chevron-up" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sortdateas')</span>
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sortdatedesc')"  alt ="$clang.getString('sh.sortdatedesc')" /> 
+								<span class="fa fa-chevron-down" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sortdatedesc')</span>
 							#end 
 						#end 
 					</a>
@@ -338,9 +347,11 @@
 						$clang.getString("gen.size")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
 							#if ($currentSortAsc.equals("true")) 
-								<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$clang.getString('sh.sortsizeas')"  alt ="$clang.getString('sh.sortsizeas')" /> 
+								<span class="fa fa-chevron-up" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sortsizeas')</span>
 							#else 
-								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$clang.getString('sh.sortsizedesc')"  alt ="$clang.getString('sh.sortsizedesc')" /> 
+								<span class="fa fa-chevron-down" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('sh.sortsizedesc')</span>
 							#end 
 						#end 
 					</a>
@@ -397,35 +408,34 @@
 								#if($item.isCollection()) 
 									<span class="skip">$newNote</span>
 									#if($item.isEmpty() || $item.isTooBig() || $item.depth < 1 || $item.isTooBigNav())
-										<span class="$iconDecor">
-										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
+										<span class="$iconDecor $item.iconClass" aria-hidden="true"></span>
+										<span class="sr-only">$!item.hoverText</span>
 									#else
-										<span class="$iconDecor visible-sm-inline visible-xs-inline">
-										<img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
-										<a class="hidden-sm hidden-xs $iconDecor" href="#"
+										<span class="sr-only">$!item.hoverText</span>
+										<a class="$iconDecor $item.iconClass" href="#"
 											#if($item.isExpanded())
 												onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#else
 												onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#end
-											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel"  /><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a></span>
+											title= "$item.expandLabel"><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a>
 									#end
 									
 								#else
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
-										<a href="#" 
+										<a class="$item.iconClass" href="#" 
 											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"	
 											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 										>
 									#else
-										<a href="${item.accessUrl}" target="${item.target}">
+										<a class="$item.iconClass" href="${item.accessUrl}" target="${item.target}">
 									#end
-										<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
 									</a>
 								#end
 								#if($item.isLocked())
- 									<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
+ 									<span class="fa fa-lock" aria-hidden="true"></span>
+									<span class="sr-only">$clang.getString('locked')</span>
 								#end
 								#if ($item.hasCopyrightAlert())
 									## if there is a copyright alert, show the alert page first
@@ -459,9 +469,11 @@
 									#end
 								#end
 							#else
-								 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
+								 <span class="$item.iconClass" aria-hidden="true"></span>
+								 <span class="sr-only">$!item.hoverText</span>
 								#if($item.isLocked())
- 									<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
+									<span class="fa fa-lock" aria-hidden="true"></span>
+									<span class="sr-only">$clang.getString('locked')</span>
 								#end
                 <span class="visible-sm-inline visible-xs-inline">$trimmedTitle</span>
                 <span class="hidden-sm hidden-xs">$validator.escapeHtml($item.name)</span>
@@ -469,18 +481,16 @@
 									&#169;
 								#end
 							#end 
-              #if ($item.description !="" && $item.description)
-                <a tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtml($item.description)">
-                   <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/>
-                </a>
-              #end
+							#if ($item.description !="" && $item.description)
+								<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtml($item.description)"></a>
+							#end
 					</td>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
 						#if($item.pasteActions && !$item.pasteActions.isEmpty())
 							#set ($itemsOnLine = 0)
 							#foreach($action in $item.pasteActions)
 								#if($itemsOnLine > 0)|#end
-								<a href="#" class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+								<a href="#" class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><span class="fa fa-clipboard" aria-hidden="true"></span><span class="sr-only">$labeler.getLabel($action)</span></a> 
 								#set ($itemsOnLine = $itemsOnLine + 1)
 							#end
 						#end
@@ -489,7 +499,7 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group  pull-right">
-                            <button type="button" class="btn dropdown-toggle btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                            <button type="button" class="btn resources-dropdown btn-xs" aria-expanded="false" data-toggle="dropdown" title="$clang.getString('gen.actions')">
                                 <span class="sr-only">$validator.escapeHtml($item.name) $clang.getString('gen.actions')</span>
                                 <span class="hidden-xs hidden-sm">$clang.getString('gen.actions')</span>
                                 <span class="caret"></span>
@@ -560,7 +570,7 @@
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
-								<img src="#imageLink("sakai/collapse.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
+								<span class="fa fa-caret-down" aria-hidden="true"></span>
 								$validator.escapeHtml("$clang.getString('list.copycontent')")
 							</a>
 						</h3>
@@ -594,7 +604,7 @@
     										#end
     									#end
     									<!-- $pagesize  "$pagesize" -->
-    									<select name="selectPageSize" onchange="document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
+    									<select name="selectPageSize" class="selectPageSize" onchange="document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
     										<option value="5"#if("$pagesize" == "5") selected="selected"#end>$tlang.getString("lis.show5")</option>
     										<option value="10"#if("$pagesize" == "10") selected="selected"#end>$tlang.getString("lis.show10")</option>
     										<option value="20"#if("$pagesize" == "20") selected="selected"#end>$tlang.getString("lis.show20")</option>
@@ -662,17 +672,18 @@
 										#if($item.isCollection())
 										<span class="skip">$newNote</span><span class="$iconDecor">	
 											#if($item.isEmpty() || $item.isTooBig())
-												<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" /></span>
+												<span class="$item.iconClass" aria-hidden="true"></span>
+												<span class="sr-only">$!item.hoverText</span>
 											#else
-												<a href="#"
+												<a href="#" class="$item.iconClass"
 													#if($item.isExpanded())
 														onclick="document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 													#else
 														onclick="document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 													#end
-													title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel" hspace="0" /></a></span>
+													title= "$item.expandLabel"></a>
 											#end
-											
+											</span>
 										#else
 											#if ($item.hasCopyrightAlert())
 												## if there is a copyright alert, show the alert page first
@@ -683,11 +694,13 @@
 											#else
 												<a href="${item.accessUrl}" target="${item.target}">
 											#end
-												<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
+												<span class="$item.iconClass" aria-hidden="true"></span>
+												<span class="sr-only">$!item.hoverText</span>
 											</a>
 										#end
 										#if($item.isLocked())
- 											<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
+											<span class="fa fa-lock" aria-hidden="true"></span>
+											<span class="sr-only">$clang.getString('locked')</span>
 										#end
 										#if ($item.hasCopyrightAlert())
 											## if there is a copyright alert, show the alert page first
@@ -717,9 +730,11 @@
 											#end
 										#end
 									#else
-										 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
+										<span class="$item.iconClass" aria-hidden="true"></span>
+										<span class="sr-only">$!item.hoverText</span>
 										#if($item.isLocked())
- 											<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="$tlang.getString('locked')" />
+											<span class="fa fa-lock" aria-hidden="true"></span>
+											<span class="sr-only">$clang.getString('locked')</span>
 										#end
 										$validator.escapeHtml($item.name)
 										#if ($item.hasCopyrightAlert())
@@ -727,10 +742,8 @@
 										#end
 									#end
 									#if ($item.description !="" && $item.description)
-                    <a tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtml($item.description)">
-                     <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/>
-                    </a>
-                  #end
+										<a class="fa fa-info-circle" tabindex="0" data-placement="bottom" role="button" data-toggle="popover" data-trigger="focus" data-content="$validator.escapeHtml($item.description)"></a>
+									#end
 							</th>
 							
 							#set ($actionCount=($actionCount - 1))
@@ -768,7 +781,8 @@
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
-								<img src="#imageLink("sakai/expand.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
+								<span class="fa fa-caret-right" aria-hidden="true"></span>
+								<span class="sr-only">$clang.getString('list.copycontent')</span>
 								$validator.escapeHtml("$clang.getString('list.copycontent')")
 							</a>
 						</h3>

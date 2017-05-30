@@ -1,0 +1,147 @@
+<link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html"/>
+<link rel="import" href="sakai-rubric-criterion-readonly.html">
+
+<dom-module id="sakai-rubric-readonly">
+  <template id="sakai-rubric-readonly-template">
+
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+
+    <div class="rubric-title" on-focus="activate" on-tap="toggleRubric" >
+      <iron-a11y-keys id="a11y" target="[[getNode('.rubric-title')]]" keys="space" on-keys-pressed="toggleRubric"></iron-a11y-keys>
+      <span class="rubric-name" tabindex="0" id$="rubric_toggle_[[rubric.id]]" aria-expanded$="[[rubricExpanded]]" role="tab" title="[[lang('toggle_details', 'Toggle details for')]] [[rubric.title]]">
+        <iron-icon class="collpase-icon" icon="rubrics-icons:chevron-right"></iron-icon>
+        {{rubric.title}}
+      </span>
+
+      <div class="actions">
+        <template is="dom-if" if="{{rubric.metadata.public}}">
+          <iron-icon title="[[lang('copy_to_local', 'Copy to local list')]]: [[rubric.title]]" tabindex="0" class="clone" icon="rubrics-icons:content-copy" on-tap="copyToLocal"></iron-icon>
+        </template>
+        
+      </div>
+
+    </div>
+
+    <iron-collapse role="tabpanel" aria-labelledby$="rubric_toggle_[[rubric.id]]" id="collapse_[[rubric.id]]">
+      <div class="rubric-details">
+        <sakai-rubric-criterion-readonly rubric="[[rubric]]"></sakai-rubric-criterion-readonly>
+      </div>
+    </iron-collapse>
+
+    <iron-ajax
+         id="updateRubric"
+         url$="/rubrics-service/rest/rubrics/[[rubric.id]]?projection=inlineRubric"
+         headers$='{"authorization": "[[token]]"}'
+         method="PATCH"
+         handle-as="json"
+         content-type="application/json-patch+json"
+         on-response="handleRubricUpdate"
+         debounce-duration="300">
+    </iron-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "sakai-rubric-readonly",
+      properties: {
+        rubric: {
+          type: Object,
+        },
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        }
+      },
+      behaviors: [rubrics.behaviors],
+      listeners: {
+        'new-rubric': 'handleNew',
+        'hide-tooltip': 'hideToolTip',
+        'show-tooltip': 'showToolTip'
+      },
+      hideToolTip: function(e) {
+        e.stopPropagation();
+        removeClass(this.$$('.rubric-title'), 'active');
+      },
+      showToolTip: function(e) {
+        e.stopPropagation();
+        addClass(this.$$('.rubric-title'), 'active');
+      },
+      handleNew: function(nr) {
+          var elem = this.$$('.rubric-title');
+          elem.click();
+          addClass(elem, 'active');
+      },
+      activate: function(e) {
+        addClass(e.target, 'active');
+        // setTimeout(function(){
+        //   console.log(Polymer.dom(this.root).activeElement);
+        // }.bind(this));
+        this.fire('active-title', this.rubric.id);
+      },
+      toggleRubric: function(e){
+        // var item = this.$.rubricslist.itemForElement(e.target);
+        var titlecontainer = this.$$('.rubric-title');
+
+        this.$$('#collapse_'+this.rubric.id).toggle();
+
+        var icon = this.$$('.collpase-icon');
+
+        if (this.$$('#collapse_'+this.rubric.id).opened) {
+          this.rubricExpanded = "true";
+          addClass(titlecontainer, 'active');
+          icon.setAttribute('icon','rubrics-icons:expand-more');
+        } else {
+          this.rubricExpanded = "false";
+          removeClass(titlecontainer, 'active');
+          icon.setAttribute('icon','rubrics-icons:chevron-right');
+        };
+      },
+      handleRubricUpdate: function(request) {
+          this.rubric = request.detail.response;
+          this.fire('sharing-change');
+      },
+      criterionResponse: function(request){
+        this.criterion = request.detail.response;
+      },
+      cloneRubric: function(e) {
+        e.stopPropagation();
+        this.fire('clone-rubric', this.rubric);
+      },
+      copyToLocal: function(e) {
+        e.stopPropagation();
+        this.fire('copy-to-local', this.rubric);
+      },
+      deactivate: function(e, id) {
+        if (!this.$$('#collapse_'+this.rubric.id).opened && this.rubric.id !== id) {
+          var titlecontainer = this.$$('.rubric-title');
+          removeClass(titlecontainer, 'active');
+        };
+      },
+      canEdit: function(rubric) {
+        if (rubric.metadata.locked || rubric.metadata.public) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+      handleShareLink: function() {
+        if (this.rubric.metadata.public) {
+          this.shareTitle = "Revoke sharing for"
+          this.shareTitleKey = "revoke"
+          this.shareicon = "unshare";
+        } else {
+          this.shareTitle = "Share"
+          this.shareTitleKey = "Share"
+          this.shareicon = "share";
+        }
+      },
+      ready: function() {
+        this.rubricExpanded = "false";
+        this.handleShareLink();
+      }
+    });
+  </script>
+</dom-module>

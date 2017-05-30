@@ -128,13 +128,21 @@ code {
 
 /*format the th - since jsf cannot do <th> vertically in a column,
  certain tds are classed (header) in jsf based tools to render the same as the th*/
-.itemSummary th, .itemSummary td.header, .itemSummaryLite td.header{
+.itemSummary th, .itemSummary td.header, .itemSummaryHeader, .itemSummaryLite td.header{
 	font-weight: bold;
 	color: #555;
 	white-space: nowrap;
 	vertical-align: top;
 	text-align: left;
 	padding: .3em 1em .3em .3em;
+}
+
+.itemSummaryHeader {
+	padding: .3em 1em 0em .3em;
+}
+
+.itemSummaryValue {
+	padding: 0em 1em .3em .3em;
 }
 
 table.itemSummary td, td.itemSummaryLite{
@@ -669,8 +677,9 @@ order to display them in the same cell they need to be wrapped in a h:panelGroup
 	margin: 0;
 }
 
-.jsfFormTable td .shorttext label{
+.jsfFormTable td .shorttext .syllabusLabel{
 	width: 17em;
+	display: inline-block;
 }
 
 .jsfFormTable td .required input {
@@ -910,6 +919,13 @@ ul.calendarLegend li{
 .ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_microsec:before { content:'.'; display:inline-block; }
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide,
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }
+
+/*jQuery Datepicker button class*/
+.ui-datepicker-trigger{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger:hover{background:none;border:none;font-size:1em;}
+.ui-datepicker-trigger span.fa{color:#000;}
+.ui-datepicker-trigger:hover span.fa{color:#000;}
+
 /* css for duplicate site alert*/
 #flashNotif  a.flashNotifClose {
     text-decoration: none;

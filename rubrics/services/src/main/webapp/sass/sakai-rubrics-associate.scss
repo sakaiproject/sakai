@@ -1,0 +1,36 @@
+.rubrics-lightbox {
+  position: absolute;
+  z-index: 999;
+  // top:0;
+  // left: 0;
+  // width: 100%;
+  // height: 100%;
+  background: rgba(0,0,0,0.5);
+  
+  sakai-rubric-criterion-preview {
+    display: block;
+    padding-bottom: 20px;
+  }
+
+  .container {
+    // display: block;
+    background: #fff;
+    // width: 960px;
+    margin: 50px auto;
+    position: relative;
+    > a {
+      text-decoration: none;
+      padding: 1px 7px 6px;
+      font-weight: bold;
+      font-size: 18px;
+      background: #fff;
+      border: 1px solid #555;
+      border-radius: 30px;
+      display: block;
+      line-height: 1;
+      position: absolute;
+      top: -10px;
+      right: -10px;
+    }
+  }
+}

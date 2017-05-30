@@ -497,7 +497,7 @@ a.hideDivision {
 	float:unset;
 	font-weight: bold;
 }
-.mcAnswerText span {
+.mcAnswerText label {
 	font-weight: normal;
 }
 /* Someone put a paragraph in a multiple choice answer */
@@ -1305,4 +1305,9 @@ input[type='reset'].linearButton {
 	font-size: x-small;
 	color:#444444;
 	font-style: italic;
+}
+
+.mathjax-warning.alert, .mathjax-warning .alert {
+	margin: 0;
+	padding: 6px 12px;
 }

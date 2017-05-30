@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Calendar;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;

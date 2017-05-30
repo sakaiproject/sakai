@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -36,7 +36,10 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class CourseGradeRecord extends AbstractGradeRecord {
-    private String enteredGrade;
+  
+	private static final long serialVersionUID = 1L;
+	
+	private String enteredGrade;
     private Double autoCalculatedGrade;  // Not persisted
 	private Double calculatedPointsEarned;	// Not persisted
 	private Double totalPointsPossible; // Not persisted

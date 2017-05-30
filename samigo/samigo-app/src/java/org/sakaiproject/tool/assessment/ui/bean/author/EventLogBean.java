@@ -11,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+
 public class EventLogBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -36,7 +39,17 @@ public class EventLogBean implements Serializable {
 	private String siteTitle;
 	
 	private Map<Long,Integer> statusMap;
-	
+		
+	private static final String SAMIGO_EVENTLOG_IPADDRESS_ENABLE = "samigo.eventlog.ipaddress.enabled";
+	private boolean enabledIpAddress = false;
+	private ServerConfigurationService serverConfigurationService;
+		
+	public EventLogBean()
+	{		
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		enabledIpAddress = serverConfigurationService.getBoolean(SAMIGO_EVENTLOG_IPADDRESS_ENABLE, false);			
+	}
+		
 	/**
 	 * Set the site Title
 	 * @return
@@ -138,6 +151,12 @@ public class EventLogBean implements Serializable {
    }
    public boolean isDeleted(Long id){
 	   return statusMap.get(id)==DELETED_STATUS;
+   }   
+   public boolean getEnabledIpAddress(){
+	   return enabledIpAddress;
    }
-
+   public void setEnabledIpAddress(boolean enabledIpAddress){
+	   this.enabledIpAddress = enabledIpAddress;
+   }	
+   
 }

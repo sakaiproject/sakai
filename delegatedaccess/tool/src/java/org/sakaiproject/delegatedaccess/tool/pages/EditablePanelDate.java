@@ -16,20 +16,21 @@
 
 package org.sakaiproject.delegatedaccess.tool.pages;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.tree.TreeNode;
 
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.HiddenField;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.util.DateFormatterUtil;
 
 /**
  * This is the shopping period date field for shopping period admins
@@ -38,13 +39,25 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
  *
  */
 public class EditablePanelDate  extends Panel{
+	private String dateTextField = "";
+	private String hiddenDateTextField = "";
 
-	SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+	final static String DATEPICKER_FORMAT = "yyyy-MM-dd";
+	final static String HIDDEN_START_ISO8601 = "dateTextFieldStart_%s_ISO8601";
+	final static String HIDDEN_END_ISO8601 = "dateTextFieldEnd_%s_ISO8601";
 
 	public EditablePanelDate(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final boolean startDate)
 	{
 		super(id);
-		final DateTextField date = new DateTextField("dateTextField", inputModel, format.toPattern()){
+
+		if (startDate && nodeModel.getNodeShoppingPeriodStartDate() != null) {
+			dateTextField = DateFormatterUtil.format(nodeModel.getNodeShoppingPeriodStartDate(), DATEPICKER_FORMAT, getSession().getLocale());
+		}
+		if (!startDate && nodeModel.getShoppingPeriodEndDate() != null) {
+			dateTextField = DateFormatterUtil.format(nodeModel.getNodeShoppingPeriodEndDate(), DATEPICKER_FORMAT, getSession().getLocale());
+		}
+
+		final TextField date = new TextField<String>("dateTextField", new PropertyModel<String>(this, "dateTextField")){
 			@Override
 			public boolean isVisible() {
 				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
@@ -58,32 +71,43 @@ public class EditablePanelDate  extends Panel{
 				tag.append("class", "datePicker", " ");
 			}
 		};
-		date.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		String dateInputId = ((startDate) ? "dateTextFieldStart_" : "dateTextFieldEnd_") + nodeModel.getNodeId();
+		date.setMarkupId(dateInputId);
+
+		final HiddenField hiddenInput = new HiddenField<String>("hiddenDateTextField", new PropertyModel<String>(this, "hiddenDateTextField"));
+		String hiddenInputId = String.format((startDate) ? HIDDEN_START_ISO8601 : HIDDEN_END_ISO8601, nodeModel.getNodeId());
+		hiddenInput.setMarkupId(hiddenInputId);
+		hiddenInput.add(new AjaxFormComponentUpdatingBehavior("onchange")
 		{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)
 			{
-				DateTextField newDate = date;
-				if(startDate){
-					nodeModel.setShoppingPeriodStartDate(date.getModelObject());
-				}else{
-					nodeModel.setShoppingPeriodEndDate(date.getModelObject());
-				}
+				if (DateFormatterUtil.isValidISODate(hiddenDateTextField) && hiddenDateTextField != null){
+					Date hiddenDate = DateFormatterUtil.parseISODate(hiddenDateTextField);
+					if(startDate){
+						nodeModel.setShoppingPeriodStartDate(hiddenDate);
+						dateTextField = DateFormatterUtil.format(hiddenDate, DATEPICKER_FORMAT, getSession().getLocale());
+					}else{
+						nodeModel.setShoppingPeriodEndDate(hiddenDate);
+						dateTextField = DateFormatterUtil.format(hiddenDate, DATEPICKER_FORMAT, getSession().getLocale());
+					}
 
-
-				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
-				//since I don't want to expand or collapse, I just call whichever one the node is already
-				//Refreshing the tree will update all the models and information (like role) will be generated onClick
-				if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
-					((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
-				}else{
-					((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
+					//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
+					//since I don't want to expand or collapse, I just call whichever one the node is already
+					//Refreshing the tree will update all the models and information (like role) will be generated onClick
+					if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
+						((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
+					}else{
+						((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
+					}
+					((BaseTreePage)target.getPage()).getTree().updateTree(target);
+					target.focusComponent(hiddenInput);
 				}
-				((BaseTreePage)target.getPage()).getTree().updateTree(target);
 			}
 
 		});
 		add(date);
+		add(hiddenInput);
 	}
 
 }

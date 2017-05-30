@@ -44,6 +44,9 @@ import org.sakaiproject.event.api.SessionState;
 @Slf4j
 public abstract class NewPagedResourceAction extends VelocityPortletPaneledAction
 {
+
+	private static final long serialVersionUID = 1L;
+
 	/** The default number of items per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 15;
 

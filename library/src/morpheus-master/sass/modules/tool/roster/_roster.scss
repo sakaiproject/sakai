@@ -41,6 +41,7 @@
         @include border-radius(5px);
         padding: 5px;
         margin-bottom: 5px;
+        width: 161px;
         .roster-pictureview-picture {
             width: 150px;
             height: 150px;
@@ -48,6 +49,11 @@
                 width: 150px;
                 max-height: 150px;
             }
+        }
+        .roster-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -64,6 +70,7 @@
 
     .roster-table {
         display: table;
+        width: 100%;
 
         .roster-table-header-group {
             display: table-header-group;
@@ -86,6 +93,8 @@
 
                 .roster-picture {
                     width: 80px;
+                    min-height: 60px;
+                    max-height: 140px;
                     padding: 5px 0px 5px 5px;
                 }
 
@@ -97,6 +106,12 @@
             }
             .roster-last-visit-time-cell {
                 font-size: 0.9em;
+            }
+
+            .roster-name-cell {
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
         }
         .roster-member:nth-child(odd){
@@ -116,22 +131,40 @@
         margin-left: 2px;
     }
 
-    .roster-groups-selector {
-        max-width: 100px !important;
-    }
-    
     .roster-group-cell {
         display: inline-block;
-        width: 40px !important;
-        max-width: 80px !important;
+        min-width: 60px !important;
+        max-width: 140px !important;
         white-space: normal !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
 
         .roster-group-link {
             white-space: nowrap !important;
+            font-size: smaller;
         }
     }
 
-    @media only screen and (max-width: 800px) {
+    .roster-no-groups-label {
+        font-size: smaller;
+        font-weight: bold;
+    }
+
+    #roster-filters {
+        div {
+            display: inline-block;
+            margin-right: 20px;
+        }
+    }
+
+    #roster-search-group {
+        div {
+            display: inline-block;
+        }
+    }
+
+    @media #{$phone} {
         .roster-table-header-group {
             display: none !important;
         }
@@ -149,13 +182,18 @@
             border-radius: 5px;
             padding: 5px;
             margin-bottom: 5px;
+            max-width: 400px;
 
             .roster-table-cell {
                 display: block !important;
+                max-width: 400px;
 
                 .roster-picture {
                     width: 160px !important;
                 }
+            }
+            .roster-name-cell {
+                max-width: 250px !important;
             }
         }
     }

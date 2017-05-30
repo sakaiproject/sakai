@@ -28,12 +28,12 @@ import java.util.Iterator;
  * <p>
  * EmptyIterator is an iterator which is empty.
  * </p>
- * @deprecated use commons-collection instead, this will be removed after 2.9 - Dec 2011
+ * @deprecated use {@link org.apache.commons.collections4.iterators.EmptyIterator} instead, this will be removed after 2.9 - Dec 2011
  */
 @Deprecated 
-public class EmptyIterator implements Iterator
+public class EmptyIterator<E> implements Iterator<E>
 {
-	public Object next()
+	public E next()
 	{
 		return null;
 	}

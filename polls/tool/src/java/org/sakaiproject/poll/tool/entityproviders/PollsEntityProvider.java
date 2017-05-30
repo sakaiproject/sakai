@@ -35,7 +35,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -894,7 +894,7 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 	 * pollOption parameters.
 	 */
 	@EntityCustomAction(action = "vote", viewKey = EntityView.VIEW_NEW)
-	public List<Vote> vote(EntityView view, EntityReference ref, String prefix,
+	public void vote(EntityView view, EntityReference ref, String prefix,
 			Search search, OutputStream out, Map<String, Object> params) {
 		Long pollId = null;
 		try {
@@ -997,7 +997,6 @@ public class PollsEntityProvider extends AbstractEntityProvider implements
 			}
 			votes.add(vote);
 		}
-		return votes;
 	}
 
 	/**

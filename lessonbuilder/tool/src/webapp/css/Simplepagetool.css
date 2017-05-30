@@ -356,7 +356,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 
 /* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
 .column {
-    margin: 7px 15px;
+    margin: 7px 0;
     padding: 15px 7px;
     padding-top: 25px;
     list-style:none;
@@ -1185,6 +1185,11 @@ input[type="submit"].question-submit,.linkCell .addStudentContent, input[type="s
 }
 .checklistDiv {
  padding-right: 15px;
+ width: 100%;
+ max-width: 500px;
+}
+.checklistDiv .checklistDescription {
+ width: auto;
 }
 .questionDivControl {
  margin-top: 5px;
@@ -1442,10 +1447,6 @@ div.navIntraTool {
 /* temporary, to avoid changing old stuff for the moment */
 .edit-col {
   padding-top: 0px !important;
-}
-.mainList > li {
-  margin-top: 0px !important;
-  margin-bottom: 0px !important;
 }
 .image-col {
  display: inline-block;
@@ -2010,4 +2011,20 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
     padding: .5em;
     margin: .5em 0;
     border: 1px solid #ccc;
+}
+
+.Mrphs-sakai-lessonbuildertool .navIntraTool.top-next-prev {
+    margin-top: 20px;
+}
+
+.top-next-prev.navIntraTool > li {
+    display: block;
+}
+
+.top-next-prev .nextprev.prev {
+    float: left;
+}
+
+.top-next-prev .nextprev.next {
+    float: right;
 }

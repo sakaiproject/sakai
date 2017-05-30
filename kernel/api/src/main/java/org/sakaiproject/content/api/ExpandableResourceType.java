@@ -48,7 +48,17 @@ public interface ExpandableResourceType extends ResourceType
 	 * @return A path to the icon relative to the root of the image library in
 	 * "/reference/library/src/webapp/image/", or null
 	 */
+	@Deprecated
 	public String getIconLocation(ContentEntity entity, boolean expanded);
+	
+	/**
+	 * Same as getIconLocation, but retrieves its font-awesome icon class
+	 * 
+	 * @param entity The entity for which the icon class is needed, or null, especially in
+	 * cases where a specific entity has not yet been created. 
+	 * @return A font-awesome icon class, or null
+	 */
+	public String getIconClass(ContentEntity entity, boolean expanded);
 	
 	/**
 	 * Access a text string suitable for use as a very brief description of the expand/collapse option

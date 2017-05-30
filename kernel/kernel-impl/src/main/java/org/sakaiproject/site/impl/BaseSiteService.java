@@ -985,12 +985,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 		// complete the edit
 		storage().save(site);
 		
-		// Check to see if an this is an interesting enough change to invalidate the user-site cache.
-		// For now, we just check if the title changed because that persists in the portal navigation.
-		// As with other areas, if the main and user-site caches were more integrated (keeping references
-		// for users rather than copies), we would not have to synchronize explicitly here.
+		// Invalidate the user-site cache.
 		Site cached = getCachedSite(site.getId());
-		if (cached != null && site.getTitle() != null && !site.getTitle().equals(cached.getTitle())) {
+		if (cached != null ) {
 			clearUserCacheForSite(site);
 		}
 		cacheSite(site);
@@ -1402,6 +1399,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 		for (SiteRemovalAdvisor advisor: siteRemovalAdvisors)
 		{
 			advisor.removed(site);
+		}
+
+		// Invalidate the user-site cache.
+		Site cached = getCachedSite(site.getId());
+		if (cached != null ) {
+			clearUserCacheForSite(site);
 		}
 		
 		// complete the edit
@@ -2311,6 +2314,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 							+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 					out.println("<link href=\"" + skinRepo + "/" + skin
 							+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+					out.println(serverConfigurationService().getString("portal.include.extrahead", ""));
+
 					out.println("<title>");
 					out.println(site.getTitle());
 					out.println("</title>");

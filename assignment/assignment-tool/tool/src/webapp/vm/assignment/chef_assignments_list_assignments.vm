@@ -48,7 +48,7 @@
 	<div class="navPanel row">
 		#if ($allowAddAssignment)
 			#if (!$!view.equals('stuvie'))
-			<div class="col-md-8">
+			<div class="col-lg-8 col-md-6 col-sm-6 col-xs-12">
 				<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<div class="spinnerBesideContainer">
@@ -74,7 +74,7 @@
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
-		<div class="col-md-4">
+		<div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
 			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		</div>
 	</div>
@@ -307,9 +307,10 @@
 												$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))
 												#if ($!allowSubmit)
 													<div class="itemAction">
-														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")" onclick="SPNR.insertSpinnerInPreallocated( this, null, 'subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)' );">
 															$tlang.getString("subasstudent")<span class="skip">: $validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</span>
 														</a>
+														<div id="subAsStudentSpinnerPlaceholder_$validator.escapeUrl($assignmentReference)" class="allocatedSpinPlaceholder"></div>
 													</div>
 												#end
 											#end

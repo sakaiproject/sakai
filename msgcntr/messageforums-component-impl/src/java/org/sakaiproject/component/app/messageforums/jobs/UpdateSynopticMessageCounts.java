@@ -10,11 +10,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -24,10 +22,12 @@ import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class UpdateSynopticMessageCounts implements Job{
@@ -39,6 +39,8 @@ public class UpdateSynopticMessageCounts implements Job{
 	private UIPermissionsManager uiPermissionsManager;
 	private MessageForumsMessageManager messageManager;
 	private SiteService siteService;
+	private SecurityService securityService;
+	private SqlService sqlService;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(UpdateSynopticMessageCounts.class);
 	
@@ -106,7 +108,7 @@ public class UpdateSynopticMessageCounts implements Job{
 		LOG.info("UpdateSynopticMessageCounts job launched: " + new Date());
 
 		try {
-			clConnection = SqlService.borrowConnection();
+			clConnection = sqlService.borrowConnection();
 			statement = clConnection.createStatement();	
 			
 			//CREATE HASHMAP OF UNREAD MESSAGES COUNT
@@ -223,7 +225,7 @@ public class UpdateSynopticMessageCounts implements Job{
 			}catch(Exception e){
 				LOG.warn(e.getMessage());
 			}
-			SqlService.returnConnection(clConnection);
+			sqlService.returnConnection(clConnection);
 		}
 		
 		LOG.info("UpdateSynopticMessageCounts job finished: " + new Date());
@@ -327,7 +329,7 @@ public class UpdateSynopticMessageCounts implements Job{
 					}
 				}
 
-				boolean isSuperUser = SecurityService.isSuperUser(userId); 
+				boolean isSuperUser = securityService.isSuperUser(userId); 
 
 				//forums count:
 				HashMap<Long, DecoratedForumInfo> dfHM = null;
@@ -584,6 +586,14 @@ public class UpdateSynopticMessageCounts implements Job{
 		this.siteService = siteService;
 	}
 	
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
+
 	public class DecoratedForumInfo{
 		
 		private Long forumId;

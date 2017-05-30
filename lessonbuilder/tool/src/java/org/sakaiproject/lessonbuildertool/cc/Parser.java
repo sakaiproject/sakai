@@ -45,11 +45,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.jdom.Element;
+import org.jdom.Attribute;
 import org.jdom.JDOMException;
 import org.jdom.Namespace;
 import org.jdom.xpath.XPath;
@@ -68,7 +70,7 @@ import org.jdom.xpath.XPath;
  * The parser will read the manifest file, as well as any declared xml resources (question banks, assessments, discussions,
  * and weblinks). DefaultHandler will always return xml in the form of JDOM elements, as well as (in some cases), java
  * objects (strings mostly). The parser will also return the details for authorization services, metadata and indicate if 
- * a resource is protected or not.
+ * a resource is protected or not
  * 
  * @author Phil Nicholls
  * @version 1.0
@@ -77,12 +79,14 @@ import org.jdom.xpath.XPath;
 
 public class Parser extends AbstractParser {
   private static final Logger log = LoggerFactory.getLogger(Parser.class);
-  CartridgeLoader utils; 
-  
+  CartridgeLoader utils;
+
   private static final String IMS_MANIFEST="imsmanifest.xml";
   
   private static final String AUTH_QUERY="/ims:manifest/auth:authorizations";
+  private static final String ORG_QUERY="/ims:manifest/ims:organizations/ims:organization";
   private static final String ITEM_QUERY="/ims:manifest/ims:organizations/ims:organization/ims:item";
+  private static final String FILE_QUERY="//ims:file/@href";
   
   private static final String AUTH_IMPORT="import";
   private static final String AUTH_ACCESS="access";
@@ -103,6 +107,7 @@ public class Parser extends AbstractParser {
   private static final String CC_ITEM_IDREF="identifierref";
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_RESOURCE="resource";
+  private static final String CC_FILE="file";
   private static final String QUESTION_BANK="question-bank";
   private static final String CC_RESOURCES="resources";
   private static final String CC_RES_TYPE="type";
@@ -133,10 +138,18 @@ public class Parser extends AbstractParser {
     // figure out which version we have, and set up ns to know about it
     int v = 0;
     for (; v < ns.getVersions(); v++) {
-	ns.setVersion(v);
-	// see if the namespace from the main manifest entry matches the candidate
-	if (the_manifest.getNamespace().equals(ns.cc_ns()))
-	    break;
+		ns.setVersion(v);
+		// see if the namespace from the main manifest entry matches the candidate
+		if (the_manifest.getNamespace().equals(ns.cc_ns())) {
+			ns.setNs(ns.cc_ns());
+			ns.setLom(ns.lomimscc_ns());
+		    break;
+	    }
+	    else if (the_manifest.getNamespace().equals(ns.cp_ns())) {
+	    	ns.setNs(ns.cp_ns());
+	    	ns.setLom(ns.lomimscp_ns());
+	    	break;
+	    }
     }
     if (v >= ns.getVersions()) {
 	the_handler.getSimplePageBean().setErrMessage(
@@ -144,27 +157,30 @@ public class Parser extends AbstractParser {
 	return;
     }
 
-    //log.info("Found version " + ns.cc_ns());
+    log.debug("Found version " + ns.getNs());
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
     if (processAuthorization(the_manifest, the_handler))
 	return; // don't process CCs with authorization
     processManifestMetadata(the_manifest, the_handler);
+    preProcessResources(the_manifest.getChild(CC_RESOURCES, ns.getNs()), the_handler);
+    XPath path=null;
+    Element org=null;
     try {
-      XPath path=XPath.newInstance(ITEM_QUERY);
-      path.addNamespace(ns.cc_ns());
-      Element item = (Element)path.selectSingleNode(the_manifest);
-      if (item!=null) {     
-        for (Iterator iter=item.getChildren(CC_ITEM, ns.cc_ns()).iterator();iter.hasNext();) {
+      path=XPath.newInstance(ORG_QUERY);
+      path.addNamespace(ns.getNs());
+      org = (Element)path.selectSingleNode(the_manifest);
+      if (org!=null) {     
+        for (Iterator iter=org.getChildren(CC_ITEM, ns.getNs()).iterator();iter.hasNext();) {
 	    Element thisitem = (Element)iter.next();
-          processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, ns.cc_ns()), the_handler);
+          processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, ns.getNs()), the_handler);
         }
       } 
       //now we need to check for the question bank and omitted dependencies
-      if (the_manifest.getChild(CC_RESOURCES, ns.cc_ns()) != null &&
-	  the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()) != null)
-      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()).iterator(); iter.hasNext(); ) {
+      if (the_manifest.getChild(CC_RESOURCES, ns.getNs()) != null &&
+	  the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()) != null)
+      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.getNs()).getChildren(CC_RESOURCE, ns.getNs()).iterator(); iter.hasNext(); ) {
 	  // this is called for question banks and other things that aren't really items, but that's OK
         Element resource=(Element)iter.next();
 	// create the resource if it wasn't already on a page
@@ -173,20 +189,37 @@ public class Parser extends AbstractParser {
       }
       the_handler.endManifest();
     } catch (JDOMException e) {
-      System.err.println(e.getMessage());
+      log.warn(e.getMessage());
       throw new ParseException(e.getMessage(),e);
     }
   }
   
   private void 
+  preProcessResources(Element the_manifest,
+		  DefaultHandler the_handler) {
+	  XPath path;
+	  List<Attribute> results;
+	  try {
+		  path = XPath.newInstance(FILE_QUERY);
+		  path.addNamespace(ns.getNs());
+		  results = path.selectNodes(the_manifest);
+		  for (Attribute result : results) {
+			  the_handler.preProcessFile(result.getValue()); 
+		  }
+	  } catch (JDOMException | ClassCastException e) {
+		  log.info("Error processing xpath for files", e);
+	  }
+  }
+
+  private void 
   processManifestMetadata(Element manifest,
                           DefaultHandler the_handler) {
-    Element metadata=manifest.getChild(MD, ns.cc_ns());
+    Element metadata=manifest.getChild(MD, ns.getNs());
     if (metadata!=null) {
-      the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, ns.cc_ns()), 
-                                        metadata.getChildText(MD_SCHEMA_VERSION, ns.cc_ns()));
+      the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, ns.getNs()), 
+                                        metadata.getChildText(MD_SCHEMA_VERSION, ns.getNs()));
       the_handler.checkCurriculum(metadata);
-      Element lom=metadata.getChild(MD_ROOT, ns.lomimscc_ns());
+      Element lom=metadata.getChild(MD_ROOT, ns.getLom());
       if (lom!=null) {
         the_handler.setManifestMetadataXml(lom);
         the_handler.endManifestMetadata();
@@ -201,7 +234,7 @@ public class Parser extends AbstractParser {
                        DefaultHandler the_handler) throws ParseException {
     try {
       XPath path=XPath.newInstance(AUTH_QUERY);
-      path.addNamespace(ns.cc_ns());
+      path.addNamespace(ns.getNs());
       path.addNamespace(ns.auth_ns());
       Element result=(Element)path.selectSingleNode(the_manifest);
       if (result!=null) {
@@ -232,37 +265,46 @@ public class Parser extends AbstractParser {
   
   private void
   processItem(Element the_item, 
-              Element the_resources,
-              DefaultHandler the_handler) throws ParseException {
-      try {
-    if (the_item.getAttributeValue(CC_ITEM_IDREF)!=null) {
-	Element resource=findResource(the_handler.getNs(),the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
-	if (resource == null) {
-	    the_handler.getSimplePageBean().setErrKey("simplepage.cc-noresource", the_item.getAttributeValue(CC_ITEM_IDREF));
-	    return;
-	}
-      // log.info("process item " + the_item + " resources " + the_resources + " resource " + resource);
+		  Element the_resources,
+		  DefaultHandler the_handler) throws ParseException {
+	  try {
+		  if (the_item.getAttributeValue(CC_ITEM_IDREF)!=null) {
+			  Element resource=findResource(ns,the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
+			  if (resource == null) {
+				  the_handler.getSimplePageBean().setErrKey("simplepage.cc-noresource", the_item.getAttributeValue(CC_ITEM_IDREF));
+				  return;
+			  }
+			  log.debug("process item " + the_item + " resources " + the_resources + " resource " + resource);
 
-      the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
-                              the_item.getChildText(CC_ITEM_TITLE, ns.cc_ns()));
-      the_handler.setCCItemXml(the_item, resource, this, utils, false);
-      processResource(resource,
+			  the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
+			  the_item.getChildText(CC_ITEM_TITLE, ns.getNs()));
+			  the_handler.setCCItemXml(the_item, resource, this, utils, false);
+			  processResource(resource,
                       the_handler);
-      the_handler.endCCItem();
-    } else {
-      the_handler.startCCFolder(the_item);
-      for (Iterator iter=the_item.getChildren(CC_ITEM, ns.cc_ns()).iterator();iter.hasNext();) {
-        processItem((Element)iter.next(), the_resources, the_handler);
-      }
-      the_handler.endCCFolder();
-      }
-      } catch (Exception e) {
-	  e.printStackTrace();
-	  if (the_item == null)
-	      log.info("processitem the item null");
-	  else 
-	      log.info("processitem failed " + the_item.getAttributeValue(CC_ITEM_IDREF));
-      }
+			  the_handler.endCCItem();
+		  } else {
+
+			  //CP formats don't follow the hierarchy standard at
+			  //http://www.imsglobal.org/cc/ccv1p0/imscc_profilev1p0.html#0_pgfId-1753534
+			  //So we need to skip the ones where title isn't defined (which would indicate that it is a valid folder and not just containing sub-items)
+			  String title = the_item.getChildText(CC_ITEM_TITLE, ns.getNs());
+			  if (title != null) {
+				  the_handler.startCCFolder(the_item);
+			  }
+			  for (Iterator iter=the_item.getChildren(CC_ITEM, ns.getNs()).iterator();iter.hasNext();) {
+				  processItem((Element)iter.next(), the_resources, the_handler);
+			  }
+			  if (title != null) {
+				  the_handler.endCCFolder();
+			  }
+		  }
+	  } catch (Exception e) {
+		  e.printStackTrace();
+		  if (the_item == null)
+			  log.info("processitem the item null");
+		  else 
+			  log.info("processitem failed " + the_item.getAttributeValue(CC_ITEM_IDREF));
+	  }
   } 
   
   public static Parser

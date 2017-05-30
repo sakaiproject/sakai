@@ -21,7 +21,9 @@
 package org.sakaiproject.component.app.messageforums.exception;
 
 public class LockedException extends RuntimeException {
-    
+
+    private static final long serialVersionUID = 1L;
+
     public LockedException() {
         super("Generic Message & Forums Locked Exception");
     }

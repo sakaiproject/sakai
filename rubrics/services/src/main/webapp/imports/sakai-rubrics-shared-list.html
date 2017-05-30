@@ -1,0 +1,86 @@
+<dom-module id="sakai-rubrics-shared-list">
+  <template>
+
+    <!-- Styling -->
+    <style include="sakai-rubrics-styles"></style>
+    <style include="polymer-bootstrap"></style>
+
+    <!-- Templating -->
+    <div role="tablist">
+      <template id="rubricslist" is="dom-repeat" items="{{rubricslist}}" as="rubric">
+        <div class="rubric-item" id="rubric_item_[[rubric.id]]">
+          <sakai-rubric-readonly rubric="{{rubric}}"></sakai-rubric-readonly>
+        </div>
+      </template>
+    </div>
+
+    <!-- AJAX setup -->
+    <iron-ajax
+         id="getSharedRubrics"
+         url="/rubrics-service/rest/rubrics/search/shared-only?projection=inlineRubric"
+         headers$='{"authorization": "[[token]]"}'
+         handle-as="json"
+         on-response="listresponse"
+         debounce-duration="300">
+    </iron-ajax>
+
+    <iron-ajax
+         id="copyShareToLocal"
+         url="/rubrics-service/rest/rubrics/"
+         headers$='{"authorization": "[[token]]"}'
+         method="POST"
+         contentType=""
+         handle-as="json"
+         on-response="handleCopyShareToLocal"
+         debounce-duration="300">
+    </iron-ajax>
+
+
+  </template>
+  <script>
+    Polymer({
+      is: "sakai-rubrics-shared-list",
+      properties: {
+        token: {
+          type: String,
+          value: rubrics.getToken()
+        }
+      },
+      listeners: {
+        'active-title': 'activate',
+        'copy-to-local': 'copyShareToLocal',
+      },
+      listresponse: function(request) {
+        this.set('rubricslist', request.detail.response._embedded.rubrics);
+
+        // this.rubricslist = request.detail.response._embedded.rubrics;
+        // this.$.rubricslist.render();
+      },
+      activate: function(e, aid) {
+        var rubrics = Polymer.dom(this.root).querySelectorAll('sakai-rubric-readonly');
+        for (var i = rubrics.length - 1; i >= 0; i--) {
+          rubrics[i].deactivate('deactivate',aid);
+        }
+      },
+      refresh: function() {
+        this.$.getSharedRubrics.generateRequest();
+      },
+      copyShareToLocal: function(e) {
+        var index = this.rubricslist.indexOf(e.detail);
+        this.$.copyShareToLocal.headers = { "Content-Type": "application/json" , "x-copy-source": e.detail.id, "Authorization": this.token, "lang": this.locale};
+        this.$.copyShareToLocal.body = '{}'
+        this.$.copyShareToLocal.generateRequest();
+      },
+      handleCopyShareToLocal: function(request) {
+        this.fire('copy-share-local');
+      },
+      ready: function() {
+        this.locale = rubrics.rubricsLocale;
+        this.refresh();
+        // if (!this.hasAttribute('tabindex')) {
+        //     this.setAttribute('tabindex', 0);
+        // }
+      }
+    });
+  </script>
+</dom-module>

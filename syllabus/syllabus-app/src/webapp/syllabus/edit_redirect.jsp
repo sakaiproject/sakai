@@ -16,12 +16,16 @@
 				<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1">
 					<h:panelGroup styleClass="shorttext required">
-						<h:outputText value="*" styleClass="reqStar"/>
-						<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+						<h:panelGroup styleClass="syllabusLabel">
+							<h:outputText value="*" styleClass="reqStar"/>
+							<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+						</h:panelGroup>
 						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65"/>
 					</h:panelGroup>
                     <h:panelGroup styleClass="shorttext required">
-                        <h:outputLabel for="openInNewWindow"><h:outputText value="#{msgs.openLinkNewWindow}"/></h:outputLabel>
+                        <h:panelGroup styleClass="syllabusLabel">
+                            <h:outputLabel for="openInNewWindow"><h:outputText value="#{msgs.openLinkNewWindow}"/></h:outputLabel>
+                        </h:panelGroup>
                         <h:selectBooleanCheckbox id="openInNewWindow" value="#{SyllabusTool.openInNewWindow}"/>
                     </h:panelGroup>
 				</h:panelGrid>

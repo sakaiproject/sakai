@@ -235,4 +235,16 @@
 	.instruction {
 		margin-top: 0;
 	}
+	
+	/* SAK-32289 : Overlapping texts when uploading a new resource too big */
+	.dz-error-message{
+		top: 150px !important;
+	}
+	
+	/* SAK-32371 : Resources doesnt use font awesome icons */
+	.fa {
+		display : inline;
+		color : $primary-color;
+		text-decoration: none;
+	}
 }

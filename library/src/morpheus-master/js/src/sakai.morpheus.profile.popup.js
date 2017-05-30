@@ -19,13 +19,13 @@ var profile = profile || {};
 profile.requestFriend = function (requestorId, friendId) {
 
     $PBJQ.ajax( {
-        url : "/direct/profile/" + requestorId + "/requestFriend?friendId=" + friendId,
-        dataType : "text",
+        url: "/direct/profile/" + requestorId + "/requestFriend?friendId=" + friendId,
+        dataType: "text",
         cache: false } )
             .done(function (data, textStatus, jqXHR) {
 
-                $PBJQ('#profile-popup-unconnected-block-' + friendId).hide();
-                $PBJQ('#profile-popup-requested-block-' + friendId).show();
+                $PBJQ('#profile-popup-request-button-' + friendId).hide();
+                $PBJQ('#profile-popup-cancel-button-' + friendId).show();
             });
     return false;
 };
@@ -38,9 +38,8 @@ profile.confirmFriendRequest = function (requestorId, friendId) {
         cache: false })
             .done(function (data, textStatus, jqXHR) {
 
-                $PBJQ('#profile-popup-accept-block-' + friendId).hide();
-                $PBJQ('#profile-popup-ignore-block-' + friendId).hide();
-                $PBJQ('#profile-popup-connected-block-' + friendId).show();
+                $PBJQ('#profile-popup-incoming-block-' + friendId).hide();
+                $PBJQ('#profile-popup-remove-button-' + friendId).show();
             });
 
     return false;
@@ -54,14 +53,14 @@ profile.removeFriend = function (removerId, friendId) {
         cache: false })
             .done(function (data, textStatus, jqXHR) {
 
-                $PBJQ('#profile-popup-connected-block-' + friendId).hide();
-                $PBJQ('#profile-popup-unconnected-block-' + friendId).show();
+                $PBJQ('#profile-popup-remove-button-' + friendId).hide();
+                $PBJQ('#profile-popup-request-button-' + friendId).show();
             });
 
     return false;
 };
 
-profile.ignoreFriendRequest = function (removerId, friendId) {
+profile.ignoreFriendRequest = function (removerId, friendId, cancel) {
 
     $PBJQ.ajax( {
         url : "/direct/profile/" + removerId + "/ignoreFriendRequest?friendId=" + friendId,
@@ -69,11 +68,50 @@ profile.ignoreFriendRequest = function (removerId, friendId) {
         cache: false })
             .done(function (data, textStatus, jqXHR) {
 
-                $PBJQ('#profile-popup-requested-block-' + friendId).hide();
-                $PBJQ('#profile-popup-ignore-block-' + friendId).hide();
-                $PBJQ('#profile-popup-accept-block-' + friendId).hide();
-                $PBJQ('#profile-popup-unconnected-block-' + friendId).show();
+                if (cancel !== undefined && cancel == true) {
+                    $PBJQ('#profile-popup-cancel-button-' + removerId).hide();
+                    $PBJQ('#profile-popup-request-button-' + removerId).show();
+                } else {
+                    $PBJQ('#profile-popup-incoming-block-' + friendId).hide();
+                    $PBJQ('#profile-popup-request-button-' + friendId).show();
+                }
             });
 
     return false;
+};
+
+/**
+ * Takes a jQuery array of the elements you want to attach a profile popup to. Each element must
+ * have a data attribute with the user's user UUID.
+ * @param jqArray An array of jQuery objects.
+ */
+profile.attachPopups = function (jqArray) {
+
+    if (!(jqArray instanceof $PBJQ)) {
+        console.log('profile.attachPopups takes a jQuery object array, from a selector');
+        return;
+    }
+
+    jqArray.each(function () {
+
+        var userId = this.dataset.userId;
+
+        $PBJQ(this).qtip({
+            position: { my: 'top left', at: 'bottom center', viewport: $(window), adjust: { method: 'flipinvert none'} },
+            show: { event: 'click', delay: 0 },
+            style: { classes: 'profile-popup-qtip qtip-shadow' },
+            hide: { event: 'click unfocus' },
+            content: {
+                text: function (event, api) {
+
+                    return $PBJQ.ajax( { url: "/direct/portal/" + userId + "/formatted", cache: false })
+                        .then(function (html) {
+                                return html;
+                            }, function (xhr, status, error) {
+                                api.set('content.text', status + ': ' + error);
+                            });
+                }
+            }
+        });
+    });
 };

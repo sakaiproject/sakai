@@ -10,6 +10,8 @@
 }
 
 .#{$namespace}multipleTools{
+	padding-top: 4px;
+
 	.#{$namespace}container {
 		border: 1px solid $overview-portlet-border-color;
 		box-shadow: $overview-portlet-shadow;
@@ -32,6 +34,10 @@
 			border-bottom: 1px solid $overview-portlet-border-color;
 			padding: 0.6em;
   	}
+
+		.#{$namespace}toolBody {
+			border-bottom: none;
+		}
   }
 
 	.#{$namespace}toolTitleNav__button_container {
@@ -165,6 +171,9 @@
 	> * {
 		position: relative;
 		top: -2px;
+	}
+	> .modal {
+		position: fixed;
 	}
 }
 

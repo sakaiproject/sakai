@@ -254,6 +254,20 @@ public class FileUploadType extends BaseResourceType
 		return iconLocation;
 	}
 	
+	public String getIconClass(ContentEntity entity) 
+	{
+		String iconClass = null;
+		if(entity != null && entity instanceof ContentResource)
+		{
+			String mimetype = ((ContentResource) entity).getContentType();
+			if(mimetype != null && ! "".equals(mimetype.trim()))
+			{
+				iconClass = contentTypeImageService.getContentTypeImageClass(mimetype);
+			}
+		}
+		return iconClass;
+	}
+	
 	public String getId() 
 	{
 		return typeId;

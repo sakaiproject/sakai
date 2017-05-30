@@ -39,7 +39,15 @@ public interface ContentTypeImageService
 	* @param contentType The content type string.
 	* @return The image file name based on the content type.
 	*/
+	@Deprecated
 	public String getContentTypeImage(String contentType);
+	
+	/**
+	* Get the font-awesome image class name based on the content type.
+	* @param contentType The content type string.
+	* @return The font-awesome image class name based on the content type.
+	*/
+	public String getContentTypeImageClass(String contentType);
 	
 	/**
 	* Get the display name of the content type.

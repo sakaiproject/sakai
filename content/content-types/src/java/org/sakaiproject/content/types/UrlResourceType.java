@@ -141,6 +141,11 @@ public class UrlResourceType extends BaseResourceType
 		return null;
 	}
 	
+	public String getIconClass(ContentEntity entity) 
+	{
+		return null;
+	}
+	
 	public String getId() 
 	{
 		return typeId;

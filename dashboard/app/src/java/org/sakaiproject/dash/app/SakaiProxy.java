@@ -87,14 +87,14 @@ public interface SakaiProxy {
        sam.pubsetting.edit    | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publishedAssessmentId=13 
        sam.pubassessment.confirm_edit | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publishedAssessmentId=13 
        sam.pubassessment.republish    | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publishedAssessmentId=13  
-       sam.pubAssessment.remove       | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publisedAssessmentId=13  
+       sam.pubassessment.remove       | siteId=f08b61c2-2b74-4355-8978-ae26718a00b7, publisedAssessmentId=13  
     */
 
 	public static final String EVENT_PUBASSESSMENT_PUBLISH = "sam.assessment.publish";
 	public static final String EVENT_PUBASSESSMENT_SETTINGS = "sam.pubsetting.edit";
 	public static final String EVENT_PUBASSESSMENT_UNPUBLISH = "sam.pubassessment.confirm_edit";
 	public static final String EVENT_PUBASSESSMENT_REPUBLISH = "sam.pubassessment.republish";
-	public static final String EVENT_PUBASSESSMENT_REMOVE = "sam.pubAssessment.remove";
+	public static final String EVENT_PUBASSESSMENT_REMOVE = "sam.pubassessment.remove";
 
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
     public static final String PERMIT_ANNOUNCEMENT_ACCESS_DRAFT = AnnouncementService.SECURE_ANNC_READ_DRAFT;

@@ -36,14 +36,16 @@ should be included in file importing DeliveryMessages
 <h:outputText value="}" escape="false" />
 <h:outputText value="</script>" escape="false" />
 
-  <h:outputText value="#{question.text}"  escape="false"/>
+<h:outputText value="<fieldset>" escape="false"/>
+<h:outputText value="<legend class='samigo-legend'> #{question.text} </legend>" escape="false"/>
+
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
 
   <f:verbatim><div class="mcscFixUp"></f:verbatim>
   <f:verbatim><div class="mcscFixUpSource"></f:verbatim>
-  <h:selectOneRadio required="false" value="#{question.responseId}" layout="pagedirection"
+  <h:selectOneRadio id="samigo-mc-select-one" required="false" value="#{question.responseId}" layout="pagedirection"
                     disabled="#{delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment'}" >
        <f:selectItems value="#{question.selectItemPartsMC}" />
   </h:selectOneRadio>
@@ -54,32 +56,31 @@ should be included in file importing DeliveryMessages
     <h:panelGroup rendered="#{delivery.feedback eq 'true' && delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:panelGroup id="image"
         rendered="#{(selection.answer.isCorrect eq 'true' || (question.itemData.partialCreditFlag && selection.answer.partialCredit gt 0)) && selection.response}"
-        styleClass="icon-sakai--check feedBackCheck" >
+        styleClass="icon-sakai--check feedBackCheck">
       </h:panelGroup>
       <h:panelGroup id="image2"
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
-        styleClass="icon-sakai--delete feedBackCross" >
+        styleClass="icon-sakai--delete feedBackCross">
       </h:panelGroup>
     </h:panelGroup>
     <div class="mcscFixUpTarget"></div>
-	<h:panelGroup> 	 
-      <div class="mcAnswerText">
-	  <h:outputText value=" #{selection.answer.label}" escape="false" /> 	 
-	  <h:outputText value=". " rendered="#{selection.answer.label ne ''}" /> 	 
-	  <h:outputText value="#{selection.answer.text}" styleClass="mcAnswerText" escape="false" >
-     	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
-      </h:outputText>
-      </div>
+    <h:panelGroup layout="block" styleClass="mcAnswerText">
+      <span class="samigo-answer-label strong" aria-hidden="true">
+        <h:outputText value=" #{selection.answer.label}" escape="false" />
+        <h:outputText value="#{deliveryMessages.dot} " rendered="#{selection.answer.label ne ''}" />
+      </span>
+      <h:outputLabel for="samigo-mc-select-one" value="#{selection.answer.text}" escape="false">
+        <f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
+      </h:outputLabel>
     </h:panelGroup>
-    <h:panelGroup>
-      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
+
+    <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel && question.itemData.typeId != 3 &&
 	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != null && selection.answer.generalAnswerFeedback != '' && selection.response}" >
    	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
        <h:outputText value="#{commonMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />
-      </h:panelGroup>
     </h:panelGroup>
   </t:dataList>
 
@@ -172,3 +173,5 @@ should be included in file importing DeliveryMessages
     </h:panelGroup>
   </h:panelGrid>
 </h:panelGroup>
+
+<h:outputText value="</fieldset>" escape="false"/>

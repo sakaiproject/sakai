@@ -46,7 +46,11 @@ var dhtml_view_sites = function(){
       // and adjust to show the bottom of the modal frame
       paneHeight -= parseInt(modal.css('padding-bottom'), 20);
 
-      $PBJQ('#txtSearch').focus();
+      // Avoid auto zoom to focus text field on touch devices
+      if (MorpheusViewportHelper.isNonPhone()) {
+        $PBJQ('#txtSearch').focus();
+      }
+
       createDHTMLMask(dhtml_view_sites);
 
       $PBJQ('.selectedTab').bind('click', function(e){
@@ -667,7 +671,9 @@ $PBJQ(document).ready(function($){
 
   $PBJQ(container).on('click', '.tab-btn', function () {
     $PBJQ('.tab-btn', container).removeClass('active');
+    $PBJQ('.tab-btn', container).attr('aria-selected', 'false');
     $PBJQ(this).addClass('active');
+    $PBJQ(this).attr('aria-selected', 'true');
 
     var panel = $PBJQ(this).data('tab-target');
 

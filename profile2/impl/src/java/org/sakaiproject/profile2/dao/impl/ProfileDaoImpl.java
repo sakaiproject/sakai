@@ -88,6 +88,24 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	  	
 	  	return getHibernateTemplate().execute(hcb);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getOutgoingConnectionUserIdsForUser(final String userId) {
+
+		//get friends of this user [and map it automatically to the Friend object]
+		//updated: now just returns a List of Strings
+		HibernateCallback<List<String>> hcb = session -> {
+            Query q = session.getNamedQuery(QUERY_GET_OUTGOING_FRIEND_REQUESTS_FOR_USER);
+            q.setString(USER_UUID, userId);
+            q.setBoolean("false", Boolean.FALSE);
+
+            return q.list();
+        };
+
+        return getHibernateTemplate().execute(hcb);
+    }
 	
 	/**
  	 * {@inheritDoc}

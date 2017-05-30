@@ -55,6 +55,15 @@
         <property name="authzGroupService">
             <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="siteService">
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
+        </property>
+        <property name="toolManager">
+            <ref bean="org.sakaiproject.tool.api.ToolManager"/>
+        </property>
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
@@ -99,6 +108,9 @@
 		        </property>		
 		         <property name="defaultPermissionsManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
 		        </property>	       
             </bean>            
         </property>
@@ -115,6 +127,9 @@
         </property>
          <property name="authzGroupService">
            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
+        <property name="toolManager">
+           <ref bean="org.sakaiproject.tool.api.ToolManager" />
         </property>
     </bean>
      
@@ -147,6 +162,9 @@
             <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
         </property>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
      </bean>
     
    
@@ -202,6 +220,9 @@
 		        </property>	
 		        <property name="serverConfigurationService">
 		        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
 		        </property>     
             </bean>            
         </property>
@@ -235,7 +256,9 @@
         		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
 		        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-        	</bean>
+		        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+	       	</bean>
 		</property>
 		
 		<property name="transactionAttributes">
@@ -268,6 +291,12 @@
 		        </property>
 		        <property name="contentHostingService">
         		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		        </property>
+		        <property name="siteService">
+		        	<ref bean="org.sakaiproject.site.api.SiteService"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
 		        </property>
             </bean>            
         </property>
@@ -311,6 +340,11 @@
 		        <property name="contentHostingService">
         		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
 		        </property>
+		        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
             </bean>           
         </property>
          <property name="transactionAttributes">
@@ -372,6 +406,9 @@
         		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
 		        </property>
 		        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+		        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+		        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+		        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
             </bean>           
         </property>
          <property name="transactionAttributes">
@@ -398,6 +435,9 @@
 				</property>				
 		        <property name="eventTrackingService">
         		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
 		        </property>
             </bean>           
         </property>
@@ -470,6 +510,8 @@
         <property name="entityBrokerManager">
             <ref bean="org.sakaiproject.entitybroker.EntityBrokerManager"/>
         </property>
+   		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
     </bean>
     
     <bean id="org.sakaiproject.api.app.messageforums.ForumEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumEntityProviderImpl">
@@ -490,10 +532,20 @@
         <property name="serverConfigurationService">
             <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
         </property>
+        <property name="securityService">
+        	<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+        </property>
+        <property name="siteService">
+        	<ref bean="org.sakaiproject.site.api.SiteService"/>
+        </property>
+        <property name="userDirectoryService">
+        	<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+        </property>
     </bean>
 
 	<bean id="org.sakaiproject.api.app.messageforums.SynopticMsgcntrItemProvider" class="org.sakaiproject.component.app.messageforums.entity.SynopticMsgcntrItemEntityProviderImpl">
 		<property name="synopticMsgcntrManager" ref="org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/> 
     </bean>
 
 
@@ -552,6 +604,9 @@
 		        <property name="discussionForumManager">
 		        	<ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
 		        </property>
+		        <property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>
             </bean>           
         </property>
          <property name="transactionAttributes">
@@ -601,6 +656,15 @@
                  <property name="messageManager">
                      <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
                  </property>
+                 <property name="sqlService">
+  	               <ref bean="org.sakaiproject.db.api.SqlService"/>
+                 </property>
+                 <property name="securityService">
+  	               <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+                 </property>
+                 <property name="siteService">
+  	               <ref bean="org.sakaiproject.site.api.SiteService"/>
+                 </property>
          	</bean>
  		</property>
  		
@@ -634,6 +698,12 @@
          </property>
          <property name="siteService">
            <ref bean="org.sakaiproject.site.api.SiteService"/>
+         </property>
+         <property name="sqlService">
+         	<ref bean="org.sakaiproject.db.api.SqlService"/>
+         </property>
+         <property name="securityService">
+         	<ref bean="org.sakaiproject.authz.api.SecurityService"/>
          </property>
     	</bean>
     	
@@ -678,6 +748,9 @@
 				<property name="serverConfigurationService">
 					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 				</property>
+				<property name="toolManager">
+		        	<ref bean="org.sakaiproject.tool.api.ToolManager"/>
+		        </property>	
             </bean>           
         </property>
          <property name="transactionAttributes">

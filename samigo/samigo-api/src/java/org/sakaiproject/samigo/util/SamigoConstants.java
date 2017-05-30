@@ -41,23 +41,22 @@ public final class SamigoConstants {
      * Events
      */
     // Submission events
-    public static final     String      EVENT_ASSESSMENT_SUBMIT                             = "sam.assessment.submit";
-    public static final     String      EVENT_ASSESSMENT_SUBMIT_CHECKED                     = "sam.assessment.submit.checked";
-    public static final     String      EVENT_ASSESSMENT_SUBMIT_CLICKSUB                    = "sam.assessment.submit.click_sub";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED                          = "sam.assessmentSubmitted";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_AUTO                     = "sam.assessmentAutoSubmitted";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMED                    = "sam.assessmentTimedSubmitted";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE            = "sam.submit.from_last_page";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_TOC                 = "sam.submit.from_toc";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED                          = "sam.assessment.submit";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_CHECKED                  = "sam.assessment.submit.checked";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_CLICKSUB                 = "sam.assessment.submit.click_sub";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_AUTO                     = "sam.assessment.submit.auto";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE            = "sam.assessment.submit.from_last_page";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_FROM_TOC                 = "sam.assessment.submit.from_toc";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_VIA_URL                  = "sam.assessment.submit.via_url";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_THREAD                   = "sam.assessment.thread_submit";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER                    = "sam.assessment.timer_submit";
-    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_VIA_URL            = "sam.assessment.timer_submit.url";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_THREAD                   = "sam.assessment.submit.thread";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER                    = "sam.assessment.submit.timer";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_VIA_URL            = "sam.assessment.submit.timer.url";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD             = "sam.assessment.submit.timer.thread";
 
     //Assessment scoring events
     public static final     String      EVENT_ASSESSMENT_TOTAL_SCORE_UPDATE                 = "sam.total.score.update";
     public static final     String      EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE               = "sam.student.score.update";
-    public static final     String      EVENT_ASSESSMENT_AUTO_GRADED                        = "sam.assessmentAutoGraded";
+    public static final     String      EVENT_ASSESSMENT_AUTO_GRADED                        = "sam.assessment.graded.auto";
     public static final     String      EVENT_ASSESSMENT_QUESTION_SCORE_UPDATE              = "sam.question.score.update";
 
     //Assessment manipulation
@@ -76,8 +75,8 @@ public final class SamigoConstants {
     //Published assessment events
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REVISE                   = "sam.pubassessment.revise";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_SAVEITEM                 = "sam.pubassessment.saveitem";
-    public static final     String      EVENT_PUBLISHED_ASSESSMENT_REMOVE                   = "sam.pubAssessment.remove";
-    public static final     String      EVENT_PUBLISHED_ASSESSMENT_CONFIRM_EDIT                = "sam.pubassessment.confirm_edit";
+    public static final     String      EVENT_PUBLISHED_ASSESSMENT_REMOVE                   = "sam.pubassessment.remove";
+    public static final     String      EVENT_PUBLISHED_ASSESSMENT_CONFIRM_EDIT             = "sam.pubassessment.confirm_edit";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_REPUBLISH                = "sam.pubassessment.republish";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_SETTING_EDIT             = "sam.pubsetting.edit";
     public static final     String      EVENT_PUBLISHED_ASSESSMENT_UNINDEXITEM              = "sam.pubassessment.unindexitem";

@@ -28,7 +28,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsU
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.slf4j.Logger;
@@ -46,10 +46,10 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   protected UserDirectoryService userDirectoryService;
   
   private EventTrackingService eventTrackingService;
+  private ToolManager toolManager;
 
   public void init() {
      LOG.info("init()");
-      ;
   }
 
   public EventTrackingService getEventTrackingService() {
@@ -60,7 +60,11 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
       this.eventTrackingService = eventTrackingService;
   }
   
-  /**
+  public void setToolManager(ToolManager toolManager) {
+	this.toolManager = toolManager;
+  }
+
+/**
    * @throws UserNotDefinedException 
  * @see org.sakaiproject.api.app.messageforums.MessageForumsUserManager#getForumUser(java.lang.String)
    */
@@ -143,7 +147,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
     if (TestUtil.isRunningTests()) {
         return "test-context";
     }
-    Placement placement = ToolManager.getCurrentPlacement();
+    Placement placement = toolManager.getCurrentPlacement();
     String presentSiteId = placement.getContext();
     return presentSiteId;
   }

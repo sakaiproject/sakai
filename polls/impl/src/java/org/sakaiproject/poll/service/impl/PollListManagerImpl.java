@@ -181,8 +181,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
             dao.save(t);
 
         } catch (DataAccessException e) {
-            log.error("Hibernate could not save: " + e.toString());
-            e.printStackTrace();
+            log.error("Hibernate could not save: " + e.toString(), e);
             return false;
         }
         log.debug(" Poll  " + t.toString() + "successfuly saved");
@@ -353,8 +352,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         try {
             dao.delete(option);
         } catch (DataAccessException e) {
-            log.error("Hibernate could not delete: " + e.toString());
-            e.printStackTrace();
+            log.error("Hibernate could not delete: " + e.toString(), e);
             return;
         }
         log.info("Option id " + option.getId() + " deleted");
@@ -385,8 +383,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         try {
             dao.save(t);
         } catch (DataAccessException e) {
-            log.error("Hibernate could not save: " + e.toString());
-            e.printStackTrace();
+            log.error("Hibernate could not save: " + e.toString(), e);
             return false;
         }
         log.info("Option  " + t.toString() + "successfuly saved");
@@ -429,28 +426,27 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         return true;
     }
 
-    @SuppressWarnings("unchecked")
-    public String archive(String siteId, Document doc, Stack stack, String archivePath,
-            List attachments) {
+    @Override
+    public String archive(String siteId, Document doc, Stack<Element> stack, String archivePath,
+            List<Reference> attachments) {
         log.debug("archive: poll " + siteId);
         // prepare the buffer for the results log
         StringBuilder results = new StringBuilder();
 
         // String assignRef = assignmentReference(siteId, SiteService.MAIN_CONTAINER);
-        results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR 
-                       + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER 
+        results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR
+                       + siteId + Entity.SEPARATOR + SiteService.MAIN_CONTAINER
                        + ".\n");
 
         // start with an element with our very own (service) name
         Element element = doc.createElement(PollListManager.class.getName());
-        ((Element) stack.peek()).appendChild(element);
+        stack.peek().appendChild(element);
         stack.push(element);
 
-        List pollsList = findAllPolls(siteId);
+        List<Poll> pollsList = findAllPolls(siteId);
         log.debug("got list of " + pollsList.size() + " polls");
-        for (int i = 0; pollsList.size() > i; i++) {
+        for (Poll poll : pollsList) {
             try {
-                Poll poll = (Poll) pollsList.get(i);
                 log.info("got poll " + poll.getId());
 
                 // archive this assignment
@@ -458,17 +454,16 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
 
                 // since we aren't archiving votes too, don't worry about archiving the
                 // soft-deleted options -- only "visible".
-                List options = getVisibleOptionsForPoll(poll.getPollId());
+                List<Option> options = getVisibleOptionsForPoll(poll.getPollId());
 
-                for (int q = 0; options.size() > q; q++) {
-                    Option opt = (Option) options.get(q);
-                    Element el2 = PollUtil.optionToXml(opt, doc, stack);
+                for (Option option : options) {
+                    Element el2 = PollUtil.optionToXml(option, doc, stack);
                     el.appendChild(el2);
                 }
 
                 element.appendChild(el);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Failed to archive {} in site {}", poll.getId(), siteId, e);
             }
 
         } // while

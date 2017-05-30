@@ -68,7 +68,7 @@ $PBJQ(document).ready(function(){
     }
   });
 
-  if($(window).width() < 800) {
+  if(MorpheusViewportHelper.isPhone()) {
     setupRoleSwitcherAsMenu();
   } else {
     // if the menu has not be setup, then don't show the toggle if the

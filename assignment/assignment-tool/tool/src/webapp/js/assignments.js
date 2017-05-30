@@ -1,6 +1,18 @@
 // 'Namespace'
 var ASN = ASN || {};
 
+// http://stackoverflow.com/a/6021027/3708872
+ASN.updateQueryStringParameter = function(uri, key, value) {
+  var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+  var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+  if (uri.match(re)) {
+    return uri.replace(re, '$1' + key + "=" + value + '$2');
+  }
+  else {
+    return uri + separator + key + "=" + value;
+  }
+}
+
 ASN.getSelect = function(selectBox) {
     if (selectBox && selectBox instanceof HTMLSelectElement) { 
         return selectBox.options[selectBox.selectedIndex].value;
@@ -793,7 +805,7 @@ ASN.submitForm = function( formID, option, submissionID, view )
         // Apply the submission ID to the form's action if one is supplied
         if( submissionID !== null )
         {
-            form.action += "&submissionId=" + submissionID;
+            form.action = ASN.updateQueryStringParameter(form.action,"submissionId",submissionID);
         }
 
         // Do the onsubmit() if the form has one

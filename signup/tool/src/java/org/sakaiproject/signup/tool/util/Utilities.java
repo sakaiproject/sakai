@@ -77,6 +77,7 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 	private static final int TYPE_ERROR=1;
 	private static final int TYPE_INFO=2;
 	
+
 	protected static Logger logger = LoggerFactory.getLogger(Utilities.class);
 
 	/**

@@ -127,7 +127,7 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
         	}
             // SECOND LINE
             UIBranchContainer userRow = UIBranchContainer.make(differentRoleForm, "user-row:", curItemNum);
-            UIOutput.make(userRow, "user-name", displayId + "(" + userName + ")");
+            UIOutput.make(userRow, "user-name", displayId + " ( " + userName + " )");
             UISelect.make(userRow, "role-select", roleIds.toStringArray(), "siteAddParticipantHandler.userRoleEntries." + i + ".role", handler.getUserRole(userEId));
 
   		}

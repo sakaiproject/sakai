@@ -1534,7 +1534,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		final HibernateCallback<List<PublishedAssessmentData>> hcb = session -> session
 				.createQuery("select p from PublishedAssessmentData p, PublishedMetaData m where p=m.assessment and m.label = :label and m.entry = :entry")
 				.setString("label", label)
-				.setString(1, entry)
+				.setString("entry", entry)
 				.list();
 		List<PublishedAssessmentData> l = getHibernateTemplate().execute(hcb);
 
@@ -2705,6 +2705,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 	 * @return updatedAssessmentStringData
 	 */
 	private String replaceSiteIdsForString(String assessmentStringData, String toContext) {
+		boolean doReplaceSiteIds = ServerConfigurationService.getBoolean("samigo.publish.update.siteids", true);
+		if (doReplaceSiteIds == false) {
+			return assessmentStringData;
+		}
 		String updatedAssessmentStringData = null;
 		
 		//if contains "..getServerUrl()/access/content/group/" then it's a standard site content file

@@ -20,6 +20,12 @@
 
   	</class>
   	
+	<sql-query name="getOutgoingFriendRequestsForUser">
+		<![CDATA[
+		select PROFILE_FRIENDS_T.FRIEND_UUID as userUuid from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.USER_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=:false
+		]]>
+	</sql-query>
+
 	<sql-query name="getFriendRequestsForUser">
 		<return-scalar column="userUuid" type="string" />
 		<!-- <return-scalar column="requestedDate" type="date" />-->
