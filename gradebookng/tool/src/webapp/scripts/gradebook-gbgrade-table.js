@@ -419,6 +419,10 @@ GbGradeTable.headerRenderer = function (col, column) {
 };
 
 GbGradeTable.studentCellRenderer = function(instance, td, row, col, prop, value, cellProperties) {
+  if (value === null) {
+    return;
+  }
+
   var $td = $(td);
 
   $td.attr("scope", "row").attr("role", "rowHeader");
