@@ -2731,11 +2731,8 @@ GbGradeTable.setScore = function(studentId, assignmentId, oldScore, newScore) {
     GbGradeTable.ajax(postData, function (status, data) {
       if (status == "OK") {
         GbGradeTable.setCellState('saved', row, col);
-        delete GbGradeTable.lastValidGrades[studentId][assignmentId];
 
-        if ($.isEmptyObject(GbGradeTable.lastValidGrades[studentId])) {
-          delete(GbGradeTable.lastValidGrades[studentId])
-        }
+        delete GbGradeTable.lastValidGrades[studentId][assignmentId];
 
         // update the course grade cell
         if (data.courseGrade) {
