@@ -87,7 +87,7 @@
   white-space: normal;
   word-break: break-all; /* fallback */
   word-break: break-word;
-  vertical-align: middle;
+  justify-content: flex-start;
 }
 #gradeTableWrapper tbody td .gb-student-cell .gb-value {
   line-height: 1.2em;
@@ -97,19 +97,15 @@
   display: block;
   font-weight: normal;
 }
-
-#gradeTableWrapper .currentCol,
-#gradeTableWrapper .currentRow,
-#gradeTableWrapper .currentCol .relative,
+#gradeTableWrapper .relative {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
 #gradeTableWrapper .currentRow .relative {
-  background-color: #FAFAFA;
+  border-top: 1px solid rgb(82, 146, 247);
+  border-bottom: 1px solid rgb(82, 146, 247);
 }
-#gradeTableWrapper th.currentCol,
-#gradeTableWrapper th.currentRow,
-#gradeTableWrapper .handsontable tr > .currentRow:nth-child(1),
-#gradeTableWrapper .handsontable tr > .currentRow:nth-child(2) {
-  background-color: #EEE;
-}
+
 #gradeTableWrapper .handsontable td {
   white-space: nowrap;
 }
