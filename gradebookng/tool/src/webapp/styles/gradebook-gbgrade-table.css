@@ -64,7 +64,7 @@
 }
 #gradeTableWrapper .handsontable th > .relative,
 #gradeTableWrapper .handsontable td > .relative {
-  padding: 2px 4px 0;
+  padding: 2px 4px;
 }
 #gradeTableWrapper .handsontable th > .relative > * {
   white-space: normal;
@@ -81,21 +81,16 @@
   height: 100%;
 }
 #gradeTableWrapper tbody td .relative {
-  height: 100%;
-  min-height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 32px;
 }
 #gradeTableWrapper tbody td .gb-student-cell {
-  white-space: normal;
-  word-break: break-all; /* fallback */
-  word-break: break-word;
   justify-content: flex-start;
 }
 #gradeTableWrapper tbody td .gb-student-cell .gb-value {
   line-height: 1.2em;
-  padding-left: 3px;
 }
 #gradeTableWrapper tbody td .gb-student-cell .gb-view-grade-summary {
   display: block;
