@@ -534,3 +534,14 @@
 .wtHolder::-webkit-scrollbar-thumb:hover {
   background-color: #AAA;
 }
+/* drop z-index so they don't interfere with site menu dropdowns */
+.ht_clone_top {
+  z-index: 96; /* was 101 */
+}
+.ht_clone_left {
+  z-index: 97; /* was 102 */
+}
+.ht_clone_top_left_corner,
+.ht_clone_bottom_left_corner {
+  z-index: 98; /* was 103 */
+}
