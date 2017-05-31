@@ -732,7 +732,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       } else if (student == null) {
          cellProperties.readOnly = true;
       } else {
-        var readonly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : false;
+        var readonly = column.type === "assignment" ? GbGradeTable.isReadOnly(student, column.assignmentId) : true;
 
         if (column.externallyMaintained || readonly) {
           cellProperties.readOnly = true;
