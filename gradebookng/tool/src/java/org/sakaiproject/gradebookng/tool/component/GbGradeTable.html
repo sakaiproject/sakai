@@ -66,8 +66,9 @@
                           wicket:message="title:label.gradeitem.externalapplabel">
                     </span>
                 {/if}
-                <a class="gb-title">
-                    ${title}
+                {var tooltip = title.replace(/"/g, '&quot;')}
+                <a class="gb-title" title="${tooltip}">
+                    ${abbrevTitle}
                 </a>
                 {if settings.isCategoriesEnabled}
                     {if categoryId}

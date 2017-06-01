@@ -57,6 +57,7 @@ public class GbGradebookData {
     private class AssignmentDefinition implements ColumnDefinition {
         private Long assignmentId;
         private String title;
+        private String abbrevTitle;
         private String points;
         private String dueDate;
 
@@ -435,6 +436,7 @@ public class GbGradebookData {
 
             result.add(new AssignmentDefinition(a1.getId(),
                                                 a1.getName(),
+                                                FormatHelper.abbreviateMiddle(a1.getName()),
                                                 FormatHelper.formatDoubleToDecimal(a1.getPoints()),
                                                 FormatHelper.formatDate(a1.getDueDate(), getString("label.studentsummary.noduedate")),
 
