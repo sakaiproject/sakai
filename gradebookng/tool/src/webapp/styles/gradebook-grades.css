@@ -86,6 +86,7 @@
   position: absolute;
   border: 1px solid #bdbdbd;
   min-width: 200px;
+  max-width: 240px;
   min-height: 100px;
   max-height: 340px;
   top: 38px;
@@ -135,9 +136,10 @@
   width: 1.2em;
   border: 1px solid #EEE;
   background-color: #EEE;
-  margin-top: 0.3em;
   position: absolute;
   right: 0;
+  top: 50%;
+  margin-top: -0.6em;
 }
 #gradeItemsTogglePanel .off .gb-item-filter-signal,
 #gradeItemsTogglePanel .partial .gb-item-filter-signal {
@@ -149,6 +151,9 @@
   clear: both;
   margin-left: 10px;
   position: relative;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
 }
 #gradeItemsTogglePanel .gb-item-filter,
 #gradeItemsTogglePanel .gb-item-category-score-filter {
@@ -192,8 +197,7 @@
   margin: 0;
 }
 #gradeItemsTogglePanel .gb-item-filter-group .btn-group {
-  float: right;
-  margin-top: 3px;
+  padding-left: 5px;
 }
 #gradeItemsTogglePanel .gb-item-filter-group .btn-group .btn.dropdown-toggle {
   padding: 0 4px;
