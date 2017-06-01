@@ -386,8 +386,7 @@ public class AssignmentAction extends PagedResourceActionII
 	/** the assignment object been viewing * */
 	private static final String VIEW_SUBMISSION_ASSIGNMENT_REFERENCE = "Assignment.view_submission_assignment_reference";
 	
-	/** the assignment object been viewing by instructor * */
-	/** SAK-32500 **/
+	/** the assignment object been viewing by instructor * */	
 	private static final String VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR = "Assignment.view_submission_assignment_instructor";
 
 	/** the submission text to the assignment * */
@@ -5545,9 +5544,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		String submitterId = params.get("submitterId");
-		
-		// SAK-32500 START
-		
+				
 		// From submit as student link chef_assignments_list_assignments.vm
 		String submitterIdInstructor = null;
 		submitterIdInstructor = params.getString("submitterIdInstructor");
@@ -5569,9 +5566,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR, submitterIdInstructor);
 		}
-		
-		// SAK-32500 END
-		
+				
 		if (submitterId != null && (assignmentService.allowGradeSubmission(assignmentReference))) {
 		    try {
 		        u = userDirectoryService.getUser(submitterId);
@@ -6421,7 +6416,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		Assignment a  = getAssignment(aReference, "post_save_submission", state);
-		String assignmentId = ""; // SAK-32500
+		String assignmentId = "";
 		
 		if (a != null && assignmentService.canSubmit(contextString, a))
 		{
@@ -6464,13 +6459,11 @@ public class AssignmentAction extends PagedResourceActionII
 					submitter = null;
 				}
 			}
-
-			// SAK-32500 START
+			
 			String instructor = null;
 			instructor = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);			
 			if(instructor == null)
 			{
-			// SAK-32500 END
 			
 			String group_id = null;
 			String original_group_id = null;
@@ -6887,7 +6880,7 @@ public class AssignmentAction extends PagedResourceActionII
 	
 			} // if
 			
-			} // if - SAK-32500
+			} // if
 	
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
@@ -6895,7 +6888,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
             LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
                     .get("org.sakaiproject.event.api.LearningResourceStoreService");
-            if (null != lrss && !"".equals(assignmentId)) { // SAK-32500
+            if (null != lrss && StringUtils.isNotEmpty(assignmentId)) {
                 Event event = m_eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, false);
                 lrss.registerStatement(
                         getStatementForSubmitAssignment(lrss.getEventActor(event), event, serverConfigurationService.getAccessUrl(),
@@ -12787,7 +12780,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(VIEW_SUBMISSION_TEXT);
 		state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "false");
 		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
-		state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR); // SAK-32500
+		state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
 
 	} // resetViewSubmission
 
