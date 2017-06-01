@@ -131,15 +131,23 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
     return;
   }
 
+  var isOverridden = value[2] == "1";
+
   if (!wasInitialised) {
     var html = GbGradeTable.templates.courseGradeCell.process({
-      value: value[0]
+      value: value[0],
+      isOverridden: isOverridden
     });
 
     td.innerHTML = html;
   } else if (wasInitialised != cellKey) {
     var valueCell = td.getElementsByClassName('gb-value')[0];
     GbGradeTable.replaceContents(valueCell, document.createTextNode(value[0]));
+    if (isOverridden) {
+      valueCell.classList.add('gb-overridden');
+    } else {
+      valueCell.classList.remove('gb-overridden');
+    }
   }
 
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);

@@ -349,12 +349,19 @@ public class GbGradebookData {
         for (GbStudentGradeInfo studentGradeInfo : this.studentGradeInfoList) {
             // String[0] = A+ (95%) [133/140] -- display string
             // String[1] = 133 -- points for sorting
-            String[] gradeData = new String[2];
+            // String[2] = 1 -- '1' if an override, '0' if calculated
+            String[] gradeData = new String[3];
 
             GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
             CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
             gradeData[0] = gbCourseGrade.getDisplayString();
+
+            if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+                gradeData[2] = "1";
+            } else {
+                gradeData[2] = "0";
+            }
 
             if (settings.getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
                 if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {

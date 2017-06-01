@@ -212,6 +212,9 @@
 #gradeTableWrapper tbody td .gb-value {
   line-height: 30px;
 }
+#gradeTableWrapper tbody td .gb-value.gb-overridden {
+  font-weight: bold;
+}
 #gradeTableWrapper tbody td .btn-group {
   position: absolute;
   right: 0;

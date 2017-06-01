@@ -205,7 +205,7 @@
         </script>
         <script id="courseGradeCellTemplate" type="text/template">
             <div class="relative">
-                <span class="gb-value">
+                <span class="gb-value {if isOverridden} gb-overridden {/if}">
                     ${value}
                 </span>
                 {if GbGradeTable.settings.instructor}
