@@ -108,24 +108,12 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
 					final CategoryDefinition category = categories
 							.stream()
-							.filter(c -> (c.getId() == assignment.getCategoryId())
+							.filter(c -> (c.getId().equals(assignment.getCategoryId()))
 									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
-							.filter(c -> (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
 							.findFirst()
 							.orElse(null);
 
 					if (category != null) {
-						for (Assignment adbg : category.getAssignmentList()) {
-							// adbg.getPoints.doubleValue()
-							System.err.println("\n*** DEBUG " + System.currentTimeMillis() + "[AddOrEditGradeItemPanel.java:121 6d5ffb]: " + "\n    adbg.getPoints().doubleValue() => " + (adbg.getPoints().doubleValue()) + "\n");
-
-							// assignment.getPoints().doubleValue()
-							System.err.println("\n*** DEBUG " + System.currentTimeMillis() + "[AddOrEditGradeItemPanel.java:124 9f2a32]: " + "\n    assignment.getPoints().doubleValue() => " + (assignment.getPoints().doubleValue()) + "\n");
-
-							// Double.compare(adbg.getPoints().doubleValue(), assignment.getPoints().doubleValue())
-							System.err.println("\n*** DEBUG " + System.currentTimeMillis() + "[AddOrEditGradeItemPanel.java:127 f9de9]: " + "\n    Double.compare(adbg.getPoints().doubleValue(), assignment.getPoints().doubleValue()) => " + (Double.compare(adbg.getPoints().doubleValue(), assignment.getPoints().doubleValue())) + "\n");
-						}
-
 						final Assignment mismatched = category.getAssignmentList()
 								.stream()
 								.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)

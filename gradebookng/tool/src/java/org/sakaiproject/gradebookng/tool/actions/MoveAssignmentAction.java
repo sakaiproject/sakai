@@ -19,7 +19,7 @@ abstract public class MoveAssignmentAction implements Action {
         this.businessService = businessService;
     }
     /**
-     * Get the assignment's current sort index within it's category. If this value is null in the database, best calculate this index from
+     * Get the assignment's current sort index within its category. If this value is null in the database, best calculate this index from
      * the assignments.
      *
      * @param assignmentId the id of the assignment
@@ -33,7 +33,7 @@ abstract public class MoveAssignmentAction implements Action {
             // if no categorized order for assignment, calculate one based on the default sort order
             final List<Assignment> assignments = MoveAssignmentAction.this.businessService.getGradebookAssignments();
             final List<Long> assignmentIdsInCategory = assignments.stream()
-                .filter(a -> a.getCategoryId() == assignment.getCategoryId())
+                .filter(a -> (a.getCategoryId() != null) && a.getCategoryId().equals(assignment.getCategoryId()))
                 .map(Assignment::getId)
                 .collect(Collectors.toList());
 
