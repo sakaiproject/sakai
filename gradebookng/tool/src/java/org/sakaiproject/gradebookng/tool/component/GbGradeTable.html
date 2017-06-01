@@ -144,12 +144,18 @@
                 {if extraCredit}
                     <span class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracreditcategory"></span>
                 {/if}
-                <a class="gb-title">
+                {var tooltip = title.replace(/"/g, '&quot;')}
+                <a class="gb-title" title="${tooltip}">
                     <span class="gb-category">
                         <span class="swatch" style="background-color: #${color}"></span>
-                        ${title}
+                        ${categoryName}
                         {if settings.isCategoryTypeWeighted}
-                            <span class="gb-category-weight" wicket:message="title:label.gradeitem.categoryweight">[${weight}]</span>
+                            <div class="gb-category-weight-label">
+                                <wicket:message key="label.gradeitem.categoryaveragelabel"/>
+                                <span class="gb-category-weight" wicket:message="title:label.gradeitem.categoryweight">
+                                    [${weight}]
+                                </span>
+                            </div>
                         {/if}
                     </span>
                 </a>

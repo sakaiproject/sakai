@@ -150,6 +150,9 @@
 #gradeTableWrapper .gb-title .gb-category {
   font-style: italic;
 }
+#gradeTableWrapper .gb-title .gb-category .gb-category-weight-label {
+  padding-left: 18px;
+}
 #gradeTableWrapper .gb-title .gb-category .gb-category-weight {
   font-style: normal;
 }
