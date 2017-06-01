@@ -46,17 +46,18 @@
 }
 
 #gradeTableWrapper .handsontable tr > *:nth-child(1){
-  background-color: #F6f6f6;
   text-align: left;
 }
 #gradeTableWrapper .handsontable tr > *:nth-child(2){
   border-right: 1px solid #BBB;
-  background-color: #F6f6f6;
 }
 #gradeTableWrapper .handsontable thead th {
   border-bottom: 1px solid #BBB;
 }
-
+#gradeTableWrapper .handsontable tbody tr:nth-child(2n) td,
+#gradeTableWrapper .handsontable tbody tr:nth-child(2n) td .relative {
+    background: #F9F9F9;
+}
 #gradeTableWrapper .handsontable th,
 #gradeTableWrapper .handsontable td {
   border-color: #EAEAEA;
@@ -498,7 +499,7 @@
   float: right;
 }
 .gb-category-average {
-    background-color: #FAFAFA;
+    background-color: #FCFCFC;
 }
 .gb-category-average .gb-value {
     font-weight: bold;
