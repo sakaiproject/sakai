@@ -83,13 +83,66 @@ GbGradeTable.unpackPackedScores = function (s, rowCount, columnCount) {
     return result;
 };
 
+function TrimPathFragmentCache(name, template) {
+  this.name = name;
+  this.template = template;
+  this.cacheSize = 0;
+  this.maxCacheSize = 1000;
+  this.cacheHitRates = {}
+  this.cache = {}
+}
+
+TrimPathFragmentCache.prototype.getFragment = function (values) {
+  var self = this;
+
+  var key = JSON.stringify(values);
+  var html;
+
+  if (self.cache[key]) {
+    html = self.cache[key].clone(false);
+    self.cacheHitRates[key] += 1;
+  } else {
+    var parse_start = new Date().getTime();
+    html_string = self.template.process(values);
+
+    self.cache[key] = $(html_string);
+    self.cacheSize += 1
+
+    self.cacheHitRates[key] = 1;
+    html = self.cache[key];
+  }
+
+  if (self.cacheSize > self.maxCacheSize) {
+    var sortedFrequencies = Object.values(self.cacheHitRates).sort().reverse();
+    var cutOff = sortedFrequencies[(self.maxCacheSize / 2)];
+
+    var cacheKeys = Object.keys(self.cache);
+    for (var i in cacheKeys) {
+      var key = cacheKeys[i];
+
+      if (self.cacheHitRates[key] <= cutOff) {
+        delete(self.cache[key]);
+        delete(self.cacheHitRates[key]);
+      }
+    }
+  }
+
+  return html[0];
+}
+
+TrimPathFragmentCache.prototype.setHTML = function (target, values) {
+  GbGradeTable.replaceContents(target, this.getFragment(values));
+}
+
+
+
 $(document).ready(function() {
   // need TrimPath to load before parsing templates
   GbGradeTable.templates = {
-    cell: TrimPath.parseTemplate(
-        $("#cellTemplate").html().trim().toString()),
-    courseGradeCell: TrimPath.parseTemplate(
-        $("#courseGradeCellTemplate").html().trim().toString()),
+    cell: new TrimPathFragmentCache('cell', TrimPath.parseTemplate(
+        $("#cellTemplate").html().trim().toString())),
+    courseGradeCell: new TrimPathFragmentCache('courseGradeCell',TrimPath.parseTemplate(
+        $("#courseGradeCellTemplate").html().trim().toString())),
     courseGradeHeader: TrimPath.parseTemplate(
         $("#courseGradeHeaderTemplate").html().trim().toString()),
     assignmentHeader: TrimPath.parseTemplate(
@@ -98,8 +151,8 @@ $(document).ready(function() {
         $("#categoryScoreHeaderTemplate").html().trim().toString()),
     studentHeader: TrimPath.parseTemplate(
         $("#studentHeaderTemplate").html().trim().toString()),
-    studentCell: TrimPath.parseTemplate(
-        $("#studentCellTemplate").html().trim().toString()),
+    studentCell: new TrimPathFragmentCache('studentCell', TrimPath.parseTemplate(
+        $("#studentCellTemplate").html().trim().toString())),
     metadata: TrimPath.parseTemplate(
         $("#metadataTemplate").html().trim().toString()),
     studentSummary: TrimPath.parseTemplate(
@@ -134,12 +187,10 @@ GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value
   var isOverridden = value[2] == "1";
 
   if (!wasInitialised) {
-    var html = GbGradeTable.templates.courseGradeCell.process({
+    GbGradeTable.templates.courseGradeCell.setHTML(td, {
       value: value[0],
       isOverridden: isOverridden
     });
-
-    td.innerHTML = html;
   } else if (wasInitialised != cellKey) {
     var valueCell = td.getElementsByClassName('gb-value')[0];
     GbGradeTable.replaceContents(valueCell, document.createTextNode(value[0]));
@@ -196,7 +247,6 @@ GbGradeTable.replaceContents = function (elt, newContents) {
 
 // This function is called a *lot*, so avoid doing anything too expensive here.
 GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellProperties) {
-
   var $td = $(td);
   var index = col - GbGradeTable.FIXED_COLUMN_OFFSET;
   var student = instance.getDataAtCell(row, GbGradeTable.STUDENT_COLUMN_INDEX);
@@ -225,11 +275,9 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
   if (!wasInitialised || td.getAttribute('scope') == 'row') {
     // First time we've initialised this cell.
     // Or we're replacing the student name cell
-    var html = GbGradeTable.templates.cell.process({
+    GbGradeTable.templates.cell.setHTML(td, {
       value: value
     });
-
-    td.innerHTML = html;
 
     if (td.hasAttribute('scope')) {
       td.removeAttribute('scope');
@@ -441,8 +489,7 @@ GbGradeTable.studentCellRenderer = function(instance, td, row, col, prop, value,
     settings: GbGradeTable.settings
   }, value);
 
-  var html = GbGradeTable.templates.studentCell.process(data);
-  td.innerHTML = html;
+  var html = GbGradeTable.templates.studentCell.setHTML(td, data);
 
   $.data(td, 'cell-initialised', cellKey);
   $.data(td, "studentid", value.userId);
@@ -985,6 +1032,48 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       }
 
       return cachedWidth;
+    }
+  }());
+
+  // Patch HandsonTable adjustColumnWidths for improved scroll performance
+  var origAdjustColumnWidths = WalkontableTableRenderer.prototype.adjustColumnWidths;
+
+  (function () {
+    WalkontableTableRenderer.prototype.adjustColumnWidths = function (columnsToRender) {
+      var sourceInstance = this.wot.cloneSource ? this.wot.cloneSource : this.wot;
+      var mainHolder = sourceInstance.wtTable.holder;
+      if (this.wot.cachedScrollbarCompensation === undefined) {
+        this.wot.cachedScrollbarCompensation = 0;
+        if (mainHolder.offsetHeight < mainHolder.scrollHeight) {
+          // NYU: Hacked this!  was getScrollbarWidth();
+          this.wot.cachedScrollbarCompensation = 0;
+        }
+      }
+
+      var scrollbarCompensation = this.wot.cachedScrollbarCompensation;
+
+      this.wot.wtViewport.columnsRenderCalculator.refreshStretching(this.wot.wtViewport.getViewportWidth() - scrollbarCompensation);
+      var rowHeaderWidthSetting = this.wot.getSetting('rowHeaderWidth');
+      if (rowHeaderWidthSetting != null) {
+        for (var i = 0; i < this.rowHeaderCount; i++) {
+          var oldWidth = this.COLGROUP.childNodes[i].style.width;
+          var newWidth = (isNaN(rowHeaderWidthSetting) ? rowHeaderWidthSetting[i] : rowHeaderWidthSetting) + 'px';
+
+          // NYU: Added these conditionals
+          if (oldWidth != newWidth) {
+            this.COLGROUP.childNodes[i].style.width = (isNaN(rowHeaderWidthSetting) ? rowHeaderWidthSetting[i] : rowHeaderWidthSetting) + 'px';
+          }
+        }
+      }
+      for (var renderedColIndex = 0; renderedColIndex < columnsToRender; renderedColIndex++) {
+        var oldWidth = this.COLGROUP.childNodes[renderedColIndex + this.rowHeaderCount].style.width;
+        var width = this.wtTable.getStretchedColumnWidth(this.columnFilter.renderedToSource(renderedColIndex));
+
+        // NYU: Added these conditionals
+        if (oldWidth != width) {
+          this.COLGROUP.childNodes[renderedColIndex + this.rowHeaderCount].style.width = width + 'px';
+        }
+      }
     }
   }());
 

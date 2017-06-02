@@ -560,3 +560,10 @@
 .ht_clone_bottom_left_corner {
   z-index: 98; /* was 103 */
 }
+
+/* We want the original table header to take up space, but it doesn't need to be
+   visible.  Otherwise we see it show up as a "ghost" in firefox when scrolling
+   upwards. */
+.handsontable.ht_master thead {
+    visibility: hidden;
+}

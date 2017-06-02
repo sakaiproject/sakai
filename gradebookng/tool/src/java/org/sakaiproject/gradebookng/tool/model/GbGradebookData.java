@@ -46,6 +46,7 @@ public class GbGradebookData {
         private String lastName;
 
         private String hasComments;
+        private String hasConcurrentEdit;
         private String readonly;
     }
 
@@ -425,6 +426,14 @@ public class GbGradebookData {
             studentDefinition.setFirstName(student.getStudentFirstName());
             studentDefinition.setLastName(student.getStudentLastName());
             studentDefinition.setHasComments(formatCommentData(student));
+
+            // The JavaScript will ultimately set this when it detects
+            // concurrent edits.  Initialize to zeroo.
+            StringBuilder zeroes = new StringBuilder();
+            for (ColumnDefinition column : this.columns) {
+                zeroes.append("0");
+            }
+            studentDefinition.setHasConcurrentEdit(zeroes.toString());
 
             result.add(studentDefinition);
         }
