@@ -601,6 +601,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         th.classList.add('gb-categorized');
       }
 
+      var sortDirection = GbGradeTable.sortState[col];
+      if (sortDirection != null) {
+        var handle = th.getElementsByClassName('gb-title')[0];
+        handle.classList.add("gb-sorted-"+sortDirection);
+      }
+
       var columnModel = this.view.settings.columns[col]._data_;
 
       // assignment column
@@ -1232,6 +1238,7 @@ GbGradeTable.redrawTable = function(force) {
 
   GbGradeTable._redrawTableTimeout = setTimeout(function() {
     GbGradeTable.forceRedraw = force || false;
+    GbGradeTable.sortState = {};
 
     GbGradeTable.instance.loadData(GbGradeTable.getFilteredData());
     GbGradeTable.instance.updateSettings({
@@ -1414,13 +1421,9 @@ GbGradeTable.setupToggleGradeItems = function() {
 
     if ($input.is(":checked")) {
       $filter.removeClass("off");
-      //self.gradebookSpreadsheet.showGradeItemColumn(assignmentId);
-      // TODO
       column.hidden = false;
     } else {
       $filter.addClass("off");
-      //self.gradebookSpreadsheet.hideGradeItemColumn(assignmentId);
-      // TODO
       column.hidden = true;
     }
 
@@ -1683,6 +1686,7 @@ GbGradeTable.setupToggleGradeItems = function() {
   });
 };
 
+GbGradeTable.sortState = {};
 GbGradeTable.setupColumnSorting = function() {
   var $table = $(GbGradeTable.instance.rootElement);
 
@@ -1691,7 +1695,7 @@ GbGradeTable.setupColumnSorting = function() {
 
     var colIndex = $handle.closest("th").index();
 
-    var direction = $handle.data("sortOrder");
+    var direction = GbGradeTable.sortState[colIndex];
 
     // remove all sort icons
     $table.find(".gb-title").each(function() {
@@ -1707,7 +1711,7 @@ GbGradeTable.setupColumnSorting = function() {
       direction = null;
     }
 
-    $handle.data("sortOrder", direction);
+    GbGradeTable.sortState[colIndex] = direction;
     if (direction != null) {
       $handle.addClass("gb-sorted-"+direction);
     }
@@ -1752,10 +1756,10 @@ GbGradeTable.sort = function(colIndex, direction) {
       if (b == null || b == "") {
         return 1;
       }
-      if (a > b) {
+      if (parseFloat(a) > parseFloat(b)) {
         return 1;
       }
-      if (a < b) {
+      if (parseFloat(a) < parseFloat(b)) {
         return -1;
       }
     }
@@ -1998,7 +2002,7 @@ GbGradeTable.setupDragAndDrop = function () {
       $('#gbReorderColumnsFailed').hide();
 
       if (dropTarget) {
-        var targetAssignmentId = $.data(dropTarget[0], "assignmentid");
+        var targetColIndexssignmentId = $.data(dropTarget[0], "assignmentid");
         var sourceAssignmentId = $.data(dragTarget[0], "assignmentid");
 
         var targetColIndex = GbGradeTable.colForAssignment(targetAssignmentId);

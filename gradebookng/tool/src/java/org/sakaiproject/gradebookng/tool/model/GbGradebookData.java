@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.Value;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.util.StringUtil;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -29,6 +29,7 @@ import org.sakaiproject.service.gradebook.shared.GradingType;
 
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -346,9 +347,21 @@ public class GbGradebookData {
     private List<String[]> courseGrades() {
         List<String[]> result = new ArrayList<String[]>();
 
+
+        final Map<String, Double> gradeMap = settings.getSelectedGradingScaleBottomPercents();
+        final List<String> ascendingGrades = new ArrayList<>(gradeMap.keySet());
+        ascendingGrades.sort(new Comparator<String>() {
+            @Override
+            public int compare(final String a, final String b) {
+                return new CompareToBuilder()
+                    .append(gradeMap.get(a), gradeMap.get(b))
+                    .toComparison();
+            }
+        });
+
         for (GbStudentGradeInfo studentGradeInfo : this.studentGradeInfoList) {
             // String[0] = A+ (95%) [133/140] -- display string
-            // String[1] = 133 -- points for sorting
+            // String[1] = 95 -- raw percentage for sorting
             // String[2] = 1 -- '1' if an override, '0' if calculated
             String[] gradeData = new String[3];
 
@@ -363,21 +376,17 @@ public class GbGradebookData {
                 gradeData[2] = "0";
             }
 
-            if (settings.getCategoryType() == GbCategoryType.WEIGHTED_CATEGORY.getValue()) {
-                if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
-                    Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
-                    if(mappedGrade == null) {
-                        mappedGrade = new Double(0);
-                    }
-                    gradeData[1] = FormatHelper.formatDoubleToDecimal(mappedGrade);
-                } else {
-                    gradeData[1] = courseGrade.getCalculatedGrade();
+            if (StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
+                Double mappedGrade = courseGradeMap.get(courseGrade.getEnteredGrade());
+                if(mappedGrade == null) {
+                    mappedGrade = new Double(0);
                 }
+                gradeData[1] = FormatHelper.formatDoubleToDecimal(mappedGrade);
             } else {
                 if (courseGrade.getPointsEarned() == null) {
-                    gradeData[1] = "";
+                    gradeData[1] = "0";
                 } else {
-                    gradeData[1] = FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned());
+                    gradeData[1] = courseGrade.getCalculatedGrade();
                 }
             }
 
