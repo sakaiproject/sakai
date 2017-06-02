@@ -268,7 +268,7 @@
 #gradeTableWrapper .gb-extra-credit,
 #gradeTableWrapper .currentRow .gb-extra-credit,
 #gradeTableWrapper .currentCol .gb-extra-credit {
-  background-color: #FCF8E3;
+  background-color: #FCF8E3 !important;
 }
 .gb-flag-extra-credit:before {
   content: '\f0fe';
