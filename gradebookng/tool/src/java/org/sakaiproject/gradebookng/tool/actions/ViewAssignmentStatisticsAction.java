@@ -12,14 +12,11 @@ import org.sakaiproject.gradebookng.tool.panels.GradeStatisticsPanel;
 
 import java.io.Serializable;
 
-public class ViewAssignmentStatisticsAction implements Action, Serializable {
+public class ViewAssignmentStatisticsAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private GradebookNgBusinessService businessService;
-
-    public ViewAssignmentStatisticsAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public ViewAssignmentStatisticsAction() {
     }
 
     @Override

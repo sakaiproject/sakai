@@ -235,22 +235,22 @@ public class GradebookPage extends BasePage {
 							      return new GbGradeTableData(businessService, settings);
 						      }
 					      });
-		gradeTable.addEventListener("setScore", new GradeUpdateAction(this.businessService));
-		gradeTable.addEventListener("viewLog", new ViewGradeLogAction(this.businessService));
-		gradeTable.addEventListener("editAssignment", new EditAssignmentAction(this.businessService));
-		gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction(this.businessService));
-		gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction(this.businessService));
-		gradeTable.addEventListener("editComment", new EditCommentAction(this.businessService));
-		gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction(this.businessService));
+		gradeTable.addEventListener("setScore", new GradeUpdateAction());
+		gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
+		gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
+		gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
+		gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
+		gradeTable.addEventListener("editComment", new EditCommentAction());
+		gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
 		gradeTable.addEventListener("setZeroScore", new SetZeroScoreAction());
 		gradeTable.addEventListener("viewCourseGradeLog", new ViewCourseGradeLogAction());
 		gradeTable.addEventListener("deleteAssignment", new DeleteAssignmentAction());
 		gradeTable.addEventListener("setUngraded", new SetScoreForUngradedAction());
 		gradeTable.addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
 		gradeTable.addEventListener("toggleCourseGradePoints", new ToggleCourseGradePoints());
-		gradeTable.addEventListener("editSettings", new EditSettingsAction(this.businessService));
-		gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction(this.businessService));
-		gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction(this.businessService));
+		gradeTable.addEventListener("editSettings", new EditSettingsAction());
+		gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
+		gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());
 
 		this.form.add(gradeTable);
 

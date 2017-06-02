@@ -10,6 +10,7 @@ import java.text.Format;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
@@ -21,13 +22,14 @@ import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-public class GradeUpdateAction implements Action, Serializable {
+public class GradeUpdateAction extends ActionImpl implements Serializable {
 
-    GradebookNgBusinessService businessService;
     private static final long serialVersionUID = 1L;
 
-    public GradeUpdateAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+    private GradebookNgBusinessService businessService;
+
+    public GradeUpdateAction() {
     }
 
     // FIXME: We'll use a proper ObjectMapper for these soon.

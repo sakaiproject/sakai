@@ -9,7 +9,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 import java.io.Serializable;
 
-public class SetStudentNameOrderAction implements Action, Serializable {
+public class SetStudentNameOrderAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

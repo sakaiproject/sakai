@@ -11,7 +11,7 @@ import org.sakaiproject.gradebookng.tool.panels.ZeroUngradedItemsPanel;
 
 import java.io.Serializable;
 
-public class SetScoreForUngradedAction implements Action, Serializable {
+public class SetScoreForUngradedAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -8,14 +8,11 @@ import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
 import java.io.Serializable;
 
-public class EditSettingsAction implements Action, Serializable {
+public class EditSettingsAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private GradebookNgBusinessService businessService;
-
-    public EditSettingsAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public EditSettingsAction() {
     }
 
     private class EmptyOkResponse implements ActionResponse {

@@ -6,6 +6,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -19,14 +20,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ViewGradeSummaryAction implements Action, Serializable {
+public class ViewGradeSummaryAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     private GradebookNgBusinessService businessService;
 
-    public ViewGradeSummaryAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public ViewGradeSummaryAction() {
     }
 
     @Override

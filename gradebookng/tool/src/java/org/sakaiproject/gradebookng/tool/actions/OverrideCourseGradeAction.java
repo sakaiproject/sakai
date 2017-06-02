@@ -14,14 +14,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OverrideCourseGradeAction implements Action, Serializable {
+public class OverrideCourseGradeAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private GradebookNgBusinessService businessService;
-
-    public OverrideCourseGradeAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public OverrideCourseGradeAction() {
     }
 
     @Override

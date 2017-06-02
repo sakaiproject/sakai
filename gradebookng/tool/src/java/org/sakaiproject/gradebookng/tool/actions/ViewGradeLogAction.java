@@ -13,14 +13,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ViewGradeLogAction implements Action, Serializable {
+public class ViewGradeLogAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private GradebookNgBusinessService businessService;
-
-    public ViewGradeLogAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public ViewGradeLogAction() {
     }
 
     @Override

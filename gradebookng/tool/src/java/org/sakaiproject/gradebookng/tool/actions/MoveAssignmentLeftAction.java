@@ -9,12 +9,11 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 import java.io.Serializable;
 
-public class MoveAssignmentLeftAction extends MoveAssignmentAction implements Action, Serializable {
+public class MoveAssignmentLeftAction extends MoveAssignmentAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public MoveAssignmentLeftAction(GradebookNgBusinessService businessService) {
-        super(businessService);
+    public MoveAssignmentLeftAction() {
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -16,14 +17,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EditCommentAction implements Action, Serializable {
+public class EditCommentAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private GradebookNgBusinessService businessService;
-
-    public EditCommentAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public EditCommentAction() {
     }
 
     private class EmptyOkResponse implements ActionResponse {

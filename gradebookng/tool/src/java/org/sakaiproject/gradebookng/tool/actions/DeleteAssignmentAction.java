@@ -10,7 +10,7 @@ import org.sakaiproject.gradebookng.tool.panels.DeleteItemPanel;
 
 import java.io.Serializable;
 
-public class DeleteAssignmentAction implements Action, Serializable {
+public class DeleteAssignmentAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

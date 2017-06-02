@@ -4,6 +4,7 @@ package org.sakaiproject.gradebookng.tool.actions;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -15,14 +16,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EditAssignmentAction implements Action, Serializable {
+public class EditAssignmentAction extends ActionImpl implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     private GradebookNgBusinessService businessService;
 
-    public EditAssignmentAction(GradebookNgBusinessService businessService) {
-        this.businessService = businessService;
+    public EditAssignmentAction() {
     }
 
     @Override
