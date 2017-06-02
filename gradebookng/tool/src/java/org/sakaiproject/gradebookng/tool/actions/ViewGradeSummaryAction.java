@@ -12,15 +12,13 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.gradebookng.tool.panels.GradeLogPanel;
-import org.sakaiproject.gradebookng.tool.panels.InstructorGradeSummaryGradesPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentGradeSummaryPanel;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ViewGradeSummaryAction extends ActionImpl implements Serializable {
+public class ViewGradeSummaryAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

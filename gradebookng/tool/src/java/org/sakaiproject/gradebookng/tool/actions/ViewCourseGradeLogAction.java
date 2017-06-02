@@ -10,7 +10,7 @@ import org.sakaiproject.gradebookng.tool.panels.CourseGradeOverrideLogPanel;
 
 import java.io.Serializable;
 
-public class ViewCourseGradeLogAction extends ActionImpl implements Serializable {
+public class ViewCourseGradeLogAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

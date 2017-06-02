@@ -3,9 +3,6 @@ package org.sakaiproject.gradebookng.tool.actions;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.lang.annotation.Target;
-import java.lang.Error;
-import java.text.Format;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
@@ -19,10 +16,9 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
-import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-public class GradeUpdateAction extends ActionImpl implements Serializable {
+public class GradeUpdateAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

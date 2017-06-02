@@ -3,12 +3,11 @@ package org.sakaiproject.gradebookng.tool.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
 import java.io.Serializable;
 
-public class EditSettingsAction extends ActionImpl implements Serializable {
+public class EditSettingsAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

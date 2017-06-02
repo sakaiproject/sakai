@@ -7,11 +7,10 @@ import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.panels.UpdateUngradedItemsPanel;
-import org.sakaiproject.gradebookng.tool.panels.ZeroUngradedItemsPanel;
 
 import java.io.Serializable;
 
-public class SetScoreForUngradedAction extends ActionImpl implements Serializable {
+public class SetScoreForUngradedAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

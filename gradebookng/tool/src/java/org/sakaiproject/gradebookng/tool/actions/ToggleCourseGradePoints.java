@@ -8,7 +8,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 import java.io.Serializable;
 
-public class ToggleCourseGradePoints extends ActionImpl implements Serializable {
+public class ToggleCourseGradePoints extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

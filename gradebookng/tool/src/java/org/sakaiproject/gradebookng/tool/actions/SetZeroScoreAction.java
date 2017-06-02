@@ -9,7 +9,7 @@ import org.sakaiproject.gradebookng.tool.panels.ZeroUngradedItemsPanel;
 
 import java.io.Serializable;
 
-public class SetZeroScoreAction extends ActionImpl implements Serializable {
+public class SetZeroScoreAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

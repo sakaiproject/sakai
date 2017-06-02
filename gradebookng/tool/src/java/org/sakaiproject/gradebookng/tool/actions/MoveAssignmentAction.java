@@ -1,18 +1,15 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-abstract public class MoveAssignmentAction extends ActionImpl implements Serializable {
+abstract public class MoveAssignmentAction extends InjectableAction implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
