@@ -123,7 +123,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         User user = null;
         if (params.containsKey("username")) {
             String username = (String) params.get("username");
-            user = new EntityUser(username, null, null, null, username, password, null);
+            user = new EntityUser(username, null, null, null, username, null, password, null);
         }
         rating = userDirectoryService.validatePassword(password, user);
         return new ActionReturn(rating.name());
@@ -585,7 +585,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             return eu;
         } else if (hasProfile) {
             // Show restricted view
-            EntityUser eu = new EntityUser(user.getEid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDisplayName(), null, user.getType());
+            EntityUser eu = new EntityUser(user.getEid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDisplayName(), user.getDisplayId(), null, user.getType());
             eu.setId(user.getId());
             return eu;
         }
