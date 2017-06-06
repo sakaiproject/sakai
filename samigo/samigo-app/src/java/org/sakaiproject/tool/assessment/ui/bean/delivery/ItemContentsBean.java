@@ -176,6 +176,8 @@ public class ItemContentsBean implements Serializable {
 	private Set<ItemTagIfc> tagsList;
 	private String tagsListToJson;
 
+	private int answerCounter = 1;
+
 	public ItemContentsBean() {
 	}
 
@@ -1630,6 +1632,10 @@ public class ItemContentsBean implements Serializable {
   public Map<String,String> getHtmlStripped() {
 	return htmlStripped;  
   }
-  
+
+  // SAM-3131 We need an index/counter of the current answer to display helper text for screen-reader users
+  public int getAnswerCounter() {
+    return answerCounter++;
+  }
 }
 

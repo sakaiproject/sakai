@@ -1116,4 +1116,26 @@ public class FormattedTextTest {
         Assert.assertEquals("ad", result);
     }
 
+    @Test
+    public void testKNL_1530() {
+        // https://jira.sakaiproject.org/browse/KNL-1530
+        String text = null;
+        String result = null;
+        StringBuilder errorMessages = new StringBuilder();
+
+        String anchor = "<a href=\"http://sakaiproject.org/\">sakaiproject</a>";
+        String expectedAnchor = "<a href=\"http://sakaiproject.org/\" target=\"_blank\" rel=\"noopener\">sakaiproject</a>";
+
+        //Process the anchor, there shouldn't be any error messages or changes, but it does insert target and noopener which should pass
+        result = formattedText.processFormattedText(anchor,errorMessages);
+        Assert.assertTrue( errorMessages.length() == 0 );
+        Assert.assertEquals(result, expectedAnchor);
+
+        //Now reprocess the result
+        result = formattedText.processFormattedText(result,errorMessages);
+        Assert.assertTrue( errorMessages.length() == 0 );
+        Assert.assertEquals(result, expectedAnchor);
+    }
+
+
 }

@@ -26,6 +26,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.azeckoski.reflectutils.FieldUtils;
@@ -69,6 +73,11 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     private UserDirectoryService userDirectoryService;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
+    }
+
+    private SiteService siteService;
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
     }
 
 
@@ -287,27 +296,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         }
         String userId = ref.getId();
         User user = getUserByIdEid(userId);
-        if (developerHelperService.isEntityRequestInternal(ref.toString())) {
-            // internal lookups are allowed to get everything
-        } else {
-            // external lookups require auth
-            boolean allowed = false;
-            String currentUserRef = developerHelperService.getCurrentUserReference();
-            if (currentUserRef != null) {
-                String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
-                if (developerHelperService.isUserAdmin(currentUserId) 
-                        || currentUserId.equals(user.getId())) {
-                    // allowed to access the user data
-                    allowed = true;
-                }
-            }
-            if (! allowed) {
-                throw new SecurityException("Current user ("+currentUserRef+") cannot access information about user: " + ref);
-            }
-        }
-        // convert
-        EntityUser eu = convertUser(user);
-        return eu;         
+        // convert and check permissions
+        EntityUser eu = convertUser(ref, user, hasProfile());
+        return eu;
     }
 
     /**
@@ -318,25 +309,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
      */
     public List<?> getEntities(EntityReference ref, Search search) {
         Collection<User> users = new ArrayList<User>();
-        if (developerHelperService.getConfigurationSetting("entity.users.viewall", false)) {
-            // setting bypasses all checks
-        } else if (developerHelperService.isEntityRequestInternal(ref.toString())) {
-            // internal lookups are allowed to get everything
-        } else {
-            // external lookups require auth
-            boolean allowed = false;
-            String currentUserRef = developerHelperService.getCurrentUserReference();
-            if (currentUserRef != null) {
-                String currentUserId = developerHelperService.getUserIdFromRef(currentUserRef);
-                if ( developerHelperService.isUserAdmin(currentUserId) ) {
-                    // allowed to access the user data
-                    allowed = true;
-                }
-            }
-            if (! allowed) {
-                throw new SecurityException("Only admin can access multiple users, current user ("+currentUserRef+") cannot access ref: " + ref);
-            }
-        }
 
         // fix up the search limits
         if (search.getLimit() > 50 || search.getLimit() == 0) {
@@ -369,9 +341,10 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             users = userDirectoryService.getUsers((int) search.getStart(), (int) search.getLimit());
         }
         // convert these into EntityUser objects
-        List<EntityUser> entityUsers = new ArrayList<EntityUser>();
+        List<EntityUser> entityUsers = new ArrayList<>();
+        boolean hasProfile = hasProfile();
         for (User user : users) {
-            entityUsers.add( convertUser(user) );
+            entityUsers.add( convertUser(ref, user, hasProfile) );
         }
         return entityUsers;
     }
@@ -386,6 +359,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
     /**
      * Allows for easy retrieval of the user object
+     * Just used by membership entity provider.
      * @param userId a user ID (must be internal ID only and not EID)
      * @return the user object or <code>null</code> if not found
      * @throws IllegalArgumentException if the user Id is null
@@ -397,7 +371,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             return null;
         }
         try {
-            return convertUser(userDirectoryService.getUser(userId));
+            return new EntityUser(userDirectoryService.getUser(userId));
         } catch (UserNotDefinedException e) {
             // This should never happen as it should be checked earlier
             return null;
@@ -559,6 +533,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     /**
+     * This is used by the Membership provider
      * @param userSearchValue either a user ID, a user EID, or a user email address
      * @return the first matching user, or null if no search method worked
      */
@@ -584,16 +559,55 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             }
         }
         if (user != null) {
-            entityUser = convertUser(user);
+            entityUser = new EntityUser(user);
         } else {
             entityUser = null;
         }
         return entityUser;
     }
 
-    public EntityUser convertUser(User user) {
-        EntityUser eu = new EntityUser(user);
-        return eu;
+    /**
+     * This checks how what details the current user should be able to see about user.
+     * @param user The user to convert.
+     * @return The user ready to be serialised
+     * @throws SecurityException If the current user can't access this user.
+     */
+     EntityUser convertUser(EntityReference ref, User user, boolean hasProfile) {
+        if (developerHelperService.getCurrentUserId() == null) {
+            throw new SecurityException("Anonymous access is not permitted to user information: "+ ref);
+        }
+        // If config, internal request or admin, give full access
+        if (developerHelperService.getConfigurationSetting("entity.users.viewall", false) ||
+                developerHelperService.isEntityRequestInternal(ref.toString()) ||
+                developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference()) ||
+                user.getId().equals(developerHelperService.getCurrentUserId())) {
+            EntityUser eu = new EntityUser(user);
+            return eu;
+        } else if (hasProfile) {
+            // Show restricted view
+            EntityUser eu = new EntityUser(user.getEid(), user.getEmail(), user.getFirstName(), user.getLastName(), user.getDisplayName(), null, user.getType());
+            eu.setId(user.getId());
+            return eu;
+        }
+        throw new SecurityException("Current user ("+developerHelperService.getCurrentUserReference()+") cannot access information for: " + ref);
+    }
+
+    /**
+     * @return <code>true</code> if the current user has the profile tool in their My Workspace.
+     */
+    private boolean hasProfile() {
+        boolean hasProfile = false;
+        String currentUserId = developerHelperService.getCurrentUserId();
+        if (currentUserId != null) {
+            String userSiteId = siteService.getUserSiteId(currentUserId);
+            try {
+                Site userSite = siteService.getSite(userSiteId);
+                hasProfile = userSite.getToolForCommonId("sakai.profile2") != null;
+            } catch (IdUnusedException e) {
+                // Ignore
+            }
+        }
+        return hasProfile;
     }
 
     /**
