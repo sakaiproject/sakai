@@ -98,7 +98,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             String id = asId(fsi);
             try {
                 String filename = lastPathSegment(id);
-                String name = "", ext = "";
+                String name = filename, ext = "";
                 int index = filename.lastIndexOf(".");
                 if (index >= 0) {
                     name = filename.substring(0, index);
