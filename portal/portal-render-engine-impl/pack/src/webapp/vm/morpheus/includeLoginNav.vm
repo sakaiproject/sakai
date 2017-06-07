@@ -38,6 +38,12 @@
         #end
 
         #if (${userIsLoggedIn})
+        #if (${useBullhornAlerts})
+            <div class="Mrphs-sitesNav__menuitem portal-bullhorns-buttons">
+                <a id="Mrphs-academic-bullhorn" href="javascript:void(0);"><span class="icon-sakai--academic-bullhorn"></span></a>
+                <a id="Mrphs-social-bullhorn" href="javascript:void(0);"><span class="icon-sakai--social-bullhorn"></span></a>
+            </div>
+        #end
             <div class="Mrphs-sitesNav__menuitem view-all-sites-btn">
                 <a href="javascript:void(0);" title="${rloader.sit_allsites}" role="menuitem" aria-haspopup="true">
                     <i class="fa fa-th all-sites-icon"></i> <span class="all-sites-label">${rloader.sit_worksites}</span>
