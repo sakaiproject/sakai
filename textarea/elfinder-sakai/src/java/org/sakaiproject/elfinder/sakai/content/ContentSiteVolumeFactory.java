@@ -2,6 +2,7 @@ package org.sakaiproject.elfinder.sakai.content;
 
 import cn.bluejoe.elfinder.controller.ErrorException;
 import cn.bluejoe.elfinder.service.FsItem;
+import org.sakaiproject.exception.TypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.*;
@@ -291,7 +292,14 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         public FsItem getRoot() {
             String id = contentHostingService.getSiteCollection(siteId);
-            return fromPath(id);
+            try {
+                contentHostingService.getCollection(id);
+                return fromPath(id);
+            } catch (IdUnusedException | PermissionException ignored) {
+            } catch (TypeException e) {
+                LOG.warn("Unexpected error getting root.", e);
+            }
+            return null;
         }
 
         public long getSize(FsItem fsi) {
