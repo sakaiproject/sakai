@@ -33,6 +33,8 @@ public class SiteConstants {
 	
 	public static final String SORTED_BY_GROUP_TITLE = "group_title";
 	
+	public static final String SORTED_BY_PARTICIPANT_DISPLAY_ID = "participant_display_id";
+
 	public static final String SORTED_BY_GROUP_SIZE = "group_size";
 
 	/**

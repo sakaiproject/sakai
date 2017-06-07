@@ -762,6 +762,7 @@
 				#if ($fromWSetup)
 					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				#end
+				<input type="button" onClick="javascript:window.open('?panel=UserList','','left=20,top=20,width=400,height=700,toolbar=0,scrollbars=1'); return false;" name="eventSubmit_doUserList" value="Export User List"  />
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             </div>
 		</form>
@@ -771,6 +772,7 @@
 		#end
 		<div style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
 		#chef_flashnotif()
+		
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
 			<dl>
 				#foreach( $role in $allowedRoles )
