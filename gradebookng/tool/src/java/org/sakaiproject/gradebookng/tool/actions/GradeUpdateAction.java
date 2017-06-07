@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
@@ -84,6 +85,9 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
     @Override
     public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final GradebookPage page = (GradebookPage) target.getPage();
+
+        // clear the feedback message at the top of the page
+        target.addChildren(page, FeedbackPanel.class);
 
         final String rawOldGrade = params.get("oldScore").textValue();
         final String rawNewGrade = params.get("newScore").textValue();
