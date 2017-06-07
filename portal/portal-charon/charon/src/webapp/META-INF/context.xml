@@ -1,2 +1,5 @@
 <Context crossContext="true">
+    <JarScanner scanClassPath="false">
+        <JarScanFilter defaultPluggabilityScan="false" />
+    </JarScanner>
 </Context>

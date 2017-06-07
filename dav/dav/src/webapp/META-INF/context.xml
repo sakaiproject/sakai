@@ -1,3 +1,6 @@
 <Context>
-	<Realm className="org.sakaiproject.dav.DavRealm" />
+    <Realm className="org.sakaiproject.dav.DavRealm" />
+    <JarScanner scanClassPath="false">
+        <JarScanFilter defaultPluggabilityScan="false" />
+    </JarScanner>
 </Context>
