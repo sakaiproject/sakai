@@ -648,10 +648,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
         th.classList.add('gb-categorized');
       }
 
-      var sortDirection = GbGradeTable.sortState[col];
-      if (sortDirection != null) {
+      if (GbGradeTable.currentSortColumn == col && GbGradeTable.currentSortDirection != null) {
         var handle = th.getElementsByClassName('gb-title')[0];
-        handle.classList.add("gb-sorted-"+sortDirection);
+        handle.classList.add("gb-sorted-"+GbGradeTable.currentSortDirection);
       }
 
       var columnModel = this.view.settings.columns[col]._data_;
@@ -1327,7 +1326,9 @@ GbGradeTable.redrawTable = function(force) {
 
   GbGradeTable._redrawTableTimeout = setTimeout(function() {
     GbGradeTable.forceRedraw = force || false;
-    GbGradeTable.sortState = {};
+
+    GbGradeTable.currentSortColumn = 0;
+    GbGradeTable.currentSortDirection = 'desc';
 
     GbGradeTable.instance.loadData(GbGradeTable.getFilteredData());
     GbGradeTable.instance.updateSettings({
@@ -1775,7 +1776,10 @@ GbGradeTable.setupToggleGradeItems = function() {
   });
 };
 
-GbGradeTable.sortState = {};
+
+GbGradeTable.currentSortColumn = 0;
+GbGradeTable.currentSortDirection = 'desc';
+
 GbGradeTable.setupColumnSorting = function() {
   var $table = $(GbGradeTable.instance.rootElement);
 
@@ -1784,7 +1788,10 @@ GbGradeTable.setupColumnSorting = function() {
 
     var colIndex = $handle.closest("th").index();
 
-    var direction = GbGradeTable.sortState[colIndex];
+    if (GbGradeTable.currentSortColumn != colIndex) {
+      GbGradeTable.currentSortColumn = colIndex;
+      GbGradeTable.currentSortDirection = null;
+    }
 
     // remove all sort icons
     $table.find(".gb-title").each(function() {
@@ -1792,20 +1799,19 @@ GbGradeTable.setupColumnSorting = function() {
       $(this).data("sortOrder", null);
     });
 
-    if (direction == null) {
-      direction = "desc";
-    } else if (direction == "desc") {
-      direction = "asc";
+    if (GbGradeTable.currentSortDirection == null) {
+      GbGradeTable.currentSortDirection = "desc";
+    } else if (GbGradeTable.currentSortDirection == "desc") {
+      GbGradeTable.currentSortDirection = "asc";
     } else {
-      direction = null;
+      GbGradeTable.currentSortDirection = null;
     }
 
-    GbGradeTable.sortState[colIndex] = direction;
-    if (direction != null) {
-      $handle.addClass("gb-sorted-"+direction);
+    if (GbGradeTable.currentSortDirection != null) {
+      $handle.addClass("gb-sorted-"+GbGradeTable.currentSortDirection);
     }
 
-    GbGradeTable.sort(colIndex, direction);
+    GbGradeTable.sort(colIndex, GbGradeTable.currentSortDirection);
   });
 };
 
