@@ -239,7 +239,7 @@
 		</div>
 		<div id="collapseAccess" class="panel-collapse collapse in">
 			<div class="panel-body">
-				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox() && ! $model.isSiteCollection())
+				#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox())
 					<p class="instruction">
 						#if($model.isCollection())
 							$tlang.getString("instr.access.fldr")
