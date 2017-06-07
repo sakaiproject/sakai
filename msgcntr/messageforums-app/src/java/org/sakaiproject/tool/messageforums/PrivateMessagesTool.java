@@ -4694,7 +4694,19 @@ private   int   getNum(char letter,   String   a)
 			  }
 			  else if (MembershipItem.TYPE_USER.equals(item.getType()) || MembershipItem.TYPE_MYGROUPMEMBERS.equals(item.getType())){
 				  returnSet.put(item.getUser(), bcc);
-			  } 
+			  }
+			  else if (MembershipItem.TYPE_MYGROUPROLES.equals(item.getType())){
+				  for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
+					  MembershipItem member = (MembershipItem) g.next();            
+					  Set groupMemberSet = item.getGroup().getMembers();
+					  for (Iterator s = groupMemberSet.iterator(); s.hasNext();){
+						  Member m = (Member) s.next();
+						  if (m.getUserId() != null && m.getUserId().equals(member.getUser().getId()) && member.getRole().equals(item.getRole())){
+							  returnSet.put(member.getUser(), bcc);
+						  }
+					  }
+				  }
+			  }
 			  else{
 				  LOG.warn("getRecipients() could not resolve membership type: " + item.getType());
 			  }
