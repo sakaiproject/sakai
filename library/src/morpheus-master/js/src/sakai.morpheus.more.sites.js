@@ -776,7 +776,7 @@ $PBJQ(document).ready(function($){
 
       list.disableSelection();
 
-      $('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled)
+      $('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
       $('#organizeFavorites .onoffswitch').show();
     }
   });
