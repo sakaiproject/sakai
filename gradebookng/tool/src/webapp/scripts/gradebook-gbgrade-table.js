@@ -878,6 +878,13 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     // deselect the table so subsequent keyboard entry isn't entered into cells
     GbGradeTable.instance.deselectCell();
   });
+  $(document).on('click', '.gb-student-filter-clear-button', function(event) {
+    event.preventDefault();
+    if ($("#studentFilterInput").val().length > 0) {
+      $("#studentFilterInput").val("");
+      $("#studentFilterInput").trigger('keyup');
+    }
+  });
 
   // Setup menu event bindings
   // View Log

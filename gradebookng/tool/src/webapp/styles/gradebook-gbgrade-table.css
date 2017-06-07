@@ -424,10 +424,21 @@
 #gradebookGradesToolbar button {
   margin: 0;
 }
-#studentFilterInput {
-   height: 28px;
-   font-size: 12px;
- }
+.gb-student-filter {
+  position: relative;
+}
+.gb-student-filter #studentFilterInput {
+  height: 28px;
+  font-size: 12px;
+}
+.gb-student-filter .gb-student-filter-clear-button {
+  position: absolute;
+  top: 50%;
+  margin-top: -8px;
+  height: 16px;
+  right: 8px;
+  color: #999;
+}
 .gb-grade-item-summary .gb-item-summary-counts.warn-items-hidden,
 .gb-student-summary .gb-student-summary-counts.warn-students-hidden {
   color: #CA7311;
