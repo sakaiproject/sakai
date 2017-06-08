@@ -6,7 +6,7 @@
     <div id="removeFromFavoritesText" style="display: none">${rloader.moresite_remove_from_favorites}</div>
     <div id="maxFavoritesLimitReachedText" style="display: none">$rloader.getFormattedMessage("sit_favorite_limit_reached", $tabsSites.maxFavoritesShown)</div>
 
-    <div id="selectSiteModal" class="outscreen">
+    <div id="selectSiteModal" class="outscreen" role="dialog" aria-label="${rloader.sit_modal_description}">
 
         <div style="display: none" id="max-favorite-entries">${tabsSites.maxFavoritesShown}</div>
 
