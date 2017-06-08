@@ -14,11 +14,11 @@ function toggleMinimizeNav(){
   if (collapsed) {
     document.cookie = "sakai_nav_minimized=false; path=/";
     collapsed = false;
-    el.attr('aria-pressed', true);
+    el.attr('aria-pressed', false);
   } else {
     document.cookie = "sakai_nav_minimized=true; path=/";
     collapsed = true;
-    el.attr('aria-pressed', false);
+    el.attr('aria-pressed', true);
   }
 }
 
