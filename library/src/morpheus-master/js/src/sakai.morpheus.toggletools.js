@@ -1,5 +1,5 @@
 /**
-* For toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body> and changes the label text for accessibility
+* For toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body>
 */
 
 function toggleMinimizeNav(){
@@ -9,22 +9,15 @@ function toggleMinimizeNav(){
   $PBJQ('#subSites.floating').css({'display': 'none'});
 
   var el = $PBJQ(this);
-  var label = $PBJQ('.accessibility-btn-label' , el);
+  el.toggleClass('min max').parent().toggleClass('min max');
 
-  el.toggleClass('min max');
-  
-  if (label.text() == el.data("title-expand") || collapsed) {
-	document.cookie = "sakai_nav_minimized=false; path=/";
-	collapsed = false;
-	label.text(el.data("text-original"));
-    el.attr('title', (el.data("text-original")));
+  if (collapsed) {
+    document.cookie = "sakai_nav_minimized=false; path=/";
+    collapsed = false;
     el.attr('aria-pressed', true);
   } else {
-	document.cookie = "sakai_nav_minimized=true; path=/";
-	collapsed = true;
-	el.data("text-original", label.text());
-    label.text(el.data("title-expand"));
-    el.attr('title', (el.data("title-expand")));
+    document.cookie = "sakai_nav_minimized=true; path=/";
+    collapsed = true;
     el.attr('aria-pressed', false);
   }
 }
