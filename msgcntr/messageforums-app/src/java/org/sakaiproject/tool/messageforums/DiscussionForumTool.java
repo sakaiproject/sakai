@@ -717,7 +717,7 @@ public class DiscussionForumTool
 	    				 Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
 	    				 if(!thisAssign.isExternallyMaintained()) {
 	    					 try {
-	    						 assignments.add(new SelectItem(Integer.toString(assignments.size()), thisAssign.getName()));
+	    						 assignments.add(new SelectItem(Long.toString(thisAssign.getId()), thisAssign.getName()));
 	    					 } catch(Exception e) {
 	    						 LOG.error("DiscussionForumTool - processDfMsgGrd:" + e);
 	    						 e.printStackTrace();
@@ -768,7 +768,8 @@ public class DiscussionForumTool
 
 	    		 decoForum.setGradeAssign(DEFAULT_GB_ITEM);
 	    		 for(int i=0; i<assignments.size(); i++) {
-	    			 if (assignments.get(i).getLabel().equals(forum.getDefaultAssignName())) {
+	    			 if (assignments.get(i).getLabel().equals(forum.getDefaultAssignName()) ||
+	    					 assignments.get(i).getValue().equals(forum.getDefaultAssignName())) {
 	    				 decoForum.setGradeAssign(Integer.valueOf(i).toString());
 	    				 break;
 	    			 }
@@ -5859,7 +5860,8 @@ public class DiscussionForumTool
 	{
       for(int i=0; i<assignments.size(); i++)
       {
-        if(((SelectItem)assignments.get(i)).getLabel().equals(selectedForum.getForum().getDefaultAssignName()))
+        if(((SelectItem)assignments.get(i)).getLabel().equals(selectedForum.getForum().getDefaultAssignName()) ||
+        	((SelectItem)assignments.get(i)).getValue().equals(selectedForum.getForum().getDefaultAssignName()))
         {
           selectedForum.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
           break;
@@ -5880,7 +5882,8 @@ public class DiscussionForumTool
   	{
   		for(int i=0; i<assignments.size(); i++)
   		{
-  			if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()))
+  			if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()) ||
+  					((SelectItem)assignments.get(i)).getValue().equals(selectedTopic.getTopic().getDefaultAssignName()))
   			{
   				selectedTopic.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
   				break;
@@ -5895,7 +5898,8 @@ public class DiscussionForumTool
     {
 	  for(int i=0; i<assignments.size(); i++)
       {
-        if(((SelectItem)assignments.get(i)).getLabel().equals(assignName))
+        if(((SelectItem)assignments.get(i)).getLabel().equals(assignName) ||
+        		((SelectItem)assignments.get(i)).getValue().equals(assignName))
         {
           this.selectedAssign = (String)((SelectItem)assignments.get(i)).getValue();
           break;
@@ -5908,7 +5912,7 @@ public class DiscussionForumTool
   {
     if(selectedForum.getGradeAssign() != null && !DEFAULT_GB_ITEM.equals(selectedForum.getGradeAssign()))
     {
-      forum.setDefaultAssignName( ((SelectItem)assignments.get( Integer.valueOf(selectedForum.getGradeAssign()).intValue())).getLabel());
+      forum.setDefaultAssignName( selectedForum.getGradeAssign() );
     }
   }
   
@@ -5968,7 +5972,7 @@ public class DiscussionForumTool
   	
     if(selectedTopic.getGradeAssign() != null && !DEFAULT_GB_ITEM.equals(selectedTopic.getGradeAssign()))
     {
-      topic.setDefaultAssignName( ((SelectItem)assignments.get( Integer.valueOf(selectedTopic.getGradeAssign()).intValue())).getLabel());
+      topic.setDefaultAssignName( selectedTopic.getGradeAssign() );
     }
   }
   
@@ -6336,12 +6340,11 @@ public class DiscussionForumTool
 	  { 
 		  try 
 		  { 
-			  selectedAssign = changeAssign; 
 			  resetGradeInfo();
 
-			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(selectedAssign)) {
+			  if(!DEFAULT_GB_ITEM.equalsIgnoreCase(changeAssign)) {
 				  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
-				  String selAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();	
+
 				  String studentId;
 				  if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
 					  studentId = selectedGradedUserId;
@@ -6349,7 +6352,7 @@ public class DiscussionForumTool
 					  studentId = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();  
 				  }				   
 				  
-				  setUpGradeInformation(gradebookUid, selAssignName, studentId);
+				  setUpGradeInformation(gradebookUid, changeAssign, studentId);
 			  } else {
 				  // this is the "Select a gradebook item" option
 				  allowedToGradeItem = false;
@@ -6502,7 +6505,6 @@ public class DiscussionForumTool
     String studentUid = null;
     try 
     {   
-        String selectedAssignName = ((SelectItem)assignments.get((Integer.valueOf(selectedAssign)).intValue())).getLabel();
         String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
         if(selectedMessage == null && selectedGradedUserId != null && !"".equals(selectedGradedUserId)){
         	studentUid = selectedGradedUserId;
@@ -6510,12 +6512,13 @@ public class DiscussionForumTool
         	studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
         }
         
-        Long gbItemId = gradebookService.getAssignment(gradebookUuid, selectedAssignName).getId();
+        Long gbItemId = gradebookService.getAssignment(gradebookUuid, selectedAssign).getId();
         gradebookService.saveGradeAndCommentForStudent(gradebookUuid, gbItemId, studentUid, gradePoint, gradeComment);
         
         if(selectedMessage != null){
         	Message msg = selectedMessage.getMessage();
-        	msg.setGradeAssignmentName(selectedAssignName);
+        //SAK-30711
+        	msg.setGradeAssignmentName(Long.toString(gbItemId));
         	msg.setTopic((DiscussionTopic) forumManager
         			.getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
         	forumManager.saveMessage(msg, false);
