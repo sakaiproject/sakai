@@ -1,8 +1,8 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-#css("/sakai-authz-tool/css/authz.css")
+#css("/admin-tools/css/authz.css")
 <script>includeLatestJQuery('chef_permissions.vm');</script>
-#javascript("/sakai-authz-tool/js/authz.js")
+#javascript("/admin-tools/js/authz.js")
 #javascript("/library/js/spinner.js")
 #if($menu)
 	#toolbar($menu)
