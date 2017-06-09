@@ -195,6 +195,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
         public String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
+        // LSNBLDR-816
+        public boolean allowDisplayOfDownloadLinks = ServerConfigurationService.getBoolean("lessonbuilder.allow-display-of-download-links", true);
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -1113,7 +1115,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			postedCommentId = findMostRecentComment();
 		}
 
-		boolean showDownloads = (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
+		boolean showDownloads = (allowDisplayOfDownloadLinks && 
+					 (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null));
 
 		//
 		//
