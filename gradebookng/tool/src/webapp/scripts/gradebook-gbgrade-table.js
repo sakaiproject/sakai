@@ -1806,12 +1806,10 @@ GbGradeTable.setupColumnSorting = function() {
       $(this).data("sortOrder", null);
     });
 
-    if (GbGradeTable.currentSortDirection == null) {
-      GbGradeTable.currentSortDirection = "desc";
-    } else if (GbGradeTable.currentSortDirection == "desc") {
+    if (GbGradeTable.currentSortDirection == "desc") {
       GbGradeTable.currentSortDirection = "asc";
     } else {
-      GbGradeTable.currentSortDirection = null;
+      GbGradeTable.currentSortDirection = "desc";
     }
 
     if (GbGradeTable.currentSortDirection != null) {
