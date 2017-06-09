@@ -446,7 +446,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
   padding-right: 7px;
 }
 
-.split ul {
+.split ul.mainList {
     -webkit-column-count: 2;
     -moz-column-count: 2;
     column-count: 2;
@@ -574,7 +574,8 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .questionStatusText {
 }
 .mainList .textbox ul {
-
+    padding: 0 0 0 1.5em;
+    margin-bottom: 10px;
 }
 .mainList li .textbox {
 
@@ -1725,7 +1726,7 @@ div.portletBody[sakaiversion="12"] {
   padding-left: 7px;
   padding-right: 7px;
 }
-.split ul {
+.split ul.mainList {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
