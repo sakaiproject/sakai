@@ -215,6 +215,13 @@
 #gradeItemsTogglePanel .gb-item-category-score-filter.off .gb-show-this-category-score {
   display: block;
 }
+#gradeItemsTogglePanel .dropdown-menu {
+  max-width: 140px;
+}
+#gradeItemsTogglePanel .dropdown-menu a {
+  white-space: normal;
+  padding: 3px 10px;
+}
 
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
