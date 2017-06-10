@@ -682,6 +682,30 @@ $PBJQ(document).ready(function($){
     $PBJQ('#' + panel).show();
   });
 
+  // Arrow and spacebar nav for tabs
+  $PBJQ(container).on('keydown', '.tab-btn', function (e) {
+    if (e.keyCode == 32) {
+      $PBJQ(this).click();
+      e.preventDefault();
+    }
+    if (e.keyCode == 37) {
+      $PBJQ("[aria-selected=true]").prev().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 38) {
+      $PBJQ("[aria-selected=true]").prev().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 39) {
+      $PBJQ("[aria-selected=true]").next().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 40) {
+      $PBJQ("[aria-selected=true]").next().click().focus();
+      e.preventDefault();
+    }
+  });
+
   $PBJQ(document).on('view-sites-shown', function () {
     loadFromServer();
   });
