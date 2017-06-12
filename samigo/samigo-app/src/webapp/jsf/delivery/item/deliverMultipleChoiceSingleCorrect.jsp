@@ -64,7 +64,7 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
     </h:panelGroup>
     <div class="mcscFixUpTarget"></div>
-    <h:panelGroup layout="block" styleClass="mcAnswerText">
+    <h:panelGroup styleClass="mcAnswerText">
       <span class="samigo-answer-label strong" aria-hidden="true">
         <h:outputText value=" #{selection.answer.label}" escape="false" />
         <h:outputText value="#{deliveryMessages.dot} " rendered="#{selection.answer.label ne ''}" />
@@ -91,7 +91,7 @@ should be included in file importing DeliveryMessages
         $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith($(elLabelAndInputToMove).contents());
       });
       $(elBlockToFix).find('li.samigo-question-answer label').each(function(index2, answerLabel) {
-        var properLabel = $(answerLabel).parent('li').children('div.mcAnswerText')[0];
+        var properLabel = $(answerLabel).parent('li').children('span.mcAnswerText')[0];
         answerLabel.append(properLabel);
       });
       $(elBlockToFix).find('div.mcscFixUpSource').remove();
