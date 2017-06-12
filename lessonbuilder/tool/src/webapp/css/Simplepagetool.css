@@ -363,8 +363,8 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     background-color: white;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
-    border-radius: 7px; 
-    border: 1px solid #ddd;
+    border-radius: 7px;
+    border: 1px solid #222;
     display:inline-block;
     vertical-align: top;
 }
