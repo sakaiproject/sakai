@@ -206,8 +206,7 @@
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>2.4</version>
-      <type>jar</type>
+      <version>3.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>

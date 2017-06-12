@@ -94,9 +94,10 @@
             <artifactId>commons-collections</artifactId>
         </dependency>
         <dependency>
-            <groupId>easymock</groupId>
+            <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
-            <version>1.2_Java1.3</version>
+            <version>3.4</version>
+            <scope>test</scope>
         </dependency>
          <dependency>
             <groupId>org.freemarker</groupId>
