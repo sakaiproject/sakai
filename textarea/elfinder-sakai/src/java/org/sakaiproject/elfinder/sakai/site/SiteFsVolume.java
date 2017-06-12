@@ -130,7 +130,10 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
             for (Map.Entry<String, SiteVolumeFactory> factory : service.getToolVolume().entrySet()) {
                 // Check that the tool is present in the site.
                 if (site.getToolForCommonId(factory.getValue().getToolId()) != null) {
-                    children.add(factory.getValue().getVolume(service, siteId).getRoot());
+                    FsItem root = factory.getValue().getVolume(service, siteId).getRoot();
+                    if (root != null) {
+                        children.add(root);
+                    }
                 }
             }
         } catch (PermissionException pe) {
