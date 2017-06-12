@@ -363,8 +363,8 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     background-color: white;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
-    border-radius: 7px;
-    border: 1px solid #222;
+    border-radius: 7px; 
+    border: 1px solid #ddd;
     display:inline-block;
     vertical-align: top;
 }
@@ -446,11 +446,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
   padding-right: 7px;
 }
 
-.split ul.mainList {
+.split .mainList {
     -webkit-column-count: 2;
     -moz-column-count: 2;
     column-count: 2;
-}
+} 
 .split .edit-col {
     right:0px;
 }
@@ -534,33 +534,33 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .columnopen, .addbottom {
   text-decoration: none;
 }
-.mainList li {
+.mainList div.item {
     position: relative;
 }
-.mainList li.canEdit > div.edit-col {
+.mainList div.canEdit > div.edit-col {
     vertical-align:top;
     padding-top: 0.35em;
     padding-left: 0;
     z-index:4
 }
-.mainList li.canEdit > div.edit-col {
+.mainList div.canEdit > div.edit-col {
     display: inline-block;
 }
-.mainList li.question, .mainList li.studentContentType  {
+.mainList div.question, .mainList div.studentContentType  {
     margin-top: 10px;
     margin-bottom: 20px;
 }
-.mainList li.commentsType {
+.mainList div.commentsType {
     margin-top: 10px;
     margin-bottom: 0px;
 }
-.mainList li.textType, .mainList li.multimediaType, .mainList li.checklistType {
+.mainList div.textType, .mainList div.multimediaType, .mainList div.checklistType {
     margin-top: 10px;
     margin-bottom: 10px;
 } 
-.mainList li.question .multipleChoiceAnswer {
+.mainList div.question .multipleChoiceAnswer {
 }
-.mainList li.question .multipleChoiceForm input.bold {
+.mainList div.question .multipleChoiceForm input.bold {
 }
 .multipleChoiceAnswer label {
   margin-left: 5px;
@@ -574,18 +574,17 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .questionStatusText {
 }
 .mainList .textbox ul {
-    padding: 0 0 0 1.5em;
-    margin-bottom: 10px;
+
 }
-.mainList li .textbox {
+.mainList div.item .textbox {
 
 }
 /*maybe a universal selector, instead of a p*/
-.mainList li .textbox p:first-child{
+.mainList div.item .textbox p:first-child{
     margin-top:0;
 }
 /*maybe a universal selector, instead of a p*/
-.mainList li .textbox p:last-child{
+.mainList div.item .textbox p:last-child{
     margin-bottom:0;
 }
 
@@ -1726,11 +1725,12 @@ div.portletBody[sakaiversion="12"] {
   padding-left: 7px;
   padding-right: 7px;
 }
-.split ul.mainList {
+
+.split .mainList {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
-}
+} 
 /* with narrow screen, don't use multiple columns */
 .cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9, 
 [class~="cols9"][class~="double"],
@@ -1817,7 +1817,7 @@ span.nextprev {
   font-size:16px;
   font-family:FontAwesome;
 }
-.mainList li:hover.canEdit {
+.mainList div:hover.canEdit {
     background-color: #eee;
 }
 .peer-eval-row .newPeerCell {

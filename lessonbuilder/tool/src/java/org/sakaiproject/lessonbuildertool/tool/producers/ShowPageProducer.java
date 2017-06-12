@@ -195,7 +195,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
         public String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
-
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
 	// see the setter. It has to be static because it's used in makeLink, which
@@ -1255,28 +1254,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				// set class name showing what the type is, so people can do funky CSS
 
-				String itemClassName = null;
+				String itemClassName = "item ";
 
 				switch (i.getType()) {
-				case SimplePageItem.RESOURCE: itemClassName = "resourceType"; break;
-				case SimplePageItem.PAGE: itemClassName = "pageType"; break;
-				case SimplePageItem.ASSIGNMENT: itemClassName = "assignmentType"; break;
-				case SimplePageItem.ASSESSMENT: itemClassName = "assessmentType"; break;
-				case SimplePageItem.TEXT: itemClassName = "textType"; break;
-				case SimplePageItem.URL: itemClassName = "urlType"; break;
-				case SimplePageItem.MULTIMEDIA: itemClassName = "multimediaType"; break;
-				case SimplePageItem.FORUM: itemClassName = "forumType"; break;
-				case SimplePageItem.COMMENTS: itemClassName = "commentsType"; break;
-				case SimplePageItem.STUDENT_CONTENT: itemClassName = "studentContentType"; break;
-				case SimplePageItem.QUESTION: itemClassName = "question"; break;
-				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
-				case SimplePageItem.RESOURCE_FOLDER: itemClassName = "resourceFolderType"; break;
-				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
-				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
-				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
-				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
-				case SimplePageItem.CALENDAR: itemClassName = "calendar"; break;
-				case SimplePageItem.CHECKLIST: itemClassName = "checklistType"; break;
+				case SimplePageItem.RESOURCE: itemClassName += "resourceType"; break;
+				case SimplePageItem.PAGE: itemClassName += "pageType"; break;
+				case SimplePageItem.ASSIGNMENT: itemClassName += "assignmentType"; break;
+				case SimplePageItem.ASSESSMENT: itemClassName += "assessmentType"; break;
+				case SimplePageItem.TEXT: itemClassName += "textType"; break;
+				case SimplePageItem.URL: itemClassName += "urlType"; break;
+				case SimplePageItem.MULTIMEDIA: itemClassName += "multimediaType"; break;
+				case SimplePageItem.FORUM: itemClassName += "forumType"; break;
+				case SimplePageItem.COMMENTS: itemClassName += "commentsType"; break;
+				case SimplePageItem.STUDENT_CONTENT: itemClassName += "studentContentType"; break;
+				case SimplePageItem.QUESTION: itemClassName += "question"; break;
+				case SimplePageItem.BLTI: itemClassName += "bltiType"; break;
+				case SimplePageItem.RESOURCE_FOLDER: itemClassName += "resourceFolderType"; break;
+				case SimplePageItem.PEEREVAL: itemClassName += "peereval"; break;
+				case SimplePageItem.TWITTER: itemClassName += "twitter"; break;
+				case SimplePageItem.FORUM_SUMMARY: itemClassName += "forumSummary"; break;
+				case SimplePageItem.ANNOUNCEMENTS: itemClassName += "announcementsType"; break;
+				case SimplePageItem.CALENDAR: itemClassName += "calendar"; break;
+				case SimplePageItem.CHECKLIST: itemClassName += "checklistType"; break;
 				}
 
 				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
