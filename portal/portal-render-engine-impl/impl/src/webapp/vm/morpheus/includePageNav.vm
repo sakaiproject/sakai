@@ -19,8 +19,11 @@
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
-				<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools js-toggle-nav" style='display: none;'>
-					<i class="fa fa-lg fa-angle-double-left" aria-hidden="true"></i>
+				<li class="Mrphs-toolsNav__menuitem Mrphs-collapseTools max" style='display: none;'>
+					<button type="button" tabindex="0" aria-pressed="false" title="${rloader.sit_toggle_nav}" class="Mrphs-toggleNav js-toggle-nav btn-link max">
+						<span class="fa fa-lg fa-angle-double-left" aria-hidden="true"></span>
+						<span class="sr-only">${rloader.sit_toggle_nav}</span>
+					</button>
 				</li>
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
