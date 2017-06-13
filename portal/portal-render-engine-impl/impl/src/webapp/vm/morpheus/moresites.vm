@@ -158,14 +158,13 @@
                     </div>
 
                     <div id="favorite-settings-pane">
-                        <p>${rloader.sit_autofav_description}</p>
+                        <div id="autofav-description">${rloader.sit_autofav_description}</div>
 
                         <div class="onoffswitch" style="display: none">
-                            <input type="checkbox" name="autoFavoritesEnabled" class="onoffswitch-checkbox" id="autoFavoritesEnabled">
-                            <label class="onoffswitch-label" for="autoFavoritesEnabled">
-                                <span class="onoffswitch-inner"></span>
-                                <span class="onoffswitch-switch"></span>
-                            </label>
+                            <button role="switch" aria-checked="true" aria-labelledby="autofav-description" class="btn btn-lg" id="autoFavoritesEnabled">
+                                <span class="onoffswitch-inner">${rloader.moresite_favorites_on}</span>
+                                <span class="onoffswitch-switch">${rloader.moresite_favorites_off}</span>
+                            </button>
                         </div>
                     </div>
                 </div>
