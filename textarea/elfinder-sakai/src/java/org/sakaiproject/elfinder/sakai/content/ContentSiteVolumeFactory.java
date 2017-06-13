@@ -2,7 +2,11 @@ package org.sakaiproject.elfinder.sakai.content;
 
 import cn.bluejoe.elfinder.controller.ErrorException;
 import cn.bluejoe.elfinder.service.FsItem;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.content.api.*;
@@ -33,6 +37,9 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
     protected ContentHostingService contentHostingService;
     protected SiteService siteService;
+    protected SecurityService securityService;
+    protected UserDirectoryService userDirectoryService;
+    protected ThreadLocalManager threadLocalManager;
 
     public void setContentHostingService(ContentHostingService contentHostingService) {
         this.contentHostingService = contentHostingService;
@@ -40,6 +47,22 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    public SecurityService getSecurityService() {
+        return securityService;
+    }
+
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
+    }
+
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
+
+    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+        this.threadLocalManager = threadLocalManager;
     }
 
     @Override
@@ -80,7 +103,10 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
         public boolean isWriteable(FsItem item) {
             String id = asId(item);
             if (contentHostingService.isCollection(id)) {
-                return contentHostingService.allowUpdateCollection(id);
+                // Sakai has more fine grain permissions that elfinder so we allow on either of these and then
+                // if the end user can't perform one of the actions later on if will fail.
+                return contentHostingService.allowAddResource(id + "dummy") ||
+                    contentHostingService.allowUpdateCollection(id);
             } else {
                 return contentHostingService.allowUpdateResource(id);
             }
@@ -109,7 +135,20 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 contentHostingService.commitResource(cre, org.sakaiproject.event.api.NotificationService.NOTI_NONE);
                 //update saved ID incase it wasn't the same
                 ((ContentFsItem) fsi).setId(cre.getId());
-
+                // This is because the user might not have permission to update the file and elfinder does the upload
+                // in 2 steps. This will get removed at the end of the request.
+                SecurityAdvisor advisor = (userId, function, reference) -> {
+                    // Check userId so event publication doesn't get confused
+                    if (userDirectoryService.getCurrentUser().getId().equals(userId) &&
+                            reference.equals(cre.getReference()) && function.startsWith("content.")) {
+                        return SecurityAdvisor.SecurityAdvice.ALLOWED;
+                    }
+                    return SecurityAdvisor.SecurityAdvice.PASS;
+                };
+                securityService.pushAdvisor(advisor);
+                // We put this on a thead local so we can correctly remove it in the write stream if we get called.
+                // Otherwise it will get removed when the request ends.
+                threadLocalManager.set(getClass().getName()+":advisor", advisor);
             } catch (SakaiException se) {
                 throw new IOException("Failed to create new file: " + id, se);
             }
@@ -394,6 +433,10 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                 ContentResourceEdit resource = contentHostingService.editResource(id);
                 resource.setContent(is);
                 contentHostingService.commitResource(resource, org.sakaiproject.event.api.NotificationService.NOTI_NONE);
+                Object advisor = threadLocalManager.get(getClass().getName()+":advisor");
+                if (advisor instanceof SecurityAdvisor) {
+                    securityService.popAdvisor((SecurityAdvisor) advisor);
+                }
             } catch (SakaiException se) {
                 throw new IOException("Failed to open input stream for: " + id, se);
             }
