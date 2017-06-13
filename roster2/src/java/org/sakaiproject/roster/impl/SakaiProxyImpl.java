@@ -770,9 +770,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Trying to get '" + siteId + "' from enrollments cache ...");
-        }
+        log.debug("Trying to get '{}' from enrollments cache ...", siteId);
 
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
 
@@ -814,12 +812,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             List<RosterMember> waiting = new ArrayList<RosterMember>();
             List<RosterMember> enrolled = new ArrayList<RosterMember>();
 
+            Map<String, String> statusCodes
+                = courseManagementService.getEnrollmentStatusDescriptions(new ResourceLoader().getLocale());
+
             for (Enrollment enrollment : courseManagementService.getEnrollments(enrollmentSet.getEid())) {
                 RosterMember member = membership.get(enrollment.getUserId());
                 member.setCredits(enrollment.getCredits());
                 String enrollmentStatusId = enrollment.getEnrollmentStatus();
                 member.setEnrollmentStatusId(enrollmentStatusId);
-                //member.setEnrollmentStatus(statusCodes.get(enrollmentStatusId));
+                member.setEnrollmentStatusText(statusCodes.get(enrollmentStatusId));
 
                 if (enrollmentStatusId.equals("wait")) {
                     waiting.add(member);
