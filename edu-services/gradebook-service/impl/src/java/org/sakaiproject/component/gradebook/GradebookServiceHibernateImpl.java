@@ -217,7 +217,29 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 	}
 	
-	
+	@Override
+	public org.sakaiproject.service.gradebook.shared.Assignment getAssignmentByNameOrId(String gradebookUid,
+			String assignmentName) throws AssessmentNotFoundException {
+
+		org.sakaiproject.service.gradebook.shared.Assignment assignment = null;
+		try {
+			assignment = getAssignment(gradebookUid, assignmentName);
+		}
+		catch (AssessmentNotFoundException e) {
+			//Don't fail on this exception
+			log.debug("Assessment not found by name", e);
+		}
+		
+		if (assignment == null) {
+			//Try to get the assignment by id
+			if (NumberUtils.isCreatable(assignmentName)) {
+				Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
+				return getAssignment(gradebookUid, assignmentId);
+			}
+		}
+		return assignment;
+	}
+
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(Assignment internalAssignment) {
 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
     	assignmentDefinition.setName(internalAssignment.getName());
@@ -2442,7 +2464,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		return getAssignmentScoreString(gradebookUid, assignment.getId(), studentUid);
   	}
-  
+  	
+	@Override
+	public String getAssignmentScoreStringByNameOrId(String gradebookUid, String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException {
+		// TODO Auto-generated method stub
+		String assignment = null;
+		try {
+			assignment = getAssignmentScoreString(gradebookUid, assignmentName, studentUid);
+		}
+		catch (AssessmentNotFoundException e) {
+			//Don't fail on this exception
+			log.debug("Assessment not found by name", e);
+		}
+		
+		if (assignment == null) {
+			//Try to get the assignment by id
+			if (NumberUtils.isCreatable(assignmentName)) {
+				Long assignmentId = NumberUtils.toLong(assignmentName, -1L);
+				return getAssignmentScoreString(gradebookUid, assignmentId, studentUid);
+			}
+		}
+		return null;
+	}
+	
   	@Override
 	public void setAssignmentScoreString(final String gradebookUid, final Long assignmentId, final String studentUid, final String score, final String clientServiceDescription) 
 	throws GradebookNotFoundException, AssessmentNotFoundException 
@@ -3741,5 +3786,5 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         batchPersistEntities(assignments);
         
 	}
-	
+
 }
