@@ -1923,22 +1923,12 @@ public class GradebookNgBusinessService {
 	 * @return true if ja, false if nay.
 	 */
 	public boolean isUserRoleSwapped() {
-
-		final String siteId = getCurrentSiteId();
-
 		try {
-			final Site site = this.siteService.getSite(siteId);
-
-			// they are roleswapped if they have an 'effective role'
-			final String effectiveRole = this.securityService.getUserEffectiveRole(site.getReference());
-			if (StringUtils.isNotBlank(effectiveRole)) {
-				return true;
-			}
+			return securityService.isUserRoleSwapped();
 		} catch (final IdUnusedException e) {
 			// something has happened between getting the siteId and getting the site.
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
-		return false;
 	}
 
 	/**
