@@ -670,10 +670,8 @@ $PBJQ(document).ready(function($){
   });
 
   $PBJQ(container).on('click', '.tab-btn', function () {
-    $PBJQ('.tab-btn', container).removeClass('active');
-    $PBJQ('.tab-btn', container).attr('aria-selected', 'false');
-    $PBJQ(this).addClass('active');
-    $PBJQ(this).attr('aria-selected', 'true');
+    $PBJQ('.tab-btn', container).removeClass('active').attr('aria-selected', 'false').attr('tabindex', '-1');
+    $PBJQ(this).addClass('active').attr('aria-selected', 'true').attr('tabindex', '0');
 
     var panel = $PBJQ(this).data('tab-target');
 

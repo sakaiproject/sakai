@@ -41,10 +41,10 @@
             <!-- View all sites, add new site, preferences -->
             <ul class="tab-bar" role="tablist">
                 <li class="tab-btn active" id="tab-othersites" aria-selected="true" role="tab" data-tab-target="otherSitesCategorWrap">
-                    <a href="javascript:void(0);" class="favorites-tab-label">${rloader.sit_worksites}</a>
+                    <a href="javascript:void(0);" class="favorites-tab-label" tabindex="0">${rloader.sit_worksites}</a>
                 </li>
                 <li class="organizeFavorites tab-btn" id="tab-favorites" aria-selected="false" role="tab" data-tab-target="organizeFavorites">
-                    <a href="javascript:void(0);" class="favorites-tab-label">
+                    <a href="javascript:void(0);" class="favorites-tab-label" tabindex="-1">
                         <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span>
                         <span class="favorites-mobile">${rloader.moresite_favorites}</span>
                         <span class="favoriteCountAndWarning">
