@@ -833,7 +833,12 @@
 				},
 			error: function (xhr, ajaxOptions, thrownError) {
 				window.console && console.log("Error from GET request"+thrownError);
-				
+				//If its a URL match it might be denied by CORS, just try to post it, it's should have already passed copyright
+				if (url.match(/\.URL$/)) {
+					var form = jQuery('<form method="GET" action="' + url + '" target="_blank">');
+					jQuery('body').append(form);
+					form.submit();
+				}
 			}
 			});
 		};
