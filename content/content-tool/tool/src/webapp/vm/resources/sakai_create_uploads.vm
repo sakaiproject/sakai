@@ -16,7 +16,7 @@
     <div id="dragDropWrapper">
     <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-        <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
+        <div class="dz-default dz-message">$tlang.getFormattedMessage("label.dragZoneMessage", "<button type='button'>", "</button>")</div>
     </form>
     <div>
         <input type="checkbox" name="overwrite" id="overwrite" checked="checked" value="true">$tlang.getString("overwrite.text")
