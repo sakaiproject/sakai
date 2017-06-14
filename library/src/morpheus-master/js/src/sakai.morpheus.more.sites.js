@@ -776,7 +776,7 @@ $PBJQ(document).ready(function($){
 
       list.disableSelection();
 
-      $('#autoFavoritesEnabled').prop('checked', autoFavoritesEnabled)
+      $('#autoFavoritesEnabled').attr('aria-checked', autoFavoritesEnabled);
       $('#organizeFavorites .onoffswitch').show();
     }
   });
@@ -842,12 +842,20 @@ $PBJQ(document).ready(function($){
 
   });
 
+  $PBJQ("#autoFavoritesEnabled").click(function() {
+	$(this).attr('aria-checked', function(index, clicked) {
+		var pressed = (clicked === 'true');
+		return String(!pressed);
+	});
+	$(this).trigger('change');
+  });
+
   $PBJQ('#autoFavoritesEnabled').on('change', function () {
-    autoFavoritesEnabled = this.checked;
+    autoFavoritesEnabled = $(this).attr('aria-checked') === 'true';
 
     $('.favorites-help-text').hide();
 
-    if (this.checked) {
+    if (autoFavoritesEnabled) {
       $('.favorites-help-text.autofavorite-enabled').show();
     } else {
       $('.favorites-help-text.autofavorite-disabled').show();
