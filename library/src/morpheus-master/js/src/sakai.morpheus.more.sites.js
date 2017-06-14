@@ -689,19 +689,19 @@ $PBJQ(document).ready(function($){
       e.preventDefault();
     }
     if (e.keyCode == 37) {
-      $PBJQ("[aria-selected=true]").prev().children('a').focus();
+      $PBJQ("[aria-selected=true]").prev().click().focus();
       e.preventDefault();
     }
     if (e.keyCode == 38) {
-      $PBJQ("[aria-selected=true]").prev().children('a').focus();
+      $PBJQ("[aria-selected=true]").prev().click().focus();
       e.preventDefault();
     }
     if (e.keyCode == 39) {
-      $PBJQ("[aria-selected=true]").next().children('a').focus();
+      $PBJQ("[aria-selected=true]").next().click().focus();
       e.preventDefault();
     }
     if (e.keyCode == 40) {
-      $PBJQ("[aria-selected=true]").next().children('a').focus();
+      $PBJQ("[aria-selected=true]").next().click().focus();
       e.preventDefault();
     }
   });
