@@ -34,6 +34,7 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,7 +339,7 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 				String secondTitle = (String) second.get("siteTitle");
 
 				if (firstTitle != null)
-					return firstTitle.compareToIgnoreCase(secondTitle);
+					return StringEscapeUtils.unescapeHtml(firstTitle).compareToIgnoreCase(StringEscapeUtils.unescapeHtml(secondTitle));
 
 				return 0;
 
