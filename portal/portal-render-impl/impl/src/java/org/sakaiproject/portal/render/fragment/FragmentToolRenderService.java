@@ -28,8 +28,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -53,6 +51,7 @@ import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Attempts to render a tool as a fragment rather than an Iframe.
@@ -61,12 +60,10 @@ import org.sakaiproject.util.Web;
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class FragmentToolRenderService implements ToolRenderService
 {
-
 	private static final String TOOL_FRAGMENT_PRODUCER_ID = "fragment-producer";
-
-	private static final Logger log = LoggerFactory.getLogger(FragmentToolRenderService.class);
 
 	private PortalService portal;
 

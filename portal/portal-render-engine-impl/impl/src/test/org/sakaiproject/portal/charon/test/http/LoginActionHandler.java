@@ -23,23 +23,20 @@ package org.sakaiproject.portal.charon.test.http;
 
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.SubmitButton;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebResponse;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  */
+@Slf4j
 public class LoginActionHandler implements ActionHandler
 {
-
-	private static final Logger log = LoggerFactory.getLogger(LoginActionHandler.class);
-
 	private String userName;
 
 	private String password;

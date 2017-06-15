@@ -30,8 +30,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -43,7 +41,9 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.portal.util.CSSUtils;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class EditorServlet extends HttpServlet
 {
 
@@ -53,9 +53,6 @@ public class EditorServlet extends HttpServlet
 	
 	public static final PortalService portalService = (PortalService) ComponentManager.get(PortalService.class);
 	public static final EditorRegistry editorRegistry = (EditorRegistry) ComponentManager.get(EditorRegistry.class);
-
-	/** Our log (commons). */
-	private static Logger M_log = LoggerFactory.getLogger(EditorServlet.class);
 
 	/**
 	 * Access the Servlet's information display.
@@ -80,7 +77,7 @@ public class EditorServlet extends HttpServlet
 	{
 		super.init(config);
 
-		M_log.info("init()");
+		log.info("init()");
 	}
 
 	/**
@@ -89,7 +86,7 @@ public class EditorServlet extends HttpServlet
 	@Override
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 
 		super.destroy();
 	}
