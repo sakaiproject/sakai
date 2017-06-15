@@ -2231,6 +2231,7 @@ $(document).ready(function() {
 			insist = false;
 			$("#delete-confirm-message").text(message);
 			$("#delete-confirm").dialog('open');
+		        $("#delete-confirm").dialog('option', 'title', msg('simplepage.delete-item'));
 			return false;
 		    };
 
@@ -2504,6 +2505,7 @@ $(document).ready(function() {
 		} else {
 			$("#defaultClosedSpan").show();
 		}
+	    $('#column-dialog').dialog('option', 'title', msg('simplepage.columnopen'));
 	    $('#column-dialog').dialog('open');
 	    return false;
 	}
@@ -3192,14 +3194,14 @@ var addAboveLI = null;
 function buttonOpenDropdown() {
     oldloc = $("#dropdown");
     addAboveItem = "";
-    openDropdown($("#moreDiv"), $("#dropdown"));
+    openDropdown($("#moreDiv"), $("#dropdown"), msg("simplepage.more-tools"));
 }
 
 function buttonOpenDropdownc() {
     oldloc = $("#dropdownc");
     addAboveItem = "";
     $(".addbreak").hide();
-    openDropdown($("#addContentDiv"), $("#dropdownc"));
+    openDropdown($("#addContentDiv"), $("#dropdown"), msg("simplepage.add-content"));
 }
 
 function buttonOpenDropdowna() {
@@ -3207,7 +3209,7 @@ function buttonOpenDropdowna() {
     oldloc = addAboveLI.find(".plus-edit-icon");
     addAboveItem = addAboveLI.find("span.itemid").text();
     $(".addbreak").show();
-    openDropdown($("#addContentDiv"), $("#dropdownc"));
+    openDropdown($("#addContentDiv"), $("#dropdown"), msg('simplepage.add-above'));
 }
 
 function buttonOpenDropdownb() {
@@ -3215,14 +3217,16 @@ function buttonOpenDropdownb() {
     addAboveItem = '-' + $(this).closest('.column').find('ul.mainList').children().last().find("span.itemid").text();
     addAboveLI = $(this).closest('.column').find('ul.mainList').children().last().closest("li");
     $(".addbreak").show();
-    openDropdown($("#addContentDiv"), $("#dropdownc"));
+    openDropdown($("#addContentDiv"), $("#dropdown"), msg('simplepage.add-item-column'));
     return false;
 }
 
-function openDropdown(dropDiv, button) {
+function openDropdown(dropDiv, button, title) {
     closeDropdowns();
     hideMultimedia();
+    dropDiv.dialog('option', 'title', title);
     dropDiv.dialog('open');
+//    dropDiv.dialog('option', 'title', title);
     dropDiv.find("a").first().focus();
     if (addAboveItem === '')
 	dropDiv.find(".addContentMessage").show();
