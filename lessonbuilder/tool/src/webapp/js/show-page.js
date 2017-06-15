@@ -3226,7 +3226,6 @@ function openDropdown(dropDiv, button, title) {
     hideMultimedia();
     dropDiv.dialog('option', 'title', title);
     dropDiv.dialog('open');
-//    dropDiv.dialog('option', 'title', title);
     dropDiv.find("a").first().focus();
     if (addAboveItem === '')
 	dropDiv.find(".addContentMessage").show();
