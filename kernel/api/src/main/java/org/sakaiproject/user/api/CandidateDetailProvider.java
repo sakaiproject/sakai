@@ -41,4 +41,20 @@ public interface CandidateDetailProvider {
      * @return If <code>true</code> then show the additional details for this site.
      */
      boolean isAdditionalNotesEnabled(Site site);
+
+    /**
+     * Gets the student number (institutional numeric id) for the given user.
+     * 
+     * @param user the user to retrieve the student number for
+     * @param site the site in which the lookup is happening
+     * @return the user's student number, or empty if cannot be found
+     */
+    public Optional<String> getInstitutionalNumericId(User user, Site site);
+
+    /**
+     * Should the student number (institutional numeric id) be used for this site.
+     * @param site The site in which the lookup is happening
+     * @return true if the property is enabled at the site or system level
+     */
+    boolean isInstitutionalNumericIdEnabled(Site site);
 }

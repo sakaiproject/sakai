@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -70,6 +71,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 
 /**
  * Business service for GradebookNG
@@ -114,6 +116,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+	
+	@Setter
+	private CandidateDetailProvider candidateDetailProvider;
 
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
@@ -678,6 +683,8 @@ public class GradebookNgBusinessService {
 		} catch (final GbAccessDeniedException e) {
 			throw new GbException("Error getting role for current user", e);
 		}
+		
+		Optional<Site> site = getCurrentSite();
 
 		// get uuids as list of Users.
 		// this gives us our base list and will be sorted as per our desired
@@ -694,6 +701,18 @@ public class GradebookNgBusinessService {
 				comp = Collections.reverseOrder(comp);
 			}
 			Collections.sort(students, comp);
+		}
+		else if (settings.getStudentNumberSortOrder() != null)
+		{
+			if (site.isPresent())
+			{
+				Comparator<User> comp = new StudentNumberComparator(candidateDetailProvider, site.get());
+				if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
+				{
+					comp = Collections.reverseOrder(comp);
+				}
+				Collections.sort(students, comp);
+			}
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "sortUsers", stopwatch.getTime());
 
@@ -721,7 +740,7 @@ public class GradebookNgBusinessService {
 		for (final User student : students) {
 
 			// create and add the user info
-			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
+			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student, getStudentNumber(student, site.orElse(null)));
 
 			// add the course grade, including the display
 			final CourseGrade courseGrade = courseGrades.get(student.getId());
@@ -1105,6 +1124,29 @@ public class GradebookNgBusinessService {
 		} catch (final Exception e) {
 			return null;
 		}
+	}
+	
+	/**
+	 * Helper to get site. This will ONLY work in a portal site context, it will return empty otherwise (ie via an entityprovider).
+	 *
+	 * @return
+	 */
+	public Optional<Site> getCurrentSite()
+	{
+		String siteId = getCurrentSiteId();
+		if (siteId != null)
+		{
+			try
+			{
+				return Optional.of(siteService.getSite(siteId));
+			}
+			catch (IdUnusedException e)
+			{
+				// do nothing
+			}
+		}
+
+		return Optional.empty();
 	}
 
 	/**
@@ -1814,6 +1856,29 @@ public class GradebookNgBusinessService {
 		// other roles not yet catered for, catch all.
 		log.warn("User: " + userUuid + " does not have a valid Gradebook related role in site: " + siteId);
 		return false;
+	}
+	
+	/**
+	 * Are student numbers visible to the current user in the current site?
+	 * 
+	 * @return true if student numbers are visible
+	 */
+	public boolean isStudentNumberVisible()
+	{
+		User user = getCurrentUser();
+		Optional<Site> site = getCurrentSite();
+		return user != null && site.isPresent() && candidateDetailProvider.isInstitutionalNumericIdEnabled(site.get())
+				&& gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
+	}
+	
+	public String getStudentNumber(User u, Site site)
+	{
+		if (site == null)
+		{
+			return "";
+		}
+			
+		return candidateDetailProvider.getInstitutionalNumericId(u, site).orElse("");
 	}
 
 	/**

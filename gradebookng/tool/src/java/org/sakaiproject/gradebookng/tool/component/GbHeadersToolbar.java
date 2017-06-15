@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -44,6 +45,10 @@ public class GbHeadersToolbar extends HeadersToolbar {
 
 		if (categoriesEnabled && settings.isCategoriesEnabled()) {
 			final WebMarkupContainer categoriesRow = new WebMarkupContainer("categoriesRow");
+			
+			final Label emptyCat = new Label("empty", Model.of(""));
+			emptyCat.add(new AttributeModifier("colspan", (Integer) modelData.get("fixedColCount")));
+			categoriesRow.add(emptyCat);
 
 			final List<Assignment> assignments = (List<Assignment>) modelData.get("assignments");
 			List<CategoryDefinition> categories = (List<CategoryDefinition>) modelData.get("categories");

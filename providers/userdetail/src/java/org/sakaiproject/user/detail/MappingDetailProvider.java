@@ -47,6 +47,18 @@ public class MappingDetailProvider implements CandidateDetailProvider {
     public boolean isAdditionalNotesEnabled(Site site) {
         return wrapped.isAdditionalNotesEnabled(site);
     }
+	
+	@Override
+	public Optional<String> getInstitutionalNumericId(User user, Site site)
+	{
+		return wrapped.getInstitutionalNumericId(user, site);
+	}
+	
+	@Override
+	public boolean isInstitutionalNumericIdEnabled(Site site)
+	{
+		return wrapped.isInstitutionalNumericIdEnabled(site);
+	}
 
 }
 

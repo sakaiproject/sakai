@@ -39,6 +39,7 @@ public class ExportPanel extends BasePanel {
 	ExportFormat exportFormat = ExportFormat.CSV;
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
+	boolean includeStudentNumber = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
 	boolean includeCourseGrade = false;
@@ -74,6 +75,19 @@ public class ExportPanel extends BasePanel {
 				setDefaultModelObject(ExportPanel.this.includeStudentName);
 			}
 		});
+		
+		if (businessService.isStudentNumberVisible())
+		{
+			add(new AjaxCheckBox("includeStudentNumber", Model.of(this.includeStudentNumber)) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+					ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
+					setDefaultModelObject(ExportPanel.this.includeStudentNumber);
+				}
+			});
+		}
 
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(this.includeGradeItemScores)) {
 			private static final long serialVersionUID = 1L;
@@ -184,6 +198,11 @@ public class ExportPanel extends BasePanel {
 				header.add(getString("importExport.export.csv.headers.studentName"));
 			}
 
+			if (isCustomExport && this.includeStudentNumber)
+			{
+				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
+			}
+
 			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
 			final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 
@@ -240,6 +259,10 @@ public class ExportPanel extends BasePanel {
 				}
 				if (!isCustomExport ||this.includeStudentName) {
 					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+				}
+				if (isCustomExport && this.includeStudentNumber)
+				{
+					line.add(studentGradeInfo.getStudentNumber());
 				}
 				if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
 					assignments.forEach(assignment -> {

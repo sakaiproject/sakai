@@ -1721,6 +1721,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   }
   
   @Override
+  public boolean currentUserHasViewStudentNumbersPerm(String gradebookUid)
+  {
+	  return authz.isUserAbleToViewStudentNumbers(gradebookUid);
+  }
+  
+  @Override
   public List<GradeDefinition> getGradesForStudentsForItem(final String gradebookUid, final Long gradableObjectId, List<String> studentIds) {
 	  if (gradableObjectId == null) {
 		  throw new IllegalArgumentException("null gradableObjectId passed to getGradesForStudentsForItem");

@@ -236,11 +236,6 @@
      so that the bottom-most menus display without being cropped */
   min-height: 40px;
 }
-/* Distinguish Headers and Fixed Columns */
-#gradebookGrades table thead tr > *:nth-child(3),
-#gradebookGrades table tbody tr > *:nth-child(3) {
-  border-right: 1px solid #BBB !important;
-}
 #gradebookGrades table tr.gb-headers th {
   border-bottom-color: #BBB;
 }
@@ -353,10 +348,13 @@
 }
 #gradebookGrades .gb-course-grade {
   text-align: center;
+  /* Distinguish Headers and Fixed Columns */
+  border-right: 1px solid #BBB !important;
 }
 #gradebookGrades .gb-grade-item-cell > div,
 #gradebookGrades .gb-course-grade > div,
-#gradebookGrades .gb-category-item-column-cell > div {
+#gradebookGrades .gb-category-item-column-cell > div,
+#gradebookGrades .gb-student-number-cell > div {
   line-height: 2.6em;
 }
 #gradebookGrades .gb-course-grade.points > div > span {
@@ -1198,4 +1196,17 @@ and (max-device-width : 736px) {
   overflow-y: scroll;
   overflow-x: hidden;
   max-height:100px;
+}
+
+#gradebookGrades .gb-student-number-cell
+{
+  width: 180px;
+  max-width: 180px;
+  min-width: 180px;
+  text-align: center;
+}
+
+#gradebookGrades .gb-student-number-cell .gb-title
+{
+  text-align: left;
 }
