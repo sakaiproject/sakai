@@ -54,6 +54,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -1044,14 +1045,19 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(oldPageIdString);
 		     SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
 		     String gradebookPoints = pageElement.getAttribute("gradebookpoints");
-		     if (gradebookPoints != null && !gradebookPoints.equals("")) {
+		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 			 page.setGradebookPoints(Double.valueOf(gradebookPoints));
 		     }
 		     String folder = pageElement.getAttribute("folder");
-		     if (folder != null && !folder.equals(""))
+		     if (StringUtils.isNotEmpty(folder))
 			 page.setFolder(folder);
+		     // Carry over the custom CSS sheet if present. These are of the form
+		     // "/group/SITEID/LB-CSS/whatever.css", so we need to map the SITEID
+		     String cssSheet = pageElement.getAttribute("csssheet");
+		     if (StringUtils.isNotEmpty(cssSheet))
+			 page.setCssSheet(cssSheet.replace("/group/"+fromSiteId+"/", "/group/"+siteId+"/"));
 		     simplePageToolDao.quickSaveItem(page);
-		     if (gradebookPoints != null && !gradebookPoints.equals("")) {
+		     if (StringUtils.isNotEmpty(gradebookPoints)) {
 			 gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
 							    title, Double.valueOf(gradebookPoints), null, "Lesson Builder");
 		     }
