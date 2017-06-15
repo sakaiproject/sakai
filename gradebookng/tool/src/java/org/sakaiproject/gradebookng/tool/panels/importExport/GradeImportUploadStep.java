@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
@@ -60,6 +62,7 @@ public class GradeImportUploadStep extends BasePanel {
 	private class UploadForm extends Form<Void> {
 
 		FileUploadField fileUploadField;
+		Button continueButton;
 
 		public UploadForm(final String id) {
 			super(id);
@@ -68,9 +71,18 @@ public class GradeImportUploadStep extends BasePanel {
 			setMaxSize(Bytes.megabytes(2));
 
 			this.fileUploadField = new FileUploadField("upload");
+			this.fileUploadField.add(new OnChangeAjaxBehavior() {
+				@Override
+				protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
+					UploadForm.this.continueButton.setEnabled(true);
+					ajaxRequestTarget.add(UploadForm.this.continueButton);
+				}
+			});
 			add(this.fileUploadField);
 
-			add(new Button("continuebutton"));
+			this.continueButton = new Button("continuebutton");
+			this.continueButton.setEnabled(false);
+			add(this.continueButton);
 
 			final Button cancel = new Button("cancelbutton") {
 				@Override
