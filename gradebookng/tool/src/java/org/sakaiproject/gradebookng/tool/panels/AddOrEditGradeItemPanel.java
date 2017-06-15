@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,7 +21,9 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.util.DateFormatterUtil;
 
@@ -128,10 +129,14 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				}
 
 				// 2. names cannot contain these special chars
-				if(validated && StringUtils.containsAny(assignment.getName(), GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-					validated = false;
-					error(getString("error.addeditgradeitem.titlecharacters"));
-					target.addChildren(form, FeedbackPanel.class);
+				if (validated) {
+					try {
+						GradebookHelper.validateGradeItemName(assignment.getName());
+					} catch (InvalidGradeItemNameException e) {
+						validated = false;
+						error(getString("error.addeditgradeitem.titlecharacters"));
+						target.addChildren(form, FeedbackPanel.class);
+					}
 				}
 
 				// OK

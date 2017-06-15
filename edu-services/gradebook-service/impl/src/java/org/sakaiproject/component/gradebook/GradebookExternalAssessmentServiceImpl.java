@@ -51,6 +51,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidCategoryException;
@@ -173,10 +174,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         }
 		
 		// name cannot contain these chars as they are reserved for special columns in import/export
-        if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
-        }
+		GradebookHelper.validateGradeItemName(title);
 
 		getHibernateTemplate().execute(session -> {
 			// Ensure that the externalId is unique within this gradebook
@@ -235,10 +233,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         }
         
         // name cannot contain these chars as they are reserved for special columns in import/export
-        if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
-        }
+        GradebookHelper.validateGradeItemName(title);
 
 		HibernateCallback<?> hc = new HibernateCallback<Object>() {
             @Override
@@ -717,10 +712,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		}
 		
 		// name cannot contain these chars as they are reserved for special columns in import/export
-        if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-            // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-        	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
-        }
+		GradebookHelper.validateGradeItemName(title);
 
 		getHibernateTemplate().execute(session -> {
             // Ensure that the externalId is unique within this gradebook
@@ -794,10 +786,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     }
     
     // name cannot contain these chars as they are reserved for special columns in import/export
-    if(StringUtils.containsAny(title, GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-        // TODO InvalidAssignmentNameException plus move all exceptions to their own package
-    	throw new ConflictingAssignmentNameException("Assignment names cannot contain *, #, [ or ] as they are reserved");
-    }
+    GradebookHelper.validateGradeItemName(title);
 
     HibernateCallback<?> hc = session -> {
         asn.setExternalInstructorLink(externalUrl);
