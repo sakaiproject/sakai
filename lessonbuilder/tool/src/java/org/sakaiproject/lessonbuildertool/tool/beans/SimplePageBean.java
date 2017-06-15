@@ -8147,8 +8147,13 @@ public class SimplePageBean {
 			resourceCache.put(collectionId, resources);
 		}
 		
+		// For a while, up to Sakai 11.3, uploading a custom css file directly from
+		// the lessonbuilder page could cause Sakai to generate file names like foo.css-1
+		// In such cases, they should appear in the dropdown for custom css
+		Pattern cssPattern = Pattern.compile("\\.css(-[0-9][0-9]*){0,1}$", Pattern.CASE_INSENSITIVE);
+		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
@@ -8170,7 +8175,7 @@ public class SimplePageBean {
 		}
 		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
