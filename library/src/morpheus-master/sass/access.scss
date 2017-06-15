@@ -4,6 +4,8 @@
 @import "base/extendables";
 @import "base/defaults";
 
+@import "font-awesome";
+
 .directoryIndex {
     margin-top: 2em;
     padding: 1em;
@@ -47,11 +49,13 @@
                 padding: 3px;
 
                 a {
-                    padding-left: 21px;
-                    background: url(../../image/silk/folder.png) center left no-repeat !important;
+                    .faicon {
+                      @extend .fa, .fa-folder-o;
+                    }
                     &:hover {
-                        padding-left: 21px;
-                        background: url(../../image/silk/folder_go.png) center left no-repeat !important
+                      .faicon {
+                        @extend .fa, .fa-folder-open-o;
+                      }
                     }
                 }
             }
@@ -66,6 +70,9 @@
                     border: 1px solid #ccc;
                     padding: 3px;
                     display: inline-block;
+                    .faicon {
+                      @extend .fa, .fa-level-up;
+                    }
                     &:hover {
                         border: 1px solid #aaa;
                         background: #ffe;
@@ -77,9 +84,72 @@
                 padding: 3px;
 
                 a {
-                    padding: 6px;
-                    padding-left: 21px;
-                    background: url(../../image/sakai/generic.gif) center left no-repeat;
+                    .faicon {
+                      @extend .fa, .fa-file-o;
+                    }
+                    
+                    &.doc, &.rtf, &.docx, &.docm, &.dotx, &.dotm {
+                      .faicon {
+                        @extend .fa-file-word-o;
+                      }
+                    }
+                    &.ppt, &.pps, &.pptx, &.pptm, &.ppsx, &.potx, &.potm, &.ppam {
+                      .faicon {
+                        @extend .fa-file-powerpoint-o;
+                      }
+                    }
+                    &.xls, &.xlsx, &.csv, &.xlsx, &.xlsm, &.xltx, &.xltm, &.xlsb, &.xlam {
+                      .faicon {
+                        @extend .fa-file-excel-o;
+                      }
+                    }
+                    &.mdb {
+                      .faicon {}
+                    }
+                    &.gif, &.jpg, &.jpeg, &.png {
+                      .faicon {
+                        @extend .fa-file-image-o;
+                      }
+                    }
+                    &.html, &.htm {
+                      .faicon {
+                        @extend .fa-file-code-o;
+                      }
+                    }
+                    &.txt, &.java {
+                      .faicon {
+                        @extend .fa-file-text-o;
+                      }
+                    }
+                    &.zip, &.tar, &.sit, &.hqx {
+                      .faicon {
+                        @extend .fa-file-archive-o;
+                      }
+                    }
+                    &.mov, &.mpeg, &.avi {
+                      .faicon {
+                        @extend .fa-file-video-o;
+                      }
+                    }
+                    &.mp3, &.wav, &.aiff {
+                      .faicon {
+                        @extend .fa-file-audio-o;
+                      }
+                    }
+                    &.pdf {
+                      .faicon {
+                        @extend .fa-file-pdf-o;
+                      }
+                    }
+                    &.ai, &.ps, &.psd {
+                      .faicon {}
+                    }
+                    &.ram, &.rm {
+                      .faicon {}
+                    }
+                    &.swf {
+                      .faicon {}
+                    }
                 }
             }
         }
@@ -94,45 +164,78 @@ p#toggle {
 
 $background-pos: center left no-repeat !important;
 
+/* just in case the file is not inside a link (CARE : in this way there is no default icon)*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
-	background: url(../../image/sakai/word.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-word-o;
+  }
 }
 .ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
-	background: url(../../image/sakai/ppt.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-powerpoint-o;
+  }
 }
 .xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam {
-	background: url(../../image/sakai/excel.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-excel-o;
+  }
 }
 .mdb {
-	background: url(../../image/sakai/access.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
 }
 .gif, .jpg, .jpeg, .png {
-	background: url(../../image/sakai/image.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-image-o;
+  }
 }
 .html, .htm {
-	background: url(../../image/sakai/html.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-code-o;
+  }
 }
 .txt, .java {
-	background: url(../../image/sakai/text.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-text-o;
+  }
 }
 .zip, .tar, .sit, .hqx {
-	background: url(../../image/sakai/compressed.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-archive-o;
+  }
 }
 .mov, .mpeg, .avi {
-	background: url(../../image/sakai/movie.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-video-o;
+  }
 }
 .mp3, .wav, .aiff {
-	background: url(../../image/sakai/audio.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-audio-o;
+  }
 }
 .pdf {
-	background: url(../../image/sakai/pdf.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-pdf-o;
+  }
 }
 .ai, .ps, .psd {
-	background: url(../../image/sakai/postscript.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
 }
 .ram, .rm {
-	background: url(../../image/sakai/real.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
 }
 .swf {
-	background: url(../../image/sakai/shockwave.gif) $background-pos
+  .faicon {
+    @extend .fa, .fa-file-o;
+  }
+}
+
+.fa:before{
+  padding-right: 5px;
 }
