@@ -2230,8 +2230,8 @@ $(document).ready(function() {
 			}
 			insist = false;
 			$("#delete-confirm-message").text(message);
-			$("#delete-confirm").dialog('open');
 		        $("#delete-confirm").dialog('option', 'title', msg('simplepage.delete-item'));
+			$("#delete-confirm").dialog('open');
 			return false;
 		    };
 
