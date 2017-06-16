@@ -41,7 +41,7 @@
 						#set( $breadToolName  = $page.pageTitle )
 	
 						<li class="Mrphs-toolsNav__menuitem is-current">
-							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
+							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}">
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
@@ -96,7 +96,7 @@
 					#if (${page.current})
 	
 						<li class="Mrphs-toolsNav__menuitem is-current">
-							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}" role="presentation">
+							<a class="Mrphs-toolsNav__menuitem--link #if(${page.hidden})is-invisible#end" href="${page.pageResetUrl}" title="${page.pageTitle}">
 								<span class="Mrphs-toolsNav__menuitem--icon ${page.menuClass} $!{page.menuClassOverride} icon-active"></span>
 								<span class="Mrphs-toolsNav__menuitem--title">${page.pageTitle}</span>
 							</a>
@@ -185,12 +185,12 @@
 		#if ( $subSites )
 	
 			<nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
-					<ul role="menu">
+					<ul>
 	
 						#foreach ( $site in $subSites )
 	
 							<li>
-								<a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
+								<a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}">
 									<span class="Mrphs-toolsNav__menuitem--icon ${sitePages.subsiteClass}"></span>
 									<span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.siteTitle}</span>
 								</a>

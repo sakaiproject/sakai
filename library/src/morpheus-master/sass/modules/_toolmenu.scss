@@ -213,12 +213,6 @@ body.is-logged-out{
 	}
 }
 
-#totoolmenu{
-	@media #{$phone}{
-		display:none !important;
-	}
-}
-
 .#{$namespace}toolsNav__title--current-site{
 	display: none;
 	@media #{$phone}{
