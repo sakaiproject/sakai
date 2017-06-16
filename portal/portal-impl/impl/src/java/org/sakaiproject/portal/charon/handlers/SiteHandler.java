@@ -882,11 +882,13 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
 			int tabDisplayLabel = 1;
-			
+			boolean toolsCollapsed = false;
+
 			if (loggedIn) 
 			{
 				Preferences prefs = PreferencesService.getPreferences(session.getUserId());
 				ResourceProperties props = prefs.getProperties(org.sakaiproject.user.api.PreferencesService.SITENAV_PREFS_KEY);
+
 				try 
 				{
 					tabDisplayLabel = (int) props.getLongProperty("tab:label");
@@ -895,9 +897,14 @@ public class SiteHandler extends WorksiteHandler
 				{
 					tabDisplayLabel = 1;
 				}
+
+				try {
+					toolsCollapsed = props.getBooleanProperty("toolsCollapsed");
+				} catch (Exception any) {}
 			}
-			
+
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
+			rcontext.put("toolsCollapsed", toolsCollapsed);
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
