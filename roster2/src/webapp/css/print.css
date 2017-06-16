@@ -28,12 +28,17 @@
 
 .roster-table-row {
     display: table-row;
+    page-break-inside: avoid;
 }
 
 .roster-table-cell {
     display: table-cell;
     padding-right: 10px;
     white-space: nowrap;
+}
+
+.roster-member {
+    page-break-inside: avoid;
 }
 
 .roster-member:nth-child(odd) {
