@@ -708,16 +708,38 @@ $PBJQ(document).ready(function($){
   });
 
   $PBJQ(container).on('click', '.tab-btn', function () {
-    $PBJQ('.tab-btn', container).removeClass('active');
-    $PBJQ('.tab-btn', container).attr('aria-selected', 'false');
-    $PBJQ(this).addClass('active');
-    $PBJQ(this).attr('aria-selected', 'true');
+    $PBJQ('.tab-btn', container).removeClass('active').attr('aria-selected', 'false').attr('tabindex', '-1');
+    $PBJQ(this).addClass('active').attr('aria-selected', 'true').attr('tabindex', '0');
 
     var panel = $PBJQ(this).data('tab-target');
 
     $PBJQ('.tab-box').hide();
     $PBJQ(container).trigger('tab-shown', panel);
     $PBJQ('#' + panel).show();
+  });
+
+  // Arrow and spacebar nav for tabs
+  $PBJQ(container).on('keydown', '.tab-btn', function (e) {
+    if (e.keyCode == 32) {
+      $PBJQ(this).click();
+      e.preventDefault();
+    }
+    if (e.keyCode == 37) {
+      $PBJQ("[aria-selected=true]").prev().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 38) {
+      $PBJQ("[aria-selected=true]").prev().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 39) {
+      $PBJQ("[aria-selected=true]").next().click().focus();
+      e.preventDefault();
+    }
+    if (e.keyCode == 40) {
+      $PBJQ("[aria-selected=true]").next().click().focus();
+      e.preventDefault();
+    }
   });
 
   $PBJQ(document).on('view-sites-shown', function () {
