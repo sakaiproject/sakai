@@ -26,8 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
@@ -57,17 +55,16 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
  */
-
+@Slf4j
 public class PortalServiceImpl implements PortalService
 {
-	private static final Logger log = LoggerFactory.getLogger(PortalServiceImpl.class);
-
 	/**
 	 * Parameter to force state reset
 	 */

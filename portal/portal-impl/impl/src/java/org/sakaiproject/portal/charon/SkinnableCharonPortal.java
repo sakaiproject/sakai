@@ -131,9 +131,7 @@ import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p/> Charon is the Sakai Site based portal.
@@ -144,17 +142,13 @@ import org.slf4j.LoggerFactory;
  * 
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class SkinnableCharonPortal extends HttpServlet implements Portal
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2645929710236293089L;
-
-	/**
-	 * Our log (commons).
-	 */
-	private static Logger M_log = LoggerFactory.getLogger(SkinnableCharonPortal.class);
 
 	/**
 	 * messages.
@@ -257,7 +251,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	public void destroy()
 	{
-		M_log.info("destroy()");
+		log.info("destroy()");
 		portalService.removePortal(this);
 
 		super.destroy();
@@ -431,7 +425,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		ResourceProperties rp = site.getProperties();
 		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
-		// System.out.println("Checking subsite pref:"+site.getTitle()+" pref="+pref+" show="+showSub);
+		log.debug("Checking subsite pref:{} pref={} show={}", site.getTitle(), pref, showSub);
 		if ( "false".equals(showSub) ) return;
 
 		if ( "false".equals(pref) )
@@ -604,7 +598,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// set renderInline = true to enable this, in the tool config
 			renderResult = this.getInlineRenderingForTool(res, req, placement);
 			if(renderResult != null) {
-				M_log.debug("Using buffered content rendering");
+				log.debug("Using buffered content rendering");
 				toolInline = true;
 			}
 		}
@@ -642,7 +636,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// for the reset button
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 		   + Web.escapeUrl(placement.getId()) + "/";
-		M_log.debug("includeTool toolInline="+toolInline+" toolUrl="+toolUrl);
+		log.debug("includeTool toolInline={} toolUrl={}", toolInline, toolUrl);
 
 		// Reset is different (and awesome) when inlining
 		if ( toolInline ) {
@@ -657,14 +651,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			ToolSession ts = s.getToolSession(placement.getId());
 			ts.clearAttributes();
 			portalService.setResetState(null);
-			M_log.debug("includeTool state reset");
+			log.debug("includeTool state reset");
 		}
 
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
-		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
+		log.debug("includeTool resetActionUrl={}", resetActionUrl);
 
 		// SAK-20462 - Pass through the sakai_action parameter
 		String sakaiAction = req.getParameter("sakai_action");
@@ -719,7 +713,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		if(renderResult == null) {
 			//standard iframe
-			M_log.debug("Using standard iframe rendering");
+			log.debug("Using standard iframe rendering");
 			renderResult = ToolRenderService.render(this, placement, req, res, getServletContext());
 		}
 				
@@ -931,8 +925,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			if (basicAuth.doAuth(req, res))
 			{
-				// System.err.println("BASIC Auth Request Sent to the Browser
-				// ");
+				log.debug("BASIC Auth Request Sent to the Browser");
 				return;
 			}
 		}
@@ -1122,7 +1115,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			basicAuth.doLogin(req);
 			if (!ToolRenderService.preprocess(this,req, res, getServletContext()))
 			{
-				// System.err.println("POST FAILED, REDIRECT ?");
+				log.debug("POST FAILED, REDIRECT ?");
 				return;
 			}
 
@@ -1450,7 +1443,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		String reqUrl = req.getRequestURL().toString();
 		if ( reqUrl.indexOf(toolContextPath) < 0 ) {
-			M_log.debug("Mismatch between request url " + reqUrl + " and toolContextPath " + toolContextPath);
+			log.debug("Mismatch between request url {} and toolContextPath {}", reqUrl, toolContextPath);
 			if ( toolContextPath.indexOf("/~") > 0 && reqUrl.indexOf("/~") < 1 ) {
 				if ( reqUrl.indexOf("/%7e") > 0 ) {
 					toolContextPath = toolContextPath.replace("/~","/%7e");
@@ -1459,7 +1452,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				}
 			}
 		}
-		M_log.debug("forwardtool call " + req.getRequestURL().toString() + " toolPathInfo " + toolPathInfo + " ctx " + toolContextPath);
+		log.debug("forwardtool call {} toolPathInfo {} ctx {}", req.getRequestURL(), toolPathInfo, toolContextPath);
 
 		// if there is a stored request state, and path, extract that from the
 		// session and reinstance it
@@ -1477,7 +1470,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				setupForward(req, res, p, skin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-				M_log.debug("tool forward 1 " + toolPathInfo + " context " + toolContextPath);
+				log.debug("tool forward 1 {} context {}", toolPathInfo, toolContextPath);
 				needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
 				if (needNative)
 					req.removeAttribute(Tool.NATIVE_URL);
@@ -1487,7 +1480,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				M_log.debug("Restoring StoredState [" + ss + "]");
+				log.debug("Restoring StoredState [{}]", ss);
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
 				StringBuilder sctx = new StringBuilder(ss.getToolContextPath());
@@ -1498,7 +1491,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String sskin = ss.getSkin();
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-				M_log.debug("tool forward 2 " + stoolPathInfo + " context " + stoolContext);
+				log.debug("tool forward 2 {} context {}", stoolPathInfo, stoolContext);
 				needNative = (sreq.getAttribute(Tool.NATIVE_URL) != null);
 				if (needNative)
 					sreq.removeAttribute(Tool.NATIVE_URL);
@@ -1514,7 +1507,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			setupForward(req, res, p, skin);
 			req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-			M_log.debug("tool forward 3 " + toolPathInfo + " context " + toolContextPath);
+			log.debug("tool forward 3 {} context {}", toolPathInfo, toolContextPath);
 			needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
 			if (needNative)
 				req.removeAttribute(Tool.NATIVE_URL);
@@ -1702,7 +1695,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         			props.addProperty("sakaiTutorialFlag", "1");
                         			preferencesService.commit(preferences);   
                         		} catch (SakaiException e1) {
-                        			M_log.error(e1.getMessage(), e1);
+                        			log.error(e1.getMessage(), e1);
                         		}
                         	}
                         }
@@ -1980,7 +1973,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
-		M_log.info("init()");
+		log.info("init()");
 
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
 
@@ -2154,7 +2147,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		Exception e = new Exception();
 		StackTraceElement se = e.getStackTrace()[1];
-		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
+		log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
 				+ se.getLineNumber());
 	}
 
@@ -2210,7 +2203,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		catch (UserNotDefinedException e)
 		{
-			M_log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
+			log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
 			return SiteService.getUserSiteId(userId);
 		}
 	}
@@ -2349,7 +2342,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				}
 				catch (UserNotDefinedException e)
 				{
-					M_log.debug("Unable to retrieve user for id: " + originalUserId);
+					log.debug("Unable to retrieve user for id: {}", originalUserId);
 				}
 			}
 		}
