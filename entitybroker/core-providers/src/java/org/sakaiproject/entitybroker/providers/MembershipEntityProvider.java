@@ -895,7 +895,7 @@ RESTful, ActionsExecutable {
                 catch (UserNotDefinedException e) {
                     log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
                 }
-                userAuditString = new String[]{sg.site.getId(),user.getDisplayId(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
+                userAuditString = new String[]{sg.site.getId(),user.getEid(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
                                                userAuditRegistration.getDatabaseSourceKey(), currentUserId};
                 userAuditList.add(userAuditString);
             } else {
@@ -962,14 +962,14 @@ RESTful, ActionsExecutable {
 
                 // Add change to user_audits_log table.
                 String role = site.getUserRole(userIds[i]).getId();
-                String displayId = null;
+                String userEid = null;
                 try {
-                    displayId = userDirectoryService.getUser(userIds[i]).getDisplayId();
+                    userEid = userDirectoryService.getUser(userIds[i]).getEid();
                 } catch (UserNotDefinedException e) {
                     log.error(".deleteEntity: User with id {} not defined", userIds[i]);
                 }
 
-                userAuditString = new String[]{site.getId(), displayId, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
+                userAuditString = new String[]{site.getId(), userEid, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
                                                userAuditRegistration.getDatabaseSourceKey(), developerHelperService.getCurrentUserId()};
                 userAuditList.add(userAuditString);
 
