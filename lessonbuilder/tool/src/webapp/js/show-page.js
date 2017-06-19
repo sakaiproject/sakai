@@ -104,7 +104,7 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
-        $("li.multimediaType iframe, li.multimediaType object, li.multimediaType embed, li.multimediaType video").each(function() {
+        $("div.multimediaType iframe, div.multimediaType object, div.multimediaType embed, div.multimediaType video").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
                 if ($(this).attr('defaultsize') === 'true' ||
@@ -113,7 +113,7 @@ $(document).ready(function() {
                     $(this).height($(this).width() * 0.75);
             });
 
-        $("li.multimediaType img").each(function() {
+        $("div.multimediaType img").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
 		// if just width specified, we're fine. it will scale. But if height is specified narrow windows
@@ -488,7 +488,7 @@ $(document).ready(function() {
 		$(".edit-calendar").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			var row = $(this).closest('li');
+			var row = $(this).closest('div.item');
 			$("#change-assignment-p").hide();
 			$("#change-quiz-p").hide();
 			$("#change-forum-p").hide();
@@ -523,7 +523,7 @@ $(document).ready(function() {
 		$('.announcements-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			var position =  $(this).position();
 			$("#announcements-error-container").hide();
 			$("#announcementsEditId").val("-1");
@@ -538,7 +538,7 @@ $(document).ready(function() {
 		$(".edit-announcements").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			var row = $(this).closest('li');
+			var row = $(this).closest('div.item');
 			var itemId = row.find(".announcementsId").text();
 			$('#announcementsEditId').val(itemId);
 			var height = row.find(".announcementsWidgetHeight").text().replace(/'/g,"");
@@ -546,7 +546,7 @@ $(document).ready(function() {
 			var number = row.find(".numberOfAnnouncements").text();
 			$("#announcementsNumberDropdown-selection").val(number);
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$('#announcements-error-container').hide();
 			//Change the text of the add button to 'Update Item'
 			$("#announcements-add-item").attr("value", msg("simplepage.edit"));
@@ -745,7 +745,7 @@ $(document).ready(function() {
 		$(".edit-forum-summary").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			var row = $(this).closest('li');
+			var row = $(this).closest('div.item');
 			var itemId = row.find(".forumSummaryId").text();
 			$('#forumSummaryEditId').val(itemId);
 			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
@@ -753,7 +753,7 @@ $(document).ready(function() {
 			var number = row.find(".numberOfConversations").text();
 			$("#forumNumberDropdown-selection").val(number);
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$('#forum-summary-error-container').hide();
 			//Change the text of the button to 'Update Item'
 			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
@@ -818,12 +818,12 @@ $(document).ready(function() {
 		$(".edit-youtube").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$("#editgroups-youtube").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-youtube").hide();
 
-			var row = $(this).closest('li');
+			var row = $(this).closest('div.item');
 
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
@@ -849,7 +849,7 @@ $(document).ready(function() {
 			$("#youtubeWidth").val(row.find(".mm-width").text());
 			$("#description4").val(row.find(".description").text());
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$('#youtube-dialog').dialog('open');
 			setupdialog($('#youtube-dialog'));
 			$("#grouplist").hide();
@@ -864,7 +864,7 @@ $(document).ready(function() {
 		$('.edit-movie').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
 			$("#expert-movie").hide();
 			$("#expert-movie-toggle-div").show();
@@ -872,7 +872,7 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			$("#editgroups-movie").hide();
 
-			var row = $(this).closest('li');
+			var row = $(this).closest('div.item');
 			
 			var findObject = row.find('object').find('object');
 			row.find(".path-url").attr("href", findObject.attr("data"));
@@ -911,7 +911,7 @@ $(document).ready(function() {
 			}
 			$("#mimetype4").val(row.find(".mm-type").text());
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$("#movie-dialog").dialog('open');
 			setupdialog($("#movie-dialog"));
 			$("#grouplist").hide();
@@ -921,7 +921,7 @@ $(document).ready(function() {
 		$(".edit-comments").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-comments").hide();
@@ -979,7 +979,7 @@ $(document).ready(function() {
 			}
 			
             $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+            $(this).closest('div.item').addClass('editInProgress');
 			$('#comments-dialog').dialog('open');
 			setupdialog($("#comments-dialog"));
 			$("#grouplist").hide();
@@ -994,7 +994,7 @@ $(document).ready(function() {
 		$(".edit-student").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-student").hide();
@@ -1189,14 +1189,14 @@ $(document).ready(function() {
 			insist = false;
 			$("#student-group-errors").text("");
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$('#student-dialog').dialog('open');
 			setupdialog($("#student-dialog"));
 			$("#grouplist").hide();
 			return false;
 		});
 		
-		//		$(".mainList li").hover(function() {
+		//		$(".mainList div.item").hover(function() {
 		//			$(this).find('.group-col').show();
 		//			var next = $(this).next();
 		//			if (next.hasClass('offscreen'))
@@ -1320,7 +1320,7 @@ $(document).ready(function() {
 		$('.forum-summary-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$("#forum-summary-error-container").hide();
 			$("#forumSummaryEditId").val("-1");
 			$("#forum-summary-height").val("");
@@ -1333,7 +1333,7 @@ $(document).ready(function() {
 		$('.question-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 
 			$("#question-editgroups").after($("#grouplist"));
 			$("#question-editgroups").hide();
@@ -1508,7 +1508,7 @@ $(document).ready(function() {
 			
 			$("#delete-question-div").hide();
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$('#question-error-container').hide();
 			$("#update-question").attr("value", msg("simplepage.edit"));
 
@@ -1533,7 +1533,7 @@ $(document).ready(function() {
 			var tweetLimit = row.find(".tweetLimit").text().replace(/'/g,"");
 			$("#numberDropdown-selection").val(tweetLimit);
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$('#twitter-error-container').hide();
 			//Change the text for the button to 'Update Item'
 			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
@@ -1614,9 +1614,9 @@ $(document).ready(function() {
 		$(".edit-link").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$('.edit-col').addClass('edit-colHidden');
-			$(this).closest('li').addClass('editInProgress');
+			$(this).closest('div.item').addClass('editInProgress');
 			$("#require-label2").hide();
 			$("#item-required2").hide();
 			$("#assignment-dropdown-selection").hide();
@@ -1918,7 +1918,7 @@ $(document).ready(function() {
 		$('.twitter-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$('#twitter-error-container').hide();
 			$("#twitterEditId").val("-1");
 			$("#twitter-addBefore").val(addAboveItem);
@@ -2090,7 +2090,7 @@ $(document).ready(function() {
 			oldloc = $(this);
 			closeDropdowns();
 			mm_test_reset();
-			$('li').removeClass('editInProgress');
+			$('div.item').removeClass('editInProgress');
 			$("#expert-multimedia").hide();
 			$("#expert-multimedia-toggle-div").show();
 			$("#editgroups-mm").after($("#grouplist"));
@@ -2161,7 +2161,7 @@ $(document).ready(function() {
 				   "pageItemId=" + row.find(".mm-itemid").text()));
 			$("#multimedia-item-id").val(row.find(".mm-itemid").text());
             $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+            $(this).closest('div.item').addClass('editInProgress');
 
 			$("#edit-multimedia-dialog").dialog('open');
 			setupdialog($("#edit-multimedia-dialog"));
@@ -2289,7 +2289,7 @@ $(document).ready(function() {
 			        $('#question-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
-                    $('li').removeClass('editInProgress');
+                    $('div.item').removeClass('editInProgress');
 				}
 		});
 		 
