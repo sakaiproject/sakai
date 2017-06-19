@@ -2250,7 +2250,7 @@ $(document).ready(function() {
 		$('.del-item-link').click(function(event) {
 			// edit row is set by edit-comments. We're current in the dialog. need
 			// to look in the actual page row.
-			$("#delete-item-itemid").val($(this).parents("li").find("span.itemid").text());
+			$("#delete-item-itemid").val($(this).parents("div.item").find("span.itemid").text());
 			delbutton = $('#delete-item-button');
 			return delete_confirm(event, msg("simplepage.delete_page_confirm"));
 		    });
@@ -2372,7 +2372,7 @@ $(document).ready(function() {
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
 		var sectionId = "sectionid" + (nextid++);
-		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="item breaksection" role="listitem"><span style="display:none" class="item itemid">' + newitem + '</span></div></div></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
@@ -2386,7 +2386,7 @@ $(document).ready(function() {
 
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    section.find("ul.mainList").append(addAboveLI, tail_lis);
+		    section.find("div.mainList").append(addAboveLI, tail_lis);
 		section.find(".column").append(tail_uls);
 		section.append(tail_cols);
 
@@ -2410,12 +2410,12 @@ $(document).ready(function() {
 		// current section DIV
 		var tail_uls = addAboveLI.parent().nextAll();
 		var column = addAboveLI.parent().parent();
-		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div>');
+		column.after('<div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-column-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><div border="0" role="list" style="z-index: 1;" class="indent mainList"><div class="item breaksection" role="listcolumn"><span style="display:none" class="itemid">' + newitem + '</span></div></div></div>');
 		// now go to new section
 		column = column.next();
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    column.find("ul.mainList").append(addAboveLI, tail_lis);
+		    column.find("div.mainList").append(addAboveLI, tail_lis);
 		column.find(".column").append(tail_uls);
 		// need trigger on the A we just added
 		column.find('.column-merge-link').click(columnMergeLink);
@@ -2442,7 +2442,7 @@ $(document).ready(function() {
 		var section = thisCol.parent();
 		var sectionHeader = section.prev('.sectionHeader');
 		// append rest of ul last one in prevous section
-		sectionHeader.parent().prev().find('ul.mainList').last().append(tail_lis);
+		sectionHeader.parent().prev().find('div.mainList').last().append(tail_lis);
 		sectionHeader.parent().prev().find('.column').last().append(tail_uls);
 		sectionHeader.parent().prev().append(tail_cols);
 		// nothing should be left in current section. kill it
@@ -2466,7 +2466,7 @@ $(document).ready(function() {
 		var tail_uls = thisCol.find('.mainList').nextAll();
 
 		// append rest of ul last one in prevous column;
-		thisCol.prev().find('ul.mainList').last().append(tail_lis);
+		thisCol.prev().find('div.mainList').last().append(tail_lis);
 		thisCol.prev().append(tail_uls);
 		// nothing should be left in current section. kill it
 		thisCol.remove();
@@ -2775,7 +2775,7 @@ function closeMultimediaEditDialog() {
 function closeAddMultimediaDialog() {
 	$("#add-multimedia-dialog").dialog("close");
 	oldloc.focus();
-    $(oldloc).closest('li').removeClass('editInProgress');
+    $(oldloc).closest('div.item').removeClass('editInProgress');
 }
 
 function closeEditTitleDialog() {
@@ -3203,7 +3203,7 @@ function buttonOpenDropdownc() {
 }
 
 function buttonOpenDropdowna() {
-    addAboveLI = $(this).closest("li");
+    addAboveLI = $(this).closest("div.item");
     oldloc = addAboveLI.find(".plus-edit-icon");
     addAboveItem = addAboveLI.find("span.itemid").text();
     $(".addbreak").show();
@@ -3212,8 +3212,8 @@ function buttonOpenDropdowna() {
 
 function buttonOpenDropdownb() {
     oldloc = $(this);
-    addAboveItem = '-' + $(this).closest('.column').find('ul.mainList').children().last().find("span.itemid").text();
-    addAboveLI = $(this).closest('.column').find('ul.mainList').children().last().closest("li");
+    addAboveItem = '-' + $(this).closest('.column').find('div.mainList').children().last().find("span.itemid").text();
+    addAboveLI = $(this).closest('.column').find('div.mainList').children().last().closest("div.item");
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
     return false;
