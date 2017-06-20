@@ -1112,11 +1112,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			postedCommentId = findMostRecentComment();
 		}
 
-		// LSNBLDR-816: Show a link for downloading media 
-		// However, this boolean will only be checked when no plugin 
+		// Show a link for downloading media when no plugin 
 		// for media playback is available in the browser.
-		boolean showDownloads = 
-		    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
+		boolean showDownloads = (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
 
 		//
 		//
