@@ -36,11 +36,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine;
 import org.w3c.tidy.Tidy;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -49,12 +48,9 @@ import org.w3c.tidy.Tidy;
  * render engine. It is run as a unit test.
  * </p>
  */
+@Slf4j
 public class MockCharonPortal extends HttpServlet
 {
-
-	/** Our log (commons). */
-	private static Logger log = LoggerFactory.getLogger(MockCharonPortal.class);
-
 	private VelocityPortalRenderEngine rengine;
 
 	private File outputDir;
@@ -516,7 +512,7 @@ public class MockCharonPortal extends HttpServlet
 				BufferedReader br = new BufferedReader(new FileReader(errorFile));
 				String thisLine;
 				while ((thisLine = br.readLine()) != null) { // while loop begins here
-					System.out.println(thisLine);
+					log.debug(thisLine);
 					if ( thisLine.indexOf("Error:") < 0 ) continue;
 					if ( thisLine.indexOf("<nav>") > 0 ) continue;
 					if ( thisLine.indexOf("<main>") > 0 ) continue;

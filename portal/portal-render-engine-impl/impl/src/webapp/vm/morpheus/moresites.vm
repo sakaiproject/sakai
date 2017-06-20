@@ -6,18 +6,18 @@
     <div id="removeFromFavoritesText" style="display: none">${rloader.moresite_remove_from_favorites}</div>
     <div id="maxFavoritesLimitReachedText" style="display: none">$rloader.getFormattedMessage("sit_favorite_limit_reached", $tabsSites.maxFavoritesShown)</div>
 
-    <div id="selectSiteModal" class="outscreen">
+    <div id="selectSiteModal" class="outscreen" role="dialog" aria-label="${rloader.sit_modal_description}">
 
-        <div style="display: none" id="max-favorite-entries">${tabsSites.maxFavoritesShown}</div>
+        <div class="hidden" id="max-favorite-entries">${tabsSites.maxFavoritesShown}</div>
 
-        <ul id="otherSitesMenu">
+        <ul id="otherSitesMenu" role="menu">
             #if (${tabsSites.worksiteToolUrl})
 
-                <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
+                <li><a role="menuitem" id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
 
                 #if ($allowAddSite)
 
-                    <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
+                    <li><a role="menuitem" id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
 
                 #end ## END of IF ($allowAddSite)
 
@@ -25,12 +25,12 @@
 
             #if (${tabsSites.prefsToolUrl})
 
-                <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
+                <li><a role="menuitem" href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
 
             #end ## END of IF (${tabsSites.prefsToolUrl})
 
             <li class="otherSitesMenuClose">
-                <a href="javascript:void(0);">
+                <a role="menuitem" href="javascript:void(0);">
                     <span class="sr-only">${rloader.sit_othersitesclose}</span>
                     <span class="fa fa-times" aria-hidden="true"></span>
                 </a>
@@ -40,18 +40,16 @@
         <div id="selectSite">
             <!-- View all sites, add new site, preferences -->
             <ul class="tab-bar" role="tablist">
-                <li class="tab-btn active" id="tab-othersites" aria-selected="true" role="tab" data-tab-target="otherSitesCategorWrap">
-                    <a href="javascript:void(0);" class="favorites-tab-label">${rloader.sit_worksites}</a>
+                <li class="tab-btn active" id="tab-othersites" aria-selected="true" role="tab" data-tab-target="otherSitesCategorWrap" tabindex="0">
+                    ${rloader.sit_worksites}
                 </li>
-                <li class="organizeFavorites tab-btn" id="tab-favorites" aria-selected="false" role="tab" data-tab-target="organizeFavorites">
-                    <a href="javascript:void(0);" class="favorites-tab-label">
-                        <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span>
-                        <span class="favorites-mobile">${rloader.moresite_favorites}</span>
-                        <span class="favoriteCountAndWarning">
-                            <span class="favoriteCount"></span>
-                            <span id="favoriteMaxWarningIndicator"> <span class="fa fa-warning" aria-hidden="true"></span></span>
-                        </span>
-                    </a>
+                <li class="organizeFavorites tab-btn" id="tab-favorites" aria-selected="false" role="tab" data-tab-target="organizeFavorites" tabindex="-1">
+                    <span class="favorites-desktop">${rloader.moresite_organize_favorites}</span>
+                    <span class="favorites-mobile">${rloader.moresite_favorites}</span>
+                    <span class="favoriteCountAndWarning">
+                        <span class="favoriteCount"></span>
+                        <span id="favoriteMaxWarningIndicator"> <span class="fa fa-warning" aria-hidden="true"></span></span>
+                    </span>
                 </li>
             </ul>
 
@@ -158,14 +156,13 @@
                     </div>
 
                     <div id="favorite-settings-pane">
-                        <p>${rloader.sit_autofav_description}</p>
+                        <div id="autofav-description">${rloader.sit_autofav_description}</div>
 
                         <div class="onoffswitch" style="display: none">
-                            <input type="checkbox" name="autoFavoritesEnabled" class="onoffswitch-checkbox" id="autoFavoritesEnabled">
-                            <label class="onoffswitch-label" for="autoFavoritesEnabled">
-                                <span class="onoffswitch-inner"></span>
-                                <span class="onoffswitch-switch"></span>
-                            </label>
+                            <button role="switch" aria-checked="true" aria-labelledby="autofav-description" class="btn btn-lg" id="autoFavoritesEnabled">
+                                <span class="onoffswitch-inner">${rloader.moresite_favorites_on}</span>
+                                <span class="onoffswitch-switch">${rloader.moresite_favorites_off}</span>
+                            </button>
                         </div>
                     </div>
                 </div>

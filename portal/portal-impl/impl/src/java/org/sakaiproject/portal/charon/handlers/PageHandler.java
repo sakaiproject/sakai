@@ -47,20 +47,17 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class PageHandler extends BasePortalHandler
 {
-
 	private static final String INCLUDE_PAGE = "include-page";
-
-	private static final Logger log = LoggerFactory.getLogger(PageHandler.class);
 
 	private static final String URL_FRAGMENT = "page";
         

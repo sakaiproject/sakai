@@ -14,6 +14,15 @@ body.is-logged-out{
 // Prevent tool menu collapsed styles being applied when using a mobile sized screen - an issue
 // when switching between phone and non-phone sized screens.
 @media #{$nonPhone} {
+
+	.#{$namespace}collapseTools button.js-toggle-nav {
+		background: transparent;
+		border: 0;
+		font-size: 1.0em;
+		margin: 0;
+		padding: 0;
+	}
+
 	// LHS tool menu collapsed to show icons only and not tool titles.
 	body.#{$namespace}toolMenu-collapsed{
 
@@ -87,13 +96,13 @@ body.is-logged-out{
 							}
 						}
 					}
-                    &:nth-of-type(2){
+ 					&:nth-of-type(2){
 						a{
-						    &:hover{
+							&:hover{
 								border-top: 1px solid $tool-menu-item-separator-color;
-                            }
-                        }
-                    }
+							}
+						}
+					}
 					.#{$namespace}toolsNav__menuitem--icon{
 						@if $tool-menu-icon-on-left {
 							padding: 0 1em 0 0.2em;
@@ -103,7 +112,7 @@ body.is-logged-out{
 						display: none;
 					}
 					&.#{$namespace}collapseTools{
-						i{
+						.fa{
 							@include transform( scaleX(-1) ); /* flip horizontally */
 						}
 					}
@@ -201,12 +210,6 @@ body.is-logged-out{
 	}
 	&.openedLinkNav{
 		margin: 0 0 0 0;
-	}
-}
-
-#totoolmenu{
-	@media #{$phone}{
-		display:none !important;
 	}
 }
 
