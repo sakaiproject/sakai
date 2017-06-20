@@ -896,7 +896,7 @@ RESTful, ActionsExecutable {
                     log.error(".createEntity: User with id {} doesn't exist", userIds[i]);
                 }
                 userAuditString = new String[]{sg.site.getId(),user.getEid(), roleId, UserAuditService.USER_AUDIT_ACTION_ADD,
-                                               userAuditRegistration.getDatabaseSourceKey(), currentUserId};
+                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getEid()};
                 userAuditList.add(userAuditString);
             } else {
                 // group and site
@@ -970,7 +970,7 @@ RESTful, ActionsExecutable {
                 }
 
                 userAuditString = new String[]{site.getId(), userEid, role, UserAuditService.USER_AUDIT_ACTION_REMOVE,
-                                               userAuditRegistration.getDatabaseSourceKey(), developerHelperService.getCurrentUserId()};
+                                               userAuditRegistration.getDatabaseSourceKey(), userDirectoryService.getCurrentUser().getEid()};
                 userAuditList.add(userAuditString);
 
                 site.removeMember(userIds[i]);
