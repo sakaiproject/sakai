@@ -1,3 +1,7 @@
 files:
   - source: /**/*.properties
-    translation: /**/%file_name%_%locale_with_underscore%%file_extension%
+    ignore:
+      - /**/log4J.properties
+      - /**/velocity.properties
+      - /**/*_*.properties
+    translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
