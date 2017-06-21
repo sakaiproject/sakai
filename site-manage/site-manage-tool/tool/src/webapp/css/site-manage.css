@@ -367,9 +367,7 @@ dl.defList dd{
 #toolSelectionList ul li.highlightTool{
     background-color: #ffc
 }
-#toolSelectionList ul li:last-child {
-    border-top: 0 none
-}
+
 .removeTool {
     text-decoration: none !important;
 }
