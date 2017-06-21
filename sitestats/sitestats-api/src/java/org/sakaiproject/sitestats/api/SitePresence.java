@@ -34,7 +34,9 @@ public interface SitePresence extends Stat, Comparable<SitePresence> {
 	/** Set time spent (in milliseconds) */
 	public void setDuration(long duration);
 	
-	/** Get (temporary) last visit start time */
+	/**
+	 * Get (temporary) last visit start time. This is used when the begin event happens in one batch update and
+	 * the end update happens in another batch update and so we need to persist the start time. */
 	public Date getLastVisitStartTime();
 	
 	/** Set (temporary) last visit start time */
