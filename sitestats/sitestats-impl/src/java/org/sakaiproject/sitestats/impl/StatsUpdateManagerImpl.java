@@ -1436,14 +1436,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 
 	private void doUpdateSitePresenceTotal(Session session, SitePresence sp) throws Exception {
-
-		SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 		SitePresenceTotal sptExisting = doGetSitePresenceTotal(session, sp.getSiteId(), sp.getUserId());
 		if (sptExisting == null) {
+			SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
 			session.save(spt);
 		} else {
-			sptExisting.incrementTotalVisits();
-			sptExisting.setLastVisitTime(sp.getLastVisitStartTime());
+			sptExisting.updateFrom(sp);
 			session.update(sptExisting);
 		}
 	}

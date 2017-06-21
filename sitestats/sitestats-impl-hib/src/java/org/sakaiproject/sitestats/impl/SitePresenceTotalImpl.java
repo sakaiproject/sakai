@@ -50,7 +50,12 @@ public class SitePresenceTotalImpl implements SitePresenceTotal, Serializable {
         siteId = sp.getSiteId();
         userId = sp.getUserId();
         totalVisits = 1;
-        setLastVisitTime(sp.getLastVisitStartTime());
+        setLastVisitTime(sp.getDate());
+    }
+
+    public void updateFrom(SitePresence sp) {
+        incrementTotalVisits();
+        setLastVisitTime(sp.getDate());
     }
 
     public void incrementTotalVisits() {
