@@ -26,8 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
@@ -42,6 +46,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +73,8 @@ public class TimedAssessmentRunnable implements Runnable {
   public void run(){
     try {
       TimedAssessmentGradingModel timedAG = this.queue.get(this.timedAGId);
+      String serverName = ServerConfigurationService.getServerName();
+
       boolean submitted = timedAG.getSubmittedForGrade();
       long bufferedExpirationTime = timedAG.getBufferedExpirationDate().getTime(); // in millesec
       long currentTime = (new Date()).getTime(); // in millisec
@@ -92,11 +99,20 @@ public class TimedAssessmentRunnable implements Runnable {
             log.info("SAMIGO_TIMED_ASSESSMENT:SUBMIT:FORGRADE ID:" + this.timedAGId + 
                " userId:" + ag.getAgentId());
 
+
+            // Create a new session here so this is associated in the database with the correct userid
+            UsageSession usageSession = UsageSessionService.startSession(ag.getAgentId(), serverName, "TimedAssessmentRunnable");
+
             // Change user id for the Gradebook update (if required) and so the event is associated with the correct userid
-            Session s = SessionManager.getCurrentSession();
-            if (s != null) {
-              s.setUserId(ag.getAgentId());
+            Session session = SessionManager.getCurrentSession();
+            if (session == null) {
+            	session = SessionManager.startSession();
             }
+
+            session.setUserId(ag.getAgentId());
+            session.setUserEid(UserDirectoryService.getUserEid(ag.getAgentId()));
+            
+
             ag.setForGrade(Boolean.TRUE);
             ag.setTimeElapsed(timedAG.getTimeLimit());
             ag.setStatus(AssessmentGradingData.SUBMITTED); // this will change status 0 -> 1
@@ -130,7 +146,7 @@ public class TimedAssessmentRunnable implements Runnable {
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
 
             EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_THREAD,
-               "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(),
+               "siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId(),
                siteId,
                true,
                NotificationService.NOTI_REQUIRED));
@@ -162,6 +178,8 @@ public class TimedAssessmentRunnable implements Runnable {
                " userEid:" + eventLogData.getUserEid() + 
                " siteId:" + siteId + 
                " submissionId:" + ag.getAssessmentGradingId());
+            //Invalidate the session
+            UsageSessionService.logout();
           }
         }
       } else { //submitted, remove from queue if transaction buffer is also reached
