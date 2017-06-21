@@ -1436,47 +1436,37 @@
 		if(jQuery('#doShortUrl').is(':checked')) {
 			doShortUrl(defaultUrl);
 		} else {
-			//alert("Reverting to default URL: " + defaultUrl);
 			jQuery('#fileURLHolder').val(defaultUrl);
 			//remove cookie
 			jQuery.cookie('resources_short_urls_preferred', null, { path: '/' });
-			//alert("Cookie removed");
 		}
 	}
-	
-	jQuery('#shortUrlLoader').hide();
-	
+
 	//check cookie and enable short url if its checked.
 	//this is only run on the first load of the page so we can assume that the URL in the box is always the full URL
 	var short_urls_preferred = jQuery.cookie("resources_short_urls_preferred");
-	if(short_urls_preferred == "true") {
-		//alert("Short URLs are preferred");
-		
-		var currentUrl = jQuery('#fileURLHolder').val();
-		//alert("current URL: " + currentUrl);
+	var fileUrlHolder = jQuery('#fileURLHolder');
+	if(short_urls_preferred == "true" && fileUrlHolder.length) {
+		var currentUrl = fileUrlHolder.val();
 		doShortUrl(currentUrl);
-		
 		//check checkbox by default
 		jQuery('#doShortUrl').attr('checked','checked');
-		//alert("Checkbox checked");
 	}
 
 	
 	//helper to get the short version of a URL and return it
 	function doShortUrl(defaultUrl) {
-		jQuery.ajax({
-			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
-			success: function(shortUrl) {
-				//update field
-				//alert("URL shortened to: " + shortUrl);
-				updateUrlField(shortUrl);
-				//alert("Field updated");
-				
-				//set cookie
-				jQuery.cookie('resources_short_urls_preferred', 'true', { expires: 365,  path: '/' });		
-				//alert("Cookie set. Value = " + jQuery.cookie('resources_short_urls_preferred'));
-			}
-		});
+		if (defaultUrl) {
+			jQuery.ajax({
+				url: '/direct/url/shorten?path=' + encodeURI(defaultUrl),
+				success: function (shortUrl) {
+					updateUrlField(shortUrl);
+
+					//set cookie
+					jQuery.cookie('resources_short_urls_preferred', 'true', {expires: 365, path: '/'});
+				}
+			});
+		}
 	}
 	
 	// method used as a callback to update the field
