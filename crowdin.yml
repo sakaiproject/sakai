@@ -1,5 +1,5 @@
 files:
-  - source: /**/access/**/*.properties
+  - source: /a*/**/*.properties
     ignore:
       - /**/*_*.properties
       - /**/velocity.properties
