@@ -4,4 +4,5 @@ files:
       - /**/*_*.properties
       - /**/velocity.properties
       - /**/log4j.properties
+      - /**/*sakai.properties
     translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
