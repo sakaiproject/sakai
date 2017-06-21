@@ -2,44 +2,36 @@
 * For toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body>
 */
 
-function toggleMinimizeNav(){
+portal = portal || {};
 
-  $PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
-  // Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
-  $PBJQ('#subSites.floating').css({'display': 'none'});
-
-  var el = $PBJQ(this);
-  el.toggleClass('min max').parent().toggleClass('min max');
-
-  if (collapsed) {
-    document.cookie = "sakai_nav_minimized=false; path=/";
-    collapsed = false;
-    el.attr('aria-pressed', false);
-  } else {
-    document.cookie = "sakai_nav_minimized=true; path=/";
-    collapsed = true;
-    el.attr('aria-pressed', true);
-  }
+if (portal.toolsCollapsed === undefined) {
+	portal.toolsCollapsed = false;
 }
 
-$PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
+portal.updateToolsCollapsedPref = function (collapsed) {
 
-var collapsed = false;
+	var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolsCollapsed=' + collapsed;
+	$PBJQ.ajax(url, {method: 'PUT', cache: false});
+};
 
-$PBJQ(document).ready(function(){
-	if(getCookieVal('sakai_nav_minimized') === 'true') {
-		$PBJQ(".js-toggle-nav").click();
-		collapsed = true;
+portal.toggleMinimizeNav = function () {
+
+	$PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
+	// Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
+	$PBJQ('#subSites.floating').css({'display': 'none'});
+
+	var el = $PBJQ(this);
+	el.toggleClass('min max').parent().toggleClass('min max');
+
+	if (portal.toolsCollapsed) {
+		portal.updateToolsCollapsedPref(false);
+		portal.toolsCollapsed = false;
+		el.attr('aria-pressed', false);
+	} else {
+		portal.updateToolsCollapsedPref(true);
+		portal.toolsCollapsed = true;
+		el.attr('aria-pressed', true);
 	}
-});
+};
 
-function getCookieVal(cookieName) {
-	var cks = document.cookie.split(';');
-	for (var i = 0; i < cks.length; ++i) {
-		var curCookie = (cks[i].substring(0,cks[i].indexOf('='))).trim();
-		if(curCookie === cookieName) {
-			return ((cks[i].split('='))[1]).trim();;
-		}
-	}
-	return undefined;
-}
+$PBJQ(".js-toggle-nav").on("click", portal.toggleMinimizeNav);
