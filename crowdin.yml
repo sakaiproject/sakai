@@ -1,8 +1,0 @@
-files:
-  - source: /**/*.properties
-    ignore:
-      - /**/log4J.properties
-      - /**/velocity.properties
-      - /**/*_*.properties
-      - /**/hibernat*.properties
-    translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
