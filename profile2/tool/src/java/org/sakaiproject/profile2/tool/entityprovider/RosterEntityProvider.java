@@ -110,27 +110,11 @@ public class RosterEntityProvider extends AbstractEntityProvider implements
 		String paramValue = (String) params.get(OFFICIAL_IMAGES_PARAM);
 		boolean officialImage = Boolean.valueOf(paramValue);
 
-		// get members in site, create list
-		List<RosterItem> rosterList = new ArrayList<RosterItem>();
-
-		try {
-			// Get the member set
-			Set<Member> members = authzGroupService.getAuthzGroup(
-					site.getReference()).getMembers();
-			for (Member member : members) {
-				if (member.isActive()) {
-					Person person = profileLogic.getPerson(member.getUserId());
-					RosterItem item = new RosterItem(person, officialImage);
-					rosterList.add(item);
-				}
-			}
-		} catch (GroupNotDefinedException e) {
-			log.error("getUsersInAllSections: " + e.getMessage(), e);
-		}
-
-		Collections.sort(rosterList);
-		return rosterList;
+		// Get the member set
+		Set<Member> members = site.getMembers();
+		return convertToRosterItems(members, officialImage);
 	}
+
 
 	/**
 	 * site/siteId
@@ -164,7 +148,6 @@ public class RosterEntityProvider extends AbstractEntityProvider implements
 		boolean officialImage = Boolean.valueOf(paramValue);
 
 		// get members in site, create list
-		List<RosterItem> rosterList = new ArrayList<RosterItem>();
 
 		// find the group by group id first
 		Group group = site.getGroup(groupId);
@@ -180,21 +163,34 @@ public class RosterEntityProvider extends AbstractEntityProvider implements
 
 			// still could not find the group
 			if (group == null) {
-				log.warn("Group " + groupId + " not found");
-				return rosterList;
+			    throw new EntityNotFoundException("Invalid group: "+ groupId, siteId);
 			}
 		}
 
 		// Get the member set
 		Set<Member> members = group.getMembers();
+		return convertToRosterItems(members, officialImage);
+	}
+
+	/**
+	 * Utility method to convert members to a list of RosterItem. Returned list may be smaller than
+	 * the supplied collection due to deleted/inactive members.
+	 *
+	 * @param members The members to be converted, can contain users who aren't found.
+	 * @param officialImage If <code>true</code> official images are used.
+	 * @return A sorted list of RosterItems for the members.
+	 */
+	private List<RosterItem> convertToRosterItems(Collection<Member> members, boolean officialImage) {
+		List<RosterItem> rosterList = new ArrayList<>();
 		for (Member member : members) {
 			if (member.isActive()) {
 				Person person = profileLogic.getPerson(member.getUserId());
-				RosterItem item = new RosterItem(person, officialImage);
-				rosterList.add(item);
+				if (person != null) {
+					RosterItem item = new RosterItem(person, officialImage);
+					rosterList.add(item);
+				}
 			}
 		}
-
 		Collections.sort(rosterList);
 		return rosterList;
 	}
