@@ -36,7 +36,7 @@
     via incoming request URL -->
 
 <!-- Is it safe to remove the following line from the bean's value element 
-(in tandem with the corresponding field in SimplePageBean? 
+(in tandem with the corresponding field in SimplePageBean)? See LSNBLDR-816. 
 
 simplePageBean.nodownloads,
 -->

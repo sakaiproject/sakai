@@ -846,7 +846,8 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
-    // Can this method be safely commented out (in tandem with the reference in applicationContext.xml)?
+        // Can this method be safely commented out (in tandem with the nodownloads reference in applicationContext.xml)?
+        // See LSNBLDR-816.
     	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
 	} 
@@ -4218,19 +4219,6 @@ public class SimplePageBean {
 			}
 			if (add)
 			    page.setGradebookPoints(newPoints);
-			/*			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
-			if (oldDownloads != nodownloads) {
-			    if (oldDownloads)
-				site.getPropertiesEdit().removeProperty("lessonbuilder-nodownloadlinks");
-			    else if (nodownloads)
-				site.getPropertiesEdit().addProperty("lessonbuilder-nodownloadlinks", "true");
-			    try {
-				siteService.save(site);
-			    } catch (Exception e) {
-				log.error("editTitle unable to save site " + e);
-			    }
-
-			    } */
 
 			isOwner = currentUserId!=null && page!=null && currentUserId.equals(page.getOwner());
 			if (newOwner==null){
