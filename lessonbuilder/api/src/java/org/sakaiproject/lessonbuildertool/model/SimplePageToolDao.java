@@ -196,6 +196,8 @@ public interface SimplePageToolDao {
 
 	public SimplePage getPage(long pageId);
 
+	public String getPageUrl(long pageId);
+
     // list of all pages in the site, not just top level
 	public List<SimplePage> getSitePages(String siteId);
 

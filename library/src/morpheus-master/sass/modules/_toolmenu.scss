@@ -329,8 +329,12 @@ nav#subSites{
 						background-color: $tool-menu-collapse-active-hover-background-color;
 						box-shadow: $tool-menu-collapse-active-hover-shadow;
 					}
+
+					span.fa-angle-double-left {
+						color: $tool-menu-collapse-active-icon-color;
+					}
 				}
-				i
+				span.fa-angle-double-left
 				{
 					@include transition( transform, 0.25s, ease-out, 0s ); /* animate the arrow direction change */
 				}

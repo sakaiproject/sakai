@@ -21,7 +21,7 @@ portal.toggleMinimizeNav = function () {
 	$PBJQ('#subSites.floating').css({'display': 'none'});
 
 	var el = $PBJQ(this);
-	el.toggleClass('min max').parent().toggleClass('min max');
+	el.toggleClass('min max').children().toggleClass('min max');
 
 	if (portal.toolsCollapsed) {
 		portal.updateToolsCollapsedPref(false);
@@ -34,4 +34,4 @@ portal.toggleMinimizeNav = function () {
 	}
 };
 
-$PBJQ(".js-toggle-nav").on("click", portal.toggleMinimizeNav);
+$PBJQ("#toolsNav-toggle-li").on("click", portal.toggleMinimizeNav);

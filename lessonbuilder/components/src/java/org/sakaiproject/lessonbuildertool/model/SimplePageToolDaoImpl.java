@@ -46,6 +46,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -76,6 +77,10 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
 import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
+import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
@@ -89,6 +94,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	private ToolManager toolManager;
 	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
+	private SiteService siteService;
 	private SqlService sqlService;
 	private AuthzGroupService authzGroupService;
 	private static String SITE_UPD = "site.upd";
@@ -176,6 +183,14 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	public void setSecurityService(SecurityService service) {
 		securityService = service;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService service) {
+		serverConfigurationService = service;
+	}
+
+	public void setSiteService(SiteService service) {
+		siteService = service;
 	}
 
 	public void setSqlService(SqlService service) {
@@ -906,6 +921,35 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		} else {
 			return null;
 		}
+	}
+
+	public String getPageUrl(long pageId) {
+
+		List<SimplePageItem> pageItems = findPageItemsBySakaiId(Long.toString(pageId));
+		if (pageItems.size() == 0) {
+			log.error("No page items found for lessons page with id: {}", pageId);
+			return null;
+		}
+		long pageItemId = pageItems.get(0).getId();
+		SimplePage page = getPage(pageId);
+		SitePage sitePage = siteService.findPage(page.getToolId());
+		if (sitePage == null) {
+			log.error("Failed to find Sakai SitePage for lessons page with id: {}. Returning null ...", pageId);
+			return null;
+		}
+		String siteId = sitePage.getSiteId();
+		Collection<ToolConfiguration> tools = sitePage.getTools(new String[] {LessonBuilderConstants.TOOL_COMMON_ID});
+		if (tools.size() == 0) {
+			log.error("Failed to find a lessonbuilder tool for for lessons page with id: {}. Returning null ...", pageId);
+			return null;
+		}
+		String toolId = tools.iterator().next().getId();
+		StringBuilder sb = new StringBuilder(serverConfigurationService.getPortalUrl());
+		sb.append("/site/").append(siteId).append("/tool/").append(toolId)
+			.append("/ShowPage?returnView=&studentItemId=0&sendingPage=").append(pageId)
+			.append("&newTopLevel=false&postedComment=false&path=0&itemId=").append(pageItemId)
+			.append("&addTool=-1");
+		return sb.toString();
 	}
 
 	public List<SimplePage> getSitePages(String siteId) {
