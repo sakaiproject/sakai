@@ -846,9 +846,10 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
-	public void setNodownloads(boolean n) {
+    // Can this method be safely commented out (in tandem with the reference in applicationContext.xml)?
+    	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
-	}
+	} 
 
 	public void setAddBefore(String n) {
 		this.addBefore = n;
@@ -4217,7 +4218,7 @@ public class SimplePageBean {
 			}
 			if (add)
 			    page.setGradebookPoints(newPoints);
-			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
+			/*			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
 			if (oldDownloads != nodownloads) {
 			    if (oldDownloads)
 				site.getPropertiesEdit().removeProperty("lessonbuilder-nodownloadlinks");
@@ -4229,7 +4230,7 @@ public class SimplePageBean {
 				log.error("editTitle unable to save site " + e);
 			    }
 
-			}
+			    } */
 
 			isOwner = currentUserId!=null && page!=null && currentUserId.equals(page.getOwner());
 			if (newOwner==null){

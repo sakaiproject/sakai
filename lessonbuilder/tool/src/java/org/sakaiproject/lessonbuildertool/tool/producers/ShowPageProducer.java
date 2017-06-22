@@ -1112,11 +1112,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			postedCommentId = findMostRecentComment();
 		}
 
-		// LSNBLDR-816: Show a link for downloading media 
-		// However, this boolean will only be checked when no plugin 
-		// for media playback is available in the browser.
-		boolean showDownloads = 
-		    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
+		// Show a link for downloading media when no plugin
+		boolean showDownloads = (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
 
 		//
 		//
@@ -4818,9 +4815,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
-			UIBoundBoolean.make(form, "nodownloads", 
-					    "#{simplePageBean.nodownloads}", 
-					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
 			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
 			if (showSetOwner){
 				//Set the changeOwner dropdown in the settings dialog
