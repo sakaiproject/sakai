@@ -49,7 +49,6 @@ public class SakaiI18n extends AbstractWebService {
      *Returns the content of the specified properties file in a defined language
      * and returns the default value if the key doesn't exists in that lanaguage.
      *
-     * @param sessionid        id of a valid session
      * @param locale            the language to return in  IETF BCP 47 language tag string (samples: es-ES, jap)
      * @param resourceClass   Where to find the properties files (Samples: org.sakaiproject.rubrics.logic.RubricsService  or org.sakaiproject.sharedI18n.SharedProperties)
      * @param resourceBundle  The bundle itself (Samples: rubricsMessages, or org.sakaiproject.sharedI18n.bundle.shared)
@@ -61,16 +60,10 @@ public class SakaiI18n extends AbstractWebService {
     @Produces("text/plain")
     @GET
     public String getI18nProperties(
-            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
             @WebParam(name = "locale", partName = "locale") @QueryParam("locale") String locale,
             @WebParam(name = "resourceclass", partName = "resourceclass") @QueryParam("resourceclass") String resourceClass,
             @WebParam(name = "resourcebundle", partName = "resourcebundle") @QueryParam("resourcebundle") String resourceBundle) {
 
-        Session session = establishSession(sessionid);
-        if (!securityService.isSuperUser()) {
-            LOG.warn("NonSuperUser trying to access to translations: " + session.getUserId());
-            throw new RuntimeException("NonSuperUser trying to access to translations: " + session.getUserId());
-        }
         try {
             StringBuilder lines = new StringBuilder();
             //Convert the locale string in a Locale object

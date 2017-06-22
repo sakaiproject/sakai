@@ -53,8 +53,7 @@ public class TranslationsController {
     public Translations translations(@RequestParam("lang-code") String langCode) {
 
         try {
-            String sakaisession = getSakaiSession();
-            Translations translations = getSakaiTranslation(langCode,sakaisession);
+            Translations translations = getSakaiTranslation(langCode);
             return translations;
 
         }catch(Exception ex){
@@ -64,57 +63,14 @@ public class TranslationsController {
     }
 
     /**
-     * Returns the session string for admin user
+     * Returns the translations for rubrics
      * @return
      */
-    public String getSakaiSession() throws IOException {
+    public Translations getSakaiTranslation(String langCode) throws IOException {
 
 
         try{
-            String adminUser = rubricsConfiguration.getIntegration().getSakaiAdminUser();
-            String adminPassword = rubricsConfiguration.getIntegration().getSakaiAdminPassword();
-            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "login/login?id="+adminUser+"&pw="+adminPassword);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            if (conn.getResponseCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + conn.getResponseCode());
-            }
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    (conn.getInputStream())));
-
-            String output;
-            String result="";
-            if ((output = br.readLine()) != null) {
-                result = output;
-            }
-            conn.disconnect();
-            return result;
-
-        } catch (MalformedURLException e) {
-
-            //log.warn("Error getting a rubric association " + e.getMessage());
-            return null;
-
-        } catch (IOException e) {
-
-            //log.warn("Error getting a rubric association" + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Returns the session string for admin user
-     * @return
-     */
-    public Translations getSakaiTranslation(String langCode, String session) throws IOException {
-
-
-        try{
-            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?sessionid=" + session + "&locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.api.RubricsService&resourcebundle=rubricsMessages");
+            URL url = new URL(rubricsConfiguration.getIntegration().getSakaiRestUrl() + "i18n/getI18nProperties?locale=" + langCode +  "&resourceclass=org.sakaiproject.rubrics.logic.api.RubricsService&resourcebundle=rubricsMessages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
