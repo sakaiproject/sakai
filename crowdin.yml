@@ -6,4 +6,7 @@ files:
       - /**/log4j.properties
       - /**/*sakai.properties
       - /**/hiberne*.properties
+      - /**/mysql*
+      - /**/hsql*
+      - /**/oracle*
     translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
