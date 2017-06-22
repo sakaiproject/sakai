@@ -1,5 +1,5 @@
 files:
-  - source: '/[a-r]*/**/*.properties'
+  - source: /**/*.properties
     ignore:
       - /**/*_*.properties
       - /**/velocity.properties
