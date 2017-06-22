@@ -1,8 +1,9 @@
 files:
-  - source: '/[a-c]*/**/*.properties'
+  - source: '/[a-e]*/**/*.properties'
     ignore:
       - /**/*_*.properties
       - /**/velocity.properties
       - /**/log4j.properties
       - /**/*sakai.properties
+      - /**/hiberne*.properties
     translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
