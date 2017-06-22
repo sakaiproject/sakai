@@ -9,4 +9,5 @@ files:
       - /**/mysql*
       - /**/hsql*
       - /**/oracle*
+      - /**/database*
     translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
