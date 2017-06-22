@@ -329,6 +329,10 @@ nav#subSites{
 						background-color: $tool-menu-collapse-active-hover-background-color;
 						box-shadow: $tool-menu-collapse-active-hover-shadow;
 					}
+
+					span.fa-angle-double-left {
+						color: $tool-menu-collapse-active-icon-color;
+					}
 				}
 				i
 				{
