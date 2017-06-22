@@ -155,6 +155,8 @@
                                     if (alert.event === 'asn.new.assignment'
                                                                 || alert.event === 'asn.grade.submission') {
                                         faClass = 'fa-file-text';
+                                    } else if (alert.event === 'lessonbuilder.comment.create') {
+                                        faClass = 'fa-leanpub';
                                     }
 
                                     markup += '<a href="' + alert.url + '" style="text-decoration: none;"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-academic-alert">'
@@ -174,6 +176,8 @@
                                             = data.i18n.assignmentSubmissionGraded.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'commons.comment.created') {
                                         markup += data.i18n.academicCommentCreated.replace('{0}', siteTitle);
+                                    } else if (alert.event === 'lessonbuilder.comment.create') {
+                                        markup += data.i18n.academicLessonBuilderCommentCreate.replace('{0}', siteTitle);
                                     } else {
                                         markup += data.i18n.unrecognisedAlert;
                                     }
