@@ -1,5 +1,5 @@
 files:
-  - source: '/[a-p]*/**/*.properties'
+  - source: '/[a-r]*/**/*.properties'
     ignore:
       - /**/*_*.properties
       - /**/velocity.properties
@@ -25,4 +25,7 @@ files:
       - /**/quartz.properties
       - /**/jsf/Configuration.properties
       - /**/sakai.properties
+      - /**/test-sakai.properties
+      - /**/simplelog.properties
+      - /**/jmeter.properties
     translation: /**/%file_name%_%locale_with_underscore%.%file_extension%
