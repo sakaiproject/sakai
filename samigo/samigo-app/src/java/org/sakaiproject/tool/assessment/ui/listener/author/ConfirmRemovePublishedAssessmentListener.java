@@ -23,12 +23,18 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -81,8 +87,13 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
   		  return;
         }
 
-    	//Alert user to remove submissions associated with the assessment before delete the assessment
-    	int submissions = publishedAssessmentService.getTotalSubmissionForEachAssessment(publishedAssessmentId);
+    	//Ignore submissions from roles which are able to createAssessments
+        List<String> azGroups = new ArrayList<String>();
+        azGroups.add("/site/" + AgentFacade.getCurrentSiteId());
+        Set<String> usersAbleCreateAssessments = ComponentManager.get(AuthzGroupService.class).getUsersIsAllowed("assessment.createAssessment", azGroups);
+        
+        //Alert user to remove submissions associated with the assessment before delete the assessment
+    	int submissions = publishedAssessmentService.getTotalSubmissionForEachAssessment(publishedAssessmentId, usersAbleCreateAssessments);
     	if (submissions > 0) {
     		author.setOutcome("requireRemoveSubmissions");
     	} else {

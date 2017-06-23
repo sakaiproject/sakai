@@ -1503,14 +1503,27 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
      * @param publishedAssessmentId
      * @return number of submissions
      */
-	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
-		final HibernateCallback<List<Number>> hcb = session -> session
-				.createQuery("select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id")
-				.setBoolean("forgrade", true)
-				.setLong("id", publishedAssessmentId)
-				.list();
-		List<Number> l = getHibernateTemplate().execute(hcb);
+	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId, Set usersAbleCreateAssessments) {
+		final String query = "select count(a) from AssessmentGradingData a where a.forGrade = :forgrade and a.publishedAssessmentId = :id";
+ 		final HibernateCallback<List<Number>> hcb;
+		
+		if (usersAbleCreateAssessments!=null && usersAbleCreateAssessments.size()>0){ 
+			hcb = session -> session
+					.createQuery(query.concat(" and a.agentId not in (:users)"))
+					.setBoolean("forgrade", true)
+					.setLong("id", publishedAssessmentId)
+					.setParameterList("users", usersAbleCreateAssessments.toArray())
+					.list();
+		}
+		else{
+			hcb = session -> session
+					.createQuery(query)
+					.setBoolean("forgrade", true)
+					.setLong("id", publishedAssessmentId)
+					.list();
+		}
 
+		List<Number> l = getHibernateTemplate().execute(hcb);
 		return l.get(0).intValue();
 	}
 
