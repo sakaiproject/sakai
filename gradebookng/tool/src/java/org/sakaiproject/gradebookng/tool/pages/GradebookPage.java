@@ -423,7 +423,7 @@ public class GradebookPage extends BasePage {
 		// lookup in there)
 
 		List<CategoryDefinition> categories = new ArrayList<>();
-
+		int fixedColCount = businessService.isStudentNumberVisible() ? 4 : 3;
 		if (categoriesEnabled) {
 
 			// only work with categories if enabled
@@ -434,8 +434,7 @@ public class GradebookPage extends BasePage {
 
 			Collections.sort(categories, CategoryDefinition.orderComparator);
 
-			int currentColumnIndex = 3; // take into account first three header
-										// columns
+			int currentColumnIndex = fixedColCount; // take into account the fixed columns
 
 			for (final CategoryDefinition category : categories) {
 
@@ -544,7 +543,7 @@ public class GradebookPage extends BasePage {
 		modelData.put("categories", categories);
 		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		modelData.put("categoriesEnabled", categoriesEnabled);
-		modelData.put("fixedColCount", (businessService.isStudentNumberVisible()) ? 4 : 3);
+		modelData.put("fixedColCount", fixedColCount);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
