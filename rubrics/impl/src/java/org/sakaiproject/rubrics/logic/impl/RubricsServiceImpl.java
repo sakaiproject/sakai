@@ -102,6 +102,7 @@ public class RubricsServiceImpl implements RubricsService {
     private static final String RBCS_PERMISSIONS_EDITOR = "rbcs.editor";
     private static final String RBCS_PERMISSIONS_EVALUEE = "rbcs.evaluee";
     private static final String RBCS_PERMISSIONS_ASSOCIATOR = "rbcs.associator";
+    private static final String RBCS_PERMISSIONS_SUPERUSER = "rbcs.superuser";
 
     private static final String RBCS_SERVICE_URL_PREFIX = "/rubrics-service/rest/";
 
@@ -117,7 +118,6 @@ public class RubricsServiceImpl implements RubricsService {
     private static final String JWT_CUSTOM_CLAIM_ROLES = "roles";
     private static final String JWT_CUSTOM_CLAIM_CONTEXT_ID = "contextId";
     private static final String JWT_CUSTOM_CLAIM_CONTEXT_TYPE = "contextType";
-    private static final String JWT_CUSTOM_CLAIM_CONTEXT_ID_ALL_MATCH = "*";
 
     @Getter
     @Setter
@@ -208,9 +208,9 @@ public class RubricsServiceImpl implements RubricsService {
                         new String[]{ RBCS_PERMISSIONS_EDITOR,
                                 RBCS_PERMISSIONS_ASSOCIATOR,
                                 RBCS_PERMISSIONS_EVALUATOR,
-                                RBCS_PERMISSIONS_EVALUEE });
-                jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID, JWT_CUSTOM_CLAIM_CONTEXT_ID_ALL_MATCH);
-                jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE, SITE_CONTEXT_TYPE);
+                                RBCS_PERMISSIONS_EVALUEE,
+                                RBCS_PERMISSIONS_SUPERUSER });
+
             } else {
 
                 List<String> roles = new ArrayList<>();
@@ -227,9 +227,9 @@ public class RubricsServiceImpl implements RubricsService {
                     roles.add(RBCS_PERMISSIONS_EVALUEE);
                 }
                 jwtBuilder.withArrayClaim(JWT_CUSTOM_CLAIM_ROLES, roles.toArray(new String[]{}));
-                jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID, siteId);
-                jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE, SITE_CONTEXT_TYPE);
             }
+            jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID, siteId);
+            jwtBuilder.withClaim(JWT_CUSTOM_CLAIM_CONTEXT_TYPE, SITE_CONTEXT_TYPE);
             token =  jwtBuilder.sign(Algorithm.HMAC256(serverConfigurationService.getString(
                     RUBRICS_TOKEN_SIGNING_SHARED_SECRET_PROPERTY)));
 

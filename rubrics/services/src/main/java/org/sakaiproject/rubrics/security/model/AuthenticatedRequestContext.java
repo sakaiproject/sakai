@@ -34,8 +34,6 @@ import java.util.Collection;
  */
 public class AuthenticatedRequestContext implements UserDetails {
 
-    private static final String JWT_CUSTOM_CLAIM_CONTEXT_ID_ALL_MATCH = "*";
-
     private final String userId;
     private final String username;
     private final String toolId;
@@ -136,7 +134,8 @@ public class AuthenticatedRequestContext implements UserDetails {
                 Role.ROLE_EVALUEE.name().equalsIgnoreCase(authority.getAuthority()));
     }
 
-    public boolean hasWildcardContextId() {
-        return JWT_CUSTOM_CLAIM_CONTEXT_ID_ALL_MATCH.equals(this.contextId);
+    public boolean isSuperUser() {
+        return this.getAuthorities().stream().allMatch(authority ->
+                Role.ROLE_SUPERUSER.name().equalsIgnoreCase(authority.getAuthority()));
     }
 }
