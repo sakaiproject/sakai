@@ -178,6 +178,10 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         }
 
         updateableSiteProps = serverConfigurationService.getStrings("site.entity.updateable.props");
+        // Set defaults as these are the same values that can be changed through the UI.
+        if (updateableSiteProps == null) {
+            updateableSiteProps = new String [] {"contact-email", "contact-name"};
+        }
     }
 
     // ACTIONS
