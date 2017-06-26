@@ -914,14 +914,9 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             } else {
                 if (updateableSiteProps != null && updateableSiteProps.length != 0) {
                     ResourcePropertiesEdit rpe = s.getPropertiesEdit();
-                    Iterator it = site.getProperties().getPropertyNames();
                     for (String prop : updateableSiteProps) {
-                        while (it.hasNext()) {
-                            String propertyName = (String) it.next();
-                            if (prop.equals(propertyName)) {
-                                String value = site.getProperties().getProperty(propertyName);
-                                rpe.addProperty(propertyName, value);
-                            }
+                        if (site.getProperties().getProperty(prop) != null) {
+                            rpe.addProperty(prop, site.getProperties().getProperty(prop));
                         }
                     }
                 }
