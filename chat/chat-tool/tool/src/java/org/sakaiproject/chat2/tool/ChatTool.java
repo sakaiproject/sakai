@@ -41,6 +41,7 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -801,11 +802,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
            Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
            String startISODate = params.get(HIDDEN_START_ISO_DATE);
            String endISODate = params.get(HIDDEN_END_ISO_DATE);
-           if(DateFormatterUtil.isValidISODate(startISODate)){
+           if(StringUtils.isEmpty(startISODate) || DateFormatterUtil.isValidISODate(startISODate)){
                 channel.setStartDate(DateFormatterUtil.parseISODate(startISODate));
            }
 
-           if(DateFormatterUtil.isValidISODate(endISODate)){
+           if(StringUtils.isEmpty(endISODate) || DateFormatterUtil.isValidISODate(endISODate)){
                 channel.setEndDate(DateFormatterUtil.parseISODate(endISODate));
            }
 
