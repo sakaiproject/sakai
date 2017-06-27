@@ -20,13 +20,16 @@
 	
 	## customize lti tools
 	#if (!$!ltiTools.isEmpty())
-		<p class="instruction">
-			$tlang.getString("ltiTools.custom.instruction")
-		</p>
 		#foreach($ltiTool in $ltiTools.entrySet())
 			#set($ltiToolId=$ltiTool.getKey())
 			#if (!$!oldLtiTools.containsKey($ltiToolId))
-				## show the input only if the tool is not enabled in the site yet
+				## show the input only if the tool is not enabled in the site yet and display the heading only once
+				#if (!$!instruction)
+					#set($instruction=$tlang.getString("ltiTools.custom.instruction"))
+					<p class="instruction">
+						$instruction
+					</p>
+				#end
 				#set($ltiToolValues=$ltiTool.getValue())
 				#set($ltiToolFormInput=$ltiToolValues.get("formInput"))
 				<h4>
