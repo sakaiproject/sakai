@@ -354,7 +354,7 @@
 								<h:panelGrid columns="1" columnClasses="miCol1">
 									<%-- multiple: --%>
 									<h:panelGroup rendered="#{EditMeetingSignupMBean.individualType}">
-										<h:panelGrid columns="2" id="mutipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
+										<h:panelGrid columns="2" id="multipleCh" styleClass="mi" columnClasses="miCol1,miCol2"> 
 											<h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{EditMeetingSignupMBean.maxAttendeesPerSlot}"></h:outputText>
 											<h:outputText id="maxSlots" style="display:none" value="#{EditMeetingSignupMBean.maxSlots}"></h:outputText>   
 											<h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />
