@@ -32,6 +32,16 @@
         <artifactId>sakai-chat-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.jgroups</groupId>
+          <artifactId>jgroups</artifactId>
+          <version>3.6.13.Final</version>
+      </dependency>
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>22.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>

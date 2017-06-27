@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
-import org.sakaiproject.courier.api.CourierService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -212,41 +211,6 @@ public class ChatChannelEntityProvider implements CoreEntityProvider, AutoRegist
         }
         
 		return channels;
-	}
-
-	/**
-	 *  Custom action to start listening to a channel
-	 * @return true if a listener is started. 
-	 */
-	 @EntityCustomAction(action="listen",viewKey=EntityView.VIEW_EDIT)
-	 public boolean listen(EntityReference ref, Map<String, Object> params) {
-
-		String id = ref.getId();
-		
-		if (id == null || "".equals(id)) {
-		         return false;
-		}
-		  
-		ChatChannel channel = chatManager.getChatChannel(id);
-
-		if (channel == null) {
-			throw new IllegalArgumentException("Channel not found");
-		}
-		
-		if (!chatManager.getCanReadMessage(channel)) {
-			throw new SecurityException("You do not have permission to access this chat channel");
-		}
-		
-	    Session session = SessionManager.getCurrentSession();
-	    String sessionId = session.getId();
-	      
-	    CourierService courier = org.sakaiproject.courier.cover.CourierService.getInstance();
-	    
-		ChatRestListener listener = new ChatRestListener(chatManager, courier, sessionId, channel); 
-
-		chatManager.addRoomListener(listener, channel.getId());
-		
-		return true;
 	}
 
 	
