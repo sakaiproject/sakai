@@ -9,6 +9,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
@@ -24,6 +25,7 @@ public class SakaiSecurityConcrete extends SakaiSecurity {
     private EventTrackingService eventTrackingService;
     private FunctionManager functionManager;
     private SiteService siteService;
+    private ToolManager toolManager;
 
     public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
         this.threadLocalManager = threadLocalManager;
@@ -59,6 +61,10 @@ public class SakaiSecurityConcrete extends SakaiSecurity {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
     }
 
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
@@ -110,4 +116,10 @@ public class SakaiSecurityConcrete extends SakaiSecurity {
     protected SiteService siteService() {
         return siteService;
     }
+
+	@Override
+	protected ToolManager toolManager() {
+		// TODO Auto-generated method stub
+		return toolManager;
+	}
 }
