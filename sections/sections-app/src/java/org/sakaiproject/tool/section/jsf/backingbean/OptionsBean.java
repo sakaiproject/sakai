@@ -51,6 +51,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	private boolean selfSwitch;
 	private String management;
 	private boolean confirmMode;
+	private boolean confirmInternalMode;
 	private boolean managementToggleEnabled;
 	private boolean openSwitch;
 	private Calendar openDate;
@@ -58,7 +59,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	
 	public void init() {
 		// We don't need to initialize the bean when we're in confirm mode
-		if(confirmMode) {
+		if(confirmMode || confirmInternalMode) {
 			return;
 		}
 		
@@ -112,6 +113,11 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 			if(EXTERNAL.equals(management) && ! oldExternallyManagedSetting) {
 				// The user is switching from manual to automatic.  Switch to confirm mode.
 				confirmMode = true;
+				return null;
+			}
+			else
+			{
+				confirmInternalMode = true;
 				return null;
 			}
 		}
@@ -213,6 +219,14 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_date_format"));
 			errorflag=true;
 		}
+	}
+	
+	public boolean isConfirmInternalMode() {
+		return confirmInternalMode;
+	}
+
+	public void setConfirmInternalMode(boolean confirmInternalMode) {
+		this.confirmInternalMode = confirmInternalMode;
 	}
 
 }
