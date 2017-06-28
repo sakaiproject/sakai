@@ -22,9 +22,19 @@
 	        	</h:panelGroup>
         	</h:panelGrid>
         </t:div>
+        
+         <t:div rendered="#{optionsBean.confirmInternalMode}" styleClass="validation">
+        	<h:panelGrid columns="1">
+	        	<h:outputText value="#{msgs.options_confirmInternal}"/>
+	        	<h:panelGroup>
+		        	<h:commandButton action="#{optionsBean.confirmExternallyManaged}" value="#{msgs.options_manually_manage}"/>
+		        	<h:commandButton action="options" value="#{msgs.cancel}"/>
+	        	</h:panelGroup>
+        	</h:panelGrid>
+        </t:div>
 
 		<t:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"
-			disabled="#{optionsBean.confirmMode}"
+			disabled="#{optionsBean.confirmMode || optionsBean.confirmInternalMode}"
 			onclick="updateOptionBoxes(this);">
 			<f:selectItem itemValue="external" itemLabel="#{msgs.options_externally_managed_description}"/>
 			<f:selectItem itemValue="internal" itemLabel="#{msgs.options_internally_managed_description}"/>
@@ -37,17 +47,17 @@
         <t:div>
 			<t:radio for="externallyManaged" index="1" rendered="#{optionsBean.managementToggleEnabled}" />
 	        <t:div styleClass="indent">
-	            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
+	            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.confirmMode || optionsBean.confirmInternalMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>
 	        </t:div>
 	        <t:div styleClass="indent">
-	            <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
+	            <h:selectBooleanCheckbox id="selfSwitch" value="#{optionsBean.selfSwitch}" disabled="#{optionsBean.confirmMode || optionsBean.confirmInternalMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfSwitch" value="#{msgs.options_self_switch_label}"/>
 	        </t:div>
 			<t:div styleClass="indent">
-            	<h:selectBooleanCheckbox id="openSwitch" value="#{optionsBean.openSwitch}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
+            	<h:selectBooleanCheckbox id="openSwitch" value="#{optionsBean.openSwitch}" disabled="#{optionsBean.confirmMode || optionsBean.confirmInternalMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
                 <h:outputText value="#{msgs.section_open_info}"/>
-                <h:inputText id="openDate" value="#{optionsBean.openDate}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
+                <h:inputText id="openDate" value="#{optionsBean.openDate}" disabled="#{optionsBean.confirmMode || optionsBean.confirmInternalMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 			</t:div>
         </t:div>
     
@@ -57,12 +67,12 @@
                 value="#{msgs.update}"
                 styleClass="active"
                 rendered="#{optionsBean.sectionOptionsManagementEnabled}"
-                disabled="#{optionsBean.confirmMode}" />
+                disabled="#{optionsBean.confirmMode or optionsBean.confirmInternalMode}" />
             <h:commandButton
                 action="overview"
                 value="#{msgs.cancel}"
                 rendered="#{optionsBean.sectionOptionsManagementEnabled}"
-                disabled="#{optionsBean.confirmMode}" />
+                disabled="#{optionsBean.confirmMode or optionsBean.confirmInternalMode}" />
             <h:commandButton
                 action="overview"
                 value="#{msgs.options_done}"
