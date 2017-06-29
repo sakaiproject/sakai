@@ -151,7 +151,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	 */
 	@Override
 	public List<ProfileSearchTerm> getSearchHistory(String userUuid) {
-		log.debug("Fetching searchHistory from cache for: " + userUuid);
+		log.debug("Fetching searchHistory from cache for: {}", userUuid);
 		//TODO this could do with a refactor
 		Map<String, ProfileSearchTerm> termMap = cache.get(userUuid);
 		if (termMap != null) {
