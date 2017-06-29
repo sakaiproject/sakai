@@ -20,8 +20,8 @@
         <property name="totalVisits" type="integer" not-null="true">
             <column name="TOTAL_VISITS" not-null="true" />
         </property>
-        <property name="lastVisitTime" type="timestamp">
-            <column name="LAST_VISIT_TIME" />
+        <property name="lastVisitTime" type="timestamp" not-null="true">
+            <column name="LAST_VISIT_TIME" not-null="true"/>
         </property>
     </class>
 </hibernate-mapping>

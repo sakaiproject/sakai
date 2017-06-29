@@ -269,6 +269,37 @@ public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests {
 		r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
 		Assert.assertEquals(0, r4.size());	
 	}
+
+	@Test
+	public void testSitePresenceSplitUpdates() {
+	    // Start and end across collections.
+		{
+			List<Event> events = new ArrayList<>();
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			Assert.assertTrue(M_sum.collectEvents(events));
+		}
+		{
+			List<Event> events = new ArrayList<>();
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			Assert.assertTrue(M_sum.collectEvents(events));
+		}
+
+		// Start and end in the same collection.
+		{
+			List<Event> events = new ArrayList<>();
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			Assert.assertTrue(M_sum.collectEvents(events));
+		}
+		// Multiple end events in the same collection.
+		{
+			List<Event> events = new ArrayList<>();
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			events.add(M_sum.buildEvent(new Date(), StatsManager.SITEVISITEND_EVENTID, "/presence/" + FakeData.SITE_A_ID + "-presence", null, FakeData.USER_A_ID, "session-id"));
+			Assert.assertTrue(M_sum.collectEvents(events));
+		}
+	}
 	
 	// Activity tests
 	@SuppressWarnings("unchecked")
