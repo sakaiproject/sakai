@@ -195,7 +195,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
         public String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
-
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
 	// see the setter. It has to be static because it's used in makeLink, which
@@ -1113,6 +1112,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			postedCommentId = findMostRecentComment();
 		}
 
+		// Show a link for downloading media when no plugin 
+		// for media playback is available in the browser.
 		boolean showDownloads = (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
 
 		//
@@ -1939,8 +1940,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 
 			    UIComponent movieLink = UIOutput.make(tableRow, "movie-link-div");
-			    if (showDownloads)
-				UILink.make(tableRow, "movie-link-link", messageLocator.getMessage("simplepage.download_file"), movieUrl);
 
                             //	if (allowSessionId)
                             //  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
@@ -2056,11 +2055,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                     UIOutput.make(tableRow, "wmode");
 
                                 UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
-                                if (!isMp4 && showDownloads) {
+				if (!isMp4 && showDownloads) {
                                     UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
                                     UIOutput.make(tableRow, "noplugin-br");
                                     UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
-                                }
+				} 
                             }
 
                             if (isMp4) {
@@ -2100,7 +2099,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    if (showDownloads) {
 					UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
 					UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
-				    }
+				    } 
                                 }
                             }
 			    UIOutput.make(tableRow, "description3", i.getDescription());
@@ -4817,9 +4816,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
-			UIBoundBoolean.make(form, "nodownloads", 
-					    "#{simplePageBean.nodownloads}", 
-					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
 			boolean showSetOwner = ServerConfigurationService.getBoolean("lessonbuilder.show.set.owner", true);
 			if (showSetOwner){
 				//Set the changeOwner dropdown in the settings dialog
