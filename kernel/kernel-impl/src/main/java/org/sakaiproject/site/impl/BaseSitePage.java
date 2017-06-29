@@ -571,7 +571,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	/**
 	 * @inheritDoc
 	 */
-	public boolean getHomeToolsTitleCustom(String toolId)
+	public boolean getHomeToolsTitleCustom(String id, String toolId)
 	{
 		String homeToolsTitleCustom = (String)getProperties().get(PAGE_HOME_TOOLS_CUSTOM_TITLE_PROP);
 		if (homeToolsTitleCustom == null)
@@ -581,7 +581,7 @@ public class BaseSitePage implements SitePage, Identifiable
 			String[] toolIds = homeToolsTitleCustom.split(",");
 			for (int i=0;i<toolIds.length;i++)
 			{
-				if (toolIds[i].equals(toolId)) return true;
+				if (toolIds[i].equals(id) || toolIds[i].equals(toolId)) return true;
 			}
 			return false;
 		}
@@ -635,7 +635,13 @@ public class BaseSitePage implements SitePage, Identifiable
 		{
 			BaseToolConfiguration tool = (BaseToolConfiguration)iTools.next();
 			if ( tool.getTool() != null ) // this could happen in cafe build
-				localizedTitle = tool.localizeTool();
+			{
+				//Don't localize the tool if it's custom
+				if (!getHomeToolsTitleCustom(tool.getId(), tool.getToolId())) 
+				{
+					localizedTitle = tool.localizeTool();
+				}
+			}
 		}
 		
 		// if one and only one tool title exists (and it's valid) replace page title with localized tool title

@@ -123,7 +123,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	{
 		if (page.isHomePage())
 		{
-			return page.getHomeToolsTitleCustom(getId());
+			return page.getHomeToolsTitleCustom(getId(), getToolId());
 		}
 		else
 		{

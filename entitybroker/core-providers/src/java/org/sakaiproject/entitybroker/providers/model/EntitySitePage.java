@@ -167,10 +167,10 @@ public class EntitySitePage implements SitePage {
     }
     
     @Override
-    public boolean getHomeToolsTitleCustom(String toolId)
+    public boolean getHomeToolsTitleCustom(String id, String toolId)
     {
         if (sitePage != null) {
-            return sitePage.getHomeToolsTitleCustom(toolId);
+            return sitePage.getHomeToolsTitleCustom(id, toolId);
         }
         throw new UnsupportedOperationException();
     }
