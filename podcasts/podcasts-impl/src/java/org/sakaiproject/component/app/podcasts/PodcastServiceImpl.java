@@ -528,11 +528,17 @@ public class PodcastServiceImpl implements PodcastService {
 					return null;
 				}
 				// if we get here it does not exist so create
-				if (isStudent) {
-					enablePodcastSecurityAdvisor();
+				try {
+					if (isStudent) {
+						enablePodcastSecurityAdvisor();
+					}
+					createPodcastsFolder(siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR, siteId);
+					return siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+				} finally {
+					if (isStudent) {
+						securityService.popAdvisor();
+					}
 				}
-				createPodcastsFolder(siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR, siteId);
-				return siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 			} 
 			catch (TypeException e) {
 				LOG.error("TypeException while trying to determine correct podcast folder Id String "
@@ -540,10 +546,6 @@ public class PodcastServiceImpl implements PodcastService {
 				throw new PodcastException(e);
 			}
 		}
-		finally {
-			securityService.popAdvisor();
-		}
-		
 		return null;
 	}
 
