@@ -104,8 +104,6 @@ public class PodcastServiceImpl implements PodcastService {
 
 	private static Logger LOG = LoggerFactory.getLogger(PodcastServiceImpl.class);
 	
-	private Reference siteRef;
-
 	// injected beans
 	private ContentHostingService contentHostingService;
 	private ToolManager toolManager;
@@ -190,16 +188,6 @@ public class PodcastServiceImpl implements PodcastService {
 	 */
 	public String getUserName() {
 		return userDirectoryService.getCurrentUser().getDisplayName();
-	}
-
-	/**
-	 * Returns the site URL as a string
-	 * 
-	 * @return 
-	 * 		String containing the sites URL
-	 */
-	public String getSiteURL() {
-		return contentHostingService.getEntityUrl(siteRef);
 	}
 
 	/**
