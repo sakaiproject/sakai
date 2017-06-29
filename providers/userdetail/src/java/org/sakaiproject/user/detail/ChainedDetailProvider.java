@@ -91,6 +91,21 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 	}
 	
 	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			String studentNumber = provider.getInstitutionalNumericIdIgnoringCandidatePermissions(candidate, site).orElse("");
+			if (StringUtils.isNotBlank(studentNumber))
+			{
+				return Optional.of(studentNumber);
+			}
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
 	public boolean isInstitutionalNumericIdEnabled(Site site)
 	{
 		for (CandidateDetailProvider provider : getProviders())

@@ -84,6 +84,12 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 	}
 	
 	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
+	}
+	
+	@Override
 	public boolean isInstitutionalNumericIdEnabled(Site site)
 	{
 		try {

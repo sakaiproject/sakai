@@ -55,6 +55,12 @@ public class MappingDetailProvider implements CandidateDetailProvider {
 	}
 	
 	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return wrapped.getInstitutionalNumericIdIgnoringCandidatePermissions(candidate, site);
+	}
+	
+	@Override
 	public boolean isInstitutionalNumericIdEnabled(Site site)
 	{
 		return wrapped.isInstitutionalNumericIdEnabled(site);

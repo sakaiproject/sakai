@@ -241,6 +241,12 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 		return Optional.empty();
 	}
 	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
+	}
+	
 	public boolean isAdditionalNotesEnabled(Site site) {
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
