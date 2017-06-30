@@ -58,6 +58,9 @@ public class BaseSitePageTitleTest {
 				
 				ignoring(storage).readPageProperties(with(any(SitePage.class)), with(any(ResourcePropertiesEdit.class)));
 				ignoring(storage).readPageTools(with(any(SitePage.class)), with(any(ResourceVector.class)));
+
+				oneOf(serverConfigurationService).getStrings("site.tool.custom.titles");
+				will(returnValue(null));
 			}
 		});
 		page = new BaseSitePage(service, "pageId", "Page Title", "0,0", false, "siteId", "skin");

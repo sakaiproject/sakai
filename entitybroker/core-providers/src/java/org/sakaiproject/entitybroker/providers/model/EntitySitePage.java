@@ -366,5 +366,12 @@ public class EntitySitePage implements SitePage {
         }
         throw new UnsupportedOperationException();
     }
+    @Override
+    public boolean isTitleToolException(String toolId) {
+        if (sitePage != null) {
+            return sitePage.isTitleToolException(toolId);
+        }
+        throw new UnsupportedOperationException();
+    }
 
 }
