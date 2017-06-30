@@ -139,11 +139,12 @@ public interface SitePage extends Edit, Serializable
 	public boolean isHomePage();
 	
 	/**
-	 *  Check if a toolId is in Page's list of Home tools which overrides page's customTitle property
+	 *  Check if a placement id or toolId is in Page's list of Home tools which overrides page's customTitle property
 	 *  
+	 *  @param id
 	 *  @param toolId
 	 */
-	public boolean getHomeToolsTitleCustom(String toolId);
+	public boolean getHomeToolsTitleCustom(String id, String toolId);
 	
 	/**
 	 *  Adds a toolId to page's list of Home tools which override page's customTitle property
