@@ -1746,7 +1746,7 @@ public class DeliveryActionListener
     	String responseText = itemBean.getResponseText();
     	// SAK-17021
     	// itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
-    	itemBean.setResponseText(ContextUtil.stringWYSIWYG(responseText));
+    	itemBean.setResponseText(responseText);
     }
     else if (item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
     {
