@@ -15,9 +15,6 @@
  */
 package org.sakaiproject.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -33,17 +30,18 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * A set of web services for i18n
  *
  * @author Unicon
  */
 
+@Slf4j
 @WebService
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiI18n extends AbstractWebService {
-
-    private static final Log LOG = LogFactory.getLog(SakaiI18n.class);
 
     /**
      *Returns the content of the specified properties file in a defined language
@@ -64,22 +62,22 @@ public class SakaiI18n extends AbstractWebService {
             @WebParam(name = "resourceclass", partName = "resourceclass") @QueryParam("resourceclass") String resourceClass,
             @WebParam(name = "resourcebundle", partName = "resourcebundle") @QueryParam("resourcebundle") String resourceBundle) {
 
+        log.debug("locale: {}", locale);
+        log.debug("resourceClass: {}", resourceClass);
+        log.debug("resourceBundle: {}", resourceBundle);
+
         try {
+            ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
+            rb.setContextLocale(Locale.forLanguageTag(locale));
+            Iterator keys = rb.keySet().iterator();
             StringBuilder lines = new StringBuilder();
-            //Convert the locale string in a Locale object
-            Locale loc = Locale.forLanguageTag(locale);
-            ResourceLoader rb = new Resource().getLoader(resourceClass,resourceBundle);
-            rb.setContextLocale(loc);
-            //Get all the properties and iterate to return the right value
-            Set properties = rb.keySet();
-            Iterator keys = properties.iterator();
             while (keys.hasNext()){
                 String key = keys.next().toString();
                 lines.append(key + "=" + rb.getString(key) + "\n");
             }
             return lines.toString();
         } catch (Exception e) {
-            LOG.warn("WS getI18nProperties(): " + e.getClass().getName() + " : " + e.getMessage());
+            log.warn("WS getI18nProperties(): {} : {}", e.getClass().getName(), e.getMessage());
             return "";
         }
 

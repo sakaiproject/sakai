@@ -85,6 +85,12 @@
                     <include>**/*.sql</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}/src/i18n</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
         </resources>
         <!-- unit testing -->
         <plugins>
