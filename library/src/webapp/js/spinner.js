@@ -294,12 +294,15 @@ SPNR.disableElementAndSpin = function( divID, element, activateSpinner )
     newElement.setAttribute( "value", element.getAttribute( "value" ) );
     newElement.setAttribute( "disabled", "true" );
     newElement.style.display = origDisplay;
-    newElement.textContent = element.getAttribute( "value" );
     newElement.className = activateSpinner ? "spinButton formButtonDisabled" : "formButtonDisabled";
 
     if( element.type === "checkbox" || element.type === "radio" )
     {
         newElement.checked = element.checked;
+    }
+    else
+    {
+        newElement.textContent = element.getAttribute( "value" );
     }
 
     if( "" !== divID )
