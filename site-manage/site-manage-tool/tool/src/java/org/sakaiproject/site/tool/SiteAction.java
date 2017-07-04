@@ -15327,17 +15327,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private boolean isHomePage(SitePage page)
 	{
-		if (page.getProperties().getProperty(SitePage.IS_HOME_PAGE) != null)
-		{
-			// check based on the page property first
-			return true;
-		}
-		else
-		{
-			// if above fails, check based on the page title
-			String pageTitle = page.getTitle();
-			return TOOL_ID_HOME.equalsIgnoreCase(pageTitle) || rb.getString("java.home").equalsIgnoreCase(pageTitle);
-		}
+		//removed "check by title" : that creates unexpected results with normal pages titled as "HOME"
+		return page.isHomePage();
 	}
 
 	public boolean displaySiteAlias() {
