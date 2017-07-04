@@ -502,6 +502,9 @@ public class ToolProxy {
 					theTool.put(LTI2Constants.TOOL_PROXY_BINDING, tool_proxy_binding.toString());
 					theTools.add(theTool);
 
+				} else if ( LTI2Messages.TOOLPROXY_REGISTRATION_REQUEST.equals(message_type) || 
+				     LTI2Messages.TOOLPROXY_RE_REGISTRATION_REQUEST.equals(message_type) ) {
+                                        continue;
 				} else {
 					return "Only "+LTI2Messages.BASIC_LTI_LAUNCH_REQUEST+" and "+LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST+ " are allowed message_types RT="+resource_type_code;
 				}
