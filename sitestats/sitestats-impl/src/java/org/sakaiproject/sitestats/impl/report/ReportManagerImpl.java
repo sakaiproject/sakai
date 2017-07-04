@@ -611,6 +611,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
             try{
                 tx = session.beginTransaction();
                 session.saveOrUpdate(reportDef);
+                session.flush();
                 tx.commit();
             }catch(Exception e){
                 if(tx != null) tx.rollback();
@@ -639,6 +640,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
             try{
                 tx = session.beginTransaction();
                 session.delete(reportDef);
+                session.flush();
                 tx.commit();
             }catch(Exception e){
                 if(tx != null) tx.rollback();
