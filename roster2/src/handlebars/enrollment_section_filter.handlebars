@@ -2,14 +2,14 @@
 	{{#if enrollmentSets}}
 	<tbody>
 		<tr>
-			<td><span class="filterLabel">{{translate 'enrollment_status_filter'}}</span></td>
+			<td><span class="filterLabel">{{tr 'roster' 'enrollment_status_filter'}}</span></td>
 			<td>
 				<span>
 					{{#if onlyOne}}
 						{{enrollmentSets.0.title}}
 					{{else}}
 					<select id="roster_form_enrollment_set_filter" size="1">
-						<option selected="selected" value="">{{translate 'roster_enrollment_status_all'}}</option>
+						<option selected="selected" value="">{{tr 'roster' 'roster_enrollment_status_all'}}</option>
 						{{#each enrollmentSets}}
 							<option value="{{this}}">{{title}}</option>
 						{{/each}}
@@ -19,10 +19,10 @@
 			</td>
 		</tr>
 		<tr>
-			<td><span class="filterLabel">{{translate 'enrollment_status_filter_label'}}</span></td>
+			<td><span class="filterLabel">{{tr 'roster' 'enrollment_status_filter_label'}}</span></td>
 			<td><span class="filterElement">
 					<select id="roster_form_enrollment_status_filter" size="1">
-						<option selected="selected" value="">{{translate 'roster_enrollment_status_all'}}</option>
+						<option selected="selected" value="">{{tr 'roster' 'roster_enrollment_status_all'}}</option>
 						{{#each enrollmentStatusDescriptions}}
 							<option value="{{thisenrollmentStatusDescription}}">{{this}}</option>
 						{{/each}}

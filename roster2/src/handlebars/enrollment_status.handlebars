@@ -1,24 +1,24 @@
 <table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
 	<thead>
 		<tr>
-			<th width="45%"><a href="#">{{translate 'facet_name'}}</a></th>
+			<th width="45%"><a href="#">{{tr 'roster' 'facet_name'}}</a></th>
 			{{#if viewDisplayId}}
-			<th width="10%"><a href="#">{{translate 'facet_userId'}}</a></th>
+			<th width="10%"><a href="#">{{tr 'roster' 'facet_userId'}}</a></th>
 			{{/if}}
 			{{#if viewEmail}}
-				<th width="20%"><a href="#">{{translate 'facet_email'}}</a></th>
+				<th width="20%"><a href="#">{{tr 'roster' 'facet_email'}}</a></th>
 			{{/if}}
 			{{#if viewUserProperty}}
-				<th width="20%"><a href="#">{{translate 'facet_userProperties'}}</a></th>
+				<th width="20%"><a href="#">{{tr 'facet_userProperties'}}</a></th>
 			{{/if}}
-            <th width="12.5%"><a href="#">{{translate 'facet_status'}}</a></th>
-            <th width="12.5%"><a href="#">{{translate 'facet_credits'}}</a></th>
+            <th width="12.5%"><a href="#">{{tr 'roster' 'facet_status'}}</a></th>
+            <th width="12.5%"><a href="#">{{tr 'roster' 'facet_credits'}}</a></th>
 		</tr>
 	</thead>
 	<tbody>
 	{{#unless enrollment.length}}
 		<tr>
-			<td>{{translate 'no_participants'}}</td>
+			<td>{{tr 'roster' 'no_participants'}}</td>
 			{{#if viewDisplayId}}
 			<td></td>
 			{{/if}}
