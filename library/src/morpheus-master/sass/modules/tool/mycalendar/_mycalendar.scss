@@ -1,0 +1,203 @@
+.#{$namespace}sakai-mycalendar {
+
+    li.mycalendar-event {
+        list-style-type: none;
+    }
+    .ui-datepicker-title {
+        font-weight: 500;
+        font-size: 16px;
+        margin: 0 0 !important;
+    }
+    .mycalendar-event-heading {
+        display: flex;
+        justify-content: center;
+        align-items: middle;
+        color: #777;
+        border-top:1px solid lightgrey;
+        line-height: 24px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        font-weight: bold;
+    }
+    #mycalendar-event-heading-text {
+        font-weight: 500;
+        font-size: 16px;
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+    .fa-chevron-circle-left:before, .fa-chevron-circle-right:before {
+        font-size: 24px;
+    }
+
+    .left-arrow, .right-arrow {
+        cursor: pointer;
+    }
+
+    .mycalendar-event {
+        margin-bottom: 15px;
+    }
+
+    .mycalendar-event-time {
+        width: 80px;
+    }
+
+    .mycalendar-event-type {
+        font-weight: bold;
+    }
+    .#{$namespace}container.#{$namespace}sakai-mycalendar {
+        border:1px solid lightgrey;
+    }
+
+    div.ui-datepicker-inline {
+        width: 100%;
+        margin: 0 auto;
+        display: block;
+        padding: 0 0 10px;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker .ui-datepicker-header {
+        border-radius: 0;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #777;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-prev
+    , .#{$namespace}sakai-mycalendar .ui-datepicker-next {
+        position: relative;
+        left: 0;
+        top: 0;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-prev {
+        order: 1;
+        margin-right: 15px;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-title {
+        order: 2;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-next {
+        order: 3;
+        margin-left: 15px;
+    }
+
+    .#{$namespace}sakai-mycalendar .ui-corner-all {
+        border: none;
+        border-radius: 0;
+    }
+    .#{$namespace}sakai-mycalendar .ui-icon-circle-triangle-w
+    , .#{$namespace}sakai-mycalendar .ui-icon-circle-triangle-e {
+        background-image: none;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-prev span
+    , .#{$namespace}sakai-mycalendar .ui-datepicker-next span {
+        position: relative;
+        margin-top: 0;
+        top: 0;
+        padding-left: 1px;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-prev span.ui-icon
+    , .#{$namespace}sakai-mycalendar .ui-datepicker-next span.ui-icon {
+        width: 24px;
+        height: 24px;
+        display: inline;
+        text-indent: 0;
+        overflow: hidden;
+        left: 0;
+        top: 0;
+        margin-left: 0;
+        margin-top: 0;
+        background-repeat: no-repeat;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-prev span:before
+    , .#{$namespace}sakai-mycalendar .ui-datepicker-next span:before {
+        font-family: FontAwesome;
+        font-size: 24px;
+        position: relative;
+        color: #777;
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-prev span:before {
+        content: "\f137";
+    }
+    .#{$namespace}sakai-mycalendar .ui-datepicker-next span:before {
+        content: "\f138";
+    }
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker {
+        border-color: white;
+    }
+
+    div.#{$namespace}sakai-mycalendar table.ui-datepicker-calendar {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker table.ui-datepicker-calendar td.ui-datepicker-current-day > a {
+        border: 1px solid #1d5e74;
+        color: black;
+        border-radius:50%;
+        width:27px;
+        display:block;
+        margin:0 auto;
+    }
+
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker table.ui-datepicker-calendar td > a {
+        border-color: white;
+        background: white;
+        text-align: center;
+    }
+
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker table.ui-datepicker-calendar td > span {
+        border-color: white;
+        background: white;
+        text-align: center;
+    }
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker table.ui-datepicker-calendar td.mycalendar-eventful-day > a {
+        color: black;
+        background-color: lightblue;
+        border-radius:50%;
+        width:27px;
+        display:block;
+        margin:0 auto;
+    }
+
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker table.ui-datepicker-calendar td.ui-datepicker-today > a {
+        border: 1px solid #1d5e74;
+        color: white;
+        display:block;
+        margin:0 auto;
+        background-color:black;
+        border-radius:50%;
+        width:27px;
+    }
+
+    div.#{$namespace}sakai-mycalendar div.ui-datepicker table.ui-datepicker-calendar td.mycalendar-eventful-day.ui-datepicker-today > a {
+        background-color: darkblue;
+    }
+
+    div.mycalendar-events-div {
+        margin-bottom: 9px;
+    }
+
+    table.mycalendar-events {
+        margin: 0 auto;
+    }
+
+    table.mycalendar-event {
+        margin: 0 auto;
+    }
+
+    #{$nonPhone} {
+        .ui-datepicker td {
+            width:120px;
+        }
+    }
+
+    #{$phone} {
+        .ui-datepicker td {
+            width:80px;
+        }
+    }
+}

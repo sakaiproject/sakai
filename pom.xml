@@ -63,7 +63,7 @@
                 <module>deploy</module>
                 <module>edu-services</module>
                 <module>emailtemplateservice</module>
-		<module>endorsed</module>
+                <module>endorsed</module>
                 <module>entitybroker</module>
                 <module>external-calendaring-service</module>
                 <module>feedback</module>
@@ -81,6 +81,7 @@
                 <module>mailsender</module>
                 <module>message</module>
                 <module>msgcntr</module>
+                <module>mycalendar</module>
                 <module>oauth</module>
                 <module>pasystem</module>
                 <module>podcasts</module>
@@ -164,6 +165,7 @@
                 <module>message</module>
                 <module>metaobj</module>
                 <module>msgcntr</module>
+                <module>mycalendar</module>
                 <module>osp</module>
                 <module>podcasts</module>
                 <module>polls</module>
