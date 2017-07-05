@@ -106,7 +106,7 @@ import java.util.Map.Entry;
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator
+public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator, Observer
 {
 	/** Our logger. */
 	private static Logger M_log = LoggerFactory.getLogger(BaseCalendarService.class);
@@ -140,7 +140,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	public static final String SAKAI = "Sakai";
 	
-	private Cache cache = null;
+	private Cache<String, Calendar> cache = null;
 	
 	/**
 	 * Access this service from the inner classes.
@@ -702,6 +702,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
 		cacheConfig.setStatisticsEnabled(true);
 		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
+
+		m_eventTrackingService.addObserver(this);
 	}
 
 	/**
@@ -2166,6 +2168,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected void disableSchedule(String context)
 	{
 		// TODO: currently we do not remove a calendar when the tool is removed from the site or the site is deleted -ggolden
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof Event) {
+			Event event = (Event) arg;
+			if (EVENT_MODIFY_CALENDAR.equals(event.getEvent())) {
+				cache.remove(event.getResource());
+			}
+		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
