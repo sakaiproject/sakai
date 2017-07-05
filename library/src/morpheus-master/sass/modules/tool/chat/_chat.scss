@@ -245,6 +245,21 @@
 				}
 			}
 		}
+
+		.list-rooms {
+			h3 {
+				padding-top: 0;
+			}
+			.exclude {
+				font-weight: bold;
+			}
+		}
+
+		.edit-room {
+			.jsfFormTable .shorttext input[type='text']{
+				margin: 0 10px;
+			}
+		}
 	}
 	&footerApp{
 		&__presence, &__portalChat{
