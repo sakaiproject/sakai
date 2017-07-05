@@ -126,8 +126,7 @@ public class AssessmentSettingsBean
   private String keywords;
   private String rubrics;
   private String authors;
-  private String templateAuthors;
-
+  
   // these are properties in AssessmentAccessControl
   private Date startDate;
   private Date dueDate;
@@ -245,9 +244,7 @@ public class AssessmentSettingsBean
       if (template != null){
         setNoTemplate(false);
         this.templateTitle = template.getTitle();
-        this.templateDescription = template.getDescription();
-        this.templateAuthors = template.getAssessmentMetaDataByLabel(
-            "author"); // see TemplateUploadListener line 142
+        this.templateDescription = template.getDescription();        
       }
       else{
         setNoTemplate(true);
@@ -1259,14 +1256,6 @@ public class AssessmentSettingsBean
 
   public void setTemplateTitle(String title) {
     this.templateTitle = title;
-  }
-
-  public String getTemplateAuthors() {
-    return this.templateAuthors;
-  }
-
-  public void setTemplateAuthors(String templateAuthors) {
-    this.templateAuthors = templateAuthors;
   }
 
   public String getTemplateDescription() {
