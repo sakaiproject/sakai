@@ -77,17 +77,14 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
  	 */
 	@Override
 	public boolean sendNewMessage(final String uuidTo, final String uuidFrom, final String threadId, final String subject, final String messageStr) {
-		
+
+		String messageSubject = StringUtils.defaultIfBlank(subject, ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
+
 		//setup thread
 		MessageThread thread = new MessageThread();
 		thread.setId(threadId);
-		
-		if(StringUtils.isBlank(subject)) {
-			thread.setSubject(ProfileConstants.DEFAULT_PRIVATE_MESSAGE_SUBJECT);
-		} else {
-			thread.setSubject(subject);
-		}
-		
+		thread.setSubject(messageSubject);
+
 		//setup message
 		Message message = new Message();
 		message.setId(ProfileUtils.generateUuid());
@@ -121,7 +118,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		}
 		
 		if(saveAllNewMessageParts(thread, message, participants)) {
-			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW);
+			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, messageSubject, messageStr, EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW);
             //post event
             sakaiProxy.postEvent(ProfileConstants.EVENT_MESSAGE_SENT, "/profile/" + uuidTo, true);
 			return true;
