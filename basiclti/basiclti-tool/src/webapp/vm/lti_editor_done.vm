@@ -1,0 +1,19 @@
+<div class="portletBody">
+#if ( $goodcount > 0 ) 
+<p>$tlang.getString("contentitem.success") $goodcount</p>
+<p>$tlang.getString("contentitem.success.action")</p>
+#else
+<p>$tlang.getString("contentitem.success.none")</p>
+#end
+#if ( $failures )
+<p>$tlang.getString("contentitem.failures")</p>
+<ul>
+#foreach($failure in $failures)
+<li>$failure</li>
+#end
+</ul>
+#end
+<script>
+var returned_content_item = $new_content;
+</script>
+</div>
