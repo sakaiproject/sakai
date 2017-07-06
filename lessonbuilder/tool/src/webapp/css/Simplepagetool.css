@@ -1076,6 +1076,7 @@ img {
  border-radius: 0px 0px 10px 10px;
  border: solid #999 1px;
  border-top-style: none;
+ display: inherit !important;
 }
 .first-row {
 }
@@ -1673,6 +1674,7 @@ font-size: 12px;
 
 .forumSummaryItem, .announcementSummaryItem{
  margin-bottom: 10px;
+ display: inline-block;
 }
 
 .itemTitle {
