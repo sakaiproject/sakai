@@ -265,58 +265,64 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             }
                             doCommonsCommentInserts(from, event, ref, e, siteId, postId, tos);
                         }
-                    } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event)) {
-                        String siteId = pathParts[3];
-                        String announcementId = pathParts[pathParts.length - 1];
+                        } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event)) {
+                            String siteId = pathParts[3];
+                            String announcementId = pathParts[pathParts.length - 1];
 
-                        SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ});
-                        try {
-                            AnnouncementMessage message
-                                = (AnnouncementMessage) announcementService.getMessage(
-                                                                entityManager.newReference(ref));
+                            SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ});
+                            try {
+                                AnnouncementMessage message
+                                    = (AnnouncementMessage) announcementService.getMessage(
+                                                                    entityManager.newReference(ref));
 
-                            if (announcementService.isMessageViewable(message)) {
-                                Site site = siteService.getSite(siteId);
-                                String toolId = site.getToolForCommonId("sakai.announcements").getId();
-                                String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
-                                                    + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
+                                if (announcementService.isMessageViewable(message)) {
+                                    Site site = siteService.getSite(siteId);
+                                    if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                        String toolId = site.getToolForCommonId("sakai.announcements").getId();
+                                        String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
+                                                + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
 
-                                // In this case title = announcement subject
-                                String title
-                                    = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                                        // In this case title = announcement subject
+                                        String title
+                                                = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
 
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
+                                        // Get all the members of the site with read ability
+                                        for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
+                                            if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                                                doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
+                                                countCache.remove(to);
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        } catch (IdUnusedException idue) {
+                            } catch (IdUnusedException idue) {
                             log.error("No site with id '" + siteId + "'", idue);
                         } finally {
                             lock(sa);
                         }
                     } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
-                        String siteId = pathParts[3];
-                        String assignmentId = pathParts[pathParts.length - 1];
-                        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
-                        try {
-                            Assignment assignment = assignmentService.getAssignment(assignmentId);
-                            Instant openTime = assignment.getOpenDate();
-                            if (openTime == null || openTime.isBefore(Instant.now())) {
-                                Site site = siteService.getSite(siteId);
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignmentId);
-                                // Get all the members of the site with read ability
-                                for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
-                                    if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
+                            String siteId = pathParts[3];
+                            String assignmentId = pathParts[pathParts.length - 1];
+                            SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                            switchToAdmin();
+                            try {
+                                Assignment assignment = assignmentService.getAssignment(assignmentId);
+                                switchToNull();
+                                Instant openTime = assignment.getOpenDate();
+                                if (openTime == null || openTime.isBefore(Instant.now())) {
+                                    Site site = siteService.getSite(siteId);
+                                    if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                        String title = assignment.getTitle();
+                                        String url = assignmentService.getDeepLink(siteId, assignmentId);
+                                        // Get all the members of the site with read ability
+                                        for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+                                            if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                                                doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
+                                                countCache.remove(to);
+                                            }
+                                        }
                                     }
                                 }
-                            }
                         } catch (IdUnusedException idue) {
                             log.error("Failed to find either the assignment or the site", idue);
                         } finally {
@@ -325,29 +331,35 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                     } else if (AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION.equals(event)) {
                         String siteId = pathParts[3];
                         String submissionId = pathParts[pathParts.length - 1];
-                        SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
-                                                        , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
-                                                        , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                        SecurityAdvisor sa = unlock(new String[]{AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
+                                , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
+                                , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
 
                         // Without hacking assignment's permissions model, this is only way to
                         // get a submission, other than switching to the submitting user.
+                        switchToAdmin();
                         try {
                             AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
+                            switchToNull();
                             if (submission.getGradeReleased()) {
                                 Site site = siteService.getSite(siteId);
-                                Assignment assignment = submission.getAssignment();
-                                String title = assignment.getTitle();
-                                String url = assignmentService.getDeepLink(siteId, assignment.getId());
-                                submission.getSubmitters().forEach(to -> {
-                                    doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
-                                    countCache.remove(to.getSubmitter());
-                                });
+                                if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                    Assignment assignment = submission.getAssignment();
+                                    String title = assignment.getTitle();
+                                    String url = assignmentService.getDeepLink(siteId, assignment.getId());
+                                    submission.getSubmitters().forEach(to -> {
+                                        doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
+                                        countCache.remove(to.getSubmitter());
+                                    });
+                                }
                             }
                         } catch (IdUnusedException idue) {
                             log.error("Failed to find either the submission or the site", idue);
                         } finally {
+                            switchToNull();
                             lock(sa);
                         }
+
                     } else if (LessonBuilderEvents.COMMENT_CREATE.equals(event)) {
                         try {
                             long commentId = Long.parseLong(pathParts[pathParts.length - 1]);
