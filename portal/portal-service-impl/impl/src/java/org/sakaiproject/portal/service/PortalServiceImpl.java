@@ -38,6 +38,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.portal.api.BaseEditor;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.EditorRegistry;
@@ -55,6 +56,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.site.api.ToolConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -537,7 +539,31 @@ public class PortalServiceImpl implements PortalService
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
-	
+
+	public String getContentItemUrl(Site site) {
+
+		if ( site == null ) return null;
+                ToolConfiguration toolConfig = site.getToolForCommonId("sakai.siteinfo");
+
+                if (toolConfig == null) return null;
+
+		// SAK-32656 For now we always show the cart.
+		// Un-comment these lines to make the cart only appear when tools are
+		// available at a cost of one SQL query per request/response cycle.
+
+		/*
+		// Check if we have any registered ContentItem editor tools
+		LTIService ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+
+		List<Map<String, Object>> toolsContentItem = ltiService.getToolsContentEditor(placement.getContext());
+		if ( toolsContentItem.size() < 1 ) return null;
+		*/
+
+		// Now we are in good shape, make the URL
+		String helper_url = "/portal/tool/"+toolConfig.getId()+"/sakai.basiclti.admin.helper.helper?panel=CKEditor";
+		return helper_url;
+	}
+
 	public String getBrowserCollectionId(Placement placement) {
 		String collectionId = null;
 		if (placement != null) {

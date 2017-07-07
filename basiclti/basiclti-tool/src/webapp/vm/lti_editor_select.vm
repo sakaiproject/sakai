@@ -1,0 +1,13 @@
+<div class="portletBody">
+#if ( $tools ) 
+<p>$tlang.getString("contentitem.tools")</p>
+<ul>
+#foreach($tool in $tools)
+<li>
+<a href="$sakai_ActionURL.setPanel("CKEditor")&tool_id=$tool.get("id")">$tool.get('title')</a></li>
+#end
+</ul>
+#else
+<p>$tlang.getString("contentitem.notools")</p>
+#end
+</div>
