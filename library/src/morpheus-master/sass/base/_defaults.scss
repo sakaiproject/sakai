@@ -215,6 +215,20 @@ button[class="disabled"]:hover,
 	text-decoration: none;
 }
 
+input[type="checkbox"].formButtonDisabled{
+	@include border-radius(3px);
+	&:checked{
+		background-image: url("images/check.png") !important;
+		background-size: 16px !important;
+	}
+}
+input[type="radio"].formButtonDisabled{
+	@include border-radius(24px);
+	&:checked{
+		background: radial-gradient(#60b3e3, #FFF 5px) !important;
+	}
+}
+
 ul, ol {
     padding: 0 0 0 1.5em;
 }
