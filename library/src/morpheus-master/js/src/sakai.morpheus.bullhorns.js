@@ -10,6 +10,8 @@
     portal.socialBullhorn = $PBJQ('#Mrphs-social-bullhorn');
     portal.academicBullhorn = $PBJQ('#Mrphs-academic-bullhorn');
 
+    var alertHidden;
+
     var formatDate = function (millis) {
 
         var m = moment(millis);
@@ -169,6 +171,18 @@
                                 return portal.wrapNoAlertsString(data.i18n.noAlerts);
                             } else {
                                 var markup = '<div class="portal-bullhorn-academic-alerts">';
+
+                                var hideShowStarterText;
+                                if (alertHidden) {
+                                    hideShowStarterText = 'Show Notifications Alert';
+                                } else {
+                                    hideShowStarterText = 'Hide Notifications Alert';
+                                }
+
+                                markup += '<div id="portal-bullhorn-clear-all"><a href="javascript:;" id="Mrphs-hideshow-alerts" onclick="portal.hideShowAlerts();">' + hideShowStarterText + '</a>' +
+                                    ' | <a href="javascript:;" onclick="portal.clearAllAlerts(\'Academic\',\'' + data.i18n.noAlerts + '\');">' + data.i18n.clearAll + '</a>' +
+                                    '</div>';
+
                                 data.alerts.forEach(function (alert) {
 
                                     var title = alert.title;
@@ -215,8 +229,6 @@
                                     markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'academic\', \'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div></a>';
                                 });
 
-                                markup += '<div id="portal-bullhorn-clear-all"><a href="javascript:;" onclick="portal.clearAllAlerts(\'Academic\',\'' + data.i18n.noAlerts + '\');">' + data.i18n.clearAll + '</a></div>';
-
                                 markup += '</div>';
                                 return markup;
                             }
@@ -227,6 +239,27 @@
             }
         });
     });
+
+    portal.hideShowAlerts = function () {
+        $.ajax({
+            url: '/direct/portal/hideShowBullhornAlert',
+            cache: false,
+            success: function (data) {
+                alertHidden = data === 'true';
+                toggleHideShowText();
+                updateCounts();
+            }
+        });
+    };
+
+    var toggleHideShowText = function () {
+        var hideShowLink = $('#Mrphs-hideshow-alerts');
+        if (alertHidden) {
+            hideShowLink.text('Show Notifications Alert');
+        } else {
+            hideShowLink.text('Hide Notifications Alert');
+        }
+    };
 
     portal.setCounter = function (type, count) {
 
@@ -245,10 +278,14 @@
 
                     portal.failedBullhornCounts = 0;
 
-                    if (data.academic > 0) {
-                        portal.setCounter('academic', data.academic);
-                    } else {
+                    if (alertHidden) {
                         portal.academicBullhorn.find('.bullhorn-counter').remove();
+                    } else {
+                        if (data.academic > 0) {
+                            portal.setCounter('academic', data.academic);
+                        } else {
+                            portal.academicBullhorn.find('.bullhorn-counter').remove();
+                        }
                     }
 
                     if (data.social > 0) {
@@ -268,7 +305,16 @@
         };
 
     if (portal.loggedIn && portal.bullhorns && portal.bullhorns.enabled) {
-        updateCounts();
         portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
+
+        $.ajax({
+            url: '/direct/portal/isAlertHidden',
+            cache: false,
+            success: function(data) {
+                alertHidden = data === 'true';
+                toggleHideShowText();
+                updateCounts();
+            }
+        });
     }
 }) ($PBJQ);

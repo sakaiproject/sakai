@@ -48,7 +48,7 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -58,6 +58,8 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.portal.api.BullhornService;
@@ -72,9 +74,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.*;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -90,6 +90,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private static final List<String> HANDLED_EVENTS = new ArrayList<>();
 
     private final static String COMMONS_COMMENT_CREATED = "commons.comment.created";
+
+    private final static String ALERTS_HIDE_PROP = "hidealerts";
 
     @Setter
     private AnnouncementService announcementService;
@@ -111,6 +113,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private ProfileStatusLogic profileStatusLogic;
     @Setter
     private UserDirectoryService userDirectoryService;
+    @Setter
+    private PreferencesService preferencesService;
     @Setter
     private SecurityService securityService;
     @Setter
@@ -661,6 +665,43 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                 .executeUpdate();
         countCache.remove(userId);
         return true;
+    }
+
+    public boolean toggleHideBullhornAlerts(final String userId) {
+        try {
+            PreferencesEdit prefEdit = this.preferencesService.edit(userId);
+            ResourcePropertiesEdit props = prefEdit.getPropertiesEdit();
+            boolean hideAlerts;
+            try {
+                hideAlerts = !props.getBooleanProperty(ALERTS_HIDE_PROP);
+            } catch (EntityPropertyNotDefinedException | EntityPropertyTypeException e) {
+                // Hide Alerts preference was never set or is not a boolean value
+                // So the user must have clicked the "Hide" button
+                hideAlerts = true;
+            }
+            props.addProperty(ALERTS_HIDE_PROP, String.valueOf(hideAlerts));
+            this.preferencesService.commit(prefEdit);
+            return hideAlerts;
+        } catch (PermissionException e) {
+            log.error("Unable to toggle bullhorn alert preferences.", e);
+        } catch (InUseException e) {
+            log.error("Unable to edit user preferences.", e);
+        } catch (IdUnusedException e) {
+            log.error("Preferences have never been set for user: ", userId, e);
+        }
+        // No permissions or unable to edit user preferences. This shouldn't occur
+        // let the user see notification alerts.
+        return false;
+    }
+
+    public boolean isAlertHidden(final String userId) {
+        try {
+            Preferences prefs = this.preferencesService.getPreferences(userId);
+            ResourceProperties props = prefs.getProperties();
+            return props.getBooleanProperty(ALERTS_HIDE_PROP);
+        } catch (EntityPropertyTypeException | EntityPropertyNotDefinedException e) {
+            return false;
+        }
     }
 
     private void switchToAdmin() {

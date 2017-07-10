@@ -38,7 +38,6 @@
 }
 
 .portal-bullhorn-social-alerts, .portal-bullhorn-academic-alerts {
-    padding-bottom: 5px;
     @media #{$nonPhone} {
         width: 450px;
     }
@@ -113,6 +112,8 @@
 
 #portal-bullhorn-clear-all {
     padding: 5px;
+    text-align: right;
+    border-bottom: 1px solid #E0E0E0;
 }
 
 .portal-bullhorn-no-alerts {
