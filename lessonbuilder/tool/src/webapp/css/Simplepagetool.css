@@ -576,6 +576,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .mainList .textbox ul {
     display: inline;
 }
+.mainList .textbox ul.forumSummaryList, .mainList .textbox ul.announcementSummaryList {
+    display: inherit;
+}
 .mainList li .textbox {
 
 }
@@ -1076,7 +1079,6 @@ img {
  border-radius: 0px 0px 10px 10px;
  border: solid #999 1px;
  border-top-style: none;
- display: inherit !important;
 }
 .first-row {
 }
