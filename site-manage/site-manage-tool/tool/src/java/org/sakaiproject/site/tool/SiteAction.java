@@ -3944,13 +3944,13 @@ public class SiteAction extends PagedResourceActionII {
 			SessionState state, Site site, boolean updateToolRegistration) {
 		List<Map<String, Object>> visibleTools, allTools;
 		String siteId = site == null? UUID.randomUUID().toString(): site.getId();
-		// get the visible and all (including stealthed) list of lti tools
-		visibleTools = m_ltiService.getTools(null,null,0,0, siteId);
+		// get the list of launchable tools - visible and including stealthed
+		visibleTools = m_ltiService.getToolsLaunch(siteId);
 		if (site == null) {
 			allTools = visibleTools;
 		} else {
 			// Get tools specfic for this site or that are available in all sites.
-			allTools = m_ltiService.getToolsDao(null, null, 0, 0, site.getId());
+			allTools = m_ltiService.getToolsLaunch(site.getId());
 		}
 		if (visibleTools != null && !visibleTools.isEmpty()) {
 			HashMap<String, Map<String, Object>> ltiTools = new HashMap<>();
@@ -6462,14 +6462,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List ltiTools = new ArrayList();
 		List<Map<String, Object>> allTools;
 		String siteId = "";
-		if ( site == null )
+		if ( site == null ) {
 			// We dont' have a site yet so just ask for all the available ones.
-			allTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
+			allTools = m_ltiService.getToolsLaunch(siteId);
+		}
 		else
 		{
 			siteId = Objects.toString(site.getId(), "");
-			allTools = m_ltiService.getToolsDao(null,null,0,0,siteId);
+			allTools = m_ltiService.getToolsLaunch(siteId);
 		}
+
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
