@@ -242,7 +242,8 @@
 
     portal.hideShowAlerts = function () {
         $.ajax({
-            url: '/direct/portal/hideShowBullhornAlert',
+            url: '/direct/portal/hideShowBullhornAlert.html',
+            dataType: 'html',
             cache: false,
             success: function (data) {
                 alertHidden = data === 'true';
@@ -308,7 +309,8 @@
         portal.bullhornCountIntervalId = setInterval(updateCounts, portal.bullhorns.pollInterval);
 
         $.ajax({
-            url: '/direct/portal/isAlertHidden',
+            url: '/direct/portal/isAlertHidden.html',
+            dataType: 'html',
             cache: false,
             success: function(data) {
                 alertHidden = data === 'true';
