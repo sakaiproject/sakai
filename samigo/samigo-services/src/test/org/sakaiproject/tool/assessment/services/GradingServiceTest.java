@@ -375,7 +375,7 @@ public class GradingServiceTest {
         Assert.assertEquals("148.41", result);
         result = gradingService.processFormulaIntoValue("exp(10)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("2.2E4", result); 
+        Assert.assertEquals("22026.47", result); 
         result = gradingService.processFormulaIntoValue("exp(0)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("1", result);
@@ -401,16 +401,28 @@ public class GradingServiceTest {
         Assert.assertEquals("1", result);
         result = gradingService.processFormulaIntoValue("abs(1e10)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("1E10", result); 
+        Assert.assertEquals("10000000000", result); 
         result = gradingService.processFormulaIntoValue("abs(-1e10)", 2);
         Assert.assertNotNull(result);
-        Assert.assertEquals("1E10", result);
+        Assert.assertEquals("10000000000", result);
         result = gradingService.processFormulaIntoValue("abs(1e-10)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("1E-10", result); 
         result = gradingService.processFormulaIntoValue("abs(-1e-10)", 2);
         Assert.assertNotNull(result);
         Assert.assertEquals("1E-10", result);                 
+        result = gradingService.processFormulaIntoValue("1000000000.01", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1000000000.01", result);                 
+        result = gradingService.processFormulaIntoValue("10000000000.01", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("10000000000.01", result);                 
+        result = gradingService.processFormulaIntoValue("100000000000.01", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E11", result);                 
+        result = gradingService.processFormulaIntoValue("1000000000000.00", 2);
+        Assert.assertNotNull(result);
+        Assert.assertEquals("1E12", result);                 
     }
 
     @Test

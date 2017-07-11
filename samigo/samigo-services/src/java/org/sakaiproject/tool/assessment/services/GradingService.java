@@ -106,8 +106,8 @@ public class GradingService
   final String CALCULATION_OPEN = "[["; // not regex safe
   final String CALCULATION_CLOSE = "]]"; // not regex safe
   final String FORMAT_MASK = "0E0";
-  final Double MAX_THRESHOLD = 10000.0;
-  final Double MIN_THRESHOLD = 0.0001;
+  final BigDecimal DEFAULT_MAX_THRESHOLD = BigDecimal.valueOf(1.0e+11);
+  final BigDecimal DEFAULT_MIN_THRESHOLD = BigDecimal.valueOf(0.0001);
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
@@ -2783,14 +2783,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    */
   public String toScientificNotation(String numberStr,int decimalPlaces){
 	  
-	  BigDecimal x = new BigDecimal(numberStr);
-	  x.setScale(decimalPlaces,RoundingMode.HALF_UP);	
+	  BigDecimal bdx = new BigDecimal(numberStr);
+	  bdx.setScale(decimalPlaces,RoundingMode.HALF_UP);	
 	  
 	  NumberFormat formatter;
 	  
-	  if (((( Math.abs(x.doubleValue())) >= MAX_THRESHOLD) || ( Math.abs(x.doubleValue()) <= MIN_THRESHOLD) 
-        || (numberStr.contains("e")) || numberStr.contains("E") ) 
-	    && (x.doubleValue() != 0)) {
+	  if ((bdx.abs().compareTo(DEFAULT_MAX_THRESHOLD) >= 0 || bdx.abs().compareTo(DEFAULT_MIN_THRESHOLD) <= 0
+        || numberStr.contains("e") || numberStr.contains("E") ) 
+	    && bdx.doubleValue() != 0) {
 		  formatter = new DecimalFormat(FORMAT_MASK);
 	  } else {
 		  formatter = new DecimalFormat("0");
@@ -2799,7 +2799,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  formatter.setRoundingMode(RoundingMode.HALF_UP);	  
 	  formatter.setMaximumFractionDigits(decimalPlaces);
 	  
-	  String formattedNumber = formatter.format(x);
+	  String formattedNumber = formatter.format(bdx);
 
 	  return formattedNumber.replace(",",".");
   }
