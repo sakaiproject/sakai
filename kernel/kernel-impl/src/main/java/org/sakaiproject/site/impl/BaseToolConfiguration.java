@@ -69,7 +69,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 
 	/** The site skin, in case I have no m_page. */
 	protected String m_skin = null;
-
+	
 	/** True if the placement conf has not been read yet. */
 	protected boolean m_configLazy = false;
 
@@ -109,9 +109,11 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_custom_title = getTitleCustom(page);
 
 		m_configLazy = true;
+
 		setPageCategory();
 	}
 	
+
 	/**
 	 ** Checks if the tool's page has set the custom_title property (for custom page or tool titles),
 	 ** or alternately checks if this tool should be cosidered a "legacy" custom tool title
@@ -123,16 +125,14 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	{
 		if (page.isHomePage())
 		{
-			return page.getHomeToolsTitleCustom(getId());
+			return page.getHomeToolsTitleCustom(m_id) || page.isTitleToolException(m_toolId);
 		}
 		else
 		{
 			String custom = (String)page.getProperties().get(SitePage.PAGE_CUSTOM_TITLE_PROP);
 			if ( custom != null )
 				return Boolean.parseBoolean(custom);
-			else	if ( "sakai.iframe".equals(m_toolId) || "sakai.news".equals(m_toolId) || "sakai.rutgers.linktool".equals(m_toolId) )
-				return true;
-			else if (m_toolId != null && m_toolId.startsWith("sakai.iframe"))
+			else if (page.isTitleToolException(m_toolId))
 				return true;
 			else
 				return false;
