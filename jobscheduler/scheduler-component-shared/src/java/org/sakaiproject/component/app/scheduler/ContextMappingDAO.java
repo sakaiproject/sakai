@@ -63,6 +63,7 @@ public class ContextMappingDAO {
         ContextMapping o = getContextMapping(componentId, contextId);
         if (o != null) {
             sessionFactory.getCurrentSession().delete(o);
+            sessionFactory.getCurrentSession().flush();
         }
     }
 
@@ -71,6 +72,7 @@ public class ContextMappingDAO {
         ContextMapping o = (ContextMapping) session.get(ContextMapping.class, uuid);
         if (o != null) {
             session.delete(o);
+            session.flush();
         }
     }
 
