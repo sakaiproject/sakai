@@ -292,11 +292,12 @@ DefaultView,NavigationCaseReporter {
 		deleteselect.optionlist.setValue(deletable.toStringArray());
 		deleteForm.parameters.add(new UIELBinding("#{pollToolBean.siteID}", siteId));
 
-		if (renderDelete) 
+		if (renderDelete) {
 			UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_delete"),
 					"#{pollToolBean.processActionDelete}").decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_list_delete_tooltip")));
 			UICommand.make(deleteForm, "reset-polls-votes",  UIMessage.make("poll_list_reset"),
 					"#{pollToolBean.processActionResetVotes}").decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_list_reset_tooltip")));
+		}
 		}
 	}
 
