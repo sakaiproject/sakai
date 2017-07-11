@@ -348,12 +348,17 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       return collection;
   }
 
+  //Get filename from a resource element
+  //Return the href attribute, otherwise return the href value of a file child
   private String getFileName(Element resource) {
-      Element file = resource.getChild(FILE, ns.getNs());
-      if (file != null)
-	  return file.getAttributeValue(HREF);
-      else
-	  return null;
+	  //The problem here is there might be multiple <file> elements, so should trust the href on the resource first
+	  String href = resource.getAttributeValue(HREF);
+	  if (href == null) {
+		  Element file = resource.getChild(FILE, ns.getNs());
+		  //This will return null if there is no HREF on the file
+		  return file.getAttributeValue(HREF);
+	  }
+	  return href;
   }
 
   public String getGroupForRole(String role) {
@@ -587,9 +592,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       }
       
       boolean forceInline = ServerConfigurationService.getBoolean("lessonbuilder.cc.import.forceinline", false); 
-      if (forceInline) {
-    	  inline = true;
-      }
 
       try {
 	  if ((type.equals(CC_WEBCONTENT) || (type.equals(UNKNOWN))) && !hide) {
@@ -614,7 +616,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	      boolean nofile = false;
 	      //Only text type files can be inlined
-	      if (inline && mime != null && mime.startsWith("text/")) {
+	      if ((inline || forceInline) && mime != null && mime.startsWith("text/")) {
 		  StringBuilder html = new StringBuilder();
 		  String htmlString = null;
 

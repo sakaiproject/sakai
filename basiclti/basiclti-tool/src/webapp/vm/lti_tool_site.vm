@@ -113,7 +113,7 @@ ${includeLatestJQuery}
 	</ul>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	#if ($isAdmin)
+	#if ($isAdmin || $allowMaintainerAddToolSite)
 	<div align="right"><a href="" title="$tlang.getString("add.to.site")" onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;"> $tlang.getString("add.to.site")</a></div>
 	<br/>
 	$tlang.getString("tool.description.sites")

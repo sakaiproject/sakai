@@ -239,8 +239,11 @@ public class SearchUsersPage extends BasePage {
 		public void detachManually(){
 			this.list = null;
 		}
-		public Iterator<? extends SearchResult> iterator(int first, int count) {
-			return getData().subList(first, first + count).iterator();
+		public Iterator<? extends SearchResult> iterator(long first, long count) {
+			//should really check bounds here 
+			int f = (int) first;
+			int c = (int) count;
+			return getData().subList(f, f + c).iterator();
 		}
 
 		public IModel<SearchResult> model(final SearchResult object) {
@@ -254,7 +257,7 @@ public class SearchUsersPage extends BasePage {
 			};
 		}
 
-		public int size() {
+		public long size() {
 			return getData().size();
 		}
 

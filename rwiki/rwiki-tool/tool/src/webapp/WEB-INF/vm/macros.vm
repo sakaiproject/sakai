@@ -281,7 +281,7 @@ ${util.formatDateTime($date,$request)}
 				<h5 class="commentsTitle specialLink" >
 					<a href="#" id="commentsToggle" class="toggleOpen">${rlb.jsp_hide_comments}</a>
 					<span id="totalComments" class="textPanelFooter"></span>
-					#if (${renderBean.canEdit})
+					#if (${renderBean.canEdit} || ${renderBean.canCreate})
 						<span class="commentsToolBar">
 							<a href="#" id="createCommentLink" onclick="ajaxRefPopup(this,'${util.escapeHtml(${renderBean.newCommentURL})}',0); return false;" >${rlb.jsp_addcomment}</a>
 						</span>
@@ -297,12 +297,12 @@ ${util.formatDateTime($date,$request)}
 				<li class="rwikicommentbody_${comment.commentLevel} commentList">
 					<div class="commentHeader"><span class="commentAuthor">#formatDisplayName(${comment.rwikiObject.user})</span><span class="textPanelFooter">(${comment.rwikiObject.version})</span>
 							<ul class="actionItem itemAction">
-								#if (${renderBean.canEdit})
+								#if (${renderBean.canEdit} || ${renderBean.canCreate})
 									<li><span>
 										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.newCommentURL})}',0); return false;" >${rlb.jsp_comment}</a>
 									</span></li>
 								#end
-								#if (${comment.canEdit} && ${renderBean.canEdit})
+								#if (${comment.canEdit} && (${renderBean.canEdit} || ${renderBean.canCreate}) )
 									<li><span>
 										<a href="#" onclick="ajaxRefPopup(this,'${util.escapeHtml(${comment.editCommentURL})}',0); return false;" >${rlb.jsp_edit}</a>
 									</span></li>

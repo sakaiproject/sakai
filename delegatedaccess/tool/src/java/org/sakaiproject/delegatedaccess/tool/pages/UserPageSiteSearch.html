@@ -101,16 +101,14 @@
 				</tr>
 			</wicket:enclosure>
 			<div class="hierarchyFields" wicket:id="hierarchyFields">
-				<wicket:component wicket:id="hierarchyDropdowns">
-					<tr>
-						<td align='right'>
-							<span wicket:id="hierarchyLabel">Dept</span>:
-						</td>
-						<td>
-							<select wicket:id="hierarchyLevel" onchange=" this.form.submit();"/>
-						</td>								
-					</tr>
-				</wicket:component>
+				<tr wicket:id="hierarchyDropdowns">
+					<td align='right'>
+						<span wicket:id="hierarchyLabel">Dept</span>:
+					</td>
+					<td>
+						<select wicket:id="hierarchyLevel"/>
+					</td>								
+				</tr>
 			</div>
 			<tr>
 				<td/>

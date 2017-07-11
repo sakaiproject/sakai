@@ -60,6 +60,8 @@ public class RenderBean
 	
 	private boolean canRead = false;
 
+	private boolean canCreate = false;
+
 	private String previewContent = null;
 
 	public static final String PERMISSION_PROBLEM = "You do not have permission to view this page";
@@ -85,6 +87,7 @@ public class RenderBean
 		this.withBreadcrumbs = withBreadcrumbs;
 		this.canEdit = objectService.checkUpdate(rwo);
 		this.canRead = objectService.checkRead(rwo);
+		this.canCreate = objectService.checkCreate(rwo);
 	}
 
 	/**
@@ -115,6 +118,7 @@ public class RenderBean
 			this.rwo = objectService.getRWikiObject(pageName, pageRealm);
 			this.canEdit = objectService.checkUpdate(rwo);
 			this.canRead = objectService.checkRead(rwo);
+			this.canCreate = objectService.checkCreate(rwo);
 		}
 		catch (PermissionException e)
 		{
@@ -496,6 +500,22 @@ public class RenderBean
 	public void setCanEdit(boolean canEdit)
 	{
 		this.canEdit = canEdit;
+	}
+	/**
+	 * @return Returns the canCreate.
+	 */
+	public boolean getCanCreate()
+	{
+		return canCreate;
+	}
+
+	/**
+	 * @param canCreate
+	 *        The canCreate to set.
+	 */
+	public void setCanCreate(boolean canCreate)
+	{
+		this.canCreate = canCreate;
 	}
 	
 	/**

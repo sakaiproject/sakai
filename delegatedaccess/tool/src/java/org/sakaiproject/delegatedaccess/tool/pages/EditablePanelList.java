@@ -74,7 +74,7 @@ public class EditablePanelList  extends Panel
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='none';");
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='none';");
 				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
 				//since I don't want to expand or collapse, I just call whichever one the node is already
 				//Refreshing the tree will update all the models and information (like role) will be generated onClick
@@ -174,7 +174,7 @@ public class EditablePanelList  extends Panel
 						}else{
 							checkBox.setEnabled(true);
 						}
-						target.addComponent(checkBox, checkBoxId);
+						target.add(checkBox, checkBoxId);
 					}
 
 					private boolean isPublicChecked(){
@@ -210,9 +210,9 @@ public class EditablePanelList  extends Panel
 						listOptions = getNodeModelToolsList(nodeModel);
 					}
 					listView.setDefaultModelObject(listOptions);
-					target.addComponent(editableSpan);
+					target.add(editableSpan);
 				}
-				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
 			}
 		};
 		add(restrictToolsLink);
@@ -279,8 +279,8 @@ public class EditablePanelList  extends Panel
 							}
 					}
 
-					target.addComponent(editableSpan);
-				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
+					target.add(editableSpan);
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
 			}
 		});
 		editableSpan.add(toggleAllPublicCheckbox);
@@ -301,8 +301,8 @@ public class EditablePanelList  extends Panel
 							}
 					}
 
-					target.addComponent(editableSpan);
-				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
+					target.add(editableSpan);
+				target.appendJavaScript("document.getElementById('" + editableSpanId + "').style.display='';");
 			}
 		});
 		editableSpan.add(toggleAllAuthCheckboxes);

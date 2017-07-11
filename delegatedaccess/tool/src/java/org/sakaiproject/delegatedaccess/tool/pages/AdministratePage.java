@@ -81,11 +81,11 @@ public class AdministratePage extends BasePage{
 				//display a "saved" message
 				formFeedback.setDefaultModel(new ResourceModel("success.addDaMyworkspace"));
 				formFeedback.add(new AttributeModifier("class", true, new Model("success")));
-				target.addComponent(formFeedback);
+				target.add(formFeedback);
 				
-				target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
+				target.appendJavaScript("hideFeedbackTimer('" + formFeedbackId + "');");
 				
-				target.addComponent(addDaMyworkspaceStatusLabel,addDaMyworkspaceStatusLabelId);
+				target.add(addDaMyworkspaceStatusLabel,addDaMyworkspaceStatusLabelId);
 			}
 		};
 		addDaMyworkspaceForm.add(addDaMyworkspaceButton);

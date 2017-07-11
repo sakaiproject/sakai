@@ -1404,9 +1404,9 @@
                 </regexp-list>
             </attribute>
             <attribute name="rel">
-                <literal-list>
-                    <literal value="nofollow"/>
-                </literal-list>
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
             </attribute>
             <attribute name="name"/>
             <attribute name="target" onInvalid="filterTag">

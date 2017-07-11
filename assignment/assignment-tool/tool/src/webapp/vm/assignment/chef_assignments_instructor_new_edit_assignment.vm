@@ -427,15 +427,23 @@
 				</label>
 				<div class="col-sm-6">
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-					<select id="$name_GradeType"  name="$name_GradeType" title="$tlang.getString("gen.grasca")" onchange="SetMaxPoint(this, $name_GradePoints)">
+					<select id="$name_GradeType"
+					name="$name_GradeType" title="$tlang.getString("gen.grasca")" onchange="SetMaxPoint(this, $name_GradePoints)">
 					#foreach ($i in [1..5])
 						#if ($i == $value_GradeType)
 							<option value="$i" selected="selected">$gradeTypeTable.get($i)</option>
 						#else
-							<option value="$i">$gradeTypeTable.get($i)</option>
+							<option value="$i"
+								#if(($!assignment && !$assignment.draft) && $!value_additionalOptions.equals("peerreview"))
+									disabled="disabled" 
+								#end
+							>$gradeTypeTable.get($i)</option>
 						#end
 					#end
 					</select>
+					#if(($!assignment && !$assignment.draft) && $!value_additionalOptions.equals("peerreview"))
+						$tlang.getString("gen.cant.change.setting.after.draft")
+					#end
 				</div>
 			</div>
 
@@ -940,12 +948,16 @@
 		<h4>
 			$tlang.getString("additionalOptionsName")
 		</h4>
-
+		<p class="text-muted small">
+			$tlang.getString("gen.cant.change.after.draft")
+		</p>
 		<div class="radio">
-			<label for="$name_noAdditionalOptionsName" class="$class">
+			<label for="$name_noAdditionalOptionsName">
 				<input id="$name_noAdditionalOptionsName" name="$name_additionalOptions" type="radio" value="1"
 					#if ($!value_additionalOptions.equals("none"))
 						checked="checked"
+					#elseif($!assignment && !$assignment.draft)
+						disabled="disabled"
 					#end
 					onclick="ASN.toggleAddOptions('none');" />
 					$tlang.getString("noAdditionalOptionsName")
@@ -960,13 +972,15 @@
 						<input id="$name_UsePeerAssessment" name="$name_additionalOptions" type="radio" value="peerreview"
 						#if ($!value_additionalOptions.equals("peerreview"))
 							checked="checked"
+						#elseif($!assignment && !$assignment.draft)
+							disabled="disabled"
 						#end
 						onclick="ASN.toggleAddOptions('peerreview')"/>
 						$tlang.getString("peerAssessmentUse")
 					</label>
 				</div>
 
-				#if ($!value_UsePeerAssessment.equals("true"))
+				#if ($!value_additionalOptions.equals("peerreview"))
 					<div id="peerAssessmentOptions" class="col-sm-offset-1">
 				#else
 					<div id="peerAssessmentOptions" style="display:none" class="col-sm-offset-1">
@@ -1038,8 +1052,7 @@
 					<input id="$name_CheckIsGroupSubmission" name="$name_additionalOptions" type="radio" value="group" onclick="ASN.toggleAddOptions('group');"
 					#if ($!value_additionalOptions.equals("group") && $!groupsList)
 						checked="checked"
-					#end
-					#if( !$!groupsList )
+					#elseif( !$!groupsList || ($!assignment && !$assignment.draft))
 						disabled="disabled"
 					#end
 					/>
@@ -1098,17 +1111,23 @@
 				#if( $!range == "site" || $selectedGroupsNotFound )
 					checked="checked"
 				#end
+				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group"))
+					disabled="disabled"
+				#end
 				/>
 			#else
 				<input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); ASN.resizeFrame();"
 				#if( $!range == "site" || $selectedGroupsNotFound )
 					checked="checked"
-				#elseif ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
+				#elseif (($!value_CheckIsGroupSubmission.equals("1") && $!groupsList) || ($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group")))
 					disabled="disabled"
 				#end
 				/>
 			#end
 				$tlang.getString("displayto.site")
+				#if($!assignment && !$assignment.draft && $!value_additionalOptions.equals("group"))
+					$tlang.getString("gen.cant.change.setting.after.draft")
+				#end
 			</label>
 		</div>
 		#elseif( $allowAddAssignment )
