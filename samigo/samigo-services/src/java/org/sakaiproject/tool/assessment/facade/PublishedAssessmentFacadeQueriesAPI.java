@@ -223,7 +223,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * @param publishedAssessmentId
    * @return number of submissions
    */
-  public Integer getTotalSubmissionForEachAssessment(Long publishedAssessmentId);
+  public Integer getTotalSubmissionForEachAssessment(Long publishedAssessmentId, Set usersAbleCreateAssessments);
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias);
 
