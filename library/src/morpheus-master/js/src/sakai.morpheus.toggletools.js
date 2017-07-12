@@ -34,7 +34,7 @@ portal.toggleMinimizeNav = function () {
 	}
 };
 
-$PBJQ("#toolsNav-toggle-li").on("click", portal.toggleMinimizeNav);
+$PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
 
 $PBJQ(document).ready(function () {
 //Shows or hides the subsites in a popout div. This isn't used unless
