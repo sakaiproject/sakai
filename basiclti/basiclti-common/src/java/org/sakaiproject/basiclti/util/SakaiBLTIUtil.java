@@ -380,6 +380,14 @@ public class SakaiBLTIUtil {
 				setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,site.getId());
 				setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,site.getId());
 			}
+
+			// SAK-31282 - Add the Academic Session (ext_sakai_academic_session) to LTI launches
+			String termPropertyName = ServerConfigurationService.getString("irubric.termPropertyName", "");
+			if ( termPropertyName.length() > 0 ) {
+				String academicSessionId = site.getProperties().getProperty(termPropertyName);
+				if ((academicSessionId == "") || (academicSessionId == null)) academicSessionId = "OTHER";
+				setProperty(props,"ext_sakai_academic_session", academicSessionId);
+			}
 		}
 
 		// Fix up the return Url
@@ -399,6 +407,7 @@ public class SakaiBLTIUtil {
 		}
 
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
+
 	}
 
 	public static void addUserInfo(Properties ltiProps, Properties lti2subst, Map<String, Object> tool)
