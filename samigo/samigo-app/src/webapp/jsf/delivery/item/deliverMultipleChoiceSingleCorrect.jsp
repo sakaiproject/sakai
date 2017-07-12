@@ -62,6 +62,10 @@ should be included in file importing DeliveryMessages
         rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
         styleClass="icon-sakai--delete feedBackCross">
       </h:panelGroup>
+      <h:panelGroup id="noimage"
+        rendered="#{!selection.response}"
+        styleClass="icon-sakai--check feedBackNone">
+      </h:panelGroup>
     </h:panelGroup>
     <div class="mcscFixUpTarget"></div>
     <h:panelGroup styleClass="mcAnswerText">
