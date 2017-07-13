@@ -142,6 +142,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				}
 				if(removeItems.size() > 0){
 					getHibernateTemplate().deleteAll(removeItems);
+					getHibernateTemplate().flush();
 				}
 				//loop through the items and update the map values:
 				for(PeerAssessmentItem p : existingItems){
