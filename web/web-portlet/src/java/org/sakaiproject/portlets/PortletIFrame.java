@@ -471,6 +471,9 @@ public class PortletIFrame extends GenericPortlet {
                 (HttpURLConnection) new URL(url).openConnection();
             con.setRequestMethod("HEAD");
 
+            String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
+            con.setRequestProperty("User-Agent","Java Sakai/"+sakaiVersion);
+
             Map headerfields = con.getHeaderFields();
             Set headers = headerfields.entrySet(); 
             for(Iterator i = headers.iterator(); i.hasNext();) { 
