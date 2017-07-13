@@ -319,6 +319,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
             try{
                 tx = session.beginTransaction();
                 session.saveOrUpdate(jobRun);
+                session.flush();
                 tx.commit();
             }catch(Exception e){
                 if(tx != null) tx.rollback();
@@ -1062,6 +1063,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+					session.flush();
 		}
 	}
 
@@ -1110,6 +1112,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+					session.flush();
 		}
 	}
 
@@ -1160,6 +1163,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 				session.saveOrUpdate(eExisting);
+				session.flush();
 		}
 	}
 	
@@ -1207,6 +1211,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+					session.flush();
 		}
 	}
 	
@@ -1255,6 +1260,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+					session.flush();
 		}
 	}
 
@@ -1298,6 +1304,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			session.saveOrUpdate(eExisting);
+			session.flush();
 		}
 	}
 	
@@ -1346,6 +1353,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			
 			if(StringUtils.isNotBlank(eExistingUserId)) {
 				session.saveOrUpdate(eExisting);
+				session.flush();
 			}
 			
 		}
@@ -1427,6 +1435,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						doUpdateSitePresenceTotal(session, spExisting);
 					}
 				}
+			session.flush();
 			}catch(HibernateException e){
 				LOG.debug("Probably ddbb error when loading data at java object", e);
 			}catch(Exception e){
@@ -1444,6 +1453,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sptExisting.updateFrom(sp);
 			session.update(sptExisting);
 		}
+		session.flush();
 	}
 
 	// ################################################################

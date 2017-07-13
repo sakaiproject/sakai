@@ -490,6 +490,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
                     }
                     prefs.setPrefs(prefsdata.toXmlPrefs());
                     session.saveOrUpdate(prefs);
+                    session.flush();
                     tx.commit();
                     return Boolean.TRUE;
                 }catch(Exception e){
