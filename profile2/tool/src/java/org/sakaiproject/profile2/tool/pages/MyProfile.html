@@ -89,29 +89,6 @@
 					$(this).children(".edit-image-button").addClass("offscreen");
 				}
 			);
-
-			//when the editImageButton is clicked, show the panel
-			/*
-			$(".editImageButton").click(function () {
-				$("#editImagePanel").slideToggle();
-			});
-			*/
-
-			//bind to elements that are added after the DOM has rendered so we can update the iframe size
-			/*
-			$("div.sideBox").livequery('load', function(event) { 
-		    	setMainFrameHeight(window.name);
-		    	return false;
-		    });
-			*/
-
-			// jQuery i18n plugin for components that use it
-			jQuery.i18n.properties({
-			    name:'ProfileApplication', 
-			    path:'/profile2-tool/bundle/',
-			    mode: 'both'
-			});
-			
 		});
 	</script>
 	
