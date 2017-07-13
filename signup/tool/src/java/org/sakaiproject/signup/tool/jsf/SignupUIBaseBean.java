@@ -93,6 +93,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 										"signup.default.email.notification", "true")) ? true : false;
 
 	protected static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
+
+	protected static String DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = Utilities.getSignupConfigParamVal(
+			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS, VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY);
 	
 	protected boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
@@ -104,7 +107,8 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	
 	//protected boolean sendEmailAttendeeOnly = false;
 	
-	protected String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+	protected String sendEmailToSelectedPeopleOnly = Utilities.getSignupConfigParamVal(
+			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS);
 	
 	private int maxSlots; 
 

@@ -151,7 +151,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		
 		//sendEmailAttendeeOnly = false;
-		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+		sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 		publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
