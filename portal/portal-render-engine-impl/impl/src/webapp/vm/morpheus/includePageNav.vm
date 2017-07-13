@@ -156,6 +156,17 @@
 	
 				#end ## END of if ( $subSites && $showSubsitesAsFlyout )
 	
+				#if (${sitePages.pageNavCanAddMoreTools})
+
+					<li>
+						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
+							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
+							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
+						</a>
+					</li>
+
+				#end ## END of IF (${sitePages.pageNavCanAddMoreTools})
+
 				#if (${sitePages.pageNavShowHelp})
 	
 					<li class="Mrphs-toolsNav__menuitem--help">
@@ -167,17 +178,6 @@
 					</li>
 	
 				#end ## END of IF (${sitePages.pageNavShowHelp})
-	
-				#if (${sitePages.pageNavCanAddMoreTools})
-	
-					<li>
-						<a class="Mrphs-toolsNav__menuitem--link" href="${sitePages.pageNavAddMoreToolsUrl}">
-							<span class="Mrphs-toolsNav__menuitem--icon icon-sakai--add-tool"></span>
-							<span class="Mrphs-toolsNav__menuitem--title">${rloader.sit_addmoretools}</span>
-						</a>
-					</li>
-	
-				#end ## END of IF (${sitePages.pageNavCanAddMoreTools})
 	
 			</ul>
 		</nav>
