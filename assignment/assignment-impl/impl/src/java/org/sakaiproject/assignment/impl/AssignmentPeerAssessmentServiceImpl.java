@@ -25,6 +25,7 @@ import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
+import org.sakaiproject.assignment.api.PeerReviewCommentTooLongException;
 import org.sakaiproject.assignment.api.model.PeerAssessmentAttachment;
 import org.sakaiproject.assignment.api.model.PeerAssessmentItem;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -393,10 +394,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 		}
 	}
 
-	public void savePeerAssessmentItem(PeerAssessmentItem item){
+	public void savePeerAssessmentItem(PeerAssessmentItem item) throws PeerReviewCommentTooLongException{
 		if(item != null && item.getAssessorUserId() != null && item.getSubmissionId() != null){
-			getHibernateTemplate().saveOrUpdate(item);
-			getHibernateTemplate().flush();
+			try {
+				getHibernateTemplate().saveOrUpdate(item);
+				getHibernateTemplate().flush();
+			} catch(org.springframework.dao.DataIntegrityViolationException e){
+				throw new PeerReviewCommentTooLongException();
+			}
 		}
 	}
 

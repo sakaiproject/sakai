@@ -17,7 +17,7 @@ public interface AssignmentPeerAssessmentService extends ScheduledInvocationComm
 	
 	public PeerAssessmentItem getPeerAssessmentItem(String submissionId, String assessorUserId);
 	
-	public void savePeerAssessmentItem(PeerAssessmentItem item);
+	public void savePeerAssessmentItem(PeerAssessmentItem item) throws PeerReviewCommentTooLongException;
 	
 	public List<PeerAssessmentItem> getPeerAssessmentItems(String submissionId, Integer scaledFactor);
 	

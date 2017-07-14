@@ -82,6 +82,7 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
+import org.sakaiproject.assignment.api.PeerReviewCommentTooLongException;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItemAccess;
 import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
@@ -6019,7 +6020,9 @@ public class AssignmentAction extends PagedResourceActionII
 				PeerAssessmentItem item = assignmentPeerAssessmentService.getPeerAssessmentItem(submissionId, peerAssessor);
 				if(item != null){
 					item.setRemoved(!item.isRemoved());
-					assignmentPeerAssessmentService.savePeerAssessmentItem(item);
+					try {
+						assignmentPeerAssessmentService.savePeerAssessmentItem(item);
+					}catch(Exception e){}
 					if(item.getScore() != null){
 						//item was part of the calculation, re-calculate
 						boolean saved = assignmentPeerAssessmentService.updateScore(submissionId);
@@ -12026,7 +12029,15 @@ public class AssignmentAction extends PagedResourceActionII
 					if(("submit".equals(gradeOption) || "save".equals(gradeOption)) && state.getAttribute(STATE_MESSAGE) == null){					
 						if(changed){
 							//save this in the DB
-							assignmentPeerAssessmentService.savePeerAssessmentItem(item);
+							try {
+								assignmentPeerAssessmentService.savePeerAssessmentItem(item);
+							}catch(PeerReviewCommentTooLongException e){
+								addAlert(state, rb.getString("peerassessment.alert.commenttoolong"));
+								return false;
+							}catch(Exception e){
+								addAlert(state, rb.getString("peerassessment.alert.saveerrorunkown"));
+								return false;
+							}
 							if(scoreChanged){
 								//need to re-calcuate the overall score:
 								boolean saved = assignmentPeerAssessmentService.updateScore(submissionId);
