@@ -76,7 +76,7 @@
 
     <tool
             id="sakai.iframe.site"
-            title="Site Information Display"
+            title="Welcome"
             description="For displaying Site information.">
 
         <configuration name="height" value="600px" />
