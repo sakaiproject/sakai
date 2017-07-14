@@ -37,7 +37,6 @@ import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.sakaiproject.alias.api.AliasService;
@@ -69,8 +68,14 @@ import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 
 /**
@@ -86,6 +91,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public long								collectThreadUpdateInterval			= 4000L;
 	private boolean							collectAdminEvents					= false;
 	private boolean							collectEventsForSiteWithToolOnly	= true;
+	private TransactionTemplate				transactionTemplate;
 
 	/** Sakai services */
 	private StatsManager					M_sm;
@@ -204,6 +210,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		this.M_uss = uss;
 	}
 
+	public void setTransactionTemplate(TransactionTemplate template) {
+		this.transactionTemplate = template;
+	}
+
 	public void init(){
 		StringBuilder buff = new StringBuilder();
 		buff.append("init(): collect thread enabled: ");
@@ -314,20 +324,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(jobRun == null) {
 			return false;
 		}
-		Boolean r = getHibernateTemplate().execute(session -> {
-            Transaction tx = null;
-            try{
-                tx = session.beginTransaction();
-                session.saveOrUpdate(jobRun);
-                tx.commit();
-            }catch(Exception e){
-                if(tx != null) tx.rollback();
-                LOG.warn("Unable to commit transaction: ", e);
-                return Boolean.FALSE;
-            }
-            return Boolean.TRUE;
-        });
-		return r;
+
+        try {
+			getHibernateTemplate().execute(session -> {
+				session.saveOrUpdate(jobRun);
+				return null;
+			});
+			return true;
+		} catch(DataAccessException dae) {
+			LOG.error("Could not save job: {}", dae.getMessage(), dae);
+		}
+		return false;
 	}
 	
 	/* (non-Javadoc)
@@ -490,7 +497,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					//long endTime2 = System.currentTimeMillis();
 					//LOG.debug("Time spent pre-processing " + eventCount + " event(s): " + (endTime2-startTime2) + " ms");
 				}
-				doUpdateConsolidatedEvents();
+				transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+					@Override
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						doUpdateConsolidatedEvents();
+					}
+				});
 				isIdle = true;
 				totalTimeInEventProcessing += (System.currentTimeMillis() - startTime);
 
@@ -505,11 +517,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				}
 			}
 		}catch(Throwable t){
-			LOG.debug("Failed to execute statistics update thread", t);
+			LOG.warn("Failed to execute statistics update thread", t);
 		}finally{
 			if(collectThreadRunning){
 				// thread was stopped by an unknown error: restart
-				LOG.debug("Statistics update thread was stoped by an unknown error: restarting...");
+				LOG.warn("Statistics update thread was stoped by an unknown error: restarting...");
 				startUpdateThread();
 			}else
 				LOG.debug("Finished statistics update thread");
@@ -904,10 +916,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
 				|| visitsMap.size() > 0 || presencesMap.size() > 0
 				|| serverStatMap.size() > 0 || userStatMap.size() > 0) {
-			Boolean r = getHibernateTemplate().execute(session -> {
-                Transaction tx = null;
-                try{
-                    tx = session.beginTransaction();
+
+		    try {
+				getHibernateTemplate().execute(session -> {
                     // do: EventStat
                     if(eventStatMap.size() > 0) {
                         Collection<EventStat> tmp1 = null;
@@ -998,22 +1009,15 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
                         }
                         doUpdateUserStatObjects(session, tmp8);
                     }
-
-                    // commit ALL
-                    tx.commit();
-                }catch(Exception e){
-                    if(tx != null) tx.rollback();
-                    LOG.warn("Unable to commit transaction: ", e);
-                    return Boolean.FALSE;
-                }
-                return Boolean.TRUE;
-            });
+                    return null;
+            	});
+			} catch(DataAccessException dae) {
+				return false;
+			}
 			long endTime = System.currentTimeMillis();
 			LOG.debug("Time spent in doUpdateConsolidatedEvents(): " + (endTime-startTime) + " ms");
-			return r;
-		}else{
-			return true;
 		}
+		return true;
 	}
 	
 	private void doUpdateEventStatObjects(Session session, Collection<EventStat> o) {
