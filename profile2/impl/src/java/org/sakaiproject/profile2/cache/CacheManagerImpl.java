@@ -33,14 +33,12 @@ public class CacheManagerImpl implements CacheManager {
 	private static final Logger log = LoggerFactory.getLogger(CacheManagerImpl.class);
 
 	@Override
-	@SuppressWarnings("rawtypes")
-	public Cache createCache(String cacheName) {
+	public <K, V>Cache<K, V> createCache(String cacheName) {
 		return memoryService.getCache(cacheName);
 	}
 	
 	@Override
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public void evictFromCache(Cache cache, String cacheKey) {
+	public <K, V>void evictFromCache(Cache<K, V> cache, K cacheKey) {
 		cache.remove(cacheKey);
 		log.debug("Evicted data in cache: " + cache.getName() + ", key: " + cacheKey);
 	}
