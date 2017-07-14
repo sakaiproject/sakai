@@ -103,8 +103,7 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
     			scheduledInvocationManager.createDelayedInvocation(openTime,
     					"org.sakaiproject.api.app.messageforums.ForumScheduleNotification",
     					id);
-    		}
-    		if(closeTime != null && closeTime.after(timeService.newTime())){
+    		} else if(closeTime != null && closeTime.after(timeService.newTime())){
     			scheduledInvocationManager.createDelayedInvocation(closeTime,
     					"org.sakaiproject.api.app.messageforums.ForumScheduleNotification",
     					id);
