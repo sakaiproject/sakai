@@ -98,20 +98,20 @@ public class GradeImportUploadStep extends BasePanel {
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.incorrectformat"));
+					log.debug("incorrect format", e);
+					error(getString("importExport.error.incorrectformat")+" - "+e.getMessage());
 					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.incorrecttype"));
+					log.debug("incorrect type", e);
+					error(getString("importExport.error.incorrecttype")+" - "+e.getMessage());
 					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.duplicatecolumn"));
+					log.debug("duplicate column", e);
+					error(getString("importExport.error.duplicatecolumn")+" - "+e.getMessage());
 					return;
 				} catch (final IOException e) {
-					log.debug("GBNG import error", e);
-					error(getString("importExport.error.unknown"));
+					log.debug("unknown", e);
+					error(getString("importExport.error.unknown")+" - "+e.getMessage());
 					return;
 				}
 
@@ -130,7 +130,8 @@ public class GradeImportUploadStep extends BasePanel {
 					processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
 				} catch (final GbImportCommentMissingItemException e) {
 					// TODO would be good if we could show the column here, but would have to return it
-					error(getString("importExport.error.commentnoitem"));
+					log.debug("commentnoitem", e);
+					error(getString("importExport.error.commentnoitem")+" - "+e.getMessage());
 					return;
 				}
 				// if empty there are no users
