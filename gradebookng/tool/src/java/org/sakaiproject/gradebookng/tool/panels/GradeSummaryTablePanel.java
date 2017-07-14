@@ -222,7 +222,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							});
 							assignmentItem.add(new Label("outOf").setVisible(false));
 						} else {
-							assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
+							assignmentItem.add(new Label("grade", FormatHelper.formatGradeForDisplay(rawGrade)));
 							assignmentItem.add(new Label("outOf",
 								new StringResourceModel("label.studentsummary.outof", null, new Object[]{assignment.getPoints()})) {
 								@Override

@@ -1,7 +1,6 @@
 package org.sakaiproject.gradebookng.tool.model;
 
 import lombok.Data;
-import lombok.Setter;
 import lombok.Value;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
@@ -382,12 +381,12 @@ public class GbGradebookData {
                 if(mappedGrade == null) {
                     mappedGrade = new Double(0);
                 }
-                gradeData[1] = FormatHelper.formatDoubleToDecimal(mappedGrade);
+                gradeData[1] = FormatHelper.formatGradeForDisplay(mappedGrade);
             } else {
                 if (courseGrade.getPointsEarned() == null) {
                     gradeData[1] = "0";
                 } else {
-                    gradeData[1] = courseGrade.getCalculatedGrade();
+                    gradeData[1] = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
                 }
             }
 

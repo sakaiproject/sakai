@@ -97,8 +97,8 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
             return new ArgumentErrorResponse("Grade not valid");
         }
 
-        final String oldGrade = FormatHelper.formatGrade(rawOldGrade);
-        final String newGrade = FormatHelper.formatGrade(rawNewGrade);
+        final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
+        final String newGrade = FormatHelper.formatGradeFromUserLocale(rawNewGrade);
 
         final String assignmentId = params.get("assignmentId").asText();
         final String studentUuid = params.get("studentId").asText();
