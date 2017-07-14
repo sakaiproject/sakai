@@ -241,13 +241,21 @@ public class GradebookNgBusinessService {
 	 * @return the gradebook for the site
 	 */
 	private Gradebook getGradebook(final String siteId) {
+		Gradebook gradebook = null;
 		try {
-			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
-			return gradebook;
+			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 		} catch (final GradebookNotFoundException e) {
-			log.error("No gradebook in site: " + siteId);
-			return null;
+			log.debug("Request made for inaccessible, adding gradebookUid=" + siteId);
+			this.gradebookFrameworkService.addGradebook(siteId,siteId);
+			try {
+				gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+			} catch (GradebookNotFoundException e2) {
+				log.error("Request made and could not add inaccessible gradebookUid=" + siteId);
+			}
 		}
+
+		log.error("No gradebook in site: " + siteId);
+		return gradebook;
 	}
 
 	/**
