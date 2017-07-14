@@ -35,13 +35,13 @@
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket</artifactId>
-                <version>${sakai.wicket.version}</version>
+                <version>6.26.0</version>
                 <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-spring</artifactId>
-                <version>${sakai.wicket.version}</version>
+                <version>6.26.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

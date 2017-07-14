@@ -312,7 +312,7 @@
                         } else if (key === 'secondsBetweenSaveciteRefreshes') {
                             citations_new_resource.secondsBetweenSaveciteRefreshes = value;
                         } else if ($.isArray(value)) {
-                            reportError('result for key ' + key + ' is an array: ' + value);
+                            reportError(key + value);
                         } else {
                             $('input[name=' + key + ']').val(value);
                         }

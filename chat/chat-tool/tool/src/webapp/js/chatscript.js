@@ -30,15 +30,15 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 	var msgTime = "";
 	if(window.display_date && window.display_time)
 	{
-		msgTime = " (" + pdate + " " + ptime + ") " ;
+		msgTime = " " + pdate + " " + ptime + " " ;
 	}
 	else if (window.display_date)
 	{
-		msgTime = " (" + pdate + ") " ;
+		msgTime = " " + pdate + " " ;
 	}
 	else if(window.display_time)
 	{
-		msgTime = " (" + ptime + ") " ;
+		msgTime = " " + ptime + " " ;
 	}
 	else if(window.display_id)
 	{
@@ -47,6 +47,8 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 
 
 	var newDiv = document.createElement('li');
+	newDiv.setAttribute("data-message-id", msgId);
+	newDiv.setAttribute("data-owner-id", uid);
 	var color = ColorMap[uid];
 	if(color == null)
 	{
@@ -65,14 +67,33 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 		var builtId = "topForm:chatList:" + newComponentId + ":deleteMessage";
 		var tmpdeleteUrl = deleteUrl + msgId;
 		deleteHtml =
-			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"location.href='" + tmpdeleteUrl + "'\" title=\"" + deleteMsg + "\" >" +
-			"<img src=\"/library/image/sakai/delete.gif\" style=\"margin-bottom:-2px;\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
+			" <a class=\"chatRemove\" id=\"" + builtId + "\" href=\"#\" onclick=\"location.href='" + tmpdeleteUrl + "'\" title=\"" + deleteMsg + "\" >" +
+			"<span class='fa fa-trash' aria-label='" + deleteMsg + "'></span></a>";
 	}
 
-	newDiv.innerHTML = '<span style="color: ' + color + '">' + uname + '</span>'
-		+ deleteHtml
-		+ '<span class="chatDate">' + msgTime + '</span>'
-		+ msg;
+	var isOnline = $("#presence").find("li:contains('" + uname + "')");
+	var lastMessageOwnerId = $("#topForm\\:chatList li:last-of-type").attr("data-owner-id");
+	if (lastMessageOwnerId == uid) {
+		newDiv.className = "prev";
+	}
+
+	var innerHTML = '<span class="chatUserAvatar" style="background-image: url(/direct/profile/' + uid +'/image)">' + 
+	'<span class="chatUserOnline ';
+	if (isOnline.size() > 0) {
+		innerHTML += 'is-online'
+	}
+	innerHTML += '"></span>' +
+	'</span> ' +
+	'<span class="chatNameDate">' + 
+		'<span class="chatName">' + uname + '</span>' +
+		'<span class="chatDate">' + msgTime + '</span>' +
+	'</span>' +
+	'<span class="chatMessage" data-message-id="' + msgId + '">' +
+		'<span class="chatMessageDate">' + msgTime + '</span>' +
+		'<span class="chatText">' + msg + '</span>' + deleteHtml +
+	'</span>';
+	newDiv.innerHTML = innerHTML;
+
 	transcript.appendChild(newDiv);
 
 	// adjust scroll
@@ -84,7 +105,8 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
     chat2_shownMessages++;
     updateShownText();
 
-}                           
+    scrollChat();
+}
 
 function updateShownText() {
     var countText = chat2_messageCountTemplate + '';
@@ -142,11 +164,13 @@ function addUser(user) {
 	var newChildren = sortChildren($("#presence")).children();
 	$("#presence").empty();
 	$("#presence").append(newChildren);
+	$(".chatNameDate:contains(" + user + ")").parent().find(".chatUserOnline").addClass("is-online");
     }
 }
 
 function delUser(user) {
     $("#presence").find("li:contains('" + user + "')").remove();
+	$(".chatNameDate:contains(" + user + ")").parent().find(".chatUserOnline").removeClass("is-online");
 }
 
 function updateUsers() {
@@ -158,13 +182,24 @@ function updateUsers() {
 		var newChildren = sortChildren($('<ul>' + data + '</ul>')).children();
 		$("#presence").empty();
 		$("#presence").append(newChildren);
+		for (var i=0; i<newChildren.length; i++) {
+			var userName = newChildren[i].innerText;	
+			$(".chatNameDate:contains(" + userName + ")").parent().find(".chatUserOnline").addClass("is-online");
+		}
     	    });
+}
+
+function scrollChat() {
+	// Scroll chat to last message
+	var scrollableChat = $("#chatListWrapper");
+	scrollableChat.scrollTop(scrollableChat.prop("scrollHeight"));
 }
 
 //Library to ajaxify the Chatroom message submit action
 	$(document).ready(function() {
 		updateShownText();
 		updateUsers();
+		scrollChat();
 
                 // the iframe has a src of roomUsers.
                 // in frameless situation that will be added to /portal/site ...

@@ -1,87 +1,62 @@
-<script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
 <div class="profile-popup">
     <table cols="2" class="profile-popup-table">
         <tr>
             <td class="profile-popup-icon-cell">
-                <div><a href="${profileUrl}" target="_blank" title="${i18n.profile_tooltip}"><span class="fa fa-user fa-3x" aria-hidden="true"></span></a></div>
-                <div>${i18n.profile}</div>
+                <a href="${profileUrl}" target="_blank" title="${i18n.profile_tooltip}">
+                    <span class="fa fa-user profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">${i18n.profile_label}</span>
+                </a>
             </td>
             <td class="profile-popup-icon-cell">
-                <div><a href="mailto:${email}" title="${i18n.email_tooltip}"><span class="fa fa-envelope fa-3x" aria-hidden="true"></span></a></div>
-                <div>${i18n.email}</div>
+                <a href="mailto:${email}" title="${i18n.email_tooltip}">
+                    <span class="fa fa-envelope profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">${i18n.email}</span>
+                </a>
             </td>
         </tr>
         <tr>
             <td class="profile-popup-icon-cell">
-                <div>
                 #if ($facebookUrl != "")
-                <a href="${facebookUrl}" target="_blank" title="${i18n.facebook_tooltip}"><span class="fa fa-facebook fa-3x" aria-hidden="true"></span></a>
+                <a href="${facebookUrl}" target="_blank" title="${i18n.facebook_tooltip}">
+                    <span class="fa fa-facebook profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">Facebook</span>
+                </a>
                 #else
-                <span class="fa fa-facebook fa-3x" title="${i18n.no_facebook_tooltip}"></span>
+                <span class="fa fa-facebook profile-popup-icon" title="${i18n.no_facebook_tooltip}"></span>
+                <span class="profile-popup-label" title="${i18n.no_facebook_tooltip}">Facebook</span>
                 #end
-                </div>
-                <div>Facebook</div>
             </td>
             <td class="profile-popup-icon-cell">
-                <div>
                 #if ($twitterUrl != "")
-                <a href="${twitterUrl}" target="_blank" title="${i18n.twitter_tooltip}"><span class="fa fa-twitter fa-3x" aria-hidden="true"></span></a>
+                <a href="${twitterUrl}" target="_blank" title="${i18n.twitter_tooltip}">
+                    <span class="fa fa-twitter profile-popup-icon" aria-hidden="true"></span>
+                    <span class="profile-popup-label">Twitter</span>
+                </a>
                 #else
-                <span class="fa fa-twitter fa-3x" title="${i18n.no_twitter_tooltip}"></span>
+                <span class="fa fa-twitter profile-popup-icon" title="${i18n.no_twitter_tooltip}"></span>
+                <span class="profile-popup-label" title="${i18n.no_twitter_tooltip}">Twitter</span>
                 #end
-                </div>
-                <div>Twitter</div>
-            </td>
-        </tr>
-
-        <tr id="profile-popup-connected-block-${connectionUserId}" #if (!${connected})style="display: none;"#end>
-            <td colspan="2">
-                <button class="profile-connection-button"
-                        title="${i18n.remove_tooltip}"
-                        onclick="return profile.removeFriend('${currentUserId}','${connectionUserId}');">
-                    ${i18n.remove}
-                </button>
-            </td>
-        </tr>
-
-        <tr id="profile-popup-requested-block-${connectionUserId}" #if (!${requested})style="display: none;"#end>
-            <td colspan="2">
-                <button class="profile-connection-button"
-                        title="${i18n.cancel_tooltip}"
-                        onclick="return profile.ignoreFriendRequest('${currentUserId}','${connectionUserId}');">
-                    ${i18n.cancel}
-                </button>
-            </td>
-        </tr>
-
-        <tr id="profile-popup-accept-block-${connectionUserId}" #if (!${incoming})style="display: none;"#end>
-            <td colspan="2">
-                <button class="profile-connection-button"
-                        title="${i18n.accept_tooltip}"
-                        onclick="return profile.confirmFriendRequest('${currentUserId}','${connectionUserId}');">
-                    ${i18n.accept}
-                </button>
-            </td>
-        </tr>
-
-        <tr id="profile-popup-ignore-block-${connectionUserId}" #if (!${incoming})style="display: none;"#end>
-            <td colspan="2">
-                <button class="profile-connection-button"
-                        title="${i18n.ignore_tooltip}"
-                        onclick="return profile.ignoreFriendRequest('${currentUserId}','${connectionUserId}');">
-                    ${i18n.ignore}
-                </button>
-            </td>
-        </tr>
-
-        <tr id="profile-popup-unconnected-block-${connectionUserId}" #if (!${unconnected})style="display: none;"#end>
-            <td colspan="2">
-                <button class="profile-connection-button"
-                        title="${i18n.connect_tooltip}"
-                        onclick="return profile.requestFriend('${currentUserId}','${connectionUserId}');">
-                    ${i18n.connect}
-                </button>
             </td>
         </tr>
     </table>
+
+    <button id="profile-popup-remove-button-${connectionUserId}" title="${i18n.remove_tooltip}" #if (!${connected})style="display: none;"#end>
+        ${i18n.remove}
+    </button>
+
+    <button id="profile-popup-cancel-button-${connectionUserId}" title="${i18n.cancel_tooltip}" #if (!${requested})style="display: none;"#end>
+        ${i18n.cancel}
+    </button>
+
+    <div id="profile-popup-incoming-block-${connectionUserId}" class="profile-popup-incoming-block" #if (!${incoming})style="display: none;"#end>
+        <button id="profile-popup-accept-button-${connectionUserId}" title="${i18n.accept_tooltip}" class="profile-popup-accept-button">
+            ${i18n.accept}
+        </button><button id="profile-popup-ignore-button-${connectionUserId}" title="${i18n.ignore_tooltip}">
+            ${i18n.ignore}
+        </button>
+    </div>
+
+    <button id="profile-popup-request-button-${connectionUserId}" title="${i18n.connect_tooltip}" #if (!${unconnected})style="display: none;"#end>
+        ${i18n.connect}
+    </button>
 </div>

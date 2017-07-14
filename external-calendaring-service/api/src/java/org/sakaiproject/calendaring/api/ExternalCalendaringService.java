@@ -113,6 +113,7 @@ public interface ExternalCalendaringService {
 	
 	/**
 	 * Creates an iCal calendar from a list of VEvents.
+	 * timeIsLocal is set to true so it returns a local timezone element
 	 * 
 	 * @param events iCal VEvents
 	 * @return the Calendar for the given events or null if there was an error
@@ -126,7 +127,7 @@ public interface ExternalCalendaringService {
 	 * @param method the ITIP method for the calendar, e.g. "REQUEST"
 	 * @return the Calendar for the given events or null if there was an error
 	 */
-	public Calendar createCalendar(List<VEvent> events, String method);
+	public Calendar createCalendar(List<VEvent> events, String method, boolean timeIsLocal);
 	
 	/**
 	 * Write an iCal calendar out to a file in the filesystem and return the path.

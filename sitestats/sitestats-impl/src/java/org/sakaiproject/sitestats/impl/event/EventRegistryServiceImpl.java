@@ -69,10 +69,10 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	private MemoryService				M_ms;
 	private ServerConfigurationService	M_scs;
 
-
 	// ################################################################
 	// Spring methods
 	// ################################################################
+	@Override
 	public void setStatsManager(StatsManager m_sm) {
 		M_sm = m_sm;
 	}

@@ -93,7 +93,8 @@
 		</script>
 		<script type="text/javascript" src="/library/js/spinner.js"></script>
 		
-      <h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
+		<span class="close-button fa fa-times" onClick="clearFormHiddenParams_msgForum('msgForum');SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
+		<h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
 			<h4>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
 				<h:outputText value=" #{msgs.cdfm_dash} " rendered="#{!empty ForumTool.selectedTopic}"/> 

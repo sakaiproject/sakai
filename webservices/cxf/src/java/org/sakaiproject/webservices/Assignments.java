@@ -411,8 +411,75 @@ public class Assignments extends AbstractWebService {
     	return "success";
     }
 
-    // This is a copy of the code in AssignmentAction.java
+    @WebMethod
+    @Path("/shiftAssignmentDates")
+    @Produces("text/plain")
+    @GET
+    public String shiftAssignmentDates(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "shiftDays", partName = "shiftDays") @QueryParam("shiftDays") int shiftDays,
+            @WebParam(name = "shiftHours", partName = "shiftHours") @QueryParam("shiftHours") int shiftHours,
+            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
 
+        try {
+    		Session s = establishSession(sessionId);
+    		AssignmentEdit assignment = assignmentService.editAssignment(assignmentId);
+    		LOG.debug("got assignment: " + assignment.getTitle());
+
+    		java.util.Calendar cal = java.util.Calendar.getInstance();
+
+    		cal.setTimeInMillis(assignment.getOpenTime().getTime());
+    		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
+    		cal.add(java.util.Calendar.HOUR, shiftHours);
+    		Time shiftedOpenDate = timeService.newTime(cal.getTimeInMillis());
+    		assignment.setOpenTime(shiftedOpenDate);
+
+    		cal.setTimeInMillis(assignment.getDueTime().getTime());
+    		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
+    		cal.add(java.util.Calendar.HOUR, shiftHours);
+    		Time shiftedDueDate = timeService.newTime(cal.getTimeInMillis());
+    		assignment.setDueTime(shiftedDueDate);
+
+    		cal.setTimeInMillis(assignment.getCloseTime().getTime());
+    		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
+    		cal.add(java.util.Calendar.HOUR, shiftHours);
+    		Time shiftedCloseDate = timeService.newTime(cal.getTimeInMillis());
+    		assignment.setCloseTime(shiftedCloseDate);
+
+    		cal.setTimeInMillis(assignment.getDropDeadTime().getTime());
+    		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
+    		cal.add(java.util.Calendar.HOUR, shiftHours);
+    		Time shiftedDropDeadDate = timeService.newTime(cal.getTimeInMillis());
+    		assignment.setDropDeadTime(shiftedDropDeadDate);
+
+    		cal.setTimeInMillis(assignment.getPeerAssessmentPeriod().getTime());
+    		cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
+    		cal.add(java.util.Calendar.HOUR, shiftHours);
+    		Time shiftedPeerAssessmentDate = timeService.newTime(cal.getTimeInMillis());
+    		assignment.setPeerAssessmentPeriod(shiftedPeerAssessmentDate);
+
+    		ResourcePropertiesEdit aPropertiesEdit = assignment.getPropertiesEdit();
+
+    		String resubmitCloseDateString = aPropertiesEdit.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+    		if (resubmitCloseDateString != null) {
+    			Date resubmitCloseDate = new Date(timeService.newTime(Long.parseLong(resubmitCloseDateString)).getTime());
+    			cal.setTime(resubmitCloseDate);
+    			cal.add(java.util.Calendar.DAY_OF_YEAR, shiftDays);
+    			cal.add(java.util.Calendar.HOUR, shiftHours);
+    			aPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(cal.getTimeInMillis()));
+    		}
+    		assignmentService.commitEdit(assignment);
+    		LOG.debug("edit committed");
+    	}
+    	catch (Exception e) {
+    		LOG.error("WS shiftAssignmentDates(): " + e.getClass().getName() + " : " + e.getMessage());
+    	
+    		return e.getClass().getName() + " : " + e.getMessage();
+    	}
+    	return "success";
+    }
+
+    // This is a copy of the code in AssignmentAction.java
     /**
      *
      * @param assignmentRef

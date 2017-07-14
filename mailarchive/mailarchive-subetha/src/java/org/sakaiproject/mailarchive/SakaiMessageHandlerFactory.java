@@ -36,6 +36,7 @@ import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
+import javax.mail.internet.ParseException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -175,7 +176,7 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
             public void recipient(String to) throws RejectException {
                 SplitEmailAddress address = SplitEmailAddress.parse(to);
 
-                if (serverConfigurationService.getServerName().equals(address.getDomain())) {
+                if (serverConfigurationService.getServerName().equalsIgnoreCase(address.getDomain())) {
                     // || serverConfigurationService.getServerNameAliases().contains(address.getDomain())) {
                     Recipient recipient = new Recipient();
                     recipient.address = address;
@@ -684,7 +685,12 @@ public class SakaiMessageHandlerFactory implements MessageHandlerFactory {
                 name = decodedName;
             }
 
-            ContentType cType = new ContentType(type);
+            ContentType cType = null;
+            try {
+            	cType = new ContentType(type);
+            } catch (ParseException e) {
+            	cType = new ContentType("application/octet-stream");
+            }
 
             if (name == null) {
                 name = "unknown";

@@ -23,10 +23,8 @@ package org.sakaiproject.portal.charon.test;
 
 import java.io.File;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import junit.framework.TestCase;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A unit test that performs a template render test, checking for XMTML
@@ -35,11 +33,9 @@ import junit.framework.TestCase;
  * 
  * @author ieb
  */
+@Slf4j
 public class PortalRenderTest extends TestCase
 {
-
-	private static final Logger log = LoggerFactory.getLogger(PortalRenderTest.class);
-
 	public static void main(String[] args)
 	{
 	}

@@ -349,7 +349,15 @@
 		<event eventId="sam.assessment.revise" selected="true"/>
 		<event eventId="sam.assessment.submit" selected="true"/>
 		<event eventId="sam.assessment.submit.via_url" selected="true"/>
+		<event eventId="sam.assessment.submit.checked" selected="true"/>
+		<event eventId="sam.assessment.submit.click_sub" selected="true"/>
+		<event eventId="sam.assessment.submit.auto" selected="true"/>
+		<event eventId="sam.assessment.submit.from_last" selected="true"/>
+		<event eventId="sam.assessment.submit.from_toc" selected="true"/>
+		<event eventId="sam.assessment.submit.thread" selected="true"/>
 		<event eventId="sam.assessment.submit.timer" selected="true"/>
+		<event eventId="sam.assessment.submit.timer.url" selected="true"/>
+		<event eventId="sam.assessment.submit.timer.thrd" selected="true"/>
 		<event eventId="sam.assessment.publish" selected="true"/>
 		<event eventId="sam.assessment.take" selected="true"/>
 		<event eventId="sam.assessment.take.via_url" selected="true"/>

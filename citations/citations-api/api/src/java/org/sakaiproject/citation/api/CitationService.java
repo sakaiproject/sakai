@@ -255,5 +255,24 @@ public interface CitationService extends EntityProducer
 	 * @param citationCollectionId
 	 */
 	public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
+
+	/**
+	 ** Gets a citation collection including nested and unnested citations
+	 * @param citationCollectionId
+	 */
+	public List<CitationCollectionOrder> getNestedCollectionAsList(String citationCollectionId);
+
+	/**
+	 ** Gets next id in citation collection order table for a collection
+	 * @param collectionId
+	 */
+	public String getNextCitationCollectionOrderId(String collectionId);
+	/**
+	 ** Gets a citation collection order
+	 * @param id
+	 * @param locationId
+	 */
+	public CitationCollectionOrder getCitationCollectionOrder(String id, int locationId);
+
 }	// interface CitationService
 

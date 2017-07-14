@@ -26,8 +26,8 @@ sakai.editor.enableResourceSearch = false;
 
 sakai.editor.editors.ckeditor = sakai.editor.editors.ckeditor || {} ;
 
-//get path of directory ckeditor 
-var basePath = "/library/editor/ckextraplugins/"; 
+//get path of directory ckeditor
+var basePath = "/library/editor/ckextraplugins/";
 var webJars = "/library/webjars/"
 
 // Please note that no more parameters should be added to this signature.
@@ -79,11 +79,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var country = sakai.locale && sakai.locale.userCountry || null;
 
     if (sakai.editor.editors.ckeditor.browser === "elfinder") {
-        // Flag for setting elfinder to build or source version
-        // Must be either 'src' or 'build'
-        var elfinderBuild = 'build';
-        var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild +
-            '.html?connector=elfinder-connector/elfinder-servlet/connector';
+        var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.html?connector=elfinder-connector/elfinder-servlet/connector';
 
         // Add tilde to userId in order to avoid permission error while getting resources from user workspace
         collectionId = collectionId.replace('/user/','/user/~');
@@ -135,6 +131,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         disableNativeSpellChecker: false,
         browserContextMenuOnCtrl: true,
 
+        // Fix the smileys to a single location
+        smiley_path: "/library/editor/ckeditor/plugins/smiley/images/",
+
         toolbar_Basic:
         [
             ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']
@@ -156,8 +155,15 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['AudioRecorder','Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ( sakai.editor.contentItemUrl
+                    ? ['ContentItem', 'AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                    : ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                  )
+		: ( sakai.editor.contentItemUrl
+                    ? ['ContentItem', 'AudioRecorder', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                    : ['AudioRecorder', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                  )
+            ),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -210,6 +216,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js');
             CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
             CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js');
             CKEDITOR.plugins.addExternal('sakaipreview',basePath+'sakaipreview/', 'plugin.js');
             //Autosave has a dependency on notification
@@ -235,7 +242,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //ckconfig.extraPlugins+="atd-ckeditor,";
             //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-            ckconfig.extraPlugins+="sakaipreview,image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,notification${ckeditor-a11y-extra-plugins}";
+            ckconfig.extraPlugins+="sakaipreview,image2,audiorecorder,contentitem,movieplayer,wordcount,fmath_formula,autosave,notification${ckeditor-a11y-extra-plugins}";
 
             // Load FontAwesome CSS in case a user wants to manually add FA markup
             ckconfig.contentsCss = [webJars+'fontawesome/4.7.0/css/font-awesome.min.css'];

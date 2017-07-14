@@ -72,7 +72,7 @@ function printView(url) {
 	#end
 
 	<div class="row">
-		<div class="col-md-8">
+		<div class="col-xs-12">
 
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignment.Reference) />
@@ -197,7 +197,7 @@ function printView(url) {
 			</div>
 		</div>
 		</div>
-		<div class="col-md-4">
+		<div class="col-lg-6 col-md-7 col-xs-12 pull-right">
 			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		</div>
 	</div>

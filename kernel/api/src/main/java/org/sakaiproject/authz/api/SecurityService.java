@@ -24,6 +24,7 @@ package org.sakaiproject.authz.api;
 import java.util.Collection;
 import java.util.List;
 
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -187,4 +188,20 @@ public interface SecurityService
 	 */
 	void clearUserEffectiveRoles();
 	
+	/**
+	 * Check if the current user is roleswapped in the current site (pass the site in the other version if current site cannot be
+	 * determind in this context)
+	 *
+	 * @return true if roleswapped, false if not.
+	 */
+	public boolean isUserRoleSwapped() throws IdUnusedException;
+
+	/**
+	 * Check if the current user is roleswapped
+	 *
+	 * @param siteId siteId to check
+	 * @return true if roleswapped, false if not.
+	 */
+	public boolean isUserRoleSwapped(String siteId) throws IdUnusedException;
+
 }

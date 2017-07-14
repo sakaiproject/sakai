@@ -3948,13 +3948,13 @@ public class SiteAction extends PagedResourceActionII {
 			SessionState state, Site site, boolean updateToolRegistration) {
 		List<Map<String, Object>> visibleTools, allTools;
 		String siteId = site == null? UUID.randomUUID().toString(): site.getId();
-		// get the visible and all (including stealthed) list of lti tools
-		visibleTools = m_ltiService.getTools(null,null,0,0, siteId);
+		// get the list of launchable tools - visible and including stealthed
+		visibleTools = m_ltiService.getToolsLaunch(siteId);
 		if (site == null) {
 			allTools = visibleTools;
 		} else {
 			// Get tools specfic for this site or that are available in all sites.
-			allTools = m_ltiService.getToolsDao(null, null, 0, 0, site.getId());
+			allTools = m_ltiService.getToolsLaunch(site.getId());
 		}
 		if (visibleTools != null && !visibleTools.isEmpty()) {
 			HashMap<String, Map<String, Object>> ltiTools = new HashMap<>();
@@ -6466,14 +6466,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List ltiTools = new ArrayList();
 		List<Map<String, Object>> allTools;
 		String siteId = "";
-		if ( site == null )
+		if ( site == null ) {
 			// We dont' have a site yet so just ask for all the available ones.
-			allTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
+			allTools = m_ltiService.getToolsLaunch(siteId);
+		}
 		else
 		{
 			siteId = Objects.toString(site.getId(), "");
-			allTools = m_ltiService.getToolsDao(null,null,0,0,siteId);
+			allTools = m_ltiService.getToolsLaunch(siteId);
 		}
+
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
@@ -13708,36 +13710,35 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param toContext
 	 *            The context to import into.
 	 */
-	protected Map transferCopyEntities(String toolId, String fromContext,
+	protected Map<String, String> transferCopyEntities(String toolId, String fromContext,
 			String toContext) {
 		// TODO: used to offer to resources first - why? still needed? -ggolden
 
-		Map transversalMap = new HashMap();
+		Map<String, String> transversalMap = new HashMap<>();
 
 		// offer to all EntityProducers
-		for (Iterator i = EntityManager.getEntityProducers().iterator(); i
-				.hasNext();) {
-			EntityProducer ep = (EntityProducer) i.next();
+		for (Object o : EntityManager.getEntityProducers()) {
+			EntityProducer ep = (EntityProducer) o;
 			if (ep instanceof EntityTransferrer) {
 				try {
 					EntityTransferrer et = (EntityTransferrer) ep;
 
 					// if this producer claims this tool id
 					if (ArrayUtil.contains(et.myToolIds(), toolId)) {
-						if(ep instanceof EntityTransferrerRefMigrator){
+						if (ep instanceof EntityTransferrerRefMigrator) {
 							EntityTransferrerRefMigrator etMp = (EntityTransferrerRefMigrator) ep;
-							Map<String,String> entityMap = etMp.transferCopyEntitiesRefMigrator(fromContext, toContext,
-									new Vector());
-							if(entityMap != null){							 
+							Map<String, String> entityMap = etMp.transferCopyEntitiesRefMigrator(fromContext, toContext,
+									new ArrayList<>());
+							if (entityMap != null) {
 								transversalMap.putAll(entityMap);
 							}
-						}else{
-							et.transferCopyEntities(fromContext, toContext,	new Vector());
+						} else {
+							et.transferCopyEntities(fromContext, toContext, new ArrayList<>());
 						}
 					}
 				} catch (Throwable t) {
 					M_log.error(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: "
-									+ fromContext + " to: " + toContext, t);
+							+ fromContext + " to: " + toContext, t);
 				}
 			}
 		}		
@@ -16038,20 +16039,20 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param siteId
 	 */
 	private boolean hasContent(String toolId, String siteId) {
-		
-		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();) {
-			EntityProducer ep = (EntityProducer) i.next();
-			
+
+		for (Object o : EntityManager.getEntityProducers()) {
+			EntityProducer ep = (EntityProducer) o;
+
 			if (ep instanceof EntityTransferrer) {
 				EntityTransferrer et = (EntityTransferrer) ep;
-				
+
 				if (ArrayUtils.contains(et.myToolIds(), toolId)) {
-					
-					if(ep instanceof ContentExistsAware){
+
+					if (ep instanceof ContentExistsAware) {
 						ContentExistsAware cea = (ContentExistsAware) ep;
 						M_log.debug("Checking tool content for site:" + siteId + ", tool: " + et.myToolIds());
 						return cea.hasContent(siteId);
-					} 
+					}
 				}
 			}
 		}

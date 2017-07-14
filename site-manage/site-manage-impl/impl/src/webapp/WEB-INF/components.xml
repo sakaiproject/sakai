@@ -97,6 +97,15 @@
     	<property name="databaseSourceKey"><value>S</value></property>
     </bean>
 
+	<bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.direct"
+		  parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+		  class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+		  init-method="init">
+		<property name="bundleLocation"><value>UserAuditService</value></property>
+		<property name="databaseSourceKey"><value>D</value></property>
+		<property name="hasParameters"><value>true</value></property>
+	</bean>
+
     <bean id="org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob"
         class="org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob"
         init-method="init">

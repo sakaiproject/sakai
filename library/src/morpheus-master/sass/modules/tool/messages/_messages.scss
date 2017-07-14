@@ -123,16 +123,15 @@
  		}
  	}
 	
-	.jsfFormTable {
+	.composeForm {
 	    position: relative;
 	    width: 100%;
-	    .shorttext{
+	    .row{
 	    	display: block;
 	    	margin-top: 10px;
 	    	margin-bottom: 10px;
-	    	@media #{$phone}{
-	    		margin-top: 0px;
-	    		margin-bottom: 0px;
+	    	&.bcc-row {
+	    		margin: 20px -15px 20px -15px;
 	    	}
 	    }
 	    .form-label{
@@ -148,8 +147,14 @@
 	        margin-left: 0px;
 	        margin-top: 4px;
 	    }
+	    .checkbox {
+	    	margin: 0;
+	    }
 	    & + h4 + table{
 	    	width: 100%;
+	    	table {
+	    		width: 100%;
+	    	}
 	    }
 	    @media #{$phone}{
 	    	.delete_selection{
@@ -158,28 +163,7 @@
 	    	}
 	    	.pvt_send_cc{
 	    		display: block;
-	    		margin: 1em 0 0 0;
 	    	}
-	    	td{
-	    		display: block;
-	    		padding: 0 0 0 0;
-	    		margin: 0 0 0 0;
-	    		input{
-	    			max-width: 100% !important;
-	    		}
-	    		label{
-	    			margin: 5px 0 5px 0;
-	    		}
-	    		.radio input[type="radio"], .radio-inline input[type="radio"], .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"] {
-	    			margin-left: -2px;
-	    			margin-top: 9px;
-	    		}
-	    	}
-	    	/*tr, tr *{
-	    		&:empty{
-	    			display: none;
-	    		}
-	    	}*/
 	    }
 	}
 

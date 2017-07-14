@@ -30,9 +30,7 @@ import java.util.Map;
 
 import javax.portlet.PortletMode;
 import javax.portlet.WindowState;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ddwolf
@@ -40,11 +38,9 @@ import org.slf4j.LoggerFactory;
  * @since Sakai 2.4
  * @version $Rev$
  */
+@Slf4j
 public class PortletState implements Serializable
 {
-
-	private static final Logger LOG = LoggerFactory.getLogger(PortletState.class);
-
 	//
 	// Session Scoped State
 	//
@@ -227,10 +223,7 @@ public class PortletState implements Serializable
 
 	private void writeObject(ObjectOutputStream out) throws IOException
 	{
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Serializing PortletState [action=" + action + "]");
-		}
+		log.debug("Serializing PortletState [action={}]", action);
 
 		out.writeObject(id);
 		out.writeBoolean(action);
@@ -251,10 +244,7 @@ public class PortletState implements Serializable
 		portletMode = new PortletMode(in.readObject().toString());
 		windowState = new WindowState(in.readObject().toString());
 
-		if (LOG.isDebugEnabled())
-		{
-			LOG.debug("Deserializing PortletState [action=" + action + "]");
-		}
+		log.debug("Deserializing PortletState [action={}]", action);
 
 	}
 }

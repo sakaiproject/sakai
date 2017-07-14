@@ -22,9 +22,9 @@ package org.sakaiproject.component.section;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.sakaiproject.section.api.coursemanagement.LearningContext;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -38,6 +38,7 @@ import org.sakaiproject.section.api.coursemanagement.User;
 public abstract class ParticipationRecordImpl extends AbstractPersistentObject
 	implements ParticipationRecord, Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	protected User user;
 	protected LearningContext learningContext;
 

@@ -90,11 +90,11 @@ public interface ExternalCalendarSubscriptionService
 	 * Get list of available institutional calendar subscriptions for a given
 	 * Calendar channel
 	 */
-	public Set<ExternalSubscription> getAvailableInstitutionalSubscriptionsForChannel(
+	public Set<ExternalSubscriptionDetails> getAvailableInstitutionalSubscriptionsForChannel(
 			String reference);
 
 	/** Get list of calendar subscriptions for a given Calendar channel */
-	public Set<ExternalSubscription> getSubscriptionsForChannel(String reference,
+	public Set<ExternalSubscriptionDetails> getSubscriptionsForChannel(String reference,
 			boolean loadCalendar);
 
 	/** Set list of calendar subscriptions for a given Calendar channel */

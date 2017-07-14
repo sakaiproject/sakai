@@ -75,6 +75,12 @@
             <param-name>applicationClassName</param-name>
             <param-value>org.sakaiproject.oauth.tool.admin.OauthAdminApplication</param-value>
         </init-param>
+        <!-- This gets the initial URL to the tool that doesn't include a trailing slash redirected to
+             the same URL with a trailing slash. Seems like a bit of a quirk, but it works. -->
+        <init-param>
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

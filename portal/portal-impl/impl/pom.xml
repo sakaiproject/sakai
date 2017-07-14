@@ -66,6 +66,10 @@
                 <artifactId>profile2-api</artifactId>
         </dependency>
         <dependency>
+                <groupId>org.sakaiproject.search</groupId>
+                <artifactId>search-api</artifactId>
+        </dependency>
+        <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
         </dependency>
@@ -76,6 +80,11 @@
         <dependency>
             <groupId>org.sakaiproject.pasystem</groupId>
             <artifactId>pasystem-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

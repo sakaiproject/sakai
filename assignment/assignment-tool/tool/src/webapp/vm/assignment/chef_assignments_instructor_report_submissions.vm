@@ -12,7 +12,8 @@
 		</h1>
 	</div>
 
-		<div class="viewNav">
+	<div class="navPanel row">
+		<div class="viewNav col-xs-12">
 			#if (!$hasAtLeastOneAnonAssignment)
 			<form id="viewForm" name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="option" id="option" value="x" />
@@ -63,8 +64,11 @@
 
 
 		</div>
+		<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
 			#paginator( $topMsgPos $btmMsgPos $allMsgNumber $pagesize $goFPButton $goPPButton $goNPButton $goLPButton $sakai_csrf_token $pagesizes )
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
+		</div>
+	</div>
 		<form name="reportForm" action="#toolForm("AssignmentAction")" method="post">
 			#if ($submissions.size()==0)
 				<p class="instruction">

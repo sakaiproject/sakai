@@ -13,7 +13,6 @@
 	<bean class="org.sakaiproject.tool.assessment.rsf.producers.BeginAssessmentProducer">
 		<property name="httpServletRequest" ref="httpServletRequest" />
 		<property name="httpServletResponse" ref="httpServletResponse" />
-		<property name="messageLocator" ref="messageLocator"/>
 	</bean>
 
 </beans>

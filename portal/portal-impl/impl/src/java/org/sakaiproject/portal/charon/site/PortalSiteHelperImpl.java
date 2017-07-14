@@ -38,8 +38,6 @@ import java.util.Properties;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -82,12 +80,15 @@ import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
  */
 @SuppressWarnings("deprecation")
+@Slf4j
 public class PortalSiteHelperImpl implements PortalSiteHelper
 {
 	// namespace for sakai icons see _icons.scss
@@ -95,8 +96,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	// Alias prefix for page aliases. Use Entity.SEPARATOR as IDs shouldn't contain it.
 	private static final String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
-
-	private static final Logger log = LoggerFactory.getLogger(PortalSiteHelper.class);
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
@@ -311,8 +310,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			{
 				ResourceProperties rp = s.getProperties();
 				String ourParent = rp.getProperty(PROP_PARENT_ID);
-				// System.out.println("Depth Site:"+s.getTitle()+
-				// "parent="+ourParent);
+				log.debug("Depth Site:{} parent={}", s.getTitle(), ourParent);
 				if (ourParent != null)
 				{
 					Integer pDepth = depthChart.get(ourParent);
@@ -322,7 +320,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					}
 				}
 				depthChart.put(s.getId(), cDepth);
-				// System.out.println("Depth = "+cDepth);
+				log.debug("Depth = {}", cDepth);
 			}
 
 			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
@@ -445,6 +443,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(currentSiteId) || effectiveSite
 						.equals(currentSiteId));
 		m.put("isCurrentSite", Boolean.valueOf(isCurrentSite));
+		m.put("isPublished", s.isPublished());
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
@@ -489,8 +488,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				for (int i = 0; i < pwd.size() - 1; i++)
 				{
 					Site site = pwd.get(i);
-					// System.out.println("PWD["+i+"]="+site.getId()+"
-					// "+site.getTitle());
+					log.debug("PWD[{}]={}{}", i, site.getId(), site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
 					List<String> providers = getProviderIDsForSite(site);
 					pm.put("siteTitle", getUserSpecificSiteTitle(site, false, true, providers));
@@ -534,8 +532,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		if (ourParent == null) return null;
 
-		// System.out.println("Getting Current Working Directory for
-		// "+s.getId()+" "+s.getTitle());
+		log.debug("Getting Current Working Directory for {} {}", s.getId(), s.getTitle());
 
 		int depth = 0;
 		Vector<Site> pwd = new Vector<Site>();
@@ -561,8 +558,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// We have no patience with loops
 			if (added.contains(site.getId())) break;
 
-			// System.out.println("Adding Parent "+site.getId()+"
-			// "+site.getTitle());
+			log.debug("Adding Parent {} {}", site.getId(), site.getTitle());
 			pwd.insertElementAt(site, 0); // Push down stack
 			added.add(site.getId());
 
@@ -715,7 +711,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 				if ( ! siteUpdate ) addMoreToolsUrl = null;
 
-				if ( ! ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false) ) addMoreToolsUrl = null;
+				boolean legacyAddMoreToolsPropertyValue = ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false);
+				if ( ! ServerConfigurationService.getBoolean("portal.addmoretools.enable", legacyAddMoreToolsPropertyValue) ) addMoreToolsUrl = null;
 
 				String pagePopupUrl = Web.returnUrl(req, "/page/");
 				
@@ -1290,10 +1287,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 			catch (IdUnusedException e)
 			{
-				if (log.isDebugEnabled())
-				{
-					log.debug("Alias does not resolve " + e.getMessage());
-				}
+				log.debug("Alias does not resolve {}", e.getMessage());
 			}
 		}
 		return page;

@@ -22,7 +22,7 @@ package org.sakaiproject.component.section.sakai;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.section.api.coursemanagement.Course;

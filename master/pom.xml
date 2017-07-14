@@ -113,17 +113,16 @@
     <sakai.spring.test.version>4.3.6.RELEASE</sakai.spring.test.version>
     <sakai.tika.version>1.14</sakai.tika.version>
     <sakai.tomcat.version>8.0.41</sakai.tomcat.version>
-    <sakai.wicket.version>6.16.0</sakai.wicket.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
-    <sakai.poi.version>3.15</sakai.poi.version>
+    <sakai.poi.version>3.16</sakai.poi.version>
     <sakai.mockito.version>2.7.22</sakai.mockito.version>
     <sakai.powermock.version>1.7.0RC4</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <joda.time.version>2.9.7</joda.time.version>
+    <joda.time.version>2.9.9</joda.time.version>
     <jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
     <sakai.genericdao.version>0.11.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
@@ -268,6 +267,28 @@
         <random-source>-Djava.security.egd=file:/dev/./urandom</random-source>
       </properties>
     </profile>
+    <profile>
+        <id>snapshots</id>
+        <activation>
+            <activeByDefault>false</activeByDefault>
+            <property>
+                <name>snapshots</name>
+            </property>
+        </activation>
+        <repositories>
+            <repository>
+                <id>sonatype-nexus-snapshots</id>
+                <name>Sonatype Nexus Snapshots</name>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                <releases>
+                    <enabled>false</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </repository>
+        </repositories>
+    </profile>
   </profiles>
 
   <pluginRepositories>
@@ -304,17 +325,6 @@
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
-    </repository>
-    <repository>
-        <id>sonatype-nexus-snapshots</id>
-        <name>Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
     </repository>
     <repository>
       <id>sakai-maven</id>
@@ -1735,13 +1745,13 @@
       <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.40</version>
+          <version>5.1.42</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.5.8</version>
+          <version>2.0.2</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1865,7 +1875,7 @@
         <plugin>
           <groupId>org.sakaiproject.maven.plugins</groupId>
           <artifactId>sakai</artifactId>
-          <version>1.4.3</version>
+          <version>1.4.4</version>
         </plugin>
         <!-- OTHER maven plugins -->
         <plugin>

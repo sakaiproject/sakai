@@ -1,3 +1,6 @@
+-- SAM-3016
+ALTER TABLE SAM_EVENTLOG_T ADD IPADDRESS varchar(99);
+
 -- SAK-30207
 CREATE TABLE IF NOT EXISTS CONTENTREVIEW_ITEM (
     ID                  BIGINT NOT NULL AUTO_INCREMENT,
@@ -430,7 +433,7 @@ drop table lti_mapping;
 UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit' WHERE EVENT = 'sam.assessmentSubmitted';
 UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.graded.auto' WHERE EVENT = 'sam.assessmentAutoGraded';
 UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.auto"' WHERE EVENT = 'sam.assessmentAutoSubmitted';
-UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.thread' WHERE EVENT = 'sam.assessmentTimedSubmitted';
+UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.thrd' WHERE EVENT = 'sam.assessmentTimedSubmitted';
 UPDATE SAKAI_EVENT SET EVENT = 'sam.pubassessment.remove' WHERE EVENT = 'sam.pubAssessment.remove';
 
 -- Update name of submission events

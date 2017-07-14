@@ -6,8 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -20,11 +18,11 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class RoleSwitchHandler extends BasePortalHandler
 {
-	private static final Logger log = LoggerFactory.getLogger(RoleSwitchHandler.class);
-
 	private static final String URL_FRAGMENT = "role-switch";
 	public static final String EVENT_ROLESWAP_START = "roleswap.start";
 

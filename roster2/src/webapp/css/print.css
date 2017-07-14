@@ -28,6 +28,7 @@
 
 .roster-table-row {
     display: table-row;
+    page-break-inside: avoid;
 }
 
 .roster-table-cell {
@@ -36,12 +37,25 @@
     white-space: nowrap;
 }
 
+.roster-member {
+    page-break-inside: avoid;
+}
+
 .roster-member:nth-child(odd) {
     background: #F8F8F8;
 }
 
-.roster-picture .roster-pictureview-picture {
-    width: 60px;
+.roster-picture {
+    width: 80px;
+    min-height: 60px;
+    max-height: 140px;
+    padding: 5px 0px 5px 5px;
+}
+
+.roster-pictureview-picture img {
+    width: 150px;
+    min-height: 100px;
+    max-height: 150px;
     padding: 5px 0px 5px 5px;
 }
 

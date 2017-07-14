@@ -575,7 +575,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			            || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
 						|| imagQuestionMap.get(oldItem.getPublishedItemId())!=null
 			            || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
-			        String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
+			        String newAnswerText = newItem.getAnswerText();
 			        oldItem.setReview(newItem.getReview());
 			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
 			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
@@ -738,7 +738,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					break;
 				} else if (itemgrading.getAnswerText() != null && !itemgrading.getAnswerText().equals("")) {
 					// Change to allow student submissions in rich-text [SAK-17021]
-					itemgrading.setAnswerText(ContextUtil.stringWYSIWYG(itemgrading.getAnswerText()));
+					itemgrading.setAnswerText(itemgrading.getAnswerText());
 					adds.addAll(grading);
 					break;
 				}
@@ -764,7 +764,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					String s = itemgrading.getAnswerText();
 					log.debug("s = " + s);
 					// Change to allow student submissions in rich-text [SAK-17021]
-					itemgrading.setAnswerText(ContextUtil.stringWYSIWYG(s));
+					itemgrading.setAnswerText(s);
 					adds.addAll(grading);
 					if (!addedToAdds) {
 						adds.addAll(grading);

@@ -78,6 +78,7 @@
 		<property name="securityService" ><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
 		<property name="serverConfigurationService" ><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
 		<property name="sessionManager" ><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+		<property name="simplePageToolDao" ><ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" /></property>
 		<property name="siteService" ><ref bean="org.sakaiproject.site.api.SiteService" /></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
 	</bean>

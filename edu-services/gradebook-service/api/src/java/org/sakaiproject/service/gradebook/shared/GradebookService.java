@@ -222,6 +222,23 @@ public interface GradebookService {
 	@Deprecated
 	public Assignment getAssignment(String gradebookUid, String assignmentName)
 		throws AssessmentNotFoundException;
+	
+	/**
+	 * Get an assignment based on its name or id.
+	 * This is intended as a migration path from the deprecated {@link #getAssignment(String,String)}
+	 * to the new {@link #getAssignment(String,Long)}
+	 * 
+	 * This method will attempt to lookup the name as provided then fall back to the ID as a Long (If it is a Long)
+	 * You should use {@link #getAssignment(String,Long)} if you always can use the Long instead.
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @return the associated Assignment with the given name
+	 * @throws AssessmentNotFoundException
+	 *
+	 */
+	public Assignment getAssignmentByNameOrId(String gradebookUid, String assignmentName) 
+			throws AssessmentNotFoundException;
 
 	/**
 	 * 
@@ -694,6 +711,24 @@ public interface GradebookService {
 	 */
 	@Deprecated
 	public String getAssignmentScoreString(String gradebookUid, String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	
+	/**
+	 * Get student's assignment's score as string.
+	 * 
+	 * This is intended as a migration path from the deprecated {@link #getAssignmentScoreString(String,String)}
+	 * to the new {@link #getAssignmentScoreString(String,Long)}
+	 * 
+	 * This method will attempt to lookup the name as provided then fallback to the ID as a Long (If it is a Long)
+	 * You should use {@link #getAssignmentScoreString(String,Long)} if you always can use the Long instead.
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @return String of score
+	 */
+	public String getAssignmentScoreStringByNameOrId(String gradebookUid, String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 	
 	/**

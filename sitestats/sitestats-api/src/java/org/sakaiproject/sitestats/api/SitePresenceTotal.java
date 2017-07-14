@@ -27,6 +27,12 @@ public interface SitePresenceTotal {
 
     public void incrementTotalVisits();
 
+    /**
+     * This increments the visits and updates the last visit time from the passed presence.
+     * @param sp The SitePresence to update from.
+     */
+    public void updateFrom(SitePresence sp);
+
     public long getId();
     public void setId(long id);
     public String getUserId();

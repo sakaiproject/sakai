@@ -41,9 +41,10 @@
 
     <!-- Transaction manager from the SessionFactory --> 
     <bean id="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"
-        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="javax.sql.DataSource"/>
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
+
     <bean abstract="true" id="sstTxTemplate"
         class="org.springframework.orm.hibernate4.support.HibernateDaoSupport">
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />

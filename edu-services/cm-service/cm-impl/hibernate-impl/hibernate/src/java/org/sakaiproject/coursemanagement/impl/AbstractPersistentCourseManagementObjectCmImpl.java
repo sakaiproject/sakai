@@ -25,6 +25,8 @@ import java.util.Date;
 
 public abstract class AbstractPersistentCourseManagementObjectCmImpl implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String AUTHORITY = "Sakai";
 	
 	/**

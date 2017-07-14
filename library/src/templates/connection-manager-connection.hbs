@@ -1,0 +1,60 @@
+<div id="connection-manager-connection-{{uuid}}" class="connection-manager-connection-{{uuid}} connection-manager-connection{{#if moreResult}} connection-manager-more-result{{/if}}">
+    <div class="connection-manager-connection-content">
+        <div class="connection-manager-connection-picture-wrapper">
+            <span class="connection-manager-connection-picture connection-manager" style="background-image:url(/direct/profile/{{uuid}}/image/thumb)" tabindex="-1" data-user-id="{{uuid}}"></span>
+        </div>
+        <div class="connection-manager-connection-name-wrapper">
+            <div class="connection-manager-connection-name" data-user-id="{{uuid}}" title="{{displayName}}">{{displayName}}</div>
+            <div class="connection-manager-connection-socialmedia" data-user-id="{{uuid}}">
+                <a href="{{profileUrl}}" target="_blank" title="{{tr 'connection-manager' 'profile_tooltip'}}">
+                    <span class="fa fa-user connection-manager-social-icon" aria-hidden="true"></span>
+                </a>
+                <a href="mailto:{{email}}" title="{{tr 'connection-manager' 'email_tooltip'}}">
+                    <span class="fa fa-envelope connection-manager-social-icon" aria-hidden="true"></span>
+                </a>
+                {{#if facebookSet}}
+                <a href="{{socialNetworkingInfo.facebookUrl}}" target="_blank" title="{{tr 'connection-manager' 'facebook_tooltip'}}">
+                    <span class="fa fa-facebook connection-manager-social-icon" aria-hidden="true"></span>
+                </a>
+                {{else}}
+                <span class="fa fa-facebook connection-manager-social-icon inactive" title="{{tr 'connection-manager' 'no_facebook_tooltip'}}"></span>
+                {{/if}}
+                {{#if twitterSet}}
+                <a href="{{socialNetworkingInfo.twitterUrl}}" target="_blank" title="{{tr 'connection-manager' 'twitter_tooltip'}}">
+                    <span class="fa fa-twitter connection-manager-social-icon" aria-hidden="true"></span>
+                </a>
+                {{else}}
+                <span class="fa fa-twitter connection-manager-social-icon inactive" title="{{tr 'connection-manager' 'no_twitter_tooltip'}}"></span>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    <div class="connection-manager-connection-buttons">
+        <button id="connection-manager-remove-button-{{uuid}}" class="connection-manager-remove-button"
+                data-user-id="{{uuid}}" data-display-name="{{displayName}}"
+                {{#unless connected}}style="display: none;"{{/unless}}>
+            {{tr 'connection-manager' 'connection_manager_remove'}}
+        </button>
+
+        <button id="connection-manager-cancel-button-{{uuid}}" class="connection-manager-cancel-button"
+                data-user-id="{{uuid}}" data-display-name="{{displayName}}"
+                {{#unless outgoing}}style="display: none;"{{/unless}}>
+            {{tr 'connection-manager' 'connection_manager_cancel'}}
+        </button>
+
+        <div id="connection-manager-incoming-block-{{uuid}}" class="connection-manager-incoming-block" {{#unless incoming}}style="display: none;"{{/unless}}>
+            <button id="connection-manager-accept-button-{{uuid}}" class="connection-manager-accept-button"
+                data-user-id="{{uuid}}" data-display-name="{{displayName}}">
+                {{tr 'connection-manager' 'connection_manager_accept'}}
+            </button><button id="connection-manager-ignore-button-{{uuid}}" class="connection-manager-ignore-button"
+                data-user-id="{{uuid}}" data-display-name="{{displayName}}">
+                {{tr 'connection-manager' 'connection_manager_ignore'}}
+            </button>
+        </div>
+
+        <button id="connection-manager-connect-button-{{uuid}}" class="connection-manager-connect-button"
+                data-user-id="{{uuid}}" data-display-name="{{displayName}}" {{#if hideConnect}}style="display: none;"{{/if}}>
+            {{tr 'connection-manager' 'connection_manager_connect'}}
+        </button>
+    </div>
+</div>

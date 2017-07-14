@@ -45,7 +45,7 @@ import org.sakaiproject.authz.api.*;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
-import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
+import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCopy;
@@ -108,7 +108,7 @@ import java.util.Map.Entry;
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator
+public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator, Observer
 {
 	/** Our logger. */
 	private static Logger M_log = LoggerFactory.getLogger(BaseCalendarService.class);
@@ -135,6 +135,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    private ResourceLoader rb = new ResourceLoader("calendar");
    
    private ContentHostingService contentHostingService;
+
+   private ExternalCalendarSubscriptionService externalCalendarSubscriptionService;
    
 	private GroupComparator groupComparator = new GroupComparator();
 	
@@ -142,7 +144,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	public static final String SAKAI = "Sakai";
 	
-	private Cache cache = null;
+	private Cache<String, Calendar> cache = null;
 	
 	/**
 	 * Access this service from the inner classes.
@@ -659,6 +661,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		this.contentCopy = contentCopy;
 	}
 	
+	public void setExternalCalendarSubscriptionService(ExternalCalendarSubscriptionService externalCalendarSubscriptionService) {
+		this.externalCalendarSubscriptionService = externalCalendarSubscriptionService;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -712,6 +718,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
 		cacheConfig.setStatisticsEnabled(true);
 		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
+
+		m_eventTrackingService.addObserver(this);
 	}
 
 	/**
@@ -817,7 +825,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		Reference _ref = m_entityManager.newReference(ref);
 		if(REF_TYPE_CALENDAR_SUBSCRIPTION.equals(_ref.getSubType())) {
-			Calendar c = ExternalCalendarSubscriptionService.getCalendarSubscription(ref);			
+			Calendar c = externalCalendarSubscriptionService.getCalendarSubscription(ref);
 			if (c == null) throw new IdUnusedException(ref);
 			return c;
 		}
@@ -2186,6 +2194,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	protected void disableSchedule(String context)
 	{
 		// TODO: currently we do not remove a calendar when the tool is removed from the site or the site is deleted -ggolden
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof Event) {
+			Event event = (Event) arg;
+			if (EVENT_MODIFY_CALENDAR.equals(event.getEvent())) {
+				cache.remove(event.getResource());
+			}
+		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -7469,7 +7487,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		
 		// add external calendar subscriptions
 		List referenceList = mergedCalendarList.getReferenceList();
-		Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
+		Set subscriptionRefList = externalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
 		referenceList.addAll(subscriptionRefList);
 		
 		return referenceList;

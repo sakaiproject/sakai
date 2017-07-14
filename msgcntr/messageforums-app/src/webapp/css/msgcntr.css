@@ -533,7 +533,7 @@ form{margin-bottom:0;}
 	padding-right: .25em;
 	padding-bottom: .3em;
 }
-.listHier .authorImage img{	
+.authorImage img{	
 	max-width: 8em;
 	max-height: 5em;
 }
@@ -673,4 +673,11 @@ div.msgcntr-profile-qtip {
 
 #synopticForm\:myWorkspaceUnread\:myWorkspaceTable .siteHeader{
 	width:60%;
+}
+
+/* Styles for modal */
+.close-button {
+	float: right;
+	cursor: pointer;
+	font-size: 20px !important;
 }

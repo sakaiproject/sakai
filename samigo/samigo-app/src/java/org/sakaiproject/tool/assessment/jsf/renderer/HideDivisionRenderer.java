@@ -109,8 +109,8 @@ public class HideDivisionRenderer extends Renderer
         String contextPath = context.getExternalContext()
           .getRequestContextPath();
 
-        writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
-        writer.write("<a href=\"#\""+ " class=\"jqueryui-hideDivision\">");
+        writer.write("<" + BARTAG + " id=\"__hide_division_" + id + "_container\" class=\"" + BARSTYLE + "\">");
+        writer.write("<a href=\"#__hide_division_" + id + "_container\" class=\"jqueryui-hideDivision\">");
         writer.write("  " + title + "");
         writer.write("</a></"+ BARTAG + ">");
         writer.write("<div id=\"__hide_division_" + id + "\">");

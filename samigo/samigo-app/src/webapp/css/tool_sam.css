@@ -497,7 +497,7 @@ a.hideDivision {
 	float:unset;
 	font-weight: bold;
 }
-.mcAnswerText span {
+.mcAnswerText label {
 	font-weight: normal;
 }
 /* Someone put a paragraph in a multiple choice answer */

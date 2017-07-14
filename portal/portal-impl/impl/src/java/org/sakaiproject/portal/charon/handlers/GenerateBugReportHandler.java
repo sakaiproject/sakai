@@ -2,16 +2,15 @@ package org.sakaiproject.portal.charon.handlers;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.authz.cover.SecurityService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class GenerateBugReportHandler extends BasePortalHandler
 {
 	private static final String URL_FRAGMENT = "generatebugreport";
-	private static final Logger log = LoggerFactory.getLogger(GenerateBugReportHandler.class);
 
 	public GenerateBugReportHandler()
 	{

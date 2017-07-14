@@ -22,7 +22,7 @@ package org.sakaiproject.component.section;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Base class for most of the hibernate-persisted classes in this implementation.

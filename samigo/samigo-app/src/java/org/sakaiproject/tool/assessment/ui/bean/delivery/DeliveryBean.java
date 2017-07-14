@@ -1678,6 +1678,10 @@ public class DeliveryBean
 	 	      eventLogData.setEclipseTime(null);
 	 	      eventLogData.setErrorMsg(eventLogMessages.getString("error_take"));
 	 	  }
+		  		  	
+		  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+		  eventLogData.setIpAddress(thisIp);
+		  		  
 	 	  eventLogFacade.setData(eventLogData);
 	 	  eventService.saveOrUpdateEventLog(eventLogFacade);
 	  }
@@ -1707,6 +1711,10 @@ public class DeliveryBean
 			  eventLogData= (EventLogData) eventLogDataList.get(0);
 			  eventLogData.setErrorMsg(eventLogMessages.getString("error_submit"));
 			  eventLogData.setEndDate(new Date());
+			  			  
+			  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+			  eventLogData.setIpAddress(thisIp);
+		  	  			  
 			  eventLogFacade.setData(eventLogData);
 			  eventService.saveOrUpdateEventLog(eventLogFacade);
 		  } 
@@ -2283,7 +2291,11 @@ public class DeliveryBean
 		 if(eventLogDataList != null && eventLogDataList.size() > 0) {
 			 eventLogData= (EventLogData) eventLogDataList.get(0);
 			 eventLogData.setErrorMsg(eventLogMessages.getString("error_access"));
-		 } 
+		 }
+		 
+		 String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+		 eventLogData.setIpAddress(thisIp);
+		 
 		 eventLogFacade.setData(eventLogData);
 		 eventService.saveOrUpdateEventLog(eventLogFacade);
       return "accessError";
@@ -2316,6 +2328,10 @@ public class DeliveryBean
 	  eventLogData.setEndDate(null);
 	  eventLogData.setEclipseTime(null);
 	  eventLogData.setErrorMsg(eventLogMessages.getString(errorMsg));
+	  	  
+	  String thisIp = ( (javax.servlet.http.HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
+	  eventLogData.setIpAddress(thisIp);
+	  	  
 	  eventLogFacade.setData(eventLogData);    
 	  eventService.saveOrUpdateEventLog(eventLogFacade);        	
   }

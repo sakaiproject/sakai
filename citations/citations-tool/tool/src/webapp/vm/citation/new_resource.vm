@@ -39,6 +39,8 @@
     </div>
     <div id="messageValidation" class="messageValidation" style="display:none">
     </div>
+    <div id="messageError" class="messageError" style="display:none; height: 6.3em;">
+    </div>
 	<h3>
 		#if($resourceAdd)
 			$tlang.getString("resource.new")

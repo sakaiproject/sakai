@@ -46,7 +46,7 @@ public class FormattedText {
     protected static org.sakaiproject.util.api.FormattedText getFormattedText() {
         if (formattedText == null) {
             synchronized (LOCK) {
-                org.sakaiproject.util.api.FormattedText component = (org.sakaiproject.util.api.FormattedText) ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
+                org.sakaiproject.util.api.FormattedText component = ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
                 if (component == null) {
                     log.warn("Unable to find the FormattedText using the ComponentManager (this is OK if this is a unit test)");
                     // we will just make a new mock one each time but we will also keep trying to find one in the CM

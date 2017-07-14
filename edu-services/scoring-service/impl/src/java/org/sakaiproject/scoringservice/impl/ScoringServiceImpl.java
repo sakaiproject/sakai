@@ -1,21 +1,25 @@
 package org.sakaiproject.scoringservice.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.sakaiproject.scoringservice.api.ScoringAgent;
 import org.sakaiproject.scoringservice.api.ScoringComponent;
 import org.sakaiproject.scoringservice.api.ScoringService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.OrderComparator;
-
-import java.util.*;
 
 /**
  * Sakai's implementation of the ScoringService.  Keeps an in memory
  * list of ScoringAgents, and delegates calls to the agents as necessary.
  */
 public class ScoringServiceImpl implements ScoringService {
-    private Map<String, ScoringAgent> scoringAgentMap = new HashMap();
-    private ArrayList sortedScoringAgents = new ArrayList();
+    private Map<String, ScoringAgent> scoringAgentMap = new HashMap<>();
+    private List<ScoringAgent> sortedScoringAgents = new ArrayList<>();
     private ScoringAgent defaultScoringAgent;
 
     private static final Logger log = LoggerFactory.getLogger(ScoringServiceImpl.class);
@@ -31,7 +35,7 @@ public class ScoringServiceImpl implements ScoringService {
             throw new RuntimeException("the scoring agentId is null");
         }
         scoringAgentMap.put(agent.getAgentId(), agent);
-        sortedScoringAgents = new ArrayList(scoringAgentMap.values());
+        sortedScoringAgents = new ArrayList<ScoringAgent>(scoringAgentMap.values());
         Collections.sort(sortedScoringAgents, new OrderComparator());
 
         if (isDefault) {
@@ -48,7 +52,7 @@ public class ScoringServiceImpl implements ScoringService {
             throw new RuntimeException("the scoring agentId is null");
         }
         scoringAgentMap.put(agent.getAgentId(), agent);
-        sortedScoringAgents = new ArrayList(scoringAgentMap.values());
+        sortedScoringAgents = new ArrayList<ScoringAgent>(scoringAgentMap.values());
         Collections.sort(sortedScoringAgents, new OrderComparator());
     }
 

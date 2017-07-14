@@ -2273,6 +2273,13 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 			setHiddenFields($(this).datepicker("getDate"), options, dpInst);
 		};
 
+		// When the picker allows empty dates, it should detect when the date is removed from the input, and update the hidden value.
+		cfg.onClose = function(dtObj, dpInst) {
+			if (dtObj == '' && options.allowEmptyDate){
+				setHiddenFields($(this).datepicker("getDate"), options, dpInst);
+			}
+		};
+
 		/**
 		 * takes a date string and parses it using the moment.js library
 		 * @param  {string} d date string
@@ -2361,28 +2368,30 @@ Za.fn=Ia.prototype;var Xd=bb(1,"add"),Yd=bb(-1,"subtract");a.defaultFormat="YYYY
 				jQuery.each(o.ashidden, function(i, h) {
 					var oldValue = jQuery('#' + h).val();
 					var newValue = '';
-					switch(i) {
-						case "month":
-						  newValue = d.getMonth() + 1;
-						  break;
-						case "day":
-						  newValue = d.getDate();
-						  break;
-						case "year":
-						  newValue = d.getFullYear();
-						  break;
-						case "hour":
-						  newValue = (o.ampm == true) ? moment(d).format('hh') : moment(d).format('HH');
-						  break;
-						case "minute":
-						  newValue = moment(d).format('mm');
-						  break;
-						case "ampm":
-						  newValue = moment(d).format('A').toLowerCase();
-						  break;
-						case "iso8601":
-						  newValue = moment(d).format();
-						  break;
+					if(d != null){
+						switch(i) {
+							case "month":
+							  newValue = d.getMonth() + 1;
+							  break;
+							case "day":
+							  newValue = d.getDate();
+							  break;
+							case "year":
+							  newValue = d.getFullYear();
+							  break;
+							case "hour":
+							  newValue = (o.ampm == true) ? moment(d).format('hh') : moment(d).format('HH');
+							  break;
+							case "minute":
+							  newValue = moment(d).format('mm');
+							  break;
+							case "ampm":
+							  newValue = moment(d).format('A').toLowerCase();
+							  break;
+							case "iso8601":
+							  newValue = moment(d).format();
+							  break;
+						}
 					}
 					jQuery('#' + h).val(newValue);
 					// If new value is different from the previous one, launch change event on hidden input

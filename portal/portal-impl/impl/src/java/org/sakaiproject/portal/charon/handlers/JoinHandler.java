@@ -139,11 +139,11 @@ public class JoinHandler extends BasePortalHandler
 					String title = serviceName + " : " + portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, siteProviders);
 					
 					String skin = site.getSkin();
-					PortalRenderContext context = portal.startPageContext(siteType, title, skin, req);
+					PortalRenderContext context = portal.startPageContext(siteType, title, skin, req, site);
 					context.put("currentSite", portal.getSiteHelper().convertSiteToMap(req, site, null, site.getId(), null, false, false, false, false, null, true, siteProviders));
 					context.put("uiService", serviceName);
 					
-					boolean restrictedByAccountType = !SiteService.getInstance().isAllowedToJoin(siteId);
+					boolean restrictedByAccountType = !SiteService.getInstance().isAllowedToJoin(site.getId());
 					context.put("restrictedByAccountType", restrictedByAccountType);
 					
 					portal.sendResponse(context, res, "join", "text/html");

@@ -846,9 +846,11 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
-	public void setNodownloads(boolean n) {
+        // Can this method be safely commented out (in tandem with the nodownloads reference in applicationContext.xml)?
+        // See LSNBLDR-816.
+    	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
-	}
+	} 
 
 	public void setAddBefore(String n) {
 		this.addBefore = n;
@@ -4217,19 +4219,6 @@ public class SimplePageBean {
 			}
 			if (add)
 			    page.setGradebookPoints(newPoints);
-			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
-			if (oldDownloads != nodownloads) {
-			    if (oldDownloads)
-				site.getPropertiesEdit().removeProperty("lessonbuilder-nodownloadlinks");
-			    else if (nodownloads)
-				site.getPropertiesEdit().addProperty("lessonbuilder-nodownloadlinks", "true");
-			    try {
-				siteService.save(site);
-			    } catch (Exception e) {
-				log.error("editTitle unable to save site " + e);
-			    }
-
-			}
 
 			isOwner = currentUserId!=null && page!=null && currentUserId.equals(page.getOwner());
 			if (newOwner==null){
@@ -7045,7 +7034,7 @@ public class SimplePageBean {
 		if (!checkCsrf())
 		    return;
 
-		if(getCurrentPage().getOwner() == null) {
+		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			saveItem(item);
@@ -7352,7 +7341,10 @@ public class SimplePageBean {
 
 		if(gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
 			// Creating new gradebook entry
-			
+			if (itemId != null && itemId < 0) {
+				saveItem(item);
+			}
+
 			String gradebookId = "lesson-builder:question:" + item.getId();
 			String title = gradebookTitle;
 			if(title == null || title.equals("")) {
@@ -8147,8 +8139,13 @@ public class SimplePageBean {
 			resourceCache.put(collectionId, resources);
 		}
 		
+		// For a while, up to Sakai 11.3, uploading a custom css file directly from
+		// the lessonbuilder page could cause Sakai to generate file names like foo.css-1
+		// In such cases, they should appear in the dropdown for custom css
+		Pattern cssPattern = Pattern.compile("\\.css(-[0-9][0-9]*){0,1}$", Pattern.CASE_INSENSITIVE);
+		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}
@@ -8170,7 +8167,7 @@ public class SimplePageBean {
 		}
 		
 		for(ContentResource r : resources) {
-			if(r.getUrl().endsWith(".css")) {
+			if(cssPattern.matcher(r.getUrl()).find()) {
 				list.add(r);
 			}
 		}

@@ -126,7 +126,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public static final String ACTUAL_TIMERANGE = "ActualStartTime";
 
 	// Map of readers for various formats. Keyed by import type.
-	private final Map readerMap = new HashMap();
+	private final Map<String, Class<? extends Reader>> readerMap = new HashMap<>();
 	
 	protected Map<String, String> columnMap = null;
 
@@ -978,8 +978,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 	/**
 	 * Interprets the list of maps created by doImport()
-	 * 
-	 * @param map
 	 */
 	protected List getPrototypeEvents(List rowList, String[] customFieldPropertyNames) throws ImportException
 	{
@@ -1086,11 +1084,11 @@ public class GenericCalendarImporter implements CalendarImporterService
 	 * 
 	 * @see org.sakaiproject.tool.calendar.schedimport.importers.Importer#getDefaultColumnMap(java.lang.String)
 	 */
-	public Map getDefaultColumnMap(String importType) throws ImportException
+	public Map<String, String> getDefaultColumnMap(String importType) throws ImportException
 	{
 		try
 		{
-			Reader scheduleImport = (Reader) ((Class) readerMap.get(importType)).newInstance();
+			Reader scheduleImport = readerMap.get(importType).newInstance();
 
 			if (scheduleImport != null)
 			{
@@ -1098,16 +1096,9 @@ public class GenericCalendarImporter implements CalendarImporterService
 			}
 		}
 
-		catch (InstantiationException e1)
+		catch (InstantiationException | IllegalAccessException e1)
 		{
-			String msg = (String)rb.getFormattedMessage("err_import", 
-                                                      new Object[]{importType});
-			throw new ImportException( msg );
-		}
-		catch (IllegalAccessException e1)
-		{
-			String msg = (String)rb.getFormattedMessage("err_import", 
-                                                      new Object[]{importType});
+			String msg = rb.getFormattedMessage("err_import", importType);
 			throw new ImportException( msg );
 		}
 

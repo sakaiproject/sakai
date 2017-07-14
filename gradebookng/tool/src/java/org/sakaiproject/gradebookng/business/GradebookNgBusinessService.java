@@ -248,13 +248,21 @@ public class GradebookNgBusinessService {
 	 * @return the gradebook for the site
 	 */
 	private Gradebook getGradebook(final String siteId) {
+		Gradebook gradebook = null;
 		try {
-			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
-			return gradebook;
+			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 		} catch (final GradebookNotFoundException e) {
-			log.error("No gradebook in site: " + siteId);
-			return null;
+			log.debug("Request made for inaccessible, adding gradebookUid=" + siteId);
+			this.gradebookFrameworkService.addGradebook(siteId,siteId);
+			try {
+				gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
+			} catch (GradebookNotFoundException e2) {
+				log.error("Request made and could not add inaccessible gradebookUid=" + siteId);
+			}
 		}
+
+		log.error("No gradebook in site: " + siteId);
+		return gradebook;
 	}
 
 	/**
@@ -1923,22 +1931,12 @@ public class GradebookNgBusinessService {
 	 * @return true if ja, false if nay.
 	 */
 	public boolean isUserRoleSwapped() {
-
-		final String siteId = getCurrentSiteId();
-
 		try {
-			final Site site = this.siteService.getSite(siteId);
-
-			// they are roleswapped if they have an 'effective role'
-			final String effectiveRole = this.securityService.getUserEffectiveRole(site.getReference());
-			if (StringUtils.isNotBlank(effectiveRole)) {
-				return true;
-			}
+			return securityService.isUserRoleSwapped();
 		} catch (final IdUnusedException e) {
 			// something has happened between getting the siteId and getting the site.
 			throw new GbException("An error occurred checking some bits and pieces, please try again.", e);
 		}
-		return false;
 	}
 
 	/**

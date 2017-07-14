@@ -323,8 +323,21 @@ public class ServiceServlet extends HttpServlet {
 
 		String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 		if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
-			doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
-			return;
+			// no parameter for key, check header
+			final String authorizationHeader = request.getHeader("authorization");
+			if(authorizationHeader.contains("oauth_consumer_key") ) {
+				String[] keys = authorizationHeader.split(",");
+				for(String key : keys) {
+					if(key.startsWith("oauth_consumer_key")) {
+						int end = key.length() - 1;
+						oauth_consumer_key = key.substring(20, end);
+					}
+				}
+			}
+			if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
+				doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
+				return;
+			}
 		}
 
 		// Truncate this to the maximum length to insure no cruft at the end

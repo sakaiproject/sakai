@@ -187,15 +187,12 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 	/**
 	 * This implementation simply checks if we have reports in the site. If so, consider it content.
 	 * 
-	 * @see org.sakaiproject.entity.api.ContentExistsAware#hasContent()
+	 * @see org.sakaiproject.entity.api.ContentExistsAware#hasContent(String)
 	 */
 	@Override
 	public boolean hasContent(String siteId) {
 		List<ReportDef> existingReportDefinitions = M_rm.getReportDefinitions(siteId, false, true);
-		if(!existingReportDefinitions.isEmpty()){
-			return true;
-		}
-		return false;
+		return !existingReportDefinitions.isEmpty();
 	}
 
 	

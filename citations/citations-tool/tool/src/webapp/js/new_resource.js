@@ -50,9 +50,8 @@ var reportSuccess = function(msg){
  * There has been an error
  */
 var reportError = function(msg){
-    $('#messageError').html(msg).fadeTo("slow", 1).animate({
-        opacity: 1.0
-    }, 5000).fadeTo(3000, 0);
+    $('#messageError').html(msg).show();
+    window.scrollTo(0, 0);
 };
 
 /*

@@ -188,7 +188,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
                     .uniqueResult();
 
 			if (externalIdConflicts.intValue() > 0) {
-				throw new ConflictingExternalIdException("An external assessment with that ID already exists in gradebook uid={}" + gradebookUid);
+				throw new ConflictingExternalIdException("An external assessment with ID=" + externalId + " already exists in gradebook uid=" + gradebookUid);
 			}
 
 			// Get the gradebook

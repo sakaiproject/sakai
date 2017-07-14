@@ -188,9 +188,9 @@ public class CSVReader extends Reader
 	/**
 	 * Get the default column map for CSV files.
 	 */
-	public Map getDefaultColumnMap()
+	public Map<String, String> getDefaultColumnMap()
 	{
-		Map columnMap = new HashMap();
+		Map<String, String> columnMap = new HashMap<>();
 
 		columnMap.put(GenericCalendarImporter.LOCATION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.LOCATION_PROPERTY_NAME);
 		columnMap.put(GenericCalendarImporter.ITEM_TYPE_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME);
