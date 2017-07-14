@@ -26,11 +26,13 @@
                     padding-right: 12px !important;
                 }
             }
-            &.current > a {
-                background-color: #FFFFFF !important;
-                color: $tool-tab-active-highlight-color !important;
-                font-weight: 600;
-                pointer-events: none;
+            &.current {
+                padding: 0;
+                a {
+                    background-color: #FFFFFF !important;
+                    color: $tool-tab-active-highlight-color !important;
+                    pointer-events: none;
+                }
             }
 		}
     }
