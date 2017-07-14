@@ -3311,7 +3311,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// now we have the primary event, if we have a recurring event sequence time range selector, use it
 			if ((e != null) && (timeRange != null))
 			{
-				timeRange.adjust(timeRange, e.getRange());
 				e = new BaseCalendarEventEdit(e, new RecurrenceInstance(timeRange, sequence));
 			}
 
