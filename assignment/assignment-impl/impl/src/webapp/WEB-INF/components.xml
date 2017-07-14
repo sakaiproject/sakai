@@ -162,7 +162,7 @@
         </property>
         <property name="transactionAttributes">
             <props>
-                <prop key="*">PROPAGATION_REQUIRED</prop>
+                <prop key="*">PROPAGATION_REQUIRED,-PeerReviewCommentTooLongException</prop>
             </props>
         </property>
     </bean>
