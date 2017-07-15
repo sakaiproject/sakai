@@ -9,7 +9,7 @@
 #end
 	
 	<h3>
-		$thelp.getString("per.lis.title")
+		$pageHeader
 	</h3>
 		#if ($alertMessage)<div class="alertMessage">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 
@@ -56,17 +56,17 @@
 				<table class="listHier checkGrid specialLink" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0" style="width:auto">
 					<tr>
 						<th id="permission">
-							<a href="#" title="$thelp.getString("per.lis.head.title")">$thelp.getString("per.lis.head")</a>
+							<a href="#" title="$tableHeaderTitle">$tableHeader</a>
 						</th>
 						#foreach($role in $roles)
-							<th class="role"><a href="#"  title="$thelp.getString("per.lis.role.title")">$roleName.getName($role.Id)</a></th>
+							<th class="role"><a href="#" title="$tableRoleHeaderTitle">$roleName.getName($role.Id)</a></th>
 						#end
 					</tr>
 						#foreach($lock in $abilities)
 
 							<tr>
 							<td class="permissionDescription unclicked" scope="row">
-								<a href="#" title="$thelp.getString("per.lis.perm.title")">
+								<a href="#" title="$tableRowTitle">
 									#set($desc = $lock)
 									#set($desc = $!functionDescriptions.get($lock))
 									$desc
