@@ -26,6 +26,7 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +84,21 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 	/** State attribute for the description of what's being edited - users should set before starting. */
 	public static final String STATE_DESCRIPTION = "permission.description";
+
+	/** Set this tool state attribute to control the page header. */
+	public static final String STATE_PAGE_HEADER = "permission.page.header";
+
+	/** Set this tool state attribute to control the table header. */
+	public static final String STATE_TABLE_HEADER = "permission.table.header";
+
+	/** Set this tool state attribute to control the table header title. */
+	public static final String STATE_TABLE_HEADER_TITLE = "permission.table.header.title";
+
+	/** Set this tool state attribute to control the role header title. */
+	public static final String STATE_TABLE_ROLE_HEADER_TITLE = "permission.table.role.title";
+
+	/** set this tool state attribute to control the row header title. */
+	public static final String STATE_TABLE_ROW_TITLE = "permission.table.row.title";
 
 	/** State attribute for the lock/ability string prefix to be presented / edited - users should set before starting. */
 	public static final String STATE_PREFIX = "permission.prefix";
@@ -204,6 +220,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String prefix = (String) toolSession.getAttribute(PermissionsHelper.PREFIX);
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
+		String pageHeader = (String) toolSession.getAttribute(PermissionsHelper.PAGE_HEADER);
+		String tableHeader = (String) toolSession.getAttribute(PermissionsHelper.TABLE_HEADER);
+		String tableHeaderTitle = (String) toolSession.getAttribute(PermissionsHelper.TABLE_HEADER_TITLE);
+		String tableRoleHeaderTitle = (String) toolSession.getAttribute(PermissionsHelper.TABLE_ROLE_HEADER_TITLE);
+		String tableRowTitle = (String) toolSession.getAttribute(PermissionsHelper.TABLE_ROW_TITLE);
 		Object rolesRef = toolSession.getAttribute(PermissionsHelper.ROLES_REF);
 		if (rolesRef == null) rolesRef = targetRef;
 
@@ -224,6 +245,21 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		// ... with this description
 		state.setAttribute(STATE_DESCRIPTION, description);
+
+		// ... with this page header
+		state.setAttribute(STATE_PAGE_HEADER, pageHeader);
+
+		// ... with this table header
+		state.setAttribute(STATE_TABLE_HEADER, tableHeader);
+
+		// ... with this table header title
+		state.setAttribute(STATE_TABLE_HEADER_TITLE, tableHeaderTitle);
+
+		// ... with this table role header title
+		state.setAttribute(STATE_TABLE_ROLE_HEADER_TITLE, tableRoleHeaderTitle);
+
+		// ... with this table row title
+		state.setAttribute(STATE_TABLE_ROW_TITLE, tableRowTitle);
 
 		// ... showing only locks that are prpefixed with this
 		state.setAttribute(STATE_PREFIX, prefix);
@@ -475,6 +511,38 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				rolesAbilities.put(role.getId(), locks);
 			}
 		}
+
+		// Put the page and table headers into the context
+		String pageHeader = (String) state.getAttribute(STATE_PAGE_HEADER);
+		String tableHeader = (String) state.getAttribute(STATE_TABLE_HEADER);
+		String tableHeaderTitle = (String) state.getAttribute(STATE_TABLE_HEADER_TITLE);
+		String tableRoleHeaderTitle = (String) state.getAttribute(STATE_TABLE_ROLE_HEADER_TITLE);
+		String tableRowTitle = (String) state.getAttribute(STATE_TABLE_ROW_TITLE);
+		if (StringUtils.isBlank(pageHeader))
+		{
+			pageHeader = rb.getString("per.lis.title");
+		}
+		if (StringUtils.isBlank(tableHeader))
+		{
+			tableHeader = rb.getString("per.lis.head");
+		}
+		if (StringUtils.isBlank(tableHeaderTitle))
+		{
+			tableHeaderTitle = rb.getString("per.lis.head.title");
+		}
+		if (StringUtils.isBlank(tableRoleHeaderTitle))
+		{
+			tableRoleHeaderTitle = rb.getString("per.lis.role.title");
+		}
+		if (StringUtils.isBlank(tableRowTitle))
+		{
+			tableRowTitle = rb.getString("per.lis.perm.title");
+		}
+		context.put("pageHeader", pageHeader);
+		context.put("tableHeader", tableHeader);
+		context.put("tableHeaderTitle", tableHeaderTitle);
+		context.put("tableRoleHeaderTitle", tableRoleHeaderTitle);
+		context.put("tableRowTitle", tableRowTitle);
 
 		PermissionLimiter limiter = getPermissionLimiter();
 
