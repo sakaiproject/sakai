@@ -1460,6 +1460,10 @@ public class Foorm {
 		if (search == null) {
 			return null;
 		}
+		//check if is a direct search
+		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=.+")) {
+			return search;
+		}
 		StringBuilder sb = new StringBuilder();
 		List<String> tokens = getSearchTokens(search);
 		List<String> separators = getSearchSeparators(search);
