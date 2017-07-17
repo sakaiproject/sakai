@@ -8,7 +8,7 @@
 #end
 
 	<h3>
-		$thelp.getString("per.lis.title")
+		$pageHeader
 	</h3>
 		<div class="alertMessage">
 			$thelp.getString("gen.alert")
