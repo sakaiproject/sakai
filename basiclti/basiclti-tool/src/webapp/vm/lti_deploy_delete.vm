@@ -7,7 +7,24 @@
 	<div class="alertMessage">$tlang.getString("deploy.delete.sure")</div><div style="display:block;clear:both" ></div>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$formOutput
+		<p class="row">
 		$deployData
+		</p>
+#if ($tools.size() > 0)
+	<p class="row">
+	<div class="alertMessage">
+	$tlang.getString("deploy.delete.tools")
+	</div>
+	</p>
+       <ul style="list-style-type: none;">
+                #foreach($tool in $tools)
+                <li>
+			<input type="checkbox" id="delete_${tool.get("id")}" name="delete_${tool.get("id")}">
+			<label for="delete_${tool.get("id")}">$tlang.getString("deploy.delete.tool") $validator.escapeHtml($tool.get("title"))</label>
+                </li>
+                #end
+        </ul>
+#end
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="id" value="$deploy.get("id")" />
 		<p class="act">

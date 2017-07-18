@@ -323,6 +323,8 @@ public interface LTIService {
 
     boolean deleteTool(Long key, String siteId);
 
+    public List<String>  deleteToolAndContents(Long key, String siteId);
+
     boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     Map<String, Object> getTool(Long key, String siteId);

@@ -746,42 +746,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 		Long key = new Long(id);
-		if ( ltiService.deleteTool(key, getSiteId(state)) )
-		{
-			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
-			
-			// remove all content object and site links if any
-			// this is for the "site tools" panel
-			List<Map<String,Object>> contents = ltiService.getContents(null,null,0,5000, getSiteId(state));
-			for ( Map<String,Object> content : contents ) {
-				
-				Long tool_id_long = null;
-				try{
-					tool_id_long = new Long(content.get(LTIService.LTI_TOOL_ID).toString());
-					if (tool_id_long.equals(key))
-					{
-						// the content with same tool id
-						// remove the content link first
-						String content_id = content.get(LTIService.LTI_ID).toString();
-						Long content_key = content_id == null ? null:new Long(content_id);
-						
-						//TODO: how to handle the errors in content link and content deletion?
-						// remove the external tool content site link
-						ltiService.deleteContentLink(content_key, getSiteId(state));
-						// remove the external tool content
-						ltiService.deleteContent(content_key, getSiteId(state));
-					}
-				}
-				catch (Exception e)
-				{
-					// log the error
-					M_log.error("error parsing tool id " + content.get(LTIService.LTI_TOOL_ID));
-				}
-			}
-			
+
+		// Delete the tool and all associated content items and site links
+		List<String> errors = ltiService.deleteToolAndContents(key, getSiteId(state));
+		String errorNote = "";
+		for(String errstr: errors ) {
+			M_log.error(errstr);
+			errorNote += "<br/>"+errstr;
+		}
+
+		if ( errors.size() < 1 ) {
 			switchPanel(state, "ToolSystem");
 		} else {
-			addAlert(state,rb.getString("error.delete.fail"));
+			addAlert(state,rb.getString("error.delete.fail")+errorNote);
 			switchPanel(state, "ToolSystem");
 		}
 	}
@@ -1495,6 +1472,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_deploy_system";
 		}
 
+		// Retrieve all the tools that are related to this deploy
+		List<Map<String,Object>> tools = ltiService.getTools("deployment_id = "+key,null,0,0, getSiteId(state));
+		context.put("tools", tools);
+
 		Map<String,Object> deploy  = deploys.get(0);
 		context.put("deploy",deploy);
 
@@ -1531,6 +1512,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 		Long key = new Long(id);
+
+		// Retrieve all the tools that are related to this deploy
+		List<Map<String,Object>> tools = ltiService.getTools("deployment_id = "+key,null,0,0, getSiteId(state));
+		String errmsg = "";
+		for ( Map<String,Object> tool : tools ) {
+			Long tool_id = foorm.getLongNull(tool.get("id"));
+			String parm = "delete_"+tool_id;
+			String val = data.getParameters().getString(parm);
+			if ( val == null || ! "on".equals(val) ) continue;
+			// Delete the tool and all associated content items and site links
+			List<String> errors = ltiService.deleteToolAndContents(tool_id, getSiteId(state));
+			for(String errstr: errors ) {
+				M_log.error(errstr);
+				errmsg += "<br/>"+errstr;
+			}
+		}
+
+		if ( errmsg.length() > 0 ) {
+			addAlert(state,rb.getString("error.delete.fail")+errmsg);
+			switchPanel(state, "DeploySystem");
+			return;
+		}
+
 		// also remove the link
 		if ( ltiService.deleteDeployDao(key) )
 		{
