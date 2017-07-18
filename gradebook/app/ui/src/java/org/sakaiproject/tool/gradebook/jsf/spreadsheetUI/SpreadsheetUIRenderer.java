@@ -155,11 +155,6 @@ public class SpreadsheetUIRenderer extends Renderer
 		Iterator kids = null;
 		Iterator grandkids = null;
 		
-		String initialHeight = (String) data.getAttributes().get("initialHeight");
-		if(initialHeight == null || initialHeight.length() <= 0){
-			initialHeight = "150px";
-		}
-		int initHeight = Integer.parseInt(initialHeight.substring(0, initialHeight.length() - 2));
 		String colLock = (String) data.getAttributes().get("colLock");
 		if(colLock == null){
 			colLock = "1";
@@ -189,9 +184,7 @@ public class SpreadsheetUIRenderer extends Renderer
 		
 		writer.startElement("div", data);
 		if(totalCount <= columnLock){
-			writer.writeAttribute("style", "overflow:auto;height:" + (initHeight - 15) + "px;",null);
-		} else {
-			writer.writeAttribute("style", "height:" + (initHeight - 15) + "px;",null);
+			writer.writeAttribute("style", "overflow:auto;",null);
 		}
 		
 		writer.startElement("table", data);
@@ -258,7 +251,6 @@ public class SpreadsheetUIRenderer extends Renderer
 			writer.writeAttribute("id", "q4", null);
 			
 			writer.startElement("div", data);
-			writer.writeAttribute("style", "height:" + initHeight + "px;", null);
 			
 			writer.startElement("table",data);
 			writer.writeAttribute("cellpadding", "0", null);

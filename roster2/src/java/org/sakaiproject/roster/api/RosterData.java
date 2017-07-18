@@ -12,5 +12,6 @@ public class RosterData {
     private int membersTotal;
     private Map<String, Integer> roleCounts;
     private String status;
+    private int pageSize;
 }
 

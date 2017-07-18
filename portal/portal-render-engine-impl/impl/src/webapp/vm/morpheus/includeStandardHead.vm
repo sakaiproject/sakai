@@ -1,9 +1,6 @@
-##
 ## Standard Header used by all portal views
 ## Don't put anything before the <!DOCTYPE or it breaks IE9
 ## DOCTYPE detection and puts it in quirks mode.
-##
-
 <!DOCTYPE html>
 <html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
     <head>

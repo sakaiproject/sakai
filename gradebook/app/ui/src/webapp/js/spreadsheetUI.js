@@ -56,7 +56,6 @@ function gethandles(){
    q4_table_width = total;
    $(q4_table).width(total);
    $(q2_div_ul).width(total);
-   q4_table_width = total;
    
    // this makes sure the height of the data cells matches up for all rows
    $("#q3 tr").each(function(i){
@@ -76,18 +75,11 @@ function gethandles(){
    var q4s_width = $(q4s).width();
    if (q4s_width > q4_table_width) {
       var mainwrap = $("#mainwrap");
-      maxwidth = $(mainwrap).width() - (q4s_width - q4_table_width) + 15;
+      maxwidth = $(mainwrap).width() - (q4s_width - q4_table_width);
         if(maxwidth < $("body").width() - 2) 
       $(mainwrap).css("max-width", maxwidth);
    }
    
-   var q4s_height = $(q4s).height();
-   var q4_table_height = $(q4_table).height();
-   if(q4_table_height < q4s_height){  
-      q3s = $("#q3");   
-      $(q3s).height($(q3s).height() - (q4s_height - q4_table_height) + 15);
-      $(q4_div).height($(q4_div).height() - (q4s_height - q4_table_height) + 15);
-   }
    //end check if we need scrollbars - SAK-9969
    el1 = $(q2_div_ul).get(0);
    el2 = $("#q3 div table").get(0);

@@ -19,6 +19,10 @@
 
 package org.sakaiproject.signup.logic;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * <P>
  * This interface defines the constants of message type for email purpose
@@ -60,5 +64,10 @@ public interface SignupMessageTypes {
 	static final String SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES = "signup_only";
 	
 	static final String SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS = "organizers_only";
+
+	//Valid values for selected people 
+	static final Set<String> VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = new HashSet<String>(
+			Arrays.asList(SEND_EMAIL_ALL_PARTICIPANTS,SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES,SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS));
+
 
 }

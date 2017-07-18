@@ -881,7 +881,8 @@ public class BasicTimeService implements TimeService
 		 */
 		public long duration()
 		{
-			return (lastTime().getTime() - firstTime().getTime());
+			// KNL-1536, SAK-30793, SAK-23076 - Get the *actual* duration - Ignore fudging
+			return (lastTime(0).getTime() - firstTime(0).getTime());
 
 		} // duration
 

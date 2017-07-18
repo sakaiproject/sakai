@@ -415,22 +415,29 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			key, newProps, siteId, isAdminRole, isMaintainRole);
 	}
 
+	/**
+	 * Get the contents for a search, add some data from site properties, and the launch
+	 * from lti_tools - the dependency means that this will not find content items that do
+	 * not have an associated tool.
+	 */
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 
+		// It is important that any tables/columns added for the purposes of display or searching be
+		// LEFT JOIN - *any* INNER JOIN will function as a WHERE clause and will hide content
         String concatSearch = ("mysql".equals(m_sql.getVendor())) ?  "CONCAT_WS('', lti_content.launch, lti_tools.launch)" : "(lti_content.launch || lti_tools.launch)";
         String extraSelect = "SAKAI_SITE.TITLE AS SITE_TITLE, ssp1.VALUE AS SITE_CONTACT_NAME, ssp2.VALUE AS SITE_CONTACT_EMAIL, lti_tools.launch as URL, "+concatSearch+" AS searchURL";
-        String joinClause = "JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+        String joinClause = "LEFT JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp1 ON (lti_content.SITE_ID = ssp1.SITE_ID AND ssp1.name = 'contact-name')"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp2 ON (lti_content.SITE_ID = ssp2.SITE_ID AND ssp2.name = 'contact-email')"
-        		+ " JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
-        
+			+ " LEFT JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
+
         String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
         if (StringUtils.isNotEmpty(propertyKey)) {
             extraSelect += ", ssp3.VALUE as ATTRIBUTION";
             joinClause = joinClause + " LEFT JOIN SAKAI_SITE_PROPERTY ssp3 ON (lti_content.SITE_ID = ssp3.SITE_ID AND ssp3.name = '" + propertyKey + "')";
         }
-        
+
         final String[] fields = (String[])ArrayUtils.addAll(LTIService.CONTENT_MODEL, LTIService.CONTENT_EXTRA_FIELDS);
         if (order != null) {
             order = foorm.orderCheck(order, "lti_content", fields);
@@ -438,8 +445,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
                 throw new IllegalArgumentException("order must be [table.]field [asc|desc]");
             }
         }
+	// TODO: SAK-32704 - Resolve the different ways to do search
         search = foorm.searchCheck(search, "lti_content", fields);
-        
+
         List<Map<String, Object>> contents = getThingsDao("lti_content", LTIService.CONTENT_MODEL, extraSelect, joinClause, search, null, order, first, last, siteId, isAdminRole);
         for (Map<String, Object> content : contents) {
             content.put("launch_url", getContentLaunch(content));
@@ -448,17 +456,20 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	}
 
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#countContentsDao(java.lang.String,
 	 *      java.lang.String, boolean)
 	 */
 	public int countContentsDao(String search, String siteId, boolean isAdminRole) {
-        String joinClause = "JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+		// It is important that any tables/columns added for the purposes of display or searching be
+		// LEFT JOIN - *any* INNER JOIN will function as a WHERE clause and will hide content
+		// items from the admin UI - so they will not be seen and cannot be repaired
+        String joinClause = "LEFT JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp1 ON (lti_content.SITE_ID = ssp1.SITE_ID AND ssp1.name = 'contact-name')"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp2 ON (lti_content.SITE_ID = ssp2.SITE_ID AND ssp2.name = 'contact-email')"
-        		+ " JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
+			+ " LEFT JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
         final String propertyKey = serverConfigurationService.getString(LTI_SITE_ATTRIBUTION_PROPERTY_KEY, LTI_SITE_ATTRIBUTION_PROPERTY_KEY_DEFAULT);
         if (StringUtils.isNotEmpty(propertyKey)) {
             joinClause = joinClause + " LEFT JOIN SAKAI_SITE_PROPERTY ssp3 ON (lti_content.SITE_ID = ssp3.SITE_ID AND ssp3.name = '" + propertyKey + "')";

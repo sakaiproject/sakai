@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.site.api.Site;
 
 /**
  * Portal Service acts as a focus for all Portal based activities, the service implementation
@@ -282,7 +283,14 @@ public interface PortalService
 	 * @return
 	 */
 	ContentHostingService getContentHostingService();
-		
+
+	/**
+	 * Retrieves the url for the ContentItem selector - if there are any to select
+	 * @param site The site that is being rendered.
+	 * @return The ContentItem selctor URL or null
+	 */
+	String getContentItemUrl(Site site);
+
 	/**
 	 * Retrieves the site collection ID for a placement for file browsing to an appropriate location.
 	 * If this is null or cannot be found, the user's My Workspace resources are returned.

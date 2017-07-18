@@ -126,9 +126,9 @@ public interface LTIService {
             "pl_header:header:fields=pl_launch,pl_linkselection,pl_importitem,pl_fileitem,pl_contenteditor,pl_assessmentselection",
             "pl_launch:checkbox:label=bl_pl_launch",
             "pl_linkselection:checkbox:label=bl_pl_linkselection",
+            "pl_contenteditor:checkbox:label=bl_pl_contenteditor",
             "pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
             "pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
-            "pl_contenteditor:checkbox:label=bl_pl_contenteditor:role=admin",
             "pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
             "newpage:radio:label=bl_newpage:choices=off,on,content",
             "debug:radio:label=bl_debug:choices=off,on,content",
@@ -322,6 +322,8 @@ public interface LTIService {
     Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
     boolean deleteTool(Long key, String siteId);
+
+    public List<String>  deleteToolAndContents(Long key, String siteId);
 
     boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 

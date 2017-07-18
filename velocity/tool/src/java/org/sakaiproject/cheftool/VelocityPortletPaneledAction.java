@@ -347,7 +347,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
             String languageCode = locale.getLanguage();
             String countryCode = locale.getCountry();
             if(countryCode != null && countryCode.length() > 0) {
-                languageCode += "_" + countryCode;
+                languageCode += "-" + countryCode;
             }
             context.put("language",languageCode);
             context.put("dir", rl.getOrientation(locale));

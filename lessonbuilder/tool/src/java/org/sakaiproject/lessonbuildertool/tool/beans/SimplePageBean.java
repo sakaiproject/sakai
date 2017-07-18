@@ -7341,7 +7341,10 @@ public class SimplePageBean {
 
 		if(gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
 			// Creating new gradebook entry
-			
+			if (itemId != null && itemId < 0) {
+				saveItem(item);
+			}
+
 			String gradebookId = "lesson-builder:question:" + item.getId();
 			String title = gradebookTitle;
 			if(title == null || title.equals("")) {

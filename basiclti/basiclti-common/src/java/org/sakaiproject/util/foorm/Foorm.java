@@ -330,9 +330,19 @@ public class Foorm {
 	 * @param required
 	 * @param loader
 	 */
-	public void formInputEnd(StringBuffer sb, String field, String label, boolean required,
+	public void formInputEnd(StringBuffer sb, String field, String type, String label, boolean required,
 			Object loader) {
-		sb.append("</p>\n");
+		if (label != null && ( "checkbox".equals(type) ) ) {
+			sb.append("<label for=\"");
+			sb.append(field);
+			sb.append("\" style=\"display:block;float:none;\">");
+		}
+		if ( label != null) sb.append("</label>");
+		if ( "checkbox".equals(type) || "radio".equals(type) ) {
+			// Not needed
+		} else {
+			sb.append("</p>\n");
+		}
 	}
 
 	/**
@@ -360,7 +370,7 @@ public class Foorm {
 		sb.append("\" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
 		sb.append(htmlSpecialChars(value));
 		sb.append("\"/>");
-		formInputEnd(sb, field, label, required, loader);
+		formInputEnd(sb, field, "text", label, required, loader);
 		return sb.toString();
 	}
 
@@ -431,7 +441,7 @@ public class Foorm {
 		sb.append("\"/>");
 		sb.append(htmlSpecialChars(value));
 		sb.append("</textarea>\n");
-		formInputEnd(sb, field, label, required, loader);
+		formInputEnd(sb, field, "textarea", label, required, loader);
 		return sb.toString();
 	}
 
@@ -449,9 +459,7 @@ public class Foorm {
 			boolean required, String[] choices, Object loader) {
 		StringBuffer sb = new StringBuffer();
 		// formInputStart(sb, field, "radio", label, required, loader);
-		sb.append("<h4>");
-		sb.append(getI18N(label, loader));
-		sb.append("</h4>\n");
+		sb.append(formInputHeader(field, label, loader));
 		int val = 0;
 		if (value != null && value instanceof Number)
 			val = ((Number) value).intValue();
@@ -464,25 +472,27 @@ public class Foorm {
 		if (choices == null || val >= choices.length)
 			val = 0;
 		int i = 0;
+		sb.append("<ol style=\"list-style-type:none\">\n");
 		for (String choice : choices) {
 			String checked = "";
 			if (i == val)
 				checked = " checked=\"checked\"";
-			sb.append("<p  style=\"border:padding:3px;;margin:7px 3px;\">\n");
+			sb.append("<li style=\"border:padding:3px;;margin:7px 3px;\">\n");
 			sb.append("<input type=\"radio\" name=\"");
 			sb.append(field);
 			sb.append("\" value=\"" + i + "\" id=\"");
 			String id = field + "_" + choice;
 			sb.append(id + "\"");
 			sb.append(checked);
-			sb.append("/><label for=\"");
+			sb.append("/> <label for=\"");
 			sb.append(id);
 			sb.append("\">");
 			sb.append(getI18N(label + "_" + choice, loader));
-			sb.append("</label></p>\n");
+			sb.append("</label></li>\n");
 			i++;
 		}
-		formInputEnd(sb, field, label, required, loader);
+		sb.append("</ol>\n");
+		formInputEnd(sb, field, "radio", label, required, loader);
 		return sb.toString();
 	}
 
@@ -502,7 +512,7 @@ public class Foorm {
 		int val = getInt(value);
 		String checked = "";
 		if (val == 1) checked = " checked=\"checked\"";
-		sb.append("<input type=\"checkbox\" name=\"");
+		sb.append("<li><input type=\"checkbox\" name=\"");
 		sb.append(field);
 		sb.append("\" value=\"1\" id=\"");
 		sb.append(field);
@@ -521,7 +531,7 @@ public class Foorm {
 			sb.append(field);
 			sb.append("';\"");
 		}
-		sb.append("/>");
+		sb.append("/> ");
 		if ( val == 1 ) {
 			sb.append("<input type=\"hidden\" name=\"");
 			sb.append(field);
@@ -530,8 +540,8 @@ public class Foorm {
 			sb.append(".mirror\" value=\"0\" />");
 		}
 		sb.append(getI18N(label, loader));
-		sb.append("<br/>\n");
-		formInputEnd(sb, field, label, required, loader);
+		formInputEnd(sb, field, "checkbox", label, required, loader);
+		sb.append("</li>\n");
 		return sb.toString();
 	}
 
@@ -752,13 +762,19 @@ public class Foorm {
 		StringBuffer sb = new StringBuffer();
 		String header = null;
 		String fieldList[] = null;
-		for (String formInput : formDefinition) {
-			String tmp = formInput(row, formInput, loader);
+		boolean inCheckboxes = false;
+		for (String inp : formDefinition) {
+			String tmp = formInput(row, inp, loader);
 			if (tmp.length() < 1)
 				continue;
-			Properties info = parseFormString(formInput);
+			Properties info = parseFormString(inp);
 			String type = info.getProperty("type", null);
 			String field = info.getProperty("field", null);
+
+			if ( inCheckboxes && ! "checkbox".equals(type) ) {
+				sb.append("</ol>\n");
+				inCheckboxes = false;
+			}
 
 			if ( "header".equals(type) ) { 
 				String fields = info.getProperty("fields", "");
@@ -777,8 +793,18 @@ public class Foorm {
 				fieldList = null;
 			}
 
+			if ( ! inCheckboxes && "checkbox".equals(type) ) {
+				sb.append("<ol style=\"list-style-type:none\">\n");
+				inCheckboxes = true;
+			}
+
 			sb.append(tmp);
 			sb.append("\n");
+		}
+
+		if ( inCheckboxes ) {
+			sb.append("</ol>\n");
+			inCheckboxes = false;
 		}
 		return sb.toString();
 	}
@@ -1433,6 +1459,10 @@ public class Foorm {
 	public String searchCheck(String search, String tableName, String[] fieldinfo) {
 		if (search == null) {
 			return null;
+		}
+		//check if is a direct search
+		if (StringUtils.isNotEmpty(search) && search.matches("(\\w+\\.)?\\w+\\s*=.+")) {
+			return search;
 		}
 		StringBuilder sb = new StringBuilder();
 		List<String> tokens = getSearchTokens(search);

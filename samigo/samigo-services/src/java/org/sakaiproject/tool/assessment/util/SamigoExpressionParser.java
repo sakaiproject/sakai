@@ -66,7 +66,7 @@ public class SamigoExpressionParser
     {
       // initialize all variables
       expr = new_expr;     // copy the given expression to expr
-      ans = 0.0;
+      ans = BigDecimal.valueOf(0.0);
 
       // get the first character in expr
       getFirstChar();
@@ -79,7 +79,13 @@ public class SamigoExpressionParser
           throw new SamigoExpressionError(row(), col(), 4);
       }
 
-      ans = parse_level1();
+      // infinity and NaN cannot be processed correctly
+      try {
+    	  ans = parse_level1();
+      }
+      catch (NumberFormatException e) {
+          throw new SamigoExpressionError(402, expr);
+      }
 
       // check for garbage at the end of the expression
       if (token_type != TOKENTYPE.DELIMETER || token.length() > 0)
@@ -95,17 +101,11 @@ public class SamigoExpressionParser
         }
       }
 
-      // infinity and NaN cannot be processed correctly
-      if (Double.isInfinite(ans)) {
-          throw new SamigoExpressionError(402, expr);
-      } else if (Double.isNaN(ans)) {
-          throw new SamigoExpressionError(401, expr);
-      }
       GradingService service = new GradingService();
-      ans_str = service.toScientificNotation(Double.toString(ans), decimals);
+      ans_str = service.toScientificNotation(ans.toPlainString(), decimals);
 
       // add the answer to memory as variable "Ans"
-      user_var.put("ANS", Double.valueOf(ans_str));
+      user_var.put("ANS", new BigDecimal(ans_str));
     }
     catch (SamigoExpressionError err)
     {
@@ -356,7 +356,7 @@ public class SamigoExpressionParser
   /**
    * assignment of variable or function
    */
-  double parse_level1() throws SamigoExpressionError
+  BigDecimal parse_level1() throws SamigoExpressionError
   {
     if (token_type == TOKENTYPE.VARIABLE)
     {
@@ -375,14 +375,14 @@ public class SamigoExpressionParser
         getToken();
         
         // assignment
-        double ans;
+        BigDecimal ans;
         getToken();
         ans = parse_level2();
         
         // check whether the token is a legal name
         if (isLegalVariableName(var_name))
         {
-          user_var.put(var_name.toUpperCase(), new Double(ans));
+          user_var.put(var_name.toUpperCase(), ans);
         }
         else
         {
@@ -399,10 +399,10 @@ public class SamigoExpressionParser
   /**
    * conditional operators and bitshift
    */
-  double parse_level2() throws SamigoExpressionError
+  BigDecimal parse_level2() throws SamigoExpressionError
   {
     OPERATOR op_id;
-    double ans;
+    BigDecimal ans;
     ans = parse_level3();
 
     op_id = get_operator_id(token);
@@ -422,10 +422,10 @@ public class SamigoExpressionParser
   /**
    * conditional operators
    */
-  double parse_level3() throws SamigoExpressionError
+  BigDecimal parse_level3() throws SamigoExpressionError
   {
     OPERATOR op_id;
-    double ans;
+    BigDecimal ans;
     ans = parse_level4();
 
     op_id = get_operator_id(token);
@@ -447,10 +447,10 @@ public class SamigoExpressionParser
   /**
    * add or subtract
    */
-  double parse_level4() throws SamigoExpressionError
+  BigDecimal parse_level4() throws SamigoExpressionError
   {
     OPERATOR op_id;
-    double ans;
+    BigDecimal ans;
     ans = parse_level5();
 
     op_id = get_operator_id(token);
@@ -469,10 +469,10 @@ public class SamigoExpressionParser
   /**
    * multiply, divide, modulus, xor
    */
-  double parse_level5() throws SamigoExpressionError
+  BigDecimal parse_level5() throws SamigoExpressionError
   {
     OPERATOR op_id;
-    double ans;
+    BigDecimal ans;
     ans = parse_level6();
 
     op_id = get_operator_id(token);
@@ -493,10 +493,10 @@ public class SamigoExpressionParser
   /**
    * power
    */
-  double parse_level6() throws SamigoExpressionError
+  BigDecimal parse_level6() throws SamigoExpressionError
   {
     OPERATOR op_id;
-    double ans;
+    BigDecimal ans;
     ans = parse_level7();
 
     op_id = get_operator_id(token);
@@ -513,10 +513,10 @@ public class SamigoExpressionParser
   /**
    * Factorial
    */
-  double parse_level7() throws SamigoExpressionError
+  BigDecimal parse_level7() throws SamigoExpressionError
   {
     OPERATOR op_id;
-    double ans;
+    BigDecimal ans;
     ans = parse_level8();
 
     op_id = get_operator_id(token);
@@ -525,7 +525,7 @@ public class SamigoExpressionParser
       getToken();
       // factorial does not need a value right from the
       // operator, so zero is filled in.
-      ans = eval_operator(op_id, ans, 0.0);
+      ans = eval_operator(op_id, ans, BigDecimal.valueOf(0.0));
       op_id = get_operator_id(token);
     }
 
@@ -535,16 +535,16 @@ public class SamigoExpressionParser
   /**
    * Unary minus
    */
-  double parse_level8() throws SamigoExpressionError
+  BigDecimal parse_level8() throws SamigoExpressionError
   {
-    double ans;
+    BigDecimal ans;
 
     OPERATOR op_id = get_operator_id(token);
     if (op_id == OPERATOR.MINUS)
     {
       getToken();
       ans = parse_level9();
-      ans = -ans;
+      ans = ans.negate();
     }
     else
     {
@@ -558,10 +558,10 @@ public class SamigoExpressionParser
   /**
    * functions
    */
-  double parse_level9() throws SamigoExpressionError
+  BigDecimal parse_level9() throws SamigoExpressionError
   {
     String fn_name;
-    double ans;
+    BigDecimal ans;
 
     if (token_type == TOKENTYPE.FUNCTION)
     {
@@ -581,7 +581,7 @@ public class SamigoExpressionParser
   /**
    * parenthesized expression or value
    */
-  double parse_level10() throws SamigoExpressionError
+  BigDecimal parse_level10() throws SamigoExpressionError
   {
     // check if it is a parenthesized expression
     if (token_type == TOKENTYPE.DELIMETER)
@@ -589,7 +589,7 @@ public class SamigoExpressionParser
       if (token.equals("("))
       {
         getToken();
-        double ans = parse_level2();
+        BigDecimal ans = parse_level2();
         if (token_type != TOKENTYPE.DELIMETER || !token.equals(")"))
         {
           throw new SamigoExpressionError(row(), col(), 3);
@@ -604,15 +604,15 @@ public class SamigoExpressionParser
   }
 
 
-  double parse_number() throws SamigoExpressionError
+  BigDecimal parse_number() throws SamigoExpressionError
   {
-    double ans = 0.0;
+    BigDecimal ans = BigDecimal.valueOf(0.0);
 
     switch (token_type)
     {
       case NUMBER:
         // this is a number
-        ans = Double.parseDouble(token);
+        ans = new BigDecimal(token);
         getToken();
         break;
 
@@ -681,39 +681,44 @@ public class SamigoExpressionParser
   /**
    * evaluate an operator for given valuess
    */
-  double eval_operator(final OPERATOR op_id, final double lhs, final double rhs) throws SamigoExpressionError
+  BigDecimal eval_operator(final OPERATOR op_id, final BigDecimal bdlhs, final BigDecimal bdrhs) throws SamigoExpressionError
   {
+
+  double lhs = bdlhs.doubleValue();
+  double rhs = bdrhs.doubleValue();
+
   switch (op_id)
     {
       // level 2
-      case AND:           return (int)lhs & (int)rhs;
-      case OR:            return (int)lhs | (int)rhs;
-      case BITSHIFTLEFT:  return (int)lhs << (int)rhs;
-      case BITSHIFTRIGHT: return (int)lhs >> (int)rhs;
+      case AND:           return BigDecimal.valueOf((int)lhs & (int)rhs);
+      case OR:            return BigDecimal.valueOf((int)lhs | (int)rhs);
+      case BITSHIFTLEFT:  return BigDecimal.valueOf((int)lhs << (int)rhs);
+      case BITSHIFTRIGHT: return BigDecimal.valueOf((int)lhs >> (int)rhs);
 
       // level 3
-      case EQUAL:     return (lhs == rhs) ? 1.0 : 0.0;
-      case UNEQUAL:   return (lhs != rhs) ? 1.0 : 0.0;
-      case SMALLER:   return (lhs < rhs)  ? 1.0 : 0.0;
-      case LARGER:    return (lhs > rhs)  ? 1.0 : 0.0;
-      case SMALLEREQ: return (lhs <= rhs) ? 1.0 : 0.0;
-      case LARGEREQ:  return (lhs >= rhs) ? 1.0 : 0.0;
+      case EQUAL:     return BigDecimal.valueOf((bdlhs.compareTo(bdrhs) == 0 ) ? 1 : 0);
+      case UNEQUAL:   return BigDecimal.valueOf((bdlhs.compareTo(bdrhs) != 0 ) ? 1 : 0);
+      case SMALLER:   return BigDecimal.valueOf((bdlhs.compareTo(bdrhs) < 0 )  ? 1 : 0);
+      case LARGER:    return BigDecimal.valueOf((bdlhs.compareTo(bdrhs) > 0 )  ? 1 : 0);
+      case SMALLEREQ: return BigDecimal.valueOf((bdlhs.compareTo(bdrhs) <= 0 ) ? 1 : 0);
+      case LARGEREQ:  return BigDecimal.valueOf((bdlhs.compareTo(bdrhs) >= 0 ) ? 1 : 0);
 
       // level 4
-      case PLUS:      return lhs + rhs;
-      case MINUS:     return lhs - rhs;
+      case PLUS:      return bdlhs.add(bdrhs);
+      case MINUS:     return bdlhs.subtract(bdrhs);
 
       // level 5
-      case MULTIPLY:  return lhs * rhs;
-      case DIVIDE:    return lhs / rhs;
-      case MODULUS:   return SamigoExpressionFunctions.modulus(lhs, rhs);
-      case XOR:       return (int)lhs ^ (int)rhs;
+      case MULTIPLY:  return bdlhs.multiply(bdrhs);
+      case DIVIDE:    return bdlhs.divide(bdrhs);
+
+      case MODULUS:   return BigDecimal.valueOf(SamigoExpressionFunctions.modulus(lhs, rhs));
+      case XOR:       return BigDecimal.valueOf((int)lhs ^ (int)rhs);
 
       // level 6
-      case POW:       return Math.pow(lhs, rhs);
+      case POW:       return BigDecimal.valueOf(Math.pow(lhs, rhs));
 
       // level 7
-      case FACTORIAL: return SamigoExpressionFunctions.factorial(lhs);
+      case FACTORIAL: return BigDecimal.valueOf(SamigoExpressionFunctions.factorial(lhs));
     }
 
     throw new SamigoExpressionError(row(), col(), 104);
@@ -723,31 +728,38 @@ public class SamigoExpressionParser
   /**
    * evaluate a function
    */
-  double eval_function(final String fn_name, final double value) throws SamigoExpressionError
+  BigDecimal eval_function(final String fn_name, final BigDecimal bdvalue) throws SamigoExpressionError
   {
     // first make the function name upper case
     String fnUpper = fn_name.toUpperCase();
 
     // arithmetic
-    if (fnUpper.equals("ABS"))   {return Math.abs(value);}
-    if (fnUpper.equals("EXP"))   {return Math.exp(value);}
-    if (fnUpper.equals("SIGN"))  {return SamigoExpressionFunctions.sign(value);}
-    if (fnUpper.equals("SQRT"))  {return Math.sqrt(value);}
+    if (fnUpper.equals("ABS"))   {return bdvalue.abs();}
+    
+    Double value = bdvalue.doubleValue();
+    Double retValue = null;
+    //The rest of these BigDecimal can't do directly
+    if (fnUpper.equals("EXP"))   {retValue = Math.exp(value);}
+    if (fnUpper.equals("SIGN"))  {retValue =  SamigoExpressionFunctions.sign(value);}
+    if (fnUpper.equals("SQRT"))  {retValue =  Math.sqrt(value);}
     if (fnUpper.equals("LOG") 
-        || fnUpper.equals("LN")) {return Math.log(value);}
-    if (fnUpper.equals("LOG10")) {return Math.log10(value);}
+        || fnUpper.equals("LN")) {retValue =  Math.log(value);}
+    if (fnUpper.equals("LOG10")) {retValue =  Math.log10(value);}
 
     // trigonometric
-    if (fnUpper.equals("SIN"))   {return Math.sin(value);}
-    if (fnUpper.equals("COS"))   {return Math.cos(value);}
-    if (fnUpper.equals("TAN"))   {return Math.tan(value);}
-    if (fnUpper.equals("ASIN"))  {return Math.asin(value);}
-    if (fnUpper.equals("ACOS"))  {return Math.acos(value);}
-    if (fnUpper.equals("ATAN"))  {return Math.atan(value);}
+    if (fnUpper.equals("SIN"))   {retValue =  Math.sin(value);}
+    if (fnUpper.equals("COS"))   {retValue =  Math.cos(value);}
+    if (fnUpper.equals("TAN"))   {retValue =  Math.tan(value);}
+    if (fnUpper.equals("ASIN"))  {retValue =  Math.asin(value);}
+    if (fnUpper.equals("ACOS"))  {retValue =  Math.acos(value);}
+    if (fnUpper.equals("ATAN"))  {retValue =  Math.atan(value);}
 
     // probability
-    if (fnUpper.equals("FACTORIAL")) {return SamigoExpressionFunctions.factorial(value);}
+    if (fnUpper.equals("FACTORIAL")) {retValue = SamigoExpressionFunctions.factorial(value);}
 
+    if (retValue != null) {
+    	return BigDecimal.valueOf(retValue);
+    }
     // unknown function
     throw new SamigoExpressionError(row(), col(), 102, fn_name);
   }
@@ -756,19 +768,19 @@ public class SamigoExpressionParser
   /**
    * evaluate a variable
    */
-  double eval_variable(final String var_name) throws SamigoExpressionError
+  BigDecimal eval_variable(final String var_name) throws SamigoExpressionError
   {
     // first make the variable name uppercase
     String varUpper = var_name.toUpperCase();
 
     // check for built-in variables
-    if (varUpper.equals("E"))  {return Math.E;}
-    if (varUpper.equals("PI")) {return Math.PI;}
+    if (varUpper.equals("E"))  {return BigDecimal.valueOf(Math.E);}
+    if (varUpper.equals("PI")) {return BigDecimal.valueOf(Math.PI);}
 
     // check for user defined variables
     if (user_var.containsKey(varUpper))
     {
-      double ans = user_var.get(varUpper).doubleValue();
+      BigDecimal ans = user_var.get(varUpper);
       return ans;
     }
 
@@ -816,10 +828,10 @@ public class SamigoExpressionParser
   private String token;         /// holds the token
   private TOKENTYPE token_type; /// type of the token
 
-  private double ans;           /// holds the result of the expression
+  private BigDecimal ans;           /// holds the result of the expression
   private String ans_str;       /// holds a string containing the result
                                 /// of the expression
 
   /// list with variables defined by user
-  private Map<String, Double> user_var = new HashMap<String, Double>(); 
+  private Map<String, BigDecimal> user_var = new HashMap<String, BigDecimal>(); 
 }
