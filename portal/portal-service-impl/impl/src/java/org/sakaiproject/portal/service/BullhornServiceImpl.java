@@ -35,6 +35,8 @@ import org.hibernate.Transaction;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.messageforums.*;
+import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -67,6 +69,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -91,6 +94,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private AnnouncementService announcementService;
     @Setter
     private AssignmentService assignmentService;
+    @Setter
+    private PrivateMessageManager privateMessageManager;
     @Setter
     private EntityManager entityManager;
     @Setter
@@ -171,6 +176,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
+            HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_ADD);
+            HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_RESPONSE);
             HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             eventTrackingService.addLocalObserver(this);
@@ -351,7 +358,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                 List<String> done = new ArrayList<>();
                                 // Alert tutor types.
                                 List<User> receivers = securityService.unlockUsers(
-                                    SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + context);
+                                        SimplePage.PERMISSION_LESSONBUILDER_UPDATE, "/site/" + context);
                                 for (User receiver : receivers) {
                                     String to = receiver.getId();
                                     if (!to.equals(from)) {
@@ -363,8 +370,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
 
                                 // Get all the comments in the same item
                                 List<SimplePageComment> comments
-                                    = simplePageToolDao.findCommentsOnItems(
-                                        Arrays.asList(new Long[] {comment.getItemId()}));
+                                        = simplePageToolDao.findCommentsOnItems(
+                                        Arrays.asList(new Long[]{comment.getItemId()}));
 
                                 if (comments.size() > 1) {
                                     // Not the first, alert all the other commenters unless they already have been
@@ -383,7 +390,25 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } catch (NumberFormatException nfe) {
                             log.error("Caught number format exception whilst handling events", nfe);
                         }
-                    }
+                    }else if (DiscussionForumService.EVENT_MESSAGES_ADD.equals(event) || DiscussionForumService.EVENT_MESSAGES_RESPONSE.equals(event)) {
+                            String siteId = pathParts[3];
+                            Long messageId = Long.valueOf(pathParts[pathParts.length - 2]);
+                            PrivateMessage message = (PrivateMessage) privateMessageManager.getMessageById(messageId);
+                            message = privateMessageManager.initMessageWithAttachmentsAndRecipients(message);
+                            String messageTitle = message.getTitle();
+                            Site site = siteService.getSite(siteId);
+                            ToolConfiguration tool = site.getToolForCommonId("sakai.messages");
+                            String url = serverConfigurationService.getPortalUrl() + "/site/" + siteId + "/page/" + tool.getPageId();
+                            if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                for (Object recipient : message.getRecipients()) {
+                                    String userId = ((PrivateMessageRecipient) recipient).getUserId();
+                                    if (StringUtils.isNotBlank(userId) && !from.equals(userId)) {
+                                        doAcademicInsert(from, userId, event, ref, messageTitle, siteId, e.getEventTime(), url);
+                                        countCache.remove(userId);
+                                    }
+                                }
+                            }
+                        }
                 } catch (Exception ex) {
                     log.error("Caught exception whilst handling events", ex);
                 }

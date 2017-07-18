@@ -48,6 +48,10 @@
             <artifactId>sakai-message-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>messageforums-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.profile2</groupId>
             <artifactId>profile2-api</artifactId>
         </dependency>

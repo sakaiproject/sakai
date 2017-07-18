@@ -68,6 +68,7 @@
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="privateMessageManager" ref="org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"/>
 		<property name="profileConnectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 		<property name="profileLinkLogic" ref="org.sakaiproject.profile2.logic.ProfileLinkLogic" />
 		<property name="profileStatusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />

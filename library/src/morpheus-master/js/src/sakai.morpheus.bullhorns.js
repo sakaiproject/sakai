@@ -178,6 +178,8 @@
                                     if (alert.event === 'asn.new.assignment'
                                                                 || alert.event === 'asn.grade.submission') {
                                         faClass = 'fa-file-text';
+                                    } else if (alert.event === 'messages.new' || alert.event === 'messages.reply') {
+                                        faClass = 'fa-inbox';
                                     } else if (alert.event === 'lessonbuilder.comment.create') {
                                         faClass = 'fa-leanpub';
                                     }
@@ -199,6 +201,8 @@
                                             = data.i18n.assignmentSubmissionGraded.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'commons.comment.created') {
                                         markup += data.i18n.academicCommentCreated.replace('{0}', siteTitle);
+                                    } else if (alert.event === 'messages.new' || alert.event === 'messages.reply') {
+                                        message = data.i18n.privateMessage.replace('{0}', alert.fromDisplayName).replace('{1}', title).replace('{2}', siteTitle);
                                     } else if (alert.event === 'lessonbuilder.comment.create') {
                                         markup += data.i18n.academicLessonBuilderCommentCreate.replace('{0}', siteTitle);
                                     } else {
