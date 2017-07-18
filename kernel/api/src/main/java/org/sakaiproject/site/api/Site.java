@@ -70,6 +70,12 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 */
 	public final static String PROP_SITE_MATHJAX_ALLOWED = "mathJaxAllowed";
 
+	public final static String PROP_DISPLAY_TITLE = "display_title";
+
+	/**
+	 * property name for custom overview
+	 */
+	public final static String PROP_CUSTOM_OVERVIEW = "custom_overview";
 	/**
 	 * @return the user who created this.
 	 */

@@ -84,6 +84,8 @@ public class AnnouncementService
 
 	public static java.lang.String SECURE_ANNC_ADD = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_ADD;
 
+	public static java.lang.String SECURE_ANNC_POST = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_POST;
+
 	public static java.lang.String SECURE_ANNC_REMOVE_OWN = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_REMOVE_OWN;
 
 	public static java.lang.String SECURE_ANNC_REMOVE_ANY = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_REMOVE_ANY;

@@ -8,6 +8,8 @@
 		description="Display unread discussion and forum topic messages for all sites or a site">
 
 		<configuration name="reset.button" value="false" type="final" />
+
+		<category name="widget" />
 	</tool>
 
 </registration>

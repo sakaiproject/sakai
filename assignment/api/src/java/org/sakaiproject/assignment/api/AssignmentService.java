@@ -637,6 +637,14 @@ public interface AssignmentService extends EntityProducer {
             , boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception;
 
     /**
+     * See {@link AssignmentService#getDeepLinkWithPermissions}
+     * Added option to ignore the assignment open date. This is used for creating a link in the bullhorn service
+     * that will be used in the future.
+     */
+    public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment
+            , boolean allowAddAssignment, boolean allowSubmitAssignment, boolean ignoreOpenDate) throws Exception;
+
+    /**
      * Get a link directly into an assignment itself. Depending on your status, you
      * get a different view on the assignment.
      *

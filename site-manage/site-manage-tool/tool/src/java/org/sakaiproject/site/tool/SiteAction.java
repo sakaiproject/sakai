@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.UUID;
 import java.util.Vector;
@@ -310,7 +313,9 @@ public class SiteAction extends PagedResourceActionII {
 			"-importSitesMigrate",  //60
 			"-siteInfo-importUser",
 			"-uploadArchive",
-			"-siteInfo-manageParticipants"  // 63
+			"-siteInfo-manageParticipants",  // 63
+			"-newSite",
+			"-siteInfo-manageOverview"
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -3679,16 +3684,122 @@ public class SiteAction extends PagedResourceActionII {
 
 			//now go to uploadArchive template
 			return (String) getContext(data).get("template") + TEMPLATE[62];
+		case 64:
+			/*
+			 * build context for chef_site-siteInfo-manageOverview
+			 */
+			SitePage page = (SitePage) state.getAttribute("overview");
+			List<SitePage> pages = site.getPages();
+
+			//this will be all widgets available to use on overview page.
+			List<Tool> widgets;
+			if(state.getAttribute("allWidgets") == null){
+				widgets = (List<Tool>) findWidgets();
+			}else {
+				widgets = (List<Tool>) state.getAttribute("allWidgets");
+			}
+
+			//maps widgets to their respective tools. If the tool is not in the site, the widget will not be available.
+			Map<String, String> requiredToolMap = new HashMap<>();
+			for(Tool tool : widgets){
+				List<String> reqId = SYNOPTIC_TOOL_ID_MAP.get(tool.getId());
+				boolean toolRequired = !StringUtils.equalsIgnoreCase(tool.getFinalConfig().getProperty("require.tool"), "false");
+				if(reqId != null  && toolRequired){
+					for(String req : reqId){
+						requiredToolMap.put(req, tool.getId());
+					}
+				}
+			}
+
+			//loop through all pages in site to determine which widgets are unavailable.
+			//while in this loop, also check for home page in case it is not in the state.
+			for (SitePage pg : pages) {
+				if (pg.isHomePage() && page == null) {
+					page = pg;
+				}
+				List<ToolConfiguration> pageTools = pg.getTools();
+				for(ToolConfiguration pageTool : pageTools){
+					String toolId = pageTool.getToolId();
+					String val = requiredToolMap.get(toolId);
+					//this removes all items with this value.
+					//using values().remove(val) only removes the first one.
+					requiredToolMap.values().removeAll(Collections.singleton(val));
+				}
+			}
+
+			List<String> requiredTools = new ArrayList<>(requiredToolMap.values());
+
+
+			List<ToolConfiguration> tools = sortTools(page.getTools(), page);
+
+			//left and right tool lists used for maneuvering on-the-fly for double column layout
+			List<ToolConfiguration> leftTools = sortTools(page.getTools(0), page);
+			List<ToolConfiguration> rightTools = sortTools(page.getTools(1), page);
+
+			int layout = page.getLayout() + 1; //we need layout to be 1-based for context, but it is stored 0-based.
+
+			state.setAttribute("tools", tools);
+			state.setAttribute("leftTools", leftTools);
+			state.setAttribute("rightTools", rightTools);
+			state.setAttribute("overview", page);
+			state.setAttribute("site", site);
+			state.setAttribute("allWidgets", widgets);
+
+			context.put("tools", tools);
+			context.put("allWidgets", widgets);
+			context.put("requiredTools", requiredTools);
+			context.put("leftTools", leftTools);
+			context.put("rightTools", rightTools);
+			context.put("pagelayout", layout);
+			context.put("page", page);
+			context.put("site", site);
+			context.put("layouts", layoutsList());
+
+			return (String) getContext(data).get("template") + TEMPLATE[64];
 		}
-			
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
+
 
 	public static boolean isSiteMyWorkspace(Site site) {
 		return SiteService.isUserSite(site.getId()) && SiteService.getSiteUserId(site.getId()).equals(SessionManager.getCurrentSessionUserId());
 	}
 
+
+	//sort tools based on their layout hints
+	private List<ToolConfiguration> sortTools(List<ToolConfiguration> tools, SitePage page){
+		int layout = page.getLayout();
+		if(tools == null || tools.isEmpty() || tools.size() == 1) return tools;
+
+		List<ToolConfiguration> sortedTools = new ArrayList<>();
+
+		for(int i=0; i< tools.size(); i++){
+			ToolConfiguration tool = tools.get(i);
+			String hint = tool.getLayoutHints();
+			if(StringUtils.isEmpty(hint)){
+				String[] hintArr = {Integer.toString(i), Integer.toString(layout)};
+				hint = String.join(",", hintArr);
+				tool.setLayoutHints(hint);
+			}
+			String[] hintArr = hint.split(",");
+
+			if(layout == 0){
+				//everything has to be col 0 for layout hints
+				hintArr[1]="0"; //replace column with "0".
+
+			}
+			//row is going to be i, to stop elements from saving with identical layout hints
+			hintArr[0]=Integer.toString(i);
+			hint = String.join(",", hintArr);
+			tool.setLayoutHints(hint);
+			sortedTools.add(tool);
+		}
+		for(int i = 0; i< sortedTools.size(); i++){
+			sortedTools.get(i).setPageOrder(i+1);
+		}
+		return sortedTools;
+	}
 	/**
 	 * Finds the tool ID to use for the adding participants to the site.
 	 * Also checks that the configured tool is a valid helper.
@@ -4284,6 +4395,25 @@ public class SiteAction extends PagedResourceActionII {
 		startHelper(data.getRequest(), "sakai-site-manage-link-helper");
 	}
 
+	/**
+	 * Launch the Manage Overview helper -- for managing overview layout
+	 */
+	public void doManageOverview(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Clean up state on our first entry from a shortcut
+		String panel = data.getParameters().getString("panel");
+
+		siteToolsIntoState(state);
+
+		if (state.getAttribute(STATE_MESSAGE) == null) {
+			state.setAttribute(STATE_TEMPLATE_INDEX, "64");
+			if (state.getAttribute(STATE_INITIALIZED) == null) {
+				state.setAttribute(STATE_OVERRIDE_TEMPLATE_INDEX, "64");
+			}
+		}
+	}
 	/**
 	 * Launch the External Tools Helper -- For managing external tools
 	 */
@@ -6584,7 +6714,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
-			} else if (params.getString("continue") != null) {
+			} else if(index == 64) { //after manage overview, go back to main site info page.
+				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
+			}else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
 						.getString("continue"));
 			}
@@ -10751,7 +10883,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		WorksiteSetupPage wSetupPage = new WorksiteSetupPage();
 		WorksiteSetupPage wSetupHome = new WorksiteSetupPage();
-		
+
+		boolean customOverview = StringUtils.equalsIgnoreCase(site.getProperties().getProperty(Site.PROP_CUSTOM_OVERVIEW), "true");
 		
 		List pageList = new Vector();
 		// declare some flags used in making decisions about Home, whether to
@@ -10856,72 +10989,62 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 			// count
 			int nonSynopticToolIndex=0, synopticToolIndex = 0;
-			
-			for (String homeToolId: homeToolIds)
-			{
-				if (!SYNOPTIC_TOOL_ID_MAP.containsKey(homeToolId))
+			//only do all the work for  adding synoptics if there is not a custom overview
+			if(!customOverview) {
+				for (String homeToolId: homeToolIds)
 				{
-					if (!pageHasToolId(toolList, homeToolId))
-					{
-						// not a synoptic tool and is not in Home page yet, just add it
-						Tool reg = ToolManager.getTool(homeToolId);
-						if (reg != null)
-						{
-							ToolConfiguration tool = page.addTool();
-							tool.setTool(homeToolId, reg);
-							tool.setTitle(reg.getTitle() != null?reg.getTitle():"");
-							tool.setLayoutHints("0," + nonSynopticToolIndex++);
-						}
-					}
-				}
-				else
-				{
-					// synoptic tool 
-					List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(homeToolId);
-					List chosenListClone = new Vector();
-					// chosenlist may have things like bcf89cd4-fa3a-4dda-80bd-ed0b89981ce7sakai.chat
-					// get list of the actual tool names
-					List<String>chosenOrigToolList = new ArrayList<String>();
-					for (String chosenTool: (List<String>)chosenList)
-					    chosenOrigToolList.add(findOriginalToolId(state, chosenTool));
-					chosenListClone.addAll(chosenOrigToolList);
-					boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
-					
-					//first check whether the parent tool is available in site but its parent tool is no longer selected
-					if (pageHasToolId(toolList, homeToolId))
-					{
-						if (!hasAnyParentToolId && !SiteService.isUserSite(site.getId()))
-						{
-							for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext();) 
-							{
-								ToolConfiguration tConf= (ToolConfiguration) iToolList.next();
-								// avoid NPE when the tool definition is missing
-								if (tConf.getTool() != null && homeToolId.equals(tConf.getTool().getId()))
-								{
-									page.removeTool((ToolConfiguration) tConf);
-									break;
-								}
+					if (!SYNOPTIC_TOOL_ID_MAP.containsKey(homeToolId)) {
+						if (!pageHasToolId(toolList, homeToolId)) {
+							// not a synoptic tool and is not in Home page yet, just add it
+							Tool reg = ToolManager.getTool(homeToolId);
+							if (reg != null) {
+								ToolConfiguration tool = page.addTool();
+								tool.setTool(homeToolId, reg);
+								tool.setTitle(reg.getTitle() != null ? reg.getTitle() : "");
+								tool.setLayoutHints("0," + nonSynopticToolIndex++);
 							}
 						}
-						else
+					} else {
+						// synoptic tool
+						List<String> parentToolList = (List<String>) SYNOPTIC_TOOL_ID_MAP.get(homeToolId);
+						List chosenListClone = new Vector();
+						// chosenlist may have things like bcf89cd4-fa3a-4dda-80bd-ed0b89981ce7sakai.chat
+						// get list of the actual tool names
+						List<String> chosenOrigToolList = new ArrayList<String>();
+						for (String chosenTool : (List<String>) chosenList)
+							chosenOrigToolList.add(findOriginalToolId(state, chosenTool));
+						chosenListClone.addAll(chosenOrigToolList);
+						boolean hasAnyParentToolId = chosenListClone.removeAll(parentToolList);
+
+						//first check whether the parent tool is available in site but its parent tool is no longer selected
+						if (pageHasToolId(toolList, homeToolId) && !customOverview)
 						{
-							synopticToolIndex++;
+							if (!hasAnyParentToolId && !SiteService.isUserSite(site.getId())) {
+								for (ListIterator iToolList = toolList.listIterator(); iToolList.hasNext(); ) {
+									ToolConfiguration tConf = (ToolConfiguration) iToolList.next();
+									// avoid NPE when the tool definition is missing
+									if (tConf.getTool() != null && homeToolId.equals(tConf.getTool().getId())) {
+										page.removeTool((ToolConfiguration) tConf);
+										break;
+									}
+								}
+							} else {
+								synopticToolIndex++;
+							}
 						}
-					}
-					
-					// then add those synoptic tools which wasn't there before
-					if (!pageHasToolId(toolList, homeToolId) && hasAnyParentToolId)
-					{
-						try
-						{
-							// use value from map to find an internationalized tool title
-							String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
-							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex++);
-						} catch (Exception e) {
-							log.error(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
+
+						// then add those synoptic tools which wasn't there before
+						if (!pageHasToolId(toolList, homeToolId) && hasAnyParentToolId) {
+							try {
+								// use value from map to find an internationalized tool title
+								String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
+								addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex++);
+							} catch (Exception e) {
+								log.error(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
+							}
 						}
+
 					}
-					
 				}
 			}
 			
@@ -15396,5 +15519,477 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Generate a HashMap of all the variables stored within the state.
+	 * @param state
+	 * @return
+	 */
+	private HashMap<String, Object> generateStateMap(SessionState state) {
+		HashMap<String, Object> stateMap = new HashMap<>();
+		for (String name : state.getAttributeNames()) {
+			stateMap.put(name, state.getAttribute(name));
+		}
+		return stateMap;
+    }
+
+	/**
+	 * Create a list of the valid layout names.
+	 *
+	 * @return A List (String) of the value layout names.
+	 */
+	private List layoutsList()
+	{
+		List rv = new Vector();
+		String[] layoutNames = SiteService.getLayoutNames();
+		for (int i = 0; i < layoutNames.length; i++)
+		{
+			rv.add(layoutNames[i]);
+		}
+		return rv;
+
+	} // layoutsList
+
+
+	/**
+	 * handle with manage overview options
+	 *
+	 */
+	public void doManage_overview_option(RunData data) {
+		String option = data.getParameters().getString("option");
+		if ("save".equals(option)) {
+			doSave_overview(data);
+		} else if ("cancel".equals(option)) {
+			doCancel(data);
+		}else if (StringUtils.contains("layout", option)){
+			update_layout_option(data);
+		}
+	} // doManage_overview_option
+
+	public void update_layout_option(RunData data){
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SitePage page = (SitePage) state.getAttribute("overview");
+
+		try {
+			int layout = Integer.parseInt(data.getParameters().getString("layout")) - 1; //convert back to 0 based.
+			page.setLayout(layout);
+			state.setAttribute("overview", page);
+		}catch(Exception e){
+			log.warn("Reading layout: {}" + e.getMessage());
+		}
+	}
+
+	/**
+	 * Move the tool up in the order.
+	 */
+	public void doEdit_tool_up(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		String id = data.getParameters().getString("id");
+
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		List<ToolConfiguration> tools = page.getTools();
+		ToolConfiguration tool = null;
+
+		for(ToolConfiguration pageTool: tools){
+			if(pageTool.getToolId().equals(StringUtils.trimToNull(id))){
+				tool = pageTool;
+			}
+		}
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		String col = null;
+		if(hintArr.length == 2 && page.getLayout() == 1){ // 2 col layout
+			if(StringUtils.trimToNull(hintArr[1]).equals("1")) {
+				col = "1";
+			}else if(StringUtils.trimToNull(hintArr[1]).equals("0")){
+				col = "0";
+			}
+		}
+		// move it
+		int indexOfLastItemInCol = -1;
+		int toolIndex = -1;
+		if(page.getLayout() == 1) {
+			for(int i=0; i<tools.size(); i++){
+
+				if (StringUtils.trimToNull(tools.get(i).getLayoutHints().split(",")[1]).equals(col) && !tools.get(i).equals(tool)) {
+					indexOfLastItemInCol = i;
+				}
+
+				if (tools.get(i).equals(tool)) {
+					if (i == 0) {
+						return; //nothing actually needs to happen, its already on top
+					}
+
+					String prevHint = tools.get(indexOfLastItemInCol).getLayoutHints();
+					tool.setLayoutHints(prevHint);
+					tools.get(indexOfLastItemInCol).setLayoutHints(hints); //swap this layout hint with the tool above it.
+					int prevPageOrder = tools.get(indexOfLastItemInCol).getPageOrder();
+					tools.get(indexOfLastItemInCol).setPageOrder(tool.getPageOrder());
+					tool.setPageOrder(prevPageOrder);
+
+					toolIndex = i;
+					break;
+				}
+			}
+		}else{
+			for(int i=0; i<tools.size(); i++){
+				if(tools.get(i).equals(tool)){
+					if( i == 0){
+						return;
+					}
+					String prevHint = tools.get(indexOfLastItemInCol).getLayoutHints();
+					tool.setLayoutHints(prevHint);
+					tools.get(indexOfLastItemInCol).setLayoutHints(hints); //swap this layout hint with the tool above it.
+					int prevPageOrder = tools.get(indexOfLastItemInCol).getPageOrder();
+					tools.get(indexOfLastItemInCol).setPageOrder(tool.getPageOrder());
+					tool.setPageOrder(prevPageOrder);
+
+					toolIndex = i;
+					break;
+				}else{
+					indexOfLastItemInCol = i;
+				}
+			}
+		}
+		Collections.swap(tools, indexOfLastItemInCol, toolIndex);
+
+		page.setTools(tools);
+
+		state.setAttribute("overview", page);
+		
+	} // doEdit_tool_up
+
+	/**
+	 * Move the tool down in the order.
+	 */
+	public void doEdit_tool_down(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String id = data.getParameters().getString("id");
+		
+
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		List<ToolConfiguration> tools = page.getTools();
+		ToolConfiguration tool = null;
+
+		for(ToolConfiguration pageTool: tools){
+			if(pageTool.getToolId().equals(StringUtils.trimToNull(id))){
+				tool = pageTool;
+			}
+		}
+
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		String col = null;
+
+		if(hintArr.length == 2 && page.getLayout() == 1){ // 2 col layout
+			if(StringUtils.trimToNull(hintArr[1]).equals("1")) {
+				col = "1";
+			}else if(StringUtils.trimToNull(hintArr[1]).equals("0")){
+				col = "0";
+			}
+		}
+
+		int indexOfNextItemInCol = -1;
+		int toolIndex = -1;
+		// move it
+		if(page.getLayout() == 1) {
+			for (int i = 0; i < tools.size(); i++) {
+				if (StringUtils.trimToNull(tools.get(i).getLayoutHints().split(",")[1]).equals(col) && tools.get(i).equals(tool)) {
+					toolIndex = i;
+					if (i == tools.size() - 1) {
+						return; //already at bottom. do nothing.
+					}
+				}
+
+				if (!tools.get(i).equals(tool) && toolIndex != -1 && StringUtils.trimToNull(tools.get(i).getLayoutHints().split(",")[1]).equals(col)) {
+					String nextHint = tools.get(i).getLayoutHints();
+					tools.get(toolIndex).setLayoutHints(nextHint);
+					tools.get(i).setLayoutHints(hints); //swap this layout hint with the tool below it.
+					tools.get(toolIndex);
+					int nextPageOrder = tools.get(i).getPageOrder();
+					tools.get(i).setPageOrder(tool.getPageOrder());
+					tools.get(toolIndex).setPageOrder(nextPageOrder);
+					indexOfNextItemInCol = i;
+					break;
+				}
+			}
+		}else{
+			for(int i=0; i<tools.size(); i++){
+				if(tools.get(i).equals(tool)){
+					toolIndex = i;
+				}else if(toolIndex != -1){
+					String nextHint = tools.get(i).getLayoutHints();
+					tools.get(toolIndex).setLayoutHints(nextHint);
+					tools.get(i).setLayoutHints(hints); //swap this layout hint with the tool below it.
+					tools.get(toolIndex);
+					int nextPageOrder = tools.get(i).getPageOrder();
+					tools.get(i).setPageOrder(tool.getPageOrder());
+					tools.get(toolIndex).setPageOrder(nextPageOrder);
+					indexOfNextItemInCol = i;
+					break;
+				}
+			}
+		}
+
+		Collections.swap(tools, toolIndex, indexOfNextItemInCol);
+
+		page.setTools(tools);
+
+		state.setAttribute("overview", page);
+		
+
+	} // doEdit_tool_down
+
+	/**
+	 * Move the tool right in the 2-column layout option
+	 */
+	public void doEdit_tool_right(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String id = data.getParameters().getString("id");
+		
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ToolConfiguration tool = page.getTool(id);
+
+		// move it
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		if(hintArr.length == 0){
+			tool.setLayoutHints("0,1"); //default to 0, 1 if hint doesnt exist.
+		}else{
+			hintArr[1]="1"; //replace column with "1".
+			String hint = String.join(",", hintArr);
+			tool.setLayoutHints(hint);
+		}
+	} // doEdit_tool_right
+
+	/**
+	 * Move the tool left 2-column layout option
+	 */
+	public void doEdit_tool_left(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String id = data.getParameters().getString("id");
+		
+
+		// get the tool
+		Site site = (Site) state.getAttribute("site");
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ToolConfiguration tool = page.getTool(id);
+
+		// move it
+		String hints = tool.getLayoutHints();
+		String[] hintArr = hints.split(",");
+		if(hintArr.length == 0){
+			tool.setLayoutHints("0,0"); //default to 0, 0 if hint doesnt exist.
+		}else{
+			hintArr[1]="0"; //replace column with "0".
+			String hint = String.join(",", hintArr);
+			tool.setLayoutHints(hint);
+		}
+	} // doEdit_tool_left
+
+	/**
+	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
+	 */
+	public void doSave_overview(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
+		// commit the change
+		Site site = (Site) state.getAttribute("site");
+		if (readPageForm(data, state))
+		{
+			try
+			{
+				SitePage page = (SitePage) state.getAttribute("overview");
+				SitePage savedPage = site.getPage(page.getId()); //old page, will update tool list.
+				List<ToolConfiguration> tools = page.getTools();
+
+				savedPage.setTools(tools);
+				savedPage.setLayout(page.getLayout());
+				savedPage.setTitle(page.getTitle());
+				for(ToolConfiguration tool: savedPage.getTools()){
+					tool.save();
+				}
+
+				ResourcePropertiesEdit rp = site.getPropertiesEdit();
+
+				rp.addProperty(Site.PROP_CUSTOM_OVERVIEW, Boolean.TRUE.toString());
+				SiteService.save(site);
+			}
+			catch (PermissionException | IdUnusedException e)
+			{
+				log.warn(e.getMessage());
+			}
+		}
+
+		// cleanup
+		state.removeAttribute("tools");
+		state.removeAttribute("leftTools");
+		state.removeAttribute("rightTools");
+		state.removeAttribute("overview");
+		state.removeAttribute("site");
+		state.removeAttribute("allWidgets");
+
+		// make sure auto-updates are enabled
+		enableObserver(state);
+
+		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden
+		schedulePeerFrameRefresh("sitenav");
+
+
+		doContinue(data);
+
+	} // doSaveOverview
+
+	/**
+	 * Read the page form and update the site in state.
+	 *
+	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
+	 */
+	private boolean readPageForm(RunData data, SessionState state)
+	{
+		update_layout_option(data);
+
+		// get the page - it's there
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ParameterParser params = data.getParameters();
+		//save layout hints
+		List<ToolConfiguration> tools;
+
+		if(page.getLayout() == 0) {
+			tools = (List<ToolConfiguration>) state.getAttribute("tools");
+			if(tools != null){
+				for(int i=0; i<tools.size(); i++){
+					String hints = tools.get(i).getLayoutHints();
+					tools.get(i).setLayoutHints(hints);
+					String[] hintArr = hints.split(",");
+					if(hintArr.length == 0){
+						tools.get(i).setLayoutHints("0,0"); //default to 0, 0 if hint doesnt exist.
+					}else{
+						hintArr[1]="0"; //replace column with "0".
+						String hint = String.join(",", hintArr);
+						tools.get(i).setLayoutHints(hint);
+					}
+				}
+			}
+		}else {
+			List<ToolConfiguration> leftTools = (List<ToolConfiguration>) state.getAttribute("leftTools");
+			List<ToolConfiguration> rightTools = (List<ToolConfiguration>) state.getAttribute("rightTools");
+
+
+			tools = new ArrayList<>();
+			tools.addAll(leftTools);
+			tools.addAll(rightTools);
+		}
+
+		if(validateLayoutHints(tools)) {
+			tools = sortTools(tools, page);
+			state.setAttribute("tools", tools);
+			state.setAttribute("overview", page);
+			return true;
+		}else{
+			addAlert(state, rb.getString("manover.layhintletter"));
+			return false;
+		}
+	} // readPageForm
+
+	private boolean validateLayoutHints(List<ToolConfiguration> tools){
+		Pattern p = Pattern.compile("\\d{1,},\\d{1,}");
+		for(ToolConfiguration tool : tools){
+			String hint = tool.getLayoutHints();
+			Matcher m = p.matcher(hint);
+			if(!m.matches()){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private List findWidgets()
+	{
+		class ToolTitleComparator implements Comparator{
+			public int compare(Object tool0, Object tool1) {
+				return ((Tool)tool0).getTitle().compareTo( ((Tool)tool1).getTitle() );
+			}
+		}
+		// get the helpers
+		Set categories = new HashSet();
+		categories.add("widget");
+		Set widgets = ToolManager.findTools(categories, null);
+
+		// make a list for sorting
+		List features = new Vector();
+		features.addAll(widgets);
+		//Collections.sort(features);
+		Collections.sort(features, new ToolTitleComparator());
+		return features;
+	}
+
+	public void doAdd_widget(RunData data){
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		String id = params.getString("id");
+		// make the tool so we have the id
+		SitePage page = (SitePage) state.getAttribute("overview");
+		ToolConfiguration tool = page.addTool(id);
+		tool.setLayoutHints("0,0"); //assume top left, it will be sorted later-- val just cant be null
+
+		List<Tool> widgets = (List<Tool>) state.getAttribute("allWidgets");
+		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+
+		for(Tool widget: widgets){
+			if(widget.getId().equals(id)){
+				tool.setTitle(widget.getTitle());
+			}
+		}
+
+		tools = sortTools(tools, page); //run a sort of the tools now that the new one has been added.
+		state.setAttribute("tools", tools);
+		state.removeAttribute("overview");
+		state.setAttribute("overview", page);
+	}
+
+	public void doRemove_widget(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		SitePage page = (SitePage) state.getAttribute("overview");
+		List<ToolConfiguration> tools = (List<ToolConfiguration>) state.getAttribute("tools");
+
+		List<ToolConfiguration> removedTools = (List<ToolConfiguration>) state.getAttribute("removedTools");
+		if(removedTools == null){
+			removedTools = new ArrayList<>();
+		}
+
+		String id = params.getString("id");
+		for(ToolConfiguration tool: tools){
+			if(tool.getTool().getId().equals(id)){
+				removedTools.add(tool);
+			}
+		}
+
+		tools.removeAll(removedTools);
+
+		state.setAttribute("tools", tools);
 	}
 }

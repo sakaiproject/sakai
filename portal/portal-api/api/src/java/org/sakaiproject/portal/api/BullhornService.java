@@ -85,4 +85,21 @@ public interface BullhornService {
      * @return boolean to indicate success
      */
     public boolean clearAllAcademicAlerts(String userId);
+
+    /**
+     * Toggles the bullhorn alert flag to be shown or not by saving
+     * a boolean in the user preferences table.
+     *
+     * @param userId, User Id to toggle
+     * @return The value of hidden preference after save
+     */
+    boolean toggleHideBullhornAlerts(String userId);
+
+    /**
+     * Check the user's preferences for if the alert is hidden or shown.
+     *
+     * @param userId, The user id to check
+     * @return The value of the hide alert preference.
+     */
+    boolean isAlertHidden(final String userId);
 }

@@ -2222,10 +2222,15 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
     @Override
     public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment, boolean allowAddAssignment, boolean allowSubmitAssignment) throws Exception {
+        return this.getDeepLinkWithPermissions(context, assignmentId, allowReadAssignment, allowAddAssignment, allowSubmitAssignment, false);
+    }
+
+    public String getDeepLinkWithPermissions(String context, String assignmentId, boolean allowReadAssignment
+            , boolean allowAddAssignment, boolean allowSubmitAssignment, boolean ignoreOpenDate) throws Exception {
         Assignment a = getAssignment(assignmentId);
 
         String assignmentContext = a.getContext(); // assignment context
-        if (allowReadAssignment && a.getOpenDate().isBefore(ZonedDateTime.now().toInstant())) {
+        if (allowReadAssignment && (ignoreOpenDate || a.getOpenDate().isBefore(ZonedDateTime.now().toInstant()))) {
             // this checks if we want to display an assignment link
             try {
                 Site site = siteService.getSite(assignmentContext);

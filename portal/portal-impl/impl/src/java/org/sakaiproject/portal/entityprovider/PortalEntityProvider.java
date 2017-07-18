@@ -17,7 +17,6 @@ package org.sakaiproject.portal.entityprovider;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Locale;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -33,8 +32,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
-import org.apache.velocity.runtime.RuntimeConstants;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -171,6 +168,22 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 			return new ActionReturn(data);
 		}
     }
+
+    @EntityCustomAction(action = "hideShowBullhornAlert", viewKey = EntityView.VIEW_LIST)
+	public String hideShowBullhornAlerts() {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		return String.valueOf(this.bullhornService.toggleHideBullhornAlerts(currentUserId));
+	}
+
+	@EntityCustomAction(action = "isAlertHidden", viewKey = EntityView.VIEW_LIST)
+	public String isAlrtHidden() {
+
+		String currentUserId = getCheckedCurrentUser();
+
+		return String.valueOf(this.bullhornService.isAlertHidden(currentUserId));
+	}
 
 	@EntityCustomAction(action = "socialAlerts", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getSocialAlerts(EntityView view) {

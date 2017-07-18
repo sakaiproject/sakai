@@ -1,0 +1,17 @@
+<registration>
+
+    <tool
+            id="sakai.synoptic.commons"
+            title="Recent Commons Posts"
+            description="View recent commons posts">
+
+        <configuration name="renderInline" value="true" />
+        <configuration name="suppressTitle" value="false" />
+        <configuration name="reset.button" value="false" />
+        <configuration name="help.button" value="true" />
+        <configuration name="sakai:tool-directurl-enabled" value="true" />
+        <configuration name="require.tool" value="false" type="final" />
+        <category name="widget" />
+    </tool>
+
+</registration>
