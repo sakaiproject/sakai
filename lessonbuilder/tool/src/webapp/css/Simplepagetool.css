@@ -576,6 +576,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .mainList .textbox ul {
 
 }
+.mainList .textbox ul.forumSummaryList, .mainList .textbox ul.announcementSummaryList {
+    display: inherit;
+}
 .mainList div.item .textbox {
 
 }
@@ -1673,6 +1676,7 @@ font-size: 12px;
 
 .forumSummaryItem, .announcementSummaryItem{
  margin-bottom: 10px;
+ display: inline-block;
 }
 
 .itemTitle {
