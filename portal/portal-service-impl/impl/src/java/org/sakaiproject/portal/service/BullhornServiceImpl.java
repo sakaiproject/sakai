@@ -178,6 +178,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_ADD);
             HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_RESPONSE);
+            HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_FORWARD);
             HANDLED_EVENTS.add(COMMONS_COMMENT_CREATED);
             HANDLED_EVENTS.add(LessonBuilderEvents.COMMENT_CREATE);
             eventTrackingService.addLocalObserver(this);
@@ -390,7 +391,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } catch (NumberFormatException nfe) {
                             log.error("Caught number format exception whilst handling events", nfe);
                         }
-                    }else if (DiscussionForumService.EVENT_MESSAGES_ADD.equals(event) || DiscussionForumService.EVENT_MESSAGES_RESPONSE.equals(event)) {
+                        } else if (DiscussionForumService.EVENT_MESSAGES_ADD.equals(event) ||
+                                DiscussionForumService.EVENT_MESSAGES_RESPONSE.equals(event) ||
+                                DiscussionForumService.EVENT_MESSAGES_FORWARD.equals(event)) {
                             String siteId = pathParts[3];
                             Long messageId = Long.valueOf(pathParts[pathParts.length - 2]);
                             PrivateMessage message = (PrivateMessage) privateMessageManager.getMessageById(messageId);
