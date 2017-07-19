@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -389,6 +390,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getEmail());
 			}
 
+			if (this.sakaiProxy.getViewUserProperty(siteId)) {
+				List<String> props = member.getUserProperties().entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+				row.add(String.join(",", props));
+			}
+
 			row.add(member.getRole());
 
 			if (this.sakaiProxy.hasUserSitePermission(userId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, siteId)) {
@@ -441,6 +447,11 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 			if (this.sakaiProxy.getViewEmail(siteId)) {
 				row.add(member.getEmail());
+			}
+
+			if (this.sakaiProxy.getViewUserProperty(siteId)) {
+				List<String> props = member.getUserProperties().entrySet().stream().sorted(Map.Entry.comparingByKey()).map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.toList());
+				row.add(String.join(",", props));
 			}
 
 			row.add(member.getEnrollmentStatusText());
@@ -507,8 +518,13 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		if (this.sakaiProxy.getViewUserDisplayId()) {
 			header.add(rl.getString("facet_userId"));
 		}
+
 		if (this.sakaiProxy.getViewEmail(siteId)) {
 			header.add(rl.getString("facet_email"));
+		}
+
+		if (this.sakaiProxy.getViewUserProperty(siteId)) {
+			header.add(rl.getString("facet_userProperties"));
 		}
 
 		if (VIEW_OVERVIEW.equals(viewType)) {

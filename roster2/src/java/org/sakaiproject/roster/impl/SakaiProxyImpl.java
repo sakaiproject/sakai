@@ -22,6 +22,7 @@ package org.sakaiproject.roster.impl;
 import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -131,6 +132,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
+        }
+
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, true);
         }
 
         eventTrackingService.addObserver(this);
@@ -283,6 +288,19 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 	public Boolean getViewUserDisplayId() {
 		return serverConfigurationService.getBoolean(
 				"roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID);
+	}
+
+	@Override
+	public Boolean getViewUserProperty() {
+		return getViewUserProperty(getCurrentSiteId());
+	}
+
+	@Override
+	public Boolean getViewUserProperty(String siteId) {
+		if(serverConfigurationService.getBoolean("roster_view_user_properties", DEFAULT_VIEW_USER_PROPERTIES)) {
+			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWUSERPROPERTIES, siteId);
+		}
+		return false;
 	}
 
 	/**
@@ -598,6 +616,13 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setEmail(user.getEmail());
 		rosterMember.setDisplayName(user.getDisplayName());
 		rosterMember.setSortName(user.getSortName());
+
+		Map<String, String> userPropertiesMap = new HashMap<>();
+		Map<String, Object> props = ((SerializablePropertiesAccess) user.getProperties()).getSerializableProperties();
+		for (String propKey : props.keySet() ) {
+		    userPropertiesMap.put(propKey, (String) props.get(propKey));
+		}
+		rosterMember.setUserProperties(userPropertiesMap);
 
 		for (Group group : groups) {
 			if (group.getMember(userId) != null) {

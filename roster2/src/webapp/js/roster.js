@@ -328,13 +328,14 @@
                 roster.render('members_header', {
                     viewEmail: roster.viewEmail,
                     viewUserDisplayId: roster.viewUserDisplayId,
+                    viewUserProperty: roster.viewUserProperty,
                     viewProfile: roster.currentUserPermissions.viewProfile,
                     viewGroup : roster.currentUserPermissions.viewGroup,
                     viewPicture: true,
                     viewSiteVisits: roster.currentUserPermissions.viewSiteVisits,
                     viewConnections: ((undefined != window.friendStatus) && roster.viewConnections),
                     enrollmentsMode: enrollmentsMode,
-                    showVisits: roster.showVisits
+                    showVisits: roster.showVisits,
                     }, 'roster-members-content');
             }
 
@@ -562,6 +563,7 @@
                 firstNameLastName: roster.firstNameLastName,
                 viewEmail: roster.viewEmail,
                 viewUserDisplayId: roster.viewUserDisplayId,
+                viewUserProperty: roster.viewUserProperty,
                 viewProfile: roster.currentUserPermissions.viewProfile,
                 viewGroup : roster.currentUserPermissions.viewGroup,
                 viewPicture: true,
