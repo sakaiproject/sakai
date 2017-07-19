@@ -99,6 +99,7 @@ public interface LTIService {
             "title:text:label=bl_title:required=true:maxlength=1024",
             "allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
             "fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
+            "allowfa_icon:radio:label=bl_allowfa_icon:choices=disallow,allow",
             "pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
             "allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
             "description:textarea:label=bl_description:maxlength=4096",
@@ -141,6 +142,8 @@ public interface LTIService {
             "tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
             "allowcustom:checkbox:label=bl_allowcustom",
             "xmlimport:textarea:hidden=true:maxlength=1M",
+            // Should we hide the more advanced config options when allowing people to add this tool?
+            "hideconfig:checkbox:label=bl_hideconfig",
             "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
             "created_at:autodate",
             "updated_at:autodate"};
@@ -461,6 +464,7 @@ public interface LTIService {
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
 
 
+
     // --- Deploy
     Object insertDeployDao(Properties newProps);
 
@@ -504,5 +508,31 @@ public interface LTIService {
 
     String formInput(Object row, String[] fieldInfo);
 
+    /**
+     * Should the user be presented with config options when adding tool?
+     * @param tool The tool being added.
+     * @param contentToolModel The content model for the tool..
+     * @return <code>true</code> If we should skip config options when adding this tool.
+     */
+    boolean hideConfig(Map<String, Object> tool, String[] contentToolModel);
+
     boolean isAdmin(String siteId);
+
+	/**
+	 * This checks if a tool has to be configured to work in the site or if we should just skip the configuration.
+	 * @param tool The LTI tool.
+	 * @param contentToolModel The model for the tool.
+	 * @return <code>true</code> if the user has to provide some more configuration.
+	 */
+	boolean needsConfig(Map<String, Object> tool, String[] contentToolModel);
+
+    /**
+     * This returns the default properties that an instance of the tool should have.
+     * This is useful when you want to create an instance of the tool, but don't want to prompt the user to confirm
+     * any of the configuration.
+     * @param ltiTool The LTI tool.
+     * @param contentToolModel The model for the tool.
+     * @return The default required values.
+     */
+    Properties defaultConfig(Map<String, Object> ltiTool, String[] contentToolModel);
 }
