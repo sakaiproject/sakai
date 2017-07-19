@@ -40,7 +40,7 @@ import org.sakaiproject.util.IdPwEvidence;
 public class AuthenticationCacheTest extends SakaiKernelTestBase {
 	private static Logger log = LoggerFactory.getLogger(AuthenticationCacheTest.class);
 	private static String[] USER_DATA_1 = {"localonly1user", null, "First", "Last1", "local1@edu", "local1password"};
-	private static IdPwEvidence USER_EVIDENCE_1 = new IdPwEvidence(USER_DATA_1[0], USER_DATA_1[5]);
+	private static IdPwEvidence USER_EVIDENCE_1 = new IdPwEvidence(USER_DATA_1[0], USER_DATA_1[5], null);
 	private static String[] USER_DATA_2 = {"localonly2user", null, "First", "Last2", "local2@edu", "local2password"};
 	private AuthenticationManager authenticationManager;
 	private AuthenticationCache authenticationCache;
@@ -98,7 +98,7 @@ public class AuthenticationCacheTest extends SakaiKernelTestBase {
 		Assert.assertTrue(authentication.getEid().equals(USER_DATA_1[0]));
 
 		// Test authentication failure throttle.
-		IdPwEvidence badEvidence = new IdPwEvidence(USER_DATA_1[0], "Not the password");
+		IdPwEvidence badEvidence = new IdPwEvidence(USER_DATA_1[0], "Not the password", null);
 		try {
 			authenticationManager.authenticate(badEvidence);
 			Assert.fail();

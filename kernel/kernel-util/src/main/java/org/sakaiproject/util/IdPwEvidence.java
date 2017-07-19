@@ -34,6 +34,9 @@ public class IdPwEvidence implements org.sakaiproject.user.api.IdPwEvidence
 	/** The password string. */
 	protected String m_password = null;
 
+	/** The remote address. */
+        protected String m_remoteAddr = null;
+
 	/**
 	 * Construct, with identifier and password.
 	 * 
@@ -42,10 +45,11 @@ public class IdPwEvidence implements org.sakaiproject.user.api.IdPwEvidence
 	 * @param password
 	 *        The password string.
 	 */
-	public IdPwEvidence(String identifier, String password)
+	public IdPwEvidence(String identifier, String password, String remoteAddr)
 	{
 		m_identifier = identifier;
 		m_password = password;
+		m_remoteAddr = remoteAddr;
 	}
 
 	/**
@@ -63,4 +67,13 @@ public class IdPwEvidence implements org.sakaiproject.user.api.IdPwEvidence
 	{
 		return m_password;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public String getRemoteAddr()
+	{
+		return m_remoteAddr;
+	}
 }
+
