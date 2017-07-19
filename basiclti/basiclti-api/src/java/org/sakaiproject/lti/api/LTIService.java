@@ -115,6 +115,7 @@ public interface LTIService {
             "allowsecret:radio:label=bl_allowsecret:choices=disallow,allow:only=lti1",
             "frameheight:integer:label=bl_frameheight",
             "allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
+            "siteinfoconfig:radio:label=bl_siteinfoconfig:choices=bypass,config",
             "privacy:header:fields=sendname,sendemailaddr",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
@@ -255,6 +256,7 @@ public interface LTIService {
     String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
     // End of BLTI-230 - LTI 2.0
     String LTI_PL_LAUNCH = "pl_launch";
+    String LTI_SITEINFOCONFIG = "siteinfoconfig";
     String LTI_PL_LINKSELECTION = "pl_linkselection";
     String LTI_PL_FILEITEM = "pl_fileitem";
     String LTI_PL_IMPORTITEM = "pl_importitem";
