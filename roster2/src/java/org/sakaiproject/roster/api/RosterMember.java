@@ -60,6 +60,8 @@ public class RosterMember {
 	@Getter
 	private Map<String, String> groups = new HashMap<String, String>();
 	@Getter @Setter
+	private Map<String, String> userProperties = new HashMap<>();
+	@Getter @Setter
 	private int connectionStatus; // connection status to the current user
 	@Getter @Setter
 	private int totalSiteVisits;

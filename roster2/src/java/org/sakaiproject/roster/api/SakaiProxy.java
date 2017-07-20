@@ -47,6 +47,7 @@ public interface SakaiProxy {
 	public final static Boolean DEFAULT_VIEW_EMAIL = true;
 	public final static Boolean DEFAULT_VIEW_CONNECTIONS = true;
 	public final static Boolean DEFAULT_VIEW_USER_DISPLAY_ID = true;
+	public final static Boolean DEFAULT_VIEW_USER_PROPERTIES = true;
 	public final static Integer DEFAULT_ROSTER_STATE = 0;
 	
 	/**
@@ -143,6 +144,21 @@ public interface SakaiProxy {
 	 * @return the value of the <code>roster.display.userDisplayId</code> Sakai property.
 	 */
 	public Boolean getViewUserDisplayId();
+
+	/**
+	 * Returns the value of the <code>roster_view_user_properties</code> Sakai property.
+	 *
+	 * @return the value of the <code>roster_view_user_properties</code> Sakai property.
+	 */
+	public Boolean getViewUserProperty();
+
+	/**
+	 * Returns the value of the <code>roster_view_user_properties</code> Sakai property.
+	 *
+	 * @param siteId a site
+	 * @return the value of the <code>roster_view_user_properties</code> Sakai property.
+	 */
+	public Boolean getViewUserProperty(String siteId);
 
 	/**
 	 * Returns the value of the <code>roster.display.officialPicturesByDefault</code> Sakai property.
