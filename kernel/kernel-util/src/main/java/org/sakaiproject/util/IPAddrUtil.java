@@ -49,7 +49,7 @@ public class IPAddrUtil
 	 */
 	public static boolean matchIPList(String addrlist, String addr)
 	{
-		log.info("Matching IP '" + addr + "' to whitelist '" + addrlist + "'");
+		log.info("Checking login IP '" + addr + "' is contained in whitelist '" + addrlist + "'");
 
 		// TODO Support IPv6
 
@@ -58,30 +58,27 @@ public class IPAddrUtil
 
 		boolean match = false;
 
-		List<String> subnetMasks = Arrays.asList(addrlist.split(","));
-
-		for (String subnetMask : subnetMasks) {
-			if (!subnetMask.contains("/") && subnetMask.equals(addr)) {
-				// Exact match
-				match = true;
-				break;
-			} else {
-				// Subnet
+		for (String netaddr : Arrays.asList(addrlist.split(","))) {
+			if (netaddr.contains("/")) {
+				// Contained in subnet?
 				try {
-					SubnetUtils.SubnetInfo subnet = new SubnetUtils(subnetMask).getInfo();
-					log.info("Checking IP " + addr + " to subnet " + subnet.getCidrSignature());
+					SubnetUtils.SubnetInfo subnet = new SubnetUtils(netaddr.trim()).getInfo();
 					if (subnet.isInRange(addr)) {
-						log.info("IP Address " + addr + " is in range " + subnet.getCidrSignature());
+						log.debug("IP Address " + addr + " is in network range " + subnet.getCidrSignature());
 						match = true;
 						break;
 					}
 				} catch (IllegalArgumentException e) {
-					log.warn("IP Address " + addr + " or mask " + subnetMask + " is not a valid IP address format");
+					log.warn("IP network address '" + netaddr + "' is not a valid CIDR format");
+				}
+			} else {
+				// Exact match?
+				if (netaddr.trim().equals(addr)) {
+					match = true;
+					break;
 				}
 			}
 		}
-
 		return match;
 	}
-
 }

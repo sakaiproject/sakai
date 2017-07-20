@@ -39,7 +39,7 @@ public class IPAddrUtilTest {
     @Test
     public void testMatchIPList() {
 
-	String privateRanges = "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,198.51.100.0/24,127.0.0.0/8";
+	String privateRanges = "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 , 198.51.100.0/24, 127.0.0.0/8";
 
 	// null or empty list never matches
 	Assert.assertFalse(IPAddrUtil.matchIPList("", "1.2.3.4"));
