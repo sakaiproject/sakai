@@ -52,6 +52,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.portal.api.BullhornService;
@@ -242,7 +243,7 @@ public class PortalEntityProvider extends AbstractEntityProvider implements Auto
 
 		String currentUserId = getCheckedCurrentUser();
 
-		ResourceLoader rl = new ResourceLoader(currentUserId, "profile-popup");
+		ResourceLoader rl = new Resource().getLoader("org.sakaiproject.portal.api.PortalService", "profile-popup");
 
 		UserProfile userProfile = (UserProfile) profileLogic.getUserProfile(ref.getId());
 
