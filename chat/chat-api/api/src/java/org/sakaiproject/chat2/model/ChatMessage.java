@@ -144,6 +144,10 @@ public class ChatMessage implements org.sakaiproject.entity.api.Entity {
       }
       this.body = formattedBody;
    }
+   
+   public void setRawBody(String body){
+	   this.body = body;
+   }
 
    /**
     * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
