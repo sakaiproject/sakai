@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.portal.chat.entity.PCServiceEntityProvider" init-method="init">
+		class="org.sakaiproject.portal.chat.entity.PCServiceEntityProvider" init-method="init" destroy-method="destroy">
 		<property name="developerService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
