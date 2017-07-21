@@ -253,7 +253,7 @@ public class SakaiIFrame extends GenericPortlet {
 	 * we either make a new content item from the tool or we empty the
 	 * source property.
 	 */
-	public Map<String, Object> patchContentItem(Long key, Placement placement)
+	private Map<String, Object> patchContentItem(Long key, Placement placement)
 	{
 		// Get out tool configuration so we can fix things up...
 		ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
