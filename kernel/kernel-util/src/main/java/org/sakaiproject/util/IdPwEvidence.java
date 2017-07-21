@@ -75,5 +75,27 @@ public class IdPwEvidence implements org.sakaiproject.user.api.IdPwEvidence
 	{
 		return m_remoteAddr;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (o == this) return true;
+
+		if (!(o instanceof IdPwEvidence)) return false;
+
+		IdPwEvidence e = (IdPwEvidence) o;
+
+		return e.getIdentifier().equals(m_identifier) &&
+		       e.getPassword().equals(m_password) &&
+		       e.getRemoteAddr().equals(m_remoteAddr);
+    	}
+
+	@Override
+	public int hashCode() {
+		int result = m_identifier.hashCode();
+		result = 31 * result + m_password.hashCode();
+		result = 31 * result + m_remoteAddr.hashCode();
+		return result;
+	}
 }
 
