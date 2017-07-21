@@ -42,6 +42,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -68,6 +69,7 @@ import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 import org.sakaiproject.profile2.logic.ProfileStatusLogic;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
@@ -289,12 +291,30 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                         String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
                                                 + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
 
+                                        AnnouncementMessageHeader header = message.getAnnouncementHeader();
+
                                         // In this case title = announcement subject
                                         String title
-                                                = ((AnnouncementMessageHeader) message.getHeader()).getSubject();
+                                                = header.getSubject();
 
-                                        // Get all the members of the site with read ability
-                                        for (String  to : site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ)) {
+                                        Collection<Group> announcementGroups = header.getGroupObjects();
+                                        Set<String> toSet = new HashSet<>();
+                                        if (announcementGroups == null || announcementGroups.isEmpty()) {
+                                            // Get all the members of the site with read ability
+                                            toSet.addAll(site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+
+                                        } else {
+                                            // Get members of each group and add to the set.
+                                            for (Group group : announcementGroups) {
+                                                for (Member member : group.getMembers()) {
+                                                    if (site.isAllowed(member.getUserId(), AnnouncementService.SECURE_ANNC_READ)) {
+                                                        toSet.add(member.getUserId());
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // Create academic alert for each member of the set.
+                                        for (String  to : toSet) {
                                             if (!from.equals(to) && !securityService.isSuperUser(to)) {
                                                 doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
                                                 countCache.remove(to);
