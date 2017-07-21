@@ -1174,6 +1174,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
     }
+    
+    public String getHiddenPermissions() {
+    	return serverConfigurationService.getString("roster.hidePermissions", "");
+    }
 
     public void update(Observable o, Object arg) {
 

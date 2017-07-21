@@ -255,4 +255,9 @@ public interface SakaiProxy {
     public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId);
 
     public boolean getShowVisits();
+    
+    /**
+	 * Get a list of permissions that are hidden from users, so only admins can enable or disable them in site templates
+	 */
+    public String getHiddenPermissions();
 }
