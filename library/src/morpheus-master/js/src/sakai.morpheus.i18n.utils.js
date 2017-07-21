@@ -5,41 +5,46 @@
 
     portal.i18n.loadProperties = function (options) {
 
-        if (!options.names || !options.path || !options.namespace) {
-            console.log('You must supply names, path and namespace.');
+        if (!options.resourceClass || !options.resourceBundle || !options.namespace) {
+            console.log('You must supply a resourceClass, a resourceBundle and a namespace. Doing nothing ...');
             return;
         }
 
         if (options.debug) {
-            console.log('names: ' + options.names);
-            console.log('path: ' + options.path);
+            console.log('resourceClass: ' + options.resourceClass);
+            console.log('resourceBundle: ' + options.resourceBundle);
             console.log('namespace: ' + options.namespace);
         }
 
-        if (!options.path.match(/\/$/)) options.path += '/';
+        portal.i18n.translations[options.namespace] = portal.i18n.translations[options.namespace] || {};
 
-        if (options.async === undefined) options.async = true;
+        $.ajax({
+            url: '/sakai-ws/rest/i18n/getI18nProperties',
+            cache: false,
+            data: {locale: portal.locale,
+                    resourceclass: options.resourceClass,
+                    resourcebundle: options.resourceBundle},
+            })
+            .done(function (data, textStatus, jqXHR) {
 
-        portal.i18n.translations[options.namespace] = {};
+                data.split("\n").forEach(function (pair) {
 
-        $.i18n.properties({
-            name: options.names,
-            path: options.path,
-            mode: 'both',
-            async: options.async,
-            debug: options.debug ? true:false,
-            language: portal.locale,
-            callback: function () {
+                    var keyValue = pair.split('=');
+                    if (keyValue.length == 2) {
+                        portal.i18n.translations[options.namespace][keyValue[0]] = keyValue[1];
+                    }
 
-                $.extend(portal.i18n.translations[options.namespace], $.i18n.map);
-                if (options.debug) {
-                    console.log('Updated translations: ');
-                    console.log(portal.i18n.translations[options.namespace]);
-                }
+                    if (options.debug) {
+                        console.log('Updated translations: ');
+                        console.log(portal.i18n.translations[options.namespace]);
+                    }
+                });
 
                 if (options.callback) options.callback();
-            }
-        });
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(errorThrown);
+            });
     };
 
     portal.i18n.translate = function (namespace, key, options) {

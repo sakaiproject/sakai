@@ -15,9 +15,17 @@
     $(document).ready(function () {
 
         portal.i18n.loadProperties({
-            names: ['connection-manager', 'profile-popup'],
-            path: '/library/translations',
-            namespace: 'connection-manager'
+            resourceClass: 'org.sakaiproject.portal.api.PortalService',
+            resourceBundle: 'connection-manager',
+            namespace: 'connection-manager',
+            callback: function () {
+
+                portal.i18n.loadProperties({
+                    resourceClass: 'org.sakaiproject.portal.api.PortalService',
+                    resourceBundle: 'profile-popup',
+                    namespace: 'connection-manager'
+                });
+            }
         });
     });
 
