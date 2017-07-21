@@ -711,7 +711,7 @@
 		    	      <jsp:element name="a"><!--
 		--><jsp:attribute name="href"><c:out value="${realmBean.publicViewUrl}"/></jsp:attribute><!--
 		--><jsp:attribute name="target">publicview</jsp:attribute><!--
-		--><c:out value="${rlb.jsp_printer_friendly}"/><!--
+		--><c:out value="${rlb.jsp_public}"/><!--
 		--></jsp:element>
 			</li>
 			<c:set var="feedsLinks"

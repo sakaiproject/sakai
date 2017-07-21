@@ -21,13 +21,6 @@ if (usePrinterLink != null && usePrinterLink.booleanValue()) {
 	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_rss_feed_changes")</jsp:expression></jsp:attribute> 
 	<jsp:body>&#160;</jsp:body>
 </jsp:element>
-<jsp:element name="a">
-	<jsp:attribute name="href"><jsp:expression>org.sakaiproject.util.Web.escapeHtml(viewBean.getPublicViewUrl())</jsp:expression></jsp:attribute>
-	<jsp:attribute name="target">_blank</jsp:attribute>
-	<jsp:attribute name="id">printerFriendlyLink</jsp:attribute>
-	<jsp:attribute name="title"><jsp:expression>resourceLoaderBean.getString("jsp_printer_friendly")</jsp:expression></jsp:attribute>
-	<jsp:body>&#160;</jsp:body>
-</jsp:element>
 <jsp:scriptlet>
 }
 if ( viewLinkName == null || viewLinkName.length() == 0 ) {

@@ -250,10 +250,6 @@ a.anchorpoint { vertical-align: top }
 	background: url(/library/image/feed.png) center right no-repeat;
 	text-decoration: none !important
 }
-#printerFriendlyLink {
-	background: url(/library/image/printer.png) center right no-repeat;
-	text-decoration: none !important
-}
 
 /*breadcrumb*/
 h3.breadcrumb{
