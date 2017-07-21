@@ -933,7 +933,8 @@ a.peer-eval-stats {
 /* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
 #toolbar {
   margin: 0;
-  margin-bottom:-10px;
+  margin-bottom: -10px;
+  margin-top: -10px;
   display: inline-block;
 }
 
@@ -988,7 +989,7 @@ a.peer-eval-stats {
 }
 .lessons-siteHierarchy-title {
    font-weight: bold;
-   margin-left: 0.5em;
+   margin-left: 0;
 }
 .itemAction {
   padding-top: 0px;
@@ -1278,9 +1279,12 @@ div[role="dialog"] {
 }
 .action {
   float: right;
+  clear: both;
 }
 .action a {
   margin-top: 0;
+  margin-right: 0;
+  margin-left: 3px;
 }
 .Mrphs-siteHierarchy {
     height: auto !important;
@@ -1447,7 +1451,7 @@ div.navIntraTool {
    margin-right: 5px;
 }
 #print-view {
-   margin-right: 7px;
+    margin-right: 7px;
 }
 
 /* temporary, to avoid changing old stuff for the moment */
@@ -1640,7 +1644,7 @@ li.resourceType .right-col {
  border:none;
 }
 .itemclass {
- margin-top:3.0em !important;
+  margin-top: 2.0em !important;
 }
 .add-comment-button span {
 font-size: 90%;
@@ -1656,7 +1660,7 @@ font-size: 90%;
    first region is split, the right column doesn't fit
    must be overridden for narrow format */
 .Mrphs-container--toolTitleNav {
-  margin-bottom:-30px !important;
+  margin-bottom:-30px;
 }
 
 /* for ShowItem */
@@ -1696,7 +1700,7 @@ font-size: 12px;
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .Mrphs-container--toolTitleNav {
-  margin-bottom: 0px !important;
+  margin-bottom: 10px !important;
 }
 .genTitle {
   display:none;
@@ -1710,7 +1714,7 @@ div.portletBody[sakaiversion="12"] {
   margin-top:-5px;
 }
 .itemclass {
-  margin-top: 0.5em !important;
+  margin-top: 2em !important;
 }
 .itemTitle {
   width: calc(100% - 100px);
@@ -1877,7 +1881,7 @@ body > .portletBody {
 }
 /* put back default value if an instructor */
 .navIntraTool ~ div.itemclass {
-  margin-top: 3.0em !important;
+  margin-top: 2.0em !important;
 }
 .title-tools {
   float:none;
@@ -2035,4 +2039,9 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 
 .top-next-prev .nextprev.next {
     float: right;
+}
+
+.subpage-breadcrumb-div {
+    margin-top: 1.5em;
+    margin-bottom: -1em
 }
