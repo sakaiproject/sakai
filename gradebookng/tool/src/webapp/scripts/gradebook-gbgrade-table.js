@@ -1541,13 +1541,9 @@ GbGradeTable.setupToggleGradeItems = function() {
     var column = GbGradeTable.colModelForCategoryScore(category);
 
     if ($input.is(":checked")) {
-      //self.gradebookSpreadsheet.showCategoryScoreColumn(category);
-      // TODO
       $filter.removeClass("off");
       column.hidden = false;
     } else {
-      //self.gradebookSpreadsheet.hideCategoryScoreColumn(category);
-      // TODO
       $filter.addClass("off");
       column.hidden = true;
     }
@@ -2101,7 +2097,7 @@ GbGradeTable.setupDragAndDrop = function () {
       $('#gbReorderColumnsFailed').hide();
 
       if (dropTarget) {
-        var targetColIndexssignmentId = $.data(dropTarget[0], "assignmentid");
+        var targetAssignmentId = $.data(dropTarget[0], "assignmentid");
         var sourceAssignmentId = $.data(dragTarget[0], "assignmentid");
 
         var targetColIndex = GbGradeTable.colForAssignment(targetAssignmentId);
