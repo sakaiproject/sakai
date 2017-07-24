@@ -205,6 +205,12 @@
         $tlang.getString("sinfo.mathjax.confirmEnabled")   
     </p>
     #end
+
+    #if($!isLessonsSubNavEnabledForSite)
+    <p class="instruction">
+        $tlang.getString("sinfo.lessonbuildersubnav.confirmEnabled")
+    </p>
+    #end
 	
 	<form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />

@@ -203,6 +203,13 @@
 	
 		#end ## END of IF ( $subSites )
 	</div>
+
+	#if (${sitePages.additionalLessonsPages})
+		<script src="/library/js/lessons-subnav.js$!{portalCDNQuery}"></script>
+		<script>
+			sakai.lessons_subnav = new LessonsSubPageNavigation($sitePages.additionalLessonsPages);
+		</script>
+	#end
 </div>
 
 <!-- END VM includePageNav.vm -->

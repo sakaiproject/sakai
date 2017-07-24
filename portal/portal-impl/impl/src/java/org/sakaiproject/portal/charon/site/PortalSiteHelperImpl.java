@@ -633,6 +633,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		String htmlInclude = site.getProperties().getProperty(PROP_HTML_INCLUDE);
 		if (htmlInclude != null) theMap.put("siteHTMLInclude", htmlInclude);
 
+		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
+
 		// theMap.put("pageNavSitToolsHead",
 		// Web.escapeHtml(rb.getString("sit_toolshead")));
 
@@ -708,7 +710,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					}
 				}
 
-				boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 				if ( ! siteUpdate ) addMoreToolsUrl = null;
 
 				boolean legacyAddMoreToolsPropertyValue = ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false);
@@ -828,6 +829,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			theMap.put("pageNavCanAddMoreTools", true);
 		} else {
 			theMap.put("pageNavCanAddMoreTools", false);
+		}
+
+		theMap.put("pageNavTools", l);
+
+		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
+			LessonsTreeView lessonsTreeView = new LessonsTreeView(UserDirectoryService.getCurrentUser().getId(), siteUpdate);
+			theMap.put("additionalLessonsPages", lessonsTreeView.lessonsPagesJSON(l));
 		}
 
 		theMap.put("pageNavTools", l);

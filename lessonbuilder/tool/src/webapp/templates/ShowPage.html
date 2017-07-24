@@ -48,6 +48,19 @@
  </head>
 
  <body rsf:id="scr=sakai-body">
+ <input type='hidden' rsf:id="lessonsSubnavToolId" id="lessonsSubnavToolId"/>
+ <input type='hidden' rsf:id="lessonsSubnavTopLevelPageId" id="lessonsSubnavTopLevelPageId"/>
+ <input type='hidden' rsf:id="lessonsSubnavPageId" id="lessonsSubnavPageId"/>
+ <input type='hidden' rsf:id="lessonsSubnavItemId" id="lessonsSubnavItemId"/>
+ <input type='hidden' rsf:id="lessonsCurrentPageId" id="lessonsCurrentPageId"/>
+ <script>
+     if (sakai) {
+         if (sakai.lessons_subnav) {
+             // Notify the lessons_subnav that we're on a lessons page
+             sakai.lessons_subnav.set_current_lessons_page();
+         }
+     }
+ </script>
  <script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
  <script type="text/javascript" src="$context/js/jquery-ui-1.11.1.custom.min.js"></script>
  <script rsf:id="datepicker" type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
