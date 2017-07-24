@@ -88,3 +88,16 @@
 #content {
         padding-top: 0;
 }
+
+.#{$namespace}multipleTools {
+	.#{$namespace}sakai-lessonbuildertool {
+		.#{$namespace}toolTitleNav {
+			float: none;
+			margin-top: 0;
+		}
+
+		.#{$namespace}toolTitleNav__button_container {
+			position: absolute;
+		}
+	}
+}
