@@ -29,21 +29,21 @@ public class ViewGradeSummaryAction extends InjectableAction implements Serializ
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
-        String studentUuid = params.get("studentId").asText();
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+        final String studentUuid = params.get("studentId").asText();
 
-        GradebookUiSettings settings = ((GradebookPage) target.getPage()).getUiSettings();
+        final GradebookUiSettings settings = ((GradebookPage) target.getPage()).getUiSettings();
 
-        GbUser student = businessService.getUser(studentUuid);
+        final GbUser student = businessService.getUser(studentUuid);
 
-        Map<String, Object> model = new HashMap<>();
+        final Map<String, Object> model = new HashMap<>();
         model.put("studentUuid", studentUuid);
         model.put("groupedByCategoryByDefault", settings.isCategoriesEnabled());
 
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
 
-        Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(model), window);
+        final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(model), window);
 
         if (window.isShown() && window.isVisible()) {
             window.replace(content);
@@ -57,7 +57,7 @@ public class ViewGradeSummaryAction extends InjectableAction implements Serializ
         window.setStudentToReturnFocusTo(studentUuid);
         content.setOutputMarkupId(true);
 
-        String modalTitle = (new StringResourceModel("heading.studentsummary",
+        final String modalTitle = (new StringResourceModel("heading.studentsummary",
             null, new Object[]{student.getDisplayName(), student.getDisplayId()})).getString();
 
         window.setTitle(modalTitle);

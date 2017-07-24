@@ -18,8 +18,8 @@ public class ViewCourseGradeLogAction extends InjectableAction implements Serial
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
-        String studentUuid = params.get("studentId").asText();
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+        final String studentUuid = params.get("studentId").asText();
 
         final GradebookPage page = (GradebookPage)target.getPage();
         final GbModalWindow window = page.getUpdateCourseGradeDisplayWindow();

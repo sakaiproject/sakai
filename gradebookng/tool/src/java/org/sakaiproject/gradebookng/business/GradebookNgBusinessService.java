@@ -2042,14 +2042,14 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public Map<String, String> getIconClassMap() {
-		Map<String, String> mapping = new HashMap<>();
+		final Map<String, String> mapping = new HashMap<>();
 
-		Tool assignment = toolManager.getTool("sakai.assignment.grades");
+		final Tool assignment = toolManager.getTool("sakai.assignment.grades");
 		if (assignment != null) {
 			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
 		}
 
-		Tool samigo = toolManager.getTool("sakai.samigo");
+		final Tool samigo = toolManager.getTool("sakai.samigo");
 		if (samigo != null) {
 			mapping.put(samigo.getTitle(), getSamigoIconClass());
 		}

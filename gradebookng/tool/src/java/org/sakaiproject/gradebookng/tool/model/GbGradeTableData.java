@@ -26,8 +26,8 @@ public class GbGradeTableData {
     private String defaultIconCSS;
     private Map<String, Double> courseGradeMap;
 
-    public GbGradeTableData(GradebookNgBusinessService businessService,
-                            GradebookUiSettings settings) {
+    public GbGradeTableData(final GradebookNgBusinessService businessService,
+                            final GradebookUiSettings settings) {
         final GbStopWatch stopwatch = new GbStopWatch();
         stopwatch.time("GbGradeTableData init", stopwatch.getTime());
 
@@ -64,7 +64,7 @@ public class GbGradeTableData {
         defaultIconCSS = businessService.getDefaultIconClass();
         stopwatch.time("toolNameToIconCSS", stopwatch.getTime());
 
-        Gradebook gradebook = businessService.getGradebook();
+        final Gradebook gradebook = businessService.getGradebook();
         courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
     }
 

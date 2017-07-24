@@ -85,15 +85,15 @@ public class GbGradebookData {
         }
 
         @Override
-        public Score getValueFor(GbStudentGradeInfo studentGradeInfo, boolean isInstructor) {
-            Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+        public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isInstructor) {
+            final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
 
-            GbGradeInfo gradeInfo = studentGrades.get(assignmentId);
+            final GbGradeInfo gradeInfo = studentGrades.get(assignmentId);
 
             if (gradeInfo == null) {
                 return new ReadOnlyScore(null);
             } else {
-                String grade = gradeInfo.getGrade();
+                final String grade = gradeInfo.getGrade();
 
                 if (isInstructor || gradeInfo.isGradeable()) {
                     return new EditableScore(grade);
@@ -120,10 +120,10 @@ public class GbGradebookData {
         }
 
         @Override
-        public Score getValueFor(GbStudentGradeInfo studentGradeInfo, boolean isInstructor) {
-            Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
+        public Score getValueFor(final GbStudentGradeInfo studentGradeInfo, final boolean isInstructor) {
+            final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
 
-            Double average = categoryAverages.get(categoryId);
+            final Double average = categoryAverages.get(categoryId);
 
             if (average == null) {
                 return new ReadOnlyScore(null);
@@ -144,11 +144,11 @@ public class GbGradebookData {
         private int rowCount;
         private int columnCount;
 
-        public DataSet(List<StudentDefinition> students,
-                       List<ColumnDefinition> columns,
-                       List<String[]> courseGrades,
-                       String serializedGrades,
-                       Map<String, Object> settings) {
+        public DataSet(final List<StudentDefinition> students,
+                       final List<ColumnDefinition> columns,
+                       final List<String[]> courseGrades,
+                       final String serializedGrades,
+                       final Map<String, Object> settings) {
             this.students = students;
             this.columns = columns;
             this.courseGrades = courseGrades;
@@ -173,16 +173,16 @@ public class GbGradebookData {
 
     private Component parent;
 
-    public GbGradebookData(List<GbStudentGradeInfo> studentGradeInfoList,
-                           List<Assignment> assignments,
-                           List<CategoryDefinition> categories,
-                           GradebookInformation settings,
-                           GradebookUiSettings uiSettings,
-                           GbRole role,
-                           Map<String, String> toolNameIconCSSMap,
-                           String defaultIconCSS,
-                           Map<String, Double> courseGradeMap,
-                           Component parentComponent) {
+    public GbGradebookData(final List<GbStudentGradeInfo> studentGradeInfoList,
+                           final List<Assignment> assignments,
+                           final List<CategoryDefinition> categories,
+                           final GradebookInformation settings,
+                           final GradebookUiSettings uiSettings,
+                           final GbRole role,
+                           final Map<String, String> toolNameIconCSSMap,
+                           final String defaultIconCSS,
+                           final Map<String, Double> courseGradeMap,
+                           final Component parentComponent) {
         this.parent = parentComponent;
         this.categories = categories;
         this.settings = settings;
@@ -201,17 +201,17 @@ public class GbGradebookData {
     }
 
     public String toScript() {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
 
-        List<Score> grades = gradeList();
+        final List<Score> grades = gradeList();
 
         // if we can't edit one of the items,
         // we need to serialize this into the data
         if (!isInstructor() && grades.stream().anyMatch(g -> !g.canEdit())) {
             int i = 0;
-            for(StudentDefinition student : this.students) {
+            for(StudentDefinition student : GbGradebookData.this.students) {
                 String readonly = "";
-                for (ColumnDefinition column : this.columns) {
+                for (ColumnDefinition column : GbGradebookData.this.columns) {
                     Score score = grades.get(i);
                     readonly += score.canEdit() ? "0" : "1";
                     i = i + 1;
@@ -220,9 +220,9 @@ public class GbGradebookData {
             }
         }
 
-        DataSet dataset = new DataSet(
-            this.students, 
-            this.columns,
+        final DataSet dataset = new DataSet(
+            GbGradebookData.this.students,
+            GbGradebookData.this.columns,
             courseGrades(),
             serializeGrades(grades),
             serializeSettings());
@@ -234,7 +234,7 @@ public class GbGradebookData {
         }
     }
 
-    private String serializeGrades(List<Score> gradeList) {
+    private String serializeGrades(final List<Score> gradeList) {
         if (gradeList.stream().anyMatch(score -> score.isLarge())) {
             return "json:" + serializeLargeGrades(gradeList);
         } else {
@@ -242,11 +242,11 @@ public class GbGradebookData {
         }
     }
 
-    private String serializeLargeGrades(List<Score> gradeList) {
-        List<Double> scores = gradeList.stream().map(score -> score.isNull() ? -1 : score.getScore()).collect(Collectors.toList());
+    private String serializeLargeGrades(final List<Score> gradeList) {
+        final List<Double> scores = gradeList.stream().map(score -> score.isNull() ? -1 : score.getScore()).collect(Collectors.toList());
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            final ObjectMapper mapper = new ObjectMapper();
             return mapper.writeValueAsString(scores);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -274,8 +274,8 @@ public class GbGradebookData {
     // Having all the data available up front helps keep the scroll performance
     // fast.
     //
-    private String serializeSmallGrades(List<Score> gradeList) {
-        StringBuilder sb = new StringBuilder();
+    private String serializeSmallGrades(final List<Score> gradeList) {
+        final StringBuilder sb = new StringBuilder();
 
         for (Score score : gradeList) {
             if (score == null || score.isNull()) {
@@ -284,9 +284,9 @@ public class GbGradebookData {
                 continue;
             }
 
-            double grade = score.getScore();
+            final double grade = score.getScore();
 
-            boolean hasFraction = ((int)grade != grade);
+            final boolean hasFraction = ((int)grade != grade);
 
             if (grade < 127 && !hasFraction) {
                 // single byte, no fraction
@@ -326,7 +326,7 @@ public class GbGradebookData {
     }
 
     private Map<String, Object> serializeSettings() {
-        Map<String, Object> result = new HashedMap();
+        final Map<String, Object> result = new HashedMap();
 
         result.put("isCourseLetterGradeDisplayed", settings.isCourseLetterGradeDisplayed());
         result.put("isCourseAverageDisplayed", settings.isCourseAverageDisplayed());
@@ -346,7 +346,7 @@ public class GbGradebookData {
     };
 
     private List<String[]> courseGrades() {
-        List<String[]> result = new ArrayList<String[]>();
+        final List<String[]> result = new ArrayList<String[]>();
 
 
         final Map<String, Double> gradeMap = settings.getSelectedGradingScaleBottomPercents();
@@ -360,14 +360,14 @@ public class GbGradebookData {
             }
         });
 
-        for (GbStudentGradeInfo studentGradeInfo : this.studentGradeInfoList) {
+        for (GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
             // String[0] = A+ (95%) [133/140] -- display string
             // String[1] = 95 -- raw percentage for sorting
             // String[2] = 1 -- '1' if an override, '0' if calculated
-            String[] gradeData = new String[3];
+            final String[] gradeData = new String[3];
 
-            GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
-            CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
+            final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
+            final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
             gradeData[0] = gbCourseGrade.getDisplayString();
 
@@ -399,11 +399,11 @@ public class GbGradebookData {
 
 
     private List<Score> gradeList() {
-        List<Score> result = new ArrayList<Score>();
+        final List<Score> result = new ArrayList<Score>();
 
-        for (GbStudentGradeInfo studentGradeInfo : this.studentGradeInfoList) {
-            for (ColumnDefinition column : this.columns) {
-                Score grade = column.getValueFor(studentGradeInfo, isInstructor());
+        for (GbStudentGradeInfo studentGradeInfo : GbGradebookData.this.studentGradeInfoList) {
+            for (ColumnDefinition column : GbGradebookData.this.columns) {
+                final Score grade = column.getValueFor(studentGradeInfo, isInstructor());
                 result.add(grade);
             }
         }
@@ -412,15 +412,15 @@ public class GbGradebookData {
 
     }
 
-    private String getString(String key) {
+    private String getString(final String key) {
         return parent.getString(key);
     }
 
-    private List<StudentDefinition> loadStudents(List<GbStudentGradeInfo> studentInfo) {
-        List<StudentDefinition> result = new ArrayList<StudentDefinition>();
+    private List<StudentDefinition> loadStudents(final List<GbStudentGradeInfo> studentInfo) {
+        final List<StudentDefinition> result = new ArrayList<StudentDefinition>();
 
         for (GbStudentGradeInfo student : studentInfo) {
-            StudentDefinition studentDefinition = new StudentDefinition();
+            final StudentDefinition studentDefinition = new StudentDefinition();
             studentDefinition.setEid(student.getStudentEid());
             studentDefinition.setUserId(student.getStudentUuid());
             studentDefinition.setFirstName(student.getStudentFirstName());
@@ -429,8 +429,8 @@ public class GbGradebookData {
 
             // The JavaScript will ultimately set this when it detects
             // concurrent edits.  Initialize to zeroo.
-            StringBuilder zeroes = new StringBuilder();
-            for (ColumnDefinition column : this.columns) {
+            final StringBuilder zeroes = new StringBuilder();
+            for (ColumnDefinition column : GbGradebookData.this.columns) {
                 zeroes.append("0");
             }
             studentDefinition.setHasConcurrentEdit(zeroes.toString());
@@ -441,18 +441,18 @@ public class GbGradebookData {
         return result;
     }
 
-    private List<ColumnDefinition> loadColumns(List<Assignment> assignments) {
-        GradebookUiSettings userSettings = ((GradebookPage) parent.getPage()).getUiSettings();
+    private List<ColumnDefinition> loadColumns(final List<Assignment> assignments) {
+        final GradebookUiSettings userSettings = ((GradebookPage) parent.getPage()).getUiSettings();
 
-        List<ColumnDefinition> result = new ArrayList<ColumnDefinition>();
+        final List<ColumnDefinition> result = new ArrayList<ColumnDefinition>();
 
         if (assignments.isEmpty()) {
             return result;
         }
 
         for (int i = 0; i < assignments.size(); i++) {
-            Assignment a1 = assignments.get(i);
-            Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
+            final Assignment a1 = assignments.get(i);
+            final Assignment a2 = ((i + 1) < assignments.size()) ? assignments.get(i + 1) : null;
 
             String categoryWeight = null;
             if (a1.getWeight() != null) {
@@ -521,13 +521,13 @@ public class GbGradebookData {
         return result;
     }
 
-    private String formatCommentData(GbStudentGradeInfo student) {
-        StringBuilder sb = new StringBuilder();
+    private String formatCommentData(final GbStudentGradeInfo student) {
+        final StringBuilder sb = new StringBuilder();
 
-        for (ColumnDefinition column : this.columns) {
+        for (ColumnDefinition column : GbGradebookData.this.columns) {
             if (column instanceof AssignmentDefinition) {
-                AssignmentDefinition assignmentColumn = (AssignmentDefinition) column;
-                GbGradeInfo gradeInfo = student.getGrades().get(assignmentColumn.getAssignmentId());
+                final AssignmentDefinition assignmentColumn = (AssignmentDefinition) column;
+                final GbGradeInfo gradeInfo = student.getGrades().get(assignmentColumn.getAssignmentId());
                 if (gradeInfo != null && !StringUtils.isBlank(gradeInfo.getGradeComment())) {
                     sb.append('1');
                 } else {
@@ -541,7 +541,7 @@ public class GbGradebookData {
         return sb.toString();
     }
 
-    private String nullable(Object value) {
+    private String nullable(final Object value) {
         if (value == null) {
             return null;
         } else {
@@ -556,7 +556,7 @@ public class GbGradebookData {
     private abstract class Score {
         private String score;
 
-        public Score(String score) {
+        public Score(final String score) {
             this.score = score;
         }
 
@@ -577,7 +577,7 @@ public class GbGradebookData {
     }
 
     private class EditableScore extends Score {
-        public EditableScore(String score) {
+        public EditableScore(final String score) {
             super(score);
         }
 
@@ -588,7 +588,7 @@ public class GbGradebookData {
     }
 
     private class ReadOnlyScore extends Score {
-        public ReadOnlyScore(String score) {
+        public ReadOnlyScore(final String score) {
             super(score);
         }
 
@@ -598,7 +598,7 @@ public class GbGradebookData {
         }
     }
 
-    private String getIconCSSForExternalAppName(String externalAppName) {
+    private String getIconCSSForExternalAppName(final String externalAppName) {
         if (toolNameIconCSSMap.containsKey(externalAppName)) {
             return toolNameIconCSSMap.get(externalAppName);
         }

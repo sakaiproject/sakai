@@ -16,7 +16,7 @@ public class ToggleCourseGradePoints extends InjectableAction implements Seriali
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 
         // get current settings

@@ -18,7 +18,7 @@ public class SetScoreForUngradedAction extends InjectableAction implements Seria
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final String assignmentId = params.get("assignmentId").asText();
 
         final GradebookPage gradebookPage = (GradebookPage)target.getPage();

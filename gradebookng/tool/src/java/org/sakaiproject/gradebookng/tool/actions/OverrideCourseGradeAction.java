@@ -18,8 +18,8 @@ public class OverrideCourseGradeAction extends InjectableAction implements Seria
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
-        String studentUuid = params.get("studentId").asText();
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+        final String studentUuid = params.get("studentId").asText();
 
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();

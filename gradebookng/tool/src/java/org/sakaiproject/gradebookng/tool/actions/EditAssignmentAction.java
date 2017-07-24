@@ -23,8 +23,8 @@ public class EditAssignmentAction extends InjectableAction implements Serializab
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
-        String assignmentId = params.get("assignmentId").asText();
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+        final String assignmentId = params.get("assignmentId").asText();
 
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
         final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();

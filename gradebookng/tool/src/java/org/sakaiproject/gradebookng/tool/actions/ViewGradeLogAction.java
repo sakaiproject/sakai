@@ -20,11 +20,11 @@ public class ViewGradeLogAction extends InjectableAction implements Serializable
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
-        String assignmentId = params.get("assignmentId").asText();
-        String studentUuid = params.get("studentId").asText();
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+        final String assignmentId = params.get("assignmentId").asText();
+        final String studentUuid = params.get("studentId").asText();
 
-        Map<String, Object> model = new HashMap<>();
+        final Map<String, Object> model = new HashMap<>();
         model.put("assignmentId", Long.valueOf(assignmentId));
         model.put("studentUuid", studentUuid);
 

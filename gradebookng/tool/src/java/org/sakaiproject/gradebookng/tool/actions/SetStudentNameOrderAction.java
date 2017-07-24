@@ -17,7 +17,7 @@ public class SetStudentNameOrderAction extends InjectableAction implements Seria
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final String orderParam = params.get("orderby").asText();
         final GbStudentNameSortOrder nameSortOrder = GbStudentNameSortOrder.valueOf(orderParam.toUpperCase());
 

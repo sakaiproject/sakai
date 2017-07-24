@@ -45,11 +45,11 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 	private Map<String, Action> listeners = new HashMap<String, Action>();
 
-	public void addEventListener(String event, Action listener) {
+	public void addEventListener(final String event, final Action listener) {
 		listeners.put(event, listener);
 	}
 
-	public ActionResponse handleEvent(String event, JsonNode params, AjaxRequestTarget target) {
+	public ActionResponse handleEvent(final String event, final JsonNode params, final AjaxRequestTarget target) {
 		if (!listeners.containsKey(event)) {
 			throw new RuntimeException("Missing AJAX handler");
 		}
@@ -57,7 +57,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		return listeners.get(event).handleEvent(params, target);
 	}
 
-	public GbGradeTable(String id, IModel model) {
+	public GbGradeTable(final String id, final IModel model) {
 		super(id);
 		
 		setDefaultModel(model);
@@ -66,18 +66,18 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 		component.add(new AjaxEventBehavior("gbgradetable.action") {
 			@Override
-			protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+			protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
 				super.updateAjaxAttributes(attributes);
 				attributes.getDynamicExtraParameters().add("return [{\"name\": \"ajaxParams\", \"value\": JSON.stringify(attrs.event.extraData)}]");
 			}
 
 			@Override
-			protected void onEvent(AjaxRequestTarget target) {
+			protected void onEvent(final AjaxRequestTarget target) {
 				try {
-					ObjectMapper mapper = new ObjectMapper();
-					JsonNode params = mapper.readTree(getRequest().getRequestParameters().getParameterValue("ajaxParams").toString());
+					final ObjectMapper mapper = new ObjectMapper();
+					final JsonNode params = mapper.readTree(getRequest().getRequestParameters().getParameterValue("ajaxParams").toString());
 
-					ActionResponse response = handleEvent(params.get("action").asText(), params, target);
+					final ActionResponse response = handleEvent(params.get("action").asText(), params, target);
 
 					target.appendJavaScript(String.format("GbGradeTable.ajaxComplete(%d, '%s', %s);",
 									      params.get("_requestId").intValue(), response.getStatus(), response.toJson()));
@@ -90,8 +90,8 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		add(component);
 	}
 
-	public void renderHead(IHeaderResponse response) {
-		GbGradeTableData gbGradeTableData = (GbGradeTableData)getDefaultModelObject();
+	public void renderHead(final IHeaderResponse response) {
+		final GbGradeTableData gbGradeTableData = (GbGradeTableData)getDefaultModelObject();
 
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
@@ -103,7 +103,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/handsontable.full.min.css?version=%s", version)));
 
-		GbGradebookData gradebookData = new GbGradebookData(
+		final GbGradebookData gradebookData = new GbGradebookData(
 				gbGradeTableData.getGrades(),
 				gbGradeTableData.getAssignments(),
 				gbGradeTableData.getCategories(),

@@ -75,7 +75,7 @@ package org.sakaiproject.component.gradebook;
 
  import lombok.extern.slf4j.Slf4j;
 
-/**
+ /**
  * Provides methods which are shared between service business logic and application business
  * logic, but not exposed to external callers.
  */

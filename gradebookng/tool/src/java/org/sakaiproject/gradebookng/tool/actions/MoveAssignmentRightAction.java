@@ -17,7 +17,7 @@ public class MoveAssignmentRightAction extends MoveAssignmentAction implements S
     }
 
     @Override
-    public ActionResponse handleEvent(JsonNode params, AjaxRequestTarget target) {
+    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
         final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 
         final Long assignmentId = Long.valueOf(params.get("assignmentId").asText());

@@ -29,7 +29,6 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
     public GradeUpdateAction() {
     }
 
-    // FIXME: We'll use a proper ObjectMapper for these soon.
     private class GradeUpdateResponse implements ActionResponse {
         private String courseGrade;
         private String points;
