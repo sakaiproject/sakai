@@ -9,9 +9,37 @@
 	       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
 
 
-  <import resource="classpath:META-INF/cxf/cxf.xml" />
-  <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
-  <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <bean id="RemoteHostFilter" class="org.sakaiproject.util.RemoteHostFilter" init-method="init">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="allowRequests">
+            <list>
+                <value>/sakai-ws/rest/i18n/getI18nProperties</value>
+                <value>/sakai-ws/soap/i18n/getI18nProperties</value>
+            </list>
+        </property>
+        <property name="allow">
+            <list>
+                <value>localhost</value>
+                <value>127\.0\.0\.1</value>
+                <value>192\.168\.[0-9.]+</value>
+                <value>10\.[0-9.]+</value>
+                <value>172\.1[6-9]\.[0-9.]+</value>
+                <value>172\.2[0-9]\.[0-9.]+</value>
+                <value>172\.3[0-1]\.[0-9.]+</value>
+            </list>
+        </property>
+        <!-- property name="deny">
+            <list>
+                <value>x\.x\.x\.x</value>
+            </list>
+        </property -->
+        <property name="logAllowed" value="true"/>
+        <property name="logDenied" value="true"/>
+    </bean>
 
     <!-- JAX-RS -->
     <jaxrs:server id="SakaiLoginRS" address="/rest/login">

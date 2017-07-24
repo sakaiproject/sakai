@@ -11,37 +11,7 @@
 
     <filter>
         <filter-name>RemoteHostFilter</filter-name>
-        <filter-class>
-            org.sakaiproject.util.RemoteHostFilter
-        </filter-class>
-        <!--
-        <description>
-            Filters (allows/denies) requests based on configured
-            hostname/ip-address
-        </description>
-        -->
-        <init-param>
-            <param-name>allow</param-name>
-            <!-- Allow "Private Use" IP addresses by default -->
-            <param-value>
-                localhost, 127\.0\.0\.1, 192\.168\.[0-9.]+, 10\.[0-9.]+,
-                172\.1[6-9]\.[0-9.]+, 172\.2[0-9]\.[0-9.]+,
-                172\.3[0-1]\.[0-9.]+
-            </param-value>
-        </init-param>
-        <init-param>
-            <param-name>log-allowed</param-name>
-            <param-value>true</param-value>
-        </init-param>
-        <init-param>
-            <param-name>deny</param-name>
-            <!-- No Explicit Denials, implies deny unless allowed -->
-            <param-value></param-value>
-        </init-param>
-        <init-param>
-            <param-name>log-denied</param-name>
-            <param-value>true</param-value>
-        </init-param>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
 
     <filter-mapping>
