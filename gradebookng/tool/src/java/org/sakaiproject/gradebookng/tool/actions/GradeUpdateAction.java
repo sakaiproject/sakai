@@ -33,12 +33,14 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
         private String courseGrade;
         private String points;
         private String categoryScore;
+        private boolean isOverride;
         private boolean extraCredit;
 
-        public GradeUpdateResponse(boolean extraCredit, String courseGrade, String points, String categoryScore) {
+        public GradeUpdateResponse(final boolean extraCredit, final String courseGrade, final String points, final boolean isOverride, final String categoryScore) {
             this.courseGrade = courseGrade;
             this.categoryScore = categoryScore;
             this.points = points;
+            this.isOverride = isOverride;
             this.extraCredit = extraCredit;
         }
 
@@ -48,7 +50,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 
         public String toJson() {
             return "{" +
-                        "\"courseGrade\": [\"" + courseGrade + "\"," + "\"" + points + "\"]," +
+                        "\"courseGrade\": [\"" + courseGrade + "\"," + "\"" + points + "\", " + (isOverride ? '1' : '0') + "]," +
                         "\"categoryScore\": \"" + categoryScore + "\"," +
                         "\"extraCredit\": " + extraCredit +
                     "}";
@@ -130,6 +132,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 
         final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
 
+        boolean isOverride = false;
         String grade = "-";
         String points = "0";
 
@@ -146,6 +149,9 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
             grade = courseGradeFormatter.format(studentCourseGrade);
             if (studentCourseGrade.getPointsEarned() != null) {
                 points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
+            }
+            if (studentCourseGrade.getEnteredGrade() != null) {
+                isOverride = true;
             }
         }
 
@@ -164,6 +170,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
             result.equals(GradeSaveResponse.OVER_LIMIT),
             grade,
             points,
+            isOverride,
             categoryScore);
     }
 }
