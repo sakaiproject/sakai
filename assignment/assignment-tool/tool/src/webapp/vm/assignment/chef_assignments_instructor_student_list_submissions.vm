@@ -188,7 +188,9 @@
 											&nbsp;
 										</td>
 										<td headers="status">
-											$submission.getStatus()
+											#if ($!submission)
+												$submission.getStatus()
+											#end
 											&nbsp;
 										</td>
 										#if ($withGrade)
