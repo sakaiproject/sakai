@@ -1086,6 +1086,9 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 };
 
 GbGradeTable.viewGradeSummary = function(studentId) {
+  // Clear the selection so keyboard only interacts with modal
+  GbGradeTable.instance.deselectCell();
+
   GbGradeTable.ajax({
     action: 'viewGradeSummary',
     studentId: studentId
@@ -2515,38 +2518,6 @@ GbGradeTable.setupCellMetaDataSummary = function() {
         GbGradeTable.clearMetadata();
       }
   });
-
-  // PROTOTYPE: show metadata popover on mouse hover
-  // GbGradeTable._hoverSummaryTimeout;
-  // GbGradeTable._mouseCoords;
-  // GbGradeTable.instance.addHook("afterOnCellMouseOver", function(event, coords, TD) {
-  //   clearTimeout(GbGradeTable._hoverSummaryTimeout);
-  //
-  //   // only show something if mouse has actually moved!
-  //   var newMouseCoords = event.clientX + "," + event.clientY;
-  //   if (GbGradeTable._mouseCoords != newMouseCoords) {
-  //     GbGradeTable._mouseCoords = newMouseCoords;
-  //
-  //     if (coords.row >= 0 && coords.col >= 0) {
-  //       GbGradeTable._hoverSummaryTimeout = setTimeout(function() {
-  //         var $cell = $(event.target).closest("td");
-  //         if (!$cell[0]) {
-  //             $cell = $(GbGradeTable.instance.getCell(coords.row, coords.col));
-  //         }
-  //         if ($cell[0]) {
-  //           var cellKey = $.data($cell[0], 'cell-initialised');
-  //           GbGradeTable.hideMetadata();
-  //           initializeMetadataSummary(coords.row, coords.col);
-  //           showMetadata(cellKey, $cell);
-  //         }
-  //       }, 2000);
-  //     }
-  //   }
-  // });
-  //
-  // GbGradeTable.instance.addHook("afterSelection", function() {
-  //   clearTimeout(GbGradeTable._hoverSummaryTimeout);
-  // });
 
   // on mouse click on notification, toggle metadata summary
   $(GbGradeTable.instance.rootElement).on("click", ".gb-notification, .gb-comment-notification", function(event){
