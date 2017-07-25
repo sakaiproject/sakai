@@ -2880,6 +2880,13 @@ GbGradeTable.focusColumnForAssignmentId = function(assignmentId) {
     }
 };
 
+
+GbGradeTable.positionModalAtTop = function($modal) {
+    // position the modal at the top of the viewport
+    // taking into account the current scroll offset
+    $modal.css('top', 30 + $(window).scrollTop() + "px");
+};
+
 /**************************************************************************************
  * GradebookAPI - all the GradebookNG entity provider calls in one happy place
  */

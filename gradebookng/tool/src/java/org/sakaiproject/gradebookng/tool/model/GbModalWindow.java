@@ -60,7 +60,7 @@ public class GbModalWindow extends ModalWindow {
 		// position at the top of the page
 		if (this.positionAtTop) {
 			extraJavascript.append(
-				String.format("setTimeout(function() {sakai.gradebookng.spreadsheet.positionModalAtTop($('#%s').closest('.wicket-modal'));});",
+				String.format("setTimeout(function() {GbGradeTable.positionModalAtTop($('#%s').closest('.wicket-modal'));});",
 					getContent().getMarkupId()));
 		}
 
