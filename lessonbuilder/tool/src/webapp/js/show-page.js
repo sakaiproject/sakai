@@ -39,7 +39,7 @@ function msg(s) {
 
 function setupdialog(oe) {
 	oe.dialog("option", "width", modalDialogWidth());
-	$('.ui-dialog').css('zIndex',150000);
+	$('.ui-dialog').css('zIndex', 900);
 }
 
 function checksize(oe) {
@@ -366,14 +366,14 @@ $(document).ready(function() {
 			modal: false,
 			resizable: false,
 			draggable: false
-                }).parent('.ui-dialog').css('zIndex',150000);
+                }).parent('.ui-dialog').css('zIndex',900);
 
 		$('#moreDiv').dialog({
 			autoOpen: false,
 			modal: false,
 			resizable: false,
 			draggable: false
-		}).parent('.ui-dialog').css('zIndex',150000);
+		}).parent('.ui-dialog').css('zIndex',900);
 
 		$('#column-dialog').dialog({
 			autoOpen: false,
@@ -381,7 +381,7 @@ $(document).ready(function() {
 			width: 'auto',
 			resizable: false,
 			draggable: true
-		}).parent('.ui-dialog').css('zIndex',150000);
+		}).parent('.ui-dialog').css('zIndex',900);
 
 		$('#delete-confirm').dialog({
 			autoOpen: false,
@@ -395,7 +395,7 @@ $(document).ready(function() {
 				      }},{text:msg("simplepage.cancel_message"),
 				          click: function() {
 				          $( this ).dialog( "close" );}}
-				]}).parent('.ui-dialog').css('zIndex',150000);
+				]}).parent('.ui-dialog').css('zIndex',900);
 		
 		$(window).resize(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
@@ -1340,6 +1340,7 @@ $(document).ready(function() {
 			$("#question-prerequisite").prop("checked", false);
 			$("#question-show-poll").prop("checked", false);
 			$("#multipleChoiceSelect").click();
+			$("#multipleChoiceSelect").prop('checked',true);	//the Click above will trigger the right hide/show of things itself, but it will not actually display multipleChoiceSelect as Checked, so we do it explicitly here.
 			resetMultipleChoiceAnswers();
 			resetShortanswers();
 			
@@ -1672,25 +1673,21 @@ $(document).ready(function() {
 	                    $("#pagestuff").show();
 
 				var sbpgreleasedate = row.find(".subpagereleasedate").text();
-				if(sbpgreleasedate === '') {
+				localDatePicker({
+					input: '#release_date2',
+					useTime: 1,
+					parseFormat: 'YYYY-MM-DD HH:mm:ss',
+					val: sbpgreleasedate,
+					ashidden: { iso8601: 'releaseDate2ISO8601' }
+				});
+				if(sbpgreleasedate === '') {	//if there is no release date set, don't check the box and se the date-related fields blank
 					$("#page-releasedate2").prop('checked', false);
-					localDatePicker({
-						input: '#release_date2',
-						useTime: 1,
-						parseFormat: 'YYYY-MM-DD HH:mm:ss',
-						val: sbpgreleasedate,
-						ashidden: { iso8601: 'releaseDate2ISO8601' }
-					});
-				}
-				else {
+					$("#release_date2").val('');
+					$("#releaseDate2ISO8601").val('');
+				} else {
 					$("#page-releasedate2").prop('checked', true);
-					localDatePicker({
-						input: '#release_date2',
-						useTime: 1,
-						parseFormat: 'YYYY-MM-DD HH:mm:ss',
-						val: sbpgreleasedate,
-						ashidden: { iso8601: 'releaseDate2ISO8601' }
-					});
+					$("#releaseDate2ISO8601").val(sbpgreleasedate);
+					$("#release_date2").val(moment(sbpgreleasedate).format('MM/DD/YYYY h:mm a'));
 				}
 
 			    var pagenext = row.find(".page-next").text();
@@ -2729,12 +2726,16 @@ function setCollapsedStatus(header, collapse) {
 	header.find('.sectionCollapsedIcon').show();
 	header.find('.toggleCollapse').text(msg('simplepage.clickToExpand'));
 	header.attr('aria-expanded', 'false');
+	header.addClass('closedSectionHeader');
+	header.removeClass('openSectionHeader');
     } else {
 	header.find('.collapseIcon').removeClass("fa-toggle-down");
 	header.find('.collapseIcon').addClass("fa-toggle-up");
 	header.find('.sectionCollapsedIcon').hide();
 	header.find('.toggleCollapse').text(msg('simplepage.clickToCollapse'));
 	header.attr('aria-expanded', 'true');
+	header.addClass('openSectionHeader');
+	header.removeClass('closedSectionHeader');
     }
 }
 
@@ -2758,6 +2759,11 @@ function closeEditItemDialog() {
 	$("#edit-item-dialog").dialog("close");
 	$('#edit-item-error-container').hide();
 	$("#select-resource-group").hide();
+	if (!$("#page-releasedate2").prop('checked')){	// if the date-release option isn't checked, we should clear out the date-related values on close.
+		$("#release_date2").val('');
+		$("#releaseDate2ISO8601").val('');
+		$("#release_date_string").val('')
+	}
 	oldloc.focus();
 }
 

@@ -1226,6 +1226,10 @@ div[role="dialog"] {
     margin: 10px 0 
 }
 
+textarea.shortAnswerInput {
+    width: 100%;
+}
+
 .deleteCandidate td:first-child {
     background: transparent url('/library/image/silk/delete.png') 2px 3px no-repeat;
 }

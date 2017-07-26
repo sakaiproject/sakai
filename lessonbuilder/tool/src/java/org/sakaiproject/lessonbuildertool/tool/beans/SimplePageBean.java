@@ -867,22 +867,25 @@ public class SimplePageBean {
 	}
 
     // argument is in ISO8601 format, which has -04:00 time zone.
-    // if user's computer is on a different time zone, we want the UI to match 
+    // if user's computer is on a different time zone, we want the UI to match
     // Sakai. Hence we really want to handle everything as local time.
     // That means we want to ignore the time zone on input
-	public void setReleaseDate(String date) {
-	    if (StringUtils.isBlank(date))
-		this.releaseDate = null;
-	    else
-	    try {
-		//  if (date.substring(22,23).equals(":"))
-		//    date = date.substring(0,22) + date.substring(23,25);
-		date = date.substring(0,19);
-		this.releaseDate = isoDateFormat.parse(date);
-	    } catch (Exception e) {
-		log.info("{}bad format releasedate {}", e, date);
-	    }
-	}
+    public void setReleaseDate(String date) {
+        if (StringUtils.isBlank(date)) {
+            this.releaseDate = null;
+        } else {
+            try {
+                if(date.charAt(10) == ' '){	//the raw date that arrives from the datepicker's ISO8601 field might be missing a char [ex. "2019-08-03T13:45:00" is correct, "2019-08-03 13:45:00" is incorrect], so we will force it in here.
+                    date = date.replace(' ', 'T');
+                }
+                date = date.substring(0,19);
+                this.releaseDate = isoDateFormat.parse(date);
+            } catch (Exception e) {
+                log.error("{}bad format releasedate {}", e, date);
+                this.releaseDate = null;
+            }
+        }
+    }
 
 	public Date getReleaseDate() {
 		return this.releaseDate;
@@ -3617,13 +3620,9 @@ public class SimplePageBean {
 		   if (i.getAttribute("multimediaUrl") != null)
 		       return getLBItemGroups(i); // for all native LB objects
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
-		   // throws IdUnusedException if necessary
-	       case SimplePageItem.BLTI:
-		   entity = bltiEntity.getEntity(i.getSakaiId());
-		   if (entity == null || !entity.objectExists())
-		       throw new IdUnusedException(i.toString());
 		   // fall through: groups controlled by LB
 	       // for the following items we don't have non-LB items so don't need itemunused
+	       case SimplePageItem.BLTI: // Groups always managed in lessons
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.RESOURCE_FOLDER:
 	       case SimplePageItem.CHECKLIST:
@@ -5151,10 +5150,16 @@ public class SimplePageBean {
 				return false;
 			    break;
 			case SimplePageItem.BLTI:
-			    if (bltiEntity != null)
-				entity = bltiEntity.getEntity(item.getSakaiId());
-			    if (entity == null || entity.notPublished())
-				return false;
+				if (bltiEntity != null) {
+					entity = bltiEntity.getEntity(item.getSakaiId());
+				}
+				if (entity == null || entity.notPublished()) {
+					return false;
+				} else {
+					// After checking that it exists reset to null so that groups are
+					// checked internal to Lessons
+					entity = null;
+				}
 			}
 		    }
 		} finally {
