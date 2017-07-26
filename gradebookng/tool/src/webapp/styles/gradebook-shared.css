@@ -26,3 +26,8 @@
  .radio input[type="radio"][disabled]+label{
    color: #999;
  }
+
+/* required labels should have a prefix asterisk */
+.control-label.required:before {
+  content: '*';
+}
