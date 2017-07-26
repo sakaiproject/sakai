@@ -20,7 +20,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.util.string.Strings;
@@ -62,7 +62,7 @@ public class EditablePanelCheckbox extends Panel
 		this.nodeModel = nodeModel;
 		this.node = node;
 
-		final CheckBox field = new CheckBox("checkboxField", inputModel){
+		final AjaxCheckBox field = new AjaxCheckBox("checkboxField", inputModel){
 			@Override
 			public boolean isVisible() {
 				if(DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN == type){
@@ -73,30 +73,32 @@ public class EditablePanelCheckbox extends Panel
 					return true;
 				}
 			}
+			
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				// TODO Auto-generated method stub
+				{
+					//only update if its not an advanced option:
+					if(DelegatedAccessConstants.TYPE_ADVANCED_OPT != type){
+						//toggle selection to trigger a reload on the current node 
+						((BaseTreePage)target.getPage()).getTree().getTreeState().selectNode(node, !((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeSelected(node));
 
+						//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
+						//since I don't want to expand or collapse, I just call whichever one the node is already
+						//Refreshing the tree will update all the models and information (like role) will be generated onClick
+						if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
+							((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
+						}else{
+							((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
+						}
+						((BaseTreePage)target.getPage()).getTree().updateTree(target);
+					}
+				
+			}
+
+		};
 		};
 		add(field);
 
-		field.add(new AjaxFormComponentUpdatingBehavior("onClick")
-		{
-			protected void onUpdate(AjaxRequestTarget target)
-			{
-				//only update if its not an advanced option:
-				if(DelegatedAccessConstants.TYPE_ADVANCED_OPT != type){
-					//toggle selection to trigger a reload on the current node 
-					((BaseTreePage)target.getPage()).getTree().getTreeState().selectNode(node, !((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeSelected(node));
-
-					//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
-					//since I don't want to expand or collapse, I just call whichever one the node is already
-					//Refreshing the tree will update all the models and information (like role) will be generated onClick
-					if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
-						((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
-					}else{
-						((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
-					}
-					((BaseTreePage)target.getPage()).getTree().updateTree(target);
-				}
-			}
-		});
 	}
 }
