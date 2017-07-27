@@ -22,6 +22,14 @@ function zap() {
 		height: num
 	}), "*");
 }
+function ref() {
+	console.log("Refresh");
+	parent.postMessage(JSON.stringify({
+		subject: "lti.pageRefresh"
+	}), "*");
+}
 </script>
 <button onclick="zap();return false;" value="click">Press to Send Random Height</button><br/>
+<button onclick="ref();return false;" value="click">Refresh</button><br/>
+
 </body>
