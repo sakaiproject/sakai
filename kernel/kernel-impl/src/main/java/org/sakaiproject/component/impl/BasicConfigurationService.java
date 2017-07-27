@@ -522,7 +522,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 int pointer = 0;
                 while (matcher.find()) {
                     String name = matcher.group(1);
-                    if (name != null && StringUtils.isNotBlank(name)) {
+                    if (StringUtils.isNotBlank(name)) {
                         // look up the value
                         String replacementValue = null;
                         ConfigItemImpl ci = findConfigItem(name, null);

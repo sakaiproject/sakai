@@ -757,7 +757,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have a URL from the user, lets validate it
-            if ((!StringUtils.isBlank(source)) && (!validateURL(source)) ) {
+            if ((StringUtils.isNotBlank(source)) && (!validateURL(source)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }
@@ -775,7 +775,7 @@ public class PortletIFrame extends GenericPortlet {
             }
 
             // If we have an infourl from the user, lets validate it
-            if ((!StringUtils.isBlank(infoUrl)) && (!validateURL(infoUrl)) ) {
+            if ((StringUtils.isNotBlank(infoUrl)) && (!validateURL(infoUrl)) ) {
                 addAlert(request, rb.getString("gen.url.invalid"));
                 return;
             }

@@ -545,7 +545,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             try {
                 User fromUser = userDirectoryService.getUser(alert.from);
                 alert.fromDisplayName = fromUser.getDisplayName();
-                if (!StringUtils.isBlank(alert.siteId)) {
+                if (StringUtils.isNotBlank(alert.siteId)) {
                     alert.siteTitle = siteService.getSite(alert.siteId).getTitle();
                 }
             } catch (UserNotDefinedException unde) {

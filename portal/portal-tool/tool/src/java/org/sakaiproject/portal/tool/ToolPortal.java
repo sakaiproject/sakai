@@ -307,7 +307,7 @@ public class ToolPortal extends HttpServlet
                 if (site != null)
                 {                           
                     String strMathJaxEnabledForSite = site.getProperties().getProperty(MATHJAX_ENABLED);
-                    if (!StringUtils.isBlank(strMathJaxEnabledForSite))
+                    if (StringUtils.isNotBlank(strMathJaxEnabledForSite))
                     {
                         if (Boolean.valueOf(strMathJaxEnabledForSite))
                         {
