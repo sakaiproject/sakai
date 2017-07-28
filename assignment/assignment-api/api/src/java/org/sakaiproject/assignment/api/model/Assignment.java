@@ -53,6 +53,38 @@ import lombok.ToString;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
+ *
+ * <p>Important notes about Java java.util.Date timezone persistence</p>
+ * <pre>
+ * * MySQL DATETIME vs TIMESTAMP
+ *   - DATETIME is a date and time and has a much wider range than TIMESTAMP. MySQL's date operations
+ *     can be used to perform date calculations. Probably the most notable trait is that the value that
+ *     is stored will be the same when retrieved regardless of timezone info. This shifts the
+ *     responsibility to the application to handling timezone info. Changing the server/jvm timezone
+ *     would result in different times if not handled.
+ *     It's best canonicalized with DATETIME is not affected by timezones.
+ *   - TIMESTAMP is a specific point in time (uses 4 bytes making it more efficient in mysql).
+ *     Values are converted from the current timezone to UTC for storage and then converted back
+ *     from UTC to the current timezone. The current timezone is usually the mysql servers timezone.
+ *     Changing the server/jvm timezone wouldn't matter.
+ *   - Connector/J useLegacyDatetimeCode is used for backwards compatibility, handling timezone info
+ *     the way it always has. Newer versions will probably change this to false. The general rule of thumb
+ *     is to use whatever your database was running with (i.e. true), and new databases with new data to use false.
+ *   - Connector/J 5.1.x useLegacyDatetimeCode=true and >5.1 is false
+ *   - MariaDB Connector/J 1.1.7+ useLegacyDatetimeCode=true
+ * * Hibernate
+ * ** JPA @Temporal creates a TIMESTAMP type in MYSQL by default
+ * ** java 8 time is supported natively in Hibernate 5
+ *   - where @Temporal is implicit and therefore not needed
+ *   - LocalDate implicitly @Temporal(TemporalType.Date)
+ *   - LocalTime implicitly @Temporal(TemporalType.Time)
+ *   - LocalDateTime implicitly @Temporal(TemporalType.Timestamp)
+ * ** java 8 time is not supported in Hibernate < 5
+ *   - So we use java.util.Date and specify the TemporalType to use
+ *   - @Temporal(TemporalType.Date) maps to SQL (JDBC) DATE
+ *   - @Temporal(TemporalType.Time) maps to SQL (JDBC) TIME
+ *   - @Temporal(TemporalType.Timestamp) maps to SQL (JDBC) TIMESTAMP
+ * </pre>
  */
 @Entity
 @Table(name = "ASN_ASSIGNMENT")
@@ -110,6 +142,12 @@ public class Assignment {
     @Column(name = "DROP_DEAD_DATE")
     @Temporal(TemporalType.TIMESTAMP)
 	private Date dropDeadDate;
+
+    @Column(name = "CREATOR")
+    private String creator;
+
+    @Column(name = "MODIFIER")
+    private String modifier;
 
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_AUTHORS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))

@@ -7,7 +7,6 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
-import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,7 +111,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
             submitters.ifPresent(submission::setSubmitters);
             submitters.ifPresent(s -> s.forEach(submitter -> submitter.setSubmission(submission)));
             feedbackAttachments.ifPresent(submission::setFeedbackAttachments);
-            submittedAttachments.ifPresent(submission::setSubmittedAttachments);
+            submittedAttachments.ifPresent(submission::setAttachments);
             properties.ifPresent(submission::setProperties);
 
             submission.setAssignment(assignment);

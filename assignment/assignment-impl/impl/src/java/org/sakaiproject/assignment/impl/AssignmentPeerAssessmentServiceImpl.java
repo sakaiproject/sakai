@@ -17,7 +17,6 @@ import org.hibernate.Query;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.assignment.api.AssignmentEntity;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentServiceConstants;
@@ -104,7 +103,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
                 for (AssignmentSubmission s : submissions) {
                     Optional<AssignmentSubmissionSubmitter> ass = assignmentService.getSubmissionSubmittee (s);
                             //check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
-                            if (s.getDateSubmitted() != null&& (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getSubmittedAttachments() ))))
+                            if (s.getDateSubmitted() != null&& (s.getSubmitted() || (StringUtils.isNotBlank(s.getSubmittedText() ) || (CollectionUtils.isNotEmpty(s.getAttachments() ))))
                             && CollectionUtils.containsAny(submitterIdsList,s.getSubmitters())
                             && !s.getSubmitters().contains("admin")) {
                         //only deal with users in the submitter's list

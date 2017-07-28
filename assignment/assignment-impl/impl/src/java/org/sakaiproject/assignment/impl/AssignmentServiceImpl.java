@@ -37,7 +37,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -640,6 +639,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public boolean allowReviewService() {
+        return false;
+    }
+
+    @Override
     public boolean allowGradeSubmission(String assignmentReference) {
         return permissionCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference, null);
     }
@@ -934,7 +938,10 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Assignment getAssignment(Reference reference) throws IdUnusedException, PermissionException {
         Assert.notNull(reference, "Reference cannot be null");
-        return getAssignment(reference.getId());
+        if (StringUtils.equals("assignment", reference.getType())) {
+            return getAssignment(reference.getId());
+        }
+        return null;
     }
 
     @Override
@@ -1139,6 +1146,93 @@ public class AssignmentServiceImpl implements AssignmentService {
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment) {
         assignmentRepository.initializeAssignment(assignment);
         return assignment.getSubmissions();
+    }
+
+    @Override
+    public String getSubmissionStatus(String submissionId) {
+        String status = "";
+        AssignmentSubmission submission;
+        try {
+            submission = getSubmission(submissionId);
+        } catch (IdUnusedException | PermissionException e) {
+            log.warn("Could not get submission with id {}, {}", submissionId, e.getMessage());
+            return status;
+        }
+        Assignment assignment = submission.getAssignment();
+        String assignmentReference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        boolean allowGrade = assignment != null && allowGradeSubmission(assignmentReference);
+
+        LocalDateTime submitTime = submission.getDateSubmitted() != null ? LocalDateTime.from(submission.getDateSubmitted().toInstant()) : null;
+        LocalDateTime returnTime = submission.getDateReturned() != null ? LocalDateTime.from(submission.getDateReturned().toInstant()) : null;
+        LocalDateTime lastModTime = submission.getDateModified() != null ? LocalDateTime.from(submission.getDateModified().toInstant()) : null;
+
+        if (submission.getSubmitted() || (!submission.getSubmitted() && allowGrade)) {
+            if (submitTime != null) {
+                if (submission.getReturned()) {
+                    if (returnTime != null && returnTime.isBefore(submitTime)) {
+                        if (!submission.getGraded()) {
+                            status = rb.getString("gen.resub") + " " + submitTime.toString();
+                            if (submitTime.isAfter(LocalDateTime.from(assignment.getDueDate().toInstant())))
+                                status = status + rb.getString("gen.late2");
+                        } else
+                            status = rb.getString("gen.returned");
+                    } else
+                        status = rb.getString("gen.returned");
+                } else if (submission.getGraded() && allowGrade) {
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? rb.getString("grad3") : rb.getString("gen.commented");
+                } else {
+                    if (allowGrade) {
+                        // ungraded submission
+                        status = rb.getString("ungra");
+                    } else {
+                        status = rb.getString("gen.subm4") + " " + submitTime.toString();
+                    }
+                }
+            } else {
+                if (submission.getReturned()) {
+                    // instructor can return grading to non-submitted user
+                    status = rb.getString("gen.returned");
+                } else if (submission.getGraded() && allowGrade) {
+                    // instructor can grade non-submitted ones
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? rb.getString("grad3") : rb.getString("gen.commented");
+                } else {
+                    if (allowGrade) {
+                        // show "no submission" to graders
+                        status = rb.getString("listsub.nosub");
+                    } else {
+                        // show "not started" to students
+                        status = rb.getString("gen.notsta");
+                    }
+                }
+            }
+        } else {
+            if (submission.getGraded()) {
+                if (submission.getReturned()) {
+                    // modified time is after returned time + 10 seconds
+                    if (lastModTime != null && returnTime != null && lastModTime.isAfter(returnTime.plusSeconds(10)) && !allowGrade) {
+                        // working on a returned submission now
+                        status = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
+                    } else {
+                        // not submitted submmission has been graded and returned
+                        status = rb.getString("gen.returned");
+                    }
+                } else if (allowGrade) {
+                    // grade saved but not release yet, show this to graders
+                    status = StringUtils.isNotBlank(submission.getGrade()) ? rb.getString("grad3") : rb.getString("gen.commented");
+                } else {
+                    // submission saved, not submitted.
+                    status = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
+                }
+            } else {
+                if (allowGrade)
+                    status = rb.getString("ungra");
+                else
+                    // submission saved, not submitted.
+                    status = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
+            }
+        }
+
+        return status;
     }
 
     // TODO this could probably be removed
@@ -1900,6 +1994,77 @@ public class AssignmentServiceImpl implements AssignmentService {
         return assignmentRepository.toXML(assignment);
     }
 
+    // TODO getGradeForUser each submitter now has a column for grade
+//    @Override
+//    public String getGradeForSubmitter(String submissionId, String userId) {
+//        if (m_grades != null) {
+//            Iterator<String> _it = m_grades.iterator();
+//            while (_it.hasNext()) {
+//                String _s = _it.next();
+//                if (_s.startsWith(id + "::")) {
+//                    //return _s.endsWith("null") ? null: _s.substring(_s.indexOf("::") + 2);
+//                    if(_s.endsWith("null"))
+//                    {
+//                        return null;
+//                    }
+//                    else
+//                    {
+//                        String grade=_s.substring(_s.indexOf("::") + 2);
+//                        if (grade != null && grade.length() > 0 && !"0".equals(grade))
+//                        {
+//                            int factor = getAssignment().getContent().getFactor();
+//                            int dec = (int)Math.log10(factor);
+//                            String decSeparator = FormattedText.getDecimalSeparator();
+//                            String decimalGradePoint = "";
+//                            try
+//                            {
+//                                Integer.parseInt(grade);
+//                                // if point grade, display the grade with factor decimal place
+//                                int length = grade.length();
+//                                if (length > dec) {
+//                                    decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+//                                }
+//                                else {
+//                                    String newGrade = "0".concat(decSeparator);
+//                                    for (int i = length; i < dec; i++) {
+//                                        newGrade = newGrade.concat("0");
+//                                    }
+//                                    decimalGradePoint = newGrade.concat(grade);
+//                                }
+//                            }
+//                            catch (NumberFormatException e) {
+//                                try {
+//                                    Float.parseFloat(grade);
+//                                    decimalGradePoint = grade;
+//                                }
+//                                catch (Exception e1) {
+//                                    return grade;
+//                                }
+//                            }
+//                            // get localized number format
+//                            NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);
+//                            DecimalFormat dcformat = (DecimalFormat) nbFormat;
+//                            // show grade in localized number format
+//                            try {
+//                                Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
+//                                decimalGradePoint = nbFormat.format(dblGrade);
+//                            }
+//                            catch (Exception e) {
+//                                return grade;
+//                            }
+//                            return decimalGradePoint;
+//                        }
+//                        else
+//                        {
+//                            return StringUtils.trimToEmpty(grade);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return null;
+//    }
+
     @Override
     public String getGradeForUserInGradeBook(String assignmentId, String userId) {
         if (StringUtils.isAnyBlank(assignmentId, userId)) return null;
@@ -2028,6 +2193,33 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         }
         return submitters;
+    }
+
+    @Override
+    public boolean isPeerAssessmentOpen(Assignment assignment) {
+        if (assignment.getAllowPeerAssessment()) {
+            Date now = new Date();
+            return now.before(assignment.getPeerAssessmentPeriodDate()) && now.after(assignment.getCloseDate());
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isPeerAssessmentPending(Assignment assignment) {
+        if (assignment.getAllowPeerAssessment()) {
+            Date now = new Date();
+            return now.before(assignment.getCloseDate());
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isPeerAssessmentClosed(Assignment assignment) {
+        if (assignment.getAllowPeerAssessment()) {
+            Date now = new Date();
+            return now.after(assignment.getPeerAssessmentPeriodDate());
+        }
+        return false;
     }
 
     private Collection<Group> getGroupsAllowFunction(String function, String context, String userId) {
@@ -2489,7 +2681,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                         }
 
                                         // add all submission attachment into the submission attachment folder
-                                        zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
+                                        zipAttachments(out, submittersName, sSubAttachmentFolder, s.getAttachments());
                                         out.closeEntry();
                                     }
                                 }
@@ -2719,7 +2911,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                                     ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
                                     out.putNextEntry(sSubAttachmentFolderEntry);
                                     // add all submission attachment into the submission attachment folder
-                                    zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
+                                    zipAttachments(out, submittersName, sSubAttachmentFolder, s.getAttachments());
                                     out.closeEntry();
                                 }
                             }

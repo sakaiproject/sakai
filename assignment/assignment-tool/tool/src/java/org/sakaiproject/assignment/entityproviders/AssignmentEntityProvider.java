@@ -1,33 +1,27 @@
 package org.sakaiproject.assignment.entityproviders;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
+import org.sakaiproject.assignment.api.AssignmentConstants;
+import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.Assignment.AssignmentAccess;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.model.AssignmentContent;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.impl.BaseAssignmentService;
-import org.sakaiproject.assignment.impl.MySecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -48,24 +42,26 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AssignmentEntityProvider extends AbstractEntityProvider implements EntityProvider, 
 		CoreEntityProvider, Resolvable, ActionsExecutable, Describeable,
 		AutoRegisterEntityProvider, PropertyProvideable, Outputable, Inputable {
 
 	public final static String ENTITY_PREFIX = "assignment";
-	private static Logger M_log = LoggerFactory.getLogger(AssignmentEntityProvider.class);
 
 	@AllArgsConstructor
 	public class DecoratedAttachment implements Comparable<Object> {
@@ -91,7 +87,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * the AssignmentContent of this Assignment.
 		 */
-		private AssignmentContent content;
+		private Assignment content;
 
 		/**
 		 * the reference of the AssignmentContent of this Assignment.
@@ -101,7 +97,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * the first time at which the assignment can be viewed; may be null.
 		 */
-		private Time openTime;
+		private Date openTime;
 
 		/**
 		 * the first time at which the assignment can be viewed; (String)
@@ -111,7 +107,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * the time at which the assignment is due; may be null.
 		 */
-		private Time dueTime;
+		private Date dueTime;
 
 		/**
 		 * the time at which the assignment is due; (String)
@@ -122,7 +118,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * the drop dead time after which responses to this assignment are
 		 * considered late; may be null.
 		 */
-		private Time dropDeadTime;
+		private Date dropDeadTime;
 
 		/**
 		 * the drop dead time after which responses to this assignment are
@@ -134,7 +130,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * the close time after which this assignment can no longer be viewed,
 		 * and after which submissions will not be accepted. May be null.
 		 */
-		private Time closeTime;
+		private Date closeTime;
 
 		/**
 		 * the close time after which this assignment can no longer be viewed,
@@ -165,12 +161,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * the time that this object was created.
 		 */
-		private Time timeCreated;
+		private Date timeCreated;
 
 		/**
 		 * the list of authors.
 		 */
-		private List authors;
+		private Set<String> authors;
 		
 		/**
 		 * the assignment instructions.
@@ -180,7 +176,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * the time of last modificaiton.
 		 */
-		private Time timeLastModified;
+		private Date timeLastModified;
 
 		/**
 		 * the author of last modification
@@ -195,12 +191,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * Return string representation of assignment status
 		 */
-		private String status;
+		private AssignmentConstants.Status status;
 
 		/**
 		 * the position order field for the assignment.
 		 */
-		private int position_order;
+		private int position;
 
 		/**
 		 * 
@@ -212,7 +208,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * the access mode for the assignment - how we compute who has access to
 		 * the assignment.
 		 */
-		private AssignmentAccess access;
+		private Assignment.Access access;
 
 		/**
 		 * the attachment list
@@ -222,7 +218,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * Grade scale description.
 		 */
-		private String gradeScale;
+		private Assignment.GradeType gradeScale;
 		
 		/**
 		 * Max points used when grade scale = "Points"
@@ -232,7 +228,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * Submission type description (e.g. inline only, inline and attachments)
 		 */
-		private String submissionType;
+		private Assignment.SubmissionType submissionType;
 		
 		/**
 		 * Allow re-submission flag
@@ -270,30 +266,36 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 				return;
 			}
 			this.id = a.getId();
-			this.contentReference = a.getContentReference();
-			this.openTime = a.getOpenTime();
-			this.openTimeString = a.getOpenTimeString();
-			this.dueTime = a.getDueTime();
-			this.dueTimeString = a.getDueTimeString();
-			this.dropDeadTime = a.getDropDeadTime();
-			this.dropDeadTimeString = a.getDropDeadTimeString();
-			this.closeTime = a.getCloseTime();
-			this.closeTimeString = a.getCloseTimeString();
+			this.contentReference = AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference();
+			this.openTime = a.getOpenDate();
+			this.openTimeString = a.getOpenDate().toInstant().toString();
+			this.dueTime = a.getDueDate();
+			this.dueTimeString = a.getDueDate().toInstant().toString();
+			this.dropDeadTime = a.getDropDeadDate();
+			this.dropDeadTimeString = a.getDropDeadDate().toInstant().toString();
+			this.closeTime = a.getCloseDate();
+			this.closeTimeString = a.getCloseDate().toInstant().toString();
 			this.section = a.getSection();
 			this.context = a.getContext();
 			this.draft = a.getDraft();
 			this.creator = a.getCreator();
-			this.timeCreated = a.getTimeCreated();
+			this.timeCreated = a.getDateCreated();
 			this.authors = a.getAuthors();
-			this.timeLastModified = a.getTimeLastModified();
-			this.authorLastModified = a.getAuthorLastModified();
+			this.timeLastModified = a.getDateModified();
+			this.authorLastModified = a.getModifier();
 			this.title = a.getTitle();
-			this.status = a.getStatus();
-			this.position_order = a.getPosition_order();
+			try {
+				this.status = assignmentService.getAssignmentCannonicalStatus(a.getId());
+			} catch (IdUnusedException | PermissionException e) {
+				log.warn("Couldn't get Assignment status, {}", e.getMessage());
+			}
+			this.position = a.getPosition();
 			this.groups = a.getGroups();
 			this.access = a.getAccess();
-					
-			String gradebookAssignmentProp = a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+			this.instructions = a.getInstructions();
+
+
+			String gradebookAssignmentProp = a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			if (gradebookService.isGradebookDefined(a.getContext())) 
 			{
 				if (gradebookAssignmentProp != null)
@@ -326,43 +328,39 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 				}
 				else 
 				{
-					M_log.warn("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
+					log.warn("The property \"prop_new_assignment_add_to_gradebook\" is null for the assignment feed");
 				}
 			}
-			if (a.getContent() != null){
-				this.instructions = a.getContent().getInstructions();
-	
-				this.attachments = new ArrayList<DecoratedAttachment>();
-				List<Reference> attachment_list = (List<Reference>) a.getContent()
-						.getAttachments();
-				for (Reference attachment : attachment_list) {
-					if (attachment != null && attachment.getProperties() != null) {
-						String url = attachment.getUrl();
-						String name = attachment.getProperties().getPropertyFormatted(
-								attachment.getProperties().getNamePropDisplayName());
-						DecoratedAttachment decoratedAttachment = new DecoratedAttachment(
-								name, url);
+
+				this.attachments = new ArrayList<>();
+				Set<String> attachment_list = a.getAttachments();
+				for (String attachment : attachment_list) {
+					Entity entity = (Entity) entityBroker.fetchEntity(attachment);
+					if (entity != null) {
+						String url = entity.getUrl();
+						String name = entity.getProperties().getPropertyFormatted(entity.getProperties().getNamePropDisplayName());
+						DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
 						this.attachments.add(decoratedAttachment);
 					}
 					else {
-						M_log.info("There was an attachment on assignment "+ a.getId() +" that was invalid");
+						log.info("There was an attachment on assignment "+ a.getId() +" that was invalid");
 					}
 				}
 				// Translate grade scale from its numeric value to its description.
-				this.gradeScale = a.getContent().getTypeOfGradeString();
+				this.gradeScale = a.getTypeOfGrade();
 				
 				// If grade scale is "points" we also capture the maximum points allowed.
-				if (a.getContent().getTypeOfGrade() == 3) {
-					this.gradeScaleMaxPoints = a.getContent().getMaxGradePointDisplay();
+				if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+					// TODO fix max grade display
+//					this.gradeScaleMaxPoints = a.getMaxGradePoint();
 				}
 				
 				// Use the number of submissions allowed as an indicator that re-submission is permitted.
-				if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null && a.getContent().getTypeOfSubmission() != 4){
+				if (a.getProperties().get(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null && a.getTypeOfSubmission() != Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION){
 					this.allowResubmission = true;
 				}
-				this.submissionType = a.getContent().getTypeOfSubmissionString();
-			}
-			
+				this.submissionType = a.getTypeOfSubmission();
+
 			// Supplement Items
 			AssignmentModelAnswerItem assignmentModelAnswerItem = assignmentSupplementItemService.getModelAnswer(a.getId());
 			if (assignmentModelAnswerItem != null) {
@@ -486,7 +484,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			// enable permission to view possible draft assignment
 			SecurityAdvisor securityAdvisor = createSecurityAdvisor(
 					sessionManager.getCurrentSessionUserId(),
-					AssignmentService.SECURE_ADD_ASSIGNMENT,
+					AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT,
 					assignmentService.assignmentReference(null, context)
 			);
 			securityService.pushAdvisor(securityAdvisor);
@@ -499,8 +497,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
 			// This is for checking to see if there is a link to announcements
 			// in the assignment
-			String announcementCheck = a.getProperties().getProperty(
-					"CHEF:assignment_opendate_announcement_message_id");
+			String announcementCheck = a.getProperties().get("CHEF:assignment_opendate_announcement_message_id");
 
 			// the message id passed in through parameters
 			String messageId = (String) params.get("messageId");
@@ -516,7 +513,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						.allowGetAssignment(assignmentContext); 
 				// check for read permission
 				if (allowReadAssignment
-						&& a.getOpenTime().before(timeService.newTime())) {
+						&& a.getOpenDate().toInstant().isBefore(Instant.now())) {
 					// this checks if we want to display an assignment link
 					try {
 						Site site = siteService.getSite(assignmentContext); // site id
@@ -541,7 +538,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 													+ "/directtool/"
 													+ fromTool.getId()
 													+ "?assignmentId="
-													+ a.getReference()
+													+ a.getId()
 													+ "&panel=Main&sakai_action=doView_assignment");
 						} else if (allowSubmitAssignment) {
 							assignData
@@ -551,7 +548,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 													+ "/directtool/"
 													+ fromTool.getId()
 													+ "?assignmentReference="
-													+ a.getReference()
+													+ AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()
 													+ "&panel=Main&sakai_action=doView_submission");
 						} else {
 							// user can read the assignment, but not submit, so
@@ -563,7 +560,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 													+ "/directtool/"
 													+ fromTool.getId()
 													+ "?assignmentId="
-													+ a.getReference()
+													+ a.getId()
 													+ "&panel=Main&sakai_action=doView_assignment_as_student");
 						}
 					} catch (IdUnusedException e) {
@@ -698,16 +695,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		} catch (PermissionException e) {
 			throw new EntityNotFoundException("No access to site: " + siteId, siteId);
 		}
-		
-		String userId = sessionManager.getCurrentSessionUserId();
-		for (Iterator aIterator = assignmentService.getAssignmentsForContext(
-				siteId, userId); aIterator.hasNext();) {
-			Assignment a = (Assignment) aIterator.next();
-			rv.add(new SimpleAssignment(a));
 
-		}
+		assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add);
 		return rv;
-
 	}
 	
 	/**
@@ -720,19 +710,13 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		String userId = sessionManager.getCurrentSessionUserId();
 
 		// get list of all sites
-		List<Site> sites = siteService.getSites(SiteService.SelectionType.ACCESS, null,
-				null, null, SiteService.SortType.TITLE_ASC, null);
+		List<Site> sites = siteService.getSites(SiteService.SelectionType.ACCESS, null,null, null, SiteService.SortType.TITLE_ASC, null);
 		// no need to check user can access this site, as the get sites only returned accessible sites
-		
+
 		// get all assignments from each site
 		for (Site site : sites) {
 			String siteId = site.getId();
-			
-			for (Iterator aIterator = assignmentService.getAssignmentsForContext(
-					siteId, userId); aIterator.hasNext();) {
-				Assignment a = (Assignment) aIterator.next();
-				rv.add(new SimpleAssignment(a));
-			}
+			assignmentService.getAssignmentsForContext(siteId).stream().map(SimpleAssignment::new).forEach(rv::add);
 		}
 
 		return rv;
@@ -787,17 +771,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 					userId = searchValue[i];
 			}
 
-			if (siteId != null && userId != null) {
-				Iterator assignmentSorter = assignmentService
-						.getAssignmentsForContext(siteId, userId);
+			if (siteId != null) {
 				// filter to obtain only grade-able assignments
-				while (assignmentSorter.hasNext()) {
-					Assignment a = (Assignment) assignmentSorter.next();
-					if (!a.getDraft()
-							&& assignmentService.allowGradeSubmission(a
-									.getReference())) {
-						rv.add(Entity.SEPARATOR + ENTITY_PREFIX
-								+ Entity.SEPARATOR + a.getId());
+				for (Assignment assignment : assignmentService.getAssignmentsForContext(siteId)) {
+					if (!assignment.getDraft() && assignmentService.allowGradeSubmission(AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference())) {
+						rv.add(Entity.SEPARATOR + ENTITY_PREFIX + Entity.SEPARATOR + assignment.getId());
 					}
 				}
 			}
@@ -861,105 +839,43 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		}
 
 		try {
-			Assignment assignment = assignmentService
-					.getAssignment(assignmentId);
+			Assignment assignment = assignmentService.getAssignment(assignmentId);
+			Entity entity = assignmentService.createAssignmentEntity(assignment);
 			props.put("title", assignment.getTitle());
-			props.put("author", assignment.getCreator());
-			props.put("description", assignment.getContentReference());
+			props.put("author", assignment.getAuthors().stream().findFirst().orElse(""));
+			props.put("description", entity.getReference());
 			props.put("draft", "" + assignment.getDraft());
 			props.put("siteId", assignment.getContext());
 			props.put("section", assignment.getSection());
-			props.put("status", assignment.getStatus());
-			props.put("portalURL", assignment.getUrl());
-			if (assignment.getTimeCreated() != null) {
-				props.put("created_time", assignment.getTimeCreated()
-						.getDisplay());
+			props.put("status", assignmentService.getAssignmentCannonicalStatus(assignmentId).toString());
+			props.put("portalURL", entity.getUrl());
+			if (assignment.getDateCreated() != null) {
+				props.put("created_time", assignment.getDateCreated().toInstant().toString());
 			}
-			if (assignment.getAuthorLastModified() != null) {
-				props.put("modified_by", assignment.getAuthorLastModified());
+			// TODO add
+//			if (assignment.getAuthorLastModified() != null) {
+//				props.put("modified_by", assignment.getAuthorLastModified());
+//			}
+			if (assignment.getDateModified() != null) {
+				props.put("modified_time", assignment.getDateModified().toInstant().toString());
 			}
-			if (assignment.getTimeLastModified() != null) {
-				props.put("modified_time", assignment.getTimeLastModified()
-						.getDisplay());
-			}
-			props.put("due_time", assignment.getDueTimeString());
-			props.put("open_time", assignment.getOpenTimeString());
-			if (assignment.getDropDeadTime() != null) {
-				props.put("retract_time", assignment.getDropDeadTime()
-						.getDisplay());
+			props.put("due_time", assignment.getDueDate().toInstant().toString());
+			props.put("open_time", assignment.getOpenDate().toInstant().toString());
+			if (assignment.getDropDeadDate() != null) {
+				props.put("retract_time", assignment.getDropDeadDate().toInstant().toString());
 			}
 
 			Site site = siteService.getSite(assignment.getContext());
-			String placement = site.getToolForCommonId(
-					"sakai.assignment.grades").getId();
+			String placement = site.getToolForCommonId("sakai.assignment.grades").getId();
 
 			props.put("security.user", sessionManager.getCurrentSessionUserId());
 			props.put("security.site.function", SiteService.SITE_VISIT);
 			props.put("security.site.ref", site.getReference());
-			props.put("security.assignment.function",
-					AssignmentService.SECURE_ACCESS_ASSIGNMENT);
-			props.put("security.assignment.grade.function",
-					AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION);
-			props.put("security.assignment.grade.ref",
-					assignment.getReference());
-
-			// OSP specific
-			if (("ospMatrix".equals(decWrapperTag) && canUserAccessWizardPageAndLinkedArtifcact)
-					|| "null".equals(submissionId)) {
-
-				List<Reference> attachments = new ArrayList<Reference>();
-
-				if (!"null".equals(submissionId)) {
-					props.put("security.assignment.ref", submissionId);
-					SecurityAdvisor subAdv = createSecurityAdvisor(
-							sessionManager.getCurrentSessionUserId(),
-							AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
-							submissionId);
-					SecurityAdvisor subAdv2 = createSecurityAdvisor(
-							sessionManager.getCurrentSessionUserId(),
-							AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION,
-							assignment.getReference());
-					try {
-						// enable permission to access submission
-						securityService.pushAdvisor(subAdv);
-						securityService.pushAdvisor(subAdv2);
-						AssignmentSubmission as = assignmentService
-								.getSubmission(submissionId);
-						attachments.addAll(as.getSubmittedAttachments());
-						attachments.addAll(as.getFeedbackAttachments());
-					} catch (Exception e) {
-						// exception
-					} finally {
-						// remove security advisor
-						securityService.popAdvisor(subAdv2);
-						securityService.popAdvisor(subAdv);
-					}
-				}
-
-				props.put("assignment.content.decoration.wrapper", decWrapper);
-
-				// need the regular assignment attachments too
-				attachments.addAll(assignment.getContent().getAttachments());
-
-				StringBuffer refsBuffer = new StringBuffer();
-				for (Reference comp : attachments) {
-					refsBuffer.append(comp.getReference() + ":::");
-				}
-				String refs = refsBuffer.toString();
-
-				if (refs.lastIndexOf(":::") > 0) {
-					props.put("submissionAttachmentRefs",
-							refs.substring(0, refs.lastIndexOf(":::")));
-				}
-
-				props.put("url", "/portal/tool/" + placement + "?assignmentId="
-						+ assignment.getId() + "&submissionId=" + submissionId
-						+ "&assignmentReference=" + assignment.getReference()
-						+ "&panel=Main&sakai_action=" + defaultView);
-			}
+			props.put("security.assignment.function", AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT);
+			props.put("security.assignment.grade.function", AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+			props.put("security.assignment.grade.ref", entity.getReference());
 		} catch (IdUnusedException e) {
-			throw new EntityNotFoundException("No assignment found", reference,
-					e);
+			throw new EntityNotFoundException("No assignment found", reference, e);
 		} catch (PermissionException e) {
 			throw new SecurityException(e);
 		}

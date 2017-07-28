@@ -58,8 +58,8 @@ import lombok.ToString;
 
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
-//@EqualsAndHashCode(exclude = {"assignment", "submitters", "submittedAttachments", "feedbackAttachments", "properties"})
+@ToString(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
+//@EqualsAndHashCode(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
 @EqualsAndHashCode(of = "id")
 public class AssignmentSubmission {
 
@@ -93,9 +93,9 @@ public class AssignmentSubmission {
 	@ElementCollection
 	@Column(name = "ATTACHMENT")
 	@CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	private Set<String> submittedAttachments;
+	private Set<String> attachments;
 
-	// TODO combine submitted and feedback attachements into a single table
+	// TODO combine attachments and feedbackAttachements into a single table
 	@ElementCollection
 	@Column(name = "FEEDBACK_ATTACHMENT")
 	@CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))

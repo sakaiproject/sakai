@@ -226,6 +226,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public boolean allowRemoveSubmission(String submissionReference);
 
+    boolean allowReviewService();
+
     /**
      * Check permissions for grading Submission
      *
@@ -431,6 +433,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment);
 
+    String getSubmissionStatus(String submissionId);
+
     /**
      * Return a sorted list of users representing a group.
      */
@@ -623,4 +627,24 @@ public interface AssignmentService extends EntityProducer {
     Optional<AssignmentSubmissionSubmitter> getSubmissionSubmittee(AssignmentSubmission submission);
 
     Collection<User> getSubmissionSubmittersAsUsers(AssignmentSubmission submission);
+
+    /**
+     * peer assessment is set for this assignment and the current time
+     * falls between the assignment close time and the peer asseessment period time
+     * @return
+     */
+    public boolean isPeerAssessmentOpen(Assignment assignment);
+
+    /**
+     * peer assessment is set for this assignment but the close time hasn't passed
+     * @return
+     */
+    public boolean isPeerAssessmentPending(Assignment assignment);
+
+    /**
+     * peer assessment is set for this assignment but the current time is passed
+     * the peer assessment period
+     * @return
+     */
+    public boolean isPeerAssessmentClosed(Assignment assignment);
 }
