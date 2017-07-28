@@ -904,7 +904,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("toolsCollapsed", toolsCollapsed);
+			rcontext.put("toolsCollapsed", Boolean.valueOf(toolsCollapsed));
 			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
