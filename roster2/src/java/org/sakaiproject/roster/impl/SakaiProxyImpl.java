@@ -465,6 +465,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 						filtered.addAll(filterHiddenMembers(unfiltered, currentUserId, site.getId(), group));
 					}
 				}
+				// The group loop is shuffling members, sort the list again
+				Collections.sort(filtered,memberComparator);
 			} else if (null != site.getGroup(groupId)) {
 				// get all members of requested groupId if current user is
 				// member
