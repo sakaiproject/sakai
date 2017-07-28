@@ -41,6 +41,9 @@
                 "user": {
                     "id": "$!{userId}",
                     "eid": "$!{userEid}"
+                    "userType": "$!{userType}",
+                    "siteRole": "$!{userSiteRole}"
+                    
                 },
                 "timeoutDialog" : {
                 "enabled": $!{timeoutDialogEnabled},
