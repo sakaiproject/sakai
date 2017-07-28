@@ -447,14 +447,16 @@ public class SimplePageBean {
 		public String Url;
 		public String label;
 		public String fa_icon = null;
+		public Boolean search = Boolean.FALSE;
 		public UrlItem(String Url, String label) {
 			this.Url = Url;
 			this.label = label;
 		}
-		public UrlItem(String Url, String label, String fa_icon) {
+		public UrlItem(String Url, String label, String fa_icon, Boolean search) {
 			this.Url = Url;
 			this.label = label;
 			this.fa_icon = fa_icon;
+			this.search = search;
 		}
 	}
 
