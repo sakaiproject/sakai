@@ -12827,12 +12827,19 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, Integer.valueOf(17));
 		state.setAttribute(ALLPURPOSE_RETRACT_MIN, Integer.valueOf(0));
 
-		// set the peer period time to be 10 mins after accept until date
+		// peer review time is one week after accept until (resubmit) date
+		t.setTime(t.getTime() + 7 * 24 * 60 * 60 * 1000);
+		tB = t.breakdownLocal();
+		month = tB.getMonth();
+		day = tB.getDay();
+		year = tB.getYear();
+		
+		// set the peer period time using the adjustment above
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR, Integer.valueOf(year));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, Integer.valueOf(17));
-		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(10));
+		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(0));
 		
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE.toString());
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE.toString());
