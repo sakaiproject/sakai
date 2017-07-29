@@ -19,9 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -103,9 +100,9 @@ public class RemoteHostFilter implements Filter {
     private ServerConfigurationService serverConfigurationService;
 
     public void init() {
-        allowRequests = getListConfig("webservices.allow-request", allowRequests);
-        allowPattern = getPatternConfig("webservices.allow", allow);
-        denyPattern = getPatternConfig("webservices.deny", deny);
+        allowRequests = serverConfigurationService.getStringList("webservices.allow-request", allowRequests);
+        allowPattern = serverConfigurationService.getPatternList("webservices.allow", allow);
+        denyPattern = serverConfigurationService.getPatternList("webservices.deny", deny);
 
         logAllowed = serverConfigurationService.getBoolean("webservices.log-allowed", logAllowed);
         logDenied = serverConfigurationService.getBoolean("webservices.log-denied", logDenied);
@@ -190,48 +187,5 @@ public class RemoteHostFilter implements Filter {
      */
     @Override
     public void destroy() {
-    }
-
-    /**
-     * Converts the given list of Strings to a list of Pattern objects
-     * 
-     * @param regexps
-     *            A list of regex pattern strings
-     * 
-     * @exception IllegalArgumentException
-     *                if one of the patterns has invalid regular expression
-     *                syntax
-     */
-    private List<Pattern> getRegExPatterns(List<String> regexps) {
-
-        ArrayList<Pattern> patterns = new ArrayList<>();
-        for (String regexp : regexps) {
-            String regex = StringUtils.trimToNull(regexp);
-            if (regex != null) {
-                // if :empty: is in any of the then return an empty list
-                if (StringUtils.equals(":empty:", regex)) return new ArrayList<>();
-
-                try {
-                    // Host names are case insensitive
-                    patterns.add(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
-                } catch (PatternSyntaxException e) {
-                    throw new IllegalArgumentException("Illegal Regular Expression Syntax: [" + regex + "] - " + e.getMessage());
-                }
-            }
-        }
-        return patterns;
-    }
-
-    private List<String> getListConfig(String configName, List<String> defaults) {
-        String configValue = serverConfigurationService.getString(configName, null);
-        if (StringUtils.isNotBlank(configValue)) {
-            return Stream.of(StringUtils.split(configValue, ",")).collect(Collectors.toList());
-        }
-        return defaults != null ? defaults : new ArrayList<>();
-    }
-
-    private List<Pattern> getPatternConfig(String configName, List<String> defaults) {
-        List<String> list = getListConfig(configName, defaults);
-        return getRegExPatterns(list);
     }
 }
