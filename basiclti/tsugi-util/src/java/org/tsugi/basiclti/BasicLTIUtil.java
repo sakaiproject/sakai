@@ -553,14 +553,18 @@ public class BasicLTIUtil {
 		}
 
 		// Paint the submit button
-		text.append("<input type=\"submit\" value=\"");
-		text.append(htmlspecialchars(launchtext));
-		text.append("\">\n");
-
 		if ( debug ) {
+			text.append("<input type=\"submit\" value=\"");
+			text.append(htmlspecialchars(launchtext));
+			text.append("\">\n");
+
 			text.append(" <input type=\"Submit\" value=\"Show Launch Data\" onclick=\"document.getElementById('ltiLaunchDebug_");
 			text.append(submit_uuid);
 			text.append("').style.display = 'block';return false;\">\n");
+		} else {
+			text.append("<input type=\"submit\" value=\" style=\"display: none\"");
+			text.append(htmlspecialchars(launchtext));
+			text.append("\">\n");
 		}
 
 		if ( extra != null ) {
