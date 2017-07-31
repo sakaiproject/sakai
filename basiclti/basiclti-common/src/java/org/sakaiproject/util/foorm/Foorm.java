@@ -1789,8 +1789,11 @@ public class Foorm {
 			}
 		} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
 			if ("oracle".equals(vendor)) {
-				if (maxlength < 4000) {
-					schema = "VARCHAR2(" + maxlength + ")";
+				// SAK-31695
+				// Since we need UTF-8, we need to be conservative 4000/4 -> 1025
+				// Also we need to force "CHAR" to handle UTF-8 columns lengths
+				if (maxlength < 1025) {
+					schema = "VARCHAR2(" + maxlength + " CHAR)";
 				} else {
 					schema = "CLOB";
 				}
@@ -1904,6 +1907,9 @@ public class Foorm {
 				}
 				if ( sqlLength < maxlength ) shouldAlter = true;
 				if ( ! isNullable ) shouldAlter = true; // BLTI-220, BLTI-238
+
+				// shouldAlter = true; // Temporary SAK-31695 to force ALTER statements to be emitted
+
 			} else if ("radio".equals(type) || "checkbox".equals(type) || "integer".equals(type) ) {
 				if ( NUMBER_TYPE.equals(sqlType)) continue;
 				logger.severe(field+" must be Integer field");
