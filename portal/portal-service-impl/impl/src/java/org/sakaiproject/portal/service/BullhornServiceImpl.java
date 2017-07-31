@@ -183,6 +183,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(ProfileConstants.EVENT_FRIEND_IGNORE);
             HANDLED_EVENTS.add(ProfileConstants.EVENT_MESSAGE_SENT);
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
+            HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_POST);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_ADD);
@@ -274,7 +275,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                             }
                             doCommonsCommentInserts(from, event, ref, e, siteId, postId, tos);
                         }
-                        } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event)) {
+                    } else if (AnnouncementService.SECURE_ANNC_ADD.equals(event) || AnnouncementService.SECURE_ANNC_POST.equals(event)) {
                             String siteId = pathParts[3];
                             String announcementId = pathParts[pathParts.length - 1];
 
