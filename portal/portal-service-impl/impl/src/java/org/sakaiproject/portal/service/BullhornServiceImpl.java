@@ -185,6 +185,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_ADD);
             HANDLED_EVENTS.add(AnnouncementService.SECURE_ANNC_POST);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_ADD_ASSIGNMENT);
+            HANDLED_EVENTS.add(AssignmentConstants.EVENT_POST_ASSIGNMENT);
             HANDLED_EVENTS.add(AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION);
             HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_ADD);
             HANDLED_EVENTS.add(DiscussionForumService.EVENT_MESSAGES_RESPONSE);
@@ -328,7 +329,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } finally {
                             lock(sa);
                         }
-                    } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
+                    } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event) || AssignmentConstants.EVENT_POST_ASSIGNMENT.equals(event)) {
+
                             String siteId = pathParts[3];
                             String assignmentId = pathParts[pathParts.length - 1];
                             SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});

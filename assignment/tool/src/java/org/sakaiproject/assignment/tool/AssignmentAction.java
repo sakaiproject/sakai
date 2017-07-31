@@ -7813,6 +7813,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     aProperties.put(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, (String) state.getAttribute(AssignmentConstants.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
                 }
 
+                boolean aOldDraft = a.getDraft();
+
                 // persist the Assignment changes
                 commitAssignment(state, post, a, assignmentReference, title, submissionType, useReviewService, allowStudentViewReport,
                         gradeType, gradePoints, description, checkAddHonorPledge, attachments, section, range,
@@ -7975,8 +7977,9 @@ public class AssignmentAction extends PagedResourceActionII {
                             // due time change
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentId, true));
                         }
-                        if (aOldDraft && StringUtils.isNotBlank(assignmentId)) {
-                            // Add a "post" event if going from draft to published and editing an old assignment.
+
+                        if (aOldDraft) {
+                            // Add a "post" event if going from draft to published.
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_POST_ASSIGNMENT, assignmentId, true));
                         }
                     }

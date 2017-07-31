@@ -216,8 +216,8 @@
 
                                     if (alert.event === 'annc.new' || alert.event === 'annc.post') {
                                         message
-                                            = data.i18n.announcement.replace('{0}', title).replace('{1}', siteTitle);
-                                    } else if (alert.event === 'asn.new.assignment') {
+                                            = data.i18n.announcement.replace('{0}', alert.fromDisplayName).replace('{1}', title);
+                                    } else if (alert.event === 'asn.new.assignment' || alert.event === 'asn.post.assignment') {
                                         message
                                             = data.i18n.assignmentCreated.replace('{0}', title).replace('{1}', siteTitle);
                                     } else if (alert.event === 'asn.grade.submission') {

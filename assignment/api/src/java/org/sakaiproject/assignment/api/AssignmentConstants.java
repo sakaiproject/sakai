@@ -83,6 +83,10 @@ public final class AssignmentConstants {
      */
     public static final String EVENT_UPDATE_ASSIGNMENT = "asn.revise.assignment";
     /**
+     * Event for posting an assignment.
+     */
+    public static final String EVENT_POST_ASSIGNMENT = "asn.post.assignment";
+    /**
      * Event for assignment title update
      */
     public static final String EVENT_UPDATE_ASSIGNMENT_TITLE = "asn.revise.title";
