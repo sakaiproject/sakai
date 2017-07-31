@@ -34,9 +34,6 @@ public class WikiPageAction
 
 	public static final WikiPageAction PUBLICVIEW_ACTION = new WikiPageAction(
 			"publicview");
-	
-	public static final WikiPageAction PRINTVIEW_ACTION =new WikiPageAction(
-			"printview");
 
 	public static final WikiPageAction VIEW_ACTION = new WikiPageAction("view");
 
