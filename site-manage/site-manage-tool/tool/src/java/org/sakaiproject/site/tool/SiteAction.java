@@ -2905,8 +2905,8 @@ public class SiteAction extends PagedResourceActionII {
 					 Map<String, Object> toolMap = entry.getValue();
 					 String toolId = entry.getKey();
 					// get the configuration html for tool is post-add configuration has been requested (by Laura)
-					String showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG).toString();
-					if ( ! "1".equals(showDialog) ) continue;
+					Object showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG);
+					if ( showDialog == null || ! "1".equals(showDialog.toString()) ) continue;
 
 					String ltiToolId = toolMap.get("id").toString();
 					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
@@ -11698,14 +11698,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					if ( toolMap == null ) continue;
 
 					// Decide if any LTI tools need a configuration dialog
-					String showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG).toString();
+					Object showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG);
+					if ( showDialog == null || ! "1".equals(showDialog.toString()) ) continue;
 					if (existingLtiIds == null)
 					{
 						ltiToolNeedsConfig = true;
 					}
 					else
 					{
-						if (!existingLtiIds.keySet().contains(ltiToolId) && "1".equals(showDialog))
+						if (!existingLtiIds.keySet().contains(ltiToolId) && 
+							showDialog!= null && "1".equals(showDialog.toString()))
 						{
 							// there are some new lti tool(s) selected that need a configuration dialog
 							ltiToolNeedsConfig = true;
