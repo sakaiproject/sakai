@@ -370,8 +370,6 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-810', '!gateway-800', '!gateway', '
 -- Create the !user site to be used as the template for a new user's site.
 
 INSERT INTO SAKAI_SITE VALUES('!user', 'My Workspace', null, null, 'My Workspace Site', null, null, null, 1, 0, 0, '', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 0, 0, 0, null);
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '0', 0, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!user-999', '!user-99', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-100', '!user', 'Home', '1', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!user', '!user-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-110', '!user-100', '!user', 'sakai.motd', 1, 'Message of the Day', '0,0' );
@@ -452,8 +450,6 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-110', 'mercury-100', 'mercury', 'sak
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-120', 'mercury-100', 'mercury', 'sakai.synoptic.announcement', 2, 'Recent Announcements', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-130', 'mercury-100', 'mercury', 'sakai.synoptic.messagecenter', 3, 'Recent Forums Items', NULL );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-140', 'mercury-100', 'mercury', 'sakai.synoptic.chat', 4, 'Recent Chat Messages', NULL );
-INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-150', 'mercury', 'Dashboard', '0', 2, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-160', 'mercury-150', 'mercury', 'sakai.dashboard', 1, 'Dashboard', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-200', 'mercury', 'Calendar', '0', 2, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-210', 'mercury-200', 'mercury', 'sakai.schedule', 1, 'Calendar', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-300', 'mercury', 'Announcements', '0', 3, '0' );

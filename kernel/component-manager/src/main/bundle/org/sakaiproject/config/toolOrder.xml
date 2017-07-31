@@ -4,7 +4,6 @@
 
 	<category name="myworkspace">
 		<tool id = "home" selected="true" />
-		<tool id = "sakai.dashboard" />
 		<tool id = "sakai.sitesetup" required = "true" />
 		<tool id = "sakai.membership" required="true" />
 		<tool id = "sakai.preferences" required="true" />
@@ -13,7 +12,6 @@
 
 	<category name="course">
 		<tool id = "sakai.iframe.site" />
-		<tool id = "sakai.dashboard" />
 		<tool id = "sakai.synoptic.chat" />
 		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
@@ -43,7 +41,6 @@
 
 	<category name="project">
 		<tool id = "sakai.iframe.site" />
-		<tool id = "sakai.dashboard" />
 		<tool id = "sakai.synoptic.chat" />
 		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
