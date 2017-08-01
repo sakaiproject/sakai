@@ -45,7 +45,7 @@ There are lot of other variables you can refer to the *[_defaults.scss](./librar
 * **How to change default tool Icons:**
  	 Fonts/Icons in Morpheus are imported from Font-Awesome ([https://fortawesome.github.io/Font-Awesome/icons/](https://fortawesome.github.io/Font-Awesome/icons/)),  this section explains how to change the default icons for the tools and also add new icon for the new tools.
 
-    1. File that maps the Font-Awesome to Morpheus Tools in the tools list and Course List is [/library/src/morpheus-master/sass/base/_icons.scss](./library/src/morpheus-master/sass/base/_icons.scss)
+    1. File that maps the Font-Awesome to Morpheus Tools in the tools list and Course List is [https://github.com/sakaiproject/sakai/blob/master/library/src/morpheus-master/sass/base/_icons.scss](./library/src/morpheus-master/sass/base/_icons.scss)
 
     2. There are 2 sections to this file .
 
