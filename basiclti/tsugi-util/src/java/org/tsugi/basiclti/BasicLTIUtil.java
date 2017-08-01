@@ -562,7 +562,7 @@ public class BasicLTIUtil {
 			text.append(submit_uuid);
 			text.append("').style.display = 'block';return false;\">\n");
 		} else {
-			text.append("<input type=\"submit\" value=\" style=\"display: none\"");
+			text.append("<input type=\"submit\" style=\"display: none\" value=\"");
 			text.append(htmlspecialchars(launchtext));
 			text.append("\">\n");
 		}
