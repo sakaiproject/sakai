@@ -633,6 +633,26 @@ public abstract class BaseLTIService implements LTIService {
 		String returnUrl = reqProps.getProperty("returnUrl");
 
 		Long contentKey = null;
+		Long toolKey = new Long(toolId);
+		Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
+		if ( tool == null ) {
+			retval = rb.getString("error.tool.not.found");
+			return retval;
+		}
+
+		// Make sure any missing required bits are inherited from the tool.
+		if ( ! reqProps.containsKey(LTIService.LTI_TOOL_ID) ) {
+			reqProps.setProperty(LTIService.LTI_TOOL_ID,toolId);
+		}
+
+		if ( ! reqProps.containsKey(LTIService.LTI_TITLE) ) {
+			reqProps.setProperty(LTIService.LTI_TITLE,(String) tool.get(LTIService.LTI_TITLE));
+		}
+
+		if ( ! reqProps.containsKey(LTIService.LTI_PAGETITLE) ) {
+			reqProps.setProperty(LTIService.LTI_PAGETITLE,(String) tool.get(LTIService.LTI_PAGETITLE));
+		}
+
 		if ( id == null ) 
 		{
 			reqProps.setProperty(LTIService.LTI_PLACEMENTSECRET, UUID.randomUUID().toString());
@@ -640,11 +660,6 @@ public abstract class BaseLTIService implements LTIService {
 			retval = insertContentDao(reqProps, siteId, isAdminRole, isMaintainRole);
 		} else {
 			contentKey = new Long(id);
-			Long toolKey = new Long(toolId);
-			Map<String,Object> tool = getToolDao(toolKey, siteId, isAdminRole);
-			if ( tool == null ) {
-				retval = rb.getString("error.tool.not.found");
-			}
 			if ( returnUrl != null ) {
 				if ( LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_SECRET)) &&
 						LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTI_CONSUMERKEY)) ) {
