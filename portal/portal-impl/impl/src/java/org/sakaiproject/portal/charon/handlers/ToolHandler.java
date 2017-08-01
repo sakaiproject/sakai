@@ -192,7 +192,7 @@ public class ToolHandler extends BasePortalHandler
 				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + siteTool.getTitle();
 
 			PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
-				siteTool.getSkin(), req);
+				siteTool.getSkin(), req, site);
 
 			Map m = portal.includeTool(res, req, siteTool);
 			rcontext.put("tool", m);

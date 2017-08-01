@@ -478,7 +478,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// Note that this does not call includeTool()
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
-				.getSkin(), req);
+				.getSkin(), req, site);
 
 		if ( allowBuffer ) {
 			log.debug("Starting the buffer process...");

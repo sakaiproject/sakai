@@ -301,7 +301,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : Portal";
 
 		// start the response
-		PortalRenderContext rcontext = startPageContext("", title, null, req);
+		PortalRenderContext rcontext = startPageContext("", title, null, req, null);
 
 		showSession(rcontext, true);
 
@@ -529,7 +529,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			siteSkin = site.getSkin();
 		}
 
-		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
+		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req, site);
 
 		// Make the top Url where the "top" url is
 		String portalTopUrl = Web.serverUrl(req)
@@ -1008,7 +1008,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	public PortalRenderContext startPageContext(String siteType, String title,
-			String skin, HttpServletRequest request)
+			String skin, HttpServletRequest request, Site site)
 	{
 		PortalRenderEngine rengine = portalService
 		.getRenderEngine(portalContext, request);
@@ -2187,7 +2187,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected void sendPortalRedirect(HttpServletResponse res, String url)
 	throws IOException
 	{
-		PortalRenderContext rcontext = startPageContext("", null, null, null);
+		PortalRenderContext rcontext = startPageContext("", null, null, null, null);
 		rcontext.put("redirectUrl", url);
 		sendResponse(rcontext, res, "portal-redirect", null);
 	}

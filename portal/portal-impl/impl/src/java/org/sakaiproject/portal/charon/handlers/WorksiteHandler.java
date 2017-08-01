@@ -157,7 +157,7 @@ public class WorksiteHandler extends PageHandler
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
-				.getSkin(), req);
+				.getSkin(), req, site);
 		
 		addLocale(rcontext, site);
 
