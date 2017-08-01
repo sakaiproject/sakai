@@ -34,6 +34,21 @@ public interface PermissionsHelper
 	/** Set this tool state attribute with descriptive text for the editor. */
 	static final String DESCRIPTION = "sakaiproject.permissions.description";
 
+	/** Set this tool state attribute to control the page header. */
+	static final String PAGE_HEADER = "sakaiproject.permissions.page.header";
+
+	/** Set this tool state attribute to control the table header. */
+	static final String TABLE_HEADER = "sakaiproject.permissions.table.header";
+
+	/** Set this tool state attribute to control the table header title attribute. */
+	static final String TABLE_HEADER_TITLE = "sakaiproject.permissions.table.header.title";
+
+	/** Set this tool state attribute to control the role header title attribute. */
+	static final String TABLE_ROLE_HEADER_TITLE = "sakaiproject.permissions.table.role.title";
+
+	/** Set this tool state attribute to control the row title attribute. */
+	static final String TABLE_ROW_TITLE = "sakaiproject.permissions.table.row.title";
+
 	/** Set this tool state attribute to the entity reference of the entity whose AuthzGroup is to be edited. */
 	static final String TARGET_REF = "sakaiproject.permissions.targetRef";
 
