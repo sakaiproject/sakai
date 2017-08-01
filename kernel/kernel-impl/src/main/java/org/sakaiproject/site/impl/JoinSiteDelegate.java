@@ -215,7 +215,7 @@ public class JoinSiteDelegate
      */
 	public boolean isLimitByAccountTypeEnabled(String siteID)
 	{
-		if(siteID == null || StringUtils.isBlank(siteID))
+		if(StringUtils.isBlank(siteID))
 		{
 			return false;
 		}

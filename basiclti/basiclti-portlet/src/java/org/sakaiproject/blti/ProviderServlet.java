@@ -957,7 +957,7 @@ public class ProviderServlet extends HttpServlet {
 
         final String membershipsUrl = (String) payload.get("ext_ims_lis_memberships_url");
 
-        if (!BasicLTIUtil.isNotBlank(membershipsUrl)) {
+        if (BasicLTIUtil.isBlank(membershipsUrl)) {
             M_log.info("LTI Memberships extension is not supported.");
             return;
         }
@@ -966,7 +966,7 @@ public class ProviderServlet extends HttpServlet {
 
         final String membershipsId = (String) payload.get("ext_ims_lis_memberships_id");
 
-        if (!BasicLTIUtil.isNotBlank(membershipsId)) {
+        if (BasicLTIUtil.isBlank(membershipsId)) {
             M_log.info("No memberships id supplied. Memberships will NOT be synchronized.");
             return;
         }

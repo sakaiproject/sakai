@@ -72,7 +72,7 @@ public class PermissionsPage extends BasePage {
 		final List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
 
 		// get the TA GbUser for selected (if provided)
-		if (!StringUtils.isBlank(taUuid)) {
+		if (StringUtils.isNotBlank(taUuid)) {
 			for (final GbUser gbUser : teachingAssistants) {
 				if (taUuid.equals(gbUser.getUserUuid())) {
 					this.taSelected = gbUser;
