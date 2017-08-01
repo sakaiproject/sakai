@@ -7697,6 +7697,8 @@ public class AssignmentAction extends PagedResourceActionII {
             }
             String peerAssessmentInstructions = (String) state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS);
 
+            boolean aOldDraft = a.getDraft();
+
             //Review Service
             boolean useReviewService = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
 
@@ -7972,6 +7974,10 @@ public class AssignmentAction extends PagedResourceActionII {
                         if (oldCloseTime != null && !oldCloseTime.equals(a.getCloseDate())) {
                             // due time change
                             eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_CLOSEDATE, assignmentId, true));
+                        }
+                        if (aOldDraft && StringUtils.isNotBlank(assignmentId)) {
+                            // Add a "post" event if going from draft to published and editing an old assignment.
+                            eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_POST_ASSIGNMENT, assignmentId, true));
                         }
                     }
                 }

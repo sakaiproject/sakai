@@ -284,41 +284,41 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                     = (AnnouncementMessage) announcementService.getMessage(
                                                                     entityManager.newReference(ref));
 
-                                if (announcementService.isMessageViewable(message)) {
-                                    Site site = siteService.getSite(siteId);
-                                    if (site.isPublished() && !site.isSoftlyDeleted()) {
-                                        String toolId = site.getToolForCommonId("sakai.announcements").getId();
-                                        String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
-                                                + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
+                                Site site = siteService.getSite(siteId);
+                                if (site.isPublished() && !site.isSoftlyDeleted()) {
+                                    String toolId = site.getToolForCommonId("sakai.announcements").getId();
+                                    String url = serverConfigurationService.getPortalUrl() + "/directtool/" + toolId
+                                            + "?itemReference=" + ref + "&sakai_action=doShowmetadata";
 
-                                        AnnouncementMessageHeader header = message.getAnnouncementHeader();
+                                    AnnouncementMessageHeader header = message.getAnnouncementHeader();
 
-                                        // In this case title = announcement subject
-                                        String title
-                                                = header.getSubject();
+                                    // In this case title = announcement subject
+                                    String title
+                                            = header.getSubject();
 
-                                        Collection<Group> announcementGroups = header.getGroupObjects();
-                                        Set<String> toSet = new HashSet<>();
-                                        if (announcementGroups == null || announcementGroups.isEmpty()) {
-                                            // Get all the members of the site with read ability
-                                            toSet.addAll(site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+                                    Date postDate = header.getDate() == null ? new Date() : new Date(header.getDate().getTime());
 
-                                        } else {
-                                            // Get members of each group and add to the set.
-                                            for (Group group : announcementGroups) {
-                                                for (Member member : group.getMembers()) {
-                                                    if (site.isAllowed(member.getUserId(), AnnouncementService.SECURE_ANNC_READ)) {
-                                                        toSet.add(member.getUserId());
-                                                    }
+                                    Collection<Group> announcementGroups = header.getGroupObjects();
+                                    Set<String> toSet = new HashSet<>();
+                                    if (announcementGroups == null || announcementGroups.isEmpty()) {
+                                        // Get all the members of the site with read ability
+                                        toSet.addAll(site.getUsersIsAllowed(AnnouncementService.SECURE_ANNC_READ));
+
+                                    } else {
+                                        // Get members of each group and add to the set.
+                                        for (Group group : announcementGroups) {
+                                            for (Member member : group.getMembers()) {
+                                                if (site.isAllowed(member.getUserId(), AnnouncementService.SECURE_ANNC_READ)) {
+                                                    toSet.add(member.getUserId());
                                                 }
                                             }
                                         }
-                                        // Create academic alert for each member of the set.
-                                        for (String  to : toSet) {
-                                            if (!from.equals(to) && !securityService.isSuperUser(to)) {
-                                                doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                                countCache.remove(to);
-                                            }
+                                    }
+                                    // Create academic alert for each member of the set.
+                                    for (String  to : toSet) {
+                                        if (!from.equals(to) && !securityService.isSuperUser(to)) {
+                                            doAcademicInsert(from, to, event, ref, title, siteId, postDate, url);
+                                            countCache.remove(to);
                                         }
                                     }
                                 }
@@ -342,7 +342,7 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                         String title = assignment.getTitle();
                                         String url = assignmentService.getDeepLink(siteId, assignmentId);
                                         // Get all the members of the site with read ability
-                                        for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
+                                        for (String to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
                                             if (!from.equals(to) && !securityService.isSuperUser(to)) {
                                                 doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
                                                 countCache.remove(to);
