@@ -11699,7 +11699,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 					// Decide if any LTI tools need a configuration dialog
 					Object showDialog = toolMap.get(LTIService.LTI_SITEINFOCONFIG);
-					if ( showDialog == null || ! "1".equals(showDialog.toString()) ) continue;
 					if (existingLtiIds == null)
 					{
 						ltiToolNeedsConfig = true;
