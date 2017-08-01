@@ -2517,7 +2517,6 @@ public class DeliveryBean
                         GradingService gradingService){
     // 1. create a media record
     File media = new File(mediaLocation);
-    byte[] mediaByte = getMediaStream(mediaLocation);
     String mimeType = MimeTypesLocator.getInstance().getContentType(media);
     boolean SAVETODB = getSaveToDb();
     log.debug("**** SAVETODB=" + SAVETODB);
@@ -2541,6 +2540,7 @@ public class DeliveryBean
     
     if (SAVETODB)
     { // put the byte[] in
+      byte[] mediaByte = getMediaStream(mediaLocation);
       mediaData = new MediaData(itemGradingData, mediaByte,
                                 Long.valueOf(mediaByte.length + ""),
                                 mimeType, "description", null,
@@ -2551,7 +2551,7 @@ public class DeliveryBean
     else
     { // put the location in
       mediaData = new MediaData(itemGradingData, null,
-    		  					Long.valueOf(mediaByte.length + ""),
+    		  					Long.valueOf(media.length() + ""),
                                 mimeType, "description", mediaLocation,
                                 updatedFilename, false, false, 1,
                                 agent, new Date(),
