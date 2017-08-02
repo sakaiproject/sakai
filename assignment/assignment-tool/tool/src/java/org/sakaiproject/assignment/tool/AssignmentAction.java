@@ -5550,9 +5550,13 @@ public class AssignmentAction extends PagedResourceActionII
 		submitterIdInstructor = params.getString("submitterIdInstructor");
 		
 		// From enter as student link chef_assignments_list_assignments.vm
-		if(m_securityService.isUserRoleSwapped()){
-			submitterIdInstructor = "instructor";
-		}		
+		try {
+			if(m_securityService.isUserRoleSwapped()){
+				submitterIdInstructor = "instructor";
+			}
+		} catch (IdUnusedException iue)	{			
+			M_log.warn(this + ":doView_submission: Site not found " + iue.getMessage());
+		}
 						
 		if ("instructor".equals(submitterIdInstructor)) 
 		{
