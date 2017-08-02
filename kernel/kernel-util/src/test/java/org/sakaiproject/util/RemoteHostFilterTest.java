@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 
@@ -57,18 +59,32 @@ public class RemoteHostFilterTest {
             filter.setAllowRequests(params.get("webservices.allow-request"));
             Mockito.when(serverConfigurationService.getString("webservices.allow-request", null)).thenReturn(null);
         } else {
-            Mockito.when(serverConfigurationService.getString("webservices.allow-request", null)).thenReturn("/sakai-ws/rest/i18n/getI18nProperties,/sakai-ws/soap/i18n/getI18nProperties");
+            List<String> allowed = new ArrayList<String>() {{
+                add("/sakai-ws/rest/i18n/getI18nProperties");
+                add("/sakai-ws/soap/i18n/getI18nProperties");
+            }};
+            Mockito.when(serverConfigurationService.getStringList("webservices.allow-request", null)).thenReturn(allowed);
         }
 
         if (params.containsKey("webservices.allow")) {
             filter.setAllow(params.get("webservices.allow"));
-            Mockito.when(serverConfigurationService.getString("webservices.allow", null)).thenReturn(null);
         } else {
-            Mockito.when(serverConfigurationService.getString("webservices.allow", null)).thenReturn("localhost, 127\\.0\\.0\\.1, 192\\.168\\.[0-9.]+, 10\\.[0-9.]+, 172\\.1[6-9]\\.[0-9.]+, 172\\.2[0-9]\\.[0-9.]+, 172\\.3[0-1]\\.[0-9.]+");
+            List<Pattern> allowed = new ArrayList<Pattern>() {{
+                add(Pattern.compile("localhost"));
+                add(Pattern.compile("127\\.0\\.0\\.1"));
+                add(Pattern.compile("192\\.168\\.[0-9.]+"));
+                add(Pattern.compile("10\\.[0-9.]+"));
+                add(Pattern.compile("172\\.1[6-9]\\.[0-9.]+"));
+                add(Pattern.compile("172\\.2[0-9]\\.[0-9.]+"));
+                add(Pattern.compile("172\\.3[0-1]\\.[0-9.]+"));
+            }};
+            Mockito.when(serverConfigurationService.getPatternList("webservices.allow", null)).thenReturn(allowed);
         }
 
         if (params.containsKey("webservices.deny")) {
             filter.setDeny(params.get("webservices.deny"));
+            // Remove the allow stubbing, otherwise it'll override our deny rule.
+            Mockito.when(serverConfigurationService.getPatternList("webservices.allow", null)).thenReturn(new ArrayList<Pattern>());
         }
 
         try {
