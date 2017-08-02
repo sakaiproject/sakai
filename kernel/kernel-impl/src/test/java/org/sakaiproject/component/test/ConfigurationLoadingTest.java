@@ -25,6 +25,8 @@ package org.sakaiproject.component.test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -314,6 +316,19 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	public void testGetRawPropertyDoesNotDereferencePlaceholderPropertiesForBeanAddressingProperties() {
 		Assert.assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" inappropriately dereferenced",
 				"${stringWithNestedPlaceholders}", serverConfigurationService.getRawProperty("overrideString1@org.sakaiproject.component.test.ITestComponent2"));
+	}
+
+	@Test
+	public void testGetStringList() {
+
+		List<String> expected = new ArrayList<String>() {{
+			add("the");
+			add("cat");
+			add("in");
+			add("the");
+			add("hat");
+		}};
+		Assert.assertEquals(serverConfigurationService.getStringList("listOfStrings", new ArrayList<String>()), expected);
 	}
 
 	private String[] trim(String[] strArray) {

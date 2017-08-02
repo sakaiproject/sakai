@@ -1,31 +1,24 @@
-/**********************************************************************************
- * $URL$
- * $Id$
- ***********************************************************************************
- *
- * Copyright (c) 2005, 2006, 2008 Sakai Foundation
+/**
+ * Copyright (c) 2003 The Apereo Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *             http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- **********************************************************************************/
-
+ */
 package org.sakaiproject.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -36,11 +29,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
-// Add the ability to look in sakai.properties for properties
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This Servlet Filter allows/denies requests based on comparing the remote
@@ -78,82 +71,63 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
  * @author <a href="vgoenka@sungardsct.com">Vishal Goenka</a>
  * 
  */
+@Slf4j
 public class RemoteHostFilter implements Filter {
 
-    // Our logger
-	private static Logger M_log = LoggerFactory.getLogger(RemoteHostFilter.class);
-	
-    /**
-     * Define an empty pattern to save re-constructing a null array multiple
-     * times
-     */
-    private static final Pattern[] EMPTY_PATTERN = new Pattern[0];
+    // The list of explicitly allowed request URI, these are not pattern matched
+    @Setter
+    private List<String> allowRequests;
 
-    /**
-     * The comma-delimited set of allowed hosts (hostnames/addresses).
-     */
-    protected String allowList = null;
+    // The list of allowed hosts/addresses expressed as regular expressions
+    @Setter
+    private List<String> allow;
+    private List<Pattern> allowPattern;
 
-    /**
-     * The comma-delimited set of denied hosts (hostnames/addresses)
-     */
-    protected String denyList = null;
+    // The list of denied hosts/addresses expressed as regular expressions
+    @Setter
+    private List<String> deny;
+    private List<Pattern> denyPattern;
 
-    /**
-     * The set of allowed hosts/addresses expressed as regular expressions
-     */
+    // Should allowed requests be logged
+    @Setter
+    private boolean logAllowed = true;
 
-    protected Pattern[] allow = EMPTY_PATTERN;
+    // Should denied requests be logged
+    @Setter
+    private boolean logDenied = true;
 
-    /**
-     * The set of denied hosts/addresses expressed as regular expressions
-     */
-    protected Pattern[] deny = EMPTY_PATTERN;
+    @Setter
+    private ServerConfigurationService serverConfigurationService;
 
-    /**
-     * Should allowed requests be logged
-     */
-    protected boolean logAllowed = false;
+    public void init() {
+        allowRequests = serverConfigurationService.getStringList("webservices.allow-request", allowRequests);
+        allowPattern = serverConfigurationService.getPatternList("webservices.allow", allow);
+        denyPattern = serverConfigurationService.getPatternList("webservices.deny", deny);
 
-    /**
-     * Should denied requests be logged
-     */
-    protected boolean logDenied = true;
-
-    /**
-     * Read the allow/deny parameters and initialize patterns
-     * 
-     * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
-     */
-    public void init(FilterConfig config) throws ServletException {
-        allowList = getParameter(config,"allow");
-        if ( ":empty:".equals(allowList) ) allowList = null;
-        allow = getRegExPatterns(allowList);
-        logAllowed = Boolean.valueOf(getParameter(config,"log-allowed"))
-                .booleanValue();
-
-        denyList = getParameter(config,"deny");
-        if ( ":empty:".equals(denyList) ) denyList = null;
-        deny = getRegExPatterns(denyList);
-        logDenied = Boolean.valueOf(getParameter(config,"log-denied"))
-                .booleanValue();
+        logAllowed = serverConfigurationService.getBoolean("webservices.log-allowed", logAllowed);
+        logDenied = serverConfigurationService.getBoolean("webservices.log-denied", logDenied);
     }
 
-    private String getParameter(FilterConfig config, String parmName)
-    {
-	String retval = ServerConfigurationService.getString("webservices."+parmName, null);
-	if ( retval != null ) return retval;
-        return config.getInitParameter(parmName);
+    /**
+     * Note in a org.springframework.web.filter.DelegatingFilterProxy Filter.init(FilterConfig config) is never
+     * called.
+     *
+     * @param filterConfig
+     * @throws ServletException
+     */
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        init();
     }
 
     /*
      * See class description above.
-     * 
+     *
      * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
      *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
      */
-    public void doFilter(ServletRequest sreq, ServletResponse sres,
-            FilterChain chain) throws IOException, ServletException {
+    @Override
+    public void doFilter(ServletRequest sreq, ServletResponse sres, FilterChain chain) throws IOException, ServletException {
 
         // we are expecting HTTP
         if (!((sreq instanceof HttpServletRequest) && (sres instanceof HttpServletResponse))) {
@@ -168,83 +142,50 @@ public class RemoteHostFilter implements Filter {
         String host = request.getRemoteHost();
         String addr = request.getRemoteAddr();
 
+        // Check requests that are always allowed ...
+        String uri = request.getRequestURI();
+        for (String allowedUri : allowRequests) {
+            if (StringUtils.startsWith(uri, allowedUri)) {
+                if (logAllowed) log.info("Access granted for request ({}): {}/{}", uri, host, addr);
+                chain.doFilter(sreq, sres);
+                return;
+            }
+        }
+
         // Check if explicit denied ...
-        for (int i = 0; i < deny.length; i++) {
-            if (deny[i].matcher(host).matches()
-                || deny[i].matcher(addr).matches()) {
-                if (logDenied && M_log.isInfoEnabled())
-                	M_log.info("Access denied (" + deny[i].pattern() + "): " + host + "/" + addr);
+        for (Pattern pattern : denyPattern) {
+            if (pattern.matcher(host).matches() || pattern.matcher(addr).matches()) {
+                if (logDenied) log.info("Access denied ({}): {}/{}", pattern.pattern(), host, addr);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
         }
 
         // Check if explicitly allowed ...
-        for (int i = 0; i < allow.length; i++) {
-            if (allow[i].matcher(host).matches()
-                    || allow[i].matcher(addr).matches()) {
-                if (logAllowed && M_log.isInfoEnabled())
-                    M_log.info("Access granted (" + allow[i].pattern() + "): " + host + "/" + addr);
+        for (Pattern pattern : allowPattern) {
+            if (pattern.matcher(host).matches() || pattern.matcher(addr).matches()) {
+                if (logAllowed) log.info("Access granted ({}): {}/{}", pattern.pattern(), host, addr);
                 chain.doFilter(sreq, sres);
                 return;
             }
         }
 
         // Allow if allows is null, but denied is not
-        if ((deny.length > 0) && (allow.length == 0)) {
-            if (logAllowed && M_log.isInfoEnabled())
-            	M_log.info("Access granted (implicit): " + host + "/" + addr);
+        if ((!denyPattern.isEmpty()) && (allowPattern.isEmpty())) {
+            if (logAllowed) log.info("Access granted (implicit): {}/{}", host, addr);
             chain.doFilter(sreq, sres);
             return;
         }
 
         // Deny this request
-        if (logDenied && M_log.isInfoEnabled())
-        	M_log.info("Access denied (implicit): " + host + "/" + addr);
+        if (logDenied) log.info("Access denied (implicit): {}/{}", host, addr);
         response.sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
     /**
      * @see javax.servlet.Filter#destroy()
      */
+    @Override
     public void destroy() {
-        // Do nothing
-    }
-
-    /**
-     * Converts the given list of comma-delimited regex patterns to an array of
-     * Pattern objects
-     * 
-     * @param list
-     *            The comma-separated list of patterns
-     * 
-     * @exception IllegalArgumentException
-     *                if one of the patterns has invalid regular expression
-     *                syntax
-     */
-    protected Pattern[] getRegExPatterns(String list) {
-
-        if (list == null)
-            return EMPTY_PATTERN;
-
-        list = list.trim();
-        if (list.length() < 1)
-            return EMPTY_PATTERN;
-
-        StringTokenizer st = new StringTokenizer(list, ",");
-
-        ArrayList<Pattern> patterns = new ArrayList<Pattern>();
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken().trim();
-            try {
-                // Host names are case insensitive
-                patterns.add(Pattern.compile(token, Pattern.CASE_INSENSITIVE));
-            } catch (PatternSyntaxException e) {
-                throw new IllegalArgumentException(
-                        "Illegal Regular Expression Syntax: [" + token + "] - "
-                                + e.getMessage());
-            }
-        }
-        return ((Pattern[]) patterns.toArray(EMPTY_PATTERN));
     }
 }
