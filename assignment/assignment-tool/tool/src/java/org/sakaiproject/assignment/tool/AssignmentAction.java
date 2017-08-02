@@ -385,6 +385,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/** ******************** student's view assignment submission ****************************** */
 	/** the assignment object been viewing * */
 	private static final String VIEW_SUBMISSION_ASSIGNMENT_REFERENCE = "Assignment.view_submission_assignment_reference";
+	
+	/** the assignment object been viewing by instructor * */	
+	private static final String VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR = "Assignment.view_submission_assignment_instructor";
 
 	/** the submission text to the assignment * */
 	private static final String VIEW_SUBMISSION_TEXT = "Assignment.view_submission_text";
@@ -5541,6 +5544,25 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		String submitterId = params.get("submitterId");
+		
+		// From submit as student link chef_assignments_list_assignments.vm
+		String submitterIdInstructor = null;
+		submitterIdInstructor = params.getString("submitterIdInstructor");
+		
+		// From enter as student link chef_assignments_list_assignments.vm
+		try {
+			if(m_securityService.isUserRoleSwapped()){
+				submitterIdInstructor = "instructor";
+			}
+		} catch (IdUnusedException iue)	{			
+			M_log.warn(this + ":doView_submission: Site not found " + iue.getMessage());
+		}
+						
+		if ("instructor".equals(submitterIdInstructor)) 
+		{
+			state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR, submitterIdInstructor);
+		}
+		
 		if (submitterId != null && (assignmentService.allowGradeSubmission(assignmentReference))) {
 		    try {
 		        u = userDirectoryService.getUser(submitterId);
@@ -6390,6 +6412,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		String aReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		Assignment a  = getAssignment(aReference, "post_save_submission", state);
+		String assignmentId = "";
 		
 		if (a != null && assignmentService.canSubmit(contextString, a))
 		{
@@ -6432,6 +6455,11 @@ public class AssignmentAction extends PagedResourceActionII
 					submitter = null;
 				}
 			}
+			
+			String instructor = null;
+			instructor = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
+			if(instructor == null)
+			{
 
 			String group_id = null;
 			String original_group_id = null;
@@ -6472,7 +6500,7 @@ public class AssignmentAction extends PagedResourceActionII
 			            }
 			}
 
-			String assignmentId = "";
+			
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
 				assignmentId = a.getId();
@@ -6847,6 +6875,8 @@ public class AssignmentAction extends PagedResourceActionII
 				} // if-else
 	
 			} // if
+			
+			} // if
 	
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
@@ -6854,7 +6884,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
             LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
                     .get("org.sakaiproject.event.api.LearningResourceStoreService");
-            if (null != lrss) {
+            if (null != lrss && StringUtils.isNotEmpty(assignmentId)) {
                 Event event = m_eventTrackingService.newEvent(AssignmentConstants.EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, assignmentId, false);
                 lrss.registerStatement(
                         getStatementForSubmitAssignment(lrss.getEventActor(event), event, serverConfigurationService.getAccessUrl(),
@@ -12746,6 +12776,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(VIEW_SUBMISSION_TEXT);
 		state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "false");
 		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
+		state.removeAttribute(VIEW_SUBMISSION_ASSIGNMENT_INSTRUCTOR);
 
 	} // resetViewSubmission
 
