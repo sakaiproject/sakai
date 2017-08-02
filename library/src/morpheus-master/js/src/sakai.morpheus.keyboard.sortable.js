@@ -1,5 +1,5 @@
 /**
- * Sakai jQuery UI Widgets
+ * Sakai jQuery keyboard sortable from https://raw.githubusercontent.com/hanshillen/sakai-keyboardsortable/master/js/jquery.sakai.js
  */
 
 $(function() {
@@ -136,6 +136,7 @@ $(function() {
     },
     _notify: function(msg) {
       this.liveRegion.liveregion("instance").notify(msg);
+      this._trigger('update');
     }
   });
 
