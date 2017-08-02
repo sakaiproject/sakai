@@ -663,8 +663,8 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      *            A list of regex pattern strings
      *
      * @exception IllegalArgumentException
-     *                if one of the patterns has invalid regular expression
-     *                syntax
+     *            if one of the patterns has invalid regular expression
+     *            syntax
      */
     private List<Pattern> getRegExPatterns(List<String> regexps) {
 
@@ -676,7 +676,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 if (StringUtils.equals(":empty:", regex)) return new ArrayList<>();
 
                 try {
-                    // Host names are case insensitive
                     patterns.add(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
                 } catch (PatternSyntaxException e) {
                     throw new IllegalArgumentException("Illegal Regular Expression Syntax: [" + regex + "] - " + e.getMessage());
