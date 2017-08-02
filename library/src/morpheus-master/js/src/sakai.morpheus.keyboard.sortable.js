@@ -2,7 +2,7 @@
  * Sakai jQuery keyboard sortable from https://raw.githubusercontent.com/hanshillen/sakai-keyboardsortable/master/js/jquery.sakai.js
  */
 
-$(function() {
+$PBJQ(document).ready(function() {
   var _defaults = {
       /* strings */
       dragModeStartMsg : "drag start, Use U and D keys to move the item up and down",
