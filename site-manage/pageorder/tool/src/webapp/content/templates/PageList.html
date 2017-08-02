@@ -6,8 +6,7 @@
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js"></script>
-	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url" defer="1"></script>
 	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 	<script type="text/javascript" src="/library/js/spinner.js"></script>
 </head>
@@ -29,8 +28,8 @@
 							<div id="list-label">
 								<strong rsf:id="msg=curr_pages">Current Pages</strong>
 							</div>
-							<ul tabIndex="2" class="sortable" id="sort1">
-								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" >
+							<ul class="sortable" id="reorder-list">
+								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" tabindex="0">
 									<div rsf:id="tool-icon"></div>
 									<div class="item_edit_box" style="display: none;">
 										<div>
@@ -127,7 +126,7 @@
 					</div>
 				</div>
 				<p class="act">
-					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); serialize('sort1');"/>
+					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); serialize('reorder-list');"/>
 					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );"/>
 					<input accesskey ="r" rsf:id="reset" value="Reset" type="submit" onclick="SPNR.disableControlsAndSpin( this, null ); return checkReset();"/>
 					<input accesskey ="a" rsf:id="sort_alpha" value="Sort" type="button" onclick="return sortByTitle();"/>
@@ -138,22 +137,22 @@
 
 
 <script type="text/javascript">
-var fluidList;
-var reorder=false;
+//<![CDATA[
+var reorder=true;
 //Called by Producer
-function enableReorder() {
-    reorder=true;
+function disableReorder() {
+	reorder=false;
 }
-jQuery(document).ready(function () {
-    var opts = {
-        selectors: {
-            movables: ".sortable_item"
-        }
-    };
-    if (reorder == true) {
-        fluidList = fluid.reorderList("ul#sort1", opts);
-    }
-});
+window.onload = function() {
+	if (reorder === false) {
+		var ul = document.getElementById('reorder-list');
+		var items = ul.getElementsByTagName('li');
+		for (var i = 0; i < items.length; ++i) {
+			items[i].className += ' notsortable';
+		}
+	}
+}
+//]]>
 </script>
 
 <script type="text/javascript" rsf:id="jsreorder">
