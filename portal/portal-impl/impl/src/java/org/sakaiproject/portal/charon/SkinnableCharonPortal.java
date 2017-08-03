@@ -1054,7 +1054,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				
 		User currentUser = UserDirectoryService.getCurrentUser();
-		Role role = site.getUserRole(currentUser.getId());
+		Role role = site != null && currentUser != null ? site.getUserRole(currentUser.getId()) : null;
 
 		rcontext.put("loggedIn", Boolean.valueOf(currentUser.getId() != null));
 		rcontext.put("userId", currentUser.getId());
