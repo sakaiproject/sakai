@@ -141,8 +141,8 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
             final Gradebook gradebook = businessService.getGradebook();
             final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
                 gradebook,
-                GbRole.INSTRUCTOR,
-                true,
+                page.getCurrentRole(),
+                businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
                 uiSettings.getShowPoints(),
                 true);
 
