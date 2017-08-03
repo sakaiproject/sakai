@@ -66,10 +66,13 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		final Gradebook gradebook = getGradebook();
 		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
 
+		final boolean isCourseGradeVisible = this.businessService.isCourseGradeVisible(this.businessService.getCurrentUser().getId());
+		final GbRole userRole = gradebookPage.getCurrentRole();
+
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
-				gradebookPage.getCurrentRole(),
-				this.businessService.isCourseGradeVisible(this.businessService.getCurrentUser().getId()),
+				userRole,
+				isCourseGradeVisible,
 				gradebook.isCoursePointsDisplayed(),
 				true);
 
@@ -129,14 +132,16 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		addOrReplace(new Label("courseGradeNotReleasedFlag", getString("label.studentsummary.coursegradenotreleasedflag")) {
 			@Override
 			public boolean isVisible() {
-				return !gradebook.isCourseGradeDisplayed();
+				return !gradebook.isCourseGradeDisplayed()
+					&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
 			}
 		});
 
 		addOrReplace(new Label("courseGradeNotReleasedMessage", getString("label.studentsummary.coursegradenotreleasedmessage")) {
 			@Override
 			public boolean isVisible() {
-				return !gradebook.isCourseGradeDisplayed();
+				return !gradebook.isCourseGradeDisplayed()
+					&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
 			}
 		});
 
