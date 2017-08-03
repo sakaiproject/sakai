@@ -45,7 +45,8 @@
                 superUser: ${superUser},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {},
-                showVisits: ${showVisits}
+                showVisits: ${showVisits},
+                hidePermissions: '${hidePermissions}'
             };
     
         </script>

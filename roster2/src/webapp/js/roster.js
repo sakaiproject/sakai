@@ -281,7 +281,7 @@
                         return {name: role};
                     });
             
-                roster.render('permissions', { siteTitle: roster.site.title, showVisits: roster.showVisits, roles: roles }, 'roster_content');
+                roster.render('permissions', { siteTitle: roster.site.title, showVisits: roster.showVisits, hidePermissions: roster.hidePermissions, roles: roles }, 'roster_content');
                 
                 $(document).ready(function () {
 
@@ -701,6 +701,10 @@
         var role = this.name;
 
         return roster.site.permissions[role].indexOf(perm) != -1;
+    });
+    
+    Handlebars.registerHelper('permissionAllowed', function (permission) {
+        return roster.hidePermissions.indexOf(permission) == -1;
     });
 
     roster.init = function () {
