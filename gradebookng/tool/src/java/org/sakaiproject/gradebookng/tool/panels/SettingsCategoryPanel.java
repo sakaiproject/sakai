@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -661,8 +662,10 @@ public class SettingsCategoryPanel extends BasePanel {
 			// convert
 			Double d;
 			try {
-				d = Double.valueOf(value) / 100;
-			} catch (final NumberFormatException e) {
+				NumberFormat format = NumberFormat.getInstance(locale);
+				Number number = format.parse(value);
+				d = number.doubleValue() / 100;
+			} catch (final java.text.ParseException e) {
 				throw new ConversionException(e).setResourceKey("settingspage.update.failure.categoryweightnumber");
 			}
 
@@ -694,7 +697,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			// convert to percentage representation
 			final Double percentage = value * 100;
 
-			return FormatHelper.formatDoubleToDecimal(percentage);
+			return FormatHelper.formatDoubleToDecimal(percentage, locale);
 		}
 
 	}

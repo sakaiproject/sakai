@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -25,7 +26,7 @@ public class FormatHelper {
 	 * @return double to decimal places
 	 */
 	public static String formatDoubleToDecimal(final Double score) {
-		return formatDoubleToDecimal(score, 2);
+		return formatDoubleToDecimal(score, 2, rl.getLocale());
 	}
 
 	/**
@@ -37,7 +38,30 @@ public class FormatHelper {
 	 * @return double to n decimal places
 	 */
 	private static String formatDoubleToDecimal(final Double score, final int n) {
-		final NumberFormat df = NumberFormat.getInstance();
+		return formatDoubleToDecimal(score, n, rl.getLocale());
+	}
+	
+	/**
+	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with two decimal places precision. And drop off any .0
+	 * if no decimal places. The locale is used to format with the proper decimal separator.
+	 *
+	 * @param score as a double
+	 * @return double to decimal places
+	 */
+	public static String formatDoubleToDecimal(final Double score, Locale locale) {
+		return formatDoubleToDecimal(score, 2, locale);
+	}
+
+	/**
+	 * The value is a double (ie 12.34542) that needs to be formatted as a percentage with 'n' decimal places precision. And drop off any .0
+	 * if no decimal places. The locale is used to format with the proper decimal separator.
+	 *
+	 * @param score as a double
+	 * @param n as an int
+	 * @return double to n decimal places
+	 */
+	private static String formatDoubleToDecimal(final Double score, final int n, Locale locale) {
+		final NumberFormat df = NumberFormat.getInstance(locale);
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(n);
 		df.setGroupingUsed(false);
