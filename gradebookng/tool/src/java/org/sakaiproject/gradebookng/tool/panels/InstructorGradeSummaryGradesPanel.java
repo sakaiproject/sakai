@@ -69,7 +69,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				gradebookPage.getCurrentRole(),
-				GbRole.INSTRUCTOR.equals(gradebookPage.getCurrentRole()) || gradebook.isCourseGradeDisplayed(),
+				this.businessService.isCourseGradeVisible(this.businessService.getCurrentUser().getId()),
 				gradebook.isCoursePointsDisplayed(),
 				true);
 
