@@ -32,7 +32,11 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.api.AuthenticationManager;
+import org.sakaiproject.util.IdPwEvidence;
 
 @WebService
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
@@ -68,28 +72,32 @@ public class SakaiLogin extends AbstractWebService {
             throw new RuntimeException("Web Services Login Disabled");
         }
 
-        User user = userDirectoryService.authenticate(id, pw);
-        if (user != null) {
+	try {
+            Evidence e = new IdPwEvidence(id, pw, ipAddress);
+            Authentication a = authenticationManager.authenticate(e);
+
             Session s = sessionManager.startSession();
             sessionManager.setCurrentSession(s);
+
             if (s == null) {
                 LOG.warn("Web Services Login failed to establish session for id=" + id + " ip=" + ipAddress);
                 throw new RuntimeException("Unable to establish session");
             } else {
-
                 // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
                 // and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
                 // we can do anyways.
 
-                usageSessionService.login(user.getId(), id, ipAddress, "SakaiLogin.jws", UsageSessionService.EVENT_LOGIN_WS);
+                usageSessionService.login(a.getUid(), id, ipAddress, "SakaiLogin", UsageSessionService.EVENT_LOGIN_WS);
 
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Sakai Web Services Login id=" + id + " ip=" + ipAddress + " session=" + s.getId());
                 }
                 return s.getId();
             }
-        }
-        LOG.warn("Failed Web Services Login id=" + id + " ip=" + ipAddress);
+	} catch (AuthenticationException ex) {
+        	LOG.warn("Failed Web Services Login id=" + id + " ip=" + ipAddress + ": " + ex.getMessage());
+	}
+
         throw new RuntimeException("Unable to login");
     }
 

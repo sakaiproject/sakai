@@ -17,13 +17,17 @@ package org.sakaiproject.webservices;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.eq;
 
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.IdPwEvidence;
 
 public class SakaiLoginLoginTest extends AbstractCXFTest {
 	@Rule
@@ -49,13 +53,22 @@ public class SakaiLoginLoginTest extends AbstractCXFTest {
 	@Override
 	protected void addServiceMocks(AbstractWebService service) {
 		when(service.serverConfigurationService.getBoolean("webservices.allowlogin", false)).thenReturn(true);
-		User mockUser = mock(User.class);
-		when(service.userDirectoryService.authenticate("admin", "admin")).thenReturn(mockUser);
-		when(service.userDirectoryService.authenticate("admin", "fail")).thenReturn(null);
 
 		Session mockSession = mock(Session.class);
 		when(mockSession.getId()).thenReturn(SESSION_ID);
 		when(service.sessionManager.startSession()).thenReturn(mockSession);
+
+		Authentication mockAuth = mock(Authentication.class);
+		when(mockAuth.getUid()).thenReturn("admin");
+
+		IdPwEvidence e1 = new IdPwEvidence("admin", "admin", "127.0.0.1");
+		IdPwEvidence e2 = new IdPwEvidence("admin", "fail", "127.0.0.1");
+
+		try {
+			when(service.authenticationManager.authenticate(eq(e1))).thenReturn(mockAuth);
+			when(service.authenticationManager.authenticate(eq(e2))).thenThrow(new AuthenticationException("invalid password"));
+         	} catch (AuthenticationException ae) {
+		}
 	}
 
 	@Test

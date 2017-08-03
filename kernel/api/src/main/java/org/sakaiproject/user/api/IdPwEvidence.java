@@ -23,7 +23,9 @@ package org.sakaiproject.user.api;
 
 /**
  * <p>
- * IdPwEvidence is Authetication evidence made up of a user identifier and a password. Note the "id" used here is something the user offers for authentication purposes, and is *not* the user's Sakai user object UUID.
+ * IdPwEvidence is Authetication evidence made up of a user identifier, a password and the remote address from where the user's
+ * request originates. Note the "id" used here is something the user offers for authentication purposes, and is *not* the user's
+ * Sakai user object UUID.
  * </p>
  */
 public interface IdPwEvidence extends Evidence
@@ -41,4 +43,11 @@ public interface IdPwEvidence extends Evidence
 	 * @return The password.
 	 */
 	String getPassword();
+
+	/**
+	 * Access the remote address
+	 * 
+	 * @return The remote address
+	 */
+	String getRemoteAddr();
 }
