@@ -152,6 +152,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.taggable.api.TaggingHelperInfo;
@@ -984,6 +985,8 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	
+	private static final String SYNOPTIC_ASSIGNMENT_TOOL = "sakai.synoptic.assignment";
+    
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
@@ -995,6 +998,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("tlang", rb);
 		context.put("dateFormat", getDateFormatString());
 		context.put("cheffeedbackhelper", this);
+		context.put("isSynopticTool",isSynopticTool());
+		context.put("siteService", siteService);
+		context.put("portalUrl", serverConfigurationService.getPortalUrl());
 
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
@@ -12505,7 +12511,9 @@ public class AssignmentAction extends PagedResourceActionII
 			try {
 				Site site = siteService.getSite(siteId);
 				ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
-				propValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+				if (tc != null) {
+					propValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
+				}
 			}
 			catch (IdUnusedException e)
 			{
@@ -14530,9 +14538,22 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else
 			{
-				// read all Assignments
-				returnResources = assignmentService.getListAssignmentsForContext((String) state
-						.getAttribute(STATE_CONTEXT_STRING));
+				if (isSynopticTool() & isOnWorkspaceTab()) {
+					//Get all sites for this user
+					String userId = sessionManager.getCurrentSessionUserId();
+	                List<Site> sites = siteService.getSites(SelectionType.ACCESS, null, null, null,null, null);
+	                for (Site site : sites) {
+	                	Member sm = site.getMember(userId);
+	                	if (sm != null) {
+	                		returnResources.addAll(assignmentService.getListAssignmentsForContext(site.getId()));
+	                	}
+	                }
+				}
+				else {
+					// read all Assignments
+					returnResources = assignmentService.getListAssignmentsForContext((String) state
+							.getAttribute(STATE_CONTEXT_STRING));
+				}
 			}
 			
 			state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, Boolean.valueOf(returnResources.size() > 1));
@@ -17742,6 +17763,41 @@ public class AssignmentAction extends PagedResourceActionII
 		String lOptions = serverConfigurationService.getString("assignment.letterGradeOptions", "A+,A,A-,B+,B,B-,C+,C,C-,D+,D,D-,E,F");
 		context.put("letterGradeOptions", StringUtils.split(lOptions, ","));
 	}
+
+	/**
+     * Returns true if the tool with the id passed in exists in the
+     * current site.
+     * 
+     * @param toolId
+     *          The tool id to search for.
+     * 
+     * @return
+     *          TRUE if tool exists, FALSE otherwise.
+     */
+    private boolean isSynopticTool() {
+        String curToolId = toolManager.getCurrentTool().getId();
+        if (SYNOPTIC_ASSIGNMENT_TOOL.equals(curToolId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /**
+     * See if the current tab is the workspace tab.
+     * 
+     * @return true if we are currently on the "My Workspace" tab.
+     */
+    private boolean isOnWorkspaceTab()
+    {
+        // TODO: this is such a bad question... workspace? tab? revisit this. -ggolden
+        // return false;
+        // // we'll really answer the question - is the current request's site a user site, and not the ~admin user's site.
+        String siteId = toolManager.getCurrentPlacement().getContext();
+        if (siteService.getUserSiteId("admin").equals(siteId)) return false;
+        return siteService.isUserSite(siteId);
+    }
 
     private LRS_Statement getStatementForViewSubmittedAssignment(LRS_Actor actor, Event event, String assignmentName) {
         String url = serverConfigurationService.getPortalUrl();

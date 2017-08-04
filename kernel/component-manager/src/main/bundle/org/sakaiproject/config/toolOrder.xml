@@ -15,6 +15,7 @@
 		<tool id = "sakai.synoptic.chat" />
 		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "sakai.synoptic.assignment" />
 		<tool id = "home" selected = "true" />
 		<tool id = "sakai.syllabus" />
 		<tool id = "sakai.lessonbuildertool" />
@@ -44,6 +45,7 @@
 		<tool id = "sakai.synoptic.chat" />
 		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "sakai.synoptic.assignment" />
 		<tool id = "home" selected = "true" />
 		<tool id = "sakai.syllabus" />
 		<tool id = "sakai.lessonbuildertool" />
@@ -73,6 +75,7 @@
 		<tool id = "sakai.synoptic.chat" />
 		<tool id = "sakai.synoptic.messagecenter" />
 		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "sakai.synoptic.assignment" />
 		<tool id = "home" selected = "true" />
       <toolCategory id="communicate">
          <name><![CDATA[Communicate]]></name>
