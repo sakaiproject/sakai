@@ -20,9 +20,11 @@
 package org.sakaiproject.roster.impl;
 
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.sakaiproject.entity.api.serialize.SerializablePropertiesAccess;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -620,10 +622,19 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		rosterMember.setSortName(user.getSortName());
 
 		Map<String, String> userPropertiesMap = new HashMap<>();
-		Map<String, Object> props = ((SerializablePropertiesAccess) user.getProperties()).getSerializableProperties();
-		for (String propKey : props.keySet() ) {
-		    userPropertiesMap.put(propKey, (String) props.get(propKey));
-		}
+		ResourceProperties props = user.getProperties();
+
+		// avoid multi-valued properties by using ResourceProperties.getProperty()
+		props.getPropertyNames().forEachRemaining(p -> userPropertiesMap.put(p, props.getProperty(p)));
+
+		// remove null values from map
+		userPropertiesMap.values().removeIf(Objects::isNull);
+
+		// filter values that are configured to be removed
+		Pattern regex = Pattern.compile(serverConfigurationService.getString("roster.filter.user.properties.regex", "^udp\\.dn$"));
+		Set<String> keysToRemove = userPropertiesMap.keySet().stream().filter(regex.asPredicate()).collect(Collectors.toSet());
+		userPropertiesMap.keySet().removeAll(keysToRemove);
+
 		rosterMember.setUserProperties(userPropertiesMap);
 
 		for (Group group : groups) {
