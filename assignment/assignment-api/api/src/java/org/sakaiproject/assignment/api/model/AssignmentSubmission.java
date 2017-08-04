@@ -152,7 +152,11 @@ public class AssignmentSubmission {
 	@CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
 	private Map<String, String> properties = new HashMap<>();
 
-	// should get this data from the content review service
+    public void setHonorPledgeFlag(boolean honorPledgeFlag) {
+        this.honorPledgeFlag = honorPledgeFlag;
+    }
+
+    // should get this data from the content review service
 	// private Integer reviewScore;
 	// private String reviewReport;
 	// private String reviewStatus;

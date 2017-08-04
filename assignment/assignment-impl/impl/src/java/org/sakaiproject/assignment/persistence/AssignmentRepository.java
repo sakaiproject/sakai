@@ -1,51 +1,56 @@
 package org.sakaiproject.assignment.persistence;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.transaction.Transactional;
-
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.hibernate.Repository;
 import org.sakaiproject.serialization.SerializableRepository;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Created by enietzel on 4/12/17.
  */
 public interface AssignmentRepository extends Repository<Assignment, String>, SerializableRepository<Assignment, String> {
-    Assignment findAssignment(String id);
 
-    List<Assignment> findAssignmentsBySite(String siteId);
+  Assignment findAssignment(String id);
 
-    void newAssignment(Assignment assignment);
+  List<Assignment> findAssignmentsBySite(String siteId);
 
-    void updateAssignment(Assignment assignment);
+  void newAssignment(Assignment assignment);
 
-    boolean existsAssignment(String assignmentId);
+  void updateAssignment(Assignment assignment);
 
-    void deleteAssignment(String assignmentId);
+  boolean existsAssignment(String assignmentId);
 
-    void deleteSubmission(String submissionId);
+  void deleteAssignment(String assignmentId);
 
-    void softDeleteAssignment(Assignment assignment);
+  void deleteSubmission(String submissionId);
 
-    AssignmentSubmission findSubmission(String submissionId);
+  void softDeleteAssignment(Assignment assignment);
 
-    void updateSubmission(AssignmentSubmission submission);
+  AssignmentSubmission findSubmission(String submissionId);
 
-    boolean existsSubmission(String submissionId);
+  void updateSubmission(AssignmentSubmission submission);
 
-    void newSubmission(Assignment assignment, AssignmentSubmission submission, Optional<Set<AssignmentSubmissionSubmitter>> submitters, Optional<Set<String>> feedbackAttachments, Optional<Set<String>> submittedAttachments, Optional<Map<String, String>> properties);
+  boolean existsSubmission(String submissionId);
 
-    AssignmentSubmission findSubmissionForUser(String assignmentId, String userId);
+  void newSubmission(Assignment assignment,
+                     AssignmentSubmission submission,
+                     Optional<Set<AssignmentSubmissionSubmitter>> submitters,
+                     Optional<Set<String>> feedbackAttachments,
+                     Optional<Set<String>> submittedAttachments,
+                     Optional<Map<String, String>> properties);
 
-    void initializeAssignment(Assignment assignment);
+  AssignmentSubmission findSubmissionForUser(String assignmentId,
+                                             String userId);
 
-    long countSubmittedSubmissionsForAssignment(String assignmentId);
+  void initializeAssignment(Assignment assignment);
 
-    long countUngradedSubmittedSubmissionsForAssignment(String assignmentId);
+  long countSubmittedSubmissionsForAssignment(String assignmentId);
+
+  long countUngradedSubmittedSubmissionsForAssignment(String assignmentId);
 }
