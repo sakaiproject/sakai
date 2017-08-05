@@ -697,7 +697,7 @@ public class SettingsCategoryPanel extends BasePanel {
 			// convert to percentage representation
 			final Double percentage = value * 100;
 
-			return FormatHelper.formatDoubleToDecimal(percentage, locale);
+			return FormatHelper.formatGradeForDisplay(percentage);
 		}
 
 	}
