@@ -1225,6 +1225,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	   return false;
        String id = reference.substring(i);
        i = id.indexOf("/", 1);
+       if (i < 0)
+	   return false;
        type = id.substring(1, i);
        String numstring = id.substring(i+1);
        i = numstring.indexOf("/");
