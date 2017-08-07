@@ -2712,4 +2712,47 @@ public class GradebookNgBusinessService {
 	private CandidateDetailProvider getCandidateDetailProvider() {
 		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
 	}
+	/**
+	 * Gets a list of assignment averages for a category.
+	 *
+	 * @param category category
+	 * @return allAssignmentGrades list of assignment averages
+	 */
+	public List<Double> getCategoryAssignmentTotals(CategoryDefinition category){
+		final List<Double> allAssignmentGrades = new ArrayList<>();
+		final List<Assignment> assignments = category.getAssignmentList();
+		final List<GbStudentGradeInfo> grades = buildGradeMatrix(assignments);
+		for (final Assignment assignment : assignments) {
+			if (assignment != null) {
+				final List<Double> allGrades = new ArrayList<>();
+				for (int j = 0; j < grades.size(); j++) {
+					final GbStudentGradeInfo studentGradeInfo = grades.get(j);
+					final Map<Long, GbGradeInfo> studentGrades = studentGradeInfo.getGrades();
+					final GbGradeInfo grade = studentGrades.get(assignment.getId());
+					if (grade != null && grade.getGrade() != null) {
+						allGrades.add(Double.valueOf(grade.getGrade()));
+					}
+				}
+				if (grades.size() > 0 && !assignment.isExtraCredit() && allGrades.size() > 0) {
+					allAssignmentGrades.add((calculateAverage(allGrades) / assignment.getPoints()) * 100);
+				}
+			}
+		}
+		return allAssignmentGrades;
+	}
+
+	/**
+	 * Calculates the average grade for an assignment
+	 *
+	 * @param allGradesGrades list of grades
+	 * @return the average of the grades
+	 */
+	public double calculateAverage(final List<Double> allGradesGrades) {
+		double sum = 0;
+		for (int i = 0; i < allGradesGrades.size(); i++) {
+			sum += allGradesGrades.get(i);
+		}
+		return sum / allGradesGrades.size();
+	}
+
 }

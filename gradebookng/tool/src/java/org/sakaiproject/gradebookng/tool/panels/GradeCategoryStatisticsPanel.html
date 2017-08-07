@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+<wicket:panel>
+
+    <div class="gb-statistics-chart">
+        <img wicket:id="chart" usemap="#tooltip"/>
+    </div>
+    <div class="statisticsDataDiv">
+        <dl class="statisticsDataList">
+            <dt><wicket:message key="label.statistics.category.average"></wicket:message></dt>
+            <dd wicket:id="average"></dd>
+            <dt><wicket:message key="label.statistics.category.median"></wicket:message></dt>
+            <dd wicket:id="median"></dd>
+            <dt><wicket:message key="label.statistics.category.deviation"></wicket:message></dt>
+            <dd wicket:id="deviation"></dd>
+            <dt><wicket:message key="label.statistics.category.lowest"></wicket:message></dt>
+            <dd wicket:id="lowest"></dd>
+            <dt><wicket:message key="label.statistics.category.highest"></wicket:message></dt>
+            <dd wicket:id="highest"></dd>
+            <dt><wicket:message key="label.statistics.category.graded"></wicket:message></dt>
+            <dd wicket:id="graded"></dd>
+        </dl>
+    </div>
+    <p class="gb-category-message"><wicket:message key="label.statistics.category.noextracreditlabel"></wicket:message></p>
+
+    <div>
+        <input type="button" class="button_color" wicket:id="done" wicket:message="value:button.done" />
+    </div>
+</wicket:panel>
+</body>
+</html>

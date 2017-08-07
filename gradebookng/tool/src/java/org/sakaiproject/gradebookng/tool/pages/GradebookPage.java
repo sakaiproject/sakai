@@ -65,6 +65,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
+import org.sakaiproject.gradebookng.tool.actions.ViewAssignmentGradeStatisticsAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbGradeTable;
@@ -96,17 +97,18 @@ public class GradebookPage extends BasePage {
 	// doubles as a translation key
 	public static final String UNCATEGORISED = "gradebookpage.uncategorised";
 
-	GbModalWindow addOrEditGradeItemWindow;
-	GbModalWindow studentGradeSummaryWindow;
-	GbModalWindow updateUngradedItemsWindow;
-	GbModalWindow rubricGradeWindow;
-	GbModalWindow gradeLogWindow;
-	GbModalWindow gradeCommentWindow;
-	GbModalWindow deleteItemWindow;
-	GbModalWindow assignmentStatisticsWindow;
-	GbModalWindow updateCourseGradeDisplayWindow;
-	GbModalWindow sortGradeItemsWindow;
-	GbModalWindow courseGradeStatisticsWindow;
+	private GbModalWindow addOrEditGradeItemWindow;
+	private GbModalWindow studentGradeSummaryWindow;
+	private GbModalWindow updateUngradedItemsWindow;
+	private GbModalWindow rubricGradeWindow;
+	private GbModalWindow gradeLogWindow;
+	private GbModalWindow gradeCommentWindow;
+	private GbModalWindow deleteItemWindow;
+	private GbModalWindow assignmentStatisticsWindow;
+	private GbModalWindow categoryGradeStatisticsWindow;
+	private GbModalWindow updateCourseGradeDisplayWindow;
+	private GbModalWindow sortGradeItemsWindow;
+	private GbModalWindow courseGradeStatisticsWindow;
 
 	Label liveGradingFeedback;
 	boolean hasGradebookItems, hasStudents;
@@ -201,6 +203,10 @@ public class GradebookPage extends BasePage {
 		this.assignmentStatisticsWindow.setPositionAtTop(true);
 		this.form.add(this.assignmentStatisticsWindow);
 
+		this.categoryGradeStatisticsWindow = new GbModalWindow("categoryGradeStatisticsWindow");
+		this.categoryGradeStatisticsWindow.setPositionAtTop(true);
+		this.form.add(this.categoryGradeStatisticsWindow);
+
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
 
@@ -293,7 +299,7 @@ public class GradebookPage extends BasePage {
 		this.gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
 		this.gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());
 		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
-
+		this.gradeTable.addEventListener("viewAssignmentGradeStatistics", new ViewAssignmentGradeStatisticsAction());
 
 		tableArea.add(this.gradeTable);
 
@@ -483,6 +489,10 @@ public class GradebookPage extends BasePage {
 
 	public GbModalWindow getAssignmentStatisticsWindow() {
 		return this.assignmentStatisticsWindow;
+	}
+
+	public GbModalWindow getCategoryGradeStatisticsWindow() {
+		return this.categoryGradeStatisticsWindow;
 	}
 
 	public GbModalWindow getUpdateCourseGradeDisplayWindow() {

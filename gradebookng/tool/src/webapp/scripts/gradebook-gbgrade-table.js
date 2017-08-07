@@ -1112,10 +1112,19 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   }).
   // View Course Grade Statistics
   on("click", ".gb-dropdown-menu .gb-view-course-grade-statistics", function() {
-    GbGradeTable.ajax({
-      action: 'viewCourseGradeStatistics',
-      siteId: GbGradeTable.container.data("siteid")
-    });
+      GbGradeTable.ajax({
+          action: 'viewCourseGradeStatistics',
+          siteId: GbGradeTable.container.data("siteid")
+      });
+  }).
+
+  on("click", ".gb-dropdown-menu .viewAssignmentGradeStatistics", function(event) {
+      var $dropdown = $(this).closest(".gb-dropdown-menu");
+      var $cell = $dropdown.data("cell");
+      GbGradeTable.ajax({
+          action: 'viewAssignmentGradeStatistics',
+          categoryId: $(this).data('categoryid')
+      });
   });
 
   GbGradeTable.setupToggleGradeItems();
