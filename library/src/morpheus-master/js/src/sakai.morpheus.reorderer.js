@@ -1,8 +1,8 @@
-$(document).ready(function(){
+$PBJQ(document).ready(function(){
     if ($("#reorder-list li").size() - 1 > 15) {
         $('.grabHandle').show();
         $('#inputFieldMessage').show();
-		$('#inputKbdMessage').remove();
+        $('#inputKbdMessage').remove();
     }
     //get the initial order TODO - make an  array instead of putting the values in a span
     $('#reorder-list li').each(function(n){
@@ -116,18 +116,17 @@ $(document).ready(function(){
             }
         registerChange('notfluid', $(this).parents('li'));
     });
-    
-    // the standard Fluid initialization
-    var opts = {
-        selectors: {
-            movables: '[id^="listitem.orderable"]'
-        },
-        listeners: {
-            onBeginMove: preserveStatus,
-            afterMove: registerChange
-        }
-    };
-    return fluid.reorderList("#reorder-list", opts);
+
+    // the jquery-ui sortable initialization
+    return $PBJQ("#reorder-list").keyboardSortable({
+      items: 'li:not(.notsortable)',
+      start: function( event, ui ) {
+        preserveStatus(ui);
+      },
+      update: function( event, ui ) {
+        registerChange(event, ui);
+      },
+    });
 });
 
 

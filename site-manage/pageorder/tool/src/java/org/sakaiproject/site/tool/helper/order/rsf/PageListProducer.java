@@ -208,11 +208,12 @@ public class PageListProducer
  
             frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
 
-            //If allow reorder is set, show the sort-alpha button and startup the javascript to allow reordering
+            // If reorder is set, show the sort-alpha button
             if (serverConfigurationService.getBoolean(ALLOW_REORDER, true)) {
-                UIInitBlock.make(tofill, "jsreorder","enableReorder",new Object[] {});
-
                 fullyDecorate(UICommand.make(pageForm, "sort_alpha", UIMessage.make("sort_alpha"), "#{SitePageEditHandler.sort_alpha}"), UIMessage.make("sort_alpha"));
+            }
+            else {
+                UIInitBlock.make(tofill, "jsreorder","disableReorder",new Object[] {});
             }
  
         }

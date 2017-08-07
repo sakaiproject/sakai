@@ -818,10 +818,10 @@ $PBJQ(document).ready(function($){
 
       highlightMaxItems();
 
-      list.sortable({
+      list.keyboardSortable({
         items: "li:not(.favorites-max-marker)",
         handle: ".fav-drag-handle",
-        stop: function () {
+        update: function () {
           // Rehighlight the first N items
           highlightMaxItems();
 
