@@ -1,4 +1,4 @@
-package org.sakaiproject.user.impl;
+package org.sakaiproject.time.impl.test;
 
 import org.junit.Before;
 import org.junit.Test;
