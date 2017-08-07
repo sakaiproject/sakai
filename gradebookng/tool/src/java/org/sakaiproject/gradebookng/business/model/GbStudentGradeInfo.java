@@ -2,8 +2,10 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 
 import lombok.Getter;
@@ -34,6 +36,9 @@ public class GbStudentGradeInfo implements Serializable {
 	private String studentEid;
 
 	@Getter
+	private Map<String, String> studentExtraProperties;
+
+	@Getter
 	@Setter
 	private GbCourseGrade courseGrade;
 
@@ -52,6 +57,7 @@ public class GbStudentGradeInfo implements Serializable {
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
 		this.studentDisplayName = u.getDisplayName();
+		this.studentExtraProperties = flattenPropertiesToMap(u.getProperties());
 		this.grades = new HashMap<Long, GbGradeInfo>();
 		this.categoryAverages = new HashMap<Long, Double>();
 	}
@@ -74,6 +80,22 @@ public class GbStudentGradeInfo implements Serializable {
 	 */
 	public void addCategoryAverage(final Long categoryId, final Double score) {
 		this.categoryAverages.put(categoryId, score);
+	}
+
+	/**
+	 * Helper to convert ResourceProperties of user properties to a simple map.
+	 * @param rp
+	 * @return Map<String, String>
+	 */
+	private Map<String, String> flattenPropertiesToMap(ResourceProperties rp) {
+		Map<String, String> map = new HashMap<>();
+
+		for (Iterator<String> i = rp.getPropertyNames(); i.hasNext();) {
+			String propName = i.next();
+			String propVal = rp.getPropertyFormatted(propName);
+			map.put(propName, propVal);
+		}
+		return map;
 	}
 
 }

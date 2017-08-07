@@ -5,10 +5,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -47,6 +49,9 @@ public class ExportPanel extends BasePanel {
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
 
+	boolean includeStudentExtra = true;
+	String extraStudentProperty = null;
+
 	public ExportPanel(final String id) {
 		super(id);
 	}
@@ -74,6 +79,21 @@ public class ExportPanel extends BasePanel {
 				setDefaultModelObject(ExportPanel.this.includeStudentName);
 			}
 		});
+
+		// student extra info optional info (like a numeric institutional id)
+		this.extraStudentProperty = this.businessService.getExtraStudentProperty();
+		if (StringUtils.isNotBlank(this.extraStudentProperty)) {
+			add(new Label("includeStudentExtraLabel", this.extraStudentProperty.toUpperCase()));
+			add(new AjaxCheckBox("includeStudentExtra", Model.of(this.includeStudentExtra)) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+					ExportPanel.this.includeStudentExtra = !ExportPanel.this.includeStudentExtra;
+					setDefaultModelObject(ExportPanel.this.includeStudentExtra);
+				}
+			});
+		}
 
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(this.includeGradeItemScores)) {
 			private static final long serialVersionUID = 1L;
@@ -183,6 +203,9 @@ public class ExportPanel extends BasePanel {
 			if (!isCustomExport || this.includeStudentName) {
 				header.add(getString("importExport.export.csv.headers.studentName"));
 			}
+			if (StringUtils.isNotBlank(this.extraStudentProperty) && (!isCustomExport || this.includeStudentExtra)) {
+				header.add(this.extraStudentProperty.toUpperCase());
+			}
 
 			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
 			final List<Assignment> assignments = this.businessService.getGradebookAssignments();
@@ -240,6 +263,14 @@ public class ExportPanel extends BasePanel {
 				}
 				if (!isCustomExport ||this.includeStudentName) {
 					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+				}
+				if (StringUtils.isNotBlank(this.extraStudentProperty) && (!isCustomExport || this.includeStudentExtra)) {
+					final Map<String, String> studentProps = studentGradeInfo.getStudentExtraProperties();
+					String studentProperty = "";
+					if (studentProps.containsKey(extraStudentProperty)) {
+						studentProperty = studentProps.get(extraStudentProperty);
+					}
+					line.add(studentProperty);
 				}
 				if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
 					assignments.forEach(assignment -> {

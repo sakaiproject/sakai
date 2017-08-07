@@ -52,6 +52,14 @@
                                         <wicket:message key="importExport.export.advancedOption.includeStudentName"/>
                                     </label>
                                 </div>
+                                <wicket:enclosure child="includeStudentExtra">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" wicket:id="includeStudentExtra">
+                                            <span wicket:id="includeStudentExtraLabel">Student Extra Info</span>
+                                        </label>
+                                    </div>
+                                </wicket:enclosure>
                                 <wicket:enclosure child="includePoints">
                                     <div class="checkbox">
                                         <label>
