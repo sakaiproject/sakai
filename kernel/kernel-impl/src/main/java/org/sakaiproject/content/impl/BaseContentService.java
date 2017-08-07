@@ -11093,7 +11093,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				if (!available) {
 					return available;
 				}
-				if (available && !isHiddenWebFolder && currentEntity.getId().endsWith(Entity.SEPARATOR)) {
+				//Only check this case for the actual folder, not the parents
+				if (available && !isHiddenWebFolder && this.m_id.equals(currentEntity.getId()) && currentEntity.getId().endsWith(Entity.SEPARATOR)) {
 					isHiddenWebFolder = isAttachmentResource(currentEntity.getId()) ||
 					    "true".equals(currentEntity.getProperties().getProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT));
 				}
