@@ -1146,6 +1146,29 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    public String getAssignmentStatus(String assignmentId) {
+        Assignment assignment = null;
+        try {
+            assignment = getAssignment(assignmentId);
+
+            Instant now = Instant.now();
+            if (assignment.getDraft()) {
+                return rb.getString("gen.dra1");
+            } else if (assignment.getOpenDate().toInstant().isAfter(now)) {
+                return rb.getString("gen.notope");
+            } else if (assignment.getDueDate().toInstant().isAfter(now)) {
+                return rb.getString("gen.open");
+            } else if ((assignment.getCloseDate() != null) && (assignment.getCloseDate().toInstant().isBefore(now))) {
+                return rb.getString("gen.closed");
+            } else {
+                return rb.getString("gen.due");
+            }
+        } catch (IdUnusedException | PermissionException e) {
+            log.warn("Could not determine the status for assignment: {}, {}", assignmentId, e.getMessage());
+        }
+        return null;
+    }
+    @Override
     public String getSubmissionStatus(String submissionId) {
         String status = "";
         AssignmentSubmission submission;

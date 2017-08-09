@@ -433,6 +433,8 @@ public interface AssignmentService extends EntityProducer {
      */
     public Set<AssignmentSubmission> getSubmissions(Assignment assignment);
 
+    String getAssignmentStatus(String assignmentId);
+
     String getSubmissionStatus(String submissionId);
 
     /**

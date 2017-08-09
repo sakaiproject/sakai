@@ -146,15 +146,14 @@ public class AssignmentSubmission {
 	@Column(name = "USER_SUBMISSION")
 	private Boolean userSubmission;
 
+	@Column(name = "GROUP_ID")
+	private String groupId;
+
 	@ElementCollection
 	@MapKeyColumn(name = "NAME")
 	@Column(name = "VALUE")
 	@CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
 	private Map<String, String> properties = new HashMap<>();
-
-    public void setHonorPledgeFlag(boolean honorPledgeFlag) {
-        this.honorPledgeFlag = honorPledgeFlag;
-    }
 
     // should get this data from the content review service
 	// private Integer reviewScore;
