@@ -18,7 +18,7 @@
 
         loadPreviouslySavedChecklistItems();
 
-        var confirmMsg = $('#confirmDeleteLangSupp').html();
+        var confirmMsg = $('#deleteButtonLangSupp').html();
         $('.deleteButton').click(function () {
             return confirm(confirmMsg);
         });
