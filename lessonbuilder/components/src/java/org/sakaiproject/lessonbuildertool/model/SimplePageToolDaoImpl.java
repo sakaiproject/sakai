@@ -1298,7 +1298,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			Query query = session.createQuery("update SimplePageQuestionResponseTotalsImpl s set s.count = s.count + 1 where s.questionId= :questionId and s.responseId = :responseId");
 			query.setLong("questionId", questionId);
 			query.setLong("responseId", responseId);
-            return query.executeUpdate();
+			return query.executeUpdate();
 		});
 	}
 
