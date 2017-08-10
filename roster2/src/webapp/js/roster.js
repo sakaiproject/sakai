@@ -136,7 +136,7 @@
 
             roster.render('overview',
                 { siteGroups: roster.site.siteGroups,
-                    membersTotal: roster.i18n.currently_displaying_participants.replace(/\{0\}/, roster.site.membersTotal),
+                    membersTotal: portal.i18n.tr('roster', 'currently_displaying_participants').replace(/\{0\}/, roster.site.membersTotal),
                     roleFragments: roster.getRoleFragments(roster.site.roleCounts),
                     roles: roster.site.userRoles,
                     checkOfficialPicturesButton: roster.officialPictureMode,
@@ -389,7 +389,7 @@
                     loadImage.hide();
 
                     if (roster.nextPage === 0) {
-                        var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, 0);
+                        var membersTotalString = portal.i18n.tr('roster', 'currently_displaying_participants').replace(/\{0\}/, 0);
                         $('#roster-members-total').html(membersTotalString);
                         $('#roster-role-totals').html('');
                     }
@@ -402,7 +402,7 @@
                 roster.pageSize = (data.pageSize != undefined) ? data.pageSize : 10;
 
                 if (roster.nextPage === 0) {
-                    var membersTotalString = roster.i18n.currently_displaying_participants.replace(/\{0\}/, data.membersTotal);
+                    var membersTotalString = portal.i18n.tr('roster', 'currently_displaying_participants').replace(/\{0\}/, data.membersTotal);
                     $('#roster-members-total').html(membersTotalString);
                     var roleFragments = roster.getRoleFragments(data.roleCounts);
                     $('#roster-role-totals').html(roleFragments);
@@ -425,7 +425,7 @@
                         if (m.totalSiteVisits > 0) {
                             m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
                         } else {
-                            m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                            m.formattedLastVisitTime = portal.i18n.tr('roster', 'no_visits_yet');
                         }
                     }
                 });
@@ -502,7 +502,7 @@
 
     roster.search = function (query) {
 
-        if (query !== roster.i18n.roster_search_text && query !== "") {
+        if (query !== portal.i18n.tr('roster', 'roster_search_text') && query !== "") {
             var userIds = [];
             var userId = roster.searchIndex[query];
             if (!userId) {
@@ -525,7 +525,7 @@
             if (userIds.length > 0) {
                 roster.renderMembership({ replace: true, userIds: userIds });
             } else {
-                $('#roster-members').html('<div id="roster-information">' + roster.i18n.no_participants + '</div>');
+                $('#roster-members').html('<div id="roster-information">' + portal.i18n.tr('roster', 'no_participants') + '</div>');
                 $('#roster-members-total').hide();
                 $('#roster_type_selector').hide();
                 $('#summary').hide();
@@ -620,7 +620,7 @@
     roster.getRoleFragments = function (roleCounts) {
 
         return Object.keys(roleCounts).map(function (key) {
-            var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
+            var frag = portal.i18n.tr('roster', 'role_breakdown_fragment').replace(/\{0\}/, roleCounts[key]);
             return frag.replace(/\{1\}/, '<span class="role">' + key + '</span>');
         }).join(", ");
     };
@@ -632,7 +632,7 @@
         if (hours < 10)  hours = '0' + hours;
         var minutes = d.getMinutes();
         if (minutes < 10) minutes = '0' + minutes;
-        return d.getDate() + " " + roster.i18n.months[d.getMonth()] + " " + d.getFullYear() + " @ " + hours + ":" + minutes;
+        return d.getDate() + " " + roster.months[d.getMonth()] + " " + d.getFullYear() + " @ " + hours + ":" + minutes;
     };
 
     roster.addExportHandler = function () {
@@ -687,10 +687,6 @@
         return;
     }
 
-    Handlebars.registerHelper('translate', function (key) {
-        return roster.i18n[key];
-    });
-
     Handlebars.registerHelper('getName', function (firstNameLastName) {
         return (firstNameLastName) ? this.displayName : this.sortName;
     });
@@ -705,9 +701,7 @@
 
     roster.init = function () {
 
-        roster.i18n = $.i18n.map;
-
-        roster.i18n.months = roster.i18n.months.split(',');
+        roster.months = portal.i18n.tr('roster', 'months').split(',');
 
         roster.ADMIN = 'admin';
 
@@ -731,10 +725,10 @@
         roster.hideNames = false;
         roster.viewSingleColumn = false;
         roster.groupToView = null;
-        roster.groupToViewText = roster.i18n.roster_sections_all;
+        roster.groupToViewText = portal.i18n.tr('roster', 'roster_sections_all');
         roster.enrollmentSetToView = null;
         roster.enrollmentSetToViewText = null;
-        roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
+        roster.enrollmentStatusToViewText = portal.i18n.tr('roster', 'roster_enrollment_status_all');
         roster.nextPage = 0;
         roster.currentState = null;
 
@@ -807,17 +801,14 @@
         });
     };
 
-    // jquery.i18n
-    $.i18n.properties({
-        name:'ui',
-        path:'/sakai-roster2-tool/i18n/',
-        mode: 'both',
-        async: true,
-        checkAvailableLanguages: true,
-        language: roster.language,
-        callback: function () {
-            roster.loadSiteDataAndInit();
-        }
+    $(document).ready(function () {
+
+        portal.i18n.loadProperties({
+            names:'ui',
+            path:'/sakai-roster2-tool/i18n/',
+            namespace: 'roster',
+            callback: function () { roster.loadSiteDataAndInit(); }
+        });
     });
 
     roster.alignMobileLabels = function () {

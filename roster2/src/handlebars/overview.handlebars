@@ -1,14 +1,14 @@
 {{#if displayTitleMsg}}
-	<span class="instruction rosterTitleMessage">{{translate 'title_msg'}}</span>
+	<span class="instruction rosterTitleMessage">{{tr 'roster' 'title_msg'}}</span>
 {{/if}}
 
 <div id="roster-filters">
     {{#if viewGroup}}
     <div class="form-group" id="roster-group-selector-wrapper">
-        <label for="roster-groups-selector-top" class="form-control-label">{{translate 'groups'}}</label>
+        <label for="roster-groups-selector-top" class="form-control-label">{{tr 'roster' 'groups'}}</label>
         <div>
             <select id="roster-groups-selector-top">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
+                <option value="all">{{tr 'roster' 'roster_sections_all'}}</option>
                 {{#each siteGroups}}
                 <option id="roster-group-option-{{id}}" value="{{id}}">{{title}}</option>
                 {{/each}}
@@ -17,26 +17,26 @@
     </div>
     {{/if}}
     <div class="form-group" id="roster-roles-selector-wrapper">        
-        <label for="roster-roles-selector" class="form-control-label">{{translate 'roles_label'}}</label>
+        <label for="roster-roles-selector" class="form-control-label">{{tr 'roster' 'roles_label'}}</label>
         <div>
             <select id="roster-roles-selector">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
+                <option value="all">{{tr 'roster' 'roster_sections_all'}}</option>
                 {{#each roles}}
                 <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
                 {{/each}}
             </select>
         </div>
     </div>
-    <button id="roster-export-button" title="{{translate 'navbar_export_tooltip'}}">{{translate 'navbar_export'}}</button>
+    <button id="roster-export-button" title="{{tr 'roster' 'navbar_export_tooltip'}}">{{tr 'roster' 'navbar_export'}}</button>
 </div>
 
 <div id="roster-search-group">
     <div class="form-group">
-        <label for="roster-search-field" class="form-control-label">{{translate 'roster_search_text'}}</label>
+        <label for="roster-search-field" class="form-control-label">{{tr 'roster' 'roster_search_text'}}</label>
         <div>
             <input id="roster-search-field" type="text" value="{{#if searchQuery}}{{searchQuery}}{{/if}}" name="roster_form_search" />
-            <input id="roster-search-button" class="active" type="button" value="{{translate 'roster_search_button'}}" name="roster_form:search_button" />
-            <input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" name="roster_form:clear_button" />		
+            <input id="roster-search-button" class="active" type="button" value="{{tr 'roster' 'roster_search_button'}}" name="roster_form:search_button" />
+            <input id="roster_form_clear_button" type="button" value="{{tr 'roster' 'roster_clear_button'}}" name="roster_form:clear_button" />		
         </div>	
      </div>
 </div>
@@ -54,14 +54,14 @@
         <div class="form-group">
             <div class="radio">
                 <label>
-                <input style="margin-right: 1em;" type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}}/><span>{{translate 'roster_show_official_pictures'}}</span>
+                <input style="margin-right: 1em;" type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {{#if checkOfficialPicturesButton}}checked{{/if}}/><span>{{tr 'roster' 'roster_show_official_pictures'}}</span>
                 </label>
             </div>
         </div>
         <div class="form-group">
             <div class="radio">
                 <label>
-                <input style="margin-right: 1em;" type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}}/><span>{{translate 'roster_show_profile_pictures'}}</span>
+                <input style="margin-right: 1em;" type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {{#unless checkOfficialPicturesButton}}checked{{/unless}}/><span>{{tr 'roster' 'roster_show_profile_pictures'}}</span>
                 </label>
             </div>
         </div>
@@ -71,10 +71,10 @@
 
 <div class="row">
     <div class="form-group col-sm-6">
-        <button class="roster-print-button">{{translate 'print_roster'}}</button>
+        <button class="roster-print-button">{{tr 'roster' 'print_roster'}}</button>
         <label id="roster-pictures-only-label">
             <input type="checkbox" id="roster-pictures-only-button" />
-            {{translate 'pictures_only'}}
+            {{tr 'roster' 'pictures_only'}}
         </label>
     </div>
 </div>
@@ -83,6 +83,6 @@
 <div id="roster-loading-image"><img src="/sakai-roster2-tool/images/ajax-loader.gif" /></div>
 <div class="row">
     <div class="form-group col-sm-6">
-        <button class="roster-print-button">{{translate 'print_roster'}}</button>
+        <button class="roster-print-button">{{tr 'roster' 'print_roster'}}</button>
     </div>
 </div>
