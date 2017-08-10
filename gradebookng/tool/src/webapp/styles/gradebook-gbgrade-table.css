@@ -33,12 +33,13 @@
   position: absolute;
   right: 2px;
   background-color: #FAFAFA;
-  font-size: 0.8em;
+  font-size: 1em;
+  color: #666;
   top: 2px;
   border-left: 1px solid #EEE;
   height: 28px;
   line-height: 28px;
-  padding: 0 14px;
+  padding: 0 12px;
 }
 #gradeTableWrapper .handsontableInput {
   line-height: 30px;
