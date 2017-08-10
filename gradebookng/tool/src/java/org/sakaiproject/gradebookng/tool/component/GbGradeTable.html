@@ -135,6 +135,9 @@
                         {/if}
                         {if !externallyMaintained && settings.instructor}
                             <li><a href="javascript:void(0);" class="gb-set-ungraded" role="menuitem"><wicket:message key="assignment.option.setungraded" /></a></li>
+                        {/if}
+                        <li><a href="javascript:void(0);" class="gb-hide-column" role="menuitem" data-assignmentid="${assignmentId}"><wicket:message key="assignment.option.hide" /></a></li>
+                        {if !externallyMaintained && settings.instructor}
                             <li><a href="javascript:void(0);" class="gb-delete-item" role="menuitem"><span class="text-danger"><wicket:message key="delete.label" /></span></a></li>
                         {/if}
                     </ul>
@@ -162,6 +165,16 @@
                         {/if}
                     </span>
                 </a>
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default dropdown-toggle"
+                       data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                       tabindex="-1">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="javascript:void(0);" class="gb-hide-column" role="menuitem" data-categoryid="${categoryId}"><wicket:message key="assignment.option.hide" /></a></li>
+                    </ul>
+                </div>
             </div>
         </script>
         <script id="studentHeaderTemplate" type="text/template">

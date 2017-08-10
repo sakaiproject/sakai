@@ -1014,6 +1014,17 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       action: 'moveAssignmentRight',
       assignmentId: $.data($cell[0], "assignmentid")
     });
+  }).
+  // Hide Column (both category and assignment)
+  on("click", ".gb-dropdown-menu .gb-hide-column", function(event) {
+      var $togglePanel = $("#gradeItemsTogglePanel");
+      if ($(this).data('assignmentid')) {
+        $togglePanel.find('.gb-item-filter :checkbox[value='+$(this).data('assignmentid')+']').trigger('click');
+      } else if ($(this).data('categoryid')) {
+        var colIndex = GbGradeTable.colForCategoryScore($(this).data('categoryid'));
+        var col = GbGradeTable.instance.view.settings.columns[colIndex]._data_;
+        $togglePanel.find('.gb-item-category-score-filter :checkbox[value="'+col.categoryName+'"]').trigger('click');
+      }
   });
 
   GbGradeTable.setupToggleGradeItems();
