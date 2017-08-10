@@ -4,16 +4,19 @@
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
        xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
            http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
            http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
            http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
-           ">
-
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+">
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    <!-- This is means we use a qualifier aware autowire implementation -->
+    <context:annotation-config />
 
     <bean id="RemoteHostFilter" class="org.sakaiproject.webservices.interceptor.RemoteHostMatcher" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -70,28 +73,28 @@
     </jaxrs:server>
 
     <jaxrs:server id="ContentHostingRS" address="/rest/contenthosting">
-         <jaxrs:serviceBeans>
-             <ref bean="org.sakaiproject.webservices.ContentHosting"/>
-         </jaxrs:serviceBeans>
-     </jaxrs:server>
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.ContentHosting"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxrs:server id="MessageForumRS" address="/rest/messageforums">
-         <jaxrs:serviceBeans>
-             <ref bean="org.sakaiproject.webservices.MessageForums"/>
-         </jaxrs:serviceBeans>
-     </jaxrs:server>
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.MessageForums"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxrs:server id="SakaiJobRS" address="/rest/job">
-         <jaxrs:serviceBeans>
-             <ref bean="org.sakaiproject.webservices.SakaiJob"/>
-         </jaxrs:serviceBeans>
-     </jaxrs:server>
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiJob"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxrs:server id="ShortenedUrlRS" address="/rest/shortenedurl">
-         <jaxrs:serviceBeans>
-             <ref bean="org.sakaiproject.webservices.ShortenedUrl"/>
-         </jaxrs:serviceBeans>
-     </jaxrs:server>
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.ShortenedUrl"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxrs:server id="TestsAndQuizzesRS" address="/rest/testsandquizzes">
         <jaxrs:serviceBeans>
@@ -122,7 +125,7 @@
             <ref bean="org.sakaiproject.webservices.SakaiConfiguration"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
-    
+
     <jaxrs:server id="ActivityRS" address="/rest/activity">
         <jaxrs:serviceBeans>
             <ref bean="org.sakaiproject.webservices.Activity"/>
@@ -134,12 +137,40 @@
             <ref bean="org.sakaiproject.webservices.SakaiGradebook"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
-    
-    <jaxrs:server id="LessonBuilderRS" address="/rest/lessons">
+
+    <!-- This scans for all endpoint inside the rest package -->
+    <jaxrs:server address="/rest" basePackages="org.sakaiproject.rest">
         <jaxrs:serviceBeans>
             <ref bean="org.sakaiproject.webservices.LessonBuilder"/>
         </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
+            <ref bean="exceptionMapper"/>
+        </jaxrs:providers>
     </jaxrs:server>
+
+    <!-- This doesn't provide message in the returned data to the client and it doesn't understand the @Param
+         annotation so doesn't provide helpful messages -->
+    <bean id="exceptionMapper" class="org.apache.cxf.jaxrs.validation.ValidationExceptionMapper"/>
+    <bean id="validationProvider" class="org.apache.cxf.validation.BeanValidationProvider"/>
+
+    <bean id="validationInInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor">
+        <property name="provider" ref="validationProvider"/>
+    </bean>
+
+    <bean id="validationOutInterceptor" class="org.apache.cxf.jaxrs.validation.JAXRSBeanValidationOutInterceptor">
+        <property name="provider" ref="validationProvider"/>
+    </bean>
+
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <ref bean="validationInInterceptor"/>
+        </cxf:inInterceptors>
+        <cxf:outInterceptors>
+            <ref bean="validationOutInterceptor"/>
+        </cxf:outInterceptors>
+    </cxf:bus>
+
 
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
@@ -186,9 +217,9 @@
                     address="/soap/report"/>
 
     <jaxws:endpoint id="SakaiConfiguration"
-                        implementor="#org.sakaiproject.webservices.SakaiConfiguration"
-                        address="/soap/configuration"/>
-                        
+                    implementor="#org.sakaiproject.webservices.SakaiConfiguration"
+                    address="/soap/configuration"/>
+
     <jaxws:endpoint id="Activity"
                     implementor="#org.sakaiproject.webservices.Activity"
                     address="/soap/activity"/>
@@ -196,13 +227,14 @@
     <jaxws:endpoint id="SakaiGradebook"
                     implementor="#org.sakaiproject.webservices.SakaiGradebook"
                     address="/soap/gradebook"/>
-            
+
     <jaxws:endpoint id="SakaiLessons"
                     implementor="#org.sakaiproject.webservices.LessonBuilder"
                     address="/soap/lessons"/>
 
 
-    <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
+    <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService"
+          init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
@@ -219,20 +251,25 @@
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
-        <property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
-        <property name="messageForumsMessageManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
-        <property name="messageForumsTypeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        <property name="messageForumsForumManager"
+                  ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+        <property name="messageForumsMessageManager"
+                  ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        <property name="messageForumsTypeManager"
+                  ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
         <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
         <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
         <property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService"/>
         <property name="samLiteService" ref="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
-        <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+        <property name="gradebookExternalAssessmentService"
+                  ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
         <property name="activityService" ref="org.sakaiproject.event.api.ActivityService"/>
         <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
-        <property name="questionPoolServiceImpl" ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
+        <property name="questionPoolServiceImpl"
+                  ref="org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI"/>
         <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI"/>
     </bean>
 
@@ -250,11 +287,14 @@
     <bean id="org.sakaiproject.webservices.SakaiReport" class="org.sakaiproject.webservices.SakaiReport" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" >
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
     </bean>
-    <bean id="org.sakaiproject.webservices.SakaiConfiguration" class="org.sakaiproject.webservices.SakaiConfiguration" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
-     <bean id="org.sakaiproject.webservices.Activity" class="org.sakaiproject.webservices.Activity" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService">
-         <property name="eventQueryService" ref="org.sakaiproject.event.api.EventQueryService"/>
-     </bean>
-    <bean id="org.sakaiproject.webservices.SakaiGradebook" class="org.sakaiproject.webservices.SakaiGradebook" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" >
+    <bean id="org.sakaiproject.webservices.SakaiConfiguration" class="org.sakaiproject.webservices.SakaiConfiguration"
+          init-method="init" parent="org.sakaiproject.webservices.AbstractWebService"/>
+    <bean id="org.sakaiproject.webservices.Activity" class="org.sakaiproject.webservices.Activity" init-method="init"
+          parent="org.sakaiproject.webservices.AbstractWebService">
+        <property name="eventQueryService" ref="org.sakaiproject.event.api.EventQueryService"/>
+    </bean>
+    <bean id="org.sakaiproject.webservices.SakaiGradebook" class="org.sakaiproject.webservices.SakaiGradebook"
+          init-method="init" parent="org.sakaiproject.webservices.AbstractWebService">
         <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
     </bean>
 </beans>
