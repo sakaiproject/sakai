@@ -3272,7 +3272,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("duplicatedName", state
 						.getAttribute(SITE_DUPLICATED_NAME));
 			}
-			
+			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
 			// Add option to also copy ScoringComponent associations
 			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService"); 
 			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
@@ -3296,6 +3296,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
+			context.put("siteIdMaxLength", 99);
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
 			/*
@@ -9660,13 +9661,21 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 */
 			if (forward) {
 				if (state.getAttribute(SITE_DUPLICATED) == null) {
-					if (StringUtils.trimToNull(params.getString("title")) == null) {
-						addAlert(state, rb.getString("java.dupli") + " ");
+					if ((SecurityService.isSuperUser())&& ((StringUtils.trimToNull(params.getString("newSiteId")) != null)&&(SiteService.siteExists(params.getString("newSiteId"))))){
+					    addAlert(state, rb.getString("sitdup.idused") + " ");
+					} else if (StringUtils.trimToNull(params.getString("title")) == null) {
+					    addAlert(state, rb.getString("java.dupli") + " ");
 					} else {
 						String title = params.getString("title");
 						state.setAttribute(SITE_DUPLICATED_NAME, title);
 
-						String newSiteId = IdManager.createUuid();
+						String newSiteId = null;
+						if (StringUtils.trimToNull(params.getString("newSiteId")) == null) {
+						    newSiteId = IdManager.createUuid();
+						} else{
+						    newSiteId = params.getString("newSiteId");
+						}
+
 						try {
 							String oldSiteId = (String) state
 									.getAttribute(STATE_SITE_INSTANCE_ID);
@@ -9685,7 +9694,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 							// SAK-20797
 							long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
-							
+
 							Site site = SiteService.addSite(newSiteId,
 									getStateSite(state));
 							
