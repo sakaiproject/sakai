@@ -472,7 +472,7 @@
 				## prev button				
 				<input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				## back to list button
-				<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm' 'cancelgradesubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
+				<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				## next button
 				<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				#if(!$view_only)
