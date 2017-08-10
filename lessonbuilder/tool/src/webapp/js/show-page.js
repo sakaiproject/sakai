@@ -2157,8 +2157,6 @@ $(document).ready(function() {
 			
 			$(this).attr("value",($(this).parents(".questionDiv").find(".show-poll").text()));
 		}
-
-        resizeFrame('grow');
 	});
 	
 	$('.add-break-section').click(function(e) {
@@ -3302,23 +3300,6 @@ function mm_test_reset() {
    $('#mm-test-oembed-results .oembedall-container').remove();
    $('#mm-file-replace-group').hide();
 }
-
-resizeFrame = function (updown) {
-      var frame = parent.document.getElementById( window.name );
-      if( frame ) {
-        if(updown==='shrink')
-        {
-        var clientH = document.body.clientHeight + 30;
-      }
-      else
-      {
-      var clientH = document.body.clientHeight + 30;
-      }
-        $( frame ).height( clientH );
-      } else {
-        throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-      }
-    };
 
 function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
     if($(checkbox).is(':checked')) {

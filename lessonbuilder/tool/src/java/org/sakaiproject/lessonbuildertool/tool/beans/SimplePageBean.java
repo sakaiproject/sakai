@@ -7061,7 +7061,6 @@ public class SimplePageBean {
 			
 			item.setAttribute("questionShowPoll", String.valueOf(questionShowPoll));
 
-			simplePageToolDao.syncQRTotals(item);
 
 		}
 		
@@ -7123,6 +7122,10 @@ public class SimplePageBean {
 		setItemGroups(item, selectedGroups);
 
 		saveOrUpdate(item);
+
+		if(questionType.equals("multipleChoice")) {
+			simplePageToolDao.syncQRTotals(item);
+		}
 
 		regradeAllQuestionResponses(item.getId());
 		
