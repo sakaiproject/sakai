@@ -2,7 +2,11 @@ package org.sakaiproject.gradebookng.tool.actions;
 
 
 import java.io.Serializable;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
@@ -49,11 +53,19 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
         }
 
         public String toJson() {
-            return "{" +
-                        "\"courseGrade\": [\"" + courseGrade + "\"," + "\"" + points + "\", " + (isOverride ? '1' : '0') + "]," +
-                        "\"categoryScore\": \"" + categoryScore + "\"," +
-                        "\"extraCredit\": " + extraCredit +
-                    "}";
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode result = mapper.createObjectNode();
+
+            ArrayNode courseGradeArray = mapper.createArrayNode();
+            courseGradeArray.add(courseGrade);
+            courseGradeArray.add(points);
+            courseGradeArray.add(isOverride ? 1 : 0);
+
+            result.put("courseGrade", courseGradeArray);
+            result.put("categoryScore", categoryScore);
+            result.put("extraCredit", extraCredit);
+
+            return result.toString();
         }
     }
 
@@ -68,8 +80,12 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
         }
 
         public String toJson() {
-            // TODO map to a reasonable message based on server response
-            return String.format("{\"msg\": \"%s\"}", serverResponse.toString());
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode result = mapper.createObjectNode();
+
+            result.put("msg", serverResponse.toString());
+
+            return result.toString();
         }
     }
 
