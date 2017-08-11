@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -11,23 +10,23 @@ import java.io.Serializable;
 
 public class SetZeroScoreAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public SetZeroScoreAction() {
-    }
+	public SetZeroScoreAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 
-        final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
+		final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
 
-        window.setTitle(gradebookPage.getString("heading.zeroungradeditems"));
-        window.setReturnFocusToCourseGrade();
-        window.setContent(new ZeroUngradedItemsPanel(window.getContentId(), window));
-        window.showUnloadConfirmation(false);
-        window.show(target);
+		window.setTitle(gradebookPage.getString("heading.zeroungradeditems"));
+		window.setReturnFocusToCourseGrade();
+		window.setContent(new ZeroUngradedItemsPanel(window.getContentId(), window));
+		window.showUnloadConfirmation(false);
+		window.show(target);
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

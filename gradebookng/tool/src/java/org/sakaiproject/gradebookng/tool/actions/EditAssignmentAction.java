@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
@@ -14,28 +13,28 @@ import java.io.Serializable;
 
 public class EditAssignmentAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-    private GradebookNgBusinessService businessService;
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
-    public EditAssignmentAction() {
-    }
+	public EditAssignmentAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final String assignmentId = params.get("assignmentId").asText();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final String assignmentId = params.get("assignmentId").asText();
 
-        final GradebookPage gradebookPage = (GradebookPage) target.getPage();
-        final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
-        window.setTitle(gradebookPage.getString("heading.editgradeitem"));
-        window.setAssignmentToReturnFocusTo(assignmentId);
-        window.setContent(new AddOrEditGradeItemPanel(window.getContentId(),
-                                                      window,
-                                                      Model.of(Long.valueOf(assignmentId))));
-        window.showUnloadConfirmation(false);
-        window.show(target);
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+		final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+		window.setTitle(gradebookPage.getString("heading.editgradeitem"));
+		window.setAssignmentToReturnFocusTo(assignmentId);
+		window.setContent(new AddOrEditGradeItemPanel(window.getContentId(),
+				window,
+				Model.of(Long.valueOf(assignmentId))));
+		window.showUnloadConfirmation(false);
+		window.show(target);
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

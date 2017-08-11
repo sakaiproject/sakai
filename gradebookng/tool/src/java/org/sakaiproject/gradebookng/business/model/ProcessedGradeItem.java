@@ -29,7 +29,7 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 
 	public enum Type {
 
-		//order here is important and used for comparisons. gb items come before comments
+		// order here is important and used for comparisons. gb items come before comments
 
 		/**
 		 * A gradebook item
@@ -99,10 +99,11 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 
 	/**
 	 * Helper to determine if an items is in a state that can be selected
+	 * 
 	 * @return
 	 */
 	public boolean isSelectable() {
-		if(this.status == Status.NEW || this.status == Status.UPDATE || this.status == Status.MODIFIED) {
+		if (this.status == Status.NEW || this.status == Status.UPDATE || this.status == Status.MODIFIED) {
 			return true;
 		}
 		return false;
@@ -110,13 +111,12 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 
 	@Override
 	public int compareTo(final Object o) {
-		//sort by title then type order as above
+		// sort by title then type order as above
 		final ProcessedGradeItem other = (ProcessedGradeItem) o;
 		return new CompareToBuilder()
-	       .append(this.itemTitle, other.itemTitle)
-	       .append(this.type.ordinal(), other.type.ordinal())
-	       .toComparison();
+				.append(this.itemTitle, other.itemTitle)
+				.append(this.type.ordinal(), other.type.ordinal())
+				.toComparison();
 	}
-
 
 }

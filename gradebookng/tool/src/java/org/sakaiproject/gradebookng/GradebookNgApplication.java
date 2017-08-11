@@ -75,7 +75,7 @@ public class GradebookNgApplication extends WebApplication {
 		});
 
 		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in BasePage.java
-		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(GradebookNgApplication.class,"empty.js"));
+		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(GradebookNgApplication.class, "empty.js"));
 
 		// cleanup the HTML
 		getMarkupSettings().setStripWicketTags(true);

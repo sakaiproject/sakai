@@ -105,7 +105,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		if (!params.containsKey("since")) {
 			throw new IllegalArgumentException(
-				"Since timestamp (in milliseconds) must be set in order to access GBNG data.");
+					"Since timestamp (in milliseconds) must be set in order to access GBNG data.");
 		}
 
 		final long millis = NumberUtils.toLong((String) params.get("since"));
@@ -149,7 +149,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		return "pong";
 	}
 
-
 	@EntityCustomAction(action = "comments", viewKey = EntityView.VIEW_LIST)
 	public String getComments(final EntityView view, final Map<String, Object> params) {
 		// get params
@@ -160,7 +159,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		// check params supplied are valid
 		if (StringUtils.isBlank(siteId) || assignmentId == 0 || StringUtils.isBlank(studentUuid)) {
 			throw new IllegalArgumentException(
-				"Request data was missing / invalid");
+					"Request data was missing / invalid");
 		}
 
 		checkValidSite(siteId);
@@ -168,7 +167,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 		return this.businessService.getAssignmentGradeComment(siteId, assignmentId, studentUuid);
 	}
-
 
 	/**
 	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not. We don't currently need the value that this
@@ -178,7 +176,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 * @return
 	 * @throws SecurityException if error in auth/role
 	 */
-	private void checkInstructor(final String siteId)  {
+	private void checkInstructor(final String siteId) {
 
 		final String currentUserId = getCurrentUserId();
 
@@ -241,6 +239,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	/**
 	 * Get role for current user in given site
+	 * 
 	 * @param siteId
 	 * @return
 	 */

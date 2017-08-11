@@ -19,9 +19,8 @@ import lombok.Setter;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
- * DTO for storing data in the session so that state is preserved between
- * requests. Things like filters and ordering go in here and are persisted
- * whenever something is set.
+ * DTO for storing data in the session so that state is preserved between requests. Things like filters and ordering go in here and are
+ * persisted whenever something is set.
  *
  * They are then retrieved on the GradebookPage load and passed around.
  *
@@ -93,14 +92,12 @@ public class GradebookUiSettings implements Serializable {
 	@Setter
 	private Boolean showPoints;
 
-
 	/**
-	 * For toggling the group by categories option in the course grade summary table 
+	 * For toggling the group by categories option in the course grade summary table
 	 */
 	@Getter
 	@Setter
 	private boolean gradeSummaryGroupedByCategory;
-
 
 	public GradebookUiSettings() {
 		// defaults. Note there is no default for assignmentSortOrder as that
@@ -152,13 +149,13 @@ public class GradebookUiSettings implements Serializable {
 		}
 	}
 
-	public void setCategoriesEnabled(final boolean categoriesEnabled){
+	public void setCategoriesEnabled(final boolean categoriesEnabled) {
 		this.categoriesEnabled = categoriesEnabled;
 		this.groupedByCategory = categoriesEnabled;
 		this.gradeSummaryGroupedByCategory = categoriesEnabled;
 	}
 
-	public void  setGroupedByCategory(final boolean groupedByCategory) {
+	public void setGroupedByCategory(final boolean groupedByCategory) {
 		this.groupedByCategory = groupedByCategory;
 		this.gradeSummaryGroupedByCategory = categoriesEnabled;
 	}

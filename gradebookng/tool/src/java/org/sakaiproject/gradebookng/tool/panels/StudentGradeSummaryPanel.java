@@ -69,7 +69,7 @@ public class StudentGradeSummaryPanel extends BasePanel {
 
 		// Disable Student View for TAs as they most likely won't have the access
 		// to view the grade data for every student
-		if (((BasePage)getPage()).getCurrentRole() == GbRole.INSTRUCTOR) {
+		if (((BasePage) getPage()).getCurrentRole() == GbRole.INSTRUCTOR) {
 			tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
 				private static final long serialVersionUID = 1L;
 
@@ -98,8 +98,8 @@ public class StudentGradeSummaryPanel extends BasePanel {
 
 				target.appendJavaScript(
 						String.format("new GradebookGradeSummary($(\"#%s\"), %s);",
-							getParent().getMarkupId(),
-							showingStudentView));
+								getParent().getMarkupId(),
+								showingStudentView));
 			}
 		});
 	}

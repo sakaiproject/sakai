@@ -37,17 +37,17 @@ public class SortGradeItemsByGradeItemPanel extends Panel {
 				final Assignment assignment = assignmentItem.getModelObject();
 				assignmentItem.add(new Label("name", assignment.getName()));
 				assignmentItem.add(new HiddenField<Long>("id",
-					Model.of(assignment.getId())).
-					add(new AttributeModifier("name",
-						String.format("id", assignment.getId()))));
+						Model.of(assignment.getId())).add(
+								new AttributeModifier("name",
+										String.format("id", assignment.getId()))));
 				assignmentItem.add(new HiddenField<Integer>("order",
-					Model.of(assignment.getSortOrder())).
-						add(new AttributeModifier("name",
-							String.format("item_%s[order]", assignment.getId()))));
+						Model.of(assignment.getSortOrder())).add(
+								new AttributeModifier("name",
+										String.format("item_%s[order]", assignment.getId()))));
 				assignmentItem.add(new HiddenField<Integer>("current_order",
-					Model.of(assignment.getSortOrder())).
-					add(new AttributeModifier("name",
-						String.format("item_%s[current_order]", assignment.getId()))));
+						Model.of(assignment.getSortOrder())).add(
+								new AttributeModifier("name",
+										String.format("item_%s[current_order]", assignment.getId()))));
 			}
 		});
 	}

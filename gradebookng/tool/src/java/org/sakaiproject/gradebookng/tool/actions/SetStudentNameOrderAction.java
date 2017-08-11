@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
@@ -11,27 +10,27 @@ import java.io.Serializable;
 
 public class SetStudentNameOrderAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public SetStudentNameOrderAction() {
-    }
+	public SetStudentNameOrderAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final String orderParam = params.get("orderby").asText();
-        final GbStudentNameSortOrder nameSortOrder = GbStudentNameSortOrder.valueOf(orderParam.toUpperCase());
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final String orderParam = params.get("orderby").asText();
+		final GbStudentNameSortOrder nameSortOrder = GbStudentNameSortOrder.valueOf(orderParam.toUpperCase());
 
-        final GradebookPage gradebookPage = (GradebookPage)target.getPage();
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 
-        final GradebookUiSettings settings = gradebookPage.getUiSettings();
-        settings.setNameSortOrder(nameSortOrder);
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+		settings.setNameSortOrder(nameSortOrder);
 
-        // save settings
-        gradebookPage.setUiSettings(settings);
+		// save settings
+		gradebookPage.setUiSettings(settings);
 
-        // refresh the page
-        target.appendJavaScript("location.reload();");
+		// refresh the page
+		target.appendJavaScript("location.reload();");
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

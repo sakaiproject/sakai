@@ -259,7 +259,7 @@ public class GradebookNgBusinessService {
 			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 		} catch (final GradebookNotFoundException e) {
 			log.debug("Request made for inaccessible, adding gradebookUid=" + siteId);
-			this.gradebookFrameworkService.addGradebook(siteId,siteId);
+			this.gradebookFrameworkService.addGradebook(siteId, siteId);
 			try {
 				gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 			} catch (GradebookNotFoundException e2) {
@@ -368,7 +368,7 @@ public class GradebookNgBusinessService {
 
 		List<CategoryDefinition> rval = new ArrayList<>();
 
-		if(gradebook == null) {
+		if (gradebook == null) {
 			return rval;
 		}
 
@@ -519,12 +519,15 @@ public class GradebookNgBusinessService {
 		String oldGradeAdjusted = oldGrade;
 		String storedGradeAdjusted = storedGrade;
 
-		//Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same separator
+		// Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same
+		// separator
 		if (StringUtils.isNotBlank(oldGradeAdjusted)) {
-			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",", newGradeAdjusted.contains(",") ? "," : ".");
+			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
+					newGradeAdjusted.contains(",") ? "," : ".");
 		}
-		if(StringUtils.isNotBlank(storedGradeAdjusted)){
-			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",", newGradeAdjusted.contains(",") ? "," : ".");
+		if (StringUtils.isNotBlank(storedGradeAdjusted)) {
+			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
+					newGradeAdjusted.contains(",") ? "," : ".");
 		}
 
 		if (gradingType == GradingType.PERCENTAGE) {
@@ -660,7 +663,7 @@ public class GradebookNgBusinessService {
 	 * @param uiSettings the settings from the UI that wraps up preferences
 	 * @return
 	 *
-	 * TODO refactor this into a hierarchical method structure
+	 * 		TODO refactor this into a hierarchical method structure
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
@@ -703,8 +706,8 @@ public class GradebookNgBusinessService {
 		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
 		if (settings.getStudentSortOrder() != null) {
 
-			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ?
-					new FirstNameComparator() : new LastNameComparator();
+			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ? new FirstNameComparator()
+					: new LastNameComparator();
 
 			if (SortDirection.DESCENDING == settings.getStudentSortOrder()) {
 
@@ -1367,8 +1370,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the current site given the assignment name
-	 * This should be avoided where possible but is required for the import process to allow modification of assignment point values
+	 * Get an Assignment in the current site given the assignment name This should be avoided where possible but is required for the import
+	 * process to allow modification of assignment point values
 	 *
 	 * @param assignmentName
 	 * @return
@@ -1378,8 +1381,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the specified site given the assignment name
-	 * This should be avoided where possible but is required for the import process to allow modification of assignment point values
+	 * Get an Assignment in the specified site given the assignment name This should be avoided where possible but is required for the
+	 * import process to allow modification of assignment point values
 	 *
 	 * @param siteId
 	 * @param assignmentName
@@ -1570,7 +1573,6 @@ public class GradebookNgBusinessService {
 		return getAssignmentGradeComment(getCurrentSiteId(), assignmentId, studentUuid);
 	}
 
-
 	/**
 	 * Get the comment for a given student assignment grade
 	 *
@@ -1593,7 +1595,6 @@ public class GradebookNgBusinessService {
 		}
 		return null;
 	}
-
 
 	/**
 	 * Update (or set) the comment for a student's assignment
@@ -2017,9 +2018,9 @@ public class GradebookNgBusinessService {
 		}
 	}
 
-
 	/**
 	 * Helper to determine the icon class to use depending on the assignment external source
+	 * 
 	 * @param assignment
 	 * @return
 	 */
@@ -2036,9 +2037,9 @@ public class GradebookNgBusinessService {
 		return iconClass;
 	}
 
-
 	/**
 	 * Helper to determine the icon class for possible external app names
+	 * 
 	 * @return
 	 */
 	public Map<String, String> getIconClassMap() {
@@ -2058,7 +2059,6 @@ public class GradebookNgBusinessService {
 
 		return mapping;
 	}
-
 
 	public String getDefaultIconClass() {
 		return ICON_SAKAI + "default-tool fa fa-globe";

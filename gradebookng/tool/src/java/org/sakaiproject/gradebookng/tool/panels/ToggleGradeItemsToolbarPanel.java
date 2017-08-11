@@ -80,11 +80,10 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));
 				categoryFilter.add(categoryLabel);
 
-				categoryFilter.add(new WebMarkupContainer("categorySignal").
-					add(new AttributeModifier("style",
+				categoryFilter.add(new WebMarkupContainer("categorySignal").add(new AttributeModifier("style",
 						String.format("background-color: %s; border-color: %s",
-							settings.getCategoryColor(categoryName),
-							settings.getCategoryColor(categoryName)))));
+								settings.getCategoryColor(categoryName),
+								settings.getCategoryColor(categoryName)))));
 
 				final CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
 				categoryCheckbox.add(new AttributeModifier("value", categoryName));
@@ -105,9 +104,9 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 						final WebMarkupContainer assignmentSignal = new WebMarkupContainer("assignmentSignal");
 						if (settings.isCategoriesEnabled()) {
 							assignmentSignal.add(new AttributeModifier("style",
-								String.format("background-color: %s; border-color: %s",
-									settings.getCategoryColor(getCategoryName(assignment, categoriesEnabled)),
-									settings.getCategoryColor(getCategoryName(assignment, categoriesEnabled)))));
+									String.format("background-color: %s; border-color: %s",
+											settings.getCategoryColor(getCategoryName(assignment, categoriesEnabled)),
+											settings.getCategoryColor(getCategoryName(assignment, categoriesEnabled)))));
 						}
 						assignmentItem.add(assignmentSignal);
 
@@ -134,11 +133,10 @@ public class ToggleGradeItemsToolbarPanel extends BasePanel {
 				categoryScoreFilter.add(new Label("categoryScoreLabel",
 						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { categoryName })));
 
-				categoryScoreFilter.add(new WebMarkupContainer("categoryScoreSignal").
-					add(new AttributeModifier("style",
+				categoryScoreFilter.add(new WebMarkupContainer("categoryScoreSignal").add(new AttributeModifier("style",
 						String.format("background-color: %s; border-color: %s",
-							settings.getCategoryColor(categoryName),
-							settings.getCategoryColor(categoryName)))));
+								settings.getCategoryColor(categoryName),
+								settings.getCategoryColor(categoryName)))));
 
 				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox",
 						new Model<Boolean>(settings.isCategoryScoreVisible(categoryName))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))

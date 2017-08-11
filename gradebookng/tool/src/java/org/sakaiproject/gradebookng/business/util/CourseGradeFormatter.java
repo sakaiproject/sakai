@@ -123,7 +123,7 @@ public class CourseGradeFormatter {
 			// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
 			// TODO this should probably inform the instructor
 			Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
-			if(mappedGrade == null) {
+			if (mappedGrade == null) {
 				mappedGrade = new Double(0);
 			}
 			calculatedGrade = FormatHelper.formatGradeForDisplay(mappedGrade);
@@ -154,7 +154,7 @@ public class CourseGradeFormatter {
 				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
 				// handle the special case in the gradebook service where totalPointsPossible = -1
-				if(totalPointsPossible != null && totalPointsPossible == -1) {
+				if (totalPointsPossible != null && totalPointsPossible == -1) {
 					pointsEarned = null;
 					totalPointsPossible = null;
 				}
@@ -162,13 +162,15 @@ public class CourseGradeFormatter {
 				// if instructor, show the points if requested
 				// otherwise check the settings
 				if (shouldDisplayFullCourseGrade() || this.gradebook.isCoursePointsDisplayed()) {
-					if(pointsEarned != null && totalPointsPossible != null) {
+					if (pointsEarned != null && totalPointsPossible != null) {
 						final String pointsEarnedDisplayString = FormatHelper.formatGradeForDisplay(pointsEarned);
 						final String totalPointsPossibleDisplayString = FormatHelper.formatGradeForDisplay(totalPointsPossible);
 						if (parts.isEmpty()) {
-							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarnedDisplayString, totalPointsPossibleDisplayString));
+							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarnedDisplayString,
+									totalPointsPossibleDisplayString));
 						} else {
-							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarnedDisplayString, totalPointsPossibleDisplayString));
+							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarnedDisplayString,
+									totalPointsPossibleDisplayString));
 						}
 					}
 				}

@@ -203,26 +203,27 @@ public class ExportPanel extends BasePanel {
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 			}
 
-			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment
+			// from the map
 			final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 
 			// no assignments, give a template
-			if(assignments.isEmpty()) {
-				//with points
+			if (assignments.isEmpty()) {
+				// with points
 				header.add(String.join(" ", getString("importExport.export.csv.headers.example.points"), "[100]"));
 
 				// no points
 				header.add(getString("importExport.export.csv.headers.example.nopoints"));
 
-				//points and comments
-				header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"), "[50]"));
+				// points and comments
+				header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.pointscomments"),
+						"[50]"));
 
-				//ignore
+				// ignore
 				header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.example.ignore")));
 			}
 
-
-			//build column header
+			// build column header
 			assignments.forEach(assignment -> {
 				final String assignmentPoints = assignment.getPoints().toString();
 				if (!isCustomExport || this.includeGradeItemScores) {
@@ -251,13 +252,13 @@ public class ExportPanel extends BasePanel {
 			// get the grade matrix
 			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
 
-			//add grades
+			// add grades
 			grades.forEach(studentGradeInfo -> {
 				final List<String> line = new ArrayList<String>();
 				if (!isCustomExport || this.includeStudentId) {
 					line.add(studentGradeInfo.getStudentEid());
 				}
-				if (!isCustomExport ||this.includeStudentName) {
+				if (!isCustomExport || this.includeStudentName) {
 					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
 				}
 				if (isCustomExport && this.includeStudentNumber)

@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
@@ -14,28 +13,28 @@ import java.util.Map;
 
 public class ViewGradeLogAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public ViewGradeLogAction() {
-    }
+	public ViewGradeLogAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final String assignmentId = params.get("assignmentId").asText();
-        final String studentUuid = params.get("studentId").asText();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final String assignmentId = params.get("assignmentId").asText();
+		final String studentUuid = params.get("studentId").asText();
 
-        final Map<String, Object> model = new HashMap<>();
-        model.put("assignmentId", Long.valueOf(assignmentId));
-        model.put("studentUuid", studentUuid);
+		final Map<String, Object> model = new HashMap<>();
+		model.put("assignmentId", Long.valueOf(assignmentId));
+		model.put("studentUuid", studentUuid);
 
-        final GradebookPage gradebookPage = (GradebookPage) target.getPage();
-        final GbModalWindow window = gradebookPage.getGradeLogWindow();
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+		final GbModalWindow window = gradebookPage.getGradeLogWindow();
 
-        window.setAssignmentToReturnFocusTo(assignmentId);
-        window.setStudentToReturnFocusTo(studentUuid);
-        window.setContent(new GradeLogPanel(window.getContentId(), Model.ofMap(model), window));
-        window.show(target);
+		window.setAssignmentToReturnFocusTo(assignmentId);
+		window.setStudentToReturnFocusTo(studentUuid);
+		window.setContent(new GradeLogPanel(window.getContentId(), Model.ofMap(model), window));
+		window.show(target);
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

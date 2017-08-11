@@ -196,8 +196,8 @@ public class GradeStatisticsPanel extends BasePanel {
 
 		if (GradingType.PERCENTAGE.equals(this.gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
-				null,
-				new Object[] { averageFormatted })).getString();
+					null,
+					new Object[] { averageFormatted })).getString();
 		}
 
 		final Double total = assignment.getPoints();
@@ -214,8 +214,8 @@ public class GradeStatisticsPanel extends BasePanel {
 
 		if (GradingType.PERCENTAGE.equals(this.gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
-				null,
-				new Object[] { medianFormatted })).getString();
+					null,
+					new Object[] { medianFormatted })).getString();
 		}
 
 		final Double total = assignment.getPoints();
@@ -232,8 +232,8 @@ public class GradeStatisticsPanel extends BasePanel {
 
 		if (GradingType.PERCENTAGE.equals(this.gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
-				null,
-				new Object[] { lowestFormatted })).getString();
+					null,
+					new Object[] { lowestFormatted })).getString();
 		}
 
 		final Double total = assignment.getPoints();
@@ -250,8 +250,8 @@ public class GradeStatisticsPanel extends BasePanel {
 
 		if (GradingType.PERCENTAGE.equals(this.gradingType)) {
 			return (new StringResourceModel("label.percentage.valued",
-				null,
-				new Object[] { highestFormatted })).getString();
+					null,
+					new Object[] { highestFormatted })).getString();
 		}
 
 		final Double total = assignment.getPoints();
@@ -303,6 +303,6 @@ public class GradeStatisticsPanel extends BasePanel {
 
 	private boolean isExtraCredit(final Double grade, final Assignment assignment) {
 		return (GradingType.PERCENTAGE.equals(this.gradingType) && grade > 100) ||
-			(GradingType.POINTS.equals(this.gradingType) && grade > assignment.getPoints());
+				(GradingType.POINTS.equals(this.gradingType) && grade > assignment.getPoints());
 	}
 }

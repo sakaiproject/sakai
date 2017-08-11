@@ -35,12 +35,12 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final Map<String, Object> model = (Map<String, Object>)getDefaultModelObject();
-		final GradebookUiSettings settings = (GradebookUiSettings)model.get("settings");
+		final Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
+		final GradebookUiSettings settings = (GradebookUiSettings) model.get("settings");
 
 		// retrieve all categories, remove empty and ensure they're sorted
-		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories().
-				stream().filter(c -> !c.getAssignmentList().isEmpty()).collect(Collectors.toList());
+		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories().stream()
+				.filter(c -> !c.getAssignmentList().isEmpty()).collect(Collectors.toList());
 		Collections.sort(categories, CategoryDefinition.orderComparator);
 
 		add(new ListView<CategoryDefinition>("categoriesList", categories) {
@@ -51,7 +51,7 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 				Collections.sort(assignments, new CategorizedAssignmentComparator());
 
 				categoryItem.add(new AttributeModifier("style",
-					String.format("border-left-color: %s", settings.getCategoryColor(category.getName()))));
+						String.format("border-left-color: %s", settings.getCategoryColor(category.getName()))));
 				categoryItem.add(new Label("name", category.getName()));
 				categoryItem.add(new ListView<Assignment>("gradeItemList", assignments) {
 					@Override
@@ -59,17 +59,17 @@ public class SortGradeItemsByCategoryPanel extends Panel {
 						final Assignment assignment = assignmentItem.getModelObject();
 						assignmentItem.add(new Label("name", assignment.getName()));
 						assignmentItem.add(new HiddenField<Long>("id",
-							Model.of(assignment.getId())).
-							add(new AttributeModifier("name",
-								String.format("id", assignment.getId()))));
+								Model.of(assignment.getId())).add(
+										new AttributeModifier("name",
+												String.format("id", assignment.getId()))));
 						assignmentItem.add(new HiddenField<Integer>("order",
-							Model.of(assignment.getCategorizedSortOrder())).
-							add(new AttributeModifier("name",
-								String.format("item_%s[order]", assignment.getId()))));
+								Model.of(assignment.getCategorizedSortOrder())).add(
+										new AttributeModifier("name",
+												String.format("item_%s[order]", assignment.getId()))));
 						assignmentItem.add(new HiddenField<Integer>("current_order",
-							Model.of(assignment.getCategorizedSortOrder())).
-							add(new AttributeModifier("name",
-								String.format("item_%s[current_order]", assignment.getId()))));
+								Model.of(assignment.getCategorizedSortOrder())).add(
+										new AttributeModifier("name",
+												String.format("item_%s[current_order]", assignment.getId()))));
 					}
 				});
 			}

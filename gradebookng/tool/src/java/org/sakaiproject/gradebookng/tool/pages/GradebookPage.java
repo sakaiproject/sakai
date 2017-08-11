@@ -98,7 +98,7 @@ public class GradebookPage extends BasePage {
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
-		if(this.role == null) {
+		if (this.role == null) {
 			sendToAccessDeniedPage(getString("error.role"));
 		}
 
@@ -107,17 +107,17 @@ public class GradebookPage extends BasePage {
 			throw new RestartResponseException(StudentPage.class);
 		}
 
-		//TAs with no permissions or in a roleswap situation
-		if(this.role == GbRole.TA){
+		// TAs with no permissions or in a roleswap situation
+		if (this.role == GbRole.TA) {
 
-			//roleswapped?
-			if(this.businessService.isUserRoleSwapped()) {
+			// roleswapped?
+			if (this.businessService.isUserRoleSwapped()) {
 				sendToAccessDeniedPage(getString("ta.roleswapped"));
 			}
 
 			// no perms
 			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
-			if(this.permissions.isEmpty()) {
+			if (this.permissions.isEmpty()) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
 			}
 		}
@@ -205,7 +205,7 @@ public class GradebookPage extends BasePage {
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 		final List<String> students = this.businessService.getGradeableUsers();
 
-		hasAssignmentsAndGrades = !assignments.isEmpty() && !students.isEmpty(); 
+		hasAssignmentsAndGrades = !assignments.isEmpty() && !students.isEmpty();
 
 		// categories enabled?
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
@@ -229,12 +229,12 @@ public class GradebookPage extends BasePage {
 		toolbar.add(toggleGradeItemsToolbarItem);
 
 		gradeTable = new GbGradeTable("gradeTable",
-					      new LoadableDetachableModel() {
-						      @Override
-						      public GbGradeTableData load() {
-							      return new GbGradeTableData(businessService, settings);
-						      }
-					      });
+				new LoadableDetachableModel() {
+					@Override
+					public GbGradeTableData load() {
+						return new GbGradeTableData(businessService, settings);
+					}
+				});
 		gradeTable.addEventListener("setScore", new GradeUpdateAction());
 		gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
 		gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
@@ -310,20 +310,21 @@ public class GradebookPage extends BasePage {
 		// cater for the case where there is only one group visible to TA but they can see everyone.
 		if (this.role == GbRole.TA) {
 
-			//if only one group, hide the filter
+			// if only one group, hide the filter
 			if (groups.size() == 1) {
 				this.showGroupFilter = false;
 
 				// but need to double check permissions to see if we have any permissions with no group reference
 				this.permissions.forEach(p -> {
-					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
+					if (!StringUtils.equalsIgnoreCase(p.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())
+							&& StringUtils.isBlank(p.getGroupReference())) {
 						this.showGroupFilter = true;
 					}
 				});
 			}
 		}
 
-		if(!this.showGroupFilter) {
+		if (!this.showGroupFilter) {
 			toolbar.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
 		} else {
 			toolbar.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
@@ -391,9 +392,9 @@ public class GradebookPage extends BasePage {
 		togglePanelModel.put("settings", settings);
 		togglePanelModel.put("categoriesEnabled", categoriesEnabled);
 
-		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel =
-			new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", Model.ofMap(togglePanelModel));
-		//gradeItemsTogglePanel.setVisible(false);
+		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel",
+				Model.ofMap(togglePanelModel));
+		// gradeItemsTogglePanel.setVisible(false);
 		add(gradeItemsTogglePanel);
 
 		this.form.add(new WebMarkupContainer("captionToggle").setVisible(this.hasAssignmentsAndGrades));
@@ -406,7 +407,6 @@ public class GradebookPage extends BasePage {
 
 		stopwatch.time("Gradebook page done", stopwatch.getTime());
 	}
-
 
 	/**
 	 * Getters for panels to get at modal windows
@@ -488,15 +488,15 @@ public class GradebookPage extends BasePage {
 
 		// tablesorted used by student grade summary
 		response.render(CssHeaderItem
-			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/css/theme.bootstrap.min.css?version=%s", version)));
+				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/css/theme.bootstrap.min.css?version=%s", version)));
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.min.js?version=%s", version)));
+				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.min.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.widgets.min.js?version=%s", version)));
+				.forUrl(String.format("/library/js/jquery/tablesorter/2.27.7/js/jquery.tablesorter.widgets.min.js?version=%s", version)));
 
 		// GradebookNG Grade specific styles and behaviour
 		response.render(CssHeaderItem
-			.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
+				.forUrl(String.format("/gradebookng-tool/styles/gradebook-grades.css?version=%s", version)));
 		response.render(CssHeaderItem
 				.forUrl(String.format("/gradebookng-tool/styles/gradebook-gbgrade-table.css?version=%s", version)));
 		response.render(CssHeaderItem
@@ -510,15 +510,15 @@ public class GradebookPage extends BasePage {
 		response.render(JavaScriptHeaderItem
 				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-sorter.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
+				.forUrl(String.format("/gradebookng-tool/scripts/gradebook-connection-poll.js?version=%s", version)));
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		if (!focusAssignmentId.isNull()) {
 			getPageParameters().remove(FOCUS_ASSIGNMENT_ID_PARAM);
 			response.render(JavaScriptHeaderItem
-				.forScript(
-					String.format("GbGradeTable.focusColumnForAssignmentId(%s)", focusAssignmentId.toString()),
-					null));
+					.forScript(
+							String.format("GbGradeTable.focusColumnForAssignmentId(%s)", focusAssignmentId.toString()),
+							null));
 		}
 	}
 

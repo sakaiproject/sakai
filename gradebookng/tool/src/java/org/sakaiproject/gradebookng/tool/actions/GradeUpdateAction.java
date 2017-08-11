@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import java.io.Serializable;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,168 +24,171 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class GradeUpdateAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-    private GradebookNgBusinessService businessService;
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
-    public GradeUpdateAction() {
-    }
+	public GradeUpdateAction() {
+	}
 
-    private class GradeUpdateResponse implements ActionResponse {
-        private String courseGrade;
-        private String points;
-        private String categoryScore;
-        private boolean isOverride;
-        private boolean extraCredit;
+	private class GradeUpdateResponse implements ActionResponse {
+		private String courseGrade;
+		private String points;
+		private String categoryScore;
+		private boolean isOverride;
+		private boolean extraCredit;
 
-        public GradeUpdateResponse(final boolean extraCredit, final String courseGrade, final String points, final boolean isOverride, final String categoryScore) {
-            this.courseGrade = courseGrade;
-            this.categoryScore = categoryScore;
-            this.points = points;
-            this.isOverride = isOverride;
-            this.extraCredit = extraCredit;
-        }
+		public GradeUpdateResponse(final boolean extraCredit, final String courseGrade, final String points, final boolean isOverride,
+				final String categoryScore) {
+			this.courseGrade = courseGrade;
+			this.categoryScore = categoryScore;
+			this.points = points;
+			this.isOverride = isOverride;
+			this.extraCredit = extraCredit;
+		}
 
-        public String getStatus() {
-            return "OK";
-        }
+		public String getStatus() {
+			return "OK";
+		}
 
-        public String toJson() {
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectNode result = mapper.createObjectNode();
+		public String toJson() {
+			ObjectMapper mapper = new ObjectMapper();
+			ObjectNode result = mapper.createObjectNode();
 
-            ArrayNode courseGradeArray = mapper.createArrayNode();
-            courseGradeArray.add(courseGrade);
-            courseGradeArray.add(points);
-            courseGradeArray.add(isOverride ? 1 : 0);
+			ArrayNode courseGradeArray = mapper.createArrayNode();
+			courseGradeArray.add(courseGrade);
+			courseGradeArray.add(points);
+			courseGradeArray.add(isOverride ? 1 : 0);
 
-            result.put("courseGrade", courseGradeArray);
-            result.put("categoryScore", categoryScore);
-            result.put("extraCredit", extraCredit);
+			result.put("courseGrade", courseGradeArray);
+			result.put("categoryScore", categoryScore);
+			result.put("extraCredit", extraCredit);
 
-            return result.toString();
-        }
-    }
+			return result.toString();
+		}
+	}
 
-    private class SaveGradeErrorResponse implements ActionResponse {
-        private GradeSaveResponse serverResponse;
-        public SaveGradeErrorResponse(GradeSaveResponse serverResponse) {
-            this.serverResponse = serverResponse;
-        }
+	private class SaveGradeErrorResponse implements ActionResponse {
+		private GradeSaveResponse serverResponse;
 
-        public String getStatus() {
-            return "error";
-        }
+		public SaveGradeErrorResponse(GradeSaveResponse serverResponse) {
+			this.serverResponse = serverResponse;
+		}
 
-        public String toJson() {
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectNode result = mapper.createObjectNode();
+		public String getStatus() {
+			return "error";
+		}
 
-            result.put("msg", serverResponse.toString());
+		public String toJson() {
+			ObjectMapper mapper = new ObjectMapper();
+			ObjectNode result = mapper.createObjectNode();
 
-            return result.toString();
-        }
-    }
+			result.put("msg", serverResponse.toString());
 
-    private class SaveGradeNoChangeResponse extends EmptyOkResponse {
-        public SaveGradeNoChangeResponse() {
-        }
+			return result.toString();
+		}
+	}
 
-        @Override
-        public String getStatus() {
-            return "nochange";
-        }
-    }
+	private class SaveGradeNoChangeResponse extends EmptyOkResponse {
+		public SaveGradeNoChangeResponse() {
+		}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final GradebookPage page = (GradebookPage) target.getPage();
+		@Override
+		public String getStatus() {
+			return "nochange";
+		}
+	}
 
-        // clear the feedback message at the top of the page
-        target.addChildren(page, FeedbackPanel.class);
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final GradebookPage page = (GradebookPage) target.getPage();
 
-        final String rawOldGrade = params.get("oldScore").textValue();
-        final String rawNewGrade = params.get("newScore").textValue();
+		// clear the feedback message at the top of the page
+		target.addChildren(page, FeedbackPanel.class);
 
-        if (StringUtils.isNotBlank(rawNewGrade) && (!FormatHelper.isValidDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
-            target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+		final String rawOldGrade = params.get("oldScore").textValue();
+		final String rawNewGrade = params.get("newScore").textValue();
 
-            return new ArgumentErrorResponse("Grade not valid");
-        }
+		if (StringUtils.isNotBlank(rawNewGrade)
+				&& (!FormatHelper.isValidDouble(rawNewGrade) || FormatHelper.validateDouble(rawNewGrade) < 0)) {
+			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
 
-        final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
-        final String newGrade = FormatHelper.formatGradeFromUserLocale(rawNewGrade);
+			return new ArgumentErrorResponse("Grade not valid");
+		}
 
-        final String assignmentId = params.get("assignmentId").asText();
-        final String studentUuid = params.get("studentId").asText();
-        final String categoryId = params.has("categoryId") ? params.get("categoryId").asText() : null;
+		final String oldGrade = FormatHelper.formatGradeFromUserLocale(rawOldGrade);
+		final String newGrade = FormatHelper.formatGradeFromUserLocale(rawNewGrade);
 
-        // We don't pass the comment from the use interface,
-        // but the service needs it otherwise it will assume 'null'
-        // so pull it back from the service and poke it in there!
-        final String comment = businessService.getAssignmentGradeComment(Long.valueOf(assignmentId), studentUuid);
+		final String assignmentId = params.get("assignmentId").asText();
+		final String studentUuid = params.get("studentId").asText();
+		final String categoryId = params.has("categoryId") ? params.get("categoryId").asText() : null;
 
-        // for concurrency, get the original grade we have in the UI and pass it into the service as a check
-        final GradeSaveResponse result = businessService.saveGrade(Long.valueOf(assignmentId),
-                                                                   studentUuid,
-                                                                   oldGrade,
-                                                                   newGrade,
-                                                                   comment);
+		// We don't pass the comment from the use interface,
+		// but the service needs it otherwise it will assume 'null'
+		// so pull it back from the service and poke it in there!
+		final String comment = businessService.getAssignmentGradeComment(Long.valueOf(assignmentId), studentUuid);
 
-        if (result.equals(GradeSaveResponse.NO_CHANGE)) {
-            target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
+		// for concurrency, get the original grade we have in the UI and pass it into the service as a check
+		final GradeSaveResponse result = businessService.saveGrade(Long.valueOf(assignmentId),
+				studentUuid,
+				oldGrade,
+				newGrade,
+				comment);
 
-            return new SaveGradeNoChangeResponse();
-        }
+		if (result.equals(GradeSaveResponse.NO_CHANGE)) {
+			target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
 
-        if (!result.equals(GradeSaveResponse.OK) && !result.equals(GradeSaveResponse.OVER_LIMIT)) {
-            target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
+			return new SaveGradeNoChangeResponse();
+		}
 
-            return new SaveGradeErrorResponse(result);
-        }
+		if (!result.equals(GradeSaveResponse.OK) && !result.equals(GradeSaveResponse.OVER_LIMIT)) {
+			target.add(page.updateLiveGradingMessage(page.getString("feedback.error")));
 
-        final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
+			return new SaveGradeErrorResponse(result);
+		}
 
-        boolean isOverride = false;
-        String grade = "-";
-        String points = "0";
+		final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
 
-        if (studentCourseGrade != null) {
-            final GradebookUiSettings uiSettings = page.getUiSettings();
-            final Gradebook gradebook = businessService.getGradebook();
-            final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-                gradebook,
-                page.getCurrentRole(),
-                businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
-                uiSettings.getShowPoints(),
-                true);
+		boolean isOverride = false;
+		String grade = "-";
+		String points = "0";
 
-            grade = courseGradeFormatter.format(studentCourseGrade);
-            if (studentCourseGrade.getPointsEarned() != null) {
-                points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
-            }
-            if (studentCourseGrade.getEnteredGrade() != null) {
-                isOverride = true;
-            }
-        }
+		if (studentCourseGrade != null) {
+			final GradebookUiSettings uiSettings = page.getUiSettings();
+			final Gradebook gradebook = businessService.getGradebook();
+			final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+					gradebook,
+					page.getCurrentRole(),
+					businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
+					uiSettings.getShowPoints(),
+					true);
 
-        String categoryScore = "-";
+			grade = courseGradeFormatter.format(studentCourseGrade);
+			if (studentCourseGrade.getPointsEarned() != null) {
+				points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
+			}
+			if (studentCourseGrade.getEnteredGrade() != null) {
+				isOverride = true;
+			}
+		}
 
-        if (categoryId != null) {
-            final Double average = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
-            if (average != null) {
-                categoryScore = FormatHelper.formatDoubleToDecimal(average);
-            }
-        }
+		String categoryScore = "-";
 
-        target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
+		if (categoryId != null) {
+			final Double average = businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid);
+			if (average != null) {
+				categoryScore = FormatHelper.formatDoubleToDecimal(average);
+			}
+		}
 
-        return new GradeUpdateResponse(
-            result.equals(GradeSaveResponse.OVER_LIMIT),
-            grade,
-            points,
-            isOverride,
-            categoryScore);
-    }
+		target.add(page.updateLiveGradingMessage(page.getString("feedback.saved")));
+
+		return new GradeUpdateResponse(
+				result.equals(GradeSaveResponse.OVER_LIMIT),
+				grade,
+				points,
+				isOverride,
+				categoryScore);
+	}
 }

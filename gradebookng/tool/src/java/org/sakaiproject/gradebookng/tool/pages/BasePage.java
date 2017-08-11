@@ -197,17 +197,17 @@ public class BasePage extends WebPage {
 		// Shared JavaScript and stylesheets
 		// Force Wicket to use Sakai's version of jQuery
 		response.render(
-			new PriorityHeaderItem(
-				JavaScriptHeaderItem
-					.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+				new PriorityHeaderItem(
+						JavaScriptHeaderItem
+								.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
 		// And pair this instance of jQuery with a Bootstrap version we've tested with
 		response.render(
-			new PriorityHeaderItem(
-				JavaScriptHeaderItem
-					.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
+				new PriorityHeaderItem(
+						JavaScriptHeaderItem
+								.forUrl(String.format("/library/webjars/bootstrap/3.3.7/js/bootstrap.min.js?version=%s", version))));
 		// Some global gradebookng styles
 		response.render(CssHeaderItem
-			.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
+				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
 
 	}
 
@@ -262,9 +262,10 @@ public class BasePage extends WebPage {
 
 	/**
 	 * Send a user to the access denied page with a message
+	 * 
 	 * @param message the message
 	 */
-	public void sendToAccessDeniedPage(final String message){
+	public void sendToAccessDeniedPage(final String message) {
 		final PageParameters params = new PageParameters();
 		params.add("message", message);
 		log.debug("Redirecting to AccessDeniedPage: " + message);

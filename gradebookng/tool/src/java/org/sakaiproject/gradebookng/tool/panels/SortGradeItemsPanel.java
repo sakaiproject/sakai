@@ -40,7 +40,7 @@ public class SortGradeItemsPanel extends Panel {
 
 		final List tabs = new ArrayList();
 
-		final Map<String, Object> model = (Map<String, Object>)getDefaultModelObject();
+		final Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
 		final boolean categoriesEnabled = (boolean) model.get("categoriesEnabled");
 
 		final Form<Void> form = new Form<>("form");
@@ -56,7 +56,7 @@ public class SortGradeItemsPanel extends Panel {
 				Map<Long, Integer> updates = new HashMap<>();
 				boolean error = false;
 
-				for (int i=0; i<ids.length; i++) {
+				for (int i = 0; i < ids.length; i++) {
 					String id = ids[i];
 					String order = request.getParameter(String.format("item_%s[order]", id));
 					String current = request.getParameter(String.format("item_%s[current_order]", id));
@@ -91,7 +91,7 @@ public class SortGradeItemsPanel extends Panel {
 
 				if (error) {
 					getSession().error(getString("sortgradeitems.error"));
-				} else if (byCategory){
+				} else if (byCategory) {
 					getSession().info(getString("sortgradeitems.success.bycategory"));
 				} else if (byItem) {
 					getSession().info(getString("sortgradeitems.success.byitem"));
@@ -105,7 +105,7 @@ public class SortGradeItemsPanel extends Panel {
 			tabs.add(new AbstractTab(new Model<String>(getString("sortgradeitems.bycategory"))) {
 				@Override
 				public Panel getPanel(final String panelId) {
-					return new SortGradeItemsByCategoryPanel(panelId, (IModel<Map<String, Object>>)getDefaultModel());
+					return new SortGradeItemsByCategoryPanel(panelId, (IModel<Map<String, Object>>) getDefaultModel());
 				}
 			});
 

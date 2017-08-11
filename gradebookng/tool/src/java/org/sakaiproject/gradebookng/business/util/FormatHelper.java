@@ -45,26 +45,25 @@ public class FormatHelper {
 
 	private static BigDecimal convertDoubleToBigDecimal(final Double score, final int decimalPlaces) {
 		// Rounding is problematic due to the use of Doubles in
-		// Gradebook.  A number like 89.065 (which can be produced by
+		// Gradebook. A number like 89.065 (which can be produced by
 		// weighted categories, for example) is stored as the double
-		// 89.06499999999999772626324556767940521240234375.  If you
+		// 89.06499999999999772626324556767940521240234375. If you
 		// naively round this to two decimal places, you get 89.06 when
 		// you wanted 89.07
 		//
 		// Payten devised a clever trick of rounding to some larger
 		// decimal places first, which rounds these numbers up to
-		// something more manageable.  For example, if you round the
+		// something more manageable. For example, if you round the
 		// above to 10 places, you get 89.0650000000, which rounds
 		// correctly when rounded up to 2 places.
 
 		return new BigDecimal(score)
-			.setScale(10, RoundingMode.HALF_UP)
-			.setScale(decimalPlaces, RoundingMode.HALF_UP);
+				.setScale(10, RoundingMode.HALF_UP)
+				.setScale(decimalPlaces, RoundingMode.HALF_UP);
 	}
 
 	/**
-	 * Convert a double score to match the number of decimal places exhibited in the
-	 * toMatch string representation of a number
+	 * Convert a double score to match the number of decimal places exhibited in the toMatch string representation of a number
 	 *
 	 * @param score as a double
 	 * @param toMatch the number as a string
@@ -107,8 +106,7 @@ public class FormatHelper {
 	}
 
 	/**
-	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25
-	 * based on the root locale
+	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25 based on the root locale
 	 *
 	 * @param grade
 	 * @return
@@ -117,10 +115,8 @@ public class FormatHelper {
 		return formatGradeForLocale(grade, Locale.ROOT);
 	}
 
-
 	/**
-	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25
-	 * based on the user's locale
+	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25 based on the user's locale
 	 *
 	 * @param grade - string representation of a grade
 	 * @return

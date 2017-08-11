@@ -19,12 +19,12 @@ public class ErrorPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public ErrorPage(final Exception e) {
-		
+
 		final String stacktrace = ExceptionUtils.getStackTrace(e);
-		
-		//log the stacktrace
+
+		// log the stacktrace
 		log.error(stacktrace);
-		
+
 		// generate an error code so we can log the exception with it without giving the user the stacktrace
 		// note that wicket will already have logged the stacktrace so we aren't going to bother logging it again
 		final String code = RandomStringUtils.randomAlphanumeric(10);

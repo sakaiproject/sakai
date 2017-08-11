@@ -15,8 +15,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.StandardEntityCollection;
 
 /**
- * Renders a {@link NonCachingImage} via JFreeChart using the {@link JFreeChart} data supplied as the model.
- * Attach this to an img tag
+ * Renders a {@link NonCachingImage} via JFreeChart using the {@link JFreeChart} data supplied as the model. Attach this to an img tag
  */
 public class JFreeChartImageWithToolTip extends NonCachingImage {
 
@@ -28,6 +27,7 @@ public class JFreeChartImageWithToolTip extends NonCachingImage {
 
 	/**
 	 * Build the chart
+	 * 
 	 * @param id wicket id
 	 * @param model data as {@link IModel} of type {@link JFreeChart}
 	 * @param imageMapId HTML id of the tooltip connected via the usemap attribute in the HTML tag
@@ -85,4 +85,3 @@ public class JFreeChartImageWithToolTip extends NonCachingImage {
 		replaceComponentTagBody(markupStream, openTag, ChartUtilities.getImageMap(this.imageMapId, this.chartRenderingInfo));
 	}
 }
-

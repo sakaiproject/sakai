@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
@@ -12,27 +11,27 @@ import java.io.Serializable;
 
 public class DeleteAssignmentAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public DeleteAssignmentAction() {
-    }
+	public DeleteAssignmentAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final String assignmentId = params.get("assignmentId").asText();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final String assignmentId = params.get("assignmentId").asText();
 
-        final GradebookPage gradebookPage = (GradebookPage)target.getPage();
-        final GbModalWindow window = gradebookPage.getDeleteItemWindow();
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+		final GbModalWindow window = gradebookPage.getDeleteItemWindow();
 
-        window.setTitle(gradebookPage.getString("delete.label"));
-        window.setAssignmentToReturnFocusTo(assignmentId);
-        window.setContent(new DeleteItemPanel(
-            window.getContentId(),
-            Model.of(Long.valueOf(assignmentId)),
-            window));
-        window.showUnloadConfirmation(false);
-        window.show(target);
+		window.setTitle(gradebookPage.getString("delete.label"));
+		window.setAssignmentToReturnFocusTo(assignmentId);
+		window.setContent(new DeleteItemPanel(
+				window.getContentId(),
+				Model.of(Long.valueOf(assignmentId)),
+				window));
+		window.showUnloadConfirmation(false);
+		window.show(target);
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

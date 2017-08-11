@@ -66,5 +66,4 @@ public class ImportWizardModel implements Serializable {
 	@Setter
 	private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
-
 }

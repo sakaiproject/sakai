@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
@@ -12,31 +11,31 @@ import java.io.Serializable;
 
 public class SetScoreForUngradedAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public SetScoreForUngradedAction() {
-    }
+	public SetScoreForUngradedAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final String assignmentId = params.get("assignmentId").asText();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final String assignmentId = params.get("assignmentId").asText();
 
-        final GradebookPage gradebookPage = (GradebookPage)target.getPage();
-        final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
-        final UpdateUngradedItemsPanel panel = new UpdateUngradedItemsPanel(
-            window.getContentId(),
-            Model.of(Long.valueOf(assignmentId)),
-            window);
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+		final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
+		final UpdateUngradedItemsPanel panel = new UpdateUngradedItemsPanel(
+				window.getContentId(),
+				Model.of(Long.valueOf(assignmentId)),
+				window);
 
-        window.setTitle(gradebookPage.getString("heading.updateungradeditems"));
-        window.setAssignmentToReturnFocusTo(assignmentId);
-        window.setContent(panel);
-        window.showUnloadConfirmation(false);
-        window.show(target);
+		window.setTitle(gradebookPage.getString("heading.updateungradeditems"));
+		window.setAssignmentToReturnFocusTo(assignmentId);
+		window.setContent(panel);
+		window.showUnloadConfirmation(false);
+		window.show(target);
 
-        panel.setOutputMarkupId(true);
-        target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + panel.getMarkupId() + "\"));");
+		panel.setOutputMarkupId(true);
+		target.appendJavaScript("new GradebookUpdateUngraded($(\"#" + panel.getMarkupId() + "\"));");
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

@@ -14,17 +14,16 @@ public class AccessDeniedPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	private String message;
-	
+
 	public AccessDeniedPage(PageParameters params) {
 		this.message = params.get("message").toString();
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-	
+
 		add(new Label("message", this.message));
 	}
 
-	
 }

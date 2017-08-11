@@ -148,7 +148,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 						if (success) {
 							getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
 							setResponsePage(getPage().getPageClass(),
-								new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
+									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
 						} else {
 							error(new ResourceModel("message.edititem.error").getObject());
 							target.addChildren(form, FeedbackPanel.class);
@@ -230,9 +230,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		}
 	}
 
-	private void setISODates(){
+	private void setISODates() {
 		String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
-		if(DateFormatterUtil.isValidISODate(dueDateString)){
+		if (DateFormatterUtil.isValidISODate(dueDateString)) {
 			dueDate = DateFormatterUtil.parseISODate(dueDateString);
 		}
 	}

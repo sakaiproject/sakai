@@ -29,7 +29,8 @@ public class ImportExportPage extends BasePage {
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
 
 		// Include Sakai Date Picker
-		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+		response.render(
+				JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/library/js/lang-datepicker/lang-datepicker.js?version=%s", version)));
 
 		// Gradebook Import/Export styles

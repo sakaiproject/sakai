@@ -101,7 +101,8 @@ public class SettingsPage extends BasePage {
 						}
 
 						// ensure we don't have drop highest and keep highest at the same time
-						if((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0) || (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
+						if ((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)
+								|| (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
 							error(getString("settingspage.update.failure.categorydropkeepenabled"));
 						}
 
@@ -163,7 +164,7 @@ public class SettingsPage extends BasePage {
 					getSession().error(getString("settingspage.update.failure.gradingschemamapping"));
 					responsePage = getPage();
 				} catch (final Exception e) {
-					//catch all to prevent stacktraces
+					// catch all to prevent stacktraces
 					getSession().error(e.getMessage());
 					responsePage = getPage();
 				}
@@ -219,7 +220,7 @@ public class SettingsPage extends BasePage {
 
 		// Drag and Drop (requires jQueryUI)
 		response.render(JavaScriptHeaderItem
-			.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+				.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
 		response.render(

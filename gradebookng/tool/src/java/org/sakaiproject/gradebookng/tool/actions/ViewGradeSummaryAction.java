@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -20,53 +19,53 @@ import java.util.Map;
 
 public class ViewGradeSummaryAction extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-    private GradebookNgBusinessService businessService;
+	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
-    public ViewGradeSummaryAction() {
-    }
+	public ViewGradeSummaryAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final String studentUuid = params.get("studentId").asText();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final String studentUuid = params.get("studentId").asText();
 
-        final GradebookUiSettings settings = ((GradebookPage) target.getPage()).getUiSettings();
+		final GradebookUiSettings settings = ((GradebookPage) target.getPage()).getUiSettings();
 
-        final GbUser student = businessService.getUser(studentUuid);
+		final GbUser student = businessService.getUser(studentUuid);
 
-        final Map<String, Object> model = new HashMap<>();
-        model.put("studentUuid", studentUuid);
-        model.put("groupedByCategoryByDefault", settings.isCategoriesEnabled());
+		final Map<String, Object> model = new HashMap<>();
+		model.put("studentUuid", studentUuid);
+		model.put("groupedByCategoryByDefault", settings.isCategoriesEnabled());
 
-        final GradebookPage gradebookPage = (GradebookPage) target.getPage();
-        final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+		final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
 
-        final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(model), window);
+		final Component content = new StudentGradeSummaryPanel(window.getContentId(), Model.ofMap(model), window);
 
-        if (window.isShown() && window.isVisible()) {
-            window.replace(content);
-            content.setVisible(true);
-            target.add(content);
-        } else {
-            window.setContent(content);
-            window.show(target);
-        }
+		if (window.isShown() && window.isVisible()) {
+			window.replace(content);
+			content.setVisible(true);
+			target.add(content);
+		} else {
+			window.setContent(content);
+			window.show(target);
+		}
 
-        window.setStudentToReturnFocusTo(studentUuid);
-        content.setOutputMarkupId(true);
+		window.setStudentToReturnFocusTo(studentUuid);
+		content.setOutputMarkupId(true);
 
-        final String modalTitle = (new StringResourceModel("heading.studentsummary",
-            null, new Object[]{student.getDisplayName(), student.getDisplayId()})).getString();
+		final String modalTitle = (new StringResourceModel("heading.studentsummary",
+				null, new Object[] { student.getDisplayName(), student.getDisplayId() })).getString();
 
-        window.setTitle(modalTitle);
-        window.show(target);
+		window.setTitle(modalTitle);
+		window.show(target);
 
-        target.appendJavaScript(String.format(
-            "new GradebookGradeSummary($(\"#%s\"), false, \"%s\");",
-            content.getMarkupId(), modalTitle));
+		target.appendJavaScript(String.format(
+				"new GradebookGradeSummary($(\"#%s\"), false, \"%s\");",
+				content.getMarkupId(), modalTitle));
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

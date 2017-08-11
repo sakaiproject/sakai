@@ -133,7 +133,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 			@Override
 			public boolean isVisible() {
 				return !gradebook.isCourseGradeDisplayed()
-					&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
+						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
 			}
 		});
 
@@ -141,7 +141,7 @@ public class InstructorGradeSummaryGradesPanel extends BasePanel {
 			@Override
 			public boolean isVisible() {
 				return !gradebook.isCourseGradeDisplayed()
-					&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
+						&& (GbRole.INSTRUCTOR.equals(userRole) || GbRole.TA.equals(userRole) && isCourseGradeVisible);
 			}
 		});
 

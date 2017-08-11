@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -11,40 +10,40 @@ import java.io.Serializable;
 
 public class MoveAssignmentLeftAction extends MoveAssignmentAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public MoveAssignmentLeftAction() {
-    }
+	public MoveAssignmentLeftAction() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 
-        final Long assignmentId = Long.valueOf(params.get("assignmentId").asText());
+		final Long assignmentId = Long.valueOf(params.get("assignmentId").asText());
 
-        GradebookUiSettings settings = gradebookPage.getUiSettings();
+		GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-        if (settings == null) {
-            settings = new GradebookUiSettings();
-            gradebookPage.setUiSettings(settings);
-        }
+		if (settings == null) {
+			settings = new GradebookUiSettings();
+			gradebookPage.setUiSettings(settings);
+		}
 
-        if (settings.isCategoriesEnabled() && settings.isGroupedByCategory()) {
-            try {
-                final Integer order = calculateCurrentCategorizedSortOrder(assignmentId);
-                MoveAssignmentLeftAction.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
-                    (order.intValue() - 1));
-            } catch (final Exception e) {
-                return new ArgumentErrorResponse("Error reordering within category: " + e.getMessage());
-            }
-        } else {
-            final int order = MoveAssignmentLeftAction.this.businessService.getAssignmentSortOrder(assignmentId.longValue());
-            MoveAssignmentLeftAction.this.businessService.updateAssignmentOrder(assignmentId.longValue(), (order - 1));
-        }
+		if (settings.isCategoriesEnabled() && settings.isGroupedByCategory()) {
+			try {
+				final Integer order = calculateCurrentCategorizedSortOrder(assignmentId);
+				MoveAssignmentLeftAction.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
+						(order.intValue() - 1));
+			} catch (final Exception e) {
+				return new ArgumentErrorResponse("Error reordering within category: " + e.getMessage());
+			}
+		} else {
+			final int order = MoveAssignmentLeftAction.this.businessService.getAssignmentSortOrder(assignmentId.longValue());
+			MoveAssignmentLeftAction.this.businessService.updateAssignmentOrder(assignmentId.longValue(), (order - 1));
+		}
 
-        // refresh the page
-        target.appendJavaScript("location.reload();");
+		// refresh the page
+		target.appendJavaScript("location.reload();");
 
-        return new EmptyOkResponse();
-    }
+		return new EmptyOkResponse();
+	}
 }

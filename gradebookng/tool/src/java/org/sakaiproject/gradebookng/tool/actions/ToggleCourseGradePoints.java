@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.actions;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -10,31 +9,31 @@ import java.io.Serializable;
 
 public class ToggleCourseGradePoints extends InjectableAction implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public ToggleCourseGradePoints() {
-    }
+	public ToggleCourseGradePoints() {
+	}
 
-    @Override
-    public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
-        final GradebookPage gradebookPage = (GradebookPage) target.getPage();
+	@Override
+	public ActionResponse handleEvent(final JsonNode params, final AjaxRequestTarget target) {
+		final GradebookPage gradebookPage = (GradebookPage) target.getPage();
 
-        // get current settings
-        final GradebookUiSettings settings = gradebookPage.getUiSettings();
-        final Boolean currentSetting = settings.getShowPoints();
+		// get current settings
+		final GradebookUiSettings settings = gradebookPage.getUiSettings();
+		final Boolean currentSetting = settings.getShowPoints();
 
-        // toggle it
-        final Boolean nextSetting = !currentSetting;
+		// toggle it
+		final Boolean nextSetting = !currentSetting;
 
-        // set it
-        settings.setShowPoints(nextSetting);
+		// set it
+		settings.setShowPoints(nextSetting);
 
-        // save settings
-        gradebookPage.setUiSettings(settings);
-        
-        // refresh the page
-        target.appendJavaScript("location.reload();");
+		// save settings
+		gradebookPage.setUiSettings(settings);
 
-        return new EmptyOkResponse();
-    }
+		// refresh the page
+		target.appendJavaScript("location.reload();");
+
+		return new EmptyOkResponse();
+	}
 }
