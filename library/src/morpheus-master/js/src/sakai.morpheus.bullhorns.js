@@ -285,6 +285,9 @@
             $PBJQ.ajax({
                 url: '/direct/portal/bullhornCounts.json',
                 cache: false,
+                data: {
+                    auto: true // indicates that this request is not a user action
+                }
                 }).done(function (data) {
 
                     portal.failedBullhornCounts = 0;
