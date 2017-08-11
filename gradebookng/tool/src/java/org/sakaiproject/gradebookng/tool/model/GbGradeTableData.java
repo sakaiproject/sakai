@@ -42,7 +42,6 @@ public class GbGradeTableData {
         try {
             role = businessService.getUserRole();
         } catch (GbAccessDeniedException e) {
-            // FIXME handle with error message?
             throw new RuntimeException(e);
         }
 
