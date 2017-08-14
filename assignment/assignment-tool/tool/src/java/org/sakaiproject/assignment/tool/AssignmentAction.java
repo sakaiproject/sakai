@@ -5251,7 +5251,7 @@ public class AssignmentAction extends PagedResourceActionII
 							while (submissions.hasNext())
 							{
 								AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
-								if (aSubmission.getGrade(false) != null) {
+								if (StringUtils.isNotBlank(aSubmission.getGrade())) {
 									User[] submitters = aSubmission.getSubmitters().stream().map(u -> {
 										try {
 											return userDirectoryService.getUser(u.getSubmitter());
@@ -9862,7 +9862,7 @@ public class AssignmentAction extends PagedResourceActionII
 			//set the page to go to
 			state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentId);
 			String submissionId = null;
-			List<PeerAssessmentItem> peerAssessmentItems = assignmentPeerAssessmentService.getPeerAssessmentItems(a.getId(), userDirectoryService.getCurrentUser().getId(), a.getContent().getFactor());
+			List<PeerAssessmentItem> peerAssessmentItems = assignmentPeerAssessmentService.getPeerAssessmentItems(a.getId(), userDirectoryService.getCurrentUser().getId(), a.getScaleFactor());
 			state.setAttribute(PEER_ASSESSMENT_ITEMS, peerAssessmentItems);
 			List<String> submissionIds = new ArrayList<String>();
 			if(peerAssessmentItems != null){
@@ -11460,7 +11460,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 		try {
 		    Assignment assignment = assignmentService.getAssignment(assignmentRef);
-		    if (assignment.isGroup()) {
+		    if (assignment.getIsGroup()) {
 		        String[] groupChoice = params.getStrings("selectedGroups");
 		        if (groupChoice != null && groupChoice.length != 0) 
 		        {
@@ -12007,8 +12007,8 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, closeHour);
 			int closeMin = Integer.valueOf(params.getString(ALLOW_RESUBMIT_CLOSEMIN));
 			state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, closeMin);
-			resubmitCloseTime = Instant.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-			state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(resubmitCloseTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()));
+			resubmitCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).toInstant(ZoneOffset.UTC);
+			state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(resubmitCloseTime.toEpochMilli()));
 			// no need to show alert if the resubmission setting has not changed
 			if (entity == null || change_resubmit_option(state, entity))
 			{
@@ -15379,7 +15379,7 @@ public class AssignmentAction extends PagedResourceActionII
                         // no SECURE_ADD_ASSIGNMENT_SUBMISSION permission or
                         // if user has both SECURE_ADD_ASSIGNMENT_SUBMISSION
                         // and SECURE_GRADE_ASSIGNMENT_SUBMISSION permission (TAs and Instructors)
-                        if (m_securityService.unlock(user, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION,s.getReference()) && !m_securityService.unlock(user,AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION,s.getReference())) {
+                        if (m_securityService.unlock(user, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION,s.getReference()) && !m_securityService.unlock(user,AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION,s.getReference())) {
                             retVal.add(populate_ids ? user.getId(): user.getDisplayName() + " (" + sb.toString() + ")");
     			        }
 	                } catch (UserNotDefinedException unde) {
@@ -15669,7 +15669,7 @@ public class AssignmentAction extends PagedResourceActionII
 										try
 										{
 											String eid = items[1];
-											if (!assignment.isGroup()) {
+											if (!assignment.getIsGroup()) {
 
 												// SAK-17606
 												User u = null;
@@ -15689,7 +15689,7 @@ public class AssignmentAction extends PagedResourceActionII
 											UploadGradeWrapper w = submissionTable.get(eid);
 											if (w != null)
 											{
-												String itemString = assignment.isGroup() ? items[3]: items[4];
+												String itemString = assignment.getIsGroup() ? items[3]: items[4];
 												Assignment.GradeType gradeType = assignment.getTypeOfGrade();
 												if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE)
 												{
@@ -15768,7 +15768,7 @@ public class AssignmentAction extends PagedResourceActionII
 													}
 												} catch (Exception e) {
 													try {
-														gradeXls = assignment.isGroup() ? hssfRow.getCell(3).getNumericCellValue() : hssfRow.getCell(4).getNumericCellValue();
+														gradeXls = assignment.getIsGroup() ? hssfRow.getCell(3).getNumericCellValue() : hssfRow.getCell(4).getNumericCellValue();
 													} catch (Exception e2) {
 														gradeXls = -1;
 													}
@@ -16351,7 +16351,7 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * the submission attachment list
 		 */
-		List m_submissionAttachments = entityManager.newReferenceList();
+		List<Reference> m_submissionAttachments = entityManager.newReferenceList();
 		
 		/**
 		 * the comment
@@ -16371,9 +16371,9 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * the feedback attachment list
 		 */
-		List m_feedbackAttachments = entityManager.newReferenceList();
+		List<Reference> m_feedbackAttachments = entityManager.newReferenceList();
 
-		public UploadGradeWrapper(String grade, String text, String comment, List submissionAttachments, List feedbackAttachments, String timeStamp, String feedbackText)
+		public UploadGradeWrapper(String grade, String text, String comment, List<Reference> submissionAttachments, List<Reference> feedbackAttachments, String timeStamp, String feedbackText)
 		{
 			m_grade = grade;
 			m_text = text;
@@ -16411,7 +16411,7 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * Returns the submission attachment list
 		 */
-		public List getSubmissionAttachments()
+		public List<Reference> getSubmissionAttachments()
 		{
 			return m_submissionAttachments;
 		}
@@ -16419,7 +16419,7 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * Returns the feedback attachment list
 		 */
-		public List getFeedbackAttachments()
+		public List<Reference> getFeedbackAttachments()
 		{
 			return m_feedbackAttachments;
 		}
@@ -16469,7 +16469,7 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * set the submission attachment list
 		 */
-		public void setSubmissionAttachments(List attachments)
+		public void setSubmissionAttachments(List<Reference> attachments)
 		{
 			m_submissionAttachments = attachments;
 		}
@@ -16477,7 +16477,7 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * set the attachment list
 		 */
-		public void setFeedbackAttachments(List attachments)
+		public void setFeedbackAttachments(List<Reference> attachments)
 		{
 			m_feedbackAttachments = attachments;
 		}
