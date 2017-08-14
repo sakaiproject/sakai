@@ -46,6 +46,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
@@ -67,8 +69,6 @@ import java.text.*;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
@@ -846,6 +846,7 @@ public class AssignmentAction extends PagedResourceActionII
     private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
 	private AssignmentService assignmentService;
 	private CalendarService calendarService;
+    private ContentReviewService contentReviewService;
 	private ContentTypeImageService contentTypeImageService;
 	private EntityManager entityManager;
 	private GradebookService gradebookService;
@@ -855,8 +856,10 @@ public class AssignmentAction extends PagedResourceActionII
 	private SessionManager sessionManager;
 	private SiteService siteService;
 	private TaggingManager taggingManager;
+	private TimeService timeService;
 	private ToolManager toolManager;
 	private UserDirectoryService userDirectoryService;
+
 
 	public AssignmentAction() {
 		super();
@@ -883,7 +886,8 @@ public class AssignmentAction extends PagedResourceActionII
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
         taggingManager = ComponentManager.get(TaggingManager.class);
         assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
-
+        contentReviewService = ComponentManager.get(ContentReviewService.class);
+        timeService = ComponentManager.get(TimeService.class);
     }
 	
 	
@@ -935,10 +939,9 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// Check whether content review service is enabled, present and enabled for this site
-		getContentReviewService();
-		context.put("allowReviewService", serverConfigurationService.getBoolean("assignment.useContentReview", false) && contentReviewService != null && contentReviewService.isSiteAcceptable(s));
+		context.put("allowReviewService", assignmentService.allowReviewService(s));
 
-		if (serverConfigurationService.getBoolean("assignment.useContentReview", false) && contentReviewService != null && contentReviewService.isSiteAcceptable(s)) {
+		if (assignmentService.allowReviewService(s)) {
 			//put the review service stings in context
 			String reviewServiceName = contentReviewService.getServiceName();
 			String reviewServiceTitle = rb.getFormattedMessage("review.title", new Object[]{reviewServiceName});
@@ -1383,7 +1386,7 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("assignment", assignment);
 			context.put("canSubmit", assignmentService.canSubmit(contextString, assignment));
 			// SAK-26322
-			if (assignmentService.allowReviewService())
+			if (assignment.getContentReview())
 			{
 				context.put("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
 				if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment))
@@ -2192,7 +2195,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("user", state.getAttribute(STATE_USER));
 		context.put("service", assignmentService);
 		context.put("AuthzGroupService", authzGroupService);
-		context.put("LongObject", Instant.now().atZone(ZoneId.systemDefault()).toEpochSecond());
+		context.put("LongObject", Instant.now().toEpochMilli());
 		context.put("currentTime", Instant.now());
 		String sortedBy = (String) state.getAttribute(SORTED_BY);
 		String sortedAsc = (String) state.getAttribute(SORTED_ASC);
@@ -4021,7 +4024,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (closeTimeString != null)
 		{
 			// close time for resubmit
-			Instant time = Instant.ofEpochSecond(Long.parseLong(closeTimeString));
+			Instant time = Instant.ofEpochMilli(Long.parseLong(closeTimeString));
 			context.put("allowResubmitCloseTime", time.toString());
 		}
 
@@ -6401,7 +6404,7 @@ public class AssignmentAction extends PagedResourceActionII
 						        }
 						    }
 						    // TODO sets the submitter id as the group....
-						    submission.setSubmitterId(group_id);
+						    submission.setGroupId(group_id);
 						}
 
 						submission.setSubmittedText(text);
@@ -6557,7 +6560,8 @@ public class AssignmentAction extends PagedResourceActionII
 							{
 								//Post the attachments before clearing so that we don't sumbit duplicate attachments
 								//Check if we need to post the attachments
-// TODO	content review							if (a.getAllowReviewService()) {
+// TODO content review
+//							    if (a.getContentReview()) {
 //									if (!attachments.isEmpty()) {
 //										submission.postAttachment(attachments);
 //									}
@@ -6579,7 +6583,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 						// SAK-26322 - add inline as an attachment for the content review service
 // TODO content review
-//						if (a.getContent().getAllowReviewService() && !isHtmlEmpty(text))
+//						if (a.getContentReview() && !isHtmlEmpty(text))
 //						{
 //							prepareInlineForContentReview(text, submission, state, u);
 //						}
@@ -6642,7 +6646,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 							// SAK-26322 - add inline as an attachment for the content review service
 // TODO content review
-//							if (a.getAllowReviewService() && !isHtmlEmpty(text))
+//							if (a.getContentReview() && !isHtmlEmpty(text))
 //							{
 //								prepareInlineForContentReview(text, submission, state, u);
 //							}
@@ -6651,7 +6655,7 @@ public class AssignmentAction extends PagedResourceActionII
 							{
 	 							// add each attachment
 // TODO content review
-//								if ((!attachments.isEmpty()) && a.getAllowReviewService())
+//								if ((!attachments.isEmpty()) && a.getContentReview())
 //									submission.postAttachment(attachments);
 								
 								// add each attachment
@@ -6957,26 +6961,17 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private List getNonInlineAttachments(SessionState state, Assignment a)
 	{
-		List attachments = (List) state.getAttribute(ATTACHMENTS);
-		List nonInlineAttachments = new ArrayList();
+		List<Reference> attachments = (List<Reference>) state.getAttribute(ATTACHMENTS);
+		List<Reference> nonInlineAttachments = new ArrayList<>();
 		nonInlineAttachments.addAll(attachments);
-//		TODO content review
-//		if (a.getAllowReviewService())
-//		{
-//			Iterator itAttachments = attachments.iterator();
-//			while (itAttachments.hasNext())
-//			{
-//				Object next = itAttachments.next();
-//				if (next instanceof Reference)
-//				{
-//					Reference attachment = (Reference) next;
-//					if ("true".equals(attachment.getProperties().getProperty(AssignmentSubmission.PROP_INLINE_SUBMISSION)))
-//					{
-//						nonInlineAttachments.remove(attachment);
-//					}
-//				}
-//			}
-//		}
+		if (a.getContentReview())
+		{
+            for (Reference attachment : attachments) {
+                if ("true".equals(attachment.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+                    nonInlineAttachments.remove(attachment);
+                }
+            }
+		}
 		return nonInlineAttachments;
 	}
 
@@ -8783,7 +8778,20 @@ public class AssignmentAction extends PagedResourceActionII
 		return sAttachments;
 	}
 
-	/**
+    /**
+     * whether the resubmit option has been changed
+     * @param state
+     * @param properties
+     * @return
+     */
+    private boolean change_resubmit_option(SessionState state, Map<String, String> properties) {
+        if (properties != null) {
+            return propertyValueChanged(state, properties, AssignmentConstants.ALLOW_RESUBMIT_NUMBER) || propertyValueChanged(state, properties, AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
+        }
+        return false;
+    }
+
+    /**
 	 * whether there is a change between state variable and object's property value
 	 * @param state
 	 * @param properties
@@ -9169,7 +9177,7 @@ public class AssignmentAction extends PagedResourceActionII
 				Instant endTime = LocalDateTime.of(oldDueTime.get(ChronoField.YEAR), oldDueTime.get(ChronoField.MONTH_OF_YEAR), oldDueTime.get(ChronoField.DAY_OF_MONTH), 23, 59, 59).toInstant(ZoneOffset.UTC);
 				try
 				{
-					Iterator events = c.getEvents(timeService.newTimeRange(startTime, endTime), null).iterator();
+					Iterator events = c.getEvents(timeService.newTimeRange(timeService.newTime(startTime.toEpochMilli()), timeService.newTime(endTime.toEpochMilli())), null).iterator();
 
 					while ((!found) && (events.hasNext()))
 					{
@@ -9230,9 +9238,9 @@ public class AssignmentAction extends PagedResourceActionII
 						if (group != null) eGroups.add(group);
 					}
 				}
-				e = c.addEvent(/* TimeRange */timeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
+				e = c.addEvent(/* TimeRange */timeService.newTimeRange(dueTime.toEpochMilli(), 0),
 						/* title */rb.getString("gen.due") + " " + title,
-						/* description */rb.getFormattedMessage("assign_due_event_desc", title, dueTime.toStringLocalFull()),
+						/* description */rb.getFormattedMessage("assign_due_event_desc", title, dueTime.toString()),
 						/* type */rb.getString("deadl"),
 						/* location */"",
 						/* access */ eAccess,
@@ -9443,8 +9451,8 @@ public class AssignmentAction extends PagedResourceActionII
 		ac.setHonorPledge(Boolean.valueOf(checkAddHonorPledge));
 		ac.setHideDueDate(hideDueDate);
 		ac.setTypeOfSubmission(submissionType);
+		ac.setContentReview(useReviewService);
 		// TODO add content review
-//		ac.setAllowReviewService(useReviewService);
 //		ac.setAllowStudentViewReport(allowStudentViewReport);
 //		ac.setSubmitReviewRepo(submitReviewRepo);
 //		ac.setGenerateOriginalityReport(generateOriginalityReport);
@@ -9460,7 +9468,7 @@ public class AssignmentAction extends PagedResourceActionII
 //		ac.setExcludeType(excludeType);
 //		ac.setExcludeValue(excludeValue);
 		ac.setTypeOfGrade(gradeType);
-		if (gradeType == 3)
+		if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE)
 		{
 			try
 			{
@@ -9507,12 +9515,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		// TODO content review
-//		if(ac.getAllowReviewService()){
-//			if (!createTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, state))
-//			{
-//				state.setAttribute("contentReviewSuccess", Boolean.FALSE);
-//			}
-//		}
+		if(ac.getContentReview()){
+			if (!createTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, state))
+			{
+				state.setAttribute("contentReviewSuccess", Boolean.FALSE);
+			}
+		}
 		
 	}
 	
@@ -9858,7 +9866,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String assignmentId = StringUtils.trimToNull(params.getString("assignmentId"));
 		Assignment a = getAssignment(assignmentId, "doEdit_assignment", state);
-		if (a != null && a.isPeerAssessmentOpen()){
+		if (a != null && assignmentService.isPeerAssessmentOpen(a)){
 			//set the page to go to
 			state.setAttribute(VIEW_ASSIGNMENT_ID, assignmentId);
 			String submissionId = null;
@@ -10080,7 +10088,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				// set whether we use the review service or not
                 // TODO content review
-//				state.setAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE, Boolean.valueOf(a.getAllowReviewService()).toString());
+				state.setAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE, a.getContentReview());
 //
 //				//set whether students can view the review service results
 //				state.setAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW, Boolean.valueOf(a.getAllowStudentViewReport()).toString());
@@ -10490,7 +10498,8 @@ public class AssignmentAction extends PagedResourceActionII
 				LocalDateTime endTime = LocalDateTime.of(b.get(ChronoField.YEAR), b.get(ChronoField.MONTH_OF_YEAR), b.get(ChronoField.DAY_OF_MONTH), 23, 59, 59, 999);
 				try
 				{
-					Iterator events = c.getEvents(timeService.newTimeRange(startTime, endTime), null).iterator();
+					Iterator events = c.getEvents(timeService.newTimeRange(timeService.newTime(startTime.toInstant(ZoneOffset.UTC).toEpochMilli()),
+                            timeService.newTime(endTime.toInstant(ZoneOffset.UTC).toEpochMilli())), null).iterator();
 					while ((!found) && (events.hasNext()))
 					{
 						e = (CalendarEvent) events.next();
@@ -11357,7 +11366,7 @@ public class AssignmentAction extends PagedResourceActionII
 			try
 			{
 				assignment = assignmentService.getAssignment(assignmentRef);
-				if (assignment.getAllowReviewService())
+				if (assignment.getContentReview())
 				{
 					state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
 					state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
@@ -11916,7 +11925,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (params.getString("allowResToggle") != null && params.getString(AssignmentConstants.ALLOW_RESUBMIT_NUMBER) != null)
 				{
 					// read in allowResubmit params 
-					readAllowResubmitParams(params, state, submission);
+					readAllowResubmitParams(params, state, submission.getProperties());
 				}
 				else 
 				{
@@ -11929,7 +11938,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 				// record whether the resubmission options has been changed or not
-				hasChange = hasChange || change_resubmit_option(state, submission);
+				hasChange = hasChange || change_resubmit_option(state, submission.getProperties());
 
 				if (state.getAttribute(STATE_MESSAGE) == null)
 				{
@@ -11989,7 +11998,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param state
 	 * @return the time set for the resubmit close OR null if it is not set
 	 */
-	private Instant readAllowResubmitParams(ParameterParser params, SessionState state, Entity entity)
+	private Instant readAllowResubmitParams(ParameterParser params, SessionState state, Map<String, String> properties)
 	{
 	    Instant resubmitCloseTime = null;
 		String allowResubmitNumberString = params.getString(AssignmentConstants.ALLOW_RESUBMIT_NUMBER);
@@ -12010,7 +12019,7 @@ public class AssignmentAction extends PagedResourceActionII
 			resubmitCloseTime = LocalDateTime.of(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0).toInstant(ZoneOffset.UTC);
 			state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(resubmitCloseTime.toEpochMilli()));
 			// no need to show alert if the resubmission setting has not changed
-			if (entity == null || change_resubmit_option(state, entity))
+			if (properties == null || change_resubmit_option(state, properties))
 			{
 				// validate date
 				if (resubmitCloseTime.isBefore(Instant.now()) && state.getAttribute(NEW_ASSIGNMENT_PAST_CLOSE_DATE) == null)
@@ -13471,9 +13480,10 @@ public class AssignmentAction extends PagedResourceActionII
 					} 
 					else
 					{
-						int score1 = u1.getSubmission().getReviewScore();
-						int score2 = u2.getSubmission().getReviewScore();
-						result = score1 > score2 ? 1 : -1;
+// TODO content review
+//						int score1 = u1.getSubmission().getReviewScore();
+//						int score2 = u2.getSubmission().getReviewScore();
+//						result = score1 > score2 ? 1 : -1;
 					}
 				}
 				
@@ -15550,7 +15560,11 @@ public class AssignmentAction extends PagedResourceActionII
 						submissions =  assignmentService.getSubmissions(assignment);
 						for (AssignmentSubmission s : submissions) {
                             String eid = s.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter();
-                            submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new ArrayList():s.getAttachments(), hasFeedbackAttachment?new ArrayList():s.getFeedbackAttachments(), (s.getSubmitted() && s.getDateSubmitted() != null)?s.getDateSubmitted().toString():"", s.getFeedbackText()));
+                            List<Reference> attachments = entityManager.newReferenceList();
+                            attachments.addAll(s.getAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
+                            List<Reference> feedbackAttachments = entityManager.newReferenceList();
+                            feedbackAttachments.addAll(s.getFeedbackAttachments().stream().map(entityManager::newReference).collect(Collectors.toList()));
+                            submissionTable.put(eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new ArrayList():attachments, hasFeedbackAttachment?new ArrayList():feedbackAttachments, (s.getSubmitted() && s.getDateSubmitted() != null)?s.getDateSubmitted().toString():"", s.getFeedbackText()));
                             anonymousSubmissionAndEidTable.put(s.getAnonymousSubmissionId(), eid);
                         }
                     }
@@ -15605,7 +15619,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param fileContentStream
 	 * @return
 	 */
-	private HashMap uploadAll_parseZipFile(SessionState state,
+	private Map<String, UploadGradeWrapper> uploadAll_parseZipFile(SessionState state,
 			boolean hasSubmissionText, boolean hasSubmissionAttachment,
 			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
 			boolean hasFeedbackAttachment, Map<String, UploadGradeWrapper> submissionTable,
@@ -16074,7 +16088,7 @@ public class AssignmentAction extends PagedResourceActionII
 
                     // if the current submission lacks timestamp while the timestamp exists inside the zip file
                     if (StringUtils.trimToNull(w.getSubmissionTimeStamp()) != null && submission.getDateSubmitted() == null) {
-                        submission.setDateSubmitted(timeService.newTimeGmt(w.getSubmissionTimeStamp()));
+                        submission.setDateSubmitted(new Date(timeService.newTimeGmt(w.getSubmissionTimeStamp()).getTime()));
                         submission.setSubmitted(true);
                     }
 
@@ -16541,16 +16555,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("item", assignmentActivityProducer
 				.getItem(submission, userId));
 	}
-	
-	private ContentReviewService contentReviewService;
-	
-	private void getContentReviewService() {
-		if (contentReviewService == null)
-		{
-			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
-		}
-	}
-	
+
 	/******************* model answer *********/
 	/**
 	 * add model answer input into state variables
@@ -16606,7 +16611,7 @@ public class AssignmentAction extends PagedResourceActionII
 			Instant resubmitCloseTime = null;
 			if (allowResubmitTimeString != null)
 			{
-				resubmitCloseTime = Instant.ofEpochSecond(Long.parseLong(allowResubmitTimeString));
+				resubmitCloseTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitTimeString));
 			}
 			// put into context
 			if (resubmitCloseTime != null)
@@ -16661,7 +16666,7 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME, allowResubmitTimeString);
 			
 			// get time object
-			allowResubmitTime = Instant.ofEpochSecond(Long.parseLong(allowResubmitTimeString));
+			allowResubmitTime = Instant.ofEpochMilli(Long.parseLong(allowResubmitTimeString));
 		}
 		else
 		{
@@ -16917,11 +16922,11 @@ public class AssignmentAction extends PagedResourceActionII
 
 						// Check if the file is acceptable with the ContentReviewService
 						boolean blockedByCRS = false;
-						if (!inPeerReviewMode && serverConfigurationService.getBoolean("assignment.useContentReview", false) && contentReviewService != null && contentReviewService.isSiteAcceptable(s))
+						if (!inPeerReviewMode && assignmentService.allowReviewService(s))
 						{
 							String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 							Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
-							if (a.getAllowReviewService())
+							if (a.getContentReview())
 							{
 								if (!contentReviewService.isAcceptableContent(attachment))
 								{

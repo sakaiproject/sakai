@@ -260,8 +260,10 @@ public class Assignment {
         CHECK_GRADE_TYPE      // 5
     }
 
+    @Column(name = "CONTENT_REVIEW")
+    private Boolean contentReview;
+
     // CONTENT REVIEW use separate table?
-//    private Boolean allowReview;
 //    private Boolean allowStudentViewReport;
 //    private String submitReviewRepo;
 //    private String generateOriginalityReport;

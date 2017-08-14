@@ -90,6 +90,7 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.Entity;
@@ -158,6 +159,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private CalendarService calendarService;
     @Setter private CandidateDetailProvider candidateDetailProvider;
     @Setter private ContentHostingService contentHostingService;
+    @Setter private ContentReviewService contentReviewService;
     @Setter private DeveloperHelperService developerHelperService;
     @Setter private DigestService digestService;
     @Setter private EmailService emailService;
@@ -636,8 +638,8 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public boolean allowReviewService() {
-        return false;
+    public boolean allowReviewService(Site site) {
+        return serverConfigurationService.getBoolean("assignment.useContentReview", false) && contentReviewService != null && contentReviewService.isSiteAcceptable(site);
     }
 
     @Override

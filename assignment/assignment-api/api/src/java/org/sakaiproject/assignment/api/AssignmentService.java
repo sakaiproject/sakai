@@ -41,6 +41,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Element;
 
@@ -226,7 +227,7 @@ public interface AssignmentService extends EntityProducer {
      */
     public boolean allowRemoveSubmission(String submissionReference);
 
-    boolean allowReviewService();
+    boolean allowReviewService(Site site);
 
     /**
      * Check permissions for grading Submission
