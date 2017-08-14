@@ -253,8 +253,6 @@ public class GradebookNgBusinessService {
 				log.error("Request made and could not add inaccessible gradebookUid=" + siteId);
 			}
 		}
-
-		log.error("No gradebook in site: " + siteId);
 		return gradebook;
 	}
 
