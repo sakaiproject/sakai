@@ -18,14 +18,13 @@ import org.slf4j.LoggerFactory;
  */
 public class FallbackDetailProvider implements CandidateDetailProvider {
 	
-	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
-	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
-	
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
 	
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
+	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInsitutionalNumericID";
 
 	private final Logger log = LoggerFactory.getLogger(FallbackDetailProvider.class);
 	
@@ -72,6 +71,33 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 		return false;
 	}
 	
+	@Override
+	public Optional<String> getInstitutionalNumericId(User user, Site site)
+	{
+		log.debug("Getting student number from fallback provider");
+		if (user != null && isInstitutionalNumericIdEnabled(site))
+		{
+			return Optional.of(("no-student-number:" + user.getId()));
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
+	}
+	
+	@Override
+	public boolean isInstitutionalNumericIdEnabled(Site site)
+	{
+		try {
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, false)
+					|| (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_NUMERIC_ID))));
+		} catch(Exception ignore) {}
+		return false;
+	}
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;

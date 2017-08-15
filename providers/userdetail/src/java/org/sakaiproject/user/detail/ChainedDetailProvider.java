@@ -74,4 +74,48 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 		}
 		return false;
 	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericId(User user, Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			String studentNumber = provider.getInstitutionalNumericId(user, site).orElse("");
+			if (StringUtils.isNotBlank(studentNumber))
+			{
+				return Optional.of(studentNumber);
+			}
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			String studentNumber = provider.getInstitutionalNumericIdIgnoringCandidatePermissions(candidate, site).orElse("");
+			if (StringUtils.isNotBlank(studentNumber))
+			{
+				return Optional.of(studentNumber);
+			}
+		}
+		
+		return Optional.empty();
+	}
+	
+	@Override
+	public boolean isInstitutionalNumericIdEnabled(Site site)
+	{
+		for (CandidateDetailProvider provider : getProviders())
+		{
+			if (provider.isInstitutionalNumericIdEnabled(site))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

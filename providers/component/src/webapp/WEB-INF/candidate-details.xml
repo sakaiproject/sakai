@@ -24,6 +24,8 @@
                         <bean class="org.sakaiproject.user.detail.CandidateDetailProviderImpl" init-method="init">
                             <property name="siteService"
                                       ref="org.sakaiproject.site.api.SiteService"/>
+                            <property name="securityService"
+                                      ref="org.sakaiproject.authz.api.SecurityService"/>
                             <property name="serverConfigurationService"
                                       ref="org.sakaiproject.component.api.ServerConfigurationService"/>
                             <property name="toolManager"

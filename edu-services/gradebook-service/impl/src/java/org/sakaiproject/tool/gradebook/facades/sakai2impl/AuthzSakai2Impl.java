@@ -53,7 +53,8 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
     	PERMISSION_GRADE_ALL = "gradebook.gradeAll",
     	PERMISSION_GRADE_SECTION = "gradebook.gradeSection",
     	PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments",
-    	PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades";
+    	PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades",
+        PERMISSION_VIEW_STUDENT_NUMBERS = "gradebook.viewStudentNumbers";
 
     /**
      * Perform authorization-specific framework initializations for the Gradebook.
@@ -74,6 +75,10 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
 
         if(!registered.contains(PERMISSION_VIEW_OWN_GRADES)) {
             FunctionManager.registerFunction(PERMISSION_VIEW_OWN_GRADES);
+        }
+
+        if(!registered.contains(PERMISSION_VIEW_STUDENT_NUMBERS)) {
+            FunctionManager.registerFunction(PERMISSION_VIEW_STUDENT_NUMBERS);
         }
     }
 
@@ -122,6 +127,11 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
 
 	public boolean isUserAbleToViewOwnGrades(String gradebookUid) {
 		return hasPermission(gradebookUid, PERMISSION_VIEW_OWN_GRADES);
+	}
+	
+	public boolean isUserAbleToViewStudentNumbers(String gradebookUid)
+	{
+		return hasPermission(gradebookUid, PERMISSION_VIEW_STUDENT_NUMBERS);
 	}
 
 	private boolean hasPermission(String gradebookUid, String permission) {

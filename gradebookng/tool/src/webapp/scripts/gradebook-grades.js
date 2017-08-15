@@ -504,7 +504,18 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
                                     attr("aria-hidden", "true").
                                     hide();
 
-  var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
+  //var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
+  var $headers = self.$table.find("> thead > tr.gb-headers > th");
+  var courseGradeIndex = 2;
+  $headers.each(function(index, origCell)
+  {
+      if ($(origCell).hasClass("gb-course-grade"))
+      {
+          courseGradeIndex = index;
+          return false;
+      }
+  });
+  $headers = $headers.slice(0, courseGradeIndex + 1);
   var $thead = $("<thead>");
   if(self.isGroupedByCategory()) {
     // append a dummy header row for when categorised
@@ -527,7 +538,8 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   var $tbody = $("<tbody>");
   self.$table.find("> tbody > tr").each(function(i, origRow) {
     var $tr = $("<tr>");
-    self._cloneCells($(origRow).find(" > :lt(3)")).appendTo($tr);
+    //self._cloneCells($(origRow).find(" > :lt(3)")).appendTo($tr);
+    self._cloneCells($(origRow)).children().slice(0, courseGradeIndex + 1).appendTo($tr);
     $tbody.append($tr);
   });
   self.$fixedColumns.append($tbody);

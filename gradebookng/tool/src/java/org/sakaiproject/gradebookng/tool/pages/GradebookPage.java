@@ -59,6 +59,7 @@ import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.StudentNumberColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -279,6 +280,39 @@ public class GradebookPage extends BasePage {
 
 		};
 		cols.add(studentNameColumn);
+		
+		// student number column (if enabled)
+		if (businessService.isStudentNumberVisible())
+		{
+			final AbstractColumn studentNumberColumn = new AbstractColumn(new Model(""))
+			{
+				@Override
+				public Component getHeader(final String componentId)
+				{
+					return new StudentNumberColumnHeaderPanel(componentId);
+				}
+
+				@Override
+				public void populateItem(final Item cellItem, final String componentId, final IModel rowModel)
+				{
+					final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+
+					final String studentNumber = StringUtils.defaultIfBlank(studentGradeInfo.getStudentNumber(), "-");
+
+					cellItem.add(new Label(componentId, studentNumber));
+					cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
+					cellItem.add(new AttributeModifier("abbr", studentNumber));
+					cellItem.add(new AttributeModifier("aria-label", studentNumber));
+				}
+
+				@Override
+				public String getCssClass()
+				{
+					return "gb-student-number-cell";
+				}
+			};
+			cols.add(studentNumberColumn);
+		}
 
 		// course grade column
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
@@ -389,7 +423,7 @@ public class GradebookPage extends BasePage {
 		// lookup in there)
 
 		List<CategoryDefinition> categories = new ArrayList<>();
-
+		int fixedColCount = businessService.isStudentNumberVisible() ? 4 : 3;
 		if (categoriesEnabled) {
 
 			// only work with categories if enabled
@@ -400,8 +434,7 @@ public class GradebookPage extends BasePage {
 
 			Collections.sort(categories, CategoryDefinition.orderComparator);
 
-			int currentColumnIndex = 3; // take into account first three header
-										// columns
+			int currentColumnIndex = fixedColCount; // take into account the fixed columns
 
 			for (final CategoryDefinition category : categories) {
 
@@ -510,6 +543,7 @@ public class GradebookPage extends BasePage {
 		modelData.put("categories", categories);
 		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		modelData.put("categoriesEnabled", categoriesEnabled);
+		modelData.put("fixedColCount", fixedColCount);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));

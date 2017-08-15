@@ -116,6 +116,12 @@ public class AuthzSectionsImpl implements Authz {
 		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT);
 	}
 	
+	public boolean isUserAbleToViewStudentNumbers(String gradebookUid)
+	{
+		String userUid = authn.getUserUid();
+		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
+	}
+	
 	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid) {
 		if (itemId == null || studentUid == null || gradebookUid == null) {
 			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
