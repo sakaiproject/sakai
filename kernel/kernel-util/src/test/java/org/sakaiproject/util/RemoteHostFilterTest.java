@@ -47,9 +47,6 @@ public class RemoteHostFilterTest {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
 
-        Mockito.when(serverConfigurationService.getBoolean("webservices.log-allowed", true)).thenReturn(true);
-        Mockito.when(serverConfigurationService.getBoolean("webservices.log-denied", true)).thenReturn(true);
-
         filter = new RemoteHostFilter();
         filter.setServerConfigurationService(serverConfigurationService);
     }
