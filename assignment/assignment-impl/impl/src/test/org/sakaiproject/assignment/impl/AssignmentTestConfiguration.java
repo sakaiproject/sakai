@@ -11,6 +11,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbcDriver;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -101,7 +102,7 @@ public class AssignmentTestConfiguration {
 
 //    @Bean(name = "org.sakaiproject.assignment.persistence.AssignmentRepository")
 //    public AssignmentRepository assignmentRepository() throws IOException {
-//        AssignmentRepositoryImpl repository = new AssignmentRepositoryImpl();
+//        AssignmentRepository repository = new AssignmentRepository();
 //        repository.setSessionFactory(sessionFactory());
 //        return repository;
 //    }
@@ -176,7 +177,7 @@ public class AssignmentTestConfiguration {
         return mock(FunctionManager.class);
     }
 
-    @Bean(name = "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
+    @Bean(name = "org_sakaiproject_service_gradebook_GradebookExternalAssessmentService")
     public GradebookExternalAssessmentService gradebookExternalAssessmentService() {
         return mock(GradebookExternalAssessmentService.class);
     }
@@ -229,5 +230,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.user.api.UserDirectoryService")
     public UserDirectoryService userDirectoryService() {
         return mock(UserDirectoryService.class);
+    }
+
+    @Bean(name = "org.sakaiproject.api.app.scheduler.ScheduledInvocationManager")
+    public ScheduledInvocationManager scheduledInvocationManager() {
+        return mock(ScheduledInvocationManager.class);
     }
 }

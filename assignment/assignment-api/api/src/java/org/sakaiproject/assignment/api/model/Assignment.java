@@ -263,10 +263,12 @@ public class Assignment {
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview;
 
+    @Column(name = "CONTENT_REPORT")
+    private String generateOriginalityReport;
+
     // CONTENT REVIEW use separate table?
 //    private Boolean allowStudentViewReport;
 //    private String submitReviewRepo;
-//    private String generateOriginalityReport;
 //    private boolean checkTurnitin = true;
 //    private boolean checkInternet = true;
 //    private boolean checkPublications = true;

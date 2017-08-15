@@ -3154,4 +3154,9 @@ public class AssignmentServiceImpl implements AssignmentService {
             subject = rb.getString("noti.releaseresubmission.subject.content");
         return "Subject: " + subject;
     }
+
+
+    public void resetAssignment(Assignment assignment) {
+        assignmentRepository.resetAssignment(assignment);
+    }
 }

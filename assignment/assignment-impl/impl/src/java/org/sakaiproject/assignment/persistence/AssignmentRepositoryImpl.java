@@ -154,4 +154,11 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
                 .uniqueResult();
         return number.longValue();
     }
+
+    @Override
+    public void resetAssignment(Assignment assignment) {
+        if (assignment != null && assignment.getId() != null) {
+            sessionFactory.getCache().evictEntity(Assignment.class, assignment.getId());
+        }
+    }
 }

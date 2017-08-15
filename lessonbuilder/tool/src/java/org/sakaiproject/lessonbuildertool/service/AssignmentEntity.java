@@ -24,13 +24,13 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
-import java.util.Iterator;
+import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
+import lombok.Setter;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +43,8 @@ import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.util.FormattedText;
 
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.assignment.api.model.AssignmentContent;
-import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
-import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -102,6 +98,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     private static Cache assignmentCache = null;
 
     private SimplePageBean simplePageBean;
+    @Setter private AssignmentService assignmentService;
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
 	this.simplePageBean = simplePageBean;
@@ -134,7 +131,6 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	assignmentCache = memoryService
 	    .createCache("org.sakaiproject.lessonbuildertool.service.AssignmentEntity.cache",
 	    new SimpleConfiguration(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS));
-
 
 	log.info("init()");
 
@@ -183,7 +179,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return ret;
 
 	try {
-	    ret = AssignmentService.getAssignment(ref);
+	    ret = assignmentService.getAssignment(ref);
 	} catch (Exception e) {
 	    ret = null;
 	}
@@ -208,12 +204,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return 1;
-
-	AssignmentContent content = assignment.getContent();
-	if (content == null) {
-	    return 1;
-	} else 
-	    return assignment.getContent().getTypeOfGrade();
+    return assignment.getTypeOfGrade().ordinal();
     }
 
   // hack for forums. not used for assessments, so always ok
@@ -232,13 +223,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {
 
-	Iterator i = AssignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext());
 
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
-	while (i.hasNext()) {
-	    Assignment a = (Assignment) i.next();
-	    String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+	for (Assignment a : assignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext())) {
+	    String deleted = a.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	    // this somewhat odd test for deleted is the one used in the Assignment code
 	    if ((deleted == null || "".equals(deleted)) && !a.getDraft()) {
 		AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
@@ -329,7 +318,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
-	return new Date(assignment.getDueTime().getTime());
+	return assignment.getDueDate();
     }
 
     // the following methods all take references. So they're in effect static.
@@ -351,14 +340,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return false;
 	}
 
-	AssignmentEdit edit = null;
-	
+	Assignment edit = null;
+
 	try {
-	    edit = AssignmentService.editAssignment(ref);
-	} catch (IdUnusedException e) {
-	    log.warn("ID unused ", e);
-	    return false;
-	} catch (PermissionException | InUseException e) {
+	    edit = assignmentService.getAssignment(ref);
+	} catch (IdUnusedException | PermissionException e) {
 	    log.warn(e.getMessage(), e);
 	    return false;
 	}
@@ -368,7 +354,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getAccess() == Assignment.AssignmentAccess.GROUPED) {
+	    if (edit.getAccess() == Assignment.Access.GROUPED) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
@@ -381,31 +367,15 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    return false;
 		}
 		
-		// odd; getgruops returns a list of string
-		// but setgroupacces wants a collection of actual groups
-		// so we have to copy the list
-		Collection<Group> newGroups = new ArrayList<Group>();
-		for (String gid : groups) {
-		    newGroups.add(site.getGroup(gid));
-		}
-		
-		// now add in this one
-		newGroups.add(group);
+	    groups.add(group.getId());
 
-		try {
-		    edit.setGroupAccess(newGroups);
-		} catch (PermissionException e) {
-		    log.warn(e.getMessage());
-		    return false;
-		}
-
-		AssignmentService.commitEdit(edit);
+		assignmentService.updateAssignment(edit);
 		doCancel = false;
 		return true;
 
 	    } else {
 		// currently not grouped
-		Collection groups = new ArrayList<String>();
+		Set<String> groups = new HashSet<>();
 		Group group = site.getGroup(groupId);
 		
 		if (group == null) {
@@ -413,17 +383,13 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    return false;
 		}
 		
-		groups.add(group);
-		
-		try {
-		    // this change mode to grouped
-		    edit.setGroupAccess(groups);
-		} catch (PermissionException e) {
-		    log.warn(e.getMessage());
-		    return false;
-		}
-		
-		AssignmentService.commitEdit(edit);
+		groups.add(group.getId());
+
+			// this change mode to grouped
+			edit.setGroups(groups);
+			edit.setAccess(Assignment.Access.GROUPED);
+
+			assignmentService.updateAssignment(edit);
 		doCancel = false;
 		return true;
 	    }
@@ -432,7 +398,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return false;
 	} finally {
 	    if (doCancel) {
-		AssignmentService.commitEdit(edit);
+	    	assignmentService.resetAssignment(edit);
 	    }
 	}
     }
@@ -447,11 +413,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return false;
 	}
 	
-	AssignmentEdit edit = null;
+	Assignment edit = null;
 	
 	try {
-	    edit = AssignmentService.editAssignment(ref);
-	} catch (IdUnusedException | PermissionException | InUseException e) {
+	    edit = assignmentService.getAssignment(ref);
+	} catch (IdUnusedException | PermissionException e) {
 	    log.warn(e.getMessage());
 	    return false;
 	}
@@ -461,7 +427,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	try {
 	    // need this to make sure we always unlock
 	    
-	    if (edit.getAccess() == Assignment.AssignmentAccess.GROUPED) {
+	    if (edit.getAccess() == Assignment.Access.GROUPED) {
 		Collection<String> groups = edit.getGroups();
 		groupId = "/site/" + siteId + "/group/" + groupId;
 		
@@ -469,33 +435,28 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    // nothing to do
 		    return true;
 		}
-		
+
 		// odd; getgruops returns a list of string
 		// but setgroupacces wants a collection of actual groups
 		// so we have to copy the list
-		Collection<Group> newGroups = new ArrayList<Group>();
+		Set<String> newGroups = new HashSet<>();
 		for (String gid : groups) {
 		    // remove our group
 		    if (!gid.equals(groupId)) {
-			newGroups.add(site.getGroup(gid));
+				newGroups.add(gid);
 		    }
 		}
-		
+
 		if (newGroups.size() > 0) {
 		    // there's groups left, just remove ours
-		    try {
-			edit.setGroupAccess(newGroups);
-		    } catch (PermissionException e) {
-			log.warn(e.getMessage());
-			return false;
-		    }
+				edit.setGroups(newGroups);
 		} else {
 		    // no groups left, put site access back
-		    edit.setAccess(Assignment.AssignmentAccess.SITE);
-		    edit.clearGroupAccess();
+		    edit.setAccess(Assignment.Access.SITE);
+		    edit.setGroups(new HashSet<>());
 		}
-		
-		AssignmentService.commitEdit(edit);
+
+		assignmentService.updateAssignment(edit);
 		doCancel = false;
 		return true;
 		
@@ -511,7 +472,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return false;
 	} finally {
 	    if (doCancel) {
-		AssignmentService.commitEdit(edit);
+			assignmentService.resetAssignment(edit);
 	    }
 	}
 	
@@ -535,7 +496,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	AssignmentSubmission submission = null;
 	try {
 	    user = UserDirectoryService.getUser(userId);
-	    submission = AssignmentService.getSubmission(assignment.getReference(), user);
+	    submission = assignmentService.getSubmission(assignment.getId(), user);
 	} catch (Exception e) {
 		log.warn(e.getMessage());
 	    return null;
@@ -610,7 +571,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public boolean notPublished() {
 	if (!objectExists())
 	    return true;
-	String deleted = assignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+	String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	// this somewhat odd test for deleted is the one used in the Assignment code
 	if ((deleted == null || "".equals(deleted)) && !assignment.getDraft())
 	    return false;
@@ -628,7 +589,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	if (assignment == null)
 	    return null;
 	
-	if (assignment.getAccess() != Assignment.AssignmentAccess.GROUPED)
+	if (assignment.getAccess() != Assignment.Access.GROUPED)
 	    return null;
 	    
 	Collection<String> groupRefs = assignment.getGroups();
@@ -664,14 +625,14 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return;
 	}
 
-	AssignmentEdit edit = null;
+	Assignment edit = null;
 	
 	try {
-	    edit = AssignmentService.editAssignment(ref);
+	    edit = assignmentService.getAssignment(ref);
 	} catch (IdUnusedException e) {
 	    log.warn("ID unused ", e);
 	    return;
-	} catch (PermissionException | InUseException e) {
+	} catch (PermissionException e) {
 	    log.warn(e.getMessage());
 	    return;
 	}
@@ -682,21 +643,20 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    // need this to make sure we always unlock
 	    
 	    if (groups != null && groups.size() > 0) {
-		List<Group> groupObjs = new ArrayList<Group>();
+		Set<String> groupObjs = new HashSet<>();
 		
 		for (String groupId : groups) {
 		    Group group = site.getGroup(groupId);
-		    if (group != null)
-			groupObjs.add(group);
+		    if (group != null) groupObjs.add(group.getId());
 		}
 
-		edit.setGroupAccess(groupObjs);
+		edit.setGroups(groupObjs);
 	    } else {
-		edit.setAccess(Assignment.AssignmentAccess.SITE);
-		edit.clearGroupAccess();
+		edit.setAccess(Assignment.Access.SITE);
+		edit.setGroups(new HashSet<>());
 	    }
 
-	    AssignmentService.commitEdit(edit);
+	    assignmentService.updateAssignment(edit);
 	    doCancel = false;
 	    return;
 
@@ -705,7 +665,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    return;
 	} finally {
 	    if (doCancel) {
-		AssignmentService.commitEdit(edit);
+			assignmentService.resetAssignment(edit);
 	    }
 	}
 
@@ -743,11 +703,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	// i is start of title
 	String title = objectid.substring(i+1);
 
-	Iterator aIter = AssignmentService.getAssignmentsForContext(siteid);
-	
 	// security. assume this is only used in places where it's OK, so skip security checks
-	while (aIter.hasNext()) {
-	    Assignment a = (Assignment) aIter.next();
+	for (Assignment a : assignmentService.getAssignmentsForContext(siteid)) {
 	    if (title.equals(a.getTitle()))
 		return "/assignment/" + a.getId();
 	}
@@ -759,38 +716,29 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public String importObject(String title, String href, String mime, boolean hide){
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
-	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
-	    c.setTitle(title);
+	    Assignment a = assignmentService.addAssignment(context);
+	    a.setTitle(title);
 	    // no instructions. It causes problems on export, because we can' recognize it as the special case.
-	    c.setInstructions("");
+	    a.setInstructions("");
 	    // c.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
-	    c.setHonorPledge(1);  // no 
-	    c.setTypeOfSubmission(3);  // inline and attachment
-	    c.setAllowReviewService(false);
-	    c.setTypeOfGrade(1);   // ungraded
-	    c.setAllowAttachments(true);
-	    c.clearAttachments();
-	    c.addAttachment(EntityManager.newReference("/content" + href));
-	    c.setContext(context);
-	    AssignmentService.commitEdit(c);
-
-	    AssignmentEdit a = AssignmentService.addAssignment(context);
-	    Time now = TimeService.newTime();
-	    a.setOpenTime(now);
-
-	    TimeBreakdown year = now.breakdownLocal();
-	    year.setYear(year.getYear() + 1);
-	    now = TimeService.newTimeLocal(year);
-	    a.setDueTime(now);
-
+	    a.setHonorPledge(false);  // no
+	    a.setTypeOfSubmission(Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION);  // inline and attachment
+	    a.setContentReview(false);
+	    a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);   // ungraded
+	    a.setAllowAttachments(true);
+	    Set<String> attachments = new HashSet<>();
+	    attachments.add(EntityManager.newReference("/content" + href).getReference());
+	    a.setAttachments(attachments);
+	    a.setContext(context);
+	    a.setOpenDate(Date.from(Instant.now()));
+	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
 	    a.setDraft(hide);
-	    a.setAccess(Assignment.AssignmentAccess.SITE);
-	    a.clearGroupAccess();
+	    a.setAccess(Assignment.Access.SITE);
+	    a.setGroups(new HashSet<>());
 	    a.setSection("");
 	    a.setTitle(title);
-	    a.setContent(c);
-	    
-	    AssignmentService.commitEdit(a);
+
+	    assignmentService.updateAssignment(a);
 	    return "/assignment/" + a.getId();
 	} catch (Exception e) {
 	    log.info("can't create assignment " + e);
@@ -823,15 +771,15 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide) {
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
-	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
+	    Assignment a = assignmentService.addAssignment(context);
 	    // title
 	    String title = resource.getChildText("title", ns);
-	    c.setTitle(title);
+	    a.setTitle(title);
 
 	    // instructions
 	    String instructions = resource.getChildText("text", ns);
 	    if (instructions == null)
-		c.setInstructions("");
+		a.setInstructions("");
 	    else {
 		Element instructionsElement = resource.getChild("text", ns);
 		String type = instructionsElement.getAttributeValue("texttype");
@@ -839,35 +787,35 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    instructions = FormattedText.convertPlaintextToFormattedText(instructions);
 		else
 		    instructions = instructions.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
-		c.setInstructions(instructions);
+		a.setInstructions(instructions);
 	    }
 
 	    // c.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
-	    c.setHonorPledge(1);  // no 
+	    a.setHonorPledge(false);  // no
 
 	    // submission type
 	    Element submissiontypes = resource.getChild("submission_formats", ns);
 	    if (submissiontypes == null)
-		c.setTypeOfSubmission(3);  // inline and attachment
+		a.setTypeOfSubmission(Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION);  // inline and attachment
 	    else {
-		int submittype = 0;
+		Assignment.SubmissionType submittype = Assignment.SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE;
 		List<Element> submissionTypeList = submissiontypes.getChildren();
 		if (submissionTypeList != null)
 		    for (Element submissionType: submissionTypeList) {
 			String type = submissionType.getAttributeValue("type");
 			if ("html".equals(type) || "text".equals(type))
-			    submittype |= 1; // inline
+			    submittype = Assignment.SubmissionType.TEXT_ONLY_ASSIGNMENT_SUBMISSION; // inline
 			if ("url".equals(type) || "file".equals(type))
-			    submittype |= 2; // attach
+			    submittype = Assignment.SubmissionType.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION; // attach
 		    }
-		c.setTypeOfSubmission(submittype);
+		a.setTypeOfSubmission(submittype);
 	    }
 	    
-	    c.setAllowReviewService(false);
+	    a.setContentReview(false);
 
 	    String gradable = resource.getChildText("gradable", ns);
 	    if (gradable == null || "false".equals(gradable))
-		c.setTypeOfGrade(1);   // ungraded
+		a.setTypeOfGrade(Assignment.GradeType.UNGRADED_GRADE_TYPE);   // ungraded
 	    else {
 		Element gradeElement = resource.getChild("gradable", ns);
 		String pointString = gradeElement.getAttributeValue("points_possible");
@@ -883,39 +831,31 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		    if (points < 1)
 			points = 1000;
 		}
-		c.setTypeOfGrade(3);   // points
-		c.setMaxGradePoint(points);
+		a.setTypeOfGrade(Assignment.GradeType.SCORE_GRADE_TYPE);   // points
+		a.setMaxGradePoint(points);
 	    }
 
-	    c.setAllowAttachments(true);
-	    c.clearAttachments();
+	    a.setAllowAttachments(true);
 
+	    Set<String> attachs = new HashSet<>();
 	    if (attachments != null) {
-		for (String attach: attachments) {
-		    c.addAttachment(EntityManager.newReference("/content" + removeDotDot(baseDir + attach)));
-		}
+			for (String attach: attachments) {
+				attachs.add(EntityManager.newReference("/content" + removeDotDot(baseDir + attach)).getReference());
+			}
 	    }
+		a.setAttachments(attachs);
 
-	    c.setContext(context);
-	    AssignmentService.commitEdit(c);
-
-	    AssignmentEdit a = AssignmentService.addAssignment(context);
-	    Time now = TimeService.newTime();
-	    a.setOpenTime(now);
-
-	    TimeBreakdown year = now.breakdownLocal();
-	    year.setYear(year.getYear() + 1);
-	    now = TimeService.newTimeLocal(year);
-	    a.setDueTime(now);
+		a.setContext(context);
+	    a.setOpenDate(Date.from(Instant.now()));
+	    a.setDueDate(Date.from(Instant.now().plus(1, ChronoUnit.YEARS)));
 
 	    a.setDraft(hide);
-	    a.setAccess(Assignment.AssignmentAccess.SITE);
-	    a.clearGroupAccess();
+	    a.setAccess(Assignment.Access.SITE);
+	    a.setGroups(new HashSet<>());
 	    a.setSection("");
 	    a.setTitle(title);
-	    a.setContent(c);
-	    
-	    AssignmentService.commitEdit(a);
+
+	    assignmentService.updateAssignment(a);
 
 	    // instructor text -- map to note
 	    String note = resource.getChildText("instructor_text", ns);

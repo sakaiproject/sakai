@@ -650,4 +650,6 @@ public interface AssignmentService extends EntityProducer {
      * @return
      */
     public boolean isPeerAssessmentClosed(Assignment assignment);
+
+    void resetAssignment(Assignment assignment);
 }

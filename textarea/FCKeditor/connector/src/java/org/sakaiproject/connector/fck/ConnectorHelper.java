@@ -2,10 +2,7 @@ package org.sakaiproject.connector.fck;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,13 +97,11 @@ public class ConnectorHelper {
 				return returnAssignmentList;
 			}		
 
-			Iterator assignmentIterator = assignmentService.getAssignmentsForContext(thisSite.getId(), loggedInUserId);
+
 			java.util.Date now = new java.util.Date();
 			long nowMs = now.getTime();
-			while(assignmentIterator.hasNext()){
-				Assignment thisAssignment = (Assignment) assignmentIterator.next();
-				System.out.println("Assignment"+thisAssignment.getId());
-				Time thisAssignmentCloseTime = thisAssignment.getCloseTime();
+			for (Assignment thisAssignment : assignmentService.getAssignmentsForContext(thisSite.getId())) {
+				Date thisAssignmentCloseTime = thisAssignment.getCloseDate();
 				boolean assignmentClosed = true;
 				if(thisAssignmentCloseTime!=null){
 					if(thisAssignmentCloseTime.getTime()<nowMs){

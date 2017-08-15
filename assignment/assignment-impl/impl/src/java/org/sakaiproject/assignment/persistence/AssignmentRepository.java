@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * Created by enietzel on 4/12/17.
  */
-public interface AssignmentRepository extends Repository<Assignment, String>, SerializableRepository<Assignment, String> {
+public interface AssignmentRepository extends SerializableRepository<Assignment, String> {
 
   Assignment findAssignment(String id);
 
@@ -53,4 +53,6 @@ public interface AssignmentRepository extends Repository<Assignment, String>, Se
   long countSubmittedSubmissionsForAssignment(String assignmentId);
 
   long countUngradedSubmittedSubmissionsForAssignment(String assignmentId);
+
+  void resetAssignment(Assignment assignment);
 }

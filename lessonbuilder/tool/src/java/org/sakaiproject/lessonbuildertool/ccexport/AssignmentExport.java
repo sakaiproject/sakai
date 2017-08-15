@@ -26,8 +26,10 @@ package org.sakaiproject.lessonbuildertool.ccexport;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
+import java.util.Set;
 
+import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -41,10 +43,6 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 
 import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.AssignmentEdit;
-import org.sakaiproject.assignment.api.model.AssignmentContent;
-import org.sakaiproject.assignment.api.AssignmentContentEdit;
-import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 
@@ -58,6 +56,8 @@ public class AssignmentExport {
     private static Logger log = LoggerFactory.getLogger(AssignmentExport.class);
 
     private static SimplePageToolDao simplePageToolDao;
+
+    private AssignmentService assignmentService;
 
     public void setSimplePageToolDao(Object dao) {
 	simplePageToolDao = (SimplePageToolDao) dao;
@@ -74,7 +74,7 @@ public class AssignmentExport {
     }
 
     public void init () {
-	// currently nothing to do
+		assignmentService = ComponentManager.get(AssignmentService.class);
 
 	log.info("init()");
 
@@ -88,22 +88,18 @@ public class AssignmentExport {
     public List<AssignmentItem> getItemsInSite(String siteId) {
 	List<AssignmentItem> ret = new ArrayList<AssignmentItem>();
 
-	Iterator i = AssignmentService.getAssignmentsForContext(siteId);
-	while (i.hasNext()) {
-	    Assignment assignment = (Assignment)i.next();
-
-	    String deleted = assignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+	for (Assignment assignment : assignmentService.getAssignmentsForContext(siteId)) {
+	    String deleted = assignment.getProperties().get(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 	    if ((deleted == null || "".equals(deleted)) && !assignment.getDraft()) {
-		AssignmentContent content = assignment.getContent();
-		List<Reference>attachments = content.getAttachments();
-		String instructions = content.getInstructions();
+		Set<String> attachments = assignment.getAttachments();
+		String instructions = assignment.getInstructions();
 
 		AssignmentItem item = new AssignmentItem();
-		item.id = LessonEntity.ASSIGNMENT + "/" + assignment.getId().toString();
+		item.id = LessonEntity.ASSIGNMENT + "/" + assignment.getId();
 		item.instructions = instructions;
-		item.attachments = new ArrayList<String>();
-		for (Reference ref: attachments) {
-		    item.attachments.add(ref.getReference());
+		item.attachments = new ArrayList<>();
+		for (String ref: attachments) {
+		    item.attachments.add(ref);
 		}
 		ret.add(item);
 	    }
@@ -195,7 +191,7 @@ public class AssignmentExport {
 	}
 
 	AssignmentItem ret = new AssignmentItem();
-	ret.attachments = new ArrayList<String>();
+	ret.attachments = new ArrayList<>();
 
 	int i = assignmentRef.indexOf("/");
 	String assignmentId = assignmentRef.substring(i+1);
@@ -204,7 +200,7 @@ public class AssignmentExport {
 	Assignment assignment = null;
 
 	try {
-	    assignment = AssignmentService.getAssignment(assignmentId);
+	    assignment = assignmentService.getAssignment(assignmentId);
 	} catch (Exception e) {
 	    log.info("failed to find " + assignmentId);
 	    return null;
@@ -212,42 +208,39 @@ public class AssignmentExport {
 
 	ret.title = assignment.getTitle();
 	
-	AssignmentContent content = assignment.getContent();
-	ret.instructions = content.getInstructions();
+	ret.instructions = assignment.getInstructions();
 	
 	ret.maxpoints = 0.0;
 	ret.gradable = false;
 	ret.forpoints = false;
 
-	int typeOfGrade = content.getTypeOfGrade();
+	Assignment.GradeType typeOfGrade = assignment.getTypeOfGrade();
 	// in Sakai only point-based goes to gradebook.
 	// in CC we have gradeable with optional point value
 	// I've chosen to specify a point value only for question with a point value
-	
-        switch (typeOfGrade) {
-	case 3: ret.maxpoints = content.getMaxGradePoint() / 10.0; 
-	    ret.forpoints = true;
-	case 2: 
-	case 4:
-	case 5: ret.gradable = true;
+
+	switch (typeOfGrade) {
+		case SCORE_GRADE_TYPE: ret.maxpoints = assignment.getMaxGradePoint() / 10.0;
+			ret.forpoints = true;
+		case LETTER_GRADE_TYPE:
+		case PASS_FAIL_GRADE_TYPE:
+		case CHECK_GRADE_TYPE: ret.gradable = true;
 	}
 
 	ret.allowtext = false;
 	ret.allowfile = false;
 
-	int typeOfSubmission = content.getTypeOfSubmission();
+	Assignment.SubmissionType typeOfSubmission = assignment.getTypeOfSubmission();
 	switch (typeOfSubmission) {
-	case 1: ret.allowtext = true; break;
-	case 2: ret.allowfile = true; break;
-	case 3: ret.allowtext = true; ret.allowfile = true; break;
+		case TEXT_ONLY_ASSIGNMENT_SUBMISSION: ret.allowtext = true; break;
+		case ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION: ret.allowfile = true; break;
+		case TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION: ret.allowtext = true; ret.allowfile = true; break;
 	}
 
-	List<Reference>attachments = content.getAttachments();
+	Set<String> attachments = assignment.getAttachments();
 
-	for (Reference ref: attachments) {
-	    String sakaiId = ref.getReference();
-
-	    ret.attachments.add(sakaiId);
+	for (String ref: attachments) {
+	    ret.attachments.add(ref);
 	}
 	
 	return ret;

@@ -23,7 +23,7 @@
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
         <property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager"/>
-        <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+        <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
@@ -51,7 +51,7 @@
         <property name="targetBeanName" value="org.sakaiproject.assignment.api.AssignmentEntity"/>
     </bean>
 
-    <!-- bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
+    <bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
@@ -82,7 +82,7 @@
         <property name="serverConfigurationService">
             <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
         </property>
-    </bean -->
+    </bean>
 
     <!--  Hibernate persistence -->
 
@@ -111,7 +111,7 @@
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </bean>
 
-    <!-- bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
+    <bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
         class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
@@ -124,9 +124,9 @@
                 <prop key="*">PROPAGATION_REQUIRED</prop>
             </props>
         </property>
-    </bean -->
+    </bean>
 
-    <!-- bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
+    <bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
     	class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
     	init-method="init" destroy-method="destroy">
     	<property name="sessionFactory">
@@ -178,12 +178,10 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.AssignmentPeerAssessmentServiceImpl"
-    	class="org.sakaiproject.assignment.impl.AssignmentPeerAssessmentServiceImpl"
-    	init-method="init" destroy-method="destroy">
+    	class="org.sakaiproject.assignment.impl.AssignmentPeerAssessmentServiceImpl">
     	<property name="sessionFactory">
     		<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     	</property>
-    	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 	<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
 	<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
 	<property name="securityService">
@@ -191,5 +189,5 @@
         </property>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 
-    </bean -->
+    </bean>
 </beans>

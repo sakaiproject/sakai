@@ -7,7 +7,7 @@ import org.sakaiproject.hibernate.CrudRepository;
 /**
  * Created by enietzel on 3/6/17.
  */
-public interface SerializableRepository<T, ID extends Serializable> {
+public interface SerializableRepository<T, ID extends Serializable> extends CrudRepository<T, ID> {
 
     /**
      * Serialize object to JSON
