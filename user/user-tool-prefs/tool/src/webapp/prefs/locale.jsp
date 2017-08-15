@@ -4,6 +4,8 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%-- Sakai JSF tag library --%>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%-- Core JSTL tag library --%>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>
 
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
@@ -19,42 +21,11 @@
 			});
 		</script>
 
+		
+				<%-- Set current value for template --%> 
+				<c:set var="cTemplate" value = "locale" scope="session"/>
 				
-				<%--h:outputText value="User ID: "/><h:inputText value="#{AdminPrefsTool.userId}" /--%>	
-				<sakai:tool_bar>
-			  <%--sakai:tool_bar_item action="#{UserPrefsTool.processActionRefreshFrmNoti}" value="Refresh" /--%>
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 1}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 1}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 1}" current="true" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 1}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 1}" current="false" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 2}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 2}" current="false" />
-  		    <sakai:tool_bar_item value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 2}" current="true" />
-  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 2}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 2}" current="false" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 3}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 3}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 3}" current="true" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 3}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 3}" current="false" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 4}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 4}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 4}" current="true" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 4}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 4}" current="false" />
- 		    
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionNotiFrmEdit}" value="#{msgs.prefs_noti_title}" rendered="#{UserPrefsTool.noti_selection == 5}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionTZFrmEdit}" value="#{msgs.prefs_timezone_title}" rendered="#{UserPrefsTool.timezone_selection == 5}" current="false" />
- 		    <sakai:tool_bar_item value="#{msgs.prefs_lang_title}" rendered="#{UserPrefsTool.language_selection == 5}" current="true" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionPrivFrmEdit}" value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 5}" current="false" />
- 		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 5}" current="false" />
- 		    
-   	  	</sakai:tool_bar>
-				
+				<%@ include file="toolbar.jspf"%>
 	
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
 				
