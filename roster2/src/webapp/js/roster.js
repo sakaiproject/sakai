@@ -763,6 +763,12 @@
         $('#navbar_permissions_link > span > a').click(function (e) {
             return roster.switchState(roster.STATE_PERMISSIONS);
         });
+
+        if (!roster.currentUserPermissions.viewOfficialPhoto) {
+            // The official photo permission should always override the
+            // roster.display.officialPicturesByDefault property
+            roster.officialPictureMode = false;
+        }
                 
         $.ajax({
             url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
