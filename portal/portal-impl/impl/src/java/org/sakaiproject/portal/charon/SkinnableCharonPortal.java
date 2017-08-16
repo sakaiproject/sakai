@@ -171,6 +171,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	private SecurityService securityService = null;
 
+	//Get user preferences
+	private PreferencesService preferencesService;
+
 	/**
 	 * Keyword to look for in sakai.properties copyright message to replace
 	 * for the server's time's year for auto-update of Copyright end date
@@ -1052,12 +1055,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				
 		User currentUser = UserDirectoryService.getCurrentUser();
 		Role role = site != null && currentUser != null ? site.getUserRole(currentUser.getId()) : null;
+		
+		Preferences prefs = preferencesService.getPreferences(currentUser.getId());
+		String editorType = prefs.getProperties(PreferencesService.EDITOR_PREFS_KEY).getProperty(PreferencesService.EDITOR_PREFS_TYPE);
 
 		rcontext.put("loggedIn", Boolean.valueOf(currentUser.getId() != null));
 		rcontext.put("userId", currentUser.getId());
 		rcontext.put("userEid", currentUser.getEid());
 		rcontext.put("userType", currentUser.getType());
 		rcontext.put("userSiteRole", role != null ? role.getId() : "");
+		rcontext.put("editorType", editorType);
 
 		rcontext.put("loggedOutUrl",ServerConfigurationService.getLoggedOutUrl());
 		rcontext.put("portalPath",ServerConfigurationService.getPortalUrl());
@@ -1575,8 +1582,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String thisUser = SessionManager.getCurrentSessionUserId();
 			
 			//Get user preferences
-            PreferencesService preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
-
             Preferences prefs = preferencesService.getPreferences(thisUser);
 
 			boolean showServerTime = ServerConfigurationService.getBoolean("portal.show.time", true);
@@ -1977,6 +1982,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
+		preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+
 		log.info("init()");
 
 		forceContainer = ServerConfigurationService.getBoolean("login.use.xlogin.to.relogin", true);
