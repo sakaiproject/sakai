@@ -14,6 +14,8 @@
 	<sakai:view_content>
 		<h:form id="hidden_sites_form">
 
+                        <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
+
                         <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
                         <script type="text/javascript">
                                 $(document).ready(function(){
@@ -53,7 +55,6 @@
 
                         <p class="instruction"><h:outputText value="#{msgs.hidden_instructions}" escape="false" /></p>
 
-                        <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 
                         <div id="reallyHideConfirm" style="display: none">
                                 <h:outputText value="#{msgs.hidden_really_hide_confirm}" />

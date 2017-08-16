@@ -13,7 +13,6 @@
 	<sakai:view_content>
 		<h:form id="timezone_form">
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-        <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">//</script>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){
