@@ -202,6 +202,24 @@
                 </div>
             </div>
         </script>
+        <script id="studentNumberHeaderTemplate" type="text/template">
+            <div class="relative">
+                <div class="colHeader">
+                    <a class="gb-title">
+                        <wicket:message key="column.header.studentNumber"/>
+                    </a>
+                </div>
+            </div>
+        </script>
+        <script id="studentNumberCellTemplate" type="text/template">
+            <div class="relative gb-student-number-cell">
+                <div class="gb-value">
+                    <div class="rowHeader">
+                        ${studentNumber}
+                    </div>
+                </div>
+            </div>
+        </script>
         <script id="cellTemplate" type="text/template">
             <div class="relative">
                 <span class="gb-value">${value}</span>

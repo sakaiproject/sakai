@@ -454,10 +454,9 @@ GbGradeTable.cellRenderer = function (instance, td, row, col, prop, value, cellP
 
 
 GbGradeTable.headerRenderer = function (col, column) {
-  if (col == 0) {
-    return GbGradeTable.templates.studentHeader.process({col: col, settings: GbGradeTable.settings});
-  } else if (col == 1) {
-    return GbGradeTable.templates.courseGradeHeader.process({col: col, settings: GbGradeTable.settings});
+  if (col < GbGradeTable.getFixedColumns().length) {
+    var colDef = GbGradeTable.getFixedColumns()[col];
+    return colDef.headerTemplate.process({col: col, settings: GbGradeTable.settings});
   }
 
   var templateData = $.extend({
@@ -509,7 +508,7 @@ GbGradeTable.mergeColumns = function (data, fixedColumns) {
     var updatedRow = []
 
     for (var i=0; i < fixedColumns.length; i++) {
-      updatedRow.push(fixedColumns[i][row]);
+      updatedRow.push(fixedColumns[i]._data_[row]);
     }
 
     for (var col = 0; col < data[row].length; col++) {
@@ -542,13 +541,49 @@ GbGradeTable.renderTable = function (elementId, tableData) {
   GbGradeTable.students = tableData.students;
   GbGradeTable.columns = tableData.columns;
   GbGradeTable.settings = tableData.settings;
+
+  GbGradeTable._fixedColumns.push({
+    renderer: GbGradeTable.studentCellRenderer,
+    headerTemplate: GbGradeTable.templates.studentHeader,
+    _data_: GbGradeTable.students,
+    editor: false,
+    width: 220,
+    sortCompare: function(a, b) {
+        return GbGradeTable.studentSorter(a, b);
+    }
+  });
+
+  GbGradeTable._fixedColumns.push({
+    renderer: GbGradeTable.courseGradeRenderer,
+    headerTemplate: GbGradeTable.templates.courseGradeHeader,
+    _data_: tableData.courseGrades,
+    editor: false,
+    width: GbGradeTable.settings.showPoints ? 220 : 140,
+    sortCompare: function(a, b) {
+        var a_points = parseFloat(a[1]);
+        var b_points = parseFloat(b[1]);
+
+        if (a_points > b_points) {
+            return 1;
+        }
+        if (a_points < b_points) {
+            return -1;
+        }
+        return 0;
+    },
+  });
+
+  if (GbGradeTable.settings.isStudentNumberVisible) {
+    GbGradeTable.setupStudentNumberColumn();
+  }
+
+  GbGradeTable.FIXED_COLUMN_OFFSET = GbGradeTable.getFixedColumns().length;
+  GbGradeTable.domElement.addClass('gb-fixed-columns-' + GbGradeTable.FIXED_COLUMN_OFFSET);
+
   GbGradeTable.grades = GbGradeTable.mergeColumns(GbGradeTable.unpack(tableData.serializedGrades,
                                                                       tableData.rowCount,
                                                                       tableData.columnCount),
-                                                  [
-                                                    tableData.students,
-                                                    tableData.courseGrades
-                                                  ]);
+                                                  GbGradeTable.getFixedColumns());
 
   GbGradeTableEditor = Handsontable.editors.TextEditor.prototype.extend();
 
@@ -596,7 +631,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
   GbGradeTable.instance = new Handsontable(document.getElementById(elementId), {
     data: GbGradeTable.getFilteredData(),
-    fixedColumnsLeft: 2,
+    fixedColumnsLeft: GbGradeTable.FIXED_COLUMN_OFFSET,
     colHeaders: true,
     columns: GbGradeTable.getFilteredColumns(),
     colWidths: GbGradeTable.getColumnWidths(),
@@ -617,7 +652,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
       // Calculate the HTML that we need to show
       var html = '';
-      if (col < 2) {
+      if (col < GbGradeTable.FIXED_COLUMN_OFFSET) {
         html = GbGradeTable.headerRenderer(col);
       } else {
         html = GbGradeTable.headerRenderer(col, this.view.settings.columns[col]._data_);
@@ -655,7 +690,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
       var columnModel = this.view.settings.columns[col]._data_;
 
       // assignment column
-      if (col > 1) {
+      if (col >= GbGradeTable.getFixedColumns().length) {
         var columnName = columnModel.title;
 
         $th.
@@ -696,12 +731,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
 
       // show visual cue that columns are hidden
       // check for last of the fixed columns
-      if (col == 1) { //GbGradeTable.instance.getSettings().fixedColumnsLeft - 1) {
+      if (col == GbGradeTable.FIXED_COLUMN_OFFSET - 1) { //GbGradeTable.instance.getSettings().fixedColumnsLeft - 1) {
         if (GbGradeTable.columns[0].hidden &&
             $th.find(".gb-hidden-column-visual-cue").length == 0) {
           $th.find(".relative").append("<a href='javascript:void(0);' class='gb-hidden-column-visual-cue'></a>");
         }
-      } else if (col >= 2) { //GbGradeTable.instance.getSettings().fixedColumnsLeft) {
+      } else if (col >= GbGradeTable.FIXED_COLUMN_OFFSET) {
         var origColIndex = GbGradeTable.columns.findIndex(function(c, i) {
           return c == columnModel;
         });
@@ -1359,15 +1394,16 @@ GbGradeTable.redrawTable = function(force) {
   }, 100);
 };
 
+
+GbGradeTable._fixedColumns = [];
+
+GbGradeTable.getFixedColumns = function() {
+  return GbGradeTable._fixedColumns;
+};
+
+
 GbGradeTable.getFilteredColumns = function() {
-  return [{
-    renderer: GbGradeTable.studentCellRenderer,
-    editor: false,
-  },
-  {
-    renderer: GbGradeTable.courseGradeRenderer,
-    editor: false,
-  }].concat(GbGradeTable.columns.filter(function(col) {
+  return GbGradeTable.getFixedColumns().concat(GbGradeTable.columns.filter(function(col) {
     return !col.hidden;
   }).map(function (column) {
     if (column.type === 'category') {
@@ -1408,7 +1444,7 @@ GbGradeTable.applyColumnFilter = function(data) {
     var column = GbGradeTable.columns[i];
     if (column.hidden) {
       for(var row=0; row<data.length; row++) {
-        data[row] = data[row].slice(0,i+2).concat(data[row].slice(i+3))
+        data[row] = data[row].slice(0,i+GbGradeTable.FIXED_COLUMN_OFFSET).concat(data[row].slice(i+3))
       }
     }
   } 
@@ -1445,17 +1481,12 @@ GbGradeTable.applyStudentFilter = function(data) {
 };
 
 GbGradeTable.getColumnWidths = function() {
-  var studentColumnWidth = 220;
-  var courseGradeColumnWidth = 140;
   var gradeColumnWidth = 180;
+  var fixedColumnWidths = GbGradeTable.getFixedColumns().map(function(col) {
+    return col.width;
+  });
 
-  // if showing points
-  // make column a touch wider
-  if (GbGradeTable.settings.showPoints) {
-    courseGradeColumnWidth = 220;
-  }
-
-  return [studentColumnWidth, courseGradeColumnWidth].
+  return fixedColumnWidths.
             concat(GbGradeTable.columns.map(function () { return gradeColumnWidth }));
 };
 
@@ -1770,7 +1801,7 @@ GbGradeTable.setupToggleGradeItems = function() {
     if (data.columnType == "assignment") {
       index = GbGradeTable.colForAssignment(data.assignmentid) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1;
     } else if (data.columnType == "category") {
-      index = GbGradeTable.colForCategoryScore(data.categoryId) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1;
+      index = GbGradeTable.colForCategoryScore(data.categoryId) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1
     }
 
     var columnsAfter = GbGradeTable.columns.slice(index);
@@ -1829,6 +1860,22 @@ GbGradeTable.setupColumnSorting = function() {
   });
 };
 
+GbGradeTable.defaultSortCompare = function(a, b) {
+    if (a == null || a == "") {
+      return -1;
+    }
+    if (b == null || b == "") {
+      return 1;
+    }
+    if (parseFloat(a) > parseFloat(b)) {
+      return 1;
+    }
+    if (parseFloat(a) < parseFloat(b)) {
+      return -1;
+    }
+    return 0;
+};
+
 
 GbGradeTable.sort = function(colIndex, direction) {
   if (direction == null) {
@@ -1839,41 +1886,20 @@ GbGradeTable.sort = function(colIndex, direction) {
 
   var clone = GbGradeTable.getFilteredData().slice(0);
 
+  var sortCompareFunction = GbGradeTable.defaultSortCompare;
+
+  if (colIndex < GbGradeTable.FIXED_COLUMN_OFFSET) {
+      var colDef = GbGradeTable.getFixedColumns()[colIndex];
+      if (colDef.hasOwnProperty('sortCompare')) {
+          sortCompareFunction = colDef.sortCompare;
+      }
+  }
+
   clone.sort(function(row_a, row_b) {
     var a = row_a[colIndex];
     var b = row_b[colIndex];
 
-    // sort by students
-    if (colIndex == 0) {
-      return GbGradeTable.studentSorter(a, b);
-
-    // sort by course grade
-    } else if (colIndex == 1) {
-      var a_points = parseFloat(a[1]);
-      var b_points = parseFloat(b[1]);
-
-      if (a_points > b_points) {
-        return 1;
-      }
-      if (a_points < b_points) {
-        return -1;
-      }
-    } else {
-      if (a == null || a == "") {
-        return -1;
-      }
-      if (b == null || b == "") {
-        return 1;
-      }
-      if (parseFloat(a) > parseFloat(b)) {
-        return 1;
-      }
-      if (parseFloat(a) < parseFloat(b)) {
-        return -1;
-      }
-    }
-
-    return 0;
+    return sortCompareFunction(a, b);
   });
 
   if (direction == "desc") {
@@ -2896,6 +2922,53 @@ GbGradeTable.positionModalAtTop = function($modal) {
     // position the modal at the top of the viewport
     // taking into account the current scroll offset
     $modal.css('top', 30 + $(window).scrollTop() + "px");
+};
+
+
+GbGradeTable.setupStudentNumberColumn = function() {
+    GbGradeTable.templates['studentNumberCell'] = new TrimPathFragmentCache(
+        'studentNumberCell',
+        TrimPath.parseTemplate($("#studentNumberCellTemplate").html().trim().toString()));
+
+    GbGradeTable.templates['studentNumberHeader'] = TrimPath.parseTemplate($("#studentNumberHeaderTemplate").html().trim().toString());
+
+    GbGradeTable.studentNumberCellRenderer =  function(instance, td, row, col, prop, value, cellProperties) {
+        if (value === null) {
+            return;
+        }
+
+        var $td = $(td);
+
+        $td.attr("scope", "row").attr("role", "rowHeader");
+
+        var cellKey = (row + '_' + col);
+
+        var data = {
+            settings: GbGradeTable.settings,
+            studentNumber: value
+        };
+
+        var html = GbGradeTable.templates.studentNumberCell.setHTML(td, data);
+
+        $.data(td, 'cell-initialised', cellKey);
+        $.data(td, "studentid", value.userId);
+        $.data(td, "metadata", {
+            id: cellKey,
+            student: value
+        });
+
+        $td.removeAttr('aria-describedby');
+    };
+
+    GbGradeTable._fixedColumns.splice(1, 0, {
+        renderer: GbGradeTable.studentNumberCellRenderer,
+        headerTemplate: GbGradeTable.templates.studentNumberHeader,
+        _data_: GbGradeTable.students.map(function(student) {
+          return student.studentNumber || "";
+        }),
+        editor: false,
+        width: 140,
+    });
 };
 
 /**************************************************************************************

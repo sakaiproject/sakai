@@ -56,7 +56,12 @@
 #gradeTableWrapper .handsontable tbody tr > *:nth-child(1) .relative .gb-value {
   overflow: hidden;
 }
-#gradeTableWrapper .handsontable tr > *:nth-child(2){
+/* right border for various number of fixed column options */
+#gradeTableWrapper .handsontable.gb-fixed-columns-1 tr > *:nth-child(1),
+#gradeTableWrapper .handsontable.gb-fixed-columns-2 tr > *:nth-child(2),
+#gradeTableWrapper .handsontable.gb-fixed-columns-3 tr > *:nth-child(3),
+#gradeTableWrapper .handsontable.gb-fixed-columns-4 tr > *:nth-child(4),
+#gradeTableWrapper .handsontable.gb-fixed-columns-5 tr > *:nth-child(5) {
   border-right: 1px solid #BBB;
 }
 #gradeTableWrapper .handsontable thead th {

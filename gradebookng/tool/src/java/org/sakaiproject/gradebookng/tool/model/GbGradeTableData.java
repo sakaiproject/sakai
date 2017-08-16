@@ -25,6 +25,7 @@ public class GbGradeTableData {
 	private Map<String, String> toolNameToIconCSS;
 	private String defaultIconCSS;
 	private Map<String, Double> courseGradeMap;
+	private boolean isStudentNumberVisible;
 
 	public GbGradeTableData(final GradebookNgBusinessService businessService,
 			final GradebookUiSettings settings) {
@@ -65,6 +66,8 @@ public class GbGradeTableData {
 
 		final Gradebook gradebook = businessService.getGradebook();
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
+
+		isStudentNumberVisible = businessService.isStudentNumberVisible();
 	}
 
 	public List<Assignment> getAssignments() {
@@ -101,5 +104,9 @@ public class GbGradeTableData {
 
 	public Map<String, Double> getCourseGradeMap() {
 		return courseGradeMap;
+	}
+
+	public boolean isStudentNumberVisible() {
+		return isStudentNumberVisible;
 	}
 }

@@ -47,6 +47,8 @@ public class GbGradebookData {
 		private String hasComments;
 		private String hasConcurrentEdit;
 		private String readonly;
+
+		private String studentNumber;
 	}
 
 	private interface ColumnDefinition {
@@ -170,6 +172,7 @@ public class GbGradebookData {
 	private Map<String, String> toolNameIconCSSMap;
 	private String defaultIconCSS;
 	private Map<String, Double> courseGradeMap;
+	private boolean isStudentNumberVisible;
 
 	private Component parent;
 
@@ -181,6 +184,8 @@ public class GbGradebookData {
 		this.role = gbGradeTableData.getRole();
 
 		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
+
+		this.isStudentNumberVisible = gbGradeTableData.isStudentNumberVisible();
 
 		this.studentGradeInfoList = gbGradeTableData.getGrades();
 
@@ -332,6 +337,7 @@ public class GbGradebookData {
 		result.put("isCourseGradeReleased", settings.isCourseGradeDisplayed());
 		result.put("showPoints", uiSettings.getShowPoints());
 		result.put("instructor", isInstructor());
+		result.put("isStudentNumberVisible", this.isStudentNumberVisible);
 
 		return result;
 	};
@@ -415,6 +421,10 @@ public class GbGradebookData {
 			studentDefinition.setFirstName(student.getStudentFirstName());
 			studentDefinition.setLastName(student.getStudentLastName());
 			studentDefinition.setHasComments(formatCommentData(student));
+
+			if (this.isStudentNumberVisible) {
+				studentDefinition.setStudentNumber(student.getStudentNumber());
+			}
 
 			// The JavaScript will ultimately set this when it detects
 			// concurrent edits. Initialize to zeroo.
