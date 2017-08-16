@@ -1,4 +1,4 @@
-package org.sakaiproject.util;
+package org.sakaiproject.webservices;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,40 +19,31 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockFilterChain;
-import org.springframework.mock.web.MockFilterConfig;
+import org.sakaiproject.webservices.interceptor.RemoteHostMatcher;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 
 /**
  * Created by enietzel on 7/21/17.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class RemoteHostFilterTest {
+public class RemoteHostMatcherTest {
 
     @Mock
     private ServerConfigurationService serverConfigurationService;
     private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
-    private MockFilterChain chain;
-    private MockFilterConfig config;
-    private RemoteHostFilter filter;
+    private RemoteHostMatcher matcher;
 
     @Before
     public void setup() {
-        chain = new MockFilterChain();
-        config = new MockFilterConfig();
         request = new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
 
-        filter = new RemoteHostFilter();
-        filter.setServerConfigurationService(serverConfigurationService);
+        matcher = new RemoteHostMatcher();
+        matcher.setServerConfigurationService(serverConfigurationService);
     }
 
     private void configureFilter(Map<String, List<String>> params) {
         if (params.containsKey("webservices.allow-request")) {
-            filter.setAllowRequests(params.get("webservices.allow-request"));
+            matcher.setAllowRequests(params.get("webservices.allow-request"));
             Mockito.when(serverConfigurationService.getString("webservices.allow-request", null)).thenReturn(null);
         } else {
             List<String> allowed = new ArrayList<String>() {{
@@ -64,7 +54,7 @@ public class RemoteHostFilterTest {
         }
 
         if (params.containsKey("webservices.allow")) {
-            filter.setAllow(params.get("webservices.allow"));
+            matcher.setAllow(params.get("webservices.allow"));
         } else {
             List<Pattern> allowed = new ArrayList<Pattern>() {{
                 add(Pattern.compile("localhost"));
@@ -79,16 +69,11 @@ public class RemoteHostFilterTest {
         }
 
         if (params.containsKey("webservices.deny")) {
-            filter.setDeny(params.get("webservices.deny"));
+            matcher.setDeny(params.get("webservices.deny"));
             // Remove the allow stubbing, otherwise it'll override our deny rule.
             Mockito.when(serverConfigurationService.getPatternList("webservices.allow", null)).thenReturn(new ArrayList<Pattern>());
         }
-
-        try {
-            filter.init(config);
-        } catch (ServletException e) {
-            e.printStackTrace();
-        }
+        matcher.init();
     }
 
     private void configureRequest(String uri, Map<String, String> requestParams) {
@@ -96,44 +81,35 @@ public class RemoteHostFilterTest {
         request.setRequestURI(uri);
     }
 
-    private void fire(String uri, Map<String, List<String>> params, Map<String, String> requestParams) {
+    private boolean fire(String uri, Map<String, List<String>> params, Map<String, String> requestParams) {
         configureFilter(params != null ? params : new HashMap<>());
         configureRequest(uri, requestParams != null ? requestParams : new HashMap<>());
-
-        try {
-            filter.doFilter(request, response, chain);
-        } catch (Exception e) {
-            fail();
-        }
+        return matcher.isAllowed(request);
     }
 
     @Test
     public void testAllowRequestURI() {
         Map<String, List<String>> params = new HashMap<>();
         params.put("webservices.allow", Collections.EMPTY_LIST);
-        fire("/sakai-ws/rest/i18n/getI18nProperties", params, null);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        Assert.assertTrue(fire("/sakai-ws/rest/i18n/getI18nProperties", params, null));
     }
 
     @Test
     public void testImplicitDeniedRequest() {
         Map<String, List<String>> params = new HashMap<>();
         params.put("webservices.allow", Collections.EMPTY_LIST);
-        fire("/sakai-ws/rest/login/login", params, null);
-        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+        Assert.assertFalse(fire("/sakai-ws/rest/login/login", params, null));
     }
 
     @Test
     public void testExplicitDeniedRequest() {
         Map<String, List<String>> params = new HashMap<>();
         params.put("webservices.deny", Arrays.asList("localhost"));
-        fire("/sakai-ws/rest/login/login", params, null);
-        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatus());
+        Assert.assertFalse(fire("/sakai-ws/rest/login/login", params, null));
     }
 
     @Test
     public void testExplicitAllowRequest() {
-        fire("/sakai-ws/rest/login/login", null, null);
-        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        Assert.assertTrue(fire("/sakai-ws/rest/login/login", null, null));
     }
 }

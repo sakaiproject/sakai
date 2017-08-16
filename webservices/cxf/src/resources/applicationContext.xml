@@ -3,22 +3,22 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
-       xsi:schemaLocation="
-	       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-	       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
-	       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+           http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+           http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+           ">
 
 
     <import resource="classpath:META-INF/cxf/cxf.xml" />
     <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-    <bean id="RemoteHostFilter" class="org.sakaiproject.util.RemoteHostFilter" init-method="init">
+    <bean id="RemoteHostFilter" class="org.sakaiproject.webservices.interceptor.RemoteHostMatcher" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="allowRequests">
             <list>
-                <value>/sakai-ws/rest/i18n/getI18nProperties</value>
-                <value>/sakai-ws/soap/i18n/getI18nProperties</value>
             </list>
         </property>
         <property name="allow">
@@ -40,6 +40,15 @@
         <property name="logAllowed" value="false"/>
         <property name="logDenied" value="true"/>
     </bean>
+
+    <!-- This registers a matcher for all requests -->
+    <cxf:bus>
+        <cxf:inInterceptors>
+            <bean class="org.sakaiproject.webservices.interceptor.NetworkAddressValidatingInterceptor">
+                <constructor-arg ref="RemoteHostFilter"/>
+            </bean>
+        </cxf:inInterceptors>
+    </cxf:bus>
 
     <!-- JAX-RS -->
     <jaxrs:server id="SakaiLoginRS" address="/rest/login">
