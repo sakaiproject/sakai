@@ -546,10 +546,17 @@
 
         var field = $('#roster-search-field');
 
+        field.keydown(function (e) {
+
+            if (e.which == 13) {
+                e.preventDefault();
+                $('#roster-search-button').click();
+            }
+        });
+
         field.autocomplete({
             source: roster.searchIndexKeys,
             select: function (event, ui) {
-
                 roster.search(ui.item.value);
             }
         });
