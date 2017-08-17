@@ -2517,8 +2517,45 @@ public class SimplePageBean {
 	public String adjustPath(String op, Long pageId, Long pageItemId, String title) {
 		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
 
+		// Allow the new portal lessons subnav to push a subpage on the context
+		if (op.equals("clear_and_push")) {
+			// clear path for top level subpage
+			path = new ArrayList<PathEntry>();
+
+			// add an entry for the parent page
+			SimplePage parentPage = null;
+
+			// the current page may have a parent
+			if (currentPage.getParent() != null && currentPage.getParent() != 0) {
+				parentPage = getPage(currentPage.getParent());
+
+			// try and get it from the current item
+			} else if (currentPageItemId != null) {
+				SimplePageItem item = getCurrentPageItem(currentPageItemId);
+				parentPage = getPage(item.getPageId());
+			}
+
+			PathEntry parentEntry = new PathEntry();
+			parentEntry.pageItemId = -1L;
+			if (parentPage == null) {
+				// we tried our best, default these values so things don't break
+				parentEntry.pageId = -1L;
+				parentEntry.title = "";
+			} else {
+				parentEntry.pageId = parentPage.getPageId();
+				parentEntry.title = parentPage.getTitle();
+			}
+			path.add(parentEntry);
+
+			// add the subpage
+			PathEntry entry = new PathEntry();
+			entry.pageId = pageId;
+			entry.pageItemId = pageItemId;
+			entry.title = title;
+			path.add(entry);  // put it on the end
+
 		// if no current path, op doesn't matter. we can just do the current page
-		if (path == null || path.size() == 0) {
+		} else if (path == null || path.size() == 0) {
 			PathEntry entry = new PathEntry();
 			entry.pageId = pageId;
 			entry.pageItemId = pageItemId;

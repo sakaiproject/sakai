@@ -632,7 +632,8 @@ td.grayText {
 }
 /* end SAK-32087 */
 
-#toolHolderWW .mathJaxToggleArea {
+#toolHolderWW .mathJaxToggleArea,
+#toolHolderWW .lessonsSubNavToggleArea {
     border: 1px solid #DDDDDD;
     border-radius: 5px;
     padding: 10px;
