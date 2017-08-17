@@ -37,7 +37,7 @@
                 <value>x\.x\.x\.x</value>
             </list>
         </property -->
-        <property name="logAllowed" value="true"/>
+        <property name="logAllowed" value="false"/>
         <property name="logDenied" value="true"/>
     </bean>
 

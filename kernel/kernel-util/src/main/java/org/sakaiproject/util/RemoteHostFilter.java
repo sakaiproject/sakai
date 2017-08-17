@@ -90,7 +90,7 @@ public class RemoteHostFilter implements Filter {
 
     // Should allowed requests be logged
     @Setter
-    private boolean logAllowed = true;
+    private boolean logAllowed = false;
 
     // Should denied requests be logged
     @Setter
