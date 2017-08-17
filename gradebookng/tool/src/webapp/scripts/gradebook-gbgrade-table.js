@@ -1801,7 +1801,7 @@ GbGradeTable.setupToggleGradeItems = function() {
     if (data.columnType == "assignment") {
       index = GbGradeTable.colForAssignment(data.assignmentid) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1;
     } else if (data.columnType == "category") {
-      index = GbGradeTable.colForCategoryScore(data.categoryId) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1
+      index = GbGradeTable.colForCategoryScore(data.categoryId) - GbGradeTable.instance.getSettings().fixedColumnsLeft + 1;
     }
 
     var columnsAfter = GbGradeTable.columns.slice(index);
