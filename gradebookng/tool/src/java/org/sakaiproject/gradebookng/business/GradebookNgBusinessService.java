@@ -24,6 +24,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -119,9 +120,6 @@ public class GradebookNgBusinessService {
 	private SecurityService securityService;
 	
 	@Setter
-	private CandidateDetailProvider candidateDetailProvider;
-
-	@Setter
 	private ServerConfigurationService serverConfigurationService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
@@ -135,6 +133,12 @@ public class GradebookNgBusinessService {
 	public List<String> getGradeableUsers() {
 		return this.getGradeableUsers(null);
 	}
+
+	// Return a CandidateDetailProvider or null if it's not enabled
+	private CandidateDetailProvider getCandidateDetailProvider() {
+		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
+	};
+
 
 	/**
 	 * Get a list of all users in the current site, filtered by the given group, that can have grades
@@ -715,11 +719,11 @@ public class GradebookNgBusinessService {
 			}
 			Collections.sort(students, comp);
 		}
-		else if (settings.getStudentNumberSortOrder() != null)
+		else if (getCandidateDetailProvider() != null && settings.getStudentNumberSortOrder() != null)
 		{
 			if (site.isPresent())
 			{
-				Comparator<User> comp = new StudentNumberComparator(candidateDetailProvider, site.get());
+				Comparator<User> comp = new StudentNumberComparator(getCandidateDetailProvider(), site.get());
 				if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
 				{
 					comp = Collections.reverseOrder(comp);
@@ -1887,20 +1891,24 @@ public class GradebookNgBusinessService {
 	 */
 	public boolean isStudentNumberVisible()
 	{
+		if (getCandidateDetailProvider() == null) {
+			return false;
+		}
+
 		User user = getCurrentUser();
 		Optional<Site> site = getCurrentSite();
-		return user != null && site.isPresent() && candidateDetailProvider.isInstitutionalNumericIdEnabled(site.get())
+		return user != null && site.isPresent() && getCandidateDetailProvider().isInstitutionalNumericIdEnabled(site.get())
 				&& gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
 	}
 	
 	public String getStudentNumber(User u, Site site)
 	{
-		if (site == null)
+		if (site == null || getCandidateDetailProvider() == null)
 		{
 			return "";
 		}
 			
-		return candidateDetailProvider.getInstitutionalNumericId(u, site).orElse("");
+		return getCandidateDetailProvider().getInstitutionalNumericId(u, site).orElse("");
 	}
 
 	/**
