@@ -52,6 +52,7 @@
                 <module>citations</module>
                 <module>cmprovider</module>
                 <module>common</module>
+                <module>commons</module>
                 <module>config</module>
                 <module>cloud-content</module>
                 <module>content</module>
@@ -132,6 +133,7 @@
                 <module>citations</module>
                 <module>clog</module>
                 <module>common</module>
+                <module>commons</module>
                 <module>config</module>
                 <module>cloud-content</module>
                 <module>content</module>
