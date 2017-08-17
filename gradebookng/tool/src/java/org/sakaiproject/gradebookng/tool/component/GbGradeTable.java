@@ -102,15 +102,7 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/handsontable.full.min.css?version=%s", version)));
 
 		final GbGradebookData gradebookData = new GbGradebookData(
-				gbGradeTableData.getGrades(),
-				gbGradeTableData.getAssignments(),
-				gbGradeTableData.getCategories(),
-				gbGradeTableData.getGradebookInformation(),
-				gbGradeTableData.getUiSettings(),
-				gbGradeTableData.getRole(),
-				gbGradeTableData.getToolNameToIconCSS(),
-				gbGradeTableData.getDefaultIconCSS(),
-				gbGradeTableData.getCourseGradeMap(),
+				gbGradeTableData,
 				this);
 
 		response.render(OnDomReadyHeaderItem.forScript(String.format("var tableData = %s", gradebookData.toScript())));

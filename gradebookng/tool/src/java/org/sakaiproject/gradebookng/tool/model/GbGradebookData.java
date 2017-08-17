@@ -173,30 +173,21 @@ public class GbGradebookData {
 
 	private Component parent;
 
-	public GbGradebookData(final List<GbStudentGradeInfo> studentGradeInfoList,
-			final List<Assignment> assignments,
-			final List<CategoryDefinition> categories,
-			final GradebookInformation settings,
-			final GradebookUiSettings uiSettings,
-			final GbRole role,
-			final Map<String, String> toolNameIconCSSMap,
-			final String defaultIconCSS,
-			final Map<String, Double> courseGradeMap,
-			final Component parentComponent) {
+	public GbGradebookData(final GbGradeTableData gbGradeTableData, final Component parentComponent) {
 		this.parent = parentComponent;
-		this.categories = categories;
-		this.settings = settings;
-		this.uiSettings = uiSettings;
-		this.role = role;
+		this.categories = gbGradeTableData.getCategories();
+		this.settings = gbGradeTableData.getGradebookInformation();
+		this.uiSettings = gbGradeTableData.getUiSettings();
+		this.role = gbGradeTableData.getRole();
 
-		this.courseGradeMap = courseGradeMap;
+		this.courseGradeMap = gbGradeTableData.getCourseGradeMap();
 
-		this.studentGradeInfoList = studentGradeInfoList;
+		this.studentGradeInfoList = gbGradeTableData.getGrades();
 
-		this.toolNameIconCSSMap = toolNameIconCSSMap;
-		this.defaultIconCSS = defaultIconCSS;
+		this.toolNameIconCSSMap = gbGradeTableData.getToolNameToIconCSS();
+		this.defaultIconCSS = gbGradeTableData.getDefaultIconCSS();
 
-		this.columns = loadColumns(assignments);
+		this.columns = loadColumns(gbGradeTableData.getAssignments());
 		this.students = loadStudents(studentGradeInfoList);
 	}
 
