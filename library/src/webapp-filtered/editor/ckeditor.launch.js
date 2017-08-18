@@ -211,7 +211,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //These are defined in user/user-tool-prefs/tool/src/webapp/prefs/editor.jsp
 
         var detectWidth = true;
-        if (portal && portal.editor && portal.editor.type) {
+        if (typeof portal != 'undefined' && typeof portal.editor != 'undefined' && typeof portal.editor.type == 'string') {
             if (portal.editor.type == "basic") {
                 ckconfig.toolbar = "Basic";
                 detectWidth = false;
