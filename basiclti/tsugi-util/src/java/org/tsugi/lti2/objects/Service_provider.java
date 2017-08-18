@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Generated;
 
 import org.tsugi.lti2.LTI2Config;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "@id",
+    "guid",
     "service_provider_name",
     "description",
     "timestamp",
@@ -27,6 +29,8 @@ public class Service_provider {
 
     @JsonProperty("@id")
     private String _id;
+    @JsonProperty("guid")
+    private String guid;
     @JsonProperty("service_provider_name")
     private Service_provider_name service_provider_name;
     @JsonProperty("description")
@@ -39,9 +43,11 @@ public class Service_provider {
 
     public Service_provider(LTI2Config cnf) {
         this._id = cnf.getService_provider_id();
+        this.guid = cnf.getGuid();
         this.service_provider_name = new Service_provider_name(cnf.getService_provider_provider_name());
         this.description = new Description(cnf.getService_provider_description());
         this.support = new Support(cnf.getService_provider_support_email());
+        this.timestamp = BasicLTIUtil.getISO8601(null);
     }
 
     @JsonProperty("@id")
@@ -52,6 +58,16 @@ public class Service_provider {
     @JsonProperty("@id")
     public void set_id(String _id) {
         this._id = _id;
+    }
+
+    @JsonProperty("guid")
+    public String getGuid() {
+        return guid;
+    }
+
+    @JsonProperty("guid")
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
     @JsonProperty("service_provider_name")
