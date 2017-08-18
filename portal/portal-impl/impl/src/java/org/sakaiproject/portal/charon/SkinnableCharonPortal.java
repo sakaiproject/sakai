@@ -1982,7 +1982,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
-		preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
+		preferencesService = ComponentManager.get(PreferencesService.class);
 
 		log.info("init()");
 

@@ -527,7 +527,7 @@ public class UserPrefsTool
 		if (hasValue(editorType))
 			m_editorType = editorType;
 		else
-			m_editorType = "1";
+			m_editorType = "auto";
 
 		return m_editorType;
 	}
@@ -1183,7 +1183,7 @@ public class UserPrefsTool
 
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
 
-		tzUpdated = true; // set for display of text massage
+		tzUpdated = true; // set for display of text message
 		return "timezone";
 	}
 	/**
@@ -1201,7 +1201,7 @@ public class UserPrefsTool
 
 
 		
-		editorUpdated = true; // set for display of text massage
+		editorUpdated = true; // set for display of text message
 		return "editor";
 	}
 	
@@ -1223,14 +1223,15 @@ public class UserPrefsTool
 	}
 	
 	/**
-	 * process timezone cancel
+	 * process editor cancel
 	 * 
 	 * @return navigation outcome to editor page
 	 */
 	public String processActionEditorCancel()
 	{
-		//TODO
 		LOG.debug("processActionEditorCancel()");
+		
+		// restore original editor
 		m_editorType = null;
 		getSelectedEditorType();
 
@@ -1258,7 +1259,7 @@ public class UserPrefsTool
 		// reset notification items with the locale
 		initRegisteredNotificationItems();
 
-		locUpdated = true; // set for display of text massage
+		locUpdated = true; // set for display of text message
 		return "locale";
 	}
 

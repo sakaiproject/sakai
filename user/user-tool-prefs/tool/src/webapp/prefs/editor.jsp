@@ -41,9 +41,9 @@
                         </f:verbatim>
                         <h:outputText value="#{msgs.editor_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
                         <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
-                                                <f:selectItem itemValue="1" itemLabel="#{msgs.editor_auto}"/>
-                                                <f:selectItem itemValue="2" itemLabel="#{msgs.editor_basic}"/>
-                                                <f:selectItem itemValue="3" itemLabel="#{msgs.editor_advanced}"/>
+                                                <f:selectItem itemValue="auto" itemLabel="#{msgs.editor_auto}"/>
+                                                <f:selectItem itemValue="basic" itemLabel="#{msgs.editor_basic}"/>
+                                                <f:selectItem itemValue="full" itemLabel="#{msgs.editor_full}"/>
                         </h:selectOneRadio>
                         <f:verbatim>
                         </div>

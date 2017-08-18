@@ -212,11 +212,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
         var detectWidth = true;
         if (portal && portal.editor && portal.editor.type) {
-            if (portal.editor.type == "2") {
+            if (portal.editor.type == "basic") {
                 ckconfig.toolbar = "Basic";
                 detectWidth = false;
             }
-            else if (portal.editor.type == "3") {
+            else if (portal.editor.type == "full") {
                 ckconfig.toolbar = "Full";
                 detectWidth = false;
             }
