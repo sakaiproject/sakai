@@ -245,6 +245,6 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 		{
 			studentNumber = encryption.encrypt(studentNumber, studentNumberLength);
 		}
-		userEditProperties.addPropertyToList(USER_PROP_STUDENT_NUMBER, studentNumber);
+		userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, studentNumber);
 	}
 }
