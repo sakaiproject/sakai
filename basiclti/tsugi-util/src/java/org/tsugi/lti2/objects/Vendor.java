@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Generated;
 
 import org.tsugi.lti2.LTI2Config;
+import org.tsugi.basiclti.BasicLTIUtil;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -25,6 +26,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
     "contact"
 })
 public class Vendor {
+
+    public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
     @JsonProperty("code")
     private String code;
@@ -46,6 +49,7 @@ public class Vendor {
         this.description = new Description(cnf.getProduct_family_vendor_description());
         this.website = cnf.getProduct_family_vendor_website();
         this.contact = new Contact(cnf.getProduct_family_vendor_contact());
+        this.timestamp = BasicLTIUtil.getISO8601(null);
     }
     @JsonProperty("code")
     public String getCode() {
