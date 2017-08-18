@@ -216,9 +216,9 @@
 																		## description column
 																		<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
 																			#set ($dayShown = "true")
-																				<a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())">
-																				#iconImage( $m.getType() )
-																			 $validator.escapeHtml($m.getDisplayName())</a>              
+																			<a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())">
+																				<span class="icon $eventIconMap.get($m.getType()) " title="$localizedEventTypes.get($m.getType())"></span>
+																			 $validator.escapeHtml($m.getDisplayName())</a>
 
 																		#set ($counter= $counter + 1)
 
@@ -380,7 +380,13 @@
 
 ## if there is at least one event shown, then the legend should be shown too
 #if ($showLegend == "true")
-	#eventLegend($tlang)
+	<h4>$tlang.getString('view.legend')</h4>
+	<ul class="calendarLegend">
+		#foreach ($key in $iconsAndLocalizedEventTypes.keySet())
+            <li><span class="icon $iconsAndLocalizedEventTypes.get($key)"></span> $key</li>
+		#end
+	</ul>
+	<div class="clear"></div>
 #end
 
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

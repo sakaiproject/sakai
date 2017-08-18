@@ -6508,52 +6508,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	protected String getEventDescription(String type){
-		ResourceLoader rl = new ResourceLoader("calendar");
 		if ((type!=null) && (type.trim()!="")){
-			if (type.equals("Academic Calendar"))
-				return rl.getString("legend.key1");
-			else if (type.equals("Activity"))
-				return rl.getString("legend.key2");
-			else if (type.equals("Cancellation"))
-				return rl.getString("legend.key3");
-			else if (type.equals("Class section - Discussion"))
-				return rl.getString("legend.key4");
-			else if (type.equals("Class section - Lab"))
-				return rl.getString("legend.key5");
-			else if (type.equals("Class section - Lecture"))
-				return rl.getString("legend.key6");
-			else if (type.equals("Class section - Small Group"))
-				return rl.getString("legend.key7");
-			else if (type.equals("Class session"))
-				return rl.getString("legend.key8");
-			else if (type.equals("Computer Session"))
-				return rl.getString("legend.key9");
-			else if (type.equals("Deadline"))
-				return rl.getString("legend.key10");
-			else if (type.equals("Exam"))
-				return rl.getString("legend.key11");
-			else if (type.equals("Meeting"))
-				return rl.getString("legend.key12");
-			else if (type.equals("Multidisciplinary Conference"))
-				return rl.getString("legend.key13");
-			else if (type.equals("Quiz"))
-				return rl.getString("legend.key14");
-			else if (type.equals("Special event"))
-				return rl.getString("legend.key15");
-			else if (type.equals("Web Assignment"))
-				return rl.getString("legend.key16");
-			else if (type.equals("Formative Assessment"))
-				return rl.getString("legend.key17");
-			else if (type.equals("Submission Date"))
-				return rl.getString("legend.key18");
-			else if (type.equals("Tutorial"))
-				return rl.getString("legend.key19");
-			else if (type.equals("Workshop"))
-				return rl.getString("legend.key20");
-			else
-				return rl.getString("legend.key2");				
+			return CalendarEventType.getLocalizedLegendFromEventType(type);
 		}else{
-			return rl.getString("legend.key2");
+			return CalendarEventType.getLocalizedLegendFromEventType("Activity");
 		}
 	}
 	/*
