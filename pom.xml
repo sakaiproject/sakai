@@ -82,6 +82,7 @@
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>mycalendar</module>
+                <module>myconnections</module>
                 <module>oauth</module>
                 <module>pasystem</module>
                 <module>podcasts</module>
@@ -165,6 +166,7 @@
                 <module>metaobj</module>
                 <module>msgcntr</module>
                 <module>mycalendar</module>
+                <module>myconnections</module>
                 <module>osp</module>
                 <module>podcasts</module>
                 <module>polls</module>
