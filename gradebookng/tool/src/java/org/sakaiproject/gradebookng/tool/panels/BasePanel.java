@@ -13,8 +13,8 @@ import org.sakaiproject.gradebookng.tool.pages.AccessDeniedPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
- * Panel extension to abstract away some common functionality that many GBNG panels share.
- * Classes extending {@link BasePanel} do not need to inject the {@link GradebookNgBusinessService} as it is in here.
+ * Panel extension to abstract away some common functionality that many GBNG panels share. Classes extending {@link BasePanel} do not need
+ * to inject the {@link GradebookNgBusinessService} as it is in here.
  */
 public abstract class BasePanel extends Panel {
 
@@ -33,6 +33,7 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Helper to get the user role, via the business service. Handles the Access Denied scenario.
+	 * 
 	 * @return
 	 */
 	public GbRole getUserRole() {
@@ -50,6 +51,7 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Get the current user, via the business service
+	 * 
 	 * @return
 	 */
 	public String getCurrentUserId() {
@@ -58,6 +60,7 @@ public abstract class BasePanel extends Panel {
 
 	/**
 	 * Get the Gradebook for the panel, via the business service
+	 * 
 	 * @return
 	 */
 	public Gradebook getGradebook() {
@@ -65,4 +68,3 @@ public abstract class BasePanel extends Panel {
 	}
 
 }
-

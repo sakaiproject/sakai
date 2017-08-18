@@ -10,8 +10,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 /**
  * Comparator class for sorting an assignment by the grades.
  *
- * Note that this must have the assignmentId set into it so we can extract the appropriate grade entry from the map that each student
- * has.
+ * Note that this must have the assignmentId set into it so we can extract the appropriate grade entry from the map that each student has.
  *
  */
 public class AssignmentGradeComparator implements Comparator<GbStudentGradeInfo> {

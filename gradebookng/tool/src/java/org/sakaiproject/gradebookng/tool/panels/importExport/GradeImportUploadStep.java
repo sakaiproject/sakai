@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
@@ -60,6 +62,7 @@ public class GradeImportUploadStep extends BasePanel {
 	private class UploadForm extends Form<Void> {
 
 		FileUploadField fileUploadField;
+		Button continueButton;
 
 		public UploadForm(final String id) {
 			super(id);
@@ -68,9 +71,18 @@ public class GradeImportUploadStep extends BasePanel {
 			setMaxSize(Bytes.megabytes(2));
 
 			this.fileUploadField = new FileUploadField("upload");
+			this.fileUploadField.add(new OnChangeAjaxBehavior() {
+				@Override
+				protected void onUpdate(AjaxRequestTarget ajaxRequestTarget) {
+					UploadForm.this.continueButton.setEnabled(true);
+					ajaxRequestTarget.add(UploadForm.this.continueButton);
+				}
+			});
 			add(this.fileUploadField);
 
-			add(new Button("continuebutton"));
+			this.continueButton = new Button("continuebutton");
+			this.continueButton.setEnabled(false);
+			add(this.continueButton);
 
 			final Button cancel = new Button("cancelbutton") {
 				@Override
@@ -97,31 +109,32 @@ public class GradeImportUploadStep extends BasePanel {
 				// TODO would be nice to capture the values from these exceptions
 				ImportedSpreadsheetWrapper spreadsheetWrapper = null;
 				try {
-					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), userMap);
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(),
+							upload.getClientFileName(), userMap);
 				} catch (final GbImportExportInvalidColumnException e) {
 					log.debug("incorrect format", e);
-					error(getString("importExport.error.incorrectformat")+" - "+e.getMessage());
+					error(getString("importExport.error.incorrectformat") + " - " + e.getMessage());
 					return;
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					log.debug("incorrect type", e);
-					error(getString("importExport.error.incorrecttype")+" - "+e.getMessage());
+					error(getString("importExport.error.incorrecttype") + " - " + e.getMessage());
 					return;
 				} catch (final GbImportExportDuplicateColumnException e) {
 					log.debug("duplicate column", e);
-					error(getString("importExport.error.duplicatecolumn")+" - "+e.getMessage());
+					error(getString("importExport.error.duplicatecolumn") + " - " + e.getMessage());
 					return;
 				} catch (final IOException e) {
 					log.debug("unknown", e);
-					error(getString("importExport.error.unknown")+" - "+e.getMessage());
+					error(getString("importExport.error.unknown") + " - " + e.getMessage());
 					return;
 				}
 
-				if(spreadsheetWrapper == null) {
+				if (spreadsheetWrapper == null) {
 					error(getString("importExport.error.unknown"));
 					return;
 				}
 
-				//get existing data
+				// get existing data
 				final List<Assignment> assignments = GradeImportUploadStep.this.businessService.getGradebookAssignments();
 				final List<GbStudentGradeInfo> grades = GradeImportUploadStep.this.businessService.buildGradeMatrix(assignments);
 
@@ -132,7 +145,7 @@ public class GradeImportUploadStep extends BasePanel {
 				} catch (final GbImportCommentMissingItemException e) {
 					// TODO would be good if we could show the column here, but would have to return it
 					log.debug("commentnoitem", e);
-					error(getString("importExport.error.commentnoitem")+" - "+e.getMessage());
+					error(getString("importExport.error.commentnoitem") + " - " + e.getMessage());
 					return;
 				}
 				// if empty there are no users
@@ -150,7 +163,8 @@ public class GradeImportUploadStep extends BasePanel {
 				// repaint panel
 				final ImportWizardModel importWizardModel = new ImportWizardModel();
 				importWizardModel.setProcessedGradeItems(processedGradeItems);
-				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
+				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId,
+						Model.of(importWizardModel));
 				newPanel.setOutputMarkupId(true);
 				GradeImportUploadStep.this.replaceWith(newPanel);
 
@@ -170,7 +184,7 @@ public class GradeImportUploadStep extends BasePanel {
 		final List<User> users = this.businessService.getUsers(this.businessService.getGradeableUsers());
 
 		final Map<String, String> rval = users.stream().collect(
-                Collectors.toMap(User::getEid, User::getId));
+				Collectors.toMap(User::getEid, User::getId));
 
 		return rval;
 	}

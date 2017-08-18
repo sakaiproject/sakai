@@ -1,8 +1,8 @@
 package org.sakaiproject.gradebookng.business.exception;
 
 /**
- * An exception that methods can throw to indicate something went wrong. The message will give more detail.
- * TODO clean this up, make it checked
+ * An exception that methods can throw to indicate something went wrong. The message will give more detail. TODO clean this up, make it
+ * checked
  */
 public class GbException extends RuntimeException {
 

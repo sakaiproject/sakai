@@ -46,13 +46,10 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 	private final ModalWindow window;
 
-	private final IModel<Long> model;
-
 	private static final double DEFAULT_GRADE = 0;
 
 	public UpdateUngradedItemsPanel(final String id, final IModel<Long> model, final ModalWindow window) {
-		super(id);
-		this.model = model;
+		super(id, model);
 		this.window = window;
 	}
 
@@ -61,7 +58,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		super.onInitialize();
 
 		// unpack model
-		final Long assignmentId = this.model.getObject();
+		final Long assignmentId = (Long) getDefaultModelObject();
 
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 
@@ -94,7 +91,8 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 						target.addChildren(form, FeedbackPanel.class);
 					}
 
-					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue, group);
+					final boolean success = UpdateUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, overrideValue,
+							group);
 
 					if (success) {
 						UpdateUngradedItemsPanel.this.window.close(target);
@@ -132,8 +130,8 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			form.add(new Label("points", getString("label.percentage.plain")));
 		} else {
 			form.add(new Label("points",
-				new StringResourceModel("label.studentsummary.outof", null,
-					new Object[] { assignment.getPoints() })));
+					new StringResourceModel("label.studentsummary.outof", null,
+							new Object[] { assignment.getPoints() })));
 		}
 
 		final WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
@@ -150,7 +148,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		if (getUserRole() == GbRole.TA) {
 			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
-				this.businessService.getCurrentUser().getId());
+					this.businessService.getCurrentUser().getId());
 
 			final List<String> gradableGroupIds = new ArrayList<>();
 			boolean canGradeAllGroups = false;
@@ -189,27 +187,27 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		final GradebookUiSettings settings = ((GradebookPage) getPage()).getUiSettings();
 
 		final DropDownChoice<GbGroup> groupAndSectionFilter = new DropDownChoice<GbGroup>(
-			"group",
-			new PropertyModel<GbGroup>(override, "group"),
-			groups,
-			new ChoiceRenderer<GbGroup>() {
-				private static final long serialVersionUID = 1L;
+				"group",
+				new PropertyModel<GbGroup>(override, "group"),
+				groups,
+				new ChoiceRenderer<GbGroup>() {
+					private static final long serialVersionUID = 1L;
 
-				@Override
-				public Object getDisplayValue(final GbGroup g) {
-					return g.getTitle();
-				}
+					@Override
+					public Object getDisplayValue(final GbGroup g) {
+						return g.getTitle();
+					}
 
-				@Override
-				public String getIdValue(final GbGroup g, final int index) {
-					return g.getId();
-				}
-			});
+					@Override
+					public String getIdValue(final GbGroup g, final int index) {
+						return g.getId();
+					}
+				});
 
 		groupAndSectionFilter.setNullValid(false);
 		if (!groups.isEmpty()) {
 			groupAndSectionFilter.setModelObject(
-				(settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
+					(settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
 		}
 		form.add(groupAndSectionFilter);
 
@@ -220,14 +218,14 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 
 		// confirmation dialog
 		add(new Label("confirmationMessage",
-			new StringResourceModel(
-				"label.updateungradeditems.confirmation.general", null,
-				new Object[]{"${score}", "${group}"})).setEscapeModelStrings(false));
+				new StringResourceModel(
+						"label.updateungradeditems.confirmation.general", null,
+						new Object[] { "${score}", "${group}" })).setEscapeModelStrings(false));
 	}
 
 	private boolean isExtraCredit(final Double grade, final Assignment assignment, final GradingType gradingType) {
 		return (GradingType.PERCENTAGE.equals(gradingType) && grade > 100) ||
-			(GradingType.POINTS.equals(gradingType) && grade > assignment.getPoints());
+				(GradingType.POINTS.equals(gradingType) && grade > assignment.getPoints());
 	}
 
 	/**

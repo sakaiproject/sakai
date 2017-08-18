@@ -25,6 +25,7 @@ public class GbStyleableWebMarkupContainer extends WebMarkupContainer {
 
 	/**
 	 * Add a {@link GbStyle} to the list (only if not already present)
+	 * 
 	 * @param style
 	 */
 	public void addStyle(final GbStyle style) {
@@ -33,6 +34,7 @@ public class GbStyleableWebMarkupContainer extends WebMarkupContainer {
 
 	/**
 	 * Remove a {@link GbStyle} from the list. Does nothing if it didn't exist.
+	 * 
 	 * @param style
 	 */
 	public void removeStyle(final GbStyle style) {

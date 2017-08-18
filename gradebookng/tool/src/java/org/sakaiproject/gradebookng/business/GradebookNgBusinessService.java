@@ -24,6 +24,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -61,6 +62,7 @@ import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
@@ -118,9 +120,6 @@ public class GradebookNgBusinessService {
 	private SecurityService securityService;
 	
 	@Setter
-	private CandidateDetailProvider candidateDetailProvider;
-
-	@Setter
 	private ServerConfigurationService serverConfigurationService;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
@@ -134,6 +133,12 @@ public class GradebookNgBusinessService {
 	public List<String> getGradeableUsers() {
 		return this.getGradeableUsers(null);
 	}
+
+	// Return a CandidateDetailProvider or null if it's not enabled
+	private CandidateDetailProvider getCandidateDetailProvider() {
+		return (CandidateDetailProvider)ComponentManager.get("org.sakaiproject.user.api.CandidateDetailProvider");
+	};
+
 
 	/**
 	 * Get a list of all users in the current site, filtered by the given group, that can have grades
@@ -258,7 +263,7 @@ public class GradebookNgBusinessService {
 			gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 		} catch (final GradebookNotFoundException e) {
 			log.debug("Request made for inaccessible, adding gradebookUid=" + siteId);
-			this.gradebookFrameworkService.addGradebook(siteId,siteId);
+			this.gradebookFrameworkService.addGradebook(siteId, siteId);
 			try {
 				gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 			} catch (GradebookNotFoundException e2) {
@@ -367,7 +372,7 @@ public class GradebookNgBusinessService {
 
 		List<CategoryDefinition> rval = new ArrayList<>();
 
-		if(gradebook == null) {
+		if (gradebook == null) {
 			return rval;
 		}
 
@@ -517,10 +522,16 @@ public class GradebookNgBusinessService {
 		String newGradeAdjusted = newGrade;
 		String oldGradeAdjusted = oldGrade;
 		String storedGradeAdjusted = storedGrade;
-		if(StringUtils.isNotBlank(storedGradeAdjusted)){
-			//Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same separator
-			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",", newGradeAdjusted.contains(",") ? "," : ".");
-			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",", newGradeAdjusted.contains(",") ? "," : ".");
+
+		// Fix a problem when the grades comes from the old Gradebook API with locale separator, always compare the values using the same
+		// separator
+		if (StringUtils.isNotBlank(oldGradeAdjusted)) {
+			oldGradeAdjusted = oldGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
+					newGradeAdjusted.contains(",") ? "," : ".");
+		}
+		if (StringUtils.isNotBlank(storedGradeAdjusted)) {
+			storedGradeAdjusted = storedGradeAdjusted.replace(newGradeAdjusted.contains(",") ? "." : ",",
+					newGradeAdjusted.contains(",") ? "," : ".");
 		}
 
 		if (gradingType == GradingType.PERCENTAGE) {
@@ -656,7 +667,7 @@ public class GradebookNgBusinessService {
 	 * @param uiSettings the settings from the UI that wraps up preferences
 	 * @return
 	 *
-	 * TODO refactor this into a hierarchical method structure
+	 * 		TODO refactor this into a hierarchical method structure
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
@@ -699,8 +710,8 @@ public class GradebookNgBusinessService {
 		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
 		if (settings.getStudentSortOrder() != null) {
 
-			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ?
-					new FirstNameComparator() : new LastNameComparator();
+			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME == settings.getNameSortOrder() ? new FirstNameComparator()
+					: new LastNameComparator();
 
 			if (SortDirection.DESCENDING == settings.getStudentSortOrder()) {
 
@@ -708,11 +719,11 @@ public class GradebookNgBusinessService {
 			}
 			Collections.sort(students, comp);
 		}
-		else if (settings.getStudentNumberSortOrder() != null)
+		else if (getCandidateDetailProvider() != null && settings.getStudentNumberSortOrder() != null)
 		{
 			if (site.isPresent())
 			{
-				Comparator<User> comp = new StudentNumberComparator(candidateDetailProvider, site.get());
+				Comparator<User> comp = new StudentNumberComparator(getCandidateDetailProvider(), site.get());
 				if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
 				{
 					comp = Collections.reverseOrder(comp);
@@ -1234,12 +1245,11 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
-	 * @throws JAXBException
 	 * @throws IdUnusedException
 	 * @throws PermissionException
 	 */
 	public void updateAssignmentCategorizedOrder(final long assignmentId, final int order)
-			throws JAXBException, IdUnusedException, PermissionException {
+			throws IdUnusedException, PermissionException {
 		final String siteId = getCurrentSiteId();
 		updateAssignmentCategorizedOrder(siteId, assignmentId, order);
 	}
@@ -1364,8 +1374,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the current site given the assignment name
-	 * This should be avoided where possible but is required for the import process to allow modification of assignment point values
+	 * Get an Assignment in the current site given the assignment name This should be avoided where possible but is required for the import
+	 * process to allow modification of assignment point values
 	 *
 	 * @param assignmentName
 	 * @return
@@ -1375,8 +1385,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the specified site given the assignment name
-	 * This should be avoided where possible but is required for the import process to allow modification of assignment point values
+	 * Get an Assignment in the specified site given the assignment name This should be avoided where possible but is required for the
+	 * import process to allow modification of assignment point values
 	 *
 	 * @param siteId
 	 * @param assignmentName
@@ -1564,8 +1574,18 @@ public class GradebookNgBusinessService {
 	 * @return the comment or null if none
 	 */
 	public String getAssignmentGradeComment(final long assignmentId, final String studentUuid) {
+		return getAssignmentGradeComment(getCurrentSiteId(), assignmentId, studentUuid);
+	}
 
-		final String siteId = getCurrentSiteId();
+	/**
+	 * Get the comment for a given student assignment grade
+	 *
+	 * @param siteId site id
+	 * @param assignmentId id of assignment
+	 * @param studentUuid uuid of student
+	 * @return the comment or null if none
+	 */
+	public String getAssignmentGradeComment(final String siteId, final long assignmentId, final String studentUuid) {
 		final Gradebook gradebook = getGradebook(siteId);
 
 		try {
@@ -1871,20 +1891,24 @@ public class GradebookNgBusinessService {
 	 */
 	public boolean isStudentNumberVisible()
 	{
+		if (getCandidateDetailProvider() == null) {
+			return false;
+		}
+
 		User user = getCurrentUser();
 		Optional<Site> site = getCurrentSite();
-		return user != null && site.isPresent() && candidateDetailProvider.isInstitutionalNumericIdEnabled(site.get())
+		return user != null && site.isPresent() && getCandidateDetailProvider().isInstitutionalNumericIdEnabled(site.get())
 				&& gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
 	}
 	
 	public String getStudentNumber(User u, Site site)
 	{
-		if (site == null)
+		if (site == null || getCandidateDetailProvider() == null)
 		{
 			return "";
 		}
 			
-		return candidateDetailProvider.getInstitutionalNumericId(u, site).orElse("");
+		return getCandidateDetailProvider().getInstitutionalNumericId(u, site).orElse("");
 	}
 
 	/**
@@ -2004,20 +2028,59 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Helper to determine the icon class to use depending on the assignment external source
+	 * 
 	 * @param assignment
 	 * @return
 	 */
 	public String getIconClass(final Assignment assignment) {
 		final String externalAppName = assignment.getExternalAppName();
-		String iconClass = ICON_SAKAI + "default-tool";
+		String iconClass = getDefaultIconClass();
 		if (StringUtils.equals(externalAppName, "Assignments")) {
-			iconClass = ICON_SAKAI + "sakai-assignment-grades";
+			iconClass = getAssignmentsIconClass();
 		} else if (StringUtils.equals(externalAppName, "Tests & Quizzes")) {
-			iconClass = ICON_SAKAI + "sakai-samigo";
+			iconClass = getSamigoIconClass();
 		} else if (StringUtils.equals(externalAppName, "Lesson Builder")) {
-			iconClass = ICON_SAKAI + "sakai-lessonbuildertool";
+			iconClass = getLessonBuilderIconClass();
 		}
 		return iconClass;
 	}
 
+	/**
+	 * Helper to determine the icon class for possible external app names
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getIconClassMap() {
+		final Map<String, String> mapping = new HashMap<>();
+
+		final Tool assignment = toolManager.getTool("sakai.assignment.grades");
+		if (assignment != null) {
+			mapping.put(assignment.getTitle(), getAssignmentsIconClass());
+		}
+
+		final Tool samigo = toolManager.getTool("sakai.samigo");
+		if (samigo != null) {
+			mapping.put(samigo.getTitle(), getSamigoIconClass());
+		}
+
+		mapping.put("Lesson Builder", getLessonBuilderIconClass());
+
+		return mapping;
+	}
+
+	public String getDefaultIconClass() {
+		return ICON_SAKAI + "default-tool fa fa-globe";
+	}
+
+	private String getAssignmentsIconClass() {
+		return ICON_SAKAI + "sakai-assignment-grades";
+	}
+
+	private String getSamigoIconClass() {
+		return ICON_SAKAI + "sakai-samigo";
+	}
+
+	private String getLessonBuilderIconClass() {
+		return ICON_SAKAI + "sakai-lessonbuildertool";
+	}
 }

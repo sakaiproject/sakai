@@ -182,7 +182,7 @@ public class CourseGradeOverridePanel extends BasePanel {
 			final Double pointsEarned = courseGrade.getPointsEarned();
 			final Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
-			if(pointsEarned != null && totalPointsPossible != null) {
+			if (pointsEarned != null && totalPointsPossible != null) {
 				rval = new StringResourceModel("coursegrade.display.points-first", null,
 						new Object[] { pointsEarned, totalPointsPossible }).getString();
 			} else {

@@ -10,3 +10,24 @@
  ul.feedbackPanel li span {
    display: block;
  }
+ 
+ /* Bootstrap > Morpheus overrides */
+ .dropdown-menu>li>a,
+ .nav>li>a {
+   text-decoration: none;
+ }
+ .checkbox input[type="checkbox"][disabled],
+ .radio input[type="radio"][disabled]{
+   background-color: #eee;
+ }
+ .checkbox input[type="checkbox"][disabled]+span,
+ .radio input[type="radio"][disabled]+span,
+ .checkbox input[type="checkbox"][disabled]+label,
+ .radio input[type="radio"][disabled]+label{
+   color: #999;
+ }
+
+/* required labels should have a prefix asterisk */
+.control-label.required:before {
+  content: '*';
+}

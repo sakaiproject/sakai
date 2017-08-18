@@ -2,7 +2,10 @@ package org.sakaiproject.gradebookng;
 
 import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
+import org.apache.wicket.RuntimeConfigurationType;
+import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.session.ISessionStore;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -61,6 +64,8 @@ public class GradebookNgApplication extends WebApplication {
 		// for production, set to SHOW_NO_EXCEPTION_PAGE
 		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
 
+		final ISessionStore sessionStore = getSessionStore();
+
 		// Intercept any unexpected error stacktrace and take to our page
 		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
 			@Override
@@ -70,7 +75,7 @@ public class GradebookNgApplication extends WebApplication {
 		});
 
 		// Disable Wicket's loading of jQuery - we load Sakai's preferred version in BasePage.java
-		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(GradebookNgApplication.class,"empty.js"));
+		getJavaScriptLibrarySettings().setJQueryReference(new PackageResourceReference(GradebookNgApplication.class, "empty.js"));
 
 		// cleanup the HTML
 		getMarkupSettings().setStripWicketTags(true);

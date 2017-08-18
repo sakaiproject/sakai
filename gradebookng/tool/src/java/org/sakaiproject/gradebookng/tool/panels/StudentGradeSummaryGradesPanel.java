@@ -64,7 +64,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 
 		// unpack model
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
-		final String userId = (String) modelData.get("userId");
+		final String userId = (String) modelData.get("studentUuid");
 
 		final Gradebook gradebook = getGradebook();
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(

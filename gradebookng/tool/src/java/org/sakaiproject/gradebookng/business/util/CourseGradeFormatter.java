@@ -111,7 +111,7 @@ public class CourseGradeFormatter {
 		}
 
 		if (StringUtils.isNotBlank(letterGrade)
-				&& (this.gradebook.isCourseLetterGradeDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
+				&& (this.gradebook.isCourseLetterGradeDisplayed() || shouldDisplayFullCourseGrade())) {
 			parts.add(letterGrade);
 		}
 
@@ -123,17 +123,17 @@ public class CourseGradeFormatter {
 			// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
 			// TODO this should probably inform the instructor
 			Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
-			if(mappedGrade == null) {
+			if (mappedGrade == null) {
 				mappedGrade = new Double(0);
 			}
-			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
+			calculatedGrade = FormatHelper.formatGradeForDisplay(mappedGrade);
 
 		} else {
-			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
+			calculatedGrade = FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade());
 		}
 
 		if (StringUtils.isNotBlank(calculatedGrade)
-				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
+				&& (this.gradebook.isCourseAverageDisplayed() || shouldDisplayFullCourseGrade())) {
 			if (parts.isEmpty()) {
 				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
 						new Object[] { calculatedGrade }).getString());
@@ -154,19 +154,23 @@ public class CourseGradeFormatter {
 				Double totalPointsPossible = courseGrade.getTotalPointsPossible();
 
 				// handle the special case in the gradebook service where totalPointsPossible = -1
-				if(totalPointsPossible != null && totalPointsPossible == -1) {
+				if (totalPointsPossible != null && totalPointsPossible == -1) {
 					pointsEarned = null;
 					totalPointsPossible = null;
 				}
 
 				// if instructor, show the points if requested
 				// otherwise check the settings
-				if (this.currentUserRole == GbRole.INSTRUCTOR || this.gradebook.isCoursePointsDisplayed()) {
-					if(pointsEarned != null && totalPointsPossible != null) {
+				if (shouldDisplayFullCourseGrade() || this.gradebook.isCoursePointsDisplayed()) {
+					if (pointsEarned != null && totalPointsPossible != null) {
+						final String pointsEarnedDisplayString = FormatHelper.formatGradeForDisplay(pointsEarned);
+						final String totalPointsPossibleDisplayString = FormatHelper.formatGradeForDisplay(totalPointsPossible);
 						if (parts.isEmpty()) {
-							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarned, totalPointsPossible));
+							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarnedDisplayString,
+									totalPointsPossibleDisplayString));
 						} else {
-							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarned, totalPointsPossible));
+							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarnedDisplayString,
+									totalPointsPossibleDisplayString));
 						}
 					}
 				}
@@ -181,4 +185,7 @@ public class CourseGradeFormatter {
 		return String.join(" ", parts);
 	}
 
+	private boolean shouldDisplayFullCourseGrade() {
+		return GbRole.INSTRUCTOR.equals(this.currentUserRole) || GbRole.TA.equals(this.currentUserRole);
+	}
 }

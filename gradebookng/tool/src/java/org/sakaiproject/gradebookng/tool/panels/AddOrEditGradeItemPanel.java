@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -22,7 +21,9 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.util.DateFormatterUtil;
 
@@ -108,9 +109,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 					final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
 					final CategoryDefinition category = categories
 							.stream()
-							.filter(c -> (c.getId() == assignment.getCategoryId())
+							.filter(c -> (c.getId().equals(assignment.getCategoryId()))
 									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
-							.filter(c -> (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
 							.findFirst()
 							.orElse(null);
 
@@ -129,10 +129,14 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 				}
 
 				// 2. names cannot contain these special chars
-				if(validated && StringUtils.containsAny(assignment.getName(), GradebookService.INVALID_CHARS_IN_GB_ITEM_NAME)) {
-					validated = false;
-					error(getString("error.addeditgradeitem.titlecharacters"));
-					target.addChildren(form, FeedbackPanel.class);
+				if (validated) {
+					try {
+						GradebookHelper.validateGradeItemName(assignment.getName());
+					} catch (InvalidGradeItemNameException e) {
+						validated = false;
+						error(getString("error.addeditgradeitem.titlecharacters"));
+						target.addChildren(form, FeedbackPanel.class);
+					}
 				}
 
 				// OK
@@ -143,7 +147,8 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 
 						if (success) {
 							getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
-							setResponsePage(getPage().getPageClass());
+							setResponsePage(getPage().getPageClass(),
+									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignment.getId()));
 						} else {
 							error(new ResourceModel("message.edititem.error").getObject());
 							target.addChildren(form, FeedbackPanel.class);
@@ -173,7 +178,7 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 							getSession()
 									.success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 							setResponsePage(getPage().getPageClass(),
-									new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
+									new PageParameters().add(GradebookPage.FOCUS_ASSIGNMENT_ID_PARAM, assignmentId));
 						} else {
 							target.addChildren(form, FeedbackPanel.class);
 						}
@@ -225,9 +230,9 @@ public class AddOrEditGradeItemPanel extends BasePanel {
 		}
 	}
 
-	private void setISODates(){
+	private void setISODates() {
 		String dueDateString = getRequest().getRequestParameters().getParameterValue(HIDDEN_DUEDATE_ISO8601).toString("");
-		if(DateFormatterUtil.isValidISODate(dueDateString)){
+		if (DateFormatterUtil.isValidISODate(dueDateString)) {
 			dueDate = DateFormatterUtil.parseISODate(dueDateString);
 		}
 	}
