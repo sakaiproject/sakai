@@ -166,7 +166,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		/**
 		 * the list of authors.
 		 */
-		private Set<String> authors;
+		private String author;
 		
 		/**
 		 * the assignment instructions.
@@ -280,7 +280,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			this.draft = a.getDraft();
 			this.creator = a.getCreator();
 			this.timeCreated = a.getDateCreated();
-			this.authors = a.getAuthors();
+			this.author = a.getAuthor();
 			this.timeLastModified = a.getDateModified();
 			this.authorLastModified = a.getModifier();
 			this.title = a.getTitle();
@@ -842,7 +842,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			Assignment assignment = assignmentService.getAssignment(assignmentId);
 			Entity entity = assignmentService.createAssignmentEntity(assignment);
 			props.put("title", assignment.getTitle());
-			props.put("author", assignment.getAuthors().stream().findFirst().orElse(""));
+			props.put("author", assignment.getAuthor());
 			props.put("description", entity.getReference());
 			props.put("draft", "" + assignment.getDraft());
 			props.put("siteId", assignment.getContext());

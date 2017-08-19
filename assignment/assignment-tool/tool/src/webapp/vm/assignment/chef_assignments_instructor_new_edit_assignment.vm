@@ -126,8 +126,7 @@
 	#set($submitnotif="submitnotifTop")
 
 	<form name="newAssignmentForm" id="newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-		<input type="hidden" name="assignmentId" value="$!assignment.Reference" />
-		<input type="hidden" name="assignmentContentId" value="$!assignment.ContentReference" />
+		<input type="hidden" name="assignmentId" value="$!assignmentId" />
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
@@ -157,7 +156,7 @@
 
 		<div class="checkbox">
 			<label for="$name_CheckAddHonorPledge">
-			#if (!$!value_CheckAddHonorPledge.equals("1"))
+			#if ($!value_CheckAddHonorPledge)
 				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
 			#else
 				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" />

@@ -1,6 +1,7 @@
 package org.sakaiproject.assignment.persistence;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -18,17 +19,31 @@ import java.util.Set;
 /**
  * Created by enietzel on 2/22/17.
  */
+@Transactional(readOnly = true)
 public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assignment, String> implements AssignmentRepository {
 
     @Override
     public Assignment findAssignment(String id) {
-        return findOne(id);
+        Assignment assignment = findOne(id);
+        if (assignment != null) {
+            Hibernate.initialize(assignment.getAttachments());
+            Hibernate.initialize(assignment.getGroups());
+            Hibernate.initialize(assignment.getProperties());
+        }
+
+        return assignment;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
-        return startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
+        List<Assignment> assignments = startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
+        assignments.stream().forEach(a -> {
+            Hibernate.initialize(a.getAttachments());
+            Hibernate.initialize(a.getGroups());
+            Hibernate.initialize(a.getProperties());
+        });
+        return assignments;
     }
 
     @Override
@@ -86,7 +101,9 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public AssignmentSubmission findSubmission(String submissionId) {
-        return (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
+        AssignmentSubmission submission = (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
+        Hibernate.initialize(submission);
+        return submission;
     }
 
     @Override

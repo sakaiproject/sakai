@@ -146,6 +146,7 @@ import org.w3c.dom.Element;
  * Created by enietzel on 3/3/17.
  */
 @Slf4j
+@Transactional(readOnly = true)
 public class AssignmentServiceImpl implements AssignmentService {
 
     private static ResourceLoader rb = new ResourceLoader("assignment");
@@ -186,30 +187,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     public void init() {
         log.info("init()");
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
-
-//        Objects.requireNonNull(announcementService);
-//        Objects.requireNonNull(assignmentActivityProducer);
-//        Objects.requireNonNull(calendarService);
-//        Objects.requireNonNull(contentHostingService);
-//        Objects.requireNonNull(entityManager);
-//        Objects.requireNonNull(gradebookExternalAssessmentService);
-//        Objects.requireNonNull(gradebookService);
-//        Objects.requireNonNull(memoryService);
-//        Objects.requireNonNull(serverConfigurationService);
-//        Objects.requireNonNull(taggingManager);
-//        Objects.requireNonNull(developerHelperService);
-//        Objects.requireNonNull(digestService);
-//        Objects.requireNonNull(emailService);
-//        Objects.requireNonNull(eventTrackingService);
-//        Objects.requireNonNull(functionManager);
-//        Objects.requireNonNull(gradeSheetExporter);
-//        Objects.requireNonNull(idManager);
-//        Objects.requireNonNull(securityService);
-//        Objects.requireNonNull(sessionManager);
-//        Objects.requireNonNull(siteService);
-//        Objects.requireNonNull(timeService);
-//        Objects.requireNonNull(toolManager);
-//        Objects.requireNonNull(userDirectoryService);
 
         allowSubmitByInstructor = serverConfigurationService.getBoolean("assignments.instructor.submit.for.student", true);
         if (!allowSubmitByInstructor) {
@@ -648,6 +625,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public Assignment addAssignment(String context) throws PermissionException {
         // security check
         if (!allowAddAssignment(context)) {
@@ -661,13 +639,15 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         log.debug("Created new assignment {}", assignment.getId());
 
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
         // event for tracking
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, assignment.getId(), true));
+        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
 
         return assignment;
     }
 
     @Override
+    @Transactional
     public Assignment mergeAssignment(Element el) throws IdInvalidException, IdUsedException, PermissionException {
         // TODO need to write a test for this
         // this may also need to handle submission serialization?
@@ -677,6 +657,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public Assignment addDuplicateAssignment(String context, String assignmentId) throws IdInvalidException, PermissionException, IdUsedException, IdUnusedException {
         Assignment assignment = null;
 
@@ -707,6 +688,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public void removeAssignment(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
@@ -734,6 +716,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     // it should post an event and let those tools take action.
     // * Unless a transaction is required
     @Override
+    @Transactional
     public void removeAssignmentAndAllReferences(Assignment assignment) throws PermissionException {
         Objects.requireNonNull(assignment, "Assignment cannot be null");
         // TODO we don't actually want to delete assignments just mark them as deleted "soft delete feature"
@@ -883,6 +866,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public void removeSubmission(AssignmentSubmission submission) throws PermissionException {
         if (submission != null) {
             String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
@@ -908,6 +892,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public void updateAssignment(Assignment assignment) throws PermissionException {
         Assert.notNull(assignment, "Assignment cannot be null");
         Assert.notNull(assignment.getId(), "Assignment doesn't appear to have been persisted yet");
@@ -922,6 +907,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public void updateSubmission(AssignmentSubmission submission) throws PermissionException {
         Assert.notNull(submission, "Submission cannot be null");
         Assert.notNull(submission.getId(), "Submission doesn't appear to have been persisted yet");
@@ -1589,6 +1575,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
         Collection<Group> rv = new ArrayList<Group>();
         allOrOneGroup = StringUtils.trimToNull(allOrOneGroup);
@@ -1675,6 +1662,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public List<String> getSubmitterIdList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
         List<String> rv = new ArrayList<>();
         Map<User, AssignmentSubmission> submitterMap = getSubmitterMap(searchFilterOnly, allOrOneGroup, searchString, aRef, contextString);
@@ -1686,6 +1674,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
+    @Transactional
     public Map<User, AssignmentSubmission> getSubmitterMap(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString) {
         Map<User, AssignmentSubmission> rv = new HashMap<>();
         List<User> rvUsers;
@@ -1923,7 +1912,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Override
     public Integer getScaleFactor() {
         Integer decimals = serverConfigurationService.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT);
-        return (int) Math.pow(10.0, decimals);
+        return Double.valueOf(Math.pow(10.0, decimals)).intValue();
     }
 
     @Override
@@ -2283,7 +2272,9 @@ public class AssignmentServiceImpl implements AssignmentService {
             Collection<String> asgGroups = assignment.getGroups();
             Collection<Group> allowedGroups = getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context, currentUserId);
             // reject and throw PermissionException if there is no intersection
-            if (!assignment.getAuthors().contains(currentUserId) && !CollectionUtils.containsAny(asgGroups, allowedGroups.stream().map(Group::getReference).collect(Collectors.toSet()))) {
+            if (!allowAllGroups(context)
+                    && StringUtils.equals(assignment.getAuthor(), currentUserId)
+                    && !CollectionUtils.containsAny(asgGroups, allowedGroups.stream().map(Group::getReference).collect(Collectors.toSet()))) {
                 throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getId());
             }
         }
@@ -2325,7 +2316,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     private boolean isDraftAssignmentVisible(Assignment assignment) {
-        return assignment.getAuthors().contains(userDirectoryService.getCurrentUser().getId()) // the creator can see it
+        return StringUtils.equals(assignment.getAuthor(), userDirectoryService.getCurrentUser().getId()) // the author can see it
                 || permissionCheck(SECURE_SHARE_DRAFTS, siteService.siteReference(assignment.getContext()), null); // any role user with share draft permission
     }
 
@@ -3155,7 +3146,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         return "Subject: " + subject;
     }
 
-
+    @Transactional
     public void resetAssignment(Assignment assignment) {
         assignmentRepository.resetAssignment(assignment);
     }

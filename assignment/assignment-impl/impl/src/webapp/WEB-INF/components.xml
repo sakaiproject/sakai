@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="org.sakaiproject.assignment"/>
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
 
     <bean id="org.sakaiproject.assignment.api.AssignmentService"
           class="org.sakaiproject.assignment.impl.AssignmentServiceImpl"
@@ -17,6 +24,7 @@
             <bean class="org.sakaiproject.assignment.impl.OptionalFactoryBean"/>
         </property>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="contentReviewService" ref="org.sakaiproject.contentreview.service.ContentReviewService"/>
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
         <property name="digestService" ref="org.sakaiproject.email.api.DigestService"/>
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService"/>
@@ -86,7 +94,7 @@
 
     <!--  Hibernate persistence -->
 
-    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.assignmentSupplementItem"
+    <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.assignment"
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="annotatedClasses">
             <list>

@@ -1,12 +1,5 @@
 package org.sakaiproject.assignment.impl;
 
-import static org.mockito.Mockito.mock;
-
-import java.io.IOException;
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbcDriver;
@@ -20,6 +13,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -37,7 +31,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -47,6 +40,13 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.util.Properties;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by enietzel on 4/12/17.
@@ -60,8 +60,7 @@ public class AssignmentTestConfiguration {
     @Autowired
     private Environment environment;
 
-    @Autowired
-    @Qualifier("org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.assignmentSupplementItem")
+    @Resource(name = "org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappings.assignment")
     private AdditionalHibernateMappings hibernateMappings;
 
     @Bean(name = "org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory")
@@ -99,13 +98,6 @@ public class AssignmentTestConfiguration {
         txManager.setSessionFactory(sessionFactory);
         return txManager;
     }
-
-//    @Bean(name = "org.sakaiproject.assignment.persistence.AssignmentRepository")
-//    public AssignmentRepository assignmentRepository() throws IOException {
-//        AssignmentRepository repository = new AssignmentRepository();
-//        repository.setSessionFactory(sessionFactory());
-//        return repository;
-//    }
 
     @Bean(name = "org.sakaiproject.authz.api.SecurityService")
     public SecurityService securityService() {
@@ -235,5 +227,10 @@ public class AssignmentTestConfiguration {
     @Bean(name = "org.sakaiproject.api.app.scheduler.ScheduledInvocationManager")
     public ScheduledInvocationManager scheduledInvocationManager() {
         return mock(ScheduledInvocationManager.class);
+    }
+
+    @Bean(name = "org.sakaiproject.contentreview.service.ContentReviewService")
+    public ContentReviewService contentReviewService() {
+        return mock(ContentReviewService.class);
     }
 }

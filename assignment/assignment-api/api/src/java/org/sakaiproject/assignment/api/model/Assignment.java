@@ -149,13 +149,14 @@ public class Assignment {
     @Column(name = "MODIFIER")
     private String modifier;
 
-    @ElementCollection
-    @CollectionTable(name = "ASN_ASSIGNMENT_AUTHORS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Column(name = "AUTHOR")
-	private Set<String> authors = new HashSet<>();
+	private String author;
 
     @Column(name = "DRAFT", nullable = false)
 	private Boolean draft = Boolean.FALSE;
+
+    @Column(name = "DELETED")
+    private Boolean deleted = Boolean.FALSE;
 
     @Column(name = "HIDE_DUE_DATE")
 	private Boolean hideDueDate = Boolean.FALSE;
@@ -177,7 +178,7 @@ public class Assignment {
 
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
-    @Column(name = "GROUP")
+    @Column(name = "GROUP_ID")
 	private Set<String> groups = new HashSet<>();
 
     @ElementCollection

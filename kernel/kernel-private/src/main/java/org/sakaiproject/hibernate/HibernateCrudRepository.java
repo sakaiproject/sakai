@@ -1,11 +1,7 @@
 package org.sakaiproject.hibernate;
 
-import static org.springframework.core.GenericTypeResolver.resolveTypeArguments;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
@@ -13,12 +9,14 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by enietzel on 2/22/17.
  */
+@Transactional(readOnly = true)
 public abstract class HibernateCrudRepository<T, ID extends Serializable> implements CrudRepository<T, ID> {
 
     @Getter
