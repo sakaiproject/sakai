@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.tsugi.basiclti.BasicLTIUtil;
 import java.net.HttpURLConnection;
 import java.util.Date;
+import java.util.TimeZone;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -55,11 +56,12 @@ public class BasicLTIUtilTest {
 	public void iso8601Text() throws Exception {
 		String x = BasicLTIUtil.getISO8601();
 		assertTrue(x.contains("Z"));
-		String target = "2017-08-20";
-		DateFormat df = new SimpleDateFormat("yyyy-mm-dd");
+		String target = "2017-08-20:10:00:00";
+		DateFormat df = new SimpleDateFormat("yyyy-mm-dd:hh:mm:ss");
+                df.setTimeZone(TimeZone.getTimeZone("GMT"));
 		Date result =  df.parse(target);
 		String y = BasicLTIUtil.getISO8601(result);
-		assertEquals(y,"2017-01-20T05:08:00Z");
+		assertEquals(y,"2017-01-20T10:00:00Z");
 	}
 	
 }
