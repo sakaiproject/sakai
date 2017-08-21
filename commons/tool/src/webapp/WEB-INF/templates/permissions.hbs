@@ -1,20 +1,20 @@
-<h2>{{translate 'permissions'}}</h2>
+<h2>{{tr 'commons' 'permissions'}}</h2>
 <table class="commons-permissions-table">
 	<thead>
 		<tr>
 			<th></th>
 			<th width="5px"></th>
-			<th align="center" colspan="6">{{translate 'post'}}</th>
+			<th align="center" colspan="6">{{tr 'commons' 'post'}}</th>
 		</tr>
 		<tr class="listHier">
-			<th align="left">{{translate 'role'}}:</th>
+			<th align="left">{{tr 'commons' 'role'}}:</th>
 			<th style="background: white;border: none;"></th>
-			<th style="text-align:center;">{{translate 'create'}}</th>
-			<th style="text-align:center;">{{translate 'read_any'}}</th>
-			<th style="text-align:center;">{{translate 'update_any'}}</th>
-			<th style="text-align:center;">{{translate 'update_own'}}</th>
-			<th style="text-align:center;">{{translate 'delete_any'}}</th>
-			<th style="text-align:center;">{{translate 'delete_own'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'create'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'read_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_own'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_own'}}</th>
 		</tr>
 	</thead>
 <tbody>
@@ -37,17 +37,17 @@
 		<tr>
 			<th></th>
 			<th width="5px"></th>
-			<th colspan="6">{{translate 'comment'}}</th>
+			<th colspan="6">{{tr 'commons' 'comment'}}</th>
 		</tr>
 		<tr class="listHier">
-			<th align="left">{{translate 'role'}}:</th>
+			<th align="left">{{tr 'commons' 'role'}}:</th>
 			<th style="background: white;border: none;"></th>
-			<th style="text-align:center;">{{translate 'create'}}</th>
-			<th style="text-align:center;">{{translate 'read_any'}}</th>
-			<th style="text-align:center;">{{translate 'update_any'}}</th>
-			<th style="text-align:center;">{{translate 'update_own'}}</th>
-			<th style="text-align:center;">{{translate 'delete_any'}}</th>
-			<th style="text-align:center;">{{translate 'delete_own'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'create'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'read_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'update_own'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_any'}}</th>
+			<th style="text-align:center;">{{tr 'commons' 'delete_own'}}</th>
 		</tr>
 	</thead>
 {{#each perms}}
@@ -64,5 +64,5 @@
 {{/each}}
 </tbody>
 </table>
-<input id="commons_permissions_save_button" type="button" value="{{translate 'save'}}"/>
-<input type="button" value="{{translate 'cancel'}}" onclick="return commons.switchState('home');"/>
+<input id="commons_permissions_save_button" type="button" value="{{tr 'commons' 'save'}}"/>
+<input type="button" value="{{tr 'commons' 'cancel'}}" onclick="return commons.switchState('home');"/>

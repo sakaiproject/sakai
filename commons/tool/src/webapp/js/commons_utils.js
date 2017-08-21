@@ -55,7 +55,7 @@ commons.utils = {
             var siteName = a.hostname.toUpperCase();
             matches = markup.match(self.AUTHOR_REGEX);
             if (matches && matches.length == 2) {
-                 siteName += ' | ' + commons.i18n.by + ' ' + matches[1].toUpperCase();
+                 siteName += ' | ' + commons.i18n['by'] + ' ' + matches[1].toUpperCase();
             }
 
             if (!title && !image) {
@@ -169,7 +169,7 @@ commons.utils = {
     },
     deleteCommentHandler: function (e) {
 
-        if (!confirm(commons.i18n.delete_comment_message)) {
+        if (!confirm(commons.i18n['delete_comment_message'])) {
             return false;
         }
 
@@ -290,7 +290,7 @@ commons.utils = {
     formatDate: function (millis) {
 
         if (millis <= 0) {
-            return commons.i18n.none;
+            return commons.i18n['none'];
         } else {
             var m = moment(millis);
             return m.format('L LT');
@@ -330,7 +330,7 @@ commons.utils = {
         if (!postId) postId = '';
 
         if ('' == content) {
-            alert(commons.i18n.no_content_warning);
+            alert(commons.i18n['no_content_warning']);
             return 0;
         }
 
@@ -399,7 +399,7 @@ commons.utils = {
     },
     deletePost: function (postId, callback) {
                         
-        if (!confirm(commons.i18n.delete_post_message)) {
+        if (!confirm(commons.i18n['delete_post_message'])) {
             return false;
         }
 

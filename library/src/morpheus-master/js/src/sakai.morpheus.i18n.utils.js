@@ -47,7 +47,7 @@
             });
     };
 
-    portal.i18n.translate = function (namespace, key, options) {
+    portal.i18n.tr = function (namespace, key, options) {
 
         if (!namespace || !key) {
             console.log('You must supply a namespace and a key.');
@@ -70,6 +70,6 @@
     };
 
     Handlebars.registerHelper('tr', function (namespace, key, options) {
-        return new Handlebars.SafeString(portal.i18n.translate(namespace, key, options.hash));
+        return new Handlebars.SafeString(portal.i18n.tr(namespace, key, options.hash));
     });
 }) ($PBJQ);
