@@ -66,6 +66,11 @@
             <to-view-id>/prefs/hidden.jsp</to-view-id>
             <redirect/>
         </navigation-case>
+        <navigation-case>
+            <from-outcome>editor</from-outcome>
+            <to-view-id>/prefs/editor.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
     </navigation-rule>
  	
 	<managed-bean>
