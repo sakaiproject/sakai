@@ -1853,6 +1853,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if(lengthOk(height)) {
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
+						    else if(!lengthOk(height) && lengthOk(width)) {
+							    // Youtube seems to use aspect ratio of 16*9 from 2015 on
+							    int youtubeDerivedHeight = (int) Math.ceil(new Double(width.getOld()) * 9 / 16);
+							    item.decorate(new UIFreeAttributeDecorator("height", youtubeDerivedHeight + ""));
+						    }
 						
 						    if(lengthOk(width)) {
 							    item.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
