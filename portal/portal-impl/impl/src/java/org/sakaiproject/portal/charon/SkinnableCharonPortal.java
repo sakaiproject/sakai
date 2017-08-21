@@ -534,7 +534,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if (prefix != null) portalTopUrl = portalTopUrl + prefix + "/";
 
 		rcontext.put("portalTopUrl", portalTopUrl);
-		rcontext.put("loggedIn", Boolean.valueOf(session.getUserId() != null));
+		rcontext.put("loggedIn", StringUtils.isNotBlank(session.getUserId()));
 		rcontext.put("siteId", siteId);
 
 		if (placement != null)
@@ -1053,7 +1053,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		User currentUser = UserDirectoryService.getCurrentUser();
 		Role role = site != null && currentUser != null ? site.getUserRole(currentUser.getId()) : null;
 
-		rcontext.put("loggedIn", Boolean.valueOf(currentUser.getId() != null));
+		rcontext.put("loggedIn", StringUtils.isNotBlank(currentUser.getId()));
 		rcontext.put("userId", currentUser.getId());
 		rcontext.put("userEid", currentUser.getEid());
 		rcontext.put("userType", currentUser.getType());
