@@ -537,7 +537,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		if (prefix != null) portalTopUrl = portalTopUrl + prefix + "/";
 
 		rcontext.put("portalTopUrl", portalTopUrl);
-		rcontext.put("loggedIn", Boolean.valueOf(session.getUserId() != null));
+		rcontext.put("loggedIn", StringUtils.isNotBlank(session.getUserId()));
 		rcontext.put("siteId", siteId);
 
 		if (placement != null)
@@ -1059,7 +1059,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Preferences prefs = preferencesService.getPreferences(currentUser.getId());
 		String editorType = prefs.getProperties(PreferencesService.EDITOR_PREFS_KEY).getProperty(PreferencesService.EDITOR_PREFS_TYPE);
 
-		rcontext.put("loggedIn", Boolean.valueOf(currentUser.getId() != null));
+		rcontext.put("loggedIn", StringUtils.isNotBlank(currentUser.getId()));
 		rcontext.put("userId", currentUser.getId());
 		rcontext.put("userEid", currentUser.getEid());
 		rcontext.put("userType", currentUser.getType());
