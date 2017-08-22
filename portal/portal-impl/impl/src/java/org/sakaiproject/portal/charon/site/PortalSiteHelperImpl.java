@@ -843,7 +843,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		theMap.put("pageNavTools", l);
 
 		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
-			theMap.put("additionalLessonsPages", getSimplePageToolDao().getLessonSubPageJSON(UserDirectoryService.getCurrentUser().getId(), siteUpdate, l));
+			theMap.put("additionalLessonsPages",
+					getSimplePageToolDao().getLessonSubPageJSON(UserDirectoryService.getCurrentUser().getId(), siteUpdate, site.getId(), l));
 		}
 
 		theMap.put("pageNavTools", l);
