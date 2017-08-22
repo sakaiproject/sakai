@@ -696,7 +696,7 @@ public class SakaiBLTIUtil {
 
 		// Get the organizational information
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, 
-				ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
+				ServerConfigurationService.getString("basiclti.consumer_instance_guid", ServerConfigurationService.getString("serverName", null)));
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME, 
 				ServerConfigurationService.getString("basiclti.consumer_instance_name",null));
 		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION, 
@@ -1370,7 +1370,7 @@ public class SakaiBLTIUtil {
 		if ( launch_url == null ) launch_url = toolProps.getProperty("launch_url");
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>");
 
-		String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
+		String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid", ServerConfigurationService.getString("serverName", null));
 		String org_desc = ServerConfigurationService.getString("basiclti.consumer_instance_description",null);
 		String org_url = ServerConfigurationService.getString("basiclti.consumer_instance_url",null);
 
