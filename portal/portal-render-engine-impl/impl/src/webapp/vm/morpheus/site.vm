@@ -47,7 +47,7 @@
           <div class='desktop'></div>
         </div>
 
-        ## Make sure we at least have a jQuery 1.11 or higher, log messages
+        ## Make sure we at least have a jQuery 1.12 or higher, log messages
     #set ( $d = "$")
     <script>
         var needJQuery = true;
@@ -74,7 +74,7 @@
         }
         if ( window.jQuery ) {
             tver = jQuery.fn.jquery;
-            if ( tver.indexOf('1.11.') == 0 ) {
+            if ( tver.indexOf('1.12.') == 0 ) {
                 window.console && console.log('Using tool jQuery '+tver);
                 needJQuery = false;
             } else {

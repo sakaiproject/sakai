@@ -89,7 +89,7 @@ public class PortalUtils
              "var needJQuery = true;\n" +
              "if ( window.jQuery ) {\n" +
              "       tver = jQuery.fn.jquery;\n" +
-             "       if ( tver.indexOf('1.11.') == 0 ) {\n" +
+             "       if ( tver.indexOf('1.12.') == 0 ) {\n" +
              "               window.console && console.log('"+where+" PortalUtils.includeLatestJquery() detected jQuery '+tver);\n" +
              "               needJQuery = false;\n" +
              "       } else {\n" +
@@ -116,7 +116,7 @@ public class PortalUtils
              "} else { \n" +
              "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+'" + where + "');\n" +
              "   if (typeof jQuery.migrateWarnings == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.4.0.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery/jquery-migrate-1.4.1.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
              "           window.console && console.log('Adding jQuery migrate');\n" +
              "   }\n" +
              "   if ( typeof jQuery.fn.popover == 'undefined') {\n" +
