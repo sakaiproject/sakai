@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>assignment</artifactId>
         <version>12-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>sakai-assignment-api</name>

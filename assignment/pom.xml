@@ -14,10 +14,10 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>assignment-api/api</module>
-    <module>assignment-bundles</module>
-    <module>assignment-impl/impl</module>
-    <module>assignment-tool/tool</module>
+    <module>api</module>
+    <module>bundles</module>
+    <module>impl</module>
+    <module>tool</module>
   </modules>
 
   <dependencyManagement>
@@ -34,5 +34,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
 </project>
