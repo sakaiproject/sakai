@@ -7,7 +7,7 @@
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 		<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
 	</jsp:useBean>
-	<sakai:view_container title="#{msgs.title_edit_bulk}">
+	<sakai:view_container title="#{msgs.bar_create_edit}">
 		<sakai:view_content>
 
 <script>includeLatestJQuery('edit_bulk.jsp');</script>
