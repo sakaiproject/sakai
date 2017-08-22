@@ -1153,8 +1153,10 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         if (arg instanceof Event) {
             Event event = (Event) arg;
-            if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(event.getEvent())) {
-                if (log.isDebugEnabled()) log.debug("Site membership updated. Clearing caches ...");
+            String eventName = event.getEvent();
+            if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(eventName)
+                    || SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP.equals(eventName)) {
+                log.debug("Site membership or groups updated. Clearing caches ...");
                 String siteId = event.getContext();
 
                 Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
