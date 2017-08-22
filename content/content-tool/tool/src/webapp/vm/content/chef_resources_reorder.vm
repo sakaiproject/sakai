@@ -45,7 +45,7 @@
 		
 
 		
-		<ul id="reorder-list" class="container-fluid">
+		<ul id="reorder-list" class="styled-reorder-list container-fluid">
 			#foreach($root in $this_site)
 				#set($collectionMembers = $root.members)
 				#set($count = 1)
