@@ -1,0 +1,95 @@
+/*styles for reorderer (content, assignments, announcements)*/
+#reorder-list-sortingToolBar {
+  font-size: .9em;
+  border: 1px solid #ccc;
+  background: #ffe;
+  margin: 1em 0;
+  padding: 5px;
+  a {
+    outline: none;
+  }
+}
+ul.styled-reorder-list {
+  font-size: .9em;
+  margin: 0;
+  padding: 0;
+  li {
+    list-style: none;
+    padding: 5px;
+    margin: 5px 0;
+    background: #eee;
+    border: 1px solid #ddd;
+    width: 100%;
+    &:focus {
+      border: 1px solid #555;
+    }
+    span {
+      padding-right: 2em;
+      &.grabHandle {
+        display: block;
+        float: left;
+        width: 5em;
+        padding-right: 0;
+        input {
+          margin-top: -2px;
+        }
+      }
+    }
+    .title {
+      display: block;
+      float: left;
+      white-space: nowrap;
+    }
+  }
+}
+.fl-reorderer-movable-selected {
+  border: none;
+  outline: none;
+}
+.fl-reorderer-dropMarker {
+  height: 30px;
+  background: #fff !important;
+  border: 1px dashed #ccc !important;
+}
+.fl-reorderer-movable-hover {
+  cursor: move;
+}
+.fl-reorderer-movable-dragging {
+  background: #fff;
+  color: #555 !important;
+  border: 1px dashed #ccc !important;
+  outline: none;
+}
+.fl-reorderer-avatar {
+  opacity: 0.55;
+  list-style: none;
+  background: #bea !important;
+  width: 50% !important;
+  * {
+    display: none;
+  }
+  .title {
+    display: block;
+    margin: 5px;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+}
+.fl-ProgEnhance-enhanced {
+  display: none;
+}
+.fl-progEnhance-enhanced {
+  display: none;
+}
+.fl-offScreen-hidden {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.recentMove {
+  background: #def !important;
+  border: 1px solid #7bf !important;
+}
