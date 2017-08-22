@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.commons.api.datamodel.Post;
@@ -135,7 +136,7 @@ public class CommonsSecurityManagerImpl implements CommonsSecurityManager {
                 boolean readAny = securityService.unlock(CommonsFunctions.POST_READ_ANY, "/site/" + siteId);
                 return (readAny) ? posts : new ArrayList();
             } else if (embedder.equals(CommonsConstants.ASSIGNMENT)) {
-                boolean readAny = securityService.unlock(AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + siteId);
+                boolean readAny = securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, "/site/" + siteId);
                 return (readAny) ? posts : new ArrayList();
             } else if (embedder.equals(CommonsConstants.SOCIAL)) {
                 return posts;

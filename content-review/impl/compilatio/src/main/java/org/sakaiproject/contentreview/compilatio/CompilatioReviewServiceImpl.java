@@ -144,7 +144,8 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 	private final int DEFAULT_MAX_FILENAME_LENGTH = -1;
 
 	private final String KEY_FILE_TYPE_PREFIX = "file.type";
-	
+
+	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO = "report_gen_speed";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY = "0";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE = "2";	
 	
@@ -395,7 +396,7 @@ public class CompilatioReviewServiceImpl implements ContentReviewService {
 				String assignmentId = assignmentService.getEntity(entityManager.newReference(currentItem.getTaskId())).getId();
 				Assignment a = assignmentService.getAssignment(assignmentId);
 
-				if(a.getGenerateOriginalityReport().equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE)) {
+				if(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE.equals(a.getProperties().get(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO))) {
 					Date dueDate = a.getDueDate();
 					if(dueDate.after(new Date())) {
 						log.debug("assignment due time not yet reached for item: " + currentItem.getId());

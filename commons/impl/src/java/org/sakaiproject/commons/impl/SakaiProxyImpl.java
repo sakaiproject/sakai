@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.fileupload.FileItem;
 
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.commons.api.CommonsConstants;
 import org.sakaiproject.commons.api.CommonsFunctions;
@@ -296,7 +297,7 @@ public class SakaiProxyImpl implements SakaiProxy {
         // user relative to the assignment
         if (embedder.equals(CommonsConstants.ASSIGNMENT)) {
             // This won't generally apply to workspace sites, but it's harmless
-            if (siteRole.isAllowed(AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
+            if (siteRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION)) {
                 filteredFunctions.add(CommonsFunctions.POST_CREATE);
                 filteredFunctions.add(CommonsFunctions.POST_READ_ANY);
                 filteredFunctions.add(CommonsFunctions.POST_UPDATE_OWN);
@@ -307,7 +308,7 @@ public class SakaiProxyImpl implements SakaiProxy {
                 filteredFunctions.add(CommonsFunctions.COMMENT_DELETE_OWN);
             }
 
-            if (siteRole.isAllowed(AssignmentService.SECURE_ADD_ASSIGNMENT)) {
+            if (siteRole.isAllowed(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT)) {
                 filteredFunctions.add(CommonsFunctions.POST_CREATE);
                 filteredFunctions.add(CommonsFunctions.POST_READ_ANY);
                 filteredFunctions.add(CommonsFunctions.POST_DELETE_ANY);
