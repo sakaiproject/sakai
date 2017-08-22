@@ -102,7 +102,7 @@ public class PortalUtils
                  getLatestJQueryPath() + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "jquery-migrate/1.4.0/jquery-migrate.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-migrate/1.4.1/jquery-migrate.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getWebjarsPath() + "bootstrap/3.3.7/js/bootstrap.min.js" + getCDNQuery() +
@@ -141,7 +141,7 @@ public class PortalUtils
 	}
 
 	public static String getLatestJQueryPath() {
-		 return getWebjarsPath() + "jquery/1.11.3/jquery.min.js";
+		 return getWebjarsPath() + "jquery/1.12.4/jquery.min.js";
 	}
 }
 

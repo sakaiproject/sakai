@@ -21,7 +21,7 @@
  *
  **********************************************************************************
 -->
-<script type="text/javascript" src="#libraryLink('webjars/jquery/1.11.3/jquery.min.js')">
+<script type="text/javascript" src="#libraryLink('webjars/jquery/1.12.4/jquery.min.js')">
 </script>
 <script type="text/javascript" src="#libraryLink('webjars/jquery-ui/1.11.3/jquery-ui.min.js')">
 </script>

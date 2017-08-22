@@ -74,7 +74,7 @@ public class WidgetPage extends WebPage {
 
         // render jQuery and the Wicket event library
         // Both must be priority so they are emitted into the head
-        response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+        response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js?version=%s", version))));
         response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/mycalendar/scripts/wicket/wicket-event-jquery.min.js?version=%s", version))));
 
         // additional styles (datepicker, this widget etc)

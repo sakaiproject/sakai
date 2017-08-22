@@ -47,7 +47,7 @@ $Id$
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     
-		<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+		<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 		<script language='javascript' src='/samigo-app/js/jquery.dynamiclist.student.preview.js'></script>
 		<script language='javascript' src='/samigo-app/js/selection.student.preview.js'></script>
 		<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>

@@ -199,7 +199,7 @@ public class BasePage extends WebPage {
 		response.render(
 				new PriorityHeaderItem(
 						JavaScriptHeaderItem
-								.forUrl(String.format("/library/webjars/jquery/1.11.3/jquery.min.js?version=%s", version))));
+								.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js?version=%s", version))));
 		// And pair this instance of jQuery with a Bootstrap version we've tested with
 		response.render(
 				new PriorityHeaderItem(

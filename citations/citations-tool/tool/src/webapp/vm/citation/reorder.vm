@@ -4,7 +4,7 @@
 	#citations-sortable li span { position: absolute; margin-left: -1.3em; }
 </style>
 <link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" media="all" />
-<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
 <script type="text/javascript" src="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
 </script>

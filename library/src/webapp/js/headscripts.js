@@ -729,7 +729,7 @@ function includeLatestJQuery(where) {
 	if ( window.jQuery ) {
 		window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+where);
 		if (typeof jQuery.migrateWarnings == 'undefined') { 
-			document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.0/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+			document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
 			window.console && console.log('Adding jQuery migrate');
 		}
 		if ( typeof jQuery.fn.popover == 'undefined') {
@@ -742,8 +742,8 @@ function includeLatestJQuery(where) {
 			window.console && console.log('Adding jQuery UI');
 		}
 	} else {
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery/1.11.3/jquery.min.js'+ver+'">'+'\x3C/script>')
-		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.0/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery/1.12.4/jquery.min.js'+ver+'">'+'\x3C/script>')
+		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-migrate/1.4.1/jquery-migrate.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript type="text/javascript" src="'+webjars+'bootstrap/3.3.7/js/bootstrap.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Cscript type="text/javascript" src="'+webjars+'jquery-ui/1.11.3/jquery-ui.min.js'+ver+'">'+'\x3C/script>')
 		document.write('\x3Clink rel="stylesheet" href="'+webjars+'jquery-ui/1.11.3/jquery-ui.min.css'+ver+'"/>');

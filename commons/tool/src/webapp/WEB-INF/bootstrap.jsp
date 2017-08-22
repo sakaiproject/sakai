@@ -27,7 +27,7 @@
     </head>
     <body>
 
-        <script src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+        <script src="/library/webjars/jquery/1.12.4/jquery.min.js"></script>
         <script src="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js"></script>
         <script src="/library/webjars/momentjs/2.11.1/min/moment-with-locales.min.js"></script>
         <script src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
