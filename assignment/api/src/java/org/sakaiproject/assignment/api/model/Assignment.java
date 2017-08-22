@@ -21,39 +21,18 @@
 
 package org.sakaiproject.assignment.api.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.hibernate.annotations.GenericGenerator;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.*;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
- *
+ * <p>
  * <p>Important notes about Java java.util.Date timezone persistence</p>
  * <pre>
  * * MySQL DATETIME vs TIMESTAMP
@@ -100,20 +79,20 @@ public class Assignment {
     @Column(name = "ASSIGNMENT_ID", length = 36, nullable = false)
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
-	private String id;
+    private String id;
 
     @Column(name = "TITLE")
-	private String title;
+    private String title;
 
     @Lob
     @Column(name = "INSTRUCTIONS")
     private String instructions;
 
     @Column(name = "CONTEXT", nullable = false)
-	private String context;
+    private String context;
 
     @Column(name = "SECTION")
-	private String section;
+    private String section;
 
     @Column(name = "CREATE_DATE", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -129,19 +108,19 @@ public class Assignment {
 
     @Column(name = "OPEN_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-	private Date openDate;
+    private Date openDate;
 
     @Column(name = "DUE_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-	private Date dueDate;
+    private Date dueDate;
 
     @Column(name = "CLOSE_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-	private Date closeDate;
+    private Date closeDate;
 
     @Column(name = "DROP_DEAD_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-	private Date dropDeadDate;
+    private Date dropDeadDate;
 
     @Column(name = "CREATOR")
     private String creator;
@@ -150,22 +129,22 @@ public class Assignment {
     private String modifier;
 
     @Column(name = "AUTHOR")
-	private String author;
+    private String author;
 
     @Column(name = "DRAFT", nullable = false)
-	private Boolean draft = Boolean.FALSE;
+    private Boolean draft = Boolean.FALSE;
 
     @Column(name = "DELETED")
     private Boolean deleted = Boolean.FALSE;
 
     @Column(name = "HIDE_DUE_DATE")
-	private Boolean hideDueDate = Boolean.FALSE;
+    private Boolean hideDueDate = Boolean.FALSE;
 
     @Column(name = "IS_GROUP")
-	private Boolean isGroup = Boolean.FALSE;
+    private Boolean isGroup = Boolean.FALSE;
 
     @Column(name = "POSITION")
-	private Integer position;
+    private Integer position;
 
     @OneToMany(mappedBy = "assignment", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AssignmentSubmission> submissions = new HashSet<>();
@@ -174,12 +153,12 @@ public class Assignment {
     @MapKeyColumn(name = "NAME")
     @Column(name = "VALUE")
     @CollectionTable(name = "ASN_ASSIGNMENT_PROPERTIES", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
-	private Map<String, String> properties = new HashMap<>();
+    private Map<String, String> properties = new HashMap<>();
 
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_GROUPS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
     @Column(name = "GROUP_ID")
-	private Set<String> groups = new HashSet<>();
+    private Set<String> groups = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(name = "ASN_ASSIGNMENT_ATTACHMENTS", joinColumns = @JoinColumn(name = "ASSIGNMENT_ID"))
@@ -188,7 +167,7 @@ public class Assignment {
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "ACCESS", nullable = false)
-	private Access access = Access.SITE;
+    private Access access = Access.SITE;
 
     @Column(name = "HONOR_PLEDGE")
     private Boolean honorPledge = Boolean.FALSE;
@@ -220,23 +199,23 @@ public class Assignment {
     private Boolean allowAttachments;
 
     @Column(name = "ALLOW_PEER_ASSESSMENT")
-	private Boolean allowPeerAssessment = Boolean.FALSE;
+    private Boolean allowPeerAssessment = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_PERIOD_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-	private Date peerAssessmentPeriodDate;
+    private Date peerAssessmentPeriodDate;
 
     @Column(name = "PEER_ASSESSMENT_ANON_EVAL")
-	private Boolean peerAssessmentAnonEval;
+    private Boolean peerAssessmentAnonEval;
 
     @Column(name = "PEER_ASSESSMENT_STUDENT_VIEW_REVIEW")
-	private Boolean peerAssessmentStudentViewReview = Boolean.FALSE;
+    private Boolean peerAssessmentStudentViewReview = Boolean.FALSE;
 
     @Column(name = "PEER_ASSESSMENT_NUMBER_REVIEW")
-	private Integer peerAssessmentNumberReviews;
+    private Integer peerAssessmentNumberReviews;
 
     @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS")
-	private String peerAssessmentInstructions;
+    private String peerAssessmentInstructions;
 
     @Column(name = "CONTENT_REVIEW")
     private Boolean contentReview;

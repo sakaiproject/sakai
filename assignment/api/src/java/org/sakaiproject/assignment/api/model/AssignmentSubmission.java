@@ -21,34 +21,14 @@
 
 package org.sakaiproject.assignment.api.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.hibernate.annotations.GenericGenerator;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
+import java.util.*;
 
 /**
  * AssignmentSubmission represents a student submission for an assignment.
@@ -63,103 +43,103 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "id")
 public class AssignmentSubmission {
 
-	@Id
-	@Column(name = "SUBMISSION_ID", length = 36, nullable = false)
-	@GeneratedValue(generator = "uuid")
-	@GenericGenerator(name = "uuid", strategy = "uuid2")
-	private String id;
+    @Id
+    @Column(name = "SUBMISSION_ID", length = 36, nullable = false)
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid2")
+    private String id;
 
-	@ManyToOne
-	@JoinColumn(name = "ASSIGNMENT_ID")
-	private Assignment assignment;
+    @ManyToOne
+    @JoinColumn(name = "ASSIGNMENT_ID")
+    private Assignment assignment;
 
-	@OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
+    @OneToMany(mappedBy = "submission", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<AssignmentSubmissionSubmitter> submitters = new HashSet<>();
 
-	//private List submissionLog;
+    //private List submissionLog;
 
-	@Column(name = "SUBMITTED_DATE")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateSubmitted;
+    @Column(name = "SUBMITTED_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateSubmitted;
 
-	@Column(name = "RETURNED_DATE")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateReturned;
+    @Column(name = "RETURNED_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateReturned;
 
-	@Column(name = "MODIFIED_DATE")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date dateModified;
+    @Column(name = "MODIFIED_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateModified;
 
-	@ElementCollection
-	@Column(name = "ATTACHMENT")
-	@CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	private Set<String> attachments;
+    @ElementCollection
+    @Column(name = "ATTACHMENT")
+    @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    private Set<String> attachments;
 
-	// TODO combine attachments and feedbackAttachements into a single table
-	@ElementCollection
-	@Column(name = "FEEDBACK_ATTACHMENT")
-	@CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	private Set<String> feedbackAttachments;
+    // TODO combine attachments and feedbackAttachements into a single table
+    @ElementCollection
+    @Column(name = "FEEDBACK_ATTACHMENT")
+    @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    private Set<String> feedbackAttachments;
 
-	@Lob
-	@Column(name = "TEXT")
-	private String submittedText;
+    @Lob
+    @Column(name = "TEXT")
+    private String submittedText;
 
-	@Lob
-	@Column(name = "FEEDBACK_COMMENT")
-	private String feedbackComment;
+    @Lob
+    @Column(name = "FEEDBACK_COMMENT")
+    private String feedbackComment;
 
-	@Lob
-	@Column(name = "FEEDBACK_TEXT")
-	private String feedbackText;
+    @Lob
+    @Column(name = "FEEDBACK_TEXT")
+    private String feedbackText;
 
-	@Column(name = "GRADE")
-	private String grade;
+    @Column(name = "GRADE")
+    private String grade;
 
-	@Column(name = "FACTOR")
-	private Integer factor;
+    @Column(name = "FACTOR")
+    private Integer factor;
 
-	@Column(name = "SUBMITTED")
-	private Boolean submitted;
+    @Column(name = "SUBMITTED")
+    private Boolean submitted;
 
-	@Column(name = "RETURNED")
-	private Boolean returned;
+    @Column(name = "RETURNED")
+    private Boolean returned;
 
-	@Column(name = "GRADED")
-	private Boolean graded;
+    @Column(name = "GRADED")
+    private Boolean graded;
 
-	@Column(name = "GRADED_BY")
-	private String gradedBy;
+    @Column(name = "GRADED_BY")
+    private String gradedBy;
 
-	@Column(name = "GRADE_RELEASED")
-	private Boolean gradeReleased;
+    @Column(name = "GRADE_RELEASED")
+    private Boolean gradeReleased;
 
-	@Column(name = "HONOR_PLEDGE")
-	private Boolean honorPledge;
+    @Column(name = "HONOR_PLEDGE")
+    private Boolean honorPledge;
 
-	@Column(name = "ANONYMOUS_SUBMISSION_ID")
-	private String anonymousSubmissionId;
+    @Column(name = "ANONYMOUS_SUBMISSION_ID")
+    private String anonymousSubmissionId;
 
-	@Column(name = "HIDDEN_DUE_DATE")
-	private Boolean hiddenDueDate;
+    @Column(name = "HIDDEN_DUE_DATE")
+    private Boolean hiddenDueDate;
 
-	@Column(name = "USER_SUBMISSION")
-	private Boolean userSubmission;
+    @Column(name = "USER_SUBMISSION")
+    private Boolean userSubmission;
 
-	@Column(name = "GROUP_ID")
-	private String groupId;
+    @Column(name = "GROUP_ID")
+    private String groupId;
 
-	@ElementCollection
-	@MapKeyColumn(name = "NAME")
-	@Column(name = "VALUE")
-	@CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-	private Map<String, String> properties = new HashMap<>();
+    @ElementCollection
+    @MapKeyColumn(name = "NAME")
+    @Column(name = "VALUE")
+    @CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
+    private Map<String, String> properties = new HashMap<>();
 
     // TODO this data should come from a ReviewableSubmissionEntity and not be part of the Submission (SOLID)
-	// for this data will be stored in the submissions properties
-	// private Integer reviewScore;
-	// private String reviewReport;
-	// private String reviewStatus;
-	// private String reviewIconUrl;
-	// private String reviewError;
+    // for this data will be stored in the submissions properties
+    // private Integer reviewScore;
+    // private String reviewReport;
+    // private String reviewStatus;
+    // private String reviewIconUrl;
+    // private String reviewError;
 }
