@@ -108,10 +108,10 @@ public class PortalUtils
                  getWebjarsPath() + "bootstrap/3.3.7/js/bootstrap.min.js" + getCDNQuery() +
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
-                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
              "   document.write('\\x3Clink rel=\"stylesheet\" href=\"" +
-                 getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + 
+                 getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.css" + getCDNQuery() + 
                  "\"/>')\n" +
              "} else { \n" +
              "   window.console && console.log('jQuery already loaded '+jQuery.fn.jquery+' in '+'" + where + "');\n" +
@@ -124,8 +124,8 @@ public class PortalUtils
              "           window.console && console.log('Adding Bootstrap');\n" +
              "   }\n" +
              "   if (typeof jQuery.ui == 'undefined') {\n" +
-             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
-             "           document.write('\\x3Clink rel=\"stylesheet\" href=\"" + getWebjarsPath() + "jquery-ui/1.11.3/jquery-ui.min.css" + getCDNQuery() + "\"/>')\n" +
+             "           document.write('\\x3Cscript type=\"text/javascript\" src=\"" + getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.js" + getCDNQuery() + "\">'+'\\x3C/script>')\n" +
+             "           document.write('\\x3Clink rel=\"stylesheet\" href=\"" + getWebjarsPath() + "jquery-ui/1.12.1/jquery-ui.min.css" + getCDNQuery() + "\"/>')\n" +
              "           window.console && console.log('Adding jQuery UI');\n" +
              "   }\n" +
              "}\n" +

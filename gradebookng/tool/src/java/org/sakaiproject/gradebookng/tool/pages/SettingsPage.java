@@ -220,7 +220,7 @@ public class SettingsPage extends BasePage {
 
 		// Drag and Drop (requires jQueryUI)
 		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+				.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
 
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
 		response.render(

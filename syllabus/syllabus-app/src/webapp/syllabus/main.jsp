@@ -29,7 +29,7 @@
 <script type="text/javascript" src="js/syllabus.js"></script>
 <sakai:stylesheet path="/syllabus/css/jqueryui-editable.css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
 
 <script type="text/javascript">
 	var msgs;
