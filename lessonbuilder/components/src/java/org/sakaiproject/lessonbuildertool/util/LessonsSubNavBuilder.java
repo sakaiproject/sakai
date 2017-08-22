@@ -45,10 +45,12 @@ public class LessonsSubNavBuilder {
 
     private static ResourceLoader rb = new ResourceLoader("subnav");
 
+    private String siteId;
     private boolean isInstructor;
     private Map<String, ArrayList<Map<String, String>>> subnavData;
 
-    public LessonsSubNavBuilder(final boolean isInstructor) {
+    public LessonsSubNavBuilder(final String siteId, final boolean isInstructor) {
+        this.siteId = siteId;
         this.isInstructor = isInstructor;
         this.subnavData = new HashMap<>();
     }
@@ -59,6 +61,8 @@ public class LessonsSubNavBuilder {
         final Map<String, Object> objectToSerialize = new HashMap<>();
         objectToSerialize.put("pages", this.subnavData);
         objectToSerialize.put("i18n", getI18n());
+        objectToSerialize.put("siteId", this.siteId);
+        objectToSerialize.put("isInstructor", this.isInstructor);
 
         return JSONObject.toJSONString(objectToSerialize);
     }
@@ -69,7 +73,10 @@ public class LessonsSubNavBuilder {
         final List<String> pageIds = new ArrayList<>(typedPages.size());
 
         for (Map<String, String> page : typedPages) {
-            pageIds.add(page.get("pageId"));
+            // try to limit to only lesson pages
+            if (!page.containsKey("wellKnownToolId") || "sakai.lessonbuildertool".equals(page.get("wellKnownToolId"))) {
+                pageIds.add(page.get("pageId"));
+            }
         }
 
         return pageIds;
@@ -91,6 +98,7 @@ public class LessonsSubNavBuilder {
 
         subnavItem.put("toolId", rs.getString("sakaiToolId"));
         subnavItem.put("siteId", rs.getString("sakaiSiteId"));
+        subnavItem.put("sakaiPageId", rs.getString("sakaiPageId"));
         subnavItem.put("itemId", rs.getString("itemId"));
         subnavItem.put("sendingPage", rs.getString("itemSakaiId"));
         subnavItem.put("name", rs.getString("itemName"));

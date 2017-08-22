@@ -38,6 +38,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -410,6 +412,52 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		if (ret != null && ret.size() > 0)
 		    return ret.get(0);
 		return ret;
+	}
+
+
+	/**
+	 * subnav-prerequisites
+	 * example: /direct/lessons/subnav-prerequisites/SITEID.xml
+	 */
+	@EntityCustomAction(action = "subnav-prerequisites", viewKey = EntityView.VIEW_LIST)
+	public String getPrerequisiteDataForSubNav(final EntityView view, final Map<String, Object> params) {
+		final String siteId = view.getPathSegment(2);
+
+		if (siteId == null || "".equals(siteId)) {
+			throw new IllegalArgumentException("siteId is required");
+		}
+		Site site = null;
+		try {
+			site = siteService.getSiteVisit(siteId);
+		} catch (IdUnusedException e) {
+			throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
+		} catch (PermissionException e) {
+			throw new EntityNotFoundException("No access to site: " + siteId, siteId);
+		}
+
+		setToolSession(site);
+
+		final JSONObject result = new JSONObject();
+
+		final List<SimplePage> topLevelPages = simplePageToolDao.getTopLevelPages(siteId);
+		SimplePageBean simplePageBean = null;
+		final String currentUserId = sessionManager.getCurrentSessionUserId();
+
+		for (SimplePage topLevelPage : topLevelPages) {
+			final List<SimplePageItem> itemsOnPage = simplePageToolDao.findItemsOnPage(topLevelPage.getPageId());
+			final JSONArray inaccessibleItems = new JSONArray();
+
+			for (SimplePageItem item : itemsOnPage) {
+				simplePageBean = makeSimplePageBean(simplePageBean, siteId, item);
+				if (!lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean)) {
+					inaccessibleItems.add(String.valueOf(item.getId()));
+				}
+			}
+
+			result.put(topLevelPage.getToolId(), inaccessibleItems);
+		}
+
+		return result.toJSONString();
 	}
 	
 	
