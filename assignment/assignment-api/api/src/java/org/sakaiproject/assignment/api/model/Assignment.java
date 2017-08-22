@@ -238,6 +238,9 @@ public class Assignment {
     @Column(name = "PEER_ASSESSMENT_INSTRUCTIONS")
 	private String peerAssessmentInstructions;
 
+    @Column(name = "CONTENT_REVIEW")
+    private Boolean contentReview;
+
     public enum Access {
         SITE,
         GROUPED
@@ -261,24 +264,20 @@ public class Assignment {
         CHECK_GRADE_TYPE      // 5
     }
 
-    @Column(name = "CONTENT_REVIEW")
-    private Boolean contentReview;
-
-    @Column(name = "CONTENT_REPORT")
-    private String generateOriginalityReport;
-
-    // CONTENT REVIEW use separate table?
-//    private Boolean allowStudentViewReport;
-//    private String submitReviewRepo;
-//    private boolean checkTurnitin = true;
-//    private boolean checkInternet = true;
-//    private boolean checkPublications = true;
-//    private boolean checkInstitution = true;
-//    private boolean excludeBibliographic = true;
-//    private boolean excludeQuoted = true;
-//    private boolean excludeSelfPlag = true;
-//    private boolean storeInstIndex = true;
-//    private int excludeType = 0;
-//    private int excludeValue = 1;
+    // TODO this data should come from a ReviewableAssignmentEntity and not be part of the Assignment (SOLID)
+    // for now this is stored in the assignments properties
+    // private String generateOriginalityReport;
+    // private Boolean allowStudentViewReport;
+    // private String submitReviewRepo;
+    // private boolean checkTurnitin = true;
+    // private boolean checkInternet = true;
+    // private boolean checkPublications = true;
+    // private boolean checkInstitution = true;
+    // private boolean excludeBibliographic = true;
+    // private boolean excludeQuoted = true;
+    // private boolean excludeSelfPlag = true;
+    // private boolean storeInstIndex = true;
+    // private int excludeType = 0;
+    // private int excludeValue = 1;
 }
 

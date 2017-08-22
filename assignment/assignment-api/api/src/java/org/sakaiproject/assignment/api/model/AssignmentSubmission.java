@@ -155,7 +155,8 @@ public class AssignmentSubmission {
 	@CollectionTable(name = "ASN_SUBMISSION_PROPERTIES", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
 	private Map<String, String> properties = new HashMap<>();
 
-    // should get this data from the content review service
+    // TODO this data should come from a ReviewableSubmissionEntity and not be part of the Submission (SOLID)
+	// for this data will be stored in the submissions properties
 	// private Integer reviewScore;
 	// private String reviewReport;
 	// private String reviewStatus;

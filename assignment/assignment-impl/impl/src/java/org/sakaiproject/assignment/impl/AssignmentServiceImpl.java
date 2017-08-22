@@ -1,58 +1,5 @@
 package org.sakaiproject.assignment.impl;
 
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.APPLICATION_ID;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_CONTENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_GRADES;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REF_TYPE_SUBMISSIONS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_CONTENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ALL_GROUPS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_GRADE_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_REMOVE_ASSIGNMENT_SUBMISSION;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_SHARE_DRAFTS;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_UPDATE_ASSIGNMENT_SUBMISSION;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.text.Normalizer;
-import java.text.NumberFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Stack;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,12 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.assignment.api.AssignmentConstants;
-import org.sakaiproject.assignment.api.AssignmentEntity;
-import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
-import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.*;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
@@ -76,44 +18,21 @@ import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.assignment.persistence.AssignmentRepository;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityAccessOverloadException;
-import org.sakaiproject.entity.api.EntityCopyrightException;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityNotDefinedException;
-import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -131,16 +50,33 @@ import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.BaseResourceProperties;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.*;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.text.Normalizer;
+import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 
 /**
  * Created by enietzel on 3/3/17.
@@ -170,7 +106,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Setter private GradebookExternalAssessmentService gradebookExternalAssessmentService;
     @Setter private GradebookService gradebookService;
     @Setter private GradeSheetExporter gradeSheetExporter;
-    @Setter private IdManager idManager;
     @Setter private MemoryService memoryService;
     @Setter private SecurityService securityService;
     @Setter private SessionManager sessionManager;
@@ -962,11 +897,6 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentSubmission getSubmission(String submissionId) throws IdUnusedException, PermissionException {
-        return assignmentRepository.findSubmission(submissionId);
-    }
-
-    @Override
     public Collection<Assignment> getAssignmentsForContext(String context) {
         log.debug("GET ASSIGNMENTS : CONTEXT : {}", context);
         List<Assignment> assignments = new ArrayList<>();
@@ -1034,6 +964,11 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
 
         return submittable;
+    }
+
+    @Override
+    public AssignmentSubmission getSubmission(String submissionId) throws IdUnusedException, PermissionException {
+        return assignmentRepository.findSubmission(submissionId);
     }
 
     @Override
@@ -3149,5 +3084,36 @@ public class AssignmentServiceImpl implements AssignmentService {
     @Transactional
     public void resetAssignment(Assignment assignment) {
         assignmentRepository.resetAssignment(assignment);
+    }
+
+    @Override
+    public void postReviewableSubmissonAttachments(String submissionId) {
+        try {
+            AssignmentSubmission submission = getSubmission(submissionId);
+            Optional<AssignmentSubmissionSubmitter> submitter = submission.getSubmitters().stream().filter(AssignmentSubmissionSubmitter::getSubmittee).findFirst();
+            if (submitter.isPresent()) {
+                Assignment assignment = submission.getAssignment();
+                String assignmentRef = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+                List<ContentResource> resources = new ArrayList<>();
+                for (String attachment : submission.getAttachments()) {
+                    Reference attachmentRef = entityManager.newReference(attachment);
+                    try {
+                        ContentResource resource = contentHostingService.getResource(attachmentRef.getId());
+                        if (contentReviewService.isAcceptableContent(resource)) {
+                            resources.add(resource);
+                        }
+                    } catch (TypeException e) {
+                        log.warn("Could not retrieve content resource: {}, {}", assignmentRef, e.getMessage());
+                    }
+                }
+                try {
+                    contentReviewService.queueContent(submitter.get().getSubmitter(), assignment.getContext(), assignmentRef, resources);
+                } catch (QueueException e) {
+                    log.warn("Could not queue submission: {} for review, {}", submissionId, e.getMessage());
+                }
+            }
+        } catch (IdUnusedException | PermissionException e) {
+            log.warn("Could not locate submission: {}, {}", submissionId, e.getMessage());
+        }
     }
 }

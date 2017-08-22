@@ -25,11 +25,11 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     public Assignment findAssignment(String id) {
         Assignment assignment = findOne(id);
-        if (assignment != null) {
-            Hibernate.initialize(assignment.getAttachments());
-            Hibernate.initialize(assignment.getGroups());
-            Hibernate.initialize(assignment.getProperties());
-        }
+//        if (assignment != null) {
+//            Hibernate.initialize(assignment.getAttachments());
+//            Hibernate.initialize(assignment.getGroups());
+//            Hibernate.initialize(assignment.getProperties());
+//        }
 
         return assignment;
     }
@@ -38,11 +38,11 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
         List<Assignment> assignments = startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
-        assignments.stream().forEach(a -> {
-            Hibernate.initialize(a.getAttachments());
-            Hibernate.initialize(a.getGroups());
-            Hibernate.initialize(a.getProperties());
-        });
+//        assignments.stream().forEach(a -> {
+//            Hibernate.initialize(a.getAttachments());
+//            Hibernate.initialize(a.getGroups());
+//            Hibernate.initialize(a.getProperties());
+//        });
         return assignments;
     }
 
@@ -102,7 +102,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     @Override
     public AssignmentSubmission findSubmission(String submissionId) {
         AssignmentSubmission submission = (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
-        Hibernate.initialize(submission);
+//        Hibernate.initialize(submission);
         return submission;
     }
 

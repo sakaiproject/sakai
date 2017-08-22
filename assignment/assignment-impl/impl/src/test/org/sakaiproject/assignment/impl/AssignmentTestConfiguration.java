@@ -184,11 +184,6 @@ public class AssignmentTestConfiguration {
         return mock(GradeSheetExporter.class);
     }
 
-    @Bean(name = "org.sakaiproject.id.api.IdManager")
-    public IdManager idManager() {
-        return mock(IdManager.class);
-    }
-
     @Bean(name = "org.sakaiproject.memory.api.MemoryService")
     public MemoryService memoryService() {
         return mock(MemoryService.class);

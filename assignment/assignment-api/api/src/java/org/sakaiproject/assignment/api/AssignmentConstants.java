@@ -225,4 +225,10 @@ public final class AssignmentConstants {
 
 	public static final String ZIP_COMMENT_FILE_TYPE = ".txt";
 	public static final String ZIP_SUBMITTED_TEXT_FILE_TYPE = ".html";
+
+	public static final String REVIEW_SCORE = "review_score";
+	public static final String REVIEW_REPORT = "review_report";
+	public static final String REVIEW_STATUS = "review_status";
+	public static final String REVIEW_ICON = "review_icon";
+	public static final String REVIEW_ERROR = "review_error";
 }

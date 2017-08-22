@@ -652,4 +652,6 @@ public interface AssignmentService extends EntityProducer {
     public boolean isPeerAssessmentClosed(Assignment assignment);
 
     void resetAssignment(Assignment assignment);
+
+    void postReviewableSubmissonAttachments(String submissionId);
 }
