@@ -24,26 +24,13 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public Assignment findAssignment(String id) {
-        Assignment assignment = findOne(id);
-//        if (assignment != null) {
-//            Hibernate.initialize(assignment.getAttachments());
-//            Hibernate.initialize(assignment.getGroups());
-//            Hibernate.initialize(assignment.getProperties());
-//        }
-
-        return assignment;
+        return findOne(id);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Assignment> findAssignmentsBySite(String siteId) {
-        List<Assignment> assignments = startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
-//        assignments.stream().forEach(a -> {
-//            Hibernate.initialize(a.getAttachments());
-//            Hibernate.initialize(a.getGroups());
-//            Hibernate.initialize(a.getProperties());
-//        });
-        return assignments;
+        return startCriteriaQuery().add(Restrictions.eq("context", siteId)).list();
     }
 
     @Override
@@ -101,9 +88,7 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
 
     @Override
     public AssignmentSubmission findSubmission(String submissionId) {
-        AssignmentSubmission submission = (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
-//        Hibernate.initialize(submission);
-        return submission;
+        return (AssignmentSubmission) sessionFactory.getCurrentSession().get(AssignmentSubmission.class, submissionId);
     }
 
     @Override

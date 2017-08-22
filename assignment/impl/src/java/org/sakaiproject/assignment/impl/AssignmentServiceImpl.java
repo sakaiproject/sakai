@@ -1091,6 +1091,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
         return null;
     }
+
     @Override
     public String getSubmissionStatus(String submissionId) {
         String status = "";
