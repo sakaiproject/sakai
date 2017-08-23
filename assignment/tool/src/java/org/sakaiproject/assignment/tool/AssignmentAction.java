@@ -1773,7 +1773,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 context.put("textSubmissionOnly", Boolean.FALSE);
             }
 
-            context.put("submissionType", submissionType);
+            context.put("submissionType", submissionType.ordinal());
 
             AssignmentSubmission s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_confirmation_context", state);
             if (s != null) {
@@ -2392,7 +2392,7 @@ public class AssignmentAction extends PagedResourceActionII {
         // information related to gradebook categories
         putGradebookCategoryInfoIntoContext(state, context);
 
-        context.put("value_totalSubmissionTypes", Assignment.SubmissionType.values().length);
+        context.put("value_totalSubmissionTypes", Assignment.SubmissionType.values().length - 1);
         context.put("value_GradeType", state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE));
         // format to show one decimal place
         String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
@@ -2503,9 +2503,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("value_opendate_notification_high", AssignmentConstants.ASSIGNMENT_OPENDATE_NOTIFICATION_HIGH);
         }
 
-        Boolean honorPledge = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
-        if (honorPledge == null) honorPledge = Boolean.FALSE;
-        context.put("value_CheckAddHonorPledge", honorPledge);
+        context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 
         // put resubmission option into context
         assignment_resubmission_option_into_context(context, state);

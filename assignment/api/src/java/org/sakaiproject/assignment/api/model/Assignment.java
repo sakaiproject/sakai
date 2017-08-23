@@ -174,11 +174,11 @@ public class Assignment {
 
     @Enumerated
     @Column(name = "SUBMISSION_TYPE")
-    private SubmissionType typeOfSubmission;
+    private SubmissionType typeOfSubmission = SubmissionType.ASSIGNMENT_SUBMISSION_TYPE_NONE;
 
     @Enumerated
     @Column(name = "GRADE_TYPE")
-    private GradeType typeOfGrade;
+    private GradeType typeOfGrade = GradeType.GRADE_TYPE_NONE;
 
     @Column(name = "MAX_GRADE_POINT")
     private Integer maxGradePoint;

@@ -67,7 +67,6 @@ public class AssignmentTestConfiguration {
     public SessionFactory sessionFactory() throws IOException {
         LocalSessionFactoryBuilder sfb = new LocalSessionFactoryBuilder(dataSource());
         hibernateMappings.processAdditionalMappings(sfb);
-//        sfb.addAnnotatedClasses(Assignment.class, AssignmentSubmission.class, AssessorSubmissionId.class, AssignmentSubmissionSubmitter.class);
         sfb.addProperties(hibernateProperties());
         return sfb.buildSessionFactory();
     }

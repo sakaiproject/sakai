@@ -156,11 +156,11 @@
 
 		<div class="checkbox">
 			<label for="$name_CheckAddHonorPledge">
-			#if ($!value_CheckAddHonorPledge)
-				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
-			#else
-				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" />
-			#end
+				<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="true"
+					#if ($!value_CheckAddHonorPledge)
+                       checked="checked"
+					#end
+				/>
 				$tlang.getString("gen.addhonple")
 			</label>
 		</div>

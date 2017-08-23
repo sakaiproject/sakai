@@ -44,7 +44,7 @@ function printView(url) {
 }
 </script>
 
-#set ($submissionType = $assignmentContent.getTypeOfSubmission())
+#set ($submissionType = $assignment.getTypeOfSubmission().ordinal())
 
 <div class="portletBody container-fluid">
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
@@ -120,7 +120,7 @@ function printView(url) {
 		#if($assignment.getAllowPeerAssessment() == true && $assignment.isPeerAssessmentClosed() == false)
 			#set($disableGrade=true)
 		#end
-		#set ($submissionType = $assignmentContent.getTypeOfSubmission())
+		#set ($submissionType = $assignmentContent.getTypeOfSubmission().ordinal())
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
 			#if (!$!showMsg || $showMsg ==0)
@@ -156,7 +156,7 @@ function printView(url) {
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 
-		#set ($submissionType = $assignmentContent.getTypeOfSubmission())
+		#set ($submissionType = $assignment.getTypeOfSubmission().ordinal())
 		#set ($showMsg = false)
 		#set ($showMsg = $!allMsgNumber)
 		#if (!$!showMsg || $showMsg ==0)
