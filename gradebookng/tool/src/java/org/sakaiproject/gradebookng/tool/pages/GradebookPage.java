@@ -480,7 +480,7 @@ public class GradebookPage extends BasePage {
 
 		// Drag and Drop/Date Picker (requires jQueryUI)
 		response.render(JavaScriptHeaderItem
-				.forUrl(String.format("/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js?version=%s", version)));
+				.forUrl(String.format("/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js?version=%s", version)));
 
 		// Include Sakai Date Picker
 		response.render(JavaScriptHeaderItem

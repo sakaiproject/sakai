@@ -24,8 +24,8 @@
          "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/library/skin/morpheus-default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
-         "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.11.3/jquery.min.js\"></script>\n" +
-         "<script type=\"text/javascript\" src=\"/library/webjars/jquery-ui/1.11.3/jquery-ui.min.js\"></script>\n" +
+         "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.12.4/jquery.min.js\"></script>\n" +
+         "<script type=\"text/javascript\" src=\"/library/webjars/jquery-ui/1.12.1/jquery-ui.min.js\"></script>\n" +
          "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n");
       request.setAttribute("html.body.onload", "");
     } %>

@@ -28,7 +28,7 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-		    <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js?version="></script>
+		    <script type="text/javascript" src="/library/webjars/jquery/1.12.4/jquery.min.js?version="></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<script type="text/javascript">

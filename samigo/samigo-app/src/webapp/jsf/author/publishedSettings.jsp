@@ -50,7 +50,7 @@
 
       <script type="text/javascript">
       if (needJQuery) {
-         document.write('\x3Clink href="/library/webjars/jquery-ui/1.11.3/jquery-ui.min.css?version=" rel="stylesheet">');
+         document.write('\x3Clink href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css?version=" rel="stylesheet">');
       }
       </script>
 

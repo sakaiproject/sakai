@@ -54,8 +54,8 @@
     	        }
     	    }
     	    if ( needJQuery ) {
-    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.11.3/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.0/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery/1.12.4/jquery.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageWebjarsPath}jquery-migrate/1.4.1/jquery-migrate.min.js$!{portalCDNQuery}">'+'\x3C/script>')
     	    }
     	</script>
     	<script>
