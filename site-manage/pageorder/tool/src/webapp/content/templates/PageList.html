@@ -29,7 +29,7 @@
 								<strong rsf:id="msg=curr_pages">Current Pages</strong>
 							</div>
 							<ul class="sortable" id="reorder-list">
-								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" tabindex="0">
+								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" tabindex="0">
 									<div rsf:id="tool-icon"></div>
 									<div class="item_edit_box" style="display: none;">
 										<div>
@@ -56,13 +56,13 @@
 											<span class="glyphicon glyphicon-cog"></span>
 										</a>
 										<ul class="dropdown-menu dropdown-menu-right">
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="edit-link" class="item_control" title="Edit This Item" alt="Edit This Page" onclick="showEditPage(this); return false;">
 													<span class="glyphicon glyphicon-pencil"></span>
 													<span rsf:id="msg=menu_edit_page_title">Edit Page Title</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="hide-link" class="item_control hide_link" title="Hide This Page From Normal Users" alt="hide this page" onclick="doHidePage(this); return false;">
 													<span class="glyphicon glyphicon-eye-close"></span>
 													<span rsf:id="msg=menu_hide_page">Make Page Invisible to Students</span>
@@ -72,7 +72,7 @@
 													<span rsf:id="msg=menu_show_page">Make Page Visible to Students</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="hide-link-off" class="item_control hide_link" style="display: none" title="Hide This Page From Normal Users" alt="hide this page" onclick="doHidePage(this); return false;">
 													<span class="glyphicon glyphicon-eye-close"></span>
 													<span rsf:id="msg=menu_hide_page">Make Page Invisible to Students</span>
@@ -82,7 +82,7 @@
 													<span rsf:id="msg=menu_show_page">Make Page Visible to Students</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="disable-link" class="item_control disable_link" title="Disable This Page For Normal Users" alt="disable this page" onclick="doDisablePage(this); return false;">
 													<span class="glyphicon glyphicon-lock"></span>
 													<span rsf:id="msg=menu_lock_page">Lock Access to this Page</span>
@@ -92,7 +92,7 @@
 													<span rsf:id="msg=menu_enable_page">Enable Access to this Page</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="disable-link-off" class="item_control disable_link" style="display: none" title="Disable This Page For Normal Users" alt="disable this page" onclick="doDisablePage(this); return false;">
 													<span class="glyphicon glyphicon-lock"></span>
 													<span rsf:id="msg=menu_lock_page">Lock Access to this Page</span>
@@ -102,7 +102,7 @@
 													<span rsf:id="msg=menu_enable_page">Enable Access to this Page</span>
 												</a>
 											</li>
-											<li>
+											<li class="notsortable">
 												<a href="#" rsf:id="del-link" class="item_control del-link" title="Remove This Page" alt="remove this page" onclick="doRemovePage(this); return false;">
 													<span class="glyphicon glyphicon-trash"></span>
 													<span rsf:id="msg=menu_remove_page">Delete this Page</span>

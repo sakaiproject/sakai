@@ -82,8 +82,6 @@ public class PageListProducer
                 UIBranchContainer pagerow = 
                     UIBranchContainer.make(pageForm, "page-row:", page.getId());
     
-                pagerow.decorate(new UITooltipDecorator(UIMessage.make("page_click_n_drag")));
-                
                 UIOutput.make(pagerow, "page-name", page.getTitle());
                 UIInput.make(pagerow, "page-name-input", "#{SitePageEditHandler.nil}", page.getTitle());
                 UIMessage.make(pagerow, "page-name-label", "title");
