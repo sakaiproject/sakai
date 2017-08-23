@@ -17,6 +17,7 @@ package org.sakaiproject.webservices;
 
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.webservices.interceptor.NoIPRestriction;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -57,6 +58,7 @@ public class SakaiI18n extends AbstractWebService {
     @Path("/getI18nProperties")
     @Produces("text/plain")
     @GET
+    @NoIPRestriction
     public String getI18nProperties(
             @WebParam(name = "locale", partName = "locale") @QueryParam("locale") String locale,
             @WebParam(name = "resourceclass", partName = "resourceclass") @QueryParam("resourceclass") String resourceClass,

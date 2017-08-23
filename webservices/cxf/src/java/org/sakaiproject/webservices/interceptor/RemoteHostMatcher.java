@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.util;
+package org.sakaiproject.webservices.interceptor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This Servlet Filter allows/denies requests based on comparing the remote
+ * This service allows/denies requests based on comparing the remote
  * hostname and/or ip-address against a set of regular expressions configured in
  * the init parameters.
  * <p>
@@ -45,16 +45,15 @@ import lombok.extern.slf4j.Slf4j;
  * ip addresses of allowed/denied hosts. Here is the evaluation logic:
  * <ul>
  * <li>The hostname and address are first compared to the deny expressions
- * configured. If a match is found, the request is rejected with a "Forbidden"
- * HTTP response.</li>
- * 
+ * configured. If a match is found, the request is rejected.</li>
+ *
  * <li>Next the hostname and address are compared to allow expressions. If a
  * match is found, this request will be allowed.</li>
  * 
  * <li>If one or more deny expressions were specified but no allow expressions
  * were, allow this request to pass through (because none of the deny
  * expressions matched it).
- * <li>The request will be rejected with a "Forbidden" HTTP response.</li>
+ * <li>The request will be rejected.</li>
  * </ul>
  * 
  * To summarize, the pseudo-code looks like: <pre>
@@ -72,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
  * 
  */
 @Slf4j
-public class RemoteHostFilter implements Filter {
+public class RemoteHostMatcher {
 
     // The list of explicitly allowed request URI, these are not pattern matched
     @Setter
@@ -109,35 +108,11 @@ public class RemoteHostFilter implements Filter {
     }
 
     /**
-     * Note in a org.springframework.web.filter.DelegatingFilterProxy Filter.init(FilterConfig config) is never
-     * called.
-     *
-     * @param filterConfig
-     * @throws ServletException
+     * Is this HTTP request allowed based on the remote host and the configured allows/denied properties.
+     * @param request The HTTP request.
+     * @return <code>true</code> if we should allow access.
      */
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        init();
-    }
-
-    /*
-     * See class description above.
-     *
-     * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-     *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
-     */
-    @Override
-    public void doFilter(ServletRequest sreq, ServletResponse sres, FilterChain chain) throws IOException, ServletException {
-
-        // we are expecting HTTP
-        if (!((sreq instanceof HttpServletRequest) && (sres instanceof HttpServletResponse))) {
-            // if not, just pass it through
-            chain.doFilter(sreq, sres);
-            return;
-        }
-
-        HttpServletRequest request = (HttpServletRequest) sreq;
-        HttpServletResponse response = (HttpServletResponse) sres;
+    public boolean isAllowed(HttpServletRequest request) {
 
         String host = request.getRemoteHost();
         String addr = request.getRemoteAddr();
@@ -147,8 +122,7 @@ public class RemoteHostFilter implements Filter {
         for (String allowedUri : allowRequests) {
             if (StringUtils.startsWith(uri, allowedUri)) {
                 if (logAllowed) log.info("Access granted for request ({}): {}/{}", uri, host, addr);
-                chain.doFilter(sreq, sres);
-                return;
+                return true;
             }
         }
 
@@ -156,8 +130,7 @@ public class RemoteHostFilter implements Filter {
         for (Pattern pattern : denyPattern) {
             if (pattern.matcher(host).matches() || pattern.matcher(addr).matches()) {
                 if (logDenied) log.info("Access denied ({}): {}/{}", pattern.pattern(), host, addr);
-                response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return;
+                return false;
             }
         }
 
@@ -165,27 +138,18 @@ public class RemoteHostFilter implements Filter {
         for (Pattern pattern : allowPattern) {
             if (pattern.matcher(host).matches() || pattern.matcher(addr).matches()) {
                 if (logAllowed) log.info("Access granted ({}): {}/{}", pattern.pattern(), host, addr);
-                chain.doFilter(sreq, sres);
-                return;
+                return true;
             }
         }
 
         // Allow if allows is null, but denied is not
         if ((!denyPattern.isEmpty()) && (allowPattern.isEmpty())) {
             if (logAllowed) log.info("Access granted (implicit): {}/{}", host, addr);
-            chain.doFilter(sreq, sres);
-            return;
+            return true;
         }
 
         // Deny this request
         if (logDenied) log.info("Access denied (implicit): {}/{}", host, addr);
-        response.sendError(HttpServletResponse.SC_FORBIDDEN);
-    }
-
-    /**
-     * @see javax.servlet.Filter#destroy()
-     */
-    @Override
-    public void destroy() {
+        return false;
     }
 }
