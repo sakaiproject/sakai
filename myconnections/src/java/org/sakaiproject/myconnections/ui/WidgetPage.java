@@ -147,7 +147,7 @@ public class WidgetPage extends WebPage {
 
 		// render jQuery and the Wicket event library
 		// Both must be priority so they are emitted into the head
-        final String cdnQuery = PortalUtils.getCDNQuery();
+		final String cdnQuery = PortalUtils.getCDNQuery();
 		response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format(PortalUtils.getLatestJQueryPath()+ "?version=%s", cdnQuery))));
 		response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/my-calendar/scripts/wicket/wicket-event-jquery.min.js?version=%s", cdnQuery))));
 	
