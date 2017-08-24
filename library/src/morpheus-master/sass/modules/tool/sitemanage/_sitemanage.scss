@@ -11,7 +11,7 @@
 	}
 }
 
-.#{$namespace}sakai-siteinfo {
+.#{$namespace}sakai-siteinfo, .#{$namespace}sakai-sitesetup {
   .toggledContent {
     margin: 0;
     border: 2px solid #cef;
@@ -521,5 +521,8 @@
     width: 50%;
     padding: 0 0 0 2em;
     margin: 0;
+  }
+  label.onoffswitch-label {
+    font-weight: normal;
   }
 }
