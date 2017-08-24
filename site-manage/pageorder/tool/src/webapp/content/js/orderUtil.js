@@ -240,7 +240,6 @@ function sortByTitle() {
         	}
         	return b[i]? -1:0;
     }).appendTo('ul.sortable');
-    fluidList.refresh();
 }
 				
 function addTool(draggable, manual) {

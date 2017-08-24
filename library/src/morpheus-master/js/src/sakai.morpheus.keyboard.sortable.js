@@ -12,7 +12,7 @@ $PBJQ(document).ready(function() {
   };
   
   /* Extends sortable, allows drag operations through keyboard shortcuts */ 
-  $.widget("sakai.keyboardSortable", [$.ui.sortable, {
+  $.widget("sakai.keyboardSortable", $.ui.sortable, {
     options: {
       /* optional, a selector determining what focusable element inside the sortable item should be responding to drag shortcuts.
        * defaults to the sortable item itself */
@@ -138,7 +138,7 @@ $PBJQ(document).ready(function() {
       this.liveRegion.liveregion("instance").notify(msg);
       this._trigger('update');
     }
-  } ] );
+  } );
 
   /* Creates a live region for quick notifications to screen reader users*/
   $.widget("sakai.liveregion", {
