@@ -94,9 +94,9 @@ public class Assignment {
     @Column(name = "SECTION")
     private String section;
 
-    @Column(name = "CREATE_DATE", nullable = false)
+    @Column(name = "CREATED_DATE", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date dateCreated = new Date();
+    private Date dateCreated;
 
     @Column(name = "MODIFIED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
@@ -121,9 +121,6 @@ public class Assignment {
     @Column(name = "DROP_DEAD_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dropDeadDate;
-
-    @Column(name = "CREATOR")
-    private String creator;
 
     @Column(name = "MODIFIER")
     private String modifier;

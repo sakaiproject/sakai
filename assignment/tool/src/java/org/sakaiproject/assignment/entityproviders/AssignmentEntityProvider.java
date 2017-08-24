@@ -783,7 +783,6 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             this.section = a.getSection();
             this.context = a.getContext();
             this.draft = a.getDraft();
-            this.creator = a.getCreator();
             this.timeCreated = a.getDateCreated();
             this.author = a.getAuthor();
             this.timeLastModified = a.getDateModified();

@@ -4178,7 +4178,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
     private void putCreatorIntoContext(Context context, Assignment assignment) {
         // the creator
-        String creatorId = assignment.getCreator();
+        String creatorId = assignment.getAuthor();
         try {
             User creator = userDirectoryService.getUser(creatorId);
             context.put("creator", creator.getDisplayName());
@@ -6806,18 +6806,12 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        if (params.getString(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE) != null
-                && params.getString(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE)
-                .equalsIgnoreCase(Boolean.TRUE.toString())) {
-            state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, Boolean.TRUE.toString());
-        } else {
-            state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, Boolean.FALSE.toString());
-        }
+        Boolean hdd = params.getBoolean(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
+        state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, hdd);
 
         Boolean hp = params.getBoolean(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
         // set the honor pledge to be "no honor pledge"
-        if (hp == null) hp = Boolean.FALSE;
         state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, hp);
 
         String grading = params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
@@ -7535,7 +7529,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String description = (String) state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 
             String checkAddDueTime = state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) != null ? (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) : null;
-            boolean hideDueDate = "true".equals((String) state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
+            Boolean hideDueDate = (Boolean) state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
 
             String checkAutoAnnounce = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 
@@ -9091,7 +9085,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, a.getMaxGradePoint().toString());
                 }
                 state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, a.getInstructions());
-                state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, a.getHideDueDate().toString());
+                state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, a.getHideDueDate());
                 Map<String, String> properties = a.getProperties();
                 state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 
@@ -10810,7 +10804,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * Remove extraneous spaces between tag attributes, to allow a better
      * equality test in valueDiffFromStateAttribute.
      *
-     * @param the input string, to be normalized
+     * @param s the input string, to be normalized
      * @return the normalized string.
      */
     private String normalizeAttributeSpaces(String s) {

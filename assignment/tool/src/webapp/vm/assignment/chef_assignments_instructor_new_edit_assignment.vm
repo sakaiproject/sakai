@@ -401,11 +401,11 @@
 
 		<div class="checkbox">
 			<label for="$name_CheckHideDueDate">
-			#if ($value_CheckHideDueDate.equals("true"))
-				<input id="$name_CheckHideDueDate" name="$name_CheckHideDueDate" type="checkbox" value="true" checked="checked" />
-			#else
-				<input id="$name_CheckHideDueDate" name="$name_CheckHideDueDate" type="checkbox" value="true" />
-			#end
+				<input id="$name_CheckHideDueDate" name="$name_CheckHideDueDate" type="checkbox" value="true"
+				#if ($!value_CheckHideDueDate)
+                       checked="checked"
+				#end
+                />
 				$tlang.getString("gen.hideduedate")
 			</label>
 		</div>

@@ -66,6 +66,10 @@ public class AssignmentSubmission {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateReturned;
 
+    @Column(name = "CREATED_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateCreated;
+
     @Column(name = "MODIFIED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateModified;

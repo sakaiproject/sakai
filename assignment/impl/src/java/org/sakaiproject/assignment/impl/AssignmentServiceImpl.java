@@ -569,7 +569,7 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         Assignment assignment = new Assignment();
         assignment.setContext(context);
-        addLiveProperties(assignment.getProperties());
+        assignment.setAuthor(sessionManager.getCurrentSessionUserId());
         assignmentRepository.newAssignment(assignment);
 
         log.debug("Created new assignment {}", assignment.getId());
@@ -614,7 +614,7 @@ public class AssignmentServiceImpl implements AssignmentService {
                 assignment.setDraft(true);
                 assignment.setIsGroup(existingAssignment.getIsGroup());
                 Map<String, String> properties = existingAssignment.getProperties();
-                addLiveProperties(properties);
+                assignment.setAuthor(sessionManager.getCurrentSessionUserId());
                 assignment.setProperties(properties);
                 assignmentRepository.newAssignment(assignment);
             }
@@ -2294,17 +2294,6 @@ public class AssignmentServiceImpl implements AssignmentService {
             }
         }
         return access;
-    }
-
-    private void addLiveProperties(Map<String, String> properties) {
-        String current = sessionManager.getCurrentSessionUserId();
-        properties.put(ResourceProperties.PROP_CREATOR, current);
-        properties.put(ResourceProperties.PROP_MODIFIED_BY, current);
-
-        String now = LocalDateTime.now().format(dateTimeFormatter);
-        properties.put(ResourceProperties.PROP_CREATION_DATE, now);
-        properties.put(ResourceProperties.PROP_MODIFIED_DATE, now);
-
     }
 
     // /////////////////////////////////////////////////////////////
