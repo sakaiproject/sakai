@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.hibernate.SessionFactory;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -101,6 +102,8 @@ public class BullhornServiceImpl implements BullhornService, Observer {
     private SiteService siteService;
     @Setter
     private SqlService sqlService;
+    @Setter
+    private SessionFactory sessionFactory;
 
     private Object commonsManager = null;
     private Method commonsManagerGetPostMethod = null;
@@ -173,6 +176,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
             Event e = (Event) arg;
             String event = e.getEvent();
             if (HANDLED_EVENTS.contains(event)) {
+                // About to start a new thread that expects the changes in this hibernate session
+                // to have been persisted, so we flush.
+                sessionFactory.getCurrentSession().flush();
                 new Thread(() -> {
                     String ref = e.getResource();
                     String context = e.getContext();
