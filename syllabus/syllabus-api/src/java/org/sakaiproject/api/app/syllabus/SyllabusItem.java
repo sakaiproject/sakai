@@ -78,18 +78,5 @@ public interface SyllabusItem
    */
   public void setRedirectURL(String redirectURL);
 
-    /**
-     *
-     * @return  whether or not to open the redirect url in a new window
-     */
-  public Boolean isOpenInNewWindow();
-
-    /**
-     *
-     * @param openInNewWindow
-     */
-  public void setOpenInNewWindow(Boolean openInNewWindow);
 }
-
-
 

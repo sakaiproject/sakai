@@ -15,6 +15,9 @@
 				</h3>
 				<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1">
+					<h:panelGroup styleClass="instruction">
+						<h:outputText value="#{msgs.redirect_sylla_delete}" />
+					</h:panelGroup>
 					<h:panelGroup styleClass="shorttext required">
 						<h:panelGroup styleClass="syllabusLabel">
 							<h:outputText value="*" styleClass="reqStar"/>
@@ -22,12 +25,6 @@
 						</h:panelGroup>
 						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65"/>
 					</h:panelGroup>
-                    <h:panelGroup styleClass="shorttext required">
-                        <h:panelGroup styleClass="syllabusLabel">
-                            <h:outputLabel for="openInNewWindow"><h:outputText value="#{msgs.openLinkNewWindow}"/></h:outputLabel>
-                        </h:panelGroup>
-                        <h:selectBooleanCheckbox id="openInNewWindow" value="#{SyllabusTool.openInNewWindow}"/>
-                    </h:panelGroup>
 				</h:panelGrid>
 				<sakai:button_bar>
 					<h:commandButton

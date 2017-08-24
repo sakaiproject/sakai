@@ -422,8 +422,6 @@ public class SyllabusTool
   
   private final String httpsPrefix = "https://";
 
-  private boolean openInNewWindow = false;
-
   private ContentHostingService contentHostingService;
   
   private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.syllabus.bundle.Messages");
@@ -707,14 +705,6 @@ public class SyllabusTool
     }
 
     return syllabusItem;
-  }
-
-  public String getOpenInNewWindowAsString () throws PermissionException {
-	  SyllabusItem syItem = getSyllabusItem();
-	  if (syItem != null) {
-		return (syItem.isOpenInNewWindow()) ? "true" : null;
-	  }
-	  return null;
   }
 
   public void setSyllabusItem(SyllabusItem syllabusItem)
@@ -1960,8 +1950,7 @@ public class SyllabusTool
       }
       else
       {
-    	currentRediredUrl = syllabusItem.getRedirectURL();
-    	openInNewWindow = syllabusItem.isOpenInNewWindow();
+        currentRediredUrl = syllabusItem.getRedirectURL();
         return "edit_redirect";
       }
     }
@@ -2013,7 +2002,6 @@ public class SyllabusTool
       			}
       			String origURL = syllabusItem.getRedirectURL();
     	    	syllabusItem.setRedirectURL(currentRediredUrl.trim());
-                syllabusItem.setOpenInNewWindow(openInNewWindow);
     	        syllabusManager.saveSyllabusItem(syllabusItem);
     	        if(((origURL == null || origURL.isEmpty())
     	    			&& !currentRediredUrl.trim().isEmpty())
@@ -2557,47 +2545,12 @@ public class SyllabusTool
 
   /**
    * @return
-   * 	String url if using an external url 
-   * 	If not included, also add http:// or https:// prefix.
+   * 	Return the print JSP and do not just send the user to another URL without warning the user
    */
   public String getPrintFriendlyUrl()
   {
-	  try {
-		  SyllabusItem syItem = getSyllabusItem();
-		  
-		  if (syItem != null) {
-			  currentRediredUrl = syItem.getRedirectURL();
-		  }
-		  else {
-			  currentRediredUrl = "";
-		  }
-		  if (currentRediredUrl != null && !"".equals(currentRediredUrl)) {
-			  if (currentRediredUrl.indexOf(httpPrefix) == -1 && currentRediredUrl.indexOf(httpsPrefix) == -1 ) {
-				  if (ServerConfigurationService.getToolUrl().indexOf(httpsPrefix) != -1) {
-					  return httpsPrefix + currentRediredUrl; 
-				  }
-				  else
-					  return httpPrefix + currentRediredUrl;
-			  }
-			  return currentRediredUrl;
-		  }
-		  else {
-			  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-					+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
-		  }
-	  }
-	  catch (PermissionException e) {
-	        logger.info(this + ".getRediredUrl() in SyllabusTool " + e);
-	        FacesContext.getCurrentInstance().addMessage(
-	            null,
-	            MessageFactory.getMessage(FacesContext.getCurrentInstance(),
-	                "error_permission", (new Object[] { e.toString() })));		  
-	  }
-	  // If here, we have a permission error getting redirected syllabus,
-	  // so just return printFriendly url
-	  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
-		+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
-
+    return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+      + ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
   }
   
   /**
@@ -3199,14 +3152,6 @@ public String getOpenDataId() {
 public void setOpenDataId(String openDataId) {
 	this.openDataId = openDataId;
 }
-
-    public boolean isOpenInNewWindow() {
-        return openInNewWindow;
-    }
-
-    public void setOpenInNewWindow(boolean openInNewWindow) {
-        this.openInNewWindow = openInNewWindow;
-    }
 
 	public boolean isDisplayCalendarError() {
 		return displayCalendarError;
