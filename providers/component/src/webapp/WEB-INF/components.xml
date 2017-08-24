@@ -156,8 +156,8 @@
 	</bean>
 -->
 
-<!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
-	<!--  import resource="jldap-beans.xml" / -->
+<!-- Uncomment and configure to use the UnboundidDirectoryProvider -->
+	<!--  import resource="unboundid-ldap.xml" / -->
 
 <!-- Uncomment and configure to use the Candidate Details Provider -->  
 	<!--  import resource="candidate-details.xml"/ -->

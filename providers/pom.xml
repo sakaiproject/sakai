@@ -23,6 +23,7 @@
     <module>kerberos</module>
     <module>openldap</module>
     <module>sample</module>
+    <module>unboundid</module>
   </modules>
 
 
@@ -41,6 +42,11 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-jldap-provider</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-unboundid-provider</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
