@@ -294,7 +294,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         final Gradebook gradebook = getGradebook(gradebookUid);
 
         HibernateCallback<GradebookAssignment> hc = session -> (GradebookAssignment) session
-                .createQuery("from Assignment as asn where asn.gradebook = :gradebook and asn.externalId = :externalid")
+                .createQuery("from GradebookAssignment as asn where asn.gradebook = :gradebook and asn.externalId = :externalid")
                 .setEntity("gradebook", gradebook)
                 .setString("externalid", externalId)
                 .uniqueResult();

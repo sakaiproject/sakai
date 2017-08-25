@@ -110,14 +110,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     protected List<GradebookAssignment> getAssignments(Long gradebookId) throws HibernateException {
         return getSessionFactory().getCurrentSession()
-                .createQuery("from Assignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
+                .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
                 .setLong("gradebookid", gradebookId)
                 .list();
     }
 
     protected List getCountedStudentGradeRecords(Long gradebookId, String studentId) throws HibernateException {
         return getSessionFactory().getCurrentSession().createQuery(
-        	"select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId = :studentid and agr.gradableObject = asn and asn.removed is false and asn.notCounted is false and asn.gradebook.id = :gradebookid and asn.ungraded is false")
+        	"select agr from AssignmentGradeRecord as agr, GradebookAssignment as asn where agr.studentId = :studentid and agr.gradableObject = asn and asn.removed is false and asn.notCounted is false and asn.gradebook.id = :gradebookid and asn.ungraded is false")
         	.setString("studentid", studentId)
         	.setLong("gradebookid", gradebookId)
         	.list();
@@ -206,7 +206,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	@Deprecated
 	protected GradebookAssignment getAssignmentWithoutStats(String gradebookUid, String assignmentName) throws HibernateException {
 		return (GradebookAssignment) getSessionFactory().getCurrentSession()
-                .createQuery("from Assignment as asn where asn.name = :assignmentname and asn.gradebook.uid = :gradebookuid and asn.removed is false")
+                .createQuery("from GradebookAssignment as asn where asn.name = :assignmentname and asn.gradebook.uid = :gradebookuid and asn.removed is false")
                 .setString("assignmentname", assignmentName)
                 .setString("gradebookuid", gradebookUid)
                 .uniqueResult();
@@ -214,7 +214,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
 	protected GradebookAssignment getAssignmentWithoutStats(String gradebookUid, Long assignmentId) throws HibernateException {
 		return (GradebookAssignment) getSessionFactory().getCurrentSession()
-                .createQuery("from Assignment as asn where asn.id = :assignmentid and asn.gradebook.uid = :gradebookuid and asn.removed is false")
+                .createQuery("from GradebookAssignment as asn where asn.id = :assignmentid and asn.gradebook.uid = :gradebookuid and asn.removed is false")
                 .setLong("assignmentid", assignmentId)
                 .setString("gradebookuid", gradebookUid)
                 .uniqueResult();
@@ -513,7 +513,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     public List<GradebookAssignment> getAssignmentsForCategory(final Long categoryId) throws HibernateException{
     	HibernateCallback<List<GradebookAssignment>> hc = session -> session
-                .createQuery("from Assignment as assign where assign.category = :categoryid and assign.removed is false")
+                .createQuery("from GradebookAssignment as assign where assign.category = :categoryid and assign.removed is false")
                 .setLong("categoryid", categoryId)
                 .list();
     	return getHibernateTemplate().execute(hc);
@@ -1242,7 +1242,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
         getHibernateTemplate().execute((HibernateCallback<Void>) session -> {
             List<GradebookAssignment> countedAssignments = session
-                    .createQuery("from Assignment as asn where asn.gradebook.id = :gb and asn.removed is false and asn.notCounted is false and asn.ungraded is false")
+                    .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gb and asn.removed is false and asn.notCounted is false and asn.ungraded is false")
                     .setLong("gb", gradebook.getId())
                     .list();
 

@@ -1291,7 +1291,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	private List<GradebookAssignment> getAssignmentsCounted(final Long gradebookId) throws HibernateException {
 		HibernateCallback<List<GradebookAssignment>> hc = session -> session
-                .createQuery("from Assignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false and asn.notCounted is false")
+                .createQuery("from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false and asn.notCounted is false")
                 .setLong("gradebookid", gradebookId)
                 .list();
 		return getHibernateTemplate().execute(hc);
@@ -2706,7 +2706,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    List<GradebookAssignment> assignList = new ArrayList<GradebookAssignment>();
 	    
 	    List <GradebookAssignment>results = session.createQuery(
-        "from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and " +
+        "from GradebookAssignment as asn where asn.gradebook.id=:gbid and asn.removed=false and " +
         "asn.notCounted=false and asn.ungraded=false").
         setParameter("gbid", gradebookId).
         list();
