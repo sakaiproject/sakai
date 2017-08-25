@@ -693,7 +693,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(fromGradebookXml);
 
 		List<String> assignmentNames = getHibernateTemplate().execute(session -> session
-				.createQuery("select asn.name from Assignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
+				.createQuery("select asn.name from GradebookAssignment as asn where asn.gradebook.id = :gradebookid and asn.removed is false")
 				.setLong("gradebookid", gradebook.getId())
 				.list());
 		

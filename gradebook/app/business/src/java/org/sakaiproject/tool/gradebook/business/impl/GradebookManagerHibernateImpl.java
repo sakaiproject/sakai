@@ -859,7 +859,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     			list().iterator();
 
     			List assgnsList = session.createQuery(
-    			"from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
+    			"from GradebookAssignment as asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
     			setParameter("gbid", gradebookId).
     			list();
 
@@ -1227,7 +1227,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 		updateCategory(category);
             // get assignments for this category
         HibernateCallback<List<GradebookAssignment>> hc = session -> session
-				.createQuery("select asn from Assignment asn where asn.gradebook.id=:gbid and asn.category=:category and asn.removed = false")
+				.createQuery("select asn from GradebookAssignment asn where asn.gradebook.id=:gbid and asn.category=:category and asn.removed = false")
 				.setParameter("gbid", gradebookId)
 				.setParameter("category", category)
 				.list();
@@ -1291,7 +1291,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     private double getTotalPointsInternal(Long gradebookId, Session session) {
         double totalPointsPossible = 0;
     	Iterator assignmentPointsIter = session.createQuery(
-        		"select asn.pointsPossible from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
+        		"select asn.pointsPossible from GradebookAssignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
         		setParameter("gbid", gradebookId).
         		list().iterator();
         while (assignmentPointsIter.hasNext()) {
@@ -1309,7 +1309,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             public Object doInHibernate(Session session) throws HibernateException {
     			double totalPointsPossible = 0;
     			List assgnsList = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
+    			"select asn from GradebookAssignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
     			setParameter("gbid", gradebookId).
     			list();
     			
@@ -1412,7 +1412,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             public Object doInHibernate(Session session) throws HibernateException {
     			double totalPointsPossible = 0;
     			Iterator assignmentIter = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
+    			"select asn from GradebookAssignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
     			setParameter("gbid", gradebookId).
     			list().iterator();
     			while (assignmentIter.hasNext()) {
@@ -1455,7 +1455,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     	Map<Long,Integer> numAssignments = new HashMap<Long,Integer>();
         
     	Iterator assignmentIter = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and (asn.extraCredit=false or asn.extraCredit is null)").
+    			"select asn from GradebookAssignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and (asn.extraCredit=false or asn.extraCredit is null)").
     			setParameter("gbid", gradebookId).
     			list().iterator();
         
@@ -2171,7 +2171,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
     {
     	HibernateCallback<List<GradebookAssignment>> hc = session -> {
             return session.createQuery(
-                    "from Assignment as asn where asn.gradebook.id = :id and asn.removed=false and asn.category is null").
+                    "from GradebookAssignment as asn where asn.gradebook.id = :id and asn.removed=false and asn.category is null").
                     setLong(0, gradebookId.longValue()).
                     list();
         };
