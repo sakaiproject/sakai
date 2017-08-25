@@ -110,7 +110,20 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         },
         skin: 'moono',
         defaultLanguage: 'en',
-        allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
+        
+        // SAK-31829, SAK-33279 Disable functionality in table plugin
+        //https://docs.ckeditor.com/#!/guide/dev_disallowed_content-section-how-to-allow-everything-except...
+        allowedContent: {
+            $1: {
+                // Use the ability to specify elements as an object.
+                elements: CKEDITOR.dtd,
+                attributes: true,
+                styles: true,
+                classes: true
+            }
+        },
+        disallowedContent: 'table[cellspacing,cellpadding,border]',
+
         language: language + (country ? '-' + country.toLowerCase() : ''),
         // This is used for uploading by the autorecorder and fmath_formula plugins.
         // TODO Get this to work with elfinder.
