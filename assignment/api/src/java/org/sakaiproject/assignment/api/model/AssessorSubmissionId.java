@@ -1,7 +1,6 @@
 package org.sakaiproject.assignment.api.model;
 
 import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -12,6 +11,7 @@ import lombok.NoArgsConstructor;
 /**
  * Composite primary key
  */
+
 @Embeddable
 @Data
 @NoArgsConstructor

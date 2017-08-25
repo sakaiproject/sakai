@@ -1,5 +1,12 @@
 package org.sakaiproject.assignment.impl;
 
+import static org.mockito.Mockito.mock;
+
+import java.io.IOException;
+import java.util.Properties;
+import javax.annotation.Resource;
+import javax.sql.DataSource;
+
 import org.hibernate.SessionFactory;
 import org.hibernate.dialect.HSQLDialect;
 import org.hsqldb.jdbcDriver;
@@ -19,7 +26,6 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -40,13 +46,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import java.io.IOException;
-import java.util.Properties;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * Created by enietzel on 4/12/17.

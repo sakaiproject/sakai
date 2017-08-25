@@ -20,15 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.assignment.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,28 +30,28 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "ASN_NOTE_ITEM_T")
-@NamedQuery(name = "findNoteItemByAssignmentId", query = "from AssignmentNoteItem m where m.assignmentId = :id")
-
+@NamedQuery(name = "findNoteItemByAssignmentId",
+            query = "from AssignmentNoteItem m where m.assignmentId = :id")
 @Data
 @NoArgsConstructor
 public class AssignmentNoteItem {
 
-	@Id
-	@Column(name = "ID")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_note_item_sequence")
-	@SequenceGenerator(name = "assignment_note_item_sequence", sequenceName = "ASN_NOTE_S")
-	private Long id;
+    @Lob
+    @Column(name = "NOTE")
+    public String note;
 
-	@Column(name = "ASSIGNMENT_ID", nullable = false)
-	private String assignmentId;
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "assignment_note_item_sequence")
+    @SequenceGenerator(name = "assignment_note_item_sequence", sequenceName = "ASN_NOTE_S")
+    private Long id;
 
-	@Lob
-	@Column(name = "NOTE")
-	public String note;
+    @Column(name = "ASSIGNMENT_ID", nullable = false)
+    private String assignmentId;
 
-	@Column(name = "CREATOR_ID")
-	private String creatorId;
+    @Column(name = "CREATOR_ID")
+    private String creatorId;
 
-	@Column(name = "SHARE_WITH")
-	private Integer shareWith;
+    @Column(name = "SHARE_WITH")
+    private Integer shareWith;
 }

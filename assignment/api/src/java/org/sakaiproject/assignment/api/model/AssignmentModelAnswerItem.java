@@ -20,12 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.assignment.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.NamedQuery;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,22 +28,23 @@ import lombok.NoArgsConstructor;
 /**
  * To provide sample answers to student
  */
+
 @Entity
 @Table(name = "ASN_MA_ITEM_T")
 @PrimaryKeyJoinColumn(name = "ID")
-@NamedQuery(name = "findModelAnswerByAssignmentId", query = "from AssignmentModelAnswerItem m where m.assignmentId = :id")
-
+@NamedQuery(name = "findModelAnswerByAssignmentId",
+            query = "from AssignmentModelAnswerItem m where m.assignmentId = :id")
 @Data
 @NoArgsConstructor
 public class AssignmentModelAnswerItem extends AssignmentSupplementItemWithAttachment {
 
-	@Column(name = "ASSIGNMENT_ID", nullable = false)
-	private String assignmentId;
+    @Lob
+    @Column(name = "TEXT")
+    public String text;
 
-	@Lob
-	@Column(name = "TEXT")
-	public String text;
+    @Column(name = "ASSIGNMENT_ID", nullable = false)
+    private String assignmentId;
 
-	@Column(name = "SHOW_TO")
-	private Integer showTo;
+    @Column(name = "SHOW_TO")
+    private Integer showTo;
 }

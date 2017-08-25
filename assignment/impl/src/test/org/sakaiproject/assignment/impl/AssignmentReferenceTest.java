@@ -2,13 +2,12 @@ package org.sakaiproject.assignment.impl;
 
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Created by enietzel on 5/11/17.

@@ -7,8 +7,9 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 /**
  * This is used to handle option dependencies in spring XML.
  * This keeps the spring dependencies out of the class that actually needs the dependency.
+ *
  * @see <a href="http://stackoverflow.com/questions/3957430/optional-spring-bean-references">
- *     http://stackoverflow.com/questions/3957430/optional-spring-bean-references</a>
+ * http://stackoverflow.com/questions/3957430/optional-spring-bean-references</a>
  */
 public class OptionalFactoryBean extends AbstractFactoryBean<Object> implements BeanNameAware {
 

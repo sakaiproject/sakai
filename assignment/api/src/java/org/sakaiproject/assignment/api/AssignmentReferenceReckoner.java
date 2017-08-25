@@ -2,20 +2,20 @@ package org.sakaiproject.assignment.api;
 
 import static org.sakaiproject.assignment.api.AssignmentServiceConstants.REFERENCE_ROOT;
 
-import org.apache.commons.lang3.StringUtils;
-import org.sakaiproject.assignment.api.model.Assignment;
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
-import org.sakaiproject.entity.api.Entity;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
+import org.sakaiproject.entity.api.Entity;
 
 /**
  * Created by enietzel on 5/11/17.
  */
+
 @Slf4j
 public class AssignmentReferenceReckoner {
 

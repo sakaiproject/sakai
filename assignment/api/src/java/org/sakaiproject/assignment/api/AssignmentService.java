@@ -22,12 +22,7 @@
 package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.sakaiproject.assignment.api.model.Assignment;
 import org.sakaiproject.assignment.api.model.AssignmentSubmission;
@@ -38,7 +33,6 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -53,6 +47,7 @@ import org.w3c.dom.Element;
  * Each Assignment has an associated AssignmentContent (an AssignmentContent can belong to more the one Assignment) and a list of AssignmentSubmission (the student responses to the Assignment).
  * </p>
  */
+
 public interface AssignmentService extends EntityProducer {
     Entity createAssignmentEntity(String assignmentId);
 
@@ -296,8 +291,6 @@ public interface AssignmentService extends EntityProducer {
     /**
      * Adds an AssignmentSubmission
      *
-     * @param context      -
-     *                     Describes the portlet context - generated with DefaultId.getChannel().
      * @param assignmentId The assignment id
      * @param submitter    The submitter id
      * @return The new AssignmentSubmission.
@@ -634,12 +627,14 @@ public interface AssignmentService extends EntityProducer {
     /**
      * peer assessment is set for this assignment and the current time
      * falls between the assignment close time and the peer asseessment period time
+     *
      * @return
      */
     public boolean isPeerAssessmentOpen(Assignment assignment);
 
     /**
      * peer assessment is set for this assignment but the close time hasn't passed
+     *
      * @return
      */
     public boolean isPeerAssessmentPending(Assignment assignment);
@@ -647,6 +642,7 @@ public interface AssignmentService extends EntityProducer {
     /**
      * peer assessment is set for this assignment but the current time is passed
      * the peer assessment period
+     *
      * @return
      */
     public boolean isPeerAssessmentClosed(Assignment assignment);

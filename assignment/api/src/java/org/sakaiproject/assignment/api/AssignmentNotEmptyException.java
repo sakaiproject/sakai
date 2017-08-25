@@ -26,6 +26,6 @@ package org.sakaiproject.assignment.api;
  * AssignmentNotEmptyException is thrown whenever an assignment content is not empty.
  * </p>
  */
-public class AssignmentNotEmptyException extends Exception
-{
+
+public class AssignmentNotEmptyException extends Exception {
 }

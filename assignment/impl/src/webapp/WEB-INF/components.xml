@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
@@ -58,7 +58,8 @@
         <property name="targetBeanName" value="org.sakaiproject.assignment.api.AssignmentEntity"/>
     </bean>
 
-    <bean id="org.sakaiproject.assignment.impl.GradeSheetExporter" class="org.sakaiproject.assignment.impl.GradeSheetExporter">
+    <bean id="org.sakaiproject.assignment.impl.GradeSheetExporter"
+          class="org.sakaiproject.assignment.impl.GradeSheetExporter">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
@@ -68,27 +69,13 @@
     <bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
           class="org.sakaiproject.assignment.taggable.impl.AssignmentActivityProducerImpl"
           init-method="init">
-        <property name="assignmentService">
-            <ref bean="org.sakaiproject.assignment.api.AssignmentService" />
-        </property>
-        <property name="entityManager">
-            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
-        </property>
-        <property name="taggingManager">
-            <ref bean="org.sakaiproject.taggable.api.TaggingManager" />
-        </property>
-        <property name="siteService">
-            <ref bean="org.sakaiproject.site.api.SiteService" />
-        </property>
-        <property name="securityService">
-            <ref bean="org.sakaiproject.authz.api.SecurityService" />
-        </property>
-        <property name="userDirectoryService">
-            <ref bean="org.sakaiproject.user.api.UserDirectoryService" />
-        </property>
-        <property name="serverConfigurationService">
-            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-        </property>
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
     </bean>
 
     <!--  Hibernate persistence -->
@@ -119,13 +106,9 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"
-        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-        </property>
-        <property name="target">
-            <ref bean="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl" />
-        </property>
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="target" ref="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"/>
         <property name="transactionAttributes">
             <props>
                 <prop key="*">PROPAGATION_REQUIRED</prop>
@@ -134,49 +117,32 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
-    	class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
-    	init-method="init" destroy-method="destroy">
-    	<property name="sessionFactory">
-    		<ref
-    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    	</property>
-    	<property name="userDirectoryService">
-			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
-		</property>
-		<property name="assignmentService">
-			<ref bean="org.sakaiproject.assignment.api.AssignmentService" />
-		</property>
-		<property name="authzGroupService">
-			<ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
-		</property>
-		<property name="siteService">
-			<ref bean="org.sakaiproject.site.api.SiteService"/>
-		</property>
-		<property name="timeService">
-			<ref bean="org.sakaiproject.time.api.TimeService"/>
-		</property>
+          class="org.sakaiproject.assignment.impl.AssignmentSupplementItemServiceImpl"
+          init-method="init" destroy-method="destroy">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
-        class="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
-        lazy-init="false" init-method="init" destroy-method="destroy">
+          class="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
+          lazy-init="false" init-method="init" destroy-method="destroy">
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
         <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 
-	<bean id="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"
-        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-        <property name="transactionManager">
-            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
-        </property>
-        <property name="target">
-            <ref bean="org.sakaiproject.assignment.api.AssignmentPeerAssessmentServiceImpl" />
-        </property>
+    <bean id="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="target" ref="org.sakaiproject.assignment.api.AssignmentPeerAssessmentServiceImpl"/>
         <property name="transactionAttributes">
             <props>
                 <prop key="*">PROPAGATION_REQUIRED</prop>
@@ -185,16 +151,11 @@
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.AssignmentPeerAssessmentServiceImpl"
-    	class="org.sakaiproject.assignment.impl.AssignmentPeerAssessmentServiceImpl">
-    	<property name="sessionFactory">
-    		<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-    	</property>
-	<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
-	<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
-	<property name="securityService">
-           <ref bean="org.sakaiproject.authz.api.SecurityService" />
-        </property>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
-
+          class="org.sakaiproject.assignment.impl.AssignmentPeerAssessmentServiceImpl">
+        <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        <property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 </beans>

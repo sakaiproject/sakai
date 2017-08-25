@@ -21,14 +21,14 @@
 
 package org.sakaiproject.assignment.api.model;
 
+import java.util.*;
+import javax.persistence.*;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.*;
-import java.util.*;
 
 /**
  * Assignment represents a specific assignment for a specific section or class.
@@ -49,29 +49,28 @@ import java.util.*;
  *   - Connector/J useLegacyDatetimeCode is used for backwards compatibility, handling timezone info
  *     the way it always has. Newer versions will probably change this to false. The general rule of thumb
  *     is to use whatever your database was running with (i.e. true), and new databases with new data to use false.
- *   - Connector/J 5.1.x useLegacyDatetimeCode=true and >5.1 is false
+ *   - Connector/J 5.1.x useLegacyDatetimeCode=true and > 5.1 is false
  *   - MariaDB Connector/J 1.1.7+ useLegacyDatetimeCode=true
  * * Hibernate
- * ** JPA @Temporal creates a TIMESTAMP type in MYSQL by default
- * ** java 8 time is supported natively in Hibernate 5
- *   - where @Temporal is implicit and therefore not needed
- *   - LocalDate implicitly @Temporal(TemporalType.Date)
- *   - LocalTime implicitly @Temporal(TemporalType.Time)
- *   - LocalDateTime implicitly @Temporal(TemporalType.Timestamp)
- * ** java 8 time is not supported in Hibernate < 5
- *   - So we use java.util.Date and specify the TemporalType to use
- *   - @Temporal(TemporalType.Date) maps to SQL (JDBC) DATE
- *   - @Temporal(TemporalType.Time) maps to SQL (JDBC) TIME
- *   - @Temporal(TemporalType.Timestamp) maps to SQL (JDBC) TIMESTAMP
+ *   - JPA @Temporal creates a TIMESTAMP type in MYSQL by default
+ *   - java 8 time is supported natively in Hibernate 5
+ *     - where @Temporal is implicit and therefore not needed
+ *     - LocalDate implicitly @Temporal(TemporalType.Date)
+ *     - LocalTime implicitly @Temporal(TemporalType.Time)
+ *     - LocalDateTime implicitly @Temporal(TemporalType.Timestamp)
+ *   - java 8 time is not supported in Hibernate < 5
+ *     - So we use java.util.Date and specify the TemporalType to use
+ *     - @Temporal(TemporalType.Date) maps to SQL (JDBC) DATE
+ *     - @Temporal(TemporalType.Time) maps to SQL (JDBC) TIME
+ *     - @Temporal(TemporalType.Timestamp) maps to SQL (JDBC) TIMESTAMP
  * </pre>
  */
+
 @Entity
 @Table(name = "ASN_ASSIGNMENT")
-
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
-//@EqualsAndHashCode(exclude = {"authors", "submissions", "groups", "properties", "attachments"})
 @EqualsAndHashCode(of = "id")
 public class Assignment {
 
@@ -182,9 +181,6 @@ public class Assignment {
 
     @Column(name = "SCALE_FACTOR")
     private Integer scaleFactor;
-
-    @Column(name = "GROUP_PROJECT")
-    private Boolean groupProject;
 
     @Column(name = "INDIVIDUALLY_GRADED")
     private Boolean individuallyGraded;

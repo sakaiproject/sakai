@@ -21,25 +21,24 @@
 
 package org.sakaiproject.assignment.api.model;
 
+import java.util.*;
+import javax.persistence.*;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.*;
-
 /**
  * AssignmentSubmission represents a student submission for an assignment.
  */
+
 @Entity
 @Table(name = "ASN_SUBMISSION")
-
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
-//@EqualsAndHashCode(exclude = {"assignment", "submitters", "attachments", "feedbackAttachments", "properties"})
 @EqualsAndHashCode(of = "id")
 public class AssignmentSubmission {
 

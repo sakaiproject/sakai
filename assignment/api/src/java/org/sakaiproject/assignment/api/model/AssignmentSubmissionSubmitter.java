@@ -1,15 +1,6 @@
 package org.sakaiproject.assignment.api.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,11 +9,9 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "ASN_SUBMISSION_SUBMITTER")
-
 @Data
 @NoArgsConstructor
 @ToString(exclude = {"submission"})
-//@EqualsAndHashCode(exclude = {"submission"})
 @EqualsAndHashCode(of = "id")
 public class AssignmentSubmissionSubmitter {
 

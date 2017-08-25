@@ -1,7 +1,9 @@
 package org.sakaiproject.assignment.persistence;
 
+import java.time.Instant;
+import java.util.*;
+
 import org.apache.commons.lang.NotImplementedException;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -10,9 +12,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.serialization.BasicSerializableRepository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.*;
 
 /**
  * Created by enietzel on 2/22/17.

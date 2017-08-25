@@ -24,11 +24,7 @@ package org.sakaiproject.assignment.taggable.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.taggable.api.Tag;
-import org.sakaiproject.taggable.api.TagColumn;
-import org.sakaiproject.taggable.api.TagList;
-import org.sakaiproject.taggable.api.TaggableActivity;
-import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.taggable.api.*;
 
 /**
  * Wrapper around {@link TaggingProvider} for displaying a pageable/sortable

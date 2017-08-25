@@ -1,5 +1,8 @@
 package org.sakaiproject.assignment.entityproviders;
 
+import java.time.Instant;
+import java.util.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -35,9 +38,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-
-import java.time.Instant;
-import java.util.*;
 
 @Slf4j
 public class AssignmentEntityProvider extends AbstractEntityProvider implements EntityProvider,
@@ -846,7 +846,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             // If grade scale is "points" we also capture the maximum points allowed.
             if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
                 // TODO fix max grade display
-//					this.gradeScaleMaxPoints = a.getMaxGradePoint();
+				//	this.gradeScaleMaxPoints = a.getMaxGradePoint();
             }
 
             // Use the number of submissions allowed as an indicator that re-submission is permitted.
@@ -870,5 +870,4 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             }
         }
     }
-
 }
