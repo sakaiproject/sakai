@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hibernate.CacheMode;
 import org.hibernate.Query;
@@ -78,6 +79,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotalsImpl;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
+import org.sakaiproject.lessonbuildertool.util.LessonsSubNavBuilder;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -1806,4 +1808,54 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return (List<SimplePageItem>) getHibernateTemplate().findByNamedParam(hql, "site", siteId);
 	}
 
+
+	public String getLessonSubPageJSON(final String userId, final boolean isInstructor, final List pages) {
+		final String sql = ("SELECT p.toolId AS sakaiPageId," +
+				" p.pageId AS lessonsPageId," +
+				" s.site_id AS sakaiSiteId," +
+				" s.tool_id AS sakaiToolId," +
+				" i.id AS itemId," +
+				" i.name AS itemName," +
+				" i.description AS itemDescription," +
+				" i.sakaiId AS itemSakaiId," +
+				" p2.hidden AS pageHidden," +
+				" p2.releaseDate AS pageReleaseDate," +
+				" log.complete AS completed," +
+				" i.required," +
+				" i.prerequisite" +
+				" FROM lesson_builder_pages p" +
+				" INNER JOIN SAKAI_SITE_TOOL s" +
+				"   ON p.toolId = s.page_id" +
+				" INNER JOIN lesson_builder_items i" +
+				"   ON (i.pageId = p.pageId AND type = 2)" +
+				" INNER JOIN lesson_builder_pages p2" +
+				"   ON (p2.pageId = i.sakaiId)" +
+				" LEFT OUTER JOIN lesson_builder_log log" +
+				"   ON (log.itemId = i.id AND log.userId = ?)" +
+				" WHERE p.parent IS NULL" +
+				"   AND p.toolId IN (" + pages.stream().map(i -> "?").collect(Collectors.joining(",")) + ")" +
+				" ORDER BY i.sequence");
+
+		final Object [] fields = new Object[pages.size() + 1];
+		fields[0] = userId;
+
+		final List<String> pageIds = LessonsSubNavBuilder.collectPageIds(pages);
+		for (int i=0; i<pageIds.size(); i++) {
+			fields[i+1] = pageIds.get(i);
+		}
+
+		final LessonsSubNavBuilder lessonsSubNavBuilder = new LessonsSubNavBuilder(isInstructor);
+
+		sqlService.dbRead(sql, fields, new SqlReader() {
+			public Object readSqlResultRecord(final ResultSet result) {
+				try {
+					return lessonsSubNavBuilder.processResult(result);
+				} catch (SQLException e) {
+					return null;
+				}
+			}
+		});
+
+		return lessonsSubNavBuilder.toJSON();
+	}
 }

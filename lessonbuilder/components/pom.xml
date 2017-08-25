@@ -83,6 +83,9 @@
                     <include>**/*.sql</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+            </resource>
         </resources>
     </build>
 </project>

@@ -79,6 +79,7 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -130,6 +131,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private static AuthzGroupService getAuthzGroupService() {
 		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
+	}
+
+	private SimplePageToolDao simplePageToolDao;
+	public SimplePageToolDao getSimplePageToolDao() {
+		if (simplePageToolDao == null) {
+			simplePageToolDao = (SimplePageToolDao) ComponentManager.get(SimplePageToolDao.class.getName());
+		}
+		return simplePageToolDao;
 	}
 
 	public void setToolManager(ToolManager toolManager) {
@@ -834,8 +843,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		theMap.put("pageNavTools", l);
 
 		if ("true".equals(site.getProperties().getProperty("lessons_submenu")) && !l.isEmpty()) {
-			LessonsTreeView lessonsTreeView = new LessonsTreeView(UserDirectoryService.getCurrentUser().getId(), siteUpdate);
-			theMap.put("additionalLessonsPages", lessonsTreeView.lessonsPagesJSON(l));
+			theMap.put("additionalLessonsPages", getSimplePageToolDao().getLessonSubPageJSON(UserDirectoryService.getCurrentUser().getId(), siteUpdate, l));
 		}
 
 		theMap.put("pageNavTools", l);
