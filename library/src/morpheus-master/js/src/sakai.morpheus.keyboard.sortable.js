@@ -12,7 +12,7 @@ $PBJQ(document).ready(function() {
   };
   
   /* Extends sortable, allows drag operations through keyboard shortcuts */ 
-  $.widget("sakai.keyboardSortable", $.ui.sortable, {
+  $PBJQ.widget("sakai.keyboardSortable", $PBJQ.ui.sortable, {
     options: {
       /* optional, a selector determining what focusable element inside the sortable item should be responding to drag shortcuts.
        * defaults to the sortable item itself */
