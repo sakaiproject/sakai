@@ -2,6 +2,12 @@
 <!-- start: chef_assignments_list_assignments.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - list view
+#if ($isSynopticTool)
+  #set ($allowRemoveAssignment = false)
+  #set ($allowAddAssignment = false)
+  #set ($allowGradeSubmission = false)
+#end
+
 <!-- JQuery already loaded in assignment_chef_header -->
 
 <script type="text/javascript">
@@ -239,7 +245,8 @@
 								#end
 							</td>						
 							<td headers="title" scope="row">
-									#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
+									## These functions could be improved to improve the instructor synoptic view
+									#if (!$!isSynopticTool && ($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignment.getReference())) && $!view.equals('lisofass1'))
 										<strong>
 											#assignmentTitleIcon($assignment)
 											## normal instructor view
@@ -390,7 +397,12 @@
 													</div>
 												#end
 											#else
-												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")" title="$validator.escapeHtml($!assignment.getTitle())">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
+												#if ($!isSynopticTool)
+													#set ($sitetool = $siteService.getSite($assignment.getContext()))
+													<a target="_top" href="#toolDirectParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference" "$sitetool.getId()" "$portalUrl")">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
+												#else
+													<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")" title="$validator.escapeHtml($!assignment.getTitle())">$validator.escapeHtml($validator.limit($assignment.getTitle(), 40))</a>
+												#end
 											#end
 										#end
 										#set ($deleted = false)

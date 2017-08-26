@@ -265,4 +265,8 @@
         #end
     </ul>
 #end
+#macro (toolDirectParam $toolLinkJunk $toolLinkAction $toolLinkQuery $toolLinkSite $portalUrl)
+    $portalUrl/directtool/sakai.assignment.grades?sakai.site=$toolLinkSite&panel=Main&$toolLinkQuery&sakai_action=$toolLinkAction
+#end
+
 <!-- end:  assignment_macros.vm -->
