@@ -48,6 +48,8 @@ import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.*;
@@ -650,7 +652,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 *        The OpaqueUrlDao.
 	 */
 	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
-
+	
+	/** Dependency: CopyCopy */
+	protected ContentCopy contentCopy = null;
+	
+	public void setContentCopy(ContentCopy contentCopy)
+	{
+		this.contentCopy = contentCopy;
+	}
+	
 	public void setExternalCalendarSubscriptionService(ExternalCalendarSubscriptionService externalCalendarSubscriptionService) {
 		this.externalCalendarSubscriptionService = externalCalendarSubscriptionService;
 	}
@@ -1916,6 +1926,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					nCalendar.setEventFields(allFields);
 				}
 
+				ContentCopyContext copyContext = contentCopy.createCopyContext(fromContext, toContext, true);
 				for (int i = 0; i < oEvents.size(); i++)
 				{
 					CalendarEvent oEvent = (CalendarEvent) oEvents.get(i);
@@ -1925,13 +1936,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						String assignmentId = oEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 						if (assignmentId != null && assignmentId.length() > 0)
 							continue;
-
+						
 						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
 								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
-
+						
 						try
 						{
 							BaseCalendarEventEdit eEdit = (BaseCalendarEventEdit) nCalendar.getEditEvent(e.getId(),EVENT_ADD_CALENDAR );
+							
 							// properties
 							ResourcePropertiesEdit p = eEdit.getPropertiesEdit();
 							p.clear();
@@ -2019,6 +2031,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 							RecurrenceRule exRule = oEvent.getExclusionRule();
 							eEdit.setExclusionRule(exRule);
+							
+							//description
+							String newDescription = contentCopy.convertContent(copyContext, oEvent.getDescription(), "text/html", null);
+							eEdit.setDescription(newDescription);
+							String newDescriptionFormatted = contentCopy.convertContent(copyContext, oEvent.getDescriptionFormatted(), "text/html", null);
+							eEdit.setDescriptionFormatted(newDescriptionFormatted);
 
 							// commit new event
 							m_storage.commitEvent(nCalendar, eEdit);
@@ -2028,6 +2046,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 					catch (PermissionException ignore) {}
 				}
+				contentCopy.copyReferences(copyContext);
 				// commit new calendar
 				m_storage.commitCalendar(nCalendar);
 				((BaseCalendarEdit) nCalendar).closeEdit();
@@ -2050,6 +2069,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			{
 				String toSiteId = toContext;	
 				String calendarId = calendarReference(toSiteId, SiteService.MAIN_CONTAINER);
+				
 				Calendar calendarObj = getCalendar(calendarId);	
 				List calEvents = calendarObj.getEvents(null,null);
 

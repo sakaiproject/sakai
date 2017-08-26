@@ -74,6 +74,9 @@
 		</property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
+		<property name="contentCopy">
+			<ref bean="org.sakaiproject.content.api.ContentCopy"/>
+		</property>
 	</bean>
 
 	<bean id="FixPublicSyllabusAttachmentsJob"

@@ -25,6 +25,7 @@
 		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
 		<property name="externalCalendarSubscriptionService"><ref bean="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/> </property>
 		<property name="opaqueUrlDao"><ref bean="org.sakaiproject.calendar.api.OpaqueUrlDao"/></property>
+		<property name="contentCopy"><ref bean="org.sakaiproject.content.api.ContentCopy"/></property>
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
  		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
  		<property name="caching"><value>false</value></property>

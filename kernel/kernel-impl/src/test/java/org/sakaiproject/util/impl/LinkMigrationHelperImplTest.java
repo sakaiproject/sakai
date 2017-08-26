@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LinkMigrationHelperImplTest {
 
-
     @Mock
     private ServerConfigurationService serverConfigurationService;
     private LinkMigrationHelperImpl impl;
@@ -50,5 +49,4 @@ public class LinkMigrationHelperImplTest {
     public void testMigrateOneLink() {
         assertEquals("this <a href='/url/newId'>newId</a>", impl.migrateOneLink("oldId", "newId", "this <a href='/url/oldId'>oldId</a>"));
     }
-
 }
