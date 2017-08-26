@@ -2,8 +2,6 @@
 <!-- start: chef_assignments_instructor_reorder_assignment.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - reorder view
-#javascript("/library/js/fluid/1.5/MyInfusion.js")
-#javascript("/library/js/reorderer.js")
 
 <div class="portletBody container-fluid">
 	#if ($allowAddAssignment || ($withGrade && $!allowGradeSubmission))
@@ -86,12 +84,12 @@
 			</div>
 		</div>
 
-		<ul id="reorder-list">
+		<ul id="reorder-list" class="styled-reorder-list">
 
 			#set($count = 1)
 			#foreach($assignment in $assignments)
 
-			<li class="sortable row"  id="listitem.orderable$count">
+			<li class="sortable row" tabindex="0" id="listitem.orderable$count">
 				<span style="display:none" class="grabHandle">
 					<input type="text" size="3" value="$count" id="index$count"/>
 					<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
