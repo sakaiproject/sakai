@@ -24,6 +24,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -146,8 +147,6 @@ public class WidgetPage extends WebPage {
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
 
-        final String version = this.serverConfigurationService.getString("portal.cdn.version", "");
-
         // get the Sakai skin header fragment from the request attribute
         final HttpServletRequest request = (HttpServletRequest) getRequest().getContainerRequest();
 
@@ -159,8 +158,9 @@ public class WidgetPage extends WebPage {
 
         // render jQuery and the Wicket event library
         // Both must be priority so they are emitted into the head
-        response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/library/webjars/jquery/1.12.4/jquery.min.js?version=%s", version))));
-        response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/my-calendar/scripts/wicket/wicket-event-jquery.min.js?version=%s", version))));
+        final String cdnQuery = PortalUtils.getCDNQuery();
+        response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format(PortalUtils.getLatestJQueryPath()+ "?version=%s", cdnQuery))));
+        response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forUrl(String.format("/my-calendar/scripts/wicket/wicket-event-jquery.min.js?version=%s", cdnQuery))));
 
         // NOTE: All libraries apart from jQuery and Wicket Event must be rendered inline with the application. See WidgetPage.html.
     }
