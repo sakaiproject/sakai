@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.impl;
 
 import static org.mockito.Mockito.when;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION;
 
 import java.util.Collection;
 import java.util.Set;
@@ -263,6 +264,22 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
 
             AssignmentSubmission removedSubmmision = assignmentService.getSubmission(submissionId);
             Assert.assertNull(removedSubmmision);
+        } catch (Exception e) {
+            Assert.fail("Could not create submission, " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void findSubmissionForUser() {
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        try {
+            AssignmentSubmission submission = createNewSubmission(context, submitterId);
+            Assignment assignment = submission.getAssignment();
+            String reference = AssignmentReferenceReckoner.reckoner().submission(submission).reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION, reference)).thenReturn(true);
+            AssignmentSubmission submission1 = assignmentService.getSubmission(assignment.getId(), submitterId);
+            Assert.assertEquals(submission.getId(), submission1.getId());
         } catch (Exception e) {
             Assert.fail("Could not create submission, " + e.getMessage());
         }

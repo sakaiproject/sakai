@@ -52,7 +52,7 @@ function printView(url) {
 		<h1>
 		$validator.escapeHtml($assignment.getTitle()) 
 		<small>
-		#if ($!assignment.isGroup() )
+		#if ($!assignment.getIsGroup() )
 			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
 		#end
 		  - $tlang.getString('gen.subm2')
@@ -75,7 +75,7 @@ function printView(url) {
 		<div class="col-xs-12">
 
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignment.Reference) />
+			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignmentReference) />
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
