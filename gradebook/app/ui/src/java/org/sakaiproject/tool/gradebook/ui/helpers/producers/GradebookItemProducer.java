@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
@@ -117,7 +117,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	}
     	
     	//OTP
-    	String assignmentOTP = "Assignment.";
+    	String assignmentOTP = "GradebookAssignment.";
     	String OTPKey = "";
     	if (params.assignmentId != null) {
     		OTPKey += params.assignmentId.toString();
@@ -179,7 +179,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
         
-        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);  
+        GradebookAssignment assignment = (GradebookAssignment) assignmentBeanLocator.locateBean(OTPKey);
         
         if (add) {          
             // if a due date was passed in, set the due date

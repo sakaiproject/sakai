@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.exception.IdUnusedException;
@@ -365,8 +366,8 @@ public class AuthzSectionsImpl implements Authz {
 					Long assignId = null;
 					if (assign instanceof org.sakaiproject.service.gradebook.shared.Assignment) {
 						assignId = ((org.sakaiproject.service.gradebook.shared.Assignment)assign).getId();
-					} else if (assign instanceof org.sakaiproject.tool.gradebook.Assignment) {
-						assignId = ((org.sakaiproject.tool.gradebook.Assignment)assign).getId();
+					} else if (assign instanceof GradebookAssignment) {
+						assignId = ((GradebookAssignment)assign).getId();
 					}
 
 					if (assignId != null)
@@ -474,8 +475,8 @@ public class AuthzSectionsImpl implements Authz {
 								Long assignId = null;
 								if (assign instanceof org.sakaiproject.service.gradebook.shared.Assignment) {
 									assignId = ((org.sakaiproject.service.gradebook.shared.Assignment)assign).getId();
-								} else if (assign instanceof org.sakaiproject.tool.gradebook.Assignment) {
-									assignId = ((org.sakaiproject.tool.gradebook.Assignment)assign).getId();
+								} else if (assign instanceof GradebookAssignment) {
+									assignId = ((GradebookAssignment)assign).getId();
 								}
 
 								if (assignId != null) {

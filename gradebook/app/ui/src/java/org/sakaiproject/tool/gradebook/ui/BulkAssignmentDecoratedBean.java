@@ -2,7 +2,7 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
-import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 
 /**
  * Created to validate pointsPossible during bulk gradebook item
@@ -12,7 +12,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
  * @author josephrodriguez
  */
 public class BulkAssignmentDecoratedBean implements Serializable {
-	private Assignment assignment;
+	private GradebookAssignment assignment;
 	private String category;
 	private String pointsPossible;
     public String bulkNoPointsError;
@@ -20,7 +20,7 @@ public class BulkAssignmentDecoratedBean implements Serializable {
     public Boolean saveThisItem;
     public String selectedGradeEntryValue;
 
-	public BulkAssignmentDecoratedBean(Assignment assignment, String category) {
+	public BulkAssignmentDecoratedBean(GradebookAssignment assignment, String category) {
 		this.assignment = assignment;
 		this.category = category;
 		bulkNoPointsError = "OK";
@@ -28,10 +28,10 @@ public class BulkAssignmentDecoratedBean implements Serializable {
 		saveThisItem = Boolean.FALSE;
 	}
 	
-	public Assignment getAssignment() {
+	public GradebookAssignment getAssignment() {
 		return assignment;
 	}
-	public void setAssignment(Assignment assignment) {
+	public void setAssignment(GradebookAssignment assignment) {
 		this.assignment = assignment;
 	}
 	public String getCategory() {

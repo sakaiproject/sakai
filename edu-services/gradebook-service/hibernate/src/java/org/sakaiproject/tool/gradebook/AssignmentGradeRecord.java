@@ -29,7 +29,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * An AssignmentGradeRecord is a grade record that can be associated with an
- * Assignment.
+ * GradebookAssignment.
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
@@ -97,7 +97,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
      * @param studentId The student id for whom this grade record belongs
 	 * @param grade The grade, or points earned
 	 */
-	public AssignmentGradeRecord(Assignment assignment, String studentId, Double grade) {
+	public AssignmentGradeRecord(GradebookAssignment assignment, String studentId, Double grade) {
         super();
         this.gradableObject = assignment;
         this.studentId = studentId;
@@ -162,7 +162,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
             return null;
         }
         BigDecimal bdPointsEarned = new BigDecimal(pointsEarned.toString());
-        BigDecimal bdPossible = new BigDecimal(((Assignment)getGradableObject()).getPointsPossible().toString());
+        BigDecimal bdPossible = new BigDecimal(((GradebookAssignment)getGradableObject()).getPointsPossible().toString());
         BigDecimal bdPercent = bdPointsEarned.divide(bdPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
         return Double.valueOf(bdPercent.doubleValue());
     }
@@ -175,8 +175,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 		return false;
 	}
 
-    public Assignment getAssignment() {
-    	return (Assignment)getGradableObject();
+    public GradebookAssignment getAssignment() {
+    	return (GradebookAssignment)getGradableObject();
     }
     
     public Double getPercentEarned() {

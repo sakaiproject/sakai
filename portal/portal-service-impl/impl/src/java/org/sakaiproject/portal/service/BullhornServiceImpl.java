@@ -10,10 +10,11 @@ import org.hibernate.SessionFactory;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
+import org.sakaiproject.assignment.api.model.Assignment;
+import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
@@ -275,18 +276,18 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } else if (AssignmentConstants.EVENT_ADD_ASSIGNMENT.equals(event)) {
                             String siteId = pathParts[3];
                             String assignmentId = pathParts[pathParts.length - 1];
-                            SecurityAdvisor sa = unlock(new String[] {AssignmentService.SECURE_ACCESS_ASSIGNMENT, AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                            SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT, AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
                             switchToAdmin();
                             try {
                                 Assignment assignment = assignmentService.getAssignment(assignmentId);
                                 switchToNull();
-                                Time openTime = assignment.getOpenTime();
+                                Date openTime = assignment.getOpenDate();
                                 if (openTime == null || openTime.getTime() < (new Date().getTime())) {
                                     Site site = siteService.getSite(siteId);
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignmentId);
                                     // Get all the members of the site with read ability
-                                    for (String  to : site.getUsersIsAllowed(AssignmentService.SECURE_ACCESS_ASSIGNMENT)) {
+                                    for (String  to : site.getUsersIsAllowed(AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT)) {
                                         if (!from.equals(to) && !securityService.isSuperUser(to)) {
                                             doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
                                             countCache.remove(to);
@@ -302,9 +303,9 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                         } else if (AssignmentConstants.EVENT_GRADE_ASSIGNMENT_SUBMISSION.equals(event)) {
                             String siteId = pathParts[3];
                             String submissionId = pathParts[pathParts.length - 1];
-                            SecurityAdvisor sa = unlock(new String[] {AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
-                                                            , AssignmentService.SECURE_ACCESS_ASSIGNMENT
-                                                            , AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION});
+                            SecurityAdvisor sa = unlock(new String[] {AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION
+                                                            , AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT
+                                                            , AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION});
 
                             // Without hacking assignment's permissions model, this is only way to
                             // get a submission, other than switching to the submitting user.
@@ -317,10 +318,10 @@ public class BullhornServiceImpl implements BullhornService, Observer {
                                     Assignment assignment = submission.getAssignment();
                                     String title = assignment.getTitle();
                                     String url = assignmentService.getDeepLink(siteId, assignment.getId());
-                                    for (String to : ((List<String>) submission.getSubmitterIds())) {
-                                        doAcademicInsert(from, to, event, ref, title, siteId, e.getEventTime(), url);
-                                        countCache.remove(to);
-                                    }
+                                    submission.getSubmitters().forEach(to -> {
+                                        doAcademicInsert(from, to.getSubmitter(), event, ref, title, siteId, e.getEventTime(), url);
+                                        countCache.remove(to.getSubmitter());
+                                    });
                                 }
                             } catch (IdUnusedException idue) {
                                 log.error("Failed to find either the submission or the site", idue);

@@ -47,7 +47,7 @@ public abstract class GradableObject implements Serializable {
     protected Integer sortOrder;
     protected Integer categorizedSortOrder;
 
-    protected Double mean;	// not persisted; not used in all contexts (in Overview & Assignment Grading,
+    protected Double mean;	// not persisted; not used in all contexts (in Overview & GradebookAssignment Grading,
     	                    // not in Roster or Student View)
 
     protected boolean removed;  // We had trouble with foreign key constraints in the UCB pilot when
@@ -57,15 +57,15 @@ public abstract class GradableObject implements Serializable {
 
     public static Comparator<GradableObject> defaultComparator;
     public static Comparator<GradableObject> sortingComparator;
-    public static Comparator<Assignment> dateComparator;
+    public static Comparator<GradebookAssignment> dateComparator;
     public static Comparator<GradableObject> meanComparator;
     public static Comparator<GradableObject> nameComparator;
     public static Comparator<GradableObject> idComparator;
-    public static Comparator<Assignment> categoryComparator;
+    public static Comparator<GradebookAssignment> categoryComparator;
     static {
-        categoryComparator = new Comparator<Assignment>() {
+        categoryComparator = new Comparator<GradebookAssignment>() {
             @SuppressWarnings("unchecked")
-            public int compare(Assignment one, Assignment two) {
+            public int compare(GradebookAssignment one, GradebookAssignment two) {
                 if (one.getCategory() == null && two.getCategory() == null) {
                     return 0;
                 } else if (one.getCategory() == null) {
@@ -133,8 +133,8 @@ public abstract class GradableObject implements Serializable {
                 return "GradableObject.meanComparator";
             }
         };
-        dateComparator = new Comparator<Assignment>() {
-            public int compare(Assignment one, Assignment two) {
+        dateComparator = new Comparator<GradebookAssignment>() {
+            public int compare(GradebookAssignment one, GradebookAssignment two) {
                 if (one.getDueDate() == null && two.getDueDate() == null) {
                     return nameComparator.compare(one, two);
                 } else if (one.getDueDate() == null) {
@@ -154,9 +154,9 @@ public abstract class GradableObject implements Serializable {
             public int compare(GradableObject one, GradableObject two) {
                 if (one.getSortOrder() == null && two.getSortOrder() == null) {
                     if (one.getClass().equals(two.getClass()) 
-                            && one.getClass().isAssignableFrom(Assignment.class) ) {
+                            && one.getClass().isAssignableFrom(GradebookAssignment.class) ) {
                         // special handling for assignments
-                        return dateComparator.compare((Assignment)one, (Assignment)two);
+                        return dateComparator.compare((GradebookAssignment)one, (GradebookAssignment)two);
                     } else {
                         return nameComparator.compare(one, two);
                     }
@@ -242,10 +242,10 @@ public abstract class GradableObject implements Serializable {
 	}
 	
 	/**
-	 * This should really only be a field in Assignment objects, since
+	 * This should really only be a field in GradebookAssignment objects, since
 	 * the string describing CourseGrade needs to allow for localization.
-	 * Unfortunately, such we keep CourseGrade and Assignment objects in
-	 * the same table, and since we want Assignment names to be enforced
+	 * Unfortunately, such we keep CourseGrade and GradebookAssignment objects in
+	 * the same table, and since we want GradebookAssignment names to be enforced
 	 * as non-nullable, we're stuck with a bogus CourseGrade "name" field
 	 * for now. The UI will have to be smart enough to disregard it.
 	 * 

@@ -118,7 +118,7 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
-	
+
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
 
@@ -700,7 +700,7 @@ public class GradebookNgBusinessService {
 		} catch (final GbAccessDeniedException e) {
 			throw new GbException("Error getting role for current user", e);
 		}
-		
+
 		Optional<Site> site = getCurrentSite();
 
 		// get uuids as list of Users.
@@ -1142,7 +1142,7 @@ public class GradebookNgBusinessService {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Helper to get site. This will ONLY work in a portal site context, it will return empty otherwise (ie via an entityprovider).
 	 *
@@ -1285,7 +1285,7 @@ public class GradebookNgBusinessService {
 
 		if (assignmentToMove == null) {
 			// TODO Handle assignment not in gradebook
-			log.error(String.format("Assignment %d not in site %s", assignmentId, siteId));
+			log.error(String.format("GradebookAssignment %d not in site %s", assignmentId, siteId));
 			return;
 		}
 
@@ -1348,7 +1348,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the current site given the assignment id
+	 * Get an GradebookAssignment in the current site given the assignment id
 	 *
 	 * @param siteId
 	 * @param assignmentId
@@ -1359,7 +1359,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the specified site given the assignment id
+	 * Get an GradebookAssignment in the specified site given the assignment id
 	 *
 	 * @param siteId
 	 * @param assignmentId
@@ -1374,7 +1374,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the current site given the assignment name This should be avoided where possible but is required for the import
+	 * Get an GradebookAssignment in the current site given the assignment name This should be avoided where possible but is required for the import
 	 * process to allow modification of assignment point values
 	 *
 	 * @param assignmentName
@@ -1385,7 +1385,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get an Assignment in the specified site given the assignment name This should be avoided where possible but is required for the
+	 * Get an GradebookAssignment in the specified site given the assignment name This should be avoided where possible but is required for the
 	 * import process to allow modification of assignment point values
 	 *
 	 * @param siteId
@@ -1883,10 +1883,10 @@ public class GradebookNgBusinessService {
 		log.warn("User: " + userUuid + " does not have a valid Gradebook related role in site: " + siteId);
 		return false;
 	}
-	
+
 	/**
 	 * Are student numbers visible to the current user in the current site?
-	 * 
+	 *
 	 * @return true if student numbers are visible
 	 */
 	public boolean isStudentNumberVisible()
@@ -1900,14 +1900,14 @@ public class GradebookNgBusinessService {
 		return user != null && site.isPresent() && getCandidateDetailProvider().isInstitutionalNumericIdEnabled(site.get())
 				&& gradebookService.currentUserHasViewStudentNumbersPerm(getGradebook().getUid());
 	}
-	
+
 	public String getStudentNumber(User u, Site site)
 	{
 		if (site == null || getCandidateDetailProvider() == null)
 		{
 			return "";
 		}
-			
+
 		return getCandidateDetailProvider().getInstitutionalNumericId(u, site).orElse("");
 	}
 
@@ -2028,7 +2028,7 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Helper to determine the icon class to use depending on the assignment external source
-	 * 
+	 *
 	 * @param assignment
 	 * @return
 	 */
@@ -2047,7 +2047,7 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Helper to determine the icon class for possible external app names
-	 * 
+	 *
 	 * @return
 	 */
 	public Map<String, String> getIconClassMap() {

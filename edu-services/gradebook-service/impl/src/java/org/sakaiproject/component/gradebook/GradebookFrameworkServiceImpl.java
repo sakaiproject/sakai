@@ -92,7 +92,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             cg.setGradebook(gradebook);
             session.save(cg);
 
-            // According to the specification, Display Assignment Grades is
+            // According to the specification, Display GradebookAssignment Grades is
             // on by default, and Display course grade is off. But can be overridden via properties
 
 

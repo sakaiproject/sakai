@@ -24,10 +24,10 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 
+import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
@@ -41,7 +41,7 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
     // View maintenance fields - serializable.
     private Long assignmentId;
     private boolean removeConfirmed;
-    private Assignment assignment;
+    private GradebookAssignment assignment;
 
     protected void init() {
         if (assignmentId != null) {
@@ -74,16 +74,16 @@ public class RemoveAssignmentBean extends GradebookDependentBean implements Seri
     }
 
     public String cancel() {
-        // Go back to the Assignment Details page for this assignment.
+        // Go back to the GradebookAssignment Details page for this assignment.
         AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
         assignmentDetailsBean.setAssignmentId(assignmentId);
         return "assignmentDetails";
     }
 
-    public Assignment getAssignment() {
+    public GradebookAssignment getAssignment() {
         return assignment;
     }
-    public void setAssignment(Assignment assignment) {
+    public void setAssignment(GradebookAssignment assignment) {
         this.assignment = assignment;
     }
 
