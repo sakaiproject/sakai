@@ -925,8 +925,8 @@ public class AssignmentAction extends PagedResourceActionII {
         calendarService = ComponentManager.get(CalendarService.class);
         contentTypeImageService = ComponentManager.get(ContentTypeImageService.class);
         m_securityService = ComponentManager.get(SecurityService.class);
-        gradebookExternalAssessmentService = ComponentManager.get(GradebookExternalAssessmentService.class);
-        gradebookService = ComponentManager.get(GradebookService.class);
+        gradebookExternalAssessmentService = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+        gradebookService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
         learningResourceStoreService = ComponentManager.get(LearningResourceStoreService.class);
         taggingManager = ComponentManager.get(TaggingManager.class);
         assignmentActivityProducer = ComponentManager.get(AssignmentActivityProducer.class);
@@ -2978,39 +2978,34 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected String build_instructor_delete_assignment_context(VelocityPortlet portlet, Context context, RunData data,
                                                                 SessionState state) {
-        List assignments = new ArrayList();
-        List assignmentIds = (List) state.getAttribute(DELETE_ASSIGNMENT_IDS);
-        HashMap<String, Integer> submissionCountTable = new HashMap<String, Integer>();
-        for (int i = 0; i < assignmentIds.size(); i++) {
-            String assignmentId = (String) assignmentIds.get(i);
+        List<Assignment> assignments = new ArrayList<>();
+        List<String> assignmentIds = (List<String>) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+        HashMap<String, Integer> submissionCountTable = new HashMap<>();
+        for (String assignmentId : assignmentIds) {
             Assignment a = getAssignment(assignmentId, "build_instructor_delete_assignment_context", state);
             if (a != null) {
-                Iterator submissions = assignmentService.getSubmissions(a).iterator();
                 int submittedCount = 0;
-                while (submissions.hasNext()) {
-                    AssignmentSubmission s = (AssignmentSubmission) submissions.next();
-                    if (s.getSubmitted() && s.getDateSubmitted() != null) {
+                Set<AssignmentSubmission> submissions = a.getSubmissions();
+                for (AssignmentSubmission submission : submissions) {
+                    if (submission.getSubmitted() && submission.getDateSubmitted() != null) {
                         submittedCount++;
                     }
                 }
                 if (submittedCount > 0) {
                     // if there is submission to the assignment, show the alert
-                    addAlert(state, rb.getFormattedMessage("areyousur_withSubmission", new Object[]{a.getTitle()}));
+                    addAlert(state, rb.getFormattedMessage("areyousur_withSubmission", a.getTitle()));
                 }
                 assignments.add(a);
-                submissionCountTable.put(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference(), Integer.valueOf(submittedCount));
-
+                submissionCountTable.put(a.getId(), submittedCount);
             }
         }
         context.put("assignments", assignments);
-
         context.put("confirmMessage", assignments.size() > 1 ? rb.getString("areyousur_multiple") : rb.getString("areyousur_single"));
         context.put("currentTime", Instant.now());
         context.put("submissionCountTable", submissionCountTable);
 
-        String template = (String) getContext(data).get("template");
+        String template = getContext(data).get("template");
         return template + TEMPLATE_INSTRUCTOR_DELETE_ASSIGNMENT;
-
     } // build_instructor_delete_assignment_context
 
     /**
@@ -9383,10 +9378,11 @@ public class AssignmentAction extends PagedResourceActionII {
         SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
         String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
-        // get the delete assignment ids
-        List<String> ids = (List<String>) state.getAttribute(DELETE_ASSIGNMENT_IDS);
-        for (String id : ids) {
+        // get the delete assignment references
+        List<String> references = (List<String>) state.getAttribute(DELETE_ASSIGNMENT_IDS);
+        for (String ref : references) {
             try {
+                String id = AssignmentReferenceReckoner.reckoner().reference(ref).reckon().getId();
                 Assignment assignment = assignmentService.getAssignment(id);
                 Map<String, String> properties = assignment.getProperties();
 
@@ -9404,10 +9400,10 @@ public class AssignmentAction extends PagedResourceActionII {
                 removeCalendarEvent(state, assignment, properties, title);
 
                 // remove related announcement if there is one
-                removeAnnouncement(state, (BaseResourcePropertiesEdit) new BaseResourceProperties(properties));
+                removeAnnouncement(state, properties);
 
                 // remove from Gradebook
-                integrateGradebook(state, (String) id, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
+                integrateGradebook(state, ref, associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
 
                 // we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
                 // delete assignment and its submissions altogether
@@ -9425,10 +9421,10 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 }
             } catch (IdUnusedException e) {
-                log.warn(this + ":doDelete_assignment Cannot find site with id {}", siteId);
+                log.warn("Cannot find site with ref: {}", siteId);
                 addAlert(state, rb.getFormattedMessage("options_cannotFindSite"));
             } catch (PermissionException e) {
-                log.warn(this + ":doDelete_assignment Do not have permission to edit site with id {}", siteId);
+                log.warn("User does not have permission to edit site with ref: {}", siteId);
                 addAlert(state, rb.getFormattedMessage("options_cannotEditSite"));
             }
         } // for
@@ -9450,17 +9446,16 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param state
      * @param pEdit
      */
-    private void removeAnnouncement(SessionState state,
-                                    ResourcePropertiesEdit pEdit) {
+    private void removeAnnouncement(SessionState state, Map<String, String> properties) {
         AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
         if (channel != null) {
-            String openDateAnnounced = StringUtils.trimToNull(pEdit.getProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
-            String openDateAnnouncementId = StringUtils.trimToNull(pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
+            String openDateAnnounced = StringUtils.trimToNull(properties.get(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
+            String openDateAnnouncementId = StringUtils.trimToNull(properties.get(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
             if (openDateAnnounced != null && openDateAnnouncementId != null) {
                 try {
                     channel.removeMessage(openDateAnnouncementId);
                 } catch (PermissionException e) {
-                    log.warn(this + ":removeAnnouncement " + e.getMessage());
+                    log.warn("Could not remove Announcement: {}, {}", openDateAnnouncementId, e.getMessage());
                 }
             }
         }
@@ -14394,16 +14389,16 @@ public class AssignmentAction extends PagedResourceActionII {
                     // this assignment was associated with an existing gb item
                     gbItemName = associatedGbItem;
                 }
-                GradebookService gbService = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+
                 org.sakaiproject.service.gradebook.shared.Assignment gbItem = null;
                 try {
-                    gbItem = gbService.getAssignment(gradebookUid, gbItemName);
+                    gbItem = gradebookService.getAssignment(gradebookUid, gbItemName);
                 } catch (SecurityException se) {
                     // the gradebook method above is overzealous about security when retrieving the gb item by name. It doesn't
                     // allow student-role users to access the assignment via this method. So we
                     // have to retrieve all viewable gb items and filter to get the one we want, unfortunately, if we hit an exception.
                     // If gb item isn't released in the gb, scoring agent info will not be available.
-                    List<org.sakaiproject.service.gradebook.shared.Assignment> viewableGbItems = gbService.getViewableAssignmentsForCurrentUser(gradebookUid);
+                    List<org.sakaiproject.service.gradebook.shared.Assignment> viewableGbItems = gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid);
                     if (viewableGbItems != null && !viewableGbItems.isEmpty()) {
                         for (org.sakaiproject.service.gradebook.shared.Assignment viewableGbItem : viewableGbItems) {
                             if (gbItemName.equals(viewableGbItem.getName())) {

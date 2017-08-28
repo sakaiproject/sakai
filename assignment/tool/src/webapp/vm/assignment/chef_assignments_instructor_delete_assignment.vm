@@ -32,21 +32,21 @@
 								<span class="highlight">$tlang.getString("gen.dra2") </span>
 							#end
 							$validator.escapeHtml($assignment.Title)</td>
-						<td headers="duedate">$assignment.DueTime.toStringLocalFull()</td>
+						<td headers="duedate">$assignment.DueDate.toString()</td>
 						##<td headers="section">$assignment.Section</td>
 						<td headers="status">
-							  #if ($assignment.getOpenTime().after($currentTime))
+							  #if ($assignment.OpenDate.after($currentTime))
 								$tlang.getString("gen.notope")
-							  #elseif ($assignment.getDueTime().after($currentTime))
+							  #elseif ($assignment.DueDate.after($currentTime))
 								$tlang.getString("gen.open")
-							  #elseif (($!assignment.getCloseTime())&&($assignment.getCloseTime().before($currentTime)))
+							  #elseif (($!assignment.CloseDate)&&($assignment.CloseDate.before($currentTime)))
 								$tlang.getString("gen.closed")
 							  #else
 								$tlang.getString("gen.due")
 							  #end
 						</td>
 						<td headers="submissions">
-							$submissionCountTable.get($assignment.Reference)
+							$submissionCountTable.get($assignment.Id)
 						</td>
 					</tr>
 				#end
