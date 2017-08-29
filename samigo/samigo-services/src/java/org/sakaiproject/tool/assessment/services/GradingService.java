@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -3199,14 +3198,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  {
 		  Map.Entry<String, String>entry = i.next();
 		  
-		  String delimRange = entry.getValue().toString(); // ie. "-100|100,2"
+		  String delimRange = entry.getValue(); // ie. "-100|100,2"
 		  		  
-		  double minVal = Double.valueOf(delimRange.substring(0, delimRange.indexOf('|')));
-		  double maxVal = Double.valueOf(delimRange.substring(delimRange.indexOf('|')+1, delimRange.indexOf(',')));
+		  BigDecimal minVal = new BigDecimal(delimRange.substring(0, delimRange.indexOf('|')));
+		  BigDecimal maxVal = new BigDecimal(delimRange.substring(delimRange.indexOf('|')+1, delimRange.indexOf(',')));
 		  int decimalPlaces = Integer.valueOf(delimRange.substring(delimRange.indexOf(',')+1, delimRange.length()));
 		  		  
 		  // This line does the magic of creating the random variable value within the range.
-		  Double randomValue = minVal + (maxVal - minVal) * generator.nextDouble();
+		  BigDecimal randomValue = maxVal.subtract(minVal).multiply(new BigDecimal(generator.nextDouble())).add(minVal);
 		  
 		  // Trim off excess decimal points based on decimalPlaces value
 		  /*BigDecimal bd = new BigDecimal(randomValue);
