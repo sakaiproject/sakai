@@ -22,26 +22,21 @@ package org.sakaiproject.tool.summarycalendar.ui;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
 import javax.faces.context.FacesContext;
-import javax.faces.el.ValueBinding;
 import javax.faces.model.SelectItem;
 
+import org.sakaiproject.util.CalendarEventType;
+import org.sakaiproject.util.CalendarUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -78,6 +73,8 @@ public class PrefsBean {
 	/** Resource bundle */
 	private transient ResourceLoader			msgs						= new ResourceLoader("calendar");
 	
+	private CalendarUtil calendarUtil = new CalendarUtil();
+	
 	/** Bean members */
 	private List								viewModes					= null;
 	private String								selectedViewMode			= null;
@@ -110,7 +107,6 @@ public class PrefsBean {
 	
 	public String getInitValues() {
 		// reload localized event types
-		EventTypes.reloadLocalization();
 		return "";
 	}
 
@@ -391,7 +387,7 @@ public class PrefsBean {
 		// make sure all available events are listed
 		// no pass-by-reference in java, must use a work-around...
 		List temp = new ArrayList();
-		temp.addAll(EventTypes.getEventTypes());		
+		temp.addAll(CalendarEventType.getTypes());		
 		PairList lists = new PairList(h, temp);
 		lists = validateEventList(lists);
 		h = lists.dataList;
@@ -556,7 +552,7 @@ public class PrefsBean {
 		Iterator<String> lI = l.iterator();
 		while(lI.hasNext()){
 			String eventType = lI.next();
-			SelectItem item = new SelectItem(eventType, EventTypes.getLocalizedEventType(eventType));
+			SelectItem item = new SelectItem(eventType, calendarUtil.getLocalizedEventType(eventType));
 			list.add(item);
 		}
 		return list;

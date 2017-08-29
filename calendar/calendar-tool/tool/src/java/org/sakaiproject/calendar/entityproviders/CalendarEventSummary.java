@@ -30,7 +30,7 @@ public class CalendarEventSummary {
 	 */
 	private String siteId;
 	//icon used for specific eventType
-	private String eventImage;
+	private String eventIcon;
 
 	public CalendarEventSummary() {
 	}
