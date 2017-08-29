@@ -16,5 +16,10 @@
         <property name="persistentClass" value="org.sakaiproject.contentreview.dao.ContentReviewItem" />
         <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     </bean>
+	
+	<bean id="org.sakaiproject.contentreview.dao.ContentReviewActivityConfigDao" class="org.sakaiproject.contentreview.dao.ContentReviewActivityConfigDao">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="persistentClass" value="org.sakaiproject.contentreview.dao.ContentReviewActivityConfigEntry" />
+	</bean>
 
 </beans>

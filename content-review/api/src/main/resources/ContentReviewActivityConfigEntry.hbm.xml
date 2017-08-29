@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<class name="org.sakaiproject.contentreview.dao.ContentReviewActivityConfigEntry"	table="CONTENTREVIEW_ACTIVITY_CFG">
+		<id name="id" type="long">
+	    	<generator class="native">
+                <param name="sequence">CONTENTREVIEW_ACTIVITY_CFG_SEQ</param>
+	    	</generator>
+		</id>
+		<properties name="uniqueAttributeConstraint" insert="true" update="true" unique="true">
+			<property name="toolId" type="string" length="255" not-null="true" column="tool_id" />
+			<property name="activityId" type="string" length="255" not-null="true" column="activity_id" />
+			<property name="providerId" type="integer" not-null="true" column="provider_id" />
+			<property name="name" type="string" length="255" not-null="true" column="name" />
+		</properties>
+		<property name="value" type="string" length="2000" not-null="true" column="value" />
+	</class>
+</hibernate-mapping>
