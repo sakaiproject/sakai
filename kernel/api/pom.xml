@@ -4,7 +4,7 @@
   <parent>
     <artifactId>kernel</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>12-SNAPSHOT</version><!-- KernelVersion -->
+    <version>13-SNAPSHOT</version><!-- KernelVersion -->
     <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Kernel API</name>

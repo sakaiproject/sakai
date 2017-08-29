@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sakaiproject.msgcntr</groupId>
     <artifactId>msgcntr</artifactId>
-    <version>12-SNAPSHOT</version>
+    <version>13-SNAPSHOT</version>
   </parent>
   <name>Sakai Message Forums Hibernate Module</name>
   <groupId>org.sakaiproject.msgcntr</groupId>

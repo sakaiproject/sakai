@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+    <version>13-SNAPSHOT</version><!-- ProjectVersion -->
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Archive Import</name>

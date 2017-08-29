@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>calendar</artifactId>
 		<groupId>org.sakaiproject.calendar</groupId>
-		<version>12-SNAPSHOT</version>
+		<version>13-SNAPSHOT</version>
 	</parent>
 	<groupId>org.sakaiproject.calendar</groupId>
 	<artifactId>sakai-calendar-hbm</artifactId>

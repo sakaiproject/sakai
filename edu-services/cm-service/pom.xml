@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.sakaiproject.edu-services</groupId>
         <artifactId>edu-services</artifactId>
-        <version>12-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>13-SNAPSHOT</version><!-- ProjectVersion -->
     </parent>
     <name>Sakai Course Management Project</name>
     <groupId>org.sakaiproject.edu-services.course-management</groupId>
