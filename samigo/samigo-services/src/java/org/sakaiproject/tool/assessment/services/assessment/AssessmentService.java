@@ -51,6 +51,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -449,7 +450,8 @@ public class AssessmentService {
 							.toString());
 					if (poolIds.size() == 0) {
 						// System.out.println("not in pool " + item.getItemId());
-						itemService.deleteItem(item.getItemId(), agentId);
+						Long deleteId = item.getItemId();
+						itemService.deleteItem(deleteId, agentId);
 						itemIter.remove();
 					} // else System.out.println("in pool " + item.getItemId());
 				}

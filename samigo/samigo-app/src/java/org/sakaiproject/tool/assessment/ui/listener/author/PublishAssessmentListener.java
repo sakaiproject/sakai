@@ -43,6 +43,7 @@ import javax.faces.event.ActionListener;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
@@ -207,8 +208,9 @@ public class PublishAssessmentListener
     	   sendNotification(pub, publishedAssessmentService, subject, notificationMessage, 
     			   assessmentSettings.getReleaseTo());
        }
-       EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.publish", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
-       //update Calendar Events
+
+       EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_PUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+		//update Calendar Events
        boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate") != null;
        calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
     } catch (AssignmentHasIllegalPointsException gbe) {

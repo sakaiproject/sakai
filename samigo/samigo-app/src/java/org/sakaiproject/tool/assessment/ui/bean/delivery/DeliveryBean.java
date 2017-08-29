@@ -1575,14 +1575,14 @@ public class DeliveryBean
 		  return "editAssessment";
 	  }	  
 	  
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.click_sub", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_CLICKSUB, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
 	  if (!submitFromTimeoutPopup) {
 
 		  String nextAction = checkBeforeProceed(true, isFromTimer);
 		  log.debug("***** next Action="+nextAction);
 
-		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.checked", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+		  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_CHECKED, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 
 
 		  if (!("safeToProceed").equals(nextAction)){
@@ -1629,20 +1629,20 @@ public class DeliveryBean
 		  if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
 		  {
 			  returnValue="anonymousThankYou";
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.via_url", resource, siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_VIA_URL, resource, siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit", resource, true));
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, resource, true));
 		  }
 	  }
 	  else {
 		  if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
 		  {
 			  returnValue="anonymousThankYou";
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit.url", resource , siteId, true, NotificationService.NOTI_REQUIRED));
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_VIA_URL, resource , siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.timer_submit", resource, true));
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER, resource, true));
 		  }
 	  }
 	  forGrade = false;
@@ -1741,10 +1741,10 @@ public class DeliveryBean
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
 		  if (adata != null) {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_last_page", "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_LASTPAGE, "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 	  }
 	  
@@ -1784,10 +1784,10 @@ public class DeliveryBean
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
 		  if (adata != null) {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_TOC, "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 		  else {
-			  EventTrackingService.post(EventTrackingService.newEvent("sam.submit.from_toc", "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED)); 
+			  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_FROM_TOC, "siteId=" + AgentFacade.getCurrentSiteId() + ", adata is null", siteId, true, NotificationService.NOTI_REQUIRED));
 		  }
 	  }
 	  

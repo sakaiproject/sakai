@@ -19,6 +19,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventDelayHandler;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -389,6 +390,12 @@ public class BaseEventDelayHandler implements EventDelayHandler, ScheduledInvoca
 		}
 
 		public Date getEventTime() {
+			return null;
+		}
+
+		@Override
+		public LRS_Statement getLrsStatement() {
+			//Don't do anything right now on a rerun
 			return null;
 		}
 	}

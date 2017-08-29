@@ -31,6 +31,7 @@ import javax.faces.event.ActionListener;
 
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -63,8 +64,7 @@ public class RemoveAssessmentListener implements ActionListener
     s.removeAssessment(assessmentId);
 
     final String context = s.getAssessmentSiteId(assessmentId);
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.remove", "assessmentId=" + assessmentId, context, true, NotificationService.NOTI_NONE));
-    
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REMOVE, "assessmentId=" + assessmentId, context, true, NotificationService.NOTI_NONE));
     // This should have been done inside AssessmentFacadeQueries.removeAssessment()
     // but it didn't work there nor inside RemoveAssessmentThread. 
     // Debugging log in Conntent Hosting doesn't show anything.

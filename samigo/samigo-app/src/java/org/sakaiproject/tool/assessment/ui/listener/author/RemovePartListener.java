@@ -28,6 +28,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -74,8 +75,7 @@ public class RemovePartListener implements ActionListener
       assessmentService.moveAllItems(sectionId,destSectionId);
     }
     assessmentService.removeSection(sectionId);
-    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", removed sectionId=" + sectionId, true));
-    
+    EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_REVISE, "siteId=" + AgentFacade.getCurrentSiteId() + ", removed sectionId=" + sectionId, true));
     // #2 - goto editAssessment.jsp, so reset assessmentBean
     //log.info("** assessmentId in RemovePartListener ="+assessmentBean.getAssessmentId());
     AssessmentFacade assessment = assessmentService.getAssessment(

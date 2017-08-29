@@ -150,7 +150,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         if (returnAll) {
             subList = membership;
         } else {
-            int pageSize = 10;
+            int pageSize = sakaiProxy.getPageSize();
             int start  = page * pageSize;
             log.debug("start: {}", start);
 
@@ -172,6 +172,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
         RosterData data = new RosterData();
         data.setMembers(subList);
         data.setMembersTotal(membershipsSize);
+        data.setPageSize(sakaiProxy.getPageSize());
 
         boolean showVisits = sakaiProxy.getShowVisits();
 

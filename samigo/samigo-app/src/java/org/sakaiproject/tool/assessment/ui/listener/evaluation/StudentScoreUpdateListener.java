@@ -40,7 +40,10 @@ import javax.faces.event.ActionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -53,6 +56,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.util.SamigoLRSStatements;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 
 /**
@@ -70,6 +74,8 @@ public class StudentScoreUpdateListener
   implements ActionListener
 {
   private static Logger log = LoggerFactory.getLogger(StudentScoreUpdateListener.class);
+  private final EventTrackingService eventTrackingService= ComponentManager.get( EventTrackingService.class );
+
   private static ContextUtil cu;
 
   /**
@@ -220,7 +226,7 @@ public class StudentScoreUpdateListener
               data.setGradedDate(new Date());
               String targetString = "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString();
               String safeString = targetString.length() > 255 ? targetString.substring(0, 255) : targetString;
-              EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", safeString, true));
+              eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, safeString, true));
               log.debug("****4 itemGradingId="+data.getItemGradingId());
               log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
             }
@@ -255,25 +261,25 @@ public class StudentScoreUpdateListener
     	  oldComments = "";
       }
 
+      StringBuffer logString = new StringBuffer();
+      logString.append("gradedBy=");
+      logString.append(AgentFacade.getAgentString());
+      logString.append(", assessmentGradingId=");
+      logString.append(adata.getAssessmentGradingId());
       if (!newComments.equals(oldComments)) {
     	  updateFlag = true;
     	  adata.setComments(newComments);
     	  adata.setGradedBy(AgentFacade.getAgentString());
     	  adata.setGradedDate(new Date());
-    	  StringBuffer logString = new StringBuffer();
-          logString.append("gradedBy=");
-          logString.append(AgentFacade.getAgentString());
-          logString.append(", assessmentGradingId=");
-          logString.append(adata.getAssessmentGradingId());
           logString.append(", newComments=");
           logString.append(newComments);
           logString.append(", oldComments=");
           logString.append(oldComments);
-    	  EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", logString.toString(), true));
       }
 
       if (updateFlag) {
     	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
+    	  eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, logString.toString(), AgentFacade.getCurrentSiteId(), true, NotificationService.NOTI_OPTIONAL, SamigoLRSStatements.getStatementForStudentScoreUpdate(adata, tbean.getPublishedAssessment())));
       }
       log.debug("Saved student scores.");
       
@@ -332,7 +338,7 @@ public class StudentScoreUpdateListener
     				GradingService gradingService = new GradingService();
     				if (attachmentList.size() > 0) {
     					gradingService.saveOrUpdateAttachments(attachmentList);
-    					EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
+    					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, 
     							"siteId=" + AgentFacade.getCurrentSiteId() + ", Adding " + attachmentList.size() + " attachments for itemGradingData id = " + itemGradingData.getItemGradingId(), 
     							true));
     				}
@@ -343,7 +349,7 @@ public class StudentScoreUpdateListener
     				while (iter4.hasNext()){
     					Long attachmentId = (Long)iter4.next();
     					gradingService.removeItemGradingAttachment(attachmentId.toString());
-    					EventTrackingService.post(EventTrackingService.newEvent("sam.student.score.update", 
+    					eventTrackingService.post(eventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_STUDENT_SCORE_UPDATE, 
     							"siteId=" + AgentFacade.getCurrentSiteId() + ", Removing attachmentId = " + attachmentId, true));
     				}
     			}

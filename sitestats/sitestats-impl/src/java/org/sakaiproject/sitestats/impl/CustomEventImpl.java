@@ -22,6 +22,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 
 
 public class CustomEventImpl implements Event {
@@ -32,6 +33,7 @@ public class CustomEventImpl implements Event {
 	private String	sessionUser;
 	private String	sessionId;
 	private boolean	modify;
+	private LRS_Statement lrsStatement;
 
 	public CustomEventImpl(Date date, String event, String ref, String sessionUser, String sessionId) {
 		this(date, event, ref, null, sessionUser, sessionId, 'm');
@@ -42,6 +44,9 @@ public class CustomEventImpl implements Event {
 	}
 
 	public CustomEventImpl(Date date, String event, String ref, String context, String sessionUser, String sessionId, char eventCode) {
+		this(date, event, ref, context, sessionUser, sessionId, 'm',null);
+	}
+	public CustomEventImpl(Date date, String event, String ref, String context, String sessionUser, String sessionId, char eventCode, LRS_Statement lrsStatement) {
 		this.date = date;
 		this.event = event;
 		this.ref = ref;
@@ -49,6 +54,7 @@ public class CustomEventImpl implements Event {
 		this.sessionUser = sessionUser;
 		this.sessionId = sessionId;
 		this.modify = ('m' == eventCode);
+		this.lrsStatement = lrsStatement;
 	}
 	
 	public Date getDate() {
@@ -97,5 +103,11 @@ public class CustomEventImpl implements Event {
 	       append("sessionId", sessionId).
 	       append("modify", modify).
 	       toString();
+	}
+
+	@Override
+	public LRS_Statement getLrsStatement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

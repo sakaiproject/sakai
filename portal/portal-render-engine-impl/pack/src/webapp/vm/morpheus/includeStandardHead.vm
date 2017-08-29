@@ -40,7 +40,10 @@
                 "locale": "$!{locale}",
                 "user": {
                     "id": "$!{userId}",
-                    "eid": "$!{userEid}"
+                    "eid": "$!{userEid}",
+                    "userType": "$!{userType}",
+                    "siteRole": "$!{userSiteRole}"
+                    
                 },
                 "timeoutDialog" : {
                 "enabled": $!{timeoutDialogEnabled},

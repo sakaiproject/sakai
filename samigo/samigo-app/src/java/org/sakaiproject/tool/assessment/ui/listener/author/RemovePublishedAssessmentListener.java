@@ -30,6 +30,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -90,9 +91,7 @@ public class RemovePublishedAssessmentListener
       if(calendarDueDateEventId != null){
     	  calendarService.removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarDueDateEventId);
       }
-      EventTrackingService.post(EventTrackingService.newEvent("sam.pubAssessment.remove", "siteId=" + AgentFacade.getCurrentSiteId() + ", publisedAssessmentId=" + assessmentId, true));
-          
-      
+      EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REMOVE, "siteId=" + AgentFacade.getCurrentSiteId() + ", publisedAssessmentId=" + assessmentId, true));
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
       ArrayList publishedAssessmentList = author.getPublishedAssessments();
       ArrayList list = new ArrayList();

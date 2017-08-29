@@ -26,6 +26,7 @@ import java.util.Observer;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventDelayHandler;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Statement;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
@@ -67,6 +68,11 @@ public class FakeEventTrackingService extends Observable implements EventTrackin
 		return new FakeEvent(event, resource, context, modify, priority);
 	}
 
+	public Event newEvent(String event, String resource, String context, boolean modify, int priority, LRS_Statement lrsStatement) {
+		return new FakeEvent(event, resource, context, modify, priority, lrsStatement);
+	}
+
+
 	public void post(Event e) {
 		for(Observer o : observers) {
 			o.update(this, e);
@@ -82,5 +88,4 @@ public class FakeEventTrackingService extends Observable implements EventTrackin
 	}
 
 	public void setEventDelayHandler(EventDelayHandler arg0) {}
-
 }

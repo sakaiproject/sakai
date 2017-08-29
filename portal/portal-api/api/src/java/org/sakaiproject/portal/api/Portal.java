@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -175,7 +176,7 @@ public interface Portal
 	 * @return
 	 */
 	PortalRenderContext startPageContext(String siteType, String title, String skin,
-			HttpServletRequest request);
+			HttpServletRequest request, Site site);
 
 	/**
 	 * perform a redirect if logged out

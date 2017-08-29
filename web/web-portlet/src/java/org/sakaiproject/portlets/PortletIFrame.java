@@ -325,6 +325,7 @@ public class PortletIFrame extends GenericPortlet {
 						StringBuilder alertMsg = new StringBuilder();
 						if ( siteInfo != null ) siteInfo = validator.processFormattedText(siteInfo, alertMsg);
 						context.put("siteInfo", siteInfo);
+						context.put("height",height);
 						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
 						return;
 					}

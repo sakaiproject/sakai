@@ -155,13 +155,16 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
 
 	private static boolean DEFAULT_CREATE_GROUPS = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.create.groups.setting", "true")) ? true : false;
+	
+	protected static String DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY = Utilities.getSignupConfigParamVal(
+			"signup.default.email.selected", SEND_EMAIL_ALL_PARTICIPANTS, VALID_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY);
 
 	protected static boolean NEW_MEETING_SEND_EMAIL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal(
 			"signup.email.notification.mandatory.for.newMeeting", "true")) ? true : false;
 	
 	private boolean mandatorySendEmail = NEW_MEETING_SEND_EMAIL;
 	
-	private String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
+	private String sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 	
 	private boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
@@ -415,7 +418,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		if(NEW_MEETING_SEND_EMAIL){
 			sendEmail = NEW_MEETING_SEND_EMAIL;
 		}
-		sendEmailToSelectedPeopleOnly=SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
+		sendEmailToSelectedPeopleOnly=DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 		receiveEmail = false;
 		sendEmailByOwner= DEFAULT_SEND_EMAIL; /*will be inherited per meeting basis*/
 		allowComment = DEFAULT_ALLOW_COMMENT;
@@ -832,7 +835,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			setEndTimeAutoAdjusted(false);
 			//reset who should receive emails
 			//setSendEmailAttendeeOnly(false);
-			sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;//reset
+			sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;//reset
 
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}

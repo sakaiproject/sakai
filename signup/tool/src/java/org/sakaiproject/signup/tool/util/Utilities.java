@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -460,7 +461,19 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		return cal.getTime();
 	}
 	
+	//Backward compatibility, no property validation
 	public static String getSignupConfigParamVal(String paramName, String defaultValue) {
+		return getSignupConfigParamVal(paramName, defaultValue, null);
+	}
+	
+	/**
+	 * @param paramName - Name of the parameter
+	 * @param defaultValue - Default value
+	 * @param acceptValues - Set of acceptable values (optional, null if all values allowed) 
+	 * 		If specified and the value isn't allowed returns the default
+	 * @return config parameter
+	 */
+	public static String getSignupConfigParamVal(String paramName, String defaultValue, Set <String> acceptValues) {
 		/* first look at sakai.properties and the tool bundle*/
 		String myConfigValue=defaultValue;
 		if (paramName != null) {
@@ -476,7 +489,12 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 				myConfigValue = defaultValue;
 			}
 		}
-
+		
+		//If acceptable values is defined and this isn't acceptable, just return the default anyway
+		if (acceptValues != null && !acceptValues.contains(myConfigValue)) {
+			myConfigValue = defaultValue;
+		}
+			
 		return myConfigValue;
 
 	}

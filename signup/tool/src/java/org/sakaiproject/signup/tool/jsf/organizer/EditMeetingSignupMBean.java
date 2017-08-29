@@ -144,7 +144,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		showAttendeeName = false;
 		sendEmail = DEFAULT_SEND_EMAIL;		
 		//sendEmailAttendeeOnly = false;
-		sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
+		sendEmailToSelectedPeopleOnly = DEFAULT_SEND_EMAIL_TO_SELECTED_PEOPLE_ONLY;
 		
 		unlimited = false;
 
