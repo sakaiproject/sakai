@@ -8,7 +8,7 @@
 </script>
 
 #set ($submissionType = $assignment.getContent().getTypeOfSubmission())
-#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
+#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
 <div class="portletBody">
 		<h3>
 		$tlang.getString("viewassig.viewass1") 	

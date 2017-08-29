@@ -1265,11 +1265,8 @@ public class AssignmentAction extends PagedResourceActionII {
         try {
             Session session = sessionManager.getCurrentSession();
             SecurityAdvisor secAdv = pushSecurityAdvisor(session, "assignment.security.advisor", false);
-            SecurityAdvisor contentAdvisor = pushSecurityAdvisor(session, "assignment.content.security.advisor", false);
             String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
             rv = assignmentService.getAssignment(assignmentId);
-
-            m_securityService.popAdvisor(contentAdvisor);
             m_securityService.popAdvisor(secAdv);
         } catch (IdUnusedException e) {
             log.warn(this + ":" + callingFunctionName + " " + e.getMessage() + " " + assignmentReference);
@@ -8565,7 +8562,7 @@ public class AssignmentAction extends PagedResourceActionII {
         a.setOpenDate(Date.from(openTime.atOffset(ZoneOffset.UTC).toInstant()));
         a.setDueDate(Date.from(dueTime.atOffset(ZoneOffset.UTC).toInstant()));
         a.setDropDeadDate(Date.from(dueTime.atOffset(ZoneOffset.UTC).toInstant()));
-        if (visibleTime != null) a.setVisibleDate(Date.from(visibleTime.atOffset(ZoneOffset.UTC).toInstant()));
+        a.setVisibleDate(visibleTime != null ? Date.from(visibleTime.atOffset(ZoneOffset.UTC).toInstant()) : Date.from(openTime.atOffset(ZoneOffset.UTC).toInstant()));
         if (closeTime != null) a.setCloseDate(Date.from(closeTime.atOffset(ZoneOffset.UTC).toInstant()));
 
         Map<String, String> p = a.getProperties();
@@ -11892,65 +11889,49 @@ public class AssignmentAction extends PagedResourceActionII {
             String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
             String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
             Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE : Boolean.FALSE);
+
             Assignment assignment = null;
-
-
-            try {
-                assignment = assignmentService.getAssignment(aRef);
-                if (Boolean.valueOf(assignment.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING)) == Boolean.TRUE) {
-                    allOrOneGroup = "all";
-                }
-            } catch (IdUnusedException ex) {
-                log.warn(":sizeResources cannot find assignment " + ex.getMessage());
-            } catch (PermissionException aPerException) {
-                log.warn(":sizeResources: Not allowed to get assignment " + aRef + " " + aPerException.getMessage());
+            assignment = getAssignment(aRef, "sizeResources", state);
+            if (Boolean.valueOf(assignment.getProperties().get(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING)) == Boolean.TRUE) {
+                allOrOneGroup = "all";
             }
-//			catch( EntityPropertyNotDefinedException ex )
-//			{
-//				log.debug( ":sizeResources: property not defined for assignment  " + aRef + " " + ex.getMessage() );
-//			}
-//			catch( EntityPropertyTypeException ex )
-//			{
-//				log.debug( ":sizeResources: property type exception for assignment  " + aRef + " " + ex.getMessage() );
-//			}
 
-            if (assignment != null && assignment.getIsGroup()) {
-                allOrOneGroup = MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) ? "all" : allOrOneGroup;
-                Collection<Group> submitterGroups = assignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
+            if (assignment != null) {
+                // TODO this could be optimized as we already have the assignment.
+                if (assignment.getIsGroup()) {
+                    allOrOneGroup = MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) ? "all" : allOrOneGroup;
+                    Collection<Group> submitterGroups = assignmentService.getSubmitterGroupList("false", allOrOneGroup, "", assignment.getId(), contextString);
 
-                // construct the group-submission list
-                if (submitterGroups != null && !submitterGroups.isEmpty()) {
-                    for (Group gId : submitterGroups) {
-                        AssignmentSubmission sub = null;
-                        try {
-                            sub = assignmentService.getSubmission(aRef, gId.getId());
-                        } catch (PermissionException e) {
-                            log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId(), e.getMessage());
-                        }
-                        returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
-                    }
-                }
-
-            } else {
-
-                //List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-                Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-
-                // construct the user-submission list
-                for (User u : submitters.keySet()) {
-                    String uId = u.getId();
-
-                    AssignmentSubmission sub = submitters.get(u);
-                    SubmitterSubmission us = new SubmitterSubmission(u, sub);
-                    String submittedById = sub.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID);
-                    if (submittedById != null) {
-                        try {
-                            us.setSubmittedBy(userDirectoryService.getUser(submittedById));
-                        } catch (UserNotDefinedException ex1) {
-                            log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
+                    // construct the group-submission list
+                    if (submitterGroups != null && !submitterGroups.isEmpty()) {
+                        for (Group gId : submitterGroups) {
+                            AssignmentSubmission sub = null;
+                            try {
+                                sub = assignmentService.getSubmission(aRef, gId.getId());
+                            } catch (PermissionException e) {
+                                log.warn("Cannot find submission with reference = {}, group = {}, {}", aRef, gId.getId(), e.getMessage());
+                            }
+                            returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
                         }
                     }
-                    returnResources.add(us);
+                } else {
+                    Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, assignment.getId(), contextString);
+                    // construct the user-submission list
+                    for (User u : submitters.keySet()) {
+                        String uId = u.getId();
+
+                        AssignmentSubmission sub = submitters.get(u);
+                        SubmitterSubmission us = new SubmitterSubmission(u, sub);
+                        String submittedById = sub.getProperties().get(AssignmentConstants.SUBMITTER_USER_ID);
+                        if (submittedById != null) {
+                            try {
+                                us.setSubmittedBy(userDirectoryService.getUser(submittedById));
+                            } catch (UserNotDefinedException ex1) {
+                                log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
+                            }
+                        }
+                        returnResources.add(us);
+                    }
                 }
             }
         }

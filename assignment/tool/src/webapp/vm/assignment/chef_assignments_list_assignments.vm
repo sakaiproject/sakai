@@ -248,7 +248,7 @@
 												<a name="asnActionLink" href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")" title="$validator.escapeHtml($!assignment.Title)">
 											#end
 											#if ($!assignment.draft)
-												<span class="highlight">$tlang.getString("gen.dra2") </span>
+												<span class="highlight">$tlang.getString("gen.dra2")</span>
 											#end
 												$validator.escapeHtml($validator.limit($!assignment.title, 64))
 
@@ -393,7 +393,7 @@
 											#end
 										#end
 										#set ($deleted = false)
-										#set ($deleted = $assignment.Deleted))
+										#set ($deleted = $assignment.Deleted)
 										#if ($!deleted.equalsIgnoreCase("true"))
 											<span class="highlight">$tlang.getString("stulistassig.asshasbee1")</span>
 										#end

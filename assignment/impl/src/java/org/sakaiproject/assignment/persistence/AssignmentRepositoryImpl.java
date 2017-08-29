@@ -128,7 +128,8 @@ public class AssignmentRepositoryImpl extends BasicSerializableRepository<Assign
     public AssignmentSubmission findSubmissionForUser(String assignmentId, String userId) {
         return (AssignmentSubmission) sessionFactory.getCurrentSession().createCriteria(AssignmentSubmission.class)
                 .add(Restrictions.eq("assignment.id", assignmentId))
-                .add(Restrictions.eq("submitters.submitter", userId))
+                .createAlias("submitters", "s")
+                .add(Restrictions.eq("s.submitter", userId))
                 .uniqueResult();
     }
 
