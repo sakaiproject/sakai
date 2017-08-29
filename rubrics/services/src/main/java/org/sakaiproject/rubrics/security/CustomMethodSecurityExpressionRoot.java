@@ -130,7 +130,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
         boolean allowed = false;
         if (authenticatedRequestContext.isEditor()) {
             allowed = DEFAULT_RESOURCE_COPY_ID.equalsIgnoreCase(resourceId)
-                    || authenticatedRequestContext.hasWildcardContextId();
+                    || authenticatedRequestContext.isSuperUser();
             if (!allowed) {
                 Long id = Long.parseLong(resourceId);
                 allowed = canRead(id, resourceType);
@@ -140,7 +140,7 @@ public class CustomMethodSecurityExpressionRoot extends SecurityExpressionRoot
     }
 
     private boolean isAuthorizedToAccessContextResource(Long resourceId, String resourceType) {
-        boolean allowed = authenticatedRequestContext.hasWildcardContextId();
+        boolean allowed = authenticatedRequestContext.isSuperUser();
         if (!allowed) {
             BaseResource resource = repositories.get(resourceType).findOne(resourceId);
             allowed = resource.getMetadata().getOwnerId().equalsIgnoreCase(
