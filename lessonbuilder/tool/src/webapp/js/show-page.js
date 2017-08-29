@@ -2143,8 +2143,9 @@ $(document).ready(function() {
 			pollGraph.parent().find(".questionPollData").each(function(index) {
 				var text = $(this).find(".questionPollText").text();
 				var count = $(this).find(".questionPollNumber").text();
+				var legend = $(this).find(".questionPollLegend").text();
 				
-				pollData[index] = [parseInt(count), text];
+				pollData[index] = [parseInt(count), text, '#000000', legend];
 			});
 			
 			pollGraph.show();
