@@ -146,6 +146,7 @@ public class PageListProducer
                     //for all tools that want special configuration and/or allow multiple instances 
                     //per site
                     if ("sakai.iframe".equals(tool.getToolId())) {
+                        UIMessage.make(pagerow, "page-config-label", "url");
                         UIInput.make(pagerow, "page-config-input", "#{SitePageEditHandler.nil}", 
                                 tool.getPlacementConfig().getProperty("source"));
                     }
