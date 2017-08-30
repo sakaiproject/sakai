@@ -38,28 +38,30 @@ import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
 
 public class ValidationPage extends ConsoleBasePage {
 
-	private static final long serialVersionUID = 1L;
+	private static final Log LOG = LogFactory.getLog(ValidationPage.class);
 
-	private static Log log = LogFactory.getLog(ValidationPage.class);
-	
-	private static ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_link.png");
+	private static final ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_link.png");
+	private static final ResourceReference VALIDATE_ICON_REF = new ResourceReference(ValidationPage.class, "res/add.png");
+	private static final ResourceReference REFRESH_ICON_REF = new ResourceReference(ValidationPage.class, "res/arrow_refresh.png");
 
-	private static final ResourceReference validateIconReference = new ResourceReference(ValidationPage.class, "res/add.png");
-	private static final ResourceReference refreshIconReference = new ResourceReference(ValidationPage.class, "res/arrow_refresh.png");
-	
-	
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
-	
+
 	private final BasicDataTable table;
-	
-	
+
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+		//disableLink(validateLink);
+	}
+
 	public ValidationPage(PageParameters params) {
 		List<Archive> resources = resourceService.getUnvalidatedArchives();
 
-		List<IColumn> columns = new LinkedList<IColumn>();
+		List<IColumn> columns = new LinkedList<>();
 		
 		IModel titleColumnHeader = new ResourceModel("column.title.header");
 		IModel actionColumnHeader = new ResourceModel("column.action.header");
@@ -80,8 +82,6 @@ public class ValidationPage extends ConsoleBasePage {
 	
 	public class ValidateLinkColumn extends AjaxImageLinkColumn {
 
-		private static final long serialVersionUID = 1L;
-
 		public ValidateLinkColumn(IModel displayModel) {
 			super(displayModel);
 		}
@@ -95,7 +95,7 @@ public class ValidationPage extends ConsoleBasePage {
 				target.addComponent(table);
 				
 			} catch (Exception e) {
-				log.error("Caught an exception validating ", e);
+				LOG.error("Caught an exception validating ", e);
 			}
 		}
 
@@ -104,12 +104,10 @@ public class ValidationPage extends ConsoleBasePage {
 			final Archive archive = (Archive)bean;
 			
 			if (archive.isValidated())
-				return refreshIconReference;
+				return REFRESH_ICON_REF;
 				
-			return validateIconReference;
+			return VALIDATE_ICON_REF;
 		}
 		
 	}
-	
-	
 }

@@ -56,7 +56,6 @@ import org.sakaiproject.wicket.markup.html.form.CancelButton;
 
 public class UploadPage extends ConsoleBasePage implements ScormConstants {
 
-	private static final long serialVersionUID = 1L;
 	private static final ResourceReference PAGE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
 	private static final Log LOG = LogFactory.getLog(FileUploadForm.class);
 
@@ -69,6 +68,13 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 	ScormContentService contentService;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
+
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+		disableLink(uploadLink);
+	}
 
 	public UploadPage(PageParameters params) {
 		add(new FileUploadForm("uploadForm"));

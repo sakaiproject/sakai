@@ -8,22 +8,22 @@
 <body>
 	<wicket:extend>
 		<ul class="navIntraTool" wicket:id="toolbar-administration">
-			<li>
-				<span wicket:id="listContainer">
+			<li class="firstToolBarItem">
+				<span>
 					<img wicket:id="listIcon" class="pageIcon"/>
-					<a href="#" wicket:id="listLink"></a>
+					<a wicket:id="listLink" wicket:message="title:link.list"></a>
 				</span>
 			</li>
 			<li>
-				<span wicket:id="uploadContainer">
+				<span>
 					<img wicket:id="uploadIcon" class="pageIcon"/>
-					<a href="#" wicket:id="uploadLink"></a>
+					<a wicket:id="uploadLink" wicket:message="title:link.upload"></a>
 				</span>
 			</li>
 			<!--<li>
-				<span wicket:id="validateContainer">
+				<span>
 					<img wicket:id="validateIcon" class="pageIcon"/>
-					<a href="#" wicket:id="validateLink"></a>
+					<a wicket:id="validateLink" wicket:message="title:link.validate"></a>
 				</span>
 			</li>-->
 		</ul>
