@@ -53,8 +53,6 @@ import org.sakaiproject.wicket.markup.html.repeater.data.table.ImageLinkColumn;
 
 public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
-	private static final long serialVersionUID = 1L;
-
 	@SuppressWarnings("unused")
 	private static final Log LOG = LogFactory.getLog(PackageListPage.class);
 
@@ -66,6 +64,12 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 
+	@Override
+	protected void onInitialize() {
+		super.onInitialize();
+		disableLink(listLink);
+	}
+
 	public PackageListPage(PageParameters params) {
 
 		List<ContentPackage> contentPackages = contentService.getContentPackages();
@@ -76,7 +80,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		final boolean canViewResults = lms.canViewResults(context);
 		final boolean canDelete = lms.canDelete(context);
 
-		List<IColumn<ContentPackage>> columns = new LinkedList<IColumn<ContentPackage>>();
+		List<IColumn<ContentPackage>> columns = new LinkedList<>();
 
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");
 
@@ -91,7 +95,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 					labelModel = displayModel;
 				} else {
 					String labelValue = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
-					labelModel = new Model<String>(labelValue);
+					labelModel = new Model<>(labelValue);
 				}
 
 				PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
