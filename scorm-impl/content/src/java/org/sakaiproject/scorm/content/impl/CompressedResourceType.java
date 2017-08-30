@@ -32,17 +32,16 @@ public class CompressedResourceType extends BaseResourceType {
 	public static final String COMPRESSED_ITEM_HELPER_ID = "sakai.zipentry.helper";
 
 	public CompressedResourceType() {
-		List<String> requiredKeys = new ArrayList<String>();
+		List<String> requiredKeys = new ArrayList<>();
 		requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
 
 		ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, COMPRESSED_ITEM_TYPE_ID,
-		        COMPRESSED_ITEM_HELPER_ID, requiredKeys) {
+				COMPRESSED_ITEM_HELPER_ID, requiredKeys) {
 
 			@Override
 			public String getLabel() {
 				return "Add file(s)";
 			}
-
 		};
 
 		ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, COMPRESSED_ITEM_TYPE_ID, false);
@@ -52,6 +51,11 @@ public class CompressedResourceType extends BaseResourceType {
 
 		actions.put(create.getId(), create);
 		actions.put(remove.getId(), remove);
+	}
+
+	@Override
+	public String getIconClass(ContentEntity entity) {
+		return "";
 	}
 
 	public String getId() {
@@ -73,5 +77,4 @@ public class CompressedResourceType extends BaseResourceType {
 	public String getSizeLabel(ContentEntity entity) {
 		return "files";
 	}
-
 }

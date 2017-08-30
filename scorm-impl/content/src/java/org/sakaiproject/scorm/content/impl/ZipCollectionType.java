@@ -18,7 +18,6 @@ package org.sakaiproject.scorm.content.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
@@ -33,6 +32,7 @@ import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 public class ZipCollectionType extends BaseResourceType implements ExpandableResourceType {
+
 	public static class UploadZipArchiveAction extends BaseInteractionAction implements CustomToolAction {
 
 		public UploadZipArchiveAction(String id, ActionType actionType, String typeId, String helperId, List requiredPropertyKeys) {
@@ -55,13 +55,12 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 		requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
 
 		ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, ZIP_COLLECTION_TYPE_ID,
-		        ZIP_UPLOAD_HELPER_ID, requiredKeys) {
+				ZIP_UPLOAD_HELPER_ID, requiredKeys) {
 
 			@Override
 			public String getLabel() {
 				return "Upload Zip Archive";
 			}
-
 		};
 
 		ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, ZIP_COLLECTION_TYPE_ID, false);
@@ -71,7 +70,6 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 
 		actions.put(create.getId(), create);
 		actions.put(remove.getId(), remove);
-
 	}
 
 	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
@@ -87,22 +85,22 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 	public List<ResourceToolAction> getActions(ActionType type) {
 		List<ResourceToolAction> list = actionMap.get(type);
 		if (list == null) {
-			list = new Vector<ResourceToolAction>();
+			list = new ArrayList<>();
 			actionMap.put(type, list);
 		}
-		return new Vector<ResourceToolAction>(list);
+		return new ArrayList<>(list);
 	}
 
 	@Override
 	public List<ResourceToolAction> getActions(List<ActionType> types) {
-		List<ResourceToolAction> list = new Vector<ResourceToolAction>();
+		List<ResourceToolAction> list = new ArrayList<>();
 		if (types != null) {
 			Iterator<ResourceToolAction.ActionType> it = types.iterator();
 			while (it.hasNext()) {
 				ResourceToolAction.ActionType type = it.next();
 				List<ResourceToolAction> sublist = actionMap.get(type);
 				if (sublist == null) {
-					sublist = new Vector<ResourceToolAction>();
+					sublist = new ArrayList<>();
 					actionMap.put(type, sublist);
 				}
 				list.addAll(sublist);
@@ -181,4 +179,13 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 		return true;
 	}
 
+	@Override
+	public String getIconClass(ContentEntity entity) {
+		return "";
+	}
+
+	@Override
+	public String getIconClass(ContentEntity entity, boolean expanded) {
+		return "";
+	}
 }
