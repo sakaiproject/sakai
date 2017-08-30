@@ -17,6 +17,7 @@
                         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 
                         <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+                        <script type="text/javascript" src="/library/js/spinner.js"></script>
                         <script type="text/javascript">
                                 $(document).ready(function(){
                                         setupPrefsGen();
@@ -108,8 +109,8 @@
                         <script src="/sakai-user-tool-prefs/js/manage-hidden-sites.js"></script>
 
                         <div class="submit-buttons">
-                                <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processHiddenSites}" />
-                                <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionHiddenFrmEdit}"></h:commandButton>
+                                <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processHiddenSites}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                                <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionHiddenFrmEdit}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>
 
                         <t:inputHidden id="hiddenSites" value="#{UserPrefsTool.hiddenSites}" />
