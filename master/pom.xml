@@ -143,12 +143,10 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <!-- Default empty unless profile activation -->
     <random-source></random-source>
-    <!-- Either use a tag or a SHA so the version is predictable.
-         If you update this you must also currently update the value inlibrary/src/webapp/editor/ckeditor.launch.js
-         Source at https://github.com/w8tcha/CKEditor-AutoSave-Plugin -->
-    <ckeditor.autosave.version>b88e3878f0c7442a52e542f67e76d97e2ce32f80</ckeditor.autosave.version>
-    <!-- Source at https://github.com/w8tcha/CKEditor-WordCount-Plugin -->
-    <ckeditor.wordcount.version>b29a29d4dc8a42732ce46720e1efc30c826e4c93</ckeditor.wordcount.version>
+
+    <!-- These should only be updated when the webjars version is updated -->
+    <ckeditor.autosave.version>b88e3878f0c7442a52e542f67e76d97e2ce32f8</ckeditor.autosave.version>
+    <ckeditor.wordcount.version>b29a29d4dc8a42732ce46720e1efc30c826e4c9</ckeditor.wordcount.version>
     <ckeditor.a11ychecker.version>1.1.0</ckeditor.a11ychecker.version>
     <ckeditor.balloonpanel.version>4.6.2</ckeditor.balloonpanel.version>
   </properties>
