@@ -3247,7 +3247,9 @@ function closeDropdown() {
 }
 
 function closeDropdown(dropDiv, button) {
-    dropDiv.dialog('close');
+    if (dropDiv !== undefined && dropDiv.dialog !== undefined) {
+        dropDiv.dialog('close');
+    }
     unhideMultimedia();
     oldloc.focus();
     return false;
