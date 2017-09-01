@@ -377,14 +377,14 @@ $(document).ready(function() {
 
 		$('#addContentDiv').dialog({
 			autoOpen: false,
-			modal: true,
+			modal: false,
 			resizable: false,
 			draggable: false
                 }).parent('.ui-dialog').css('zIndex',150000);
 
 		$('#moreDiv').dialog({
 			autoOpen: false,
-			modal: true,
+			modal: false,
 			resizable: false,
 			draggable: false
 		}).parent('.ui-dialog').css('zIndex',150000);
@@ -3224,6 +3224,7 @@ function openDropdown(dropDiv, button, title) {
     closeDropdowns();
     hideMultimedia();
     dropDiv.dialog('option', 'title', title);
+    dropDiv.dialog('option', 'position', { my: 'left top', at: 'left bottom', of: button });
     dropDiv.dialog('open');
     dropDiv.find("a").first().focus();
     if (addAboveItem === '')
