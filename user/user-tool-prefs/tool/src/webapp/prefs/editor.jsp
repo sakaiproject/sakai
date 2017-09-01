@@ -17,6 +17,7 @@
                         <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 
                         <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+                        <script type="text/javascript" src="/library/js/spinner.js"></script>
                         <script type="text/javascript">
                                 $(document).ready(function(){
                                         setupPrefsGen();
@@ -50,8 +51,8 @@
                         </f:verbatim>
                         
                         <div class="submit-buttons">
-                                <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionEditorSave}" />
-                                <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionEditorFrmEdit}"></h:commandButton>
+                                <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionEditorSave}" onclick="SPNR.disableControlsAndSpin( this, null );" />
+                                <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionEditorFrmEdit}" onclick="SPNR.disableControlsAndSpin( this, null );" />
                         </div>
 
 		</h:form>
