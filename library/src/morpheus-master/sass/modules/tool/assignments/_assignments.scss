@@ -464,4 +464,12 @@
 		@extend .contentReviewIconDraft;
 		color: #9E9E9E;
 	}
+
+	div#pagingHeader {
+		height: 20px;
+		padding: 15px;
+		@include display-flex;
+		@include align-items(center);
+		@include justify-content(center);
+	}
 }
