@@ -1642,7 +1642,10 @@ public class ListItem
 		if(description != null)
 		{
 			StringBuilder errorMessages = new StringBuilder();
-			description = FormattedText.processFormattedText(description, errorMessages);
+						
+			// This process delete line breaks
+			//description = FormattedText.processFormattedText(description, errorMessages);
+			
 			// what to do with errorMessages
 			if(errorMessages.length() > 0)
 			{
