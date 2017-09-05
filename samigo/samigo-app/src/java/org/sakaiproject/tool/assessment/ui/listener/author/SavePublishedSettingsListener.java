@@ -726,19 +726,19 @@ implements ActionListener
 			evaluation.setAssessmentBase(assessment.getData());
 		}
 		if (assessmentSettings.getAnonymousGrading()) {
-			evaluation.setAnonymousGrading(1);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		}
 		else {
-			evaluation.setAnonymousGrading(2);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
 	    
 		// If there is value set for toDefaultGradebook, we reset it
 		// Otherwise, do nothing
 		if (assessmentSettings.getToDefaultGradebook()) {
-			evaluation.setToGradeBook("1");
+			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK));
 		}
 		else {
-			evaluation.setToGradeBook("2");
+			evaluation.setToGradeBook(Integer.toString(EvaluationModelIfc.NOT_TO_GRADEBOOK));
 		}
 
 		if (assessmentSettings.getScoringType() != null) {
@@ -983,5 +983,3 @@ implements ActionListener
 		return setToReturn;
 	}
 }
-
-
