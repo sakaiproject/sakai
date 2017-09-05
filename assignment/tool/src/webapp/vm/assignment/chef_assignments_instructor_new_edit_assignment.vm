@@ -21,7 +21,9 @@
 		 		});
 		 	});
 		#end
-		SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
+		if ($("#generalAlert").length <= 0) {
+			SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
+		}
 	});
 
     function SetMaxPoint(obj_option, obj_textfield)
@@ -113,7 +115,7 @@
 	</div>
 
 	#if ($alertMessage)
-		<div class="alertMessage">
+		<div class="alertMessage" id="generalAlert">
 			<strong>$tlang.getString("gen.alert")</strong> <small> $alertMessage </small>
 		</div>
 	#end
