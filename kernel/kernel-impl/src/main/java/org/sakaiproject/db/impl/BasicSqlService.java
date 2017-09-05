@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -1150,6 +1151,49 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection,boolean failQuiet) {
 		return dbWriteCount(sql,fields,lastField,callerConnection,failQuiet ? 1 : 0);
+	}
+
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, Set<Object[]>)
+	 */
+	public boolean dbWriteBatch(Connection callerConnection, String sql, Set<Object[]> fieldsSet)
+	{
+		boolean success = false;
+		PreparedStatement pstmt = null;
+
+		try
+		{
+			pstmt = callerConnection.prepareStatement(sql);
+			for (Object[] fields : fieldsSet)
+			{
+			    prepareStatement(pstmt, fields);
+			    pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			success = true;
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbWriteBatch(): error code: " + e.getErrorCode() + " sql: " + sql + " " + e);
+		}
+		finally
+		{
+			try
+			{
+				pstmt.close();
+			}
+			catch (Exception e)
+			{
+				LOG.warn("Sql.dbWriteBatch(): " + e);
+				throw new RuntimeException("SqlService.dbWriteBatch failure", e);
+			}
+		}
+
+		return success;
 	}
 
 	/**
