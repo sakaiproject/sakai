@@ -184,12 +184,12 @@
 
                                 var hideShowStarterText;
                                 if (alertHidden) {
-                                    hideShowStarterText = 'Show Notifications Alert';
+                                    hideShowStarterText = 'Show Alert';
                                 } else {
-                                    hideShowStarterText = 'Hide Notifications Alert';
+                                    hideShowStarterText = 'Hide Alert';
                                 }
 
-                                markup += '<div id="portal-bullhorn-clear-all"><a href="javascript:;" id="Mrphs-hideshow-alerts" onclick="portal.hideShowAlerts();">' + hideShowStarterText + '</a>' +
+                                markup += '<div id="portal-bullhorn-title">Notifications</div><div id="portal-bullhorn-clear-all"><a href="javascript:;" id="Mrphs-hideshow-alerts" onclick="portal.hideShowAlerts();">' + hideShowStarterText + '</a>' +
                                     ' | <a href="javascript:;" onclick="portal.clearAllAlerts(\'Academic\',\'' + data.i18n.noAlerts + '\');">' + data.i18n.clearAll + '</a>' +
                                     '</div>';
 
@@ -208,9 +208,18 @@
                                         faClass = 'fa-leanpub';
                                     }
 
-                                    markup += '<a href="' + alert.url + '" style="text-decoration: none;"><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-academic-alert">'
-                                                + '<div class="portal-bullhorn-icon fa fa-stack"><i class="fa fa-circle fa-stack-2x"></i><i class="fa ' + faClass + ' fa-stack-1x fa-inverse"></i></div>'
-                                                + '<div class="portal-bullhorn-content"><div class="portal-bullhorn-message"><span class="portal-bullhorn-display-name">' + alert.fromDisplayName + '</span>';
+                                    var readAlertClass = "";
+                                    var hideMarkClass = "";
+                                    if (alert.read === '0') {
+                                        readAlertClass = " unreadAlert";
+                                    } else {
+                                        hideMarkClass = " skip";
+                                    }
+
+                                    markup += '<a onclick="portal.markAsRead('+ alert.id +');" href="' + alert.url + '" style="text-decoration: none;" '+ urlTarget +'><div id="portal-bullhorn-alert-' + alert.id + '" class="portal-bullhorn-academic-alert'+ readAlertClass +'">'
+                                        + '<div class="portal-bullhorn-icon '+specialIconClass+' fa fa-stack"><i class="fa fa-circle fa-stack-2x"></i><i class="fa ' + faClass + ' fa-stack-1x fa-inverse"></i></div>'
+                                        + '<div class="portal-bullhorn-content">'
+                                        + '<div class="portal-bullhorn-message">';
 
                                     var message = '';
 
@@ -235,8 +244,10 @@
 
                                     var time = formatDate(alert.eventDate);
 
-                                    markup += message + '</div><div class="portal-bullhorn-time">' + time + '</div>';
-                                    markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'academic\', \'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div></div></a>';
+                                    markup += message + '</div><div class="portal-bullhorn-site">' + siteTitle + '</div><div class="portal-bullhorn-time">' + time + '</div>';
+                                    markup += '</div><div class="portal-bullhorn-clear"><a href="javascript:;" onclick="portal.clearBullhornAlert(\'academic\', \'' + alert.id + '\',\'' + data.i18n.noAlerts + '\');" title="' + data.i18n.clear + '"><i class="fa fa-times" aria-hidden="true"></i></a></div>';
+                                    markup += '<br /><div class="portal-bullhorn-mark' + hideMarkClass + '"><a href="javascript:;" onclick="portal.markAsRead(' + alert.id + ');portal.hideMark(this);" title="Mark as read"><span class="fa fa-check" aria-hidden="true"></span></a></div>';
+                                    markup += '</div></a>';
                                 });
 
                                 markup += '</div>';
@@ -278,6 +289,31 @@
         var colour = (type === 'social') ? 'blue' : 'red';
         horn.find('.bullhorn-counter').remove();
         horn.append('<span class="bullhorn-counter bullhorn-counter-' + colour + '">' + count + '</span>');
+    };
+
+    portal.clearAcademicCount = function () {
+        $.ajax({
+            url: '/direct/portal/resetCurrentUserAcademicAlertCounts',
+            cache: false
+        }).done(function (data) {
+            updateCounts();
+        })
+    };
+
+    portal.markAsRead = function (alertId) {
+        $.ajax({
+            url: '/direct/portal/markAsRead',
+            cache: false,
+            data: {
+                alertId: alertId
+            }
+        }).then(function () {
+            $('#portal-bullhorn-alert-' + alertId).removeClass('unreadAlert');
+        });
+    };
+
+    portal.hideMark = function(mark) {
+        $(mark).hide();
     };
 
     var updateCounts = function () {

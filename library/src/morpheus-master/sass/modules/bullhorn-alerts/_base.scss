@@ -21,9 +21,9 @@
 }
 
 .portal-bullhorns.qtip {
-    border: 0 none;
-    box-shadow: 0 0 4px rgba( $text-color ,0.35);
-    background-color: $tool-tab-background-color;
+    border: 1px solid #E0E0E0;
+    box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
+    background-color: $background-color;
     font-family: $font-family;
     font-size: $default-font-size;
     color: $tool-tab-background-color;
@@ -36,7 +36,7 @@
     }
 
     .qtip-content {
-        background-color: $tool-tab-background-color;
+        background-color: $background-color;
         padding: 0;
         color: $text-color;
     }
@@ -55,6 +55,16 @@
         border: solid #E0E0E0;
         border-width: 0px 0px 1px 0px;
         padding: 5px;
+        background-color: $background-color;
+        color: $tool-nav-link-color;
+
+        &.unreadAlert {
+            background-color: #EDF2FA;
+        }
+
+        a[href] {
+            color: $tool-nav-link-color;
+        }
 
         .portal-bullhorn-photo {
             float: left;
@@ -120,8 +130,8 @@
                 }
             }
         }
-        .portal-bullhorn-clear {
-            float: left;
+        .portal-bullhorn-clear, .portal-bullhorn-mark {
+            display: inline-block;
             width: 5px;
             margin-left: 5px;
             padding-right: 2px;
@@ -140,6 +150,11 @@
       display: block;
       position: relative;
     }
+    display: inline-block;
+    padding: 5px 10px;
+    text-align: right;
+    position: absolute;
+    right: 0;
 }
 
 #portal-bullhorn-title {
@@ -164,4 +179,9 @@
     @media #{$tablet} {
         display: none;
     }
+}
+#alert-container {
+    max-height: 550px;
+    overflow-y: auto;
+    border-top: 2px solid #E0E0E0;
 }
