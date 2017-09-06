@@ -1093,7 +1093,7 @@ $(document).ready(function(){
 				#end
 				#if ($!assignment.getContent().HonorPledge!=1)
 					<p class="checkbox highlightPanel">
-						<label for="$name_submission_honor_pledge_yes">
+						<label for="$name_submission_honor_pledge_yes" class="messageInformation">
 							#if (!$!canSubmit)
 								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
 								#if ($value_submission_honor_pledge_yes.equals("false"))
