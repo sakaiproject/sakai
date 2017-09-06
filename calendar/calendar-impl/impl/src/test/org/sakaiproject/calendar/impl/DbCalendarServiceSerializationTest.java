@@ -32,7 +32,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
@@ -230,7 +229,7 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				return false;
 			}
 
-			public boolean dbWriteBatch(Connection connection, String sql, Set<Object[]> fieldsSet)
+			public boolean dbWriteBatch(Connection connection, String sql, List<Object[]> fieldsList)
 			{
 				// TODO Auto-generated method stub
 				return false;

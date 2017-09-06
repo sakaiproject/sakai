@@ -41,7 +41,6 @@ import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
@@ -1156,7 +1155,7 @@ public abstract class BasicSqlService implements SqlService
 	/**
 	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, Set<Object[]>)
 	 */
-	public boolean dbWriteBatch(Connection callerConnection, String sql, Set<Object[]> fieldsSet)
+	public boolean dbWriteBatch(Connection callerConnection, String sql, List<Object[]> fieldsList)
 	{
 		boolean success = false;
 		PreparedStatement pstmt = null;
@@ -1164,7 +1163,7 @@ public abstract class BasicSqlService implements SqlService
 		try
 		{
 			pstmt = callerConnection.prepareStatement(sql);
-			for (Object[] fields : fieldsSet)
+			for (Object[] fields : fieldsList)
 			{
 			    prepareStatement(pstmt, fields);
 			    pstmt.addBatch();

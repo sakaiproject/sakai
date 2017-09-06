@@ -26,7 +26,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Set;
 
 import org.sakaiproject.exception.ServerOverloadException;
 
@@ -258,18 +257,18 @@ public interface SqlService
 	boolean dbWrite(Connection connection, String sql, Object[] fields);
 
 	/**
-	 * Execute the "write" sql in a batch - no response, using an array of fields in a Set and a given connection.
-	 * This is optimized to execute an entire batch of writes in one transaction..
+	 * Execute the "write" sql in a batch - no response, using an array of fields in a List and a given connection.
+	 * This is optimized to execute an entire batch of writes in one prepared statement transaction.
 	 *
 	 * @param connection
 	 *        The connection to use.
 	 * @param sql
 	 *        The sql statement.
 	 * @param fields
-	 *        The Set of array of fields for parameters.
+	 *        The List of array of fields for parameters.
 	 * @return true if successful, false if not.
 	 */
-	boolean dbWriteBatch(Connection connection, String sql, Set<Object[]> fieldsSet);
+	boolean dbWriteBatch(Connection connection, String sql, List<Object[]> fieldsList);
 
 	/**
 	 * Execute the "write" sql - no response, using a set of fields from an array and a given connection logging no errors on failure.

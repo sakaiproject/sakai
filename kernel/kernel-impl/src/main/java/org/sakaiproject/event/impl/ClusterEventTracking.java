@@ -406,14 +406,14 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 			String statement = insertStatement();
 
 			// Setup a batch of events if not using a cluster
-			Set<Object[]> eventSet = new HashSet<>();
+			List<Object[]> eventList = new ArrayList<>();
 
 			// write all events
 			for (Event event : events)
 			{
 				Object fields[] = new Object[6];
 				bindValues(event, fields);
-				eventSet.add(fields);
+				eventList.add(fields);
 
 				// For clustered setups, going to use legacy, individual inserts
 				// TODO: it might be possible to write the entire batch to database and still get return values. But this will need testing on MySQL and Oracle.
@@ -428,9 +428,9 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 			// Write all of these events in a batch if not using clustering
 			if (!cachingEnabled) {
-				boolean ok = sqlService().dbWriteBatch(conn, statement, eventSet);
+				boolean ok = sqlService().dbWriteBatch(conn, statement, eventList);
 				if (!ok) {
-					M_log.warn("dbWriteBatch failed: event count: {}", eventSet.size());
+					M_log.warn("dbWriteBatch failed: event count: {}", eventList.size());
 				}
 			}
 
