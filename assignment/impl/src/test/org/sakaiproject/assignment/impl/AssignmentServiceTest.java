@@ -21,10 +21,12 @@
 
 package org.sakaiproject.assignment.impl;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sakaiproject.assignment.api.AssignmentServiceConstants.SECURE_ACCESS_ASSIGNMENT_SUBMISSION;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,6 +55,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
@@ -73,9 +76,16 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
     @Autowired private UserDirectoryService userDirectoryService;
     @Autowired private SiteService siteService;
 
+    private ResourceLoader resourceLoader;
+
     @Before
     public void setUp() {
         when(serverConfigurationService.getAccessUrl()).thenReturn("http://localhost:8080/access");
+        resourceLoader = mock(ResourceLoader.class);
+        when(resourceLoader.getString("gen.inpro")).thenReturn("In progress");
+        when(resourceLoader.getString("gen.dra2")).thenReturn("Draft -");
+        when(resourceLoader.getString("gen.subm4")).thenReturn("Submitted");
+        ((AssignmentServiceImpl) assignmentService).setResourceLoader(resourceLoader);
     }
 
     @Test
@@ -282,6 +292,39 @@ public class AssignmentServiceTest extends AbstractTransactionalJUnit4SpringCont
             Assert.assertEquals(submission.getId(), submission1.getId());
         } catch (Exception e) {
             Assert.fail("Could not create submission, " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void submissionStatus() {
+        // gen.resub         = Re-submitted
+        // gen.late2         = - late
+        // gen.subm4         = Submitted
+        // gen.returned      = Returned
+        // ungra             = Ungraded
+        // listsub.nosub     = No Submission
+        // gen.notsta        = Not Started
+        // gen.dra2          = Draft -
+        // gen.inpro         = In progress
+        // gen.commented     = Commented
+        // grad3             = Graded
+
+        String context = UUID.randomUUID().toString();
+        String submitterId = UUID.randomUUID().toString();
+        try {
+            AssignmentSubmission submission = createNewSubmission(context, submitterId);
+            String status = assignmentService.getSubmissionStatus(submission.getId());
+            Assert.assertEquals("Draft - In progress", status);
+
+            String submissionContext = AssignmentReferenceReckoner.reckoner().context(context).subtype("s").reckon().getReference();
+            when(securityService.unlock(AssignmentServiceConstants.SECURE_ADD_ASSIGNMENT_SUBMISSION, submissionContext)).thenReturn(true);
+            submission.setSubmitted(true);
+            submission.setDateSubmitted(Date.from(Instant.now()));
+            assignmentService.updateSubmission(submission);
+            status = assignmentService.getSubmissionStatus(submission.getId());
+            Assert.assertEquals("Submitted " + submission.getDateSubmitted().toString(), status);
+        } catch (Exception e) {
+            Assert.fail("Could not create/update submission, " + e.getMessage());
         }
     }
 

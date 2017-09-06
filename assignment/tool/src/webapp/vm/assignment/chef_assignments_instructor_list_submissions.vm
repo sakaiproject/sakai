@@ -44,15 +44,15 @@ function printView(url) {
 }
 </script>
 
-#set ($submissionType = $assignment.getTypeOfSubmission().ordinal())
+#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
 
 <div class="portletBody container-fluid">
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
 		<h1>
-		$validator.escapeHtml($assignment.getTitle()) 
+		$validator.escapeHtml($assignment.Title)
 		<small>
-		#if ($!assignment.getIsGroup() )
+		#if ($!assignment.IsGroup )
 			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
 		#end
 		  - $tlang.getString('gen.subm2')
@@ -79,7 +79,7 @@ function printView(url) {
 			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
-			#if (!$assignment.isGroup())
+			#if ($assignment.IsGroup)
 				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
 					<div class="form-group spinnerBesideContainer">
 						<label class="col-md-2" for="view">
@@ -101,29 +101,27 @@ function printView(url) {
 					</div>
 				#end
 
-			## SAK-17606
-			#if (!$value_CheckAnonymousGrading.equals("true"))
-				<div class="form-group">
-					<label class="col-md-2" for="$form_search">$tlang.getString("search_students")</label>
-					<div class="col-md-10">
-						<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" name="search" id="search" type="text" class="searchField" size="20" />
-						<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
-						#if (($!searchString) && (!$searchString.equals("")))
-							<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
-						#end
+				## SAK-17606
+				#if (!$value_CheckAnonymousGrading.equals("true"))
+					<div class="form-group">
+						<label class="col-md-2" for="$form_search">$tlang.getString("search_students")</label>
+						<div class="col-md-10">
+							<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" name="search" id="search" type="text" class="searchField" size="20" />
+							<input type="button" value="$tlang.getString('search')" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'search', null, null ); return false;" />
+							#if (($!searchString) && (!$searchString.equals("")))
+								<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="SPNR.disableControlsAndSpin( this, escapeList ); ASN.submitForm( 'viewForm', 'clearSearch', null, null ); return false;" />
+							#end
+						</div>
 					</div>
-				</div>
+				#end
 			#end
-
+			#set($disableGrade=false)
+			#if($assignment.AllowPeerAssessment && !$assignment.PeerAssessmentClosed)
+				#set($disableGrade=true)
 			#end
-		#set($disableGrade=false)
-		#if($assignment.getAllowPeerAssessment() == true && $assignment.isPeerAssessmentClosed() == false)
-			#set($disableGrade=true)
-		#end
-		#set ($submissionType = $assignmentContent.getTypeOfSubmission().ordinal())
 			#set ($showMsg = false)
 			#set ($showMsg = $!allMsgNumber)
-			#if (!$!showMsg || $showMsg ==0)
+			#if (!$!showMsg || $showMsg == 0)
 				<div class="allPurpose">
 					$tlang.getString("nostudent_searchview")
 				</div>
@@ -133,7 +131,7 @@ function printView(url) {
 							<a href="" class="noPointers" id="downloadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'download', null, null ); return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
-								|  <a href="" class="noPointers" id="uploadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'upload', null, null ); return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+							|  <a href="" class="noPointers" id="uploadAll" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'upload', null, null ); return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
 							|  <a href="" class="noPointers" id="releaseGrades" onclick="SPNR.insertSpinnerAfter( this, escapeList, null ); ASN.submitForm( 'viewForm', 'releaseGrades', null, null ); return false;"
 							#if ($withGrade)
 								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
@@ -156,10 +154,9 @@ function printView(url) {
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 
-		#set ($submissionType = $assignment.getTypeOfSubmission().ordinal())
 		#set ($showMsg = false)
 		#set ($showMsg = $!allMsgNumber)
-		#if (!$!showMsg || $showMsg ==0)
+		#if (!$!showMsg || $showMsg == 0)
 		#else
 		<div class="navPanel">
 			<div class="viewNav">
@@ -203,7 +200,7 @@ function printView(url) {
 	</div>
 
 		<form name= "listSubmissionsForm" action="#toolForm("AssignmentAction")" method="post">
-			<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+			<input type="hidden" name="assignmentId" value="$assignmentReference" />
 			
 			## model answer
 			#if($allowViewModelAnswer)
@@ -348,7 +345,7 @@ function printView(url) {
 				<a href="javascript:void(0)" onclick="ASN.toggleAllowResubmissionPanel();">
 					<img id="expandAllowResub" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("allowResubmission.show")" border="0" width="13" height="13" align="top" />
 					<img id="collapseAllowResub" style="display: none;" src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" />
-						#if ($assignment.isGroup())
+						#if ($assignment.IsGroup)
 							$tlang.getString("allowResubmission.groups.label")
 						#else
 						$tlang.getString("allowResubmission.label")
@@ -357,7 +354,7 @@ function printView(url) {
 				</p>
 				<div id="allowResubmissionPanelContent" style="display:none; overflow: hidden;">
 				<p class="text-info">
-				#if ($assignment.isGroup())
+				#if ($assignment.IsGroup)
 					$tlang.getString("allowResubmission.groups.instruction")
 				#else
 					$tlang.getString("allowResubmission.instruction")
@@ -409,13 +406,13 @@ function printView(url) {
 			</div>
 			#end
 			
-			#if ($!isAdditionalNotesEnabled && !$assignment.isGroup())
-				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignment.Reference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
+			#if ($!isAdditionalNotesEnabled && !$assignment.IsGroup)
+				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print"></span><span> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</span></a>
 			#end
 			
 			
 			#if($disableGrade)
-				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.getPeerAssessmentPeriod().toStringLocalFull())</div>
+				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.PeerAssessmentPeriod.toString())</div>
 			#end
 			## show all submission
 			<table class="listHier lines nolines" id ="submissionList" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentsummary")">
@@ -429,7 +426,7 @@ function printView(url) {
 					</th>
 					<th id="studentname">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
-							#if ($assignment.isGroup())
+							#if ($assignment.IsGroup)
 								$tlang.getString("gen.group")
 							#else
 								$tlang.getString("gen.student")
@@ -443,7 +440,7 @@ function printView(url) {
 							#end 
 						</a>
 					</th>
-					#if($!isAdditionalNotesEnabled && !$assignment.isGroup())
+					#if($!isAdditionalNotesEnabled && !$assignment.IsGroup)
 					<th id="notes">
 						$tlang.getString("gen.notes")
 					</th>
@@ -472,7 +469,7 @@ function printView(url) {
 							#end 
 						</a>
 					</th>
-					#if ($assignment.getAllowPeerAssessment() == true)
+					#if ($assignment.AllowPeerAssessment)
 						<th id="peerAssessment">
 							$tlang.getString("peerassessment.reviewedby")
 						</th>
@@ -494,7 +491,7 @@ function printView(url) {
 							</a>
 						</th>
 					#end	
-					#if ($allowReviewService && $assignmentContent.AllowReviewService)
+					#if ($allowReviewService && $assignment.AllowReviewService)
 						<th id="reviewService">
 							<a href="javascript:void(0)" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
 								$reviewServiceName
@@ -527,7 +524,7 @@ function printView(url) {
 					#set($siteUser=false)
 					#set($submittedBy=false)
 					#set($submittedBy=$userSubmission.SubmittedBy)
-					#if ($assignment.isGroup())
+					#if ($assignment.IsGroup)
 						#set($siteUser = $userSubmission.Group)
 						#set($submitterName=$!siteUser.title)
 						#set($gusers = $submission.getSubmitters())
@@ -545,8 +542,8 @@ function printView(url) {
 					#set($submitTime=false)
 					#set($returnedTime=false)
 					#if ($!submission)## && $submission.submitted) 
-						#set($returnedTime = $submission.getTimeReturned())
-						#set($submitTime = $submission.getTimeSubmitted())
+						#set($returnedTime = $submission.DateReturned)
+						#set($submitTime = $submission.DateSubmitted)
 
 						## SAK-17606
 						#set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
@@ -608,7 +605,7 @@ function printView(url) {
 									#end
 									#if(!$disableGrade)
 										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
 											#foreach ($provider in $providers)
 												#set ($item = $producer.getItem($submission, $siteUser.getId()))
 												#set ($helperInfo = false)
@@ -621,7 +618,7 @@ function printView(url) {
 									#end
 								#else
 									#if(!$disableGrade)
-										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
+										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
 											#if (!$!submission.submitted)
 												#set($submittedText = $!submission.submittedText)
 												#set($submittedAttachments = $submission.submittedAttachments)
@@ -648,7 +645,7 @@ function printView(url) {
 								#end
 								#end
 							</td>
-							#if($!isAdditionalNotesEnabled && !$assignment.isGroup())
+							#if($!isAdditionalNotesEnabled && !$assignment.IsGroup)
 							<td headers="notes">
 								#set($notes = [])
 								#set($notes = $notesMap.get($siteUser.id))
@@ -661,8 +658,8 @@ function printView(url) {
 							#end
 							<td headers="submitted">
 									#if ($!submission)
-										#if($!submitTime)$submitTime.toStringLocalFull()#end
-										#if ($!submitTime && $submitTime.after($assignment.DueTime))
+										#if ($!submitTime)$submitTime.toString() #end
+										#if ($!submitTime && $submitTime.after($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span> 
 										#end
 									#else
@@ -673,13 +670,15 @@ function printView(url) {
 									#end
 							</td>
 							<td headers="status">
-								$submission.getStatus()
+								#if ($!submission)
+									$!service.getSubmissionStatus($submission.Id)
+								#end
 							</td>
-							#if ($assignment.getAllowPeerAssessment() == true)
+							#if ($assignment.AllowPeerAssessment)
 								<td>
 									#if($!submission)
 										#foreach($item in $peerAssessmentItems.get($submission.getId()))
-											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=$submission.getId()&assessorId=$item.getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignment.Reference)")'>
+											<a href='#toolLinkParam("$action" "doView_submissionReviews" "submissionId=$submission.getId()&assessorId=$item.getAssessorUserId()&assignmentId=$validator.escapeUrl($!assignmentReference)")'>
 											#if($item.isRemoved())
 												<span style="text-decoration: line-through">
 											#else
@@ -721,12 +720,11 @@ function printView(url) {
 							#end
 							#if ($withGrade)
 								<td headers="grade">
-									#if($!submission)
-										$submission.getGradeDisplay($typeOfGrade)
-									#end
+									$!submission.Grade
+									##$submission.getGradeDisplay($typeOfGrade)
 								</td>
 							#end	
-							#if ($allowReviewService && $assignmentContent.AllowReviewService)
+							#if ($allowReviewService && $assignment.AllowReviewService)
 								<td headers="reviewService">
 
 									#set($reviewResults = $submission.ContentReviewResults)
@@ -807,7 +805,7 @@ function printView(url) {
 			</th>
 			<td>
 					#assignmentTitleIcon($assignment)
-					$validator.escapeHtml($assignment.getTitle())
+					$validator.escapeHtml($assignment.Title)
 			</td>
 		</tr>
 		<tr>
@@ -815,7 +813,7 @@ function printView(url) {
 				$tlang.getString("gen.creby")
 			</th>
 			<td>
-				$validator.escapeHtml($!creator) ($assignment.TimeCreated.toStringLocalFull())
+				$validator.escapeHtml($!creator) ($assignment.DateCreated.toString())
 			</td>
 		</tr>
 		<tr>
@@ -823,7 +821,7 @@ function printView(url) {
 				$tlang.getString("gen.mod")
 			</th>
 			<td>
-				$assignment.TimeLastModified.toStringLocalFull()
+				$assignment.DateModified.toString()
 			</td>
 		</tr>
 		<tr> 
@@ -831,7 +829,7 @@ function printView(url) {
 				$tlang.getString("gen.open")
 			</th>
 			<td>
-				$assignment.OpenTime.toStringLocalFull()
+				$assignment.OpenDate.toString()
 			</td>
 		</tr>
 		<tr> 
@@ -839,17 +837,17 @@ function printView(url) {
 					$tlang.getString("gen.due")
 			</th>
 			<td>
-				$assignment.DueTime.toStringLocalFull()
+				$assignment.DueDate.toString()
 			</td>
 		</tr>
-		#set ($closeDate = $assignment.getCloseTime())
+		#set ($closeDate = $assignment.CloseDate)
 		#if ($!closeDate)
 			<tr> 
 				<th>
 					$tlang.getString("gen.acesubunt")
 				</th>
 				<td>
-					$assignment.CloseTime.toStringLocalFull()
+					$closeDate.toString()
 				</td>
 			</tr>
 		#end
@@ -867,10 +865,10 @@ function printView(url) {
 			</th>
 			<td>
 				## get gradeScale
-				#set ($gradeScale = $assignmentContent.getTypeOfGradeString())
+				#set ($gradeScale = $assignment.TypeOfGrade.ordinal())
 				$gradeScale
 				#if ($!gradeType == 3)
-					($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())
+					($tlang.getString("grade.max") $assignment.MaxGradePoint)
 				#end
 			</td>
 		</tr>
@@ -879,22 +877,21 @@ function printView(url) {
 				$tlang.getString("gen.honple")
 			</th>
 			<td> 
-				#if ($assignmentContent.HonorPledge == 1)
-					$tlang.getString("gen.no")
-				#else
+				#if ($assignment.HonorPledge)
 					$tlang.getString("gen.yes")
+				#else
+					$tlang.getString("gen.no")
 				#end
 			</td>
 		</tr>
 	</table>	
 	
-	#if ($assignmentContent.getInstructions().length()==0)
-	#else
+	#if ($assignment.Instructions.length() > 0)
 		<h4>$tlang.getString("gen.assinf")</h4>
-		<div class="textPanel">$validator.escapeHtmlFormattedText($assignmentContent.getInstructions())</div>
+		<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.Instructions)</div>
 	#end
 	#set ($size = 0)
-	#set ($attachments = $assignmentContent.Attachments)
+	#set ($attachments = $assignment.Attachments)
 	#set ($props = false)
 	#foreach ($attachment in $attachments) 
 		#set ($props = $attachment.Properties) 
