@@ -1092,8 +1092,9 @@ $(document).ready(function(){
 					#end
 				#end
 				#if ($!assignment.getContent().HonorPledge!=1)
+					<span class="messageInformation">
 					<p class="checkbox highlightPanel">
-						<label for="$name_submission_honor_pledge_yes" class="messageInformation">
+						<label for="$name_submission_honor_pledge_yes">
 							#if (!$!canSubmit)
 								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
 								#if ($value_submission_honor_pledge_yes.equals("false"))
@@ -1113,6 +1114,7 @@ $(document).ready(function(){
 						<br />
 						$tlang.getString("gen.youmus")
 					</p>
+				</span>
 				#end
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
