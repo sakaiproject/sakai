@@ -11890,7 +11890,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             } // if-else
                         }
                     }
-                    returnResources.add(a);
+                    returnResources = submissions;
                 }
             } catch (IdUnusedException e) {
                 log.warn("Could not retrieve site: {}, {}", contextString, e.getMessage());
