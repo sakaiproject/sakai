@@ -2263,7 +2263,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   /* Note:
    * assessmentGrading contains set of itemGrading that are not saved in the DB yet
    */
-  public void updateAssessmentGradingScore(AssessmentGradingData adata, PublishedAssessmentIfc pub){
+  public void updateAssessmentGradingScore(AssessmentGradingData adata, PublishedAssessmentIfc pub, String newComment, String oldComment){
     try {
       Set itemGradingSet = adata.getItemGradingSet();
       Iterator iter = itemGradingSet.iterator();
@@ -2283,7 +2283,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         	adata.setFinalScore(Double.valueOf(totalAutoScore+totalOverrideScore));
         }
         saveOrUpdateAssessmentGrading(adata);
-        if (scoreDifference != 0){
+        if (scoreDifference != 0 || !newComment.equals(oldComment)){
           notifyGradebookByScoringType(adata, pub);
         }
      } catch (GradebookServiceException ge) {
