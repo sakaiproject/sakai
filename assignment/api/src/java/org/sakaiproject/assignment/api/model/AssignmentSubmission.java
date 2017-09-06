@@ -76,13 +76,13 @@ public class AssignmentSubmission {
     @ElementCollection
     @Column(name = "ATTACHMENT")
     @CollectionTable(name = "ASN_SUBMISSION_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-    private Set<String> attachments;
+    private Set<String> attachments = new HashSet<>();
 
     // TODO combine attachments and feedbackAttachements into a single table
     @ElementCollection
     @Column(name = "FEEDBACK_ATTACHMENT")
     @CollectionTable(name = "ASN_SUBMISSION_FEEDBACK_ATTACHMENTS", joinColumns = @JoinColumn(name = "SUBMISSION_ID"))
-    private Set<String> feedbackAttachments;
+    private Set<String> feedbackAttachments = new HashSet<>();
 
     @Lob
     @Column(name = "TEXT")
@@ -103,31 +103,31 @@ public class AssignmentSubmission {
     private Integer factor;
 
     @Column(name = "SUBMITTED")
-    private Boolean submitted;
+    private Boolean submitted = Boolean.FALSE;
 
     @Column(name = "RETURNED")
-    private Boolean returned;
+    private Boolean returned = Boolean.FALSE;
 
     @Column(name = "GRADED")
-    private Boolean graded;
+    private Boolean graded = Boolean.FALSE;
 
     @Column(name = "GRADED_BY")
     private String gradedBy;
 
     @Column(name = "GRADE_RELEASED")
-    private Boolean gradeReleased;
+    private Boolean gradeReleased = Boolean.FALSE;
 
     @Column(name = "HONOR_PLEDGE")
-    private Boolean honorPledge;
+    private Boolean honorPledge = Boolean.FALSE;
 
     @Column(name = "ANONYMOUS_SUBMISSION_ID")
     private String anonymousSubmissionId;
 
     @Column(name = "HIDDEN_DUE_DATE")
-    private Boolean hiddenDueDate;
+    private Boolean hiddenDueDate = Boolean.FALSE;
 
     @Column(name = "USER_SUBMISSION")
-    private Boolean userSubmission;
+    private Boolean userSubmission = Boolean.FALSE;
 
     @Column(name = "GROUP_ID")
     private String groupId;

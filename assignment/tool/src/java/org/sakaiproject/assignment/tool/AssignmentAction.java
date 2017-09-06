@@ -1328,7 +1328,9 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param state
      * @return
      */
-    private AssignmentSubmission getSubmission(String assignmentId, User user, String callingFunctionName, SessionState state) {
+    private AssignmentSubmission getSubmission(String assignmentReference, User user, String callingFunctionName, SessionState state) {
+        if (StringUtils.isBlank(assignmentReference)) return null;
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             return assignmentService.getSubmission(assignmentId, user);
         } catch (PermissionException e) {
@@ -1340,7 +1342,9 @@ public class AssignmentAction extends PagedResourceActionII {
     /**
      * local function for getting assignment submission object for a group id (or is that submitter id instead of group id)
      */
-    private AssignmentSubmission getSubmission(String assignmentId, String group_id, String callingFunctionName, SessionState state) {
+    private AssignmentSubmission getSubmission(String assignmentReference, String group_id, String callingFunctionName, SessionState state) {
+        if (StringUtils.isBlank(assignmentReference)) return null;
+        String assignmentId = AssignmentReferenceReckoner.reckoner().reference(assignmentReference).reckon().getId();
         try {
             return assignmentService.getSubmission(assignmentId, group_id);
         } catch (PermissionException e) {
@@ -1365,6 +1369,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         context.put("context", contextString);
+        context.put("NamePropSubmissionScaledPreviousGrades", ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
 
         User user = (User) state.getAttribute(STATE_USER);
         log.debug(this + " BUILD SUBMISSION FORM WITH USER " + user.getId() + " NAME " + user.getDisplayName());
@@ -1490,8 +1495,6 @@ public class AssignmentAction extends PagedResourceActionII {
             addAdditionalNotesToContext(submitter, context, state);
         }
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable() && assignment != null) {
             addProviders(context, state);
             addActivity(context, assignment);
@@ -1537,7 +1540,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        String template = (String) getContext(data).get("template");
+        String template = getContext(data).get("template");
         return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
 
     } // build_student_view_submission_context
@@ -3811,6 +3814,7 @@ public class AssignmentAction extends PagedResourceActionII {
             return template + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS;
         }
 
+        context.put("service", assignmentService);
         context.put("user", state.getAttribute(STATE_USER));
 
         // sorting related fields
@@ -3829,10 +3833,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         if (assignment != null) {
             context.put("assignment", assignment);
+            context.put("assignmentReference", assignmentRef);
             state.setAttribute(EXPORT_ASSIGNMENT_ID, assignment.getId());
-            context.put("assignmentContent", assignment);
             context.put("value_SubmissionType", assignment.getTypeOfSubmission().ordinal());
-            context.put("typeOfGrade", assignment.getTypeOfGrade());
+            context.put("typeOfGrade", assignment.getTypeOfGrade().ordinal());
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
@@ -3971,11 +3975,8 @@ public class AssignmentAction extends PagedResourceActionII {
             assignment_resubmission_option_into_context(context, state);
         }
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable() && assignment != null) {
-            context.put("producer", ComponentManager
-                    .get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"));
+            context.put("producer", assignmentActivityProducer);
             addProviders(context, state);
             addActivity(context, assignment);
             context.put("taggable", Boolean.TRUE);
@@ -5884,7 +5885,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     assignmentId = a.getId();
 
-                    if (!a.getHonorPledge()) {
+                    if (a.getHonorPledge()) {
                         if (!Boolean.valueOf(honorPledgeYes)) {
                             addAlert(state, rb.getString("youarenot18"));
                         }
@@ -11930,7 +11931,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
                     }
                 } else {
-                    Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, assignment.getId(), contextString);
+                    Map<User, AssignmentSubmission> submitters = assignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
                     // construct the user-submission list
                     for (User u : submitters.keySet()) {
                         String uId = u.getId();

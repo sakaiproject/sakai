@@ -35,14 +35,18 @@
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
         <property name="gradeSheetExporter" ref="org.sakaiproject.assignment.impl.GradeSheetExporter"/>
         <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="resourceLoader" ref="org.sakaiproject.util.ResourceLoader.assignment"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="taggingManager" ref="org.sakaiproject.taggable.api.TaggingManager"/>
-        <property name="timeService" ref="org.sakaiproject.time.api.TimeService"/>
-        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
+
+    <bean id="org.sakaiproject.util.ResourceLoader.assignment"
+          class="org.sakaiproject.util.ResourceLoader">
+        <constructor-arg value="assignment"/>
     </bean>
 
     <bean id="org.sakaiproject.assignment.api.AssignmentEntity"

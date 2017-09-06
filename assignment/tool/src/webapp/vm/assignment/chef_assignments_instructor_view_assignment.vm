@@ -46,7 +46,7 @@
 					$tlang.getString("viewassig.datcre")
 				</th>
 				<td>
-					$assignment.TimeCreated.toStringLocalFull()
+					$assignment.DateCreated.toString()
 				</td>
 			</tr>
 			<tr> 
@@ -54,7 +54,7 @@
 					$tlang.getString("gen.open")
 				</th>
 				<td>
-					$assignment.OpenTime.toStringLocalFull()
+					$assignment.OpenDate.toString()
 				</td>
 			</tr>
 			<tr> 
@@ -62,24 +62,24 @@
 					$tlang.getString("gen.due")
 				</th>
 				<td>
-					$assignment.DueTime.toStringLocalFull()
+					$assignment.DueDate.toString()
 				</td>
 			</tr>
-			#set ($closeDate = $assignment.getCloseTime())
+			#set ($closeDate = $assignment.CloseDate)
 			#if ($!closeDate)
 				<tr> 
 					<th>
 						$tlang.getString("gen.acesubunt")
 					</th>
 					<td>
-						$assignment.CloseTime.toStringLocalFull()
+						$closeDate.toString()
 					</td>
 				</tr>
 				##show alert when assignment is modified and the modified date is after its open date	
 				#set($alertTimeLastModified=false)
 				#set($newAssignment="false")
-				#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
-				#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
+				#set($newAssignment=$assignment.getProperties().get("newAssignment"))
+				#if ($assignment.DateModified.after($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
 					#set($alertTimeLastModified=true)
 				#end
 				<tr>
@@ -87,7 +87,7 @@
 						$tlang.getString("gen.modbyins")
 					</th>
 					<td #if($!alertTimeLastModified)class="highlight"#end>
-						$assignment.TimeLastModified.toStringLocalFull()
+						$assignment.DateModified.toString()
 					</td>
 				</tr>
 			#end
@@ -96,7 +96,7 @@
 					$tlang.getString("gen.groupassignment")
 				</th>
 				<td>
-					#if ($assignment.isGroup())
+					#if ($assignment.IsGroup)
 					$tlang.getString("gen.yes")
 					#else
 					$tlang.getString("gen.no")
