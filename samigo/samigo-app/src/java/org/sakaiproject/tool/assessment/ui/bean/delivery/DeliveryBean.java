@@ -1699,7 +1699,7 @@ public class DeliveryBean
                                                           .collect(Collectors.joining(";")));
       }	  
 
-	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notificationValues.toString(), AgentFacade.getCurrentSiteId(), true, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
+	  EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_NOTI, notificationValues.toString(), AgentFacade.getCurrentSiteId(), true, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
  
 	  return returnValue;
 	  }
@@ -3724,7 +3724,7 @@ public class DeliveryBean
 
 		  // We get the id of the question
 		  String radioId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("radioId");
-		  StringBuffer redrawAnchorName = new StringBuffer("p");
+		  StringBuilder redrawAnchorName = new StringBuilder("p");
 		  String tmpAnchorName = "";
 		  ArrayList parts = this.pageContents.getPartsContents();
 

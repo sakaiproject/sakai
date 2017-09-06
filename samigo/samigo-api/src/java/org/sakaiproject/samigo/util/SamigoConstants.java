@@ -40,6 +40,7 @@ public final class SamigoConstants {
      */
     // Submission events
     public static final     String      EVENT_ASSESSMENT_SUBMITTED                          = "sam.assessment.submit";
+    public static final     String      EVENT_ASSESSMENT_SUBMITTED_NOTI                     = "sam.assessment.submit.noti";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_CHECKED                  = "sam.assessment.submit.checked";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_CLICKSUB                 = "sam.assessment.submit.click_sub";
     public static final     String      EVENT_ASSESSMENT_SUBMITTED_AUTO                     = "sam.assessment.submit.auto";
