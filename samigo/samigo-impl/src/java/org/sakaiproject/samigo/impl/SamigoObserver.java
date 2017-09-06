@@ -29,15 +29,15 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.samigo.util.SamigoConstants;
 
 public class SamigoObserver implements Observer {
-    private static final Logger log = LoggerFactory.getLogger(SamigoObserver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SamigoObserver.class);
 
     public void init() {
-        log.info("init()");
+        LOG.info("init()");
         eventTrackingService.addLocalObserver(this);
     }
 
     public void destroy(){
-        log.info("destroy");
+        LOG.info("destroy");
         eventTrackingService.deleteObserver(this);
     }
 
@@ -49,18 +49,18 @@ public class SamigoObserver implements Observer {
         Event event = (Event) arg;
         String eventType = event.getEvent();
 
-        if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED.equals(eventType)) {
-            log.debug("Assessment Submitted Event");
+        if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_NOTI.equals(eventType)) {
+            LOG.debug("Assessment Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED, notiValues, event);
         } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO.equals(eventType)){
-            log.debug("Assessment Auto Submitted Event");
+            LOG.debug("Assessment Auto Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues =  stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_AUTO, notiValues, event);
         } else if(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD.equals(eventType)){
-            log.debug("Assessment Timed Submitted Event");
+            LOG.debug("Assessment Timed Submitted Event");
             String hashMapString = event.getResource();
             Map<String, Object> notiValues = stringToHashMap(hashMapString);
             samigoETSProvider.notify(SamigoConstants.EVENT_ASSESSMENT_SUBMITTED_TIMER_THREAD, notiValues, event);
@@ -72,7 +72,7 @@ public class SamigoObserver implements Observer {
      * Derived from http://stackoverflow.com/a/26486046
      */
     private Map<String, Object> stringToHashMap(String hashMapString){
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
 
         hashMapString = StringUtils.substringBetween(hashMapString, "{", "}");           //remove curly brackets
         String[] keyValuePairs = hashMapString.split(",");              //split the string to create key-value pairs
