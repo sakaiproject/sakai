@@ -379,7 +379,8 @@ public class DeliveryBeanie
 
   public String getRoundedRawScore() {
    try {
-      String newscore= ContextUtil.getRoundedValue(rawScore, 2);
+      //String newscore= ContextUtil.getRoundedValue(rawScore, 2);
+	  String newscore=rawScore;
       return Validator.check(newscore, "N/A");
     }
     catch (Exception e) {
