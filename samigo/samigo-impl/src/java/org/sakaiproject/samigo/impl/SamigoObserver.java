@@ -74,20 +74,22 @@ public class SamigoObserver implements Observer {
     private Map<String, Object> stringToHashMap(String hashMapString){
         Map<String, Object> map = new HashMap<>();
 
-        hashMapString = StringUtils.substringBetween(hashMapString, "{", "}");           //remove curly brackets
-        String[] keyValuePairs = hashMapString.split(",");              //split the string to create key-value pairs
+        String substr = StringUtils.substringBetween(hashMapString, "{", "}");           //remove curly brackets
+        String[] keyValuePairs = StringUtils.split(substr, ",");                  //split the string to create key-value pairs
+        if (substr == null || keyValuePairs == null) return map;
 
-        for(String pair : keyValuePairs)                        //iterate over the pairs
-        {
-            String[] entry = pair.split("=");                   //split the pairs to get key and value
+        for (String pair : keyValuePairs) {
+            String[] entry = StringUtils.split(pair, "=");              //split the pairs to get key and value
+            if (entry == null || entry.length == 0) continue;
             String key = StringUtils.trim(entry[0]);
+
             if(entry.length == 2) {
-                if (key.equals("assessmentGradingID") || key.equals("publishedAssessmentID")) {
+                if (StringUtils.equals(key, "assessmentGradingID") || StringUtils.equals(key, "publishedAssessmentID")) {
                     map.put(key, Long.valueOf(StringUtils.trim(entry[1])));
                 } else {
                     map.put(key, String.valueOf(StringUtils.trim(entry[1])));          //add them to the hashmap and trim whitespaces
                 }
-            } else{
+            } else {
                 map.put(key, "");
             }
         }
