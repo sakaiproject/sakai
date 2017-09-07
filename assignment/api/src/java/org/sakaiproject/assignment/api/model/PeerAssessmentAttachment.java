@@ -30,7 +30,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PeerAssessmentAttachment implements Serializable {
 
-    @Id
+	private static final long serialVersionUID = 1L;
+
+	@Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "peer_assessment_attachment_sequence")
     @SequenceGenerator(name = "peer_assessment_attachment_sequence", sequenceName = "ASN_PEER_ATTACH_S")

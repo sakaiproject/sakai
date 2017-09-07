@@ -32,7 +32,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AssessorSubmissionId implements Serializable {
-    @Column(name = "SUBMISSION_ID", nullable = false)
+ 
+	private static final long serialVersionUID = 1L;
+
+	@Column(name = "SUBMISSION_ID", nullable = false)
     private String submissionId;
 
     @Column(name = "ASSESSOR_USER_ID", nullable = false)

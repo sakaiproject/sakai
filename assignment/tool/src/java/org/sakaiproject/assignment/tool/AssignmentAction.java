@@ -97,7 +97,10 @@ import org.sakaiproject.util.*;
  */
 @Slf4j
 public class AssignmentAction extends PagedResourceActionII {
-    private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
+
+	private static final long serialVersionUID = 1L;
+	
+	private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
     /**
      * Is the review service available?
      */
