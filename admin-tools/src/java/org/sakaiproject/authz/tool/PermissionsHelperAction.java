@@ -323,7 +323,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 						{
 							Group group = (Group) iGroups.next();
 							// need to either have realm update permission on the group level or better at the site level
-							if (!authzGroupService.allowUpdate(group.getReference()))
+							if (!(authzGroupService.allowUpdate(group.getReference()) || siteService.allowUpdateSite(site.getId())))
 							{
 								iGroups.remove();
 							}
