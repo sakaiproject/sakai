@@ -2563,7 +2563,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 		  return f;
 	  }  
 
-	  public Map<String, String> getToGradebookPublishedAssessmentSiteIdMap() {
+	  public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap() {
 		  final HibernateCallback<List<Object[]>> hcb = session -> session
 				  .createQuery("select em.assessment.publishedAssessmentId, a.agentIdString " +
 						  "from PublishedEvaluationModel em, AuthorizationData a " +
@@ -2573,9 +2573,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport implem
 				  .list();
 
 		  List<Object[]> l = getHibernateTemplate().execute(hcb);
-		  Map<String, String> map = new HashMap<>();
+		  Map<Long, String> map = new HashMap<>();
 		  for (Object[] o : l) {
-			  map.put((String) o[0], (String) o[1]);
+			  map.put((Long) o[0], (String) o[1]);
 		  }
 		  return map;
 	  }	  

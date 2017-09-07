@@ -47,7 +47,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 	@Override
 	public boolean autoSubmitSingleAssessment(AssessmentGradingData adata, boolean autoSubmit, boolean updateCurrentGrade, PublishedAssessmentFacade publishedAssessment, 
 			PersistenceHelper persistenceHelper, boolean updateGrades, EventLogService eventService, EventLogFacade eventLogFacade,
-			Map toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g)
+			Map<Long, String> toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g)
 	{
 		long gradingId;
 		if (adata != null && adata.getAssessmentGradingId() != null)
@@ -66,7 +66,7 @@ public class AutoSubmitQueries extends HibernateDaoSupport implements AutoSubmit
 			
 			//update grades
 			if(updateGrades && autoSubmit && updateCurrentGrade && toGradebookPublishedAssessmentSiteIdMap != null && toGradebookPublishedAssessmentSiteIdMap.containsKey(adata.getPublishedAssessmentId())) {
-				String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
+				String currentSiteId = toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
 				if (gbsHelper != null && gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
 					int retryCount = persistenceHelper.getRetryCount();
 					boolean success = false;
