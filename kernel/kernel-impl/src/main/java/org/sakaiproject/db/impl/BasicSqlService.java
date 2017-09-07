@@ -1151,6 +1151,28 @@ public abstract class BasicSqlService implements SqlService
 	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection,boolean failQuiet) {
 		return dbWriteCount(sql,fields,lastField,callerConnection,failQuiet ? 1 : 0);
 	}
+	
+	/**
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(String, Set<Object[]>)
+	 */
+	public boolean dbWriteBatch(String sql, List<Object[]> fieldsList)
+	{
+		boolean success = false;
+	
+		try
+		{
+			Connection conn = borrowConnection();
+			success = dbWriteBatch(conn, sql, fieldsList);
+			conn.commit();
+			returnConnection(conn);
+		}
+		catch (SQLException e)
+		{
+			LOG.warn("Sql.dbWriteBatch()", e);
+		}
+
+		return success;
+	}
 
 	/**
 	 * @see org.sakaiproject.db.api.SqlService#dbWriteBatch(Connection, String, List<Object[]>)
