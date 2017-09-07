@@ -622,7 +622,7 @@ function printView(url) {
 											#if (!$!submission.submitted)
 												#set($submittedText = $!submission.submittedText)
 												#set($submittedAttachments = $submission.submittedAttachments)
-												#if ($!submittedText.length() > 0 || $!submittedAttachments.size() > 0 )
+												#if ($submittedText && !$submittedText.isEmpty() || !$submittedAttachments.isEmpty())
 												<span class="highlight">$tlang.getString("gen.dra2") </span>
 												#end
 											#end
