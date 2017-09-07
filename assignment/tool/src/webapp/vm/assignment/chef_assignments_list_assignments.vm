@@ -443,7 +443,7 @@
 							#end
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
-								   $!assignment.getStatus()
+								   $!service.getAssignmentStatus($assignment.Id)
 								#else
 									#if ($!submission)
 										$!service.getSubmissionStatus($submission.Id)
@@ -477,10 +477,10 @@
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
 									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignmentReference))
 									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignmentReference))
-									#set ( $submissionType = $assignment.TypeOfSubmission.ordinal())
+									#set ($submissionType = $assignment.TypeOfSubmission.ordinal())
 									#if ($!submissionType == 4)
 										## non-electronic assignment
-										#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($!assignment.getReference()))
+										#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($assignmentReference))
 										#if($totalNumber == 0)
 											## in case there is no submission object for any reason
 											#set($ungradedNumber = $allowSubmitUsers.size())
