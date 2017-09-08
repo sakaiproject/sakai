@@ -713,7 +713,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	   .getPublishedAssessmentInfoForRemove(publishedAssessmentId);
    }
    
-   public Map<String, String> getToGradebookPublishedAssessmentSiteIdMap() {
+   public Map<Long, String> getToGradebookPublishedAssessmentSiteIdMap() {
 	   return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 	   .getToGradebookPublishedAssessmentSiteIdMap();
    }

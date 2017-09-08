@@ -64,6 +64,16 @@ inputhidden.setAttribute("value", selectId);
 switchPartialCredit(fieldname,prevCorrectBtn); 
 }
 
+function updateHiddenMultipleChoice() {
+  var checkboxes = jQuery("input[id*=':mccheckboxes:']:checked");
+  var selectedCheckboxes = "";
+  for (var i=0; i <= checkboxes.size()-1; i++) {
+    selectedCheckboxes += $(checkboxes[i]).val() + ",";
+  }
+  selectedCheckboxes = selectedCheckboxes.substring(0, selectedCheckboxes.length-1);
+  jQuery('#itemForm\\:selectedCheckboxesAnswers').val(selectedCheckboxes);
+}
+
 function switchPartialCredit(newCorrect,oldCorrect){
    var pInput = document.getElementById('itemForm:mcchoices:0:partialCredit');
    if(typeof(pInput) == 'undefined' || pInput == null){

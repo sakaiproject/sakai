@@ -3022,7 +3022,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         GradebookExternalAssessmentService g = null;
         boolean updateGrades = false;
-        Map toGradebookPublishedAssessmentSiteIdMap = null;
+        Map<Long, String> toGradebookPublishedAssessmentSiteIdMap = null;
         GradebookServiceHelper gbsHelper = null;
         if (IntegrationContextFactory.getInstance() != null) {
             boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();

@@ -1,10 +1,6 @@
 /* tool-base.css  - base values - focus on positioning, margins, paddings 
-- all skins in a given instalation then can participate in these definitions 
-- and still style things differently in tool.css*/
-/*first pass at a printable sheet - essentially omitting from the print all controls,
-and reformatting info for the print media.
-If your institution is somehow heavy in Internet Explorer Win 5.5 users this will merit
-testing as this browser in some configurations will sometimes apply these definitions to the screen */
+- all skins can participate in these shared definitions 
+- and still style things differently in their skin*/
 @media print  {
    body {
 	font-size: 9pt !important;
