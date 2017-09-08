@@ -126,9 +126,6 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 			return mySites;
 		}
 
-		// collect the user's sites - don't care whether long descriptions are loaded
-		mySites = siteService.getUserSites(false);
-
 		// collect the user's preferences
 		List prefExclude = new ArrayList();
 		List prefOrder = new ArrayList();
@@ -149,15 +146,10 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 				prefOrder = l;
 			}
 		}
-
-		// remove all in exclude from mySites
-		List<Site> visibleSites = new ArrayList<Site>();
-		for (Site site: mySites) {
-			if ( ! prefExclude.contains(site.getId())) {
-				visibleSites.add(site);
-			}
-		}
-		mySites = visibleSites;
+		
+		// collect the user's sites - don't care whether long descriptions are loaded
+		// don't load excluded sites
+		mySites = siteService.getUserSites(false, false, prefExclude);
 
 		// Prepare to put sites in the right order
 		Vector<Site> ordered = new Vector<Site>();
