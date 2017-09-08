@@ -11782,7 +11782,7 @@ public class AssignmentAction extends PagedResourceActionII {
         String mode = (String) state.getAttribute(STATE_MODE);
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         // all the resources for paging
-        Collection returnResources = new ArrayList();
+        List returnResources = new ArrayList();
         boolean hasOneAnon = false;
 
         boolean allowAddAssignment = assignmentService.allowAddAssignment(contextString);
@@ -11795,7 +11795,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (allowAddAssignment && view.equals(MODE_LIST_ASSIGNMENTS)) {
                 // read all Assignments
-                returnResources = assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING));
+                returnResources.addAll(assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING)));
             } else if (allowAddAssignment && view.equals(MODE_STUDENT_VIEW)
                     || (!allowAddAssignment && assignmentService.allowAddSubmission((String) state.getAttribute(STATE_CONTEXT_STRING)))) {
                 // in the student list view of assignments
@@ -11818,12 +11818,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
             } else {
                 // read all Assignments
-                returnResources = assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING));
+                returnResources.addAll(assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING)));
             }
 
             state.setAttribute(HAS_MULTIPLE_ASSIGNMENTS, returnResources.size() > 1);
         } else if (MODE_INSTRUCTOR_REORDER_ASSIGNMENT.equals(mode)) {
-            returnResources = assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING));
+            returnResources.addAll(assignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING)));
         } else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode)) {
             initViewSubmissionListOption(state);
             String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
@@ -11997,7 +11997,7 @@ public class AssignmentAction extends PagedResourceActionII {
             }
 
             try {
-                Collections.sort(new ArrayList(returnResources), ac);
+                Collections.sort(returnResources, ac);
             } catch (Exception e) {
                 // log exception during sorting for helping debugging
                 log.warn(this + ":sizeResources mode=" + mode + " sort=" + sort + " ascending=" + ascending + " " + e.getStackTrace());
