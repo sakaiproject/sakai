@@ -689,9 +689,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         String key = (enrollmentStatusId == null) ? enrollmentSetId + "#all" : enrollmentSetId + "#" + enrollmentStatusId;
 
-        if (log.isDebugEnabled()) {
-            log.debug("Trying to get members list " + key + " from membersMap ...");
-        }
+        log.debug("Trying to get members list {} from membersMap ...", key);
 
         List<RosterMember> members = membersMap.get(key);
 
@@ -832,28 +830,21 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
         Cache cache = getCache(ENROLLMENTS_CACHE);
 
         log.debug("Trying to get '{}' from enrollments cache ...", siteId);
-
         Map<String, List<RosterMember>> membersMap = (Map<String, List<RosterMember>>) cache.get(siteId);
 
         if (membersMap == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache miss. Putting empty membersMap on " + siteId + " ...");
-            }
-            membersMap = new HashMap<String, List<RosterMember>>();
+            log.debug("Cache miss. Putting empty membersMap on {} ...", siteId);
+            membersMap = new HashMap<>();
             cache.put(siteId, membersMap);
         }
 
         if (membersMap.containsKey(enrollmentSetId + "#all")
                 && membersMap.containsKey(enrollmentSetId + "#wait")
                 && membersMap.containsKey(enrollmentSetId + "#enrolled")) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache hit on '" + enrollmentSetId + "'");
-            }
+            log.debug("Cache hit on '{}'", enrollmentSetId);
             return membersMap;
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache miss on '" + enrollmentSetId + "'");
-            }
+            log.debug("Cache miss on '{}'", enrollmentSetId);
 
             EnrollmentSet enrollmentSet = null;
             try {
@@ -869,9 +860,9 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		    Map<String, RosterMember> membership = getMembershipMapped(site, null);
 
-            List<RosterMember> members = new ArrayList<RosterMember>();
-            List<RosterMember> waiting = new ArrayList<RosterMember>();
-            List<RosterMember> enrolled = new ArrayList<RosterMember>();
+            List<RosterMember> members = new ArrayList<>();
+            List<RosterMember> waiting = new ArrayList<>();
+            List<RosterMember> enrolled = new ArrayList<>();
 
             Map<String, String> statusCodes
                 = courseManagementService.getEnrollmentStatusDescriptions(new ResourceLoader().getLocale());
@@ -896,14 +887,11 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             Collections.sort(waiting, memberComparator);
             Collections.sort(enrolled, memberComparator);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Caching all enrollment set members on '" + enrollmentSetId + "#all' ...");
-                log.debug("Caching watlisted members on '" + enrollmentSetId + "#wait' ...");
-                log.debug("Caching enrolled members on '" + enrollmentSetId + "#enrolled' ...");
-            }
-
+            log.debug("Caching all enrollment set members on '{}#all' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#all", members);
+            log.debug("Caching watlisted members on '{}#wait' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#wait", waiting);
+            log.debug("Caching enrolled members on '{}#enrolled' ...", enrollmentSetId);
             membersMap.put(enrollmentSetId + "#enrolled", enrolled);
 
             return membersMap;
@@ -921,7 +909,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			return null;
 		}
 		
-		if (log.isDebugEnabled()) log.debug("currentUserId: " + currentUserId);
+		log.debug("currentUserId: {}", currentUserId);
 
 		Site site = getSite(siteId);
 		if (null == site) {
@@ -929,7 +917,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			return null;
 		}
 		
-		if (log.isDebugEnabled()) log.debug("site: " + site.getId());
+		log.debug("site: {}", site.getId());
 		
 		RosterSite rosterSite = new RosterSite(siteId);
 
@@ -937,8 +925,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
         rosterSite.setMembersTotal(site.getMembers().size());
 
-		List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId,
-				site);
+		List<RosterGroup> siteGroups = getViewableSiteGroups(currentUserId, site);
 
 		if (0 == siteGroups.size()) {
 			// to avoid IndexOutOfBoundsException in EB code
@@ -947,8 +934,8 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			rosterSite.setSiteGroups(siteGroups);
 		}
 
-        Map<String, Integer> roleCounts = new HashMap<String, Integer>();
-		List<String> userRoles = new ArrayList<String>();
+        Map<String, Integer> roleCounts = new HashMap<>();
+		List<String> userRoles = new ArrayList<>();
 		for (Role role : site.getRoles()) {
             String roleId = role.getId();
 			userRoles.add(roleId);
