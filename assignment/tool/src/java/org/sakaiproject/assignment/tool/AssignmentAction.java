@@ -15,6 +15,8 @@
  */
 package org.sakaiproject.assignment.tool;
 
+import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -1424,7 +1426,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         context.put("submitterId", ass.get().getSubmitter());
                     }
                     String grade_override = (StringUtils.trimToNull(assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null)
-                            && (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
+                            && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE)
                             ? assignmentService.getGradeForUserInGradeBook(assignment.getId(), userDirectoryService.getCurrentUser().getId()) != null
                             ? assignmentService.getGradeForUserInGradeBook(assignment.getId(), userDirectoryService.getCurrentUser().getId())
                             : s.getSubmitters().stream().filter(p -> p.getSubmitter().equals(userDirectoryService.getCurrentUser().getId())).findFirst().orElse(null).getGrade()
@@ -2019,7 +2021,7 @@ public class AssignmentAction extends PagedResourceActionII {
             context.put("submission", submission);
 
             if (assignment.getIsGroup()) {
-                String grade_override = (StringUtils.trimToNull(assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) && (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) ?
+                String grade_override = (StringUtils.trimToNull(assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) ?
                         assignmentService.getGradeForUserInGradeBook(assignment.getId(), userDirectoryService.getCurrentUser().getId()) != null ?
                                 assignmentService.getGradeForUserInGradeBook(assignment.getId(), userDirectoryService.getCurrentUser().getId()) :
                                 submission.getSubmitters().stream().filter(p -> p.getSubmitter().equals(userDirectoryService.getCurrentUser().getId())).findFirst().orElse(null).getGrade() :
@@ -3028,7 +3030,7 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected String build_instructor_grade_submission_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
         String submissionId = "";
-        Assignment.GradeType gradeType = Assignment.GradeType.GRADE_TYPE_NONE;
+        Assignment.GradeType gradeType = GRADE_TYPE_NONE;
 
         // need to show the alert for grading drafts?
         boolean addGradeDraftAlert = false;
@@ -3155,7 +3157,7 @@ public class AssignmentAction extends PagedResourceActionII {
         context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 
         // format to show one decimal place in grade
-        context.put("value_grade", (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())
+        context.put("value_grade", (gradeType == SCORE_GRADE_TYPE) ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())
                 : state.getAttribute(GRADE_SUBMISSION_GRADE));
 
         // try to put in grade overrides
@@ -3173,7 +3175,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 if (state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + users[i].getId()) != null) {
                     ugrades.put(
                             users[i].getId(),
-                            gradeType == Assignment.GradeType.SCORE_GRADE_TYPE ?
+                            gradeType == SCORE_GRADE_TYPE ?
                                     displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + users[i].getId()), a.getScaleFactor()) :
                                     state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + users[i].getId())
                     );
@@ -3744,7 +3746,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                                                      SessionState state) {
 
         // assignment
-        Assignment.GradeType gradeType = Assignment.GradeType.GRADE_TYPE_NONE;
+        Assignment.GradeType gradeType = GRADE_TYPE_NONE;
         String assignmentId = (String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID);
         Assignment a = getAssignment(assignmentId, "build_instructor_preview_grade_submission_context", state);
         if (a != null) {
@@ -3777,7 +3779,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         // format to show "factor" decimal places
         String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
-        if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+        if (gradeType == SCORE_GRADE_TYPE) {
             grade = displayGrade(state, grade, submission.getAssignment().getScaleFactor());
         }
         context.put("grade", grade);
@@ -3950,7 +3952,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if (ss != null && ss.getSubmission() != null) {
                         List<String> users = ss.getSubmission().getSubmitters().stream().map(AssignmentSubmissionSubmitter::getSubmitter).collect(Collectors.toList());
                         for (String user : users) {
-                            String agrade = (StringUtils.trimToNull(p.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) && (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) ?
+                            String agrade = (StringUtils.trimToNull(p.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) != null) && (assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) ?
                                     assignmentService.getGradeForUserInGradeBook(assignment.getId(), user) != null
                                             ? assignmentService.getGradeForUserInGradeBook(assignment.getId(), user) :
                                             ss.getGradeForUser(user)
@@ -4146,21 +4148,24 @@ public class AssignmentAction extends PagedResourceActionII {
 
             // put creator information into context
             putCreatorIntoContext(context, assignment);
+            context.put("typeOfGradeString", getTypeOfGradeString(assignment.getTypeOfGrade()));
+
+            if (assignment.getTypeOfGrade().equals(SCORE_GRADE_TYPE)) {
+                Integer scaleFactor = assignment.getScaleFactor() != null ? assignment.getScaleFactor() : assignmentService.getScaleFactor();
+                context.put("maxGradePointString", getMaxGradePointDisplay(scaleFactor, assignment.getMaxGradePoint()));
+            }
+
+            Map<String, String> properties = assignment.getProperties();
+            context.put("scheduled", properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
+            context.put("announced", properties.get(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
         }
 
-        TaggingManager taggingManager = (TaggingManager) ComponentManager
-                .get("org.sakaiproject.taggable.api.TaggingManager");
         if (taggingManager.isTaggable() && assignment != null) {
             Session session = sessionManager.getCurrentSession();
             List<DecoratedTaggingProvider> providers = addProviders(context, state);
             List<TaggingHelperInfo> activityHelpers = new ArrayList<TaggingHelperInfo>();
-            AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
-                    .get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
             for (DecoratedTaggingProvider provider : providers) {
-                TaggingHelperInfo helper = provider.getProvider()
-                        .getActivityHelperInfo(
-                                assignmentActivityProducer.getActivity(
-                                        assignment).getReference());
+                TaggingHelperInfo helper = provider.getProvider().getActivityHelperInfo(assignmentActivityProducer.getActivity(assignment).getReference());
                 if (helper != null) {
                     activityHelpers.add(helper);
                 }
@@ -4221,7 +4226,7 @@ public class AssignmentAction extends PagedResourceActionII {
     } // build_instructor_reorder_assignment_context
 
     private String build_student_review_edit_context(VelocityPortlet portlet, Context context, RunData data, SessionState state) {
-        Assignment.GradeType gradeType = Assignment.GradeType.GRADE_TYPE_NONE;
+        Assignment.GradeType gradeType = GRADE_TYPE_NONE;
         context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
         List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) state.getAttribute(PEER_ASSESSMENT_ITEMS);
         String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
@@ -4821,7 +4826,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     if ("update".equals(updateRemoveSubmission)
                             && (StringUtils.equals(propAddToGradebook, AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ADD)
                             || StringUtils.equals(propAddToGradebook, AssignmentServiceConstants.GRADEBOOK_INTEGRATION_ASSOCIATE))
-                            && a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                            && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
 
                         if (submissionRef == null) {
                             //Assignment scores map
@@ -5980,7 +5985,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                 previousGrades = properties.get(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
                                 if (previousGrades != null) {
                                     Assignment.GradeType typeOfGrade = a.getTypeOfGrade();
-                                    if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                                    if (typeOfGrade == SCORE_GRADE_TYPE) {
                                         // point grade assignment type
                                         // some old unscaled grades, need to scale the number and remove the old property
                                         String[] grades = StringUtils.split(previousGrades, " ");
@@ -6597,11 +6602,11 @@ public class AssignmentAction extends PagedResourceActionII {
             catInt = Long.valueOf(params.getString(NEW_ASSIGNMENT_CATEGORY));
         state.setAttribute(NEW_ASSIGNMENT_CATEGORY, catInt);
 
-        Assignment.GradeType gradeType = Assignment.GradeType.GRADE_TYPE_NONE;
+        Assignment.GradeType gradeType = GRADE_TYPE_NONE;
 
         // grade type and grade points
         if (state.getAttribute(WITH_GRADES) != null && (Boolean) state.getAttribute(WITH_GRADES)) {
-            gradeType = Assignment.GradeType.values()[params.getInt(NEW_ASSIGNMENT_GRADE_TYPE)];
+            gradeType = values()[params.getInt(NEW_ASSIGNMENT_GRADE_TYPE)];
             state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, gradeType.ordinal());
         }
 
@@ -6623,7 +6628,7 @@ public class AssignmentAction extends PagedResourceActionII {
             if (Assignment.SubmissionType.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION == submissionType) {
                 addAlert(state, rb.getString("peerassessment.invliadSubmissionTypeAssignment"));
             }
-            if (gradeType != Assignment.GradeType.SCORE_GRADE_TYPE) {
+            if (gradeType != SCORE_GRADE_TYPE) {
                 addAlert(state, rb.getString("peerassessment.invliadGradeTypeAssignment"));
             }
 
@@ -6840,7 +6845,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             if (!grading.equals(AssignmentServiceConstants.GRADEBOOK_INTEGRATION_NO)) {
                 // gradebook integration only available to point-grade assignment
-                if (gradeType != Assignment.GradeType.SCORE_GRADE_TYPE) {
+                if (gradeType != SCORE_GRADE_TYPE) {
                     addAlert(state, rb.getString("addtogradebook.wrongGradeScale"));
                 }
 
@@ -6953,7 +6958,7 @@ public class AssignmentAction extends PagedResourceActionII {
             String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
             state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
             if (gradePoints != null) {
-                if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                if (gradeType == SCORE_GRADE_TYPE) {
                     if ((gradePoints.length() == 0)) {
                         // in case of point grade assignment, user must specify maximum grade point
                         addAlert(state, rb.getString("plespethe3"));
@@ -7490,7 +7495,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             Map<String, String> p = a.getProperties();
 
-            if ((a.getTypeOfGrade() != Assignment.GradeType.SCORE_GRADE_TYPE) && ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE) == Assignment.GradeType.SCORE_GRADE_TYPE.ordinal())) {
+            if ((a.getTypeOfGrade() != SCORE_GRADE_TYPE) && ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE) == SCORE_GRADE_TYPE.ordinal())) {
                 // changing from non-point grade type to point grade type?
                 bool_change_from_non_point = true;
             }
@@ -7530,7 +7535,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
             Assignment.SubmissionType submissionType = Assignment.SubmissionType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)];
 
-            Assignment.GradeType gradeType = Assignment.GradeType.values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)];
+            Assignment.GradeType gradeType = values()[(Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE)];
 
             String gradePoints = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 
@@ -8125,7 +8130,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         addUpdateRemoveAssignment = "update";
                     }
 
-                    if (!"remove".equals(addUpdateRemoveAssignment) && gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                    if (!"remove".equals(addUpdateRemoveAssignment) && gradeType == SCORE_GRADE_TYPE) {
                         try {
                             integrateGradebook(state, assignmentReference, associateGradebookAssignment, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt(gradePoints), dueTime, null, null, category);
 
@@ -8610,7 +8615,7 @@ public class AssignmentAction extends PagedResourceActionII {
             a.setDraft(true);
         }
 
-        if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+        if (gradeType == SCORE_GRADE_TYPE) {
             try {
                 a.setMaxGradePoint(Integer.parseInt(gradePoints));
             } catch (NumberFormatException e) {
@@ -9088,7 +9093,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, a.getTypeOfSubmission().ordinal());
                 state.setAttribute(NEW_ASSIGNMENT_CATEGORY, getAssignmentCategoryAsInt(a));
                 state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, a.getTypeOfGrade().ordinal());
-                if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                     state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, a.getMaxGradePoint().toString());
                 }
                 state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, a.getInstructions());
@@ -9711,7 +9716,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     Set<AssignmentSubmissionSubmitter> submitters = s.getSubmitters();
                     Map<String, String> p = a.getProperties();
                     for (AssignmentSubmissionSubmitter submitter : submitters) {
-                        String grade_override = (StringUtils.isNotBlank(p.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) && a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
+                        String grade_override = (StringUtils.isNotBlank(p.get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT)) && a.getTypeOfGrade() == SCORE_GRADE_TYPE)
                                 ? (assignmentService.getGradeForUserInGradeBook(a.getId(), submitter.getSubmitter()) != null)
                                 && !(assignmentService.getGradeForUserInGradeBook(assignmentId, submitter.getSubmitter()).equals(displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getScaleFactor())))
                                 && state.getAttribute(GRADE_SUBMISSION_GRADE) != null
@@ -10644,8 +10649,8 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (withGrade) {
                     // any change in grade. Do not check for ungraded assignment type
-                    if (!hasChange && typeOfGrade != Assignment.GradeType.UNGRADED_GRADE_TYPE) {
-                        if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                    if (!hasChange && typeOfGrade != UNGRADED_GRADE_TYPE) {
+                        if (typeOfGrade == SCORE_GRADE_TYPE) {
                             String currentGrade = submission.getGrade();
 
                             String decSeparator = FormattedText.getDecimalSeparator();
@@ -10668,7 +10673,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
 
                     // do grade validation only for Assignment with Grade tool
-                    if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                    if (typeOfGrade == SCORE_GRADE_TYPE) {
                         if ((grade != null)) {
                             // the preview grade process might already scaled up the grade by "factor"
                             if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION)) {
@@ -10698,7 +10703,7 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
 
                     // if ungraded and grade type is not "ungraded" type
-                    if ((grade == null || "ungraded".equals(grade)) && (typeOfGrade != Assignment.GradeType.UNGRADED_GRADE_TYPE) && "release".equals(gradeOption)) {
+                    if ((grade == null || "ungraded".equals(grade)) && (typeOfGrade != UNGRADED_GRADE_TYPE) && "release".equals(gradeOption)) {
                         addAlert(state, rb.getString("plespethe2"));
                     }
 
@@ -10709,7 +10714,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         for (AssignmentSubmissionSubmitter submitter : submitters) {
                             String ug = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter()));
                             if ("null".equals(ug)) ug = null;
-                            if (!hasChange && typeOfGrade != Assignment.GradeType.UNGRADED_GRADE_TYPE) {
+                            if (!hasChange && typeOfGrade != UNGRADED_GRADE_TYPE) {
                                 hasChange = valueDiffFromStateAttribute(state, ug, submitter.getGrade());
                             }
                             if (ug == null) {
@@ -10720,7 +10725,7 @@ public class AssignmentAction extends PagedResourceActionII {
                             // for points grading, one have to enter number as the points
                             String ugrade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE + "_" + submitter.getSubmitter());
                             // do grade validation only for Assignment with Grade tool
-                            if (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                            if (typeOfGrade == SCORE_GRADE_TYPE) {
                                 if (ugrade != null && !(ugrade.equals("null"))) {
                                     // the preview grade process might already scaled up the grade by "factor"
                                     if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION)) {
@@ -10775,7 +10780,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (state.getAttribute(STATE_MESSAGE) == null) {
                     String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
-                    grade = (typeOfGrade == Assignment.GradeType.SCORE_GRADE_TYPE) ? scalePointGrade(state, grade, factor) : grade;
+                    grade = (typeOfGrade == SCORE_GRADE_TYPE) ? scalePointGrade(state, grade, factor) : grade;
                     state.setAttribute(GRADE_SUBMISSION_GRADE, grade);
                 }
             }
@@ -11228,7 +11233,7 @@ public class AssignmentAction extends PagedResourceActionII {
 
         state.setAttribute(NEW_ASSIGNMENT_SECTION, "001");
         state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, Assignment.SubmissionType.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION.ordinal());
-        state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, Assignment.GradeType.UNGRADED_GRADE_TYPE.ordinal());
+        state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, UNGRADED_GRADE_TYPE.ordinal());
         state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, "");
         state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, "");
         state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
@@ -12540,7 +12545,7 @@ public class AssignmentAction extends PagedResourceActionII {
             } catch (PermissionException e) {
                 log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
             }
-            if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                 //for point-based grades
                 validPointGrade(state, grade, a.getScaleFactor());
 
@@ -12619,7 +12624,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 log.warn("Could not update assignment: {}, {}", a.getId(), e.getMessage());
             }
 
-            if (a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            if (a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                 //for point-based grades
                 validPointGrade(state, grade, a.getScaleFactor());
 
@@ -13054,16 +13059,16 @@ public class AssignmentAction extends PagedResourceActionII {
                                             if (w != null) {
                                                 String itemString = assignment.getIsGroup() ? items[3] : items[4];
                                                 Assignment.GradeType gradeType = assignment.getTypeOfGrade();
-                                                if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                                                if (gradeType == SCORE_GRADE_TYPE) {
                                                     validPointGrade(state, itemString, assignment.getScaleFactor());
                                                 } // SAK-24199 - Applied patch provided with a few additional modifications.
-                                                else if (gradeType == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+                                                else if (gradeType == PASS_FAIL_GRADE_TYPE) {
                                                     itemString = validatePassFailGradeValue(state, itemString);
                                                 } else {
                                                     validLetterGrade(state, itemString);
                                                 }
                                                 if (state.getAttribute(STATE_MESSAGE) == null) {
-                                                    w.setGrade(gradeType == Assignment.GradeType.SCORE_GRADE_TYPE ? scalePointGrade(state, itemString, assignment.getScaleFactor()) : itemString);
+                                                    w.setGrade(gradeType == SCORE_GRADE_TYPE ? scalePointGrade(state, itemString, assignment.getScaleFactor()) : itemString);
                                                     submissionTable.put(eid, w);
                                                 }
 
@@ -13111,7 +13116,7 @@ public class AssignmentAction extends PagedResourceActionII {
                                         if (w != null) {
                                             itemString = assignment.getIsGroup() ? hssfRow.getCell(3).toString() : hssfRow.getCell(4).toString();
                                             Assignment.GradeType gradeType = assignment.getTypeOfGrade();
-                                            if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                                            if (gradeType == SCORE_GRADE_TYPE) {
                                                 //Parse the string to double using the locale format
                                                 try {
                                                     itemString = assignment.getIsGroup() ? hssfRow.getCell(3).getStringCellValue() : hssfRow.getCell(4).getStringCellValue();
@@ -13135,13 +13140,13 @@ public class AssignmentAction extends PagedResourceActionII {
                                                 }
 
                                                 validPointGrade(state, itemString, assignment.getScaleFactor());
-                                            } else if (gradeType == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+                                            } else if (gradeType == PASS_FAIL_GRADE_TYPE) {
                                                 itemString = validatePassFailGradeValue(state, itemString);
                                             } else {
                                                 validLetterGrade(state, itemString);
                                             }
                                             if (state.getAttribute(STATE_MESSAGE) == null) {
-                                                w.setGrade(gradeType == Assignment.GradeType.SCORE_GRADE_TYPE ? scalePointGrade(state, itemString, assignment.getScaleFactor()) : itemString);
+                                                w.setGrade(gradeType == SCORE_GRADE_TYPE ? scalePointGrade(state, itemString, assignment.getScaleFactor()) : itemString);
                                                 submissionTable.put(eid, w);
                                             }
                                         }
@@ -14368,7 +14373,7 @@ public class AssignmentAction extends PagedResourceActionII {
      */
     protected void setScoringAgentProperties(Context context, Assignment assignment, AssignmentSubmission submission, boolean gradeView) {
         String associatedGbItem = StringUtils.trimToNull(assignment.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-        if (submission != null && associatedGbItem != null && assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+        if (submission != null && associatedGbItem != null && assignment.getTypeOfGrade() == SCORE_GRADE_TYPE) {
             ScoringService scoringService = (ScoringService) ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
             ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
 
@@ -14474,6 +14479,37 @@ public class AssignmentAction extends PagedResourceActionII {
         }
     }
 
+    public String getTypeOfGradeString(Assignment.GradeType type) {
+        switch (type) {
+            case UNGRADED_GRADE_TYPE:
+                return rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_NOGRADE_PROP);
+            case LETTER_GRADE_TYPE:
+                return rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_LETTER_PROP);
+            case SCORE_GRADE_TYPE:
+                return rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_POINTS_PROP);
+            case PASS_FAIL_GRADE_TYPE:
+                return rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_PASS_FAIL_PROP);
+            case CHECK_GRADE_TYPE:
+                return rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_CHECK_PROP);
+            default:
+                return rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_UNKNOWN_PROP);
+        }
+    }
+
+    /**
+     * Get the maximum grade for grade type = SCORE_GRADE_TYPE(3) Formated to show "factor" decimal places
+     *
+     * @return The maximum grade score.
+     */
+    public String getMaxGradePointDisplay(int factor, int maxGradePoint) {
+        // formated to show factor decimal places, for example, 1000 to 100.0
+        // get localized number format
+        NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(factor),(int)Math.log10(factor),false);
+        // show grade in localized number format
+        Double dblGrade = new Double(maxGradePoint/(double)factor);
+        return nbFormat.format(dblGrade);
+    }
+
     /**
      * the SubmitterSubmission clas
      */
@@ -14563,7 +14599,7 @@ public class AssignmentAction extends PagedResourceActionII {
                 Assignment a = s.getAssignment();
                 AssignmentSubmissionSubmitter submitter = s.getSubmitters().stream().filter(sbm -> StringUtils.equals(sbm.getSubmitter(), id)).findFirst().get();
                 String g = StringUtils.trimToNull(a.getProperties().get(AssignmentServiceConstants.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-                if (g != null && a.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
+                if (g != null && a.getTypeOfGrade() == SCORE_GRADE_TYPE) {
                     // check if they already have a gb entry
                     grade = assignmentService.getGradeForUserInGradeBook(a.getId(), id);
                     if (grade == null) {
@@ -14999,8 +15035,8 @@ public class AssignmentAction extends PagedResourceActionII {
                         }
 
                         // if scale is points
-                        if ((s1.getAssignment().getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
-                                && ((s2.getAssignment().getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE))) {
+                        if ((s1.getAssignment().getTypeOfGrade() == SCORE_GRADE_TYPE)
+                                && ((s2.getAssignment().getTypeOfGrade() == SCORE_GRADE_TYPE))) {
                             if ("".equals(grade1)) {
                                 result = -1;
                             } else if ("".equals(grade2)) {
@@ -15104,8 +15140,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // if scale is points
-                if ((((AssignmentSubmission) o1).getAssignment().getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
-                        && ((((AssignmentSubmission) o2).getAssignment().getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE))) {
+                if ((((AssignmentSubmission) o1).getAssignment().getTypeOfGrade() == SCORE_GRADE_TYPE)
+                        && ((((AssignmentSubmission) o2).getAssignment().getTypeOfGrade() == SCORE_GRADE_TYPE))) {
                     if ("".equals(grade1)) {
                         result = -1;
                     } else if ("".equals(grade2)) {
@@ -15128,8 +15164,8 @@ public class AssignmentAction extends PagedResourceActionII {
                 }
 
                 // if scale is points
-                if ((((AssignmentSubmission) o1).getAssignment().getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE)
-                        && ((((AssignmentSubmission) o2).getAssignment().getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE))) {
+                if ((((AssignmentSubmission) o1).getAssignment().getTypeOfGrade() == SCORE_GRADE_TYPE)
+                        && ((((AssignmentSubmission) o2).getAssignment().getTypeOfGrade() == SCORE_GRADE_TYPE))) {
                     if ("".equals(grade1)) {
                         result = -1;
                     } else if ("".equals(grade2)) {
@@ -15235,7 +15271,7 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         /**
-         * get assignment maximun grade available based on the assignment grade type
+         * get assignment maximum grade available based on the assignment grade type
          *
          * @param gradeType The int value of grade type
          * @param a         The assignment object
@@ -15244,22 +15280,22 @@ public class AssignmentAction extends PagedResourceActionII {
         private String maxGrade(Assignment.GradeType gradeType, Assignment a) {
             String maxGrade = "";
 
-            if (gradeType == Assignment.GradeType.GRADE_TYPE_NONE) {
+            if (gradeType == GRADE_TYPE_NONE) {
                 // Grade type not set
                 maxGrade = rb.getString("granotset");
-            } else if (gradeType == Assignment.GradeType.UNGRADED_GRADE_TYPE) {
+            } else if (gradeType == UNGRADED_GRADE_TYPE) {
                 // Ungraded grade type
                 maxGrade = rb.getString("gen.nograd");
-            } else if (gradeType == Assignment.GradeType.LETTER_GRADE_TYPE) {
+            } else if (gradeType == LETTER_GRADE_TYPE) {
                 // Letter grade type
                 maxGrade = "A";
-            } else if (gradeType == Assignment.GradeType.SCORE_GRADE_TYPE) {
+            } else if (gradeType == SCORE_GRADE_TYPE) {
                 // Score based grade type
                 maxGrade = Integer.toString(a.getMaxGradePoint());
-            } else if (gradeType == Assignment.GradeType.PASS_FAIL_GRADE_TYPE) {
+            } else if (gradeType == PASS_FAIL_GRADE_TYPE) {
                 // Pass/fail grade type
                 maxGrade = rb.getString("pass");
-            } else if (gradeType == Assignment.GradeType.CHECK_GRADE_TYPE) {
+            } else if (gradeType == CHECK_GRADE_TYPE) {
                 // Grade type that only requires a check
                 maxGrade = rb.getString("check");
             }

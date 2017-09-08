@@ -132,10 +132,10 @@
 					$tlang.getString("gen.stusub")
 				</th>
 				<td>
-					$submissionTypeTable.get($assignment.getContent().getTypeOfSubmission())
+					$submissionTypeTable.get($assignment.TypeOfSubmission.ordinal())
 				</td>
 			</tr>
-			#if($assignment.getContent().getTypeOfSubmission() != 4)
+			#if($assignment.TypeOfSubmission.ordinal() != 4)
 				##resubmit number
 				#if($!resubmitNumber)
 					<tr>
@@ -161,14 +161,13 @@
 					$tlang.getString("gen.gra")
 				</th>
 				<td>
-					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
+					#set ($gradeScale = $typeOfGradeString)
 					$gradeScale
-					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-						($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+					#if ($gradeTypeTable.get($assignment.TypeOfGrade.ordinal()) == $!tlang.getString("points"))
+						($tlang.getString("grade.max") $maxGradePointString)
 					#end
 				</td>
 			</tr>
-			#set ($scheduled = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropNewAssignmentCheckAddDueDate()))
 			#if ($scheduled)
 				<tr> 
 					<th>
@@ -188,7 +187,6 @@
 					$tlang.getString("gen.alert")
 				</th>
 				<td>
-					#set ($announced = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropNewAssignmentCheckAutoAnnounce()))
 					#if ($!announced == "true")
 						$tlang.getString("gen.yes")
 					#else
@@ -201,10 +199,10 @@
 					$tlang.getString("gen.honple")
 				</th>
 				<td> 
-					#if ($assignment.getContent().HonorPledge == 1)
-						$tlang.getString("gen.no")
-					#else
+					#if ($assignment.HonorPledge)
 						$tlang.getString("gen.yes")
+					#else
+						$tlang.getString("gen.no")
 					#end
 				</td>
 			</tr>
@@ -213,13 +211,13 @@
 			$tlang.getString("gen.assinf")
 		</h4>
 		<div class="textPanel">					
-			#if ($assignment.getContent().getInstructions().length()>0)
-				$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())
+			#if ($assignment.Instructions)
+				$validator.escapeHtmlFormattedText($assignment.Instructions)
 			#end
 		</div>
 		#set ($size = 0)
 		#set ($props = false)
-		#foreach ($attachment in $assignment.getContent().getAttachments()) 
+		#foreach ($attachment in $assignment.Attachments)
 			#set ($props = $attachment.Properties) 
 			#if ($!props)
 				#set ($size = $size + 1)
@@ -232,7 +230,7 @@
 				$tlang.getString("gen.addres2")
 			</h4>	
 			<ul class="attachList">
-				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+				#foreach ($attachment in $assignment.Attachments)
 					#set ($props = false)
 					#set ($props = $attachment.Properties) 
 					#if ($!props)
@@ -283,10 +281,10 @@
 							$tlang.getString("gen.due")
 						</th>
 						<td>
-							$!assignment.getDueTime().toStringLocalFull()
+							$!assignment.DueDate.toString()
 						</td>
 					</tr>
-					#if($assignment.getContent().getTypeOfSubmission() != 4)
+					#if($assignment.TypeOfSubmission.ordinal() != 4)
 						##resubmit number
 						#if($!resubmitNumber)
 							<tr>
@@ -316,21 +314,21 @@
 						</th>
 						<td>
 							#if ($!submission)
-								#if ($submission.getSubmitted())
+								#if ($submission.Submitted)
 									#if ($submission.returned)
-										#if ($submission.TimeReturned.before($submission.TimeSubmitted))
-											$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
+										#if ($submission.DateReturned.before($submission.DateSubmitted))
+											$tlang.getString("gen.retu") $submission.TimeReturned.toString()
 										#else
-											$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
-											#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+											$tlang.getString("gen.resub") $submission.DateSubmitted.toString()
+											#if ($submission.DateSubmitted.after($assignment.DueDate))
 												<span class="highlight"> $tlang.getString("gen.late")</span>
 											#end
 										#end
-									#elseif ($submission.getGraded() && $submission.getGradeReleased())
+									#elseif ($submission.Graded && $submission.GradeReleased)
 										$tlang.getString("gen.gra")
 									#else
-										$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
-										#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+										$tlang.getString("gen.subm4") $submission.DateSubmitted.toString()
+										#if ($submission.DateSubmitted.after($assignment.DueDate))
 											<span class="highlight">$tlang.getString("gen.late2")</span>
 										#end
 									#end
@@ -347,10 +345,10 @@
 							$tlang.getString("gen.grasca"):
 						</th>
 						<td>
-							#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
+							#set ($gradeScale = $typeOfGradeString)
 							$gradeScale
-							#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
-								($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())
+							#if ($gradeTypeTable.get($assignment.TypeOfGrade.ordinal()) == $!tlang.getString("points"))
+								($tlang.getString("grade.max") $maxGradePointString)
 							#end
 						</td>
 					</tr>
@@ -361,7 +359,7 @@
 									$tlang.getString("gen.modbyins")
 							</th>
 							<td class="highlight">
-								$assignment.getTimeLastModified().toStringLocalFull()
+								$assignment.DateModified.toString()
 							</td>
 						</tr>
 					#end
@@ -369,12 +367,12 @@
 				<h4>
 					$tlang.getString("gen.assinf")
 				</h4>	
-				#if ($!assignment.getContent().getInstructions().length()>0)
-					<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
+				#if ($!assignment.Instructions)
+					<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.Instructions)</div>
 				#end
 				#set ($size = 0)
 				#set ($props = false)
-				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+				#foreach ($attachment in $assignment.Attachments)
 					#set ($props = $attachment.Properties) 
 					#if ($!props)
 						#set ($size = $size + 1)
@@ -387,7 +385,7 @@
 						$tlang.getString("gen.addres2")
 					</h4>	
 					<ul class="attachList">
-						#foreach ($attachment in $assignment.getContent().getAttachments()) 
+						#foreach ($attachment in $assignment.Attachments)
 							#set ($props = false)
 							#set ($props = $attachment.Properties) 
 							#if ($!props)
@@ -412,7 +410,7 @@
 					$tlang.getString("gen.submission")
 				</h4>	
 					## 1- text only; 2-attachment only; 3-text and attachment
-					#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
+					#set ( $submissionType = $assignment.TypeOfSubmission.ordinal())
 					#if (($submissionType==1) || ($submissionType==3))
 						<p class="instruction">
 							#if ($submissionType==1)
@@ -440,7 +438,7 @@
 						</p>
 					#end
 					## if honor pledge is required
-					#if ($assignment.getContent().HonorPledge != 1) 
+					#if ($assignment.HonorPledge != 1)
 						<p class="checkbox">
 							<label for="yes">$honor_pledge_text</label>
 							<input name="Yes" type="checkbox" id="yes" value="" disabled="disabled" /><br />
@@ -452,7 +450,7 @@
 			<p class="discTria">
 				<a href="javascript:void(0)" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
 				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.open")" border="0" width="13" height="13" align="top" />
-				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.title)"
+				$tlang.getString("gen.stuvieof") "$validator.escapeHtml($assignment.Title)"
 				</a>
 			</p>	
 
