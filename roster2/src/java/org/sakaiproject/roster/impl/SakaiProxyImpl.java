@@ -516,7 +516,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			}
 		}
 		
-		if (log.isDebugEnabled()) log.debug("membership.size(): " + filtered.size());
+		log.debug("membership.size(): {}", filtered.size());
 		
 		//remove duplicates. Yes, its a Set but there can be dupes because its storing objects and from multiple groups.
 		Set<String> check = new HashSet<String>();
@@ -531,7 +531,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			}
 		}
 		
-		if (log.isDebugEnabled()) log.debug("cleanedMembers.size(): " + cleanedMembers.size());
+		log.debug("cleanedMembers.size(): {}", cleanedMembers.size());
 
 		return cleanedMembers;
     }
@@ -561,8 +561,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 		}
 
-		Set<String> hiddenUserIds
-            = privacyManager.findHidden("/site/" + siteId, userIds);
+		Set<String> hiddenUserIds = privacyManager.findHidden("/site/" + siteId, userIds);
 
 		//get the list of visible roles, optional config.
 		//if set, the only users visible in the tool will be those with their role defined in this list
@@ -570,15 +569,16 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 		
 		boolean filterRoles = ArrayUtils.isNotEmpty(visibleRoles);
 
-		if (log.isDebugEnabled()) log.debug("visibleRoles: " + ArrayUtils.toString(visibleRoles));
-		if (log.isDebugEnabled()) log.debug("filterRoles: " + filterRoles);
+		log.debug("visibleRoles: {}", ArrayUtils.toString(visibleRoles));
+		log.debug("filterRoles: {}", filterRoles);
 		
 		// determine filtered membership
 		for (RosterMember member : members) {
 			String userId = member.getUserId();
 			
 			// skip if not the current user and privacy restricted or user not in group
-			if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId)) || authzGroup.getMember(userId) == null)) {
+			if (!userId.equals(currentUserId) && ((!viewHidden && hiddenUserIds.contains(userId))
+                                                        || authzGroup.getMember(userId) == null)) {
 				continue;
 			}
 			
@@ -593,7 +593,7 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 			}
 		}
 		
-		if(log.isDebugEnabled()) log.debug("filteredMembership.size(): " + filtered.size());
+		log.debug("filteredMembership.size(): {}", filtered.size());
 		
 		return filtered;
 	}
@@ -723,21 +723,15 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
             key += "#" + roleId;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Key: " + key);
-        }
+        log.debug("Key: {}", key);
 
         List<RosterMember> siteMembers = (List<RosterMember>) cache.get(key);
 
         if (siteMembers != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache hit on '" + key + "'.");
-            }
+            log.debug("Cache hit on '{}'.", key);
             return siteMembers;
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Cache miss on '" + key + "'.");
-            }
+            log.debug("Cache miss on '{}'.", key);
 
             Set<Member> membership = site.getMembers();
 
@@ -747,70 +741,69 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
 
             Map<String, User> userMap = getUserMap(membership);
 
-            siteMembers = new ArrayList<RosterMember>();
+            siteMembers = new ArrayList<>();
 
             Collection<Group> groups = site.getGroups();
             Set<Role> roles = site.getRoles();
 
-            // Precache an empty list for each site#group and each site#group#role
-            for (Group group : groups) {
-                String gId = group.getId();
-                cache.put(siteId + "#" + gId, new ArrayList<RosterMember>());
-                for (Role role : roles) {
-                    cache.put(siteId + "#" + gId + "#" + role.getId(), new ArrayList<RosterMember>());
-                }
-            }
-
-            // Same for site#role
-            for (Role role : roles) {
-                cache.put(siteId + "#" + role.getId(), new ArrayList<RosterMember>());
-            }
-
-            for (Member member : membership) {
-                try {
-                    RosterMember rosterMember = 
-                        getRosterMember(userMap, groups, member, site);
-
-                    siteMembers.add(rosterMember);
-
-                    String memberRoleId = rosterMember.getRole();
-
-                    for (String memberGroupId : rosterMember.getGroups().keySet()) {
-                        List<RosterMember> groupMembers = (List<RosterMember>) cache.get(siteId + "#" + memberGroupId);
-                        groupMembers.add(rosterMember);
-
-                        List<RosterMember> groupRoleMembers = (List<RosterMember>) cache.get(siteId + "#" + memberGroupId + "#" + memberRoleId);
-                        groupRoleMembers.add(rosterMember);
+            synchronized(this) {
+                // Precache an empty list for each site#group and each site#group#role
+                for (Group group : groups) {
+                    String gId = group.getId();
+                    cache.put(siteId + "#" + gId, new ArrayList<RosterMember>());
+                    for (Role role : roles) {
+                        cache.put(siteId + "#" + gId + "#" + role.getId(), new ArrayList<RosterMember>());
                     }
-
-                    List<RosterMember> roleMembers = (List<RosterMember>) cache.get(siteId + "#" + memberRoleId);
-                    roleMembers.add(rosterMember);
-                } catch (UserNotDefinedException e) {
-                    log.warn("user not found: " + e.getId());
                 }
-            }
 
-            // Sort the groups. They're already cached.
-            for (Group group : groups) {
-                String gId = group.getId();
-                Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId), memberComparator);
+                // Same for site#role
                 for (Role role : roles) {
-                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + role.getId()), memberComparator);
-                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId + "#" + role.getId()), memberComparator);
+                    cache.put(siteId + "#" + role.getId(), new ArrayList<RosterMember>());
                 }
+
+                for (Member member : membership) {
+                    try {
+                        RosterMember rosterMember = getRosterMember(userMap, groups, member, site);
+
+                        siteMembers.add(rosterMember);
+
+                        String memberRoleId = rosterMember.getRole();
+
+                        for (String memberGroupId : rosterMember.getGroups().keySet()) {
+                            List<RosterMember> groupMembers = (List<RosterMember>) cache.get(siteId + "#" + memberGroupId);
+                            groupMembers.add(rosterMember);
+
+                            List<RosterMember> groupRoleMembers = (List<RosterMember>) cache.get(siteId + "#" + memberGroupId + "#" + memberRoleId);
+                            groupRoleMembers.add(rosterMember);
+                        }
+
+                        List<RosterMember> roleMembers = (List<RosterMember>) cache.get(siteId + "#" + memberRoleId);
+                        roleMembers.add(rosterMember);
+                    } catch (UserNotDefinedException e) {
+                        log.warn("user not found: " + e.getId());
+                    }
+                }
+
+                // Sort the groups. They're already cached.
+                for (Group group : groups) {
+                    String gId = group.getId();
+                    Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId), memberComparator);
+                    for (Role role : roles) {
+                        Collections.sort((List<RosterMember>) cache.get(siteId + "#" + role.getId()), memberComparator);
+                        Collections.sort((List<RosterMember>) cache.get(siteId + "#" + gId + "#" + role.getId()), memberComparator);
+                    }
+                }
+
+                // Sort the main site list
+                Collections.sort(siteMembers, memberComparator);
+
+                log.debug("Caching on '{}' ...", siteId);
+
+                // Cache the main site list
+                cache.put(siteId, siteMembers);
+
+                return (List<RosterMember>) cache.get(key);
             }
-
-            // Sort the main site list
-            Collections.sort(siteMembers, memberComparator);
-
-            if (log.isDebugEnabled()) {
-                log.debug("Caching on '" + siteId + "' ...");
-            }
-
-            // Cache the main site list
-            cache.put(siteId, siteMembers);
-
-            return (List<RosterMember>) cache.get(key);
         }
     }
 
@@ -1207,15 +1200,18 @@ public class SakaiProxyImpl implements SakaiProxy, Observer {
                 searchIndexCache.remove(siteId);
 
                 Cache membershipsCache = getCache(MEMBERSHIPS_CACHE);
-                membershipsCache.remove(siteId);
-                Site site = getSite(siteId);
-                if (site != null) {
-                    Set<Role> roles = site.getRoles();
-                    for (Group group : site.getGroups()) {
-                        String gId = group.getId();
-                        membershipsCache.remove(siteId + "#" + gId);
-                        for (Role role : roles) {
-                            membershipsCache.remove(siteId + "#" + gId + "#" + role.getId());
+
+                synchronized(this) {
+                    membershipsCache.remove(siteId);
+                    Site site = getSite(siteId);
+                    if (site != null) {
+                        Set<Role> roles = site.getRoles();
+                        for (Group group : site.getGroups()) {
+                            String gId = group.getId();
+                            membershipsCache.remove(siteId + "#" + gId);
+                            for (Role role : roles) {
+                                membershipsCache.remove(siteId + "#" + gId + "#" + role.getId());
+                            }
                         }
                     }
                 }
