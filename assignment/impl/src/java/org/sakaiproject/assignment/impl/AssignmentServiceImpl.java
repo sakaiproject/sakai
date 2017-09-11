@@ -93,6 +93,8 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -594,8 +596,18 @@ public class AssignmentServiceImpl implements AssignmentService {
         log.debug("Created new assignment {}", assignment.getId());
 
         String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-        // event for tracking
-        eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
+
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronizationAdapter() {
+
+                @Override
+                public void afterCommit() {
+
+                    // event for tracking
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_ADD_ASSIGNMENT, reference, true));
+                }
+            }
+        );
 
         return assignment;
     }
@@ -857,6 +869,18 @@ public class AssignmentServiceImpl implements AssignmentService {
         if (!allowUpdateAssignment(reference)) {
             throw new PermissionException(sessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, null);
         }
+
+        TransactionSynchronizationManager.registerSynchronization(
+            new TransactionSynchronizationAdapter() {
+
+                @Override
+                public void afterCommit() {
+
+                    // event for tracking
+                    eventTrackingService.post(eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT, reference, true));
+                }
+            }
+        );
 
         assignmentRepository.updateAssignment(assignment);
     }
@@ -1945,14 +1969,14 @@ public class AssignmentServiceImpl implements AssignmentService {
                     return serverConfigurationService.getPortalUrl()
                             + "/directtool/"
                             + fromTool.getId()
-                            + "?assignmentId=" + assignmentId + "&assignmentReference="
+                            + "?assignmentReference="
                             + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
                             + "&panel=Main&sakai_action=doView_assignment";
                 } else if (allowSubmitAssignment) {
                     return serverConfigurationService.getPortalUrl()
                             + "/directtool/"
                             + fromTool.getId()
-                            + "?assignmentId=" + assignmentId + "&assignmentReference="
+                            + "?assignmentReference="
                             + AssignmentReferenceReckoner.reckoner().context(context).id(assignmentId).reckon().getReference()
                             + "&panel=Main&sakai_action=doView_submission";
                 } else {
@@ -2300,6 +2324,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         } else if (isAvailableOrSubmitted(assignment, currentUserId)) {
             return assignment;
         }
+
         throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getId());
     }
 
