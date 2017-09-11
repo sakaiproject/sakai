@@ -103,9 +103,8 @@
                 <div class="form-group row">
                     <h:outputLabel value="#{msgs.event_name}" for="name" styleClass="col-md-2 form-control-label form-required"/>
                     <div class="col-md-10">
-                        <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.signupMeeting.title}" 
-                                    styleClass="editText form-control" required="true"  >
-                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+                        <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.title}" 
+                                    styleClass="editText form-control"  >
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         <h:message for="name" errorClass="alertMessageInline"/>

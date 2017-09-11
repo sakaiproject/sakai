@@ -199,8 +199,7 @@
 									styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-10">
 							<h:inputText id="meetingTitle" value="#{CopyMeetingSignupMBean.signupMeeting.title}" 
-								required="true" size="40" styleClass="editText form-control">
-								<f:validator validatorId="Signup.EmptyStringValidator"/>
+								size="40" styleClass="editText form-control">
 								<f:validateLength maximum="255" />
 							</h:inputText>
 							<h:message for="meetingTitle" errorClass="alertMessageInline"/>

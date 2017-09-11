@@ -96,6 +96,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	private String signupBeginsType;
 	
+	//Meeting title attribute
+	private String title;
+	
 	//Location selected from the dropdown
 	private String selectedLocation;
 	
@@ -262,6 +265,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 	public String getselectedLocation() {
@@ -628,8 +639,37 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		String step = (String) currentStepHiddenInfo.getValue();
 
 		if (step.equals("step1")) {
-			
+			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+
+			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoStartTime)){
+				this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
+			}
+
+			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoEndTime)){
+				this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
+			}
+
+			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
+
+			if(DateFormatterUtil.isValidISODate(isoUntilTime)){
+				setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
+			}
+
 			boolean locationSet = false;
+			
+			//Set Title		
+			if (StringUtils.isNotBlank(title)){
+				logger.debug("title set: " + title);
+				this.signupMeeting.setTitle(title);
+			}else{
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.title_cannot_be_blank"));
+				return;
+			}
 			
 			//Set Location		
 			if (StringUtils.isNotBlank(customLocation)){
@@ -677,25 +717,6 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			//set instructor
 			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
-			Map<String, String> params = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
-
-			String isoStartTime = params.get(HIDDEN_ISO_STARTTIME);
-
-			if(DateFormatterUtil.isValidISODate(isoStartTime)){
-				this.signupMeeting.setStartTime(DateFormatterUtil.parseISODate(isoStartTime));
-			}
-
-			String isoEndTime = params.get(HIDDEN_ISO_ENDTIME);
-
-			if(DateFormatterUtil.isValidISODate(isoEndTime)){
-				this.signupMeeting.setEndTime(DateFormatterUtil.parseISODate(isoEndTime));
-			}
-
-			String isoUntilTime = params.get(HIDDEN_ISO_UNTILTIME);
-
-			if(DateFormatterUtil.isValidISODate(isoUntilTime)){
-				setRepeatUntil(DateFormatterUtil.parseISODate(isoUntilTime));
-			}
 
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();

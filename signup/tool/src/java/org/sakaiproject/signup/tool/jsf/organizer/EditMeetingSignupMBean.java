@@ -69,6 +69,9 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	// private int addMoreTimeslots;
 	
+	//Meeting title
+	private String title;
+
 	//Location selected from the dropdown
 	private String selectedLocation;
 	
@@ -601,7 +604,17 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 		Date eventEndTime = this.signupMeeting.getEndTime();
 		Date eventStartTime = this.signupMeeting.getStartTime();
-		
+
+		//Set Title		
+		if (StringUtils.isNotBlank(title)){
+			logger.debug("title set: " + title);
+			this.signupMeeting.setTitle(title);
+		}else{
+			validationError = true;
+			Utilities.addErrorMessage(Utilities.rb.getString("event.title_cannot_be_blank"));
+			return;
+		}
+
 		/*user defined own TS case*/
 		if(isUserDefinedTS()){
 			eventEndTime= getUserDefineTimeslotBean().getEventEndTime();
@@ -1154,5 +1167,13 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 
 	public void setEndTimeString(String endTimeString) {
 		this.endTimeString = endTimeString;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }
