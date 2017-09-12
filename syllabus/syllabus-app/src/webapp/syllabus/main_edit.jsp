@@ -231,20 +231,6 @@
 						</li>
 					</f:verbatim>
 				</h:panelGroup>
-				<h:panelGroup rendered="#{SyllabusTool.addOrEdit == 'true'}">
-					<f:verbatim>
-						<li role="menuitem">
-							<span>
-					</f:verbatim>
-								<h:commandLink action="#{SyllabusTool.processStudentView}" onmousedown="assignWarningClick(this);"
-										rendered="#{SyllabusTool.addOrEdit == 'true'}">
-									<h:outputText value="#{msgs.bar_student_view}"/>
-								</h:commandLink>
-					<f:verbatim>
-							</span>
-						</li>
-					</f:verbatim>
-				</h:panelGroup>
 			<f:verbatim></ul></f:verbatim>
    	      
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
@@ -338,6 +324,13 @@
 					 title="#{msgs.reset}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
 					 accesskey="s" styleClass="active"/>
+				<h:commandButton
+					value="#{msgs.cancel}"
+					action="#{SyllabusTool.processStudentView}"
+					title="#{msgs.cancel}"
+					rendered="#{SyllabusTool.addOrEdit == 'true'}"
+					onclick="assignWarningClick(this);"
+					accesskey="c" />
 			<f:verbatim></p></f:verbatim>		  
 		  </syllabus:syllabus_if>
 
