@@ -166,7 +166,10 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		
 		/*refresh copy of original*/
 		this.signupMeeting = reloadMeeting(meetingWrapper.getMeeting());
-		
+
+		/*get meeting title*/
+		title = this.signupMeeting.getTitle();
+
 		/*get meeting default notification value*/
 		sendEmail =this.signupMeeting.isSendEmailByOwner();
 		//pass default value

@@ -185,7 +185,10 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		/*refresh copy of original*/
 		this.signupMeeting = signupMeetingService.loadSignupMeeting(meetingWrapper.getMeeting().getId(), sakaiFacade
 				.getCurrentUserId(), sakaiFacade.getCurrentLocationId());
-		
+
+		/*get meeting title*/
+		title = this.signupMeeting.getTitle();
+
 		/*prepare new attachments*/		
 		assignMainAttachmentsCopyToSignupMeeting();
 		//TODO not consider copy time slot attachment yet
