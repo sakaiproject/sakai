@@ -202,41 +202,50 @@
         </script>
 
 		<h:form id="syllabusMainEdit">
-		<h:panelGroup>
-		  <f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
-		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
-		  <h:panelGroup rendered="#{SyllabusTool.addItem == 'true'}">
-			   <f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
-				  	<h:commandLink action="#{SyllabusTool.processListNew}" 
-				  		styleClass="actionLink" 
-				  		onmousedown="assignWarningClick(this);"
-					    rendered="#{SyllabusTool.addItem == 'true'}">
-					    	<h:outputText value="#{msgs.bar_new}"/>
-					</h:commandLink>
-				<f:verbatim></span></li></f:verbatim>
-			</h:panelGroup>
-			<h:panelGroup rendered="#{SyllabusTool.bulkAddItem == 'true'}">
-				<f:verbatim><li role="menuitem" ><span></f:verbatim>
-				   	<h:commandLink
-							action="#{SyllabusTool.processListNewBulkMainEdit}"
-							onmousedown="assignWarningClick(this);"
-				   			rendered="#{SyllabusTool.bulkAddItem == 'true'}">
-								<h:outputText value="#{msgs.bar_new_bulk}"/>
-				   	</h:commandLink>
-			   	<f:verbatim></span></li></f:verbatim>
-		   	</h:panelGroup>
-		   	<h:panelGroup rendered="#{SyllabusTool.addOrEdit == 'true'}">
-			   	<f:verbatim><li role="menuitem" ><span></f:verbatim>
-				   	<h:commandLink
-							action="#{SyllabusTool.processStudentView}"
-							onmousedown="assignWarningClick(this);"
-				   			rendered="#{SyllabusTool.addOrEdit == 'true'}">
-					    		<h:outputText value="#{msgs.bar_student_view}"/>
-					</h:commandLink>
-				<f:verbatim></span></li></f:verbatim>
-			</h:panelGroup>
-		   	<f:verbatim></ul></f:verbatim>		
-   	      </h:panelGroup>
+		<f:verbatim><ul class="navIntraTool actionToolbar"></f:verbatim>
+				<h:panelGroup rendered="#{SyllabusTool.addItem == 'true'}">
+					<f:verbatim>
+						<li class="firstToolBarItem" role="menuitem">
+							<span>
+					</f:verbatim>
+								<h:commandLink action="#{SyllabusTool.processListNew}" styleClass="actionLink" onmousedown="assignWarningClick(this);"
+										rendered="#{SyllabusTool.addItem == 'true'}">
+									<h:outputText value="#{msgs.bar_new}"/>
+								</h:commandLink>
+					<f:verbatim>
+							</span>
+						</li>
+					</f:verbatim>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{SyllabusTool.bulkAddItem == 'true'}">
+					<f:verbatim>
+						<li role="menuitem">
+							<span>
+					</f:verbatim>
+								<h:commandLink action="#{SyllabusTool.processListNewBulkMainEdit}" onmousedown="assignWarningClick(this);"
+										rendered="#{SyllabusTool.bulkAddItem == 'true'}">
+									<h:outputText value="#{msgs.bar_new_bulk}"/>
+								</h:commandLink>
+					<f:verbatim>
+							</span>
+						</li>
+					</f:verbatim>
+				</h:panelGroup>
+				<h:panelGroup rendered="#{SyllabusTool.addOrEdit == 'true'}">
+					<f:verbatim>
+						<li role="menuitem">
+							<span>
+					</f:verbatim>
+								<h:commandLink action="#{SyllabusTool.processStudentView}" onmousedown="assignWarningClick(this);"
+										rendered="#{SyllabusTool.addOrEdit == 'true'}">
+									<h:outputText value="#{msgs.bar_student_view}"/>
+								</h:commandLink>
+					<f:verbatim>
+							</span>
+						</li>
+					</f:verbatim>
+				</h:panelGroup>
+			<f:verbatim></ul></f:verbatim>
    	      
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
