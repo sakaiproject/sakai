@@ -72,7 +72,7 @@ public class DownloadEventBean extends SignupMeetingsBean {
 
 	private static final String FROM_ORGANIZER_EVENT_PAGE = "orgSignupMeeting";
 
-	private static final String DOWNLOAD_EVENT_DETAILS_XLS_FILE_NAME = "EventsWorksheet.xls";
+	private static final String DOWNLOAD_EVENT_DETAILS_XLS_FILE_NAME = "EventsWorksheet.xlsx";
 	
 	private static final String DOWNLOAD_EVENT_DETAILS_CSV_FILE_NAME = "EventsWorksheet.csv";
 	

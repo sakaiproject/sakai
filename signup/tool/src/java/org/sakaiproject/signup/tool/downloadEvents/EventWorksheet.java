@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.common.usermodel.HyperlinkType;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -55,6 +54,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
@@ -70,6 +70,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -81,6 +83,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 	private ResourceLoader rb = new ResourceLoader("messages");
 
+	private static Logger log = LoggerFactory.getLogger(EventWorksheet.class);
+	
 	private String[] tabTitles_Organizor;
 
 	private String[] tabTitles_Participant;
@@ -109,8 +113,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	 */
 	public EventWorksheet(SakaiFacade sakaiFacade) {
 		this.sakaiFacade = sakaiFacade;
-		wb = new HSSFWorkbook();
-		/* could also define wb = new XSSFWorkbook(); */
+
+		wb = new XSSFWorkbook();
+
 
 		styles = WorksheetStyleClass.createStyles(wb);
 
@@ -508,13 +513,15 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		// timezone row
 		Row timezoneRow = sheet.createRow(1);
 		timezoneRow.setHeightInPoints(16);
+		log.info("timezoneRow");
 		for (int i = 1; i <= 7; i++) {
+			log.info("timezone: " + i);
 			timezoneRow.createCell(i).setCellStyle(styles.get("tabItem_fields"));
 		}
 		Cell timezoneCell = timezoneRow.getCell(2);
-		timezoneCell.setCellValue("(" + rb.getString("event_timezone") + " " + sakaiFacade.getTimeService().getLocalTimeZone().getID() + ")");
+		timezoneCell.setCellValue("(" + rb.getString("event_timezone") + " " + sakaiFacade.getTimeService().getLocalTimeZone().getID() + ")");		
 		sheet.addMergedRegion(CellRangeAddress.valueOf("$C$2:$H$2"));
-
+		
 		// owner row
 		Row row = sheet.createRow(2);
 		row.setHeightInPoints(rowHigh);
