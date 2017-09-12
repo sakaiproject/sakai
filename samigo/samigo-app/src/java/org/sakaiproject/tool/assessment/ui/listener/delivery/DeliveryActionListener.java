@@ -160,6 +160,21 @@ public class DeliveryActionListener
     	// there is no action needed (the outcome is set in BeginDeliveryActionListener).
       	return;
       }
+
+      if (delivery.pastDueDate()){
+        if (delivery.isAcceptLateSubmission()) {
+          if(delivery.getTotalSubmissions() > 0) {
+            // Not during a Retake
+            if (delivery.getActualNumberRetake() == delivery.getNumberRetake()) {
+              return;
+            }
+          }
+        } else {
+          if(delivery.isRetracted(false)){
+              return;
+          }
+        }
+      }
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
 

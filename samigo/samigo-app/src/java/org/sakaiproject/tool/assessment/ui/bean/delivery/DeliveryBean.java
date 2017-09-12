@@ -3400,7 +3400,7 @@ public class DeliveryBean
 	  return isAvailable;
   }
   
-  private boolean pastDueDate(){
+  public boolean pastDueDate(){
     boolean pastDue = true;
     Date currentDate = new Date();
 		Date dueDate;
@@ -3415,7 +3415,12 @@ public class DeliveryBean
     return pastDue;
   }
 
-  private boolean isRetracted(boolean isSubmitForGrade){
+  public boolean isAcceptLateSubmission() {
+	  boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+	  return acceptLateSubmission;
+  }
+
+  public boolean isRetracted(boolean isSubmitForGrade){
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate;
