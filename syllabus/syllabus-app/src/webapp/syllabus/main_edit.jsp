@@ -337,7 +337,7 @@
 					 action="#{SyllabusTool.processMainEditCancel}"
 					 title="#{msgs.reset}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="r" 	/>
+					 accesskey="s" styleClass="active"/>
 			<f:verbatim></p></f:verbatim>		  
 		  </syllabus:syllabus_if>
 
