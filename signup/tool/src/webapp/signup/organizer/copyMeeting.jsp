@@ -198,7 +198,7 @@
 						<h:outputLabel value="#{msgs.event_name}" for="meetingTitle" escape="false" 
 									styleClass="col-lg-2 form-control-label form-required"/>
 						<div class="col-lg-10">
-							<h:inputText id="meetingTitle" value="#{CopyMeetingSignupMBean.signupMeeting.title}" 
+							<h:inputText id="meetingTitle" value="#{CopyMeetingSignupMBean.title}" 
 								size="40" styleClass="editText form-control">
 								<f:validateLength maximum="255" />
 							</h:inputText>
